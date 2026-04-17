@@ -1,0 +1,19 @@
+# Android / Gradle
+*.iml
+.gradle/
+build/
+local.properties
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.apks
+*.keystore
+*.jks
+
+# IDE
+.idea/
+*.swp
+
+# Decompiled / reverse-engineering artifacts
+release/
