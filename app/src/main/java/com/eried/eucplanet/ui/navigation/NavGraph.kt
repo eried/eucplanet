@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.eried.eucplanet.data.model.TripRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -26,6 +25,7 @@ import com.eried.eucplanet.ui.recording.TripDetailScreen
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
 import com.eried.eucplanet.ui.settings.SettingsScreen
+import com.eried.eucplanet.util.MultipleEventsCutter
 
 sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
@@ -50,15 +50,20 @@ fun NavGraph(navController: NavHostController) {
         navController.addOnDestinationChangedListener(listener)
         onDispose { navController.removeOnDestinationChangedListener(listener) }
     }
-    fun NavHostController.navigateSingle(route: String) =
-        navigate(route) { launchSingleTop = true }
+    val navCutter = remember { MultipleEventsCutter() }
+    fun NavHostController.navigateSingle(route: String) {
+        val entry = currentBackStackEntry ?: return
+        if (entry.lifecycle.currentState != androidx.lifecycle.Lifecycle.State.RESUMED) return
+        navCutter.processEvent { navigate(route) { launchSingleTop = true } }
+    }
+    fun NavHostController.popSingle() {
+        val entry = currentBackStackEntry ?: return
+        if (entry.lifecycle.currentState != androidx.lifecycle.Lifecycle.State.RESUMED) return
+        navCutter.processEvent { popBackStack() }
+    }
     NavHost(
         navController = navController,
-        startDestination = Screen.Dashboard.route,
-        enterTransition = { androidx.compose.animation.EnterTransition.None },
-        exitTransition = { androidx.compose.animation.ExitTransition.None },
-        popEnterTransition = { androidx.compose.animation.EnterTransition.None },
-        popExitTransition = { androidx.compose.animation.ExitTransition.None }
+        startDestination = Screen.Dashboard.route
     ) {
         composable(Screen.Dashboard.route) {
             DashboardScreen(
@@ -72,24 +77,24 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Scan.route) {
             ScanScreen(
-                onDeviceSelected = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
+                onDeviceSelected = { navController.popSingle() },
+                onBack = { navController.popSingle() }
             )
         }
         composable(Screen.Settings.route) {
             SettingsScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.popSingle() },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) }
             )
         }
         composable(Screen.Flic.route) {
             FlicScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popSingle() }
             )
         }
         composable(Screen.Recording.route) {
             RecordingScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.popSingle() },
                 onViewTrip = { trip ->
                     navController.navigateSingle(Screen.TripDetail.createRoute(trip.id))
                 }
@@ -100,23 +105,27 @@ fun NavGraph(navController: NavHostController) {
             arguments = listOf(navArgument("tripId") { type = NavType.LongType })
         ) { backStackEntry ->
             val tripId = backStackEntry.arguments?.getLong("tripId")
-            val viewModel: RecordingViewModel = hiltViewModel()
-            var trip by remember { mutableStateOf<TripRecord?>(null) }
+            val recordingEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Screen.Recording.route)
+            }
+            val viewModel: RecordingViewModel = hiltViewModel(recordingEntry)
+            val trips by viewModel.trips.collectAsState()
+            val trip = tripId?.let { id -> trips.find { it.id == id } }
             var notFound by remember { mutableStateOf(false) }
 
-            LaunchedEffect(tripId) {
+            LaunchedEffect(tripId, trips) {
                 if (tripId == null) {
                     notFound = true
-                    return@LaunchedEffect
+                } else if (trips.isNotEmpty() && trips.none { it.id == tripId }) {
+                    val fromDb = viewModel.getTripById(tripId)
+                    if (fromDb == null) notFound = true
                 }
-                val loaded = viewModel.getTripById(tripId)
-                if (loaded != null) trip = loaded else notFound = true
             }
 
-            trip?.let {
+            if (trip != null) {
                 TripDetailScreen(
-                    trip = it,
-                    onBack = { navController.popBackStack() },
+                    trip = trip,
+                    onBack = { navController.popSingle() },
                     viewModel = viewModel
                 )
             }
@@ -138,7 +147,7 @@ fun NavGraph(navController: NavHostController) {
             if (metricType != null) {
                 MetricDetailScreen(
                     metricType = metricType,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popSingle() }
                 )
             } else {
                 LaunchedEffect(metricName) {

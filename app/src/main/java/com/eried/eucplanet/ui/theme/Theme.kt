@@ -26,6 +26,21 @@ private fun darkSchemeFor(accent: Color) = darkColorScheme(
     error = AccentRed
 )
 
+private fun blackSchemeFor(accent: Color) = darkColorScheme(
+    primary = accent,
+    secondary = AccentGreen,
+    tertiary = AccentOrange,
+    background = BlackBackground,
+    surface = BlackSurface,
+    surfaceVariant = BlackSurfaceVariant,
+    onPrimary = BlackBackground,
+    onSecondary = BlackBackground,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    onSurfaceVariant = TextSecondary,
+    error = AccentRed
+)
+
 private fun lightSchemeFor(accent: Color) = lightColorScheme(
     primary = accent,
     secondary = AccentGreen,
@@ -73,17 +88,19 @@ private val AppTypography = Typography(
 
 @Composable
 fun EucPlanetTheme(
-    themeMode: String = "dark",
+    themeMode: String = "black",
     accentColor: String = "blue",
     content: @Composable () -> Unit
 ) {
     val accent = accentColorFor(accentColor)
-    val useDark = when (themeMode) {
-        "light" -> false
-        "system" -> isSystemInDarkTheme()
-        else -> true
+    val systemDark = isSystemInDarkTheme()
+    val colorScheme = when (themeMode) {
+        "light" -> lightSchemeFor(accent)
+        "dark" -> darkSchemeFor(accent)
+        "black" -> blackSchemeFor(accent)
+        "system" -> if (systemDark) blackSchemeFor(accent) else lightSchemeFor(accent)
+        else -> blackSchemeFor(accent)
     }
-    val colorScheme = if (useDark) darkSchemeFor(accent) else lightSchemeFor(accent)
     MaterialTheme(
         colorScheme = colorScheme,
         typography = AppTypography,

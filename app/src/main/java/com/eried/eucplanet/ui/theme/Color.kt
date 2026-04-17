@@ -6,6 +6,10 @@ val DarkBackground = Color(0xFF0D0D0D)
 val DarkSurface = Color(0xFF1A1A1A)
 val DarkSurfaceVariant = Color(0xFF2A2A2A)
 
+val BlackBackground = Color(0xFF000000)
+val BlackSurface = Color(0xFF000000)
+val BlackSurfaceVariant = Color(0xFF121212)
+
 val LightBackground = Color(0xFFFAFAFA)
 val LightSurface = Color(0xFFFFFFFF)
 val LightSurfaceVariant = Color(0xFFEEEEEE)

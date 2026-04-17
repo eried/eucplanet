@@ -95,8 +95,8 @@ data class AppSettings(
     // Appearance
     // language: BCP-47 tag. "en", "es", "ru", "no", "de". Stored now, wired in Stage B.
     val language: String = "en",
-    // themeMode: "dark", "light", "system"
-    val themeMode: String = "dark",
+    // themeMode: "black", "dark", "light", "system"
+    val themeMode: String = "black",
     // accentColor: key into the accent palette
     val accentColor: String = "default",
 

@@ -183,6 +183,7 @@ private fun GeneralTab(
     viewModel: SettingsViewModel
 ) {
     val themeOptions = listOf(
+        "black" to stringResource(R.string.theme_black),
         "dark" to stringResource(R.string.theme_dark),
         "light" to stringResource(R.string.theme_light),
         "system" to stringResource(R.string.theme_system)

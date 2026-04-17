@@ -15,7 +15,7 @@
     <string name="action_move_down">Nach unten</string>
 
     <string name="connection_connected">Verbunden</string>
-    <string name="connection_connecting">Verbinde\u2026</string>
+    <string name="connection_connecting">Suche\u2026</string>
     <string name="connection_initializing">Initialisiere\u2026</string>
     <string name="connection_scanning">Suche\u2026</string>
     <string name="connection_disconnected">Getrennt</string>
@@ -65,6 +65,7 @@
     <string name="imperial_units">Imperiale Einheiten</string>
     <string name="language">Sprache</string>
     <string name="theme">Design</string>
+    <string name="theme_black">Tiefschwarz</string>
     <string name="theme_dark">Dunkel</string>
     <string name="theme_light">Hell</string>
     <string name="theme_system">Systemstandard</string>

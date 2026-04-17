@@ -17,7 +17,7 @@
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
-    <string name="connection_connecting">Connecting\u2026</string>
+    <string name="connection_connecting">Searching\u2026</string>
     <string name="connection_initializing">Initializing\u2026</string>
     <string name="connection_scanning">Scanning\u2026</string>
     <string name="connection_disconnected">Disconnected</string>
@@ -100,6 +100,7 @@
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>
+    <string name="theme_black">Pure black</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
     <string name="theme_system">Follow system</string>

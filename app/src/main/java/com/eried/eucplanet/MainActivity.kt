@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val s by _settings.collectAsState()
             EucPlanetTheme(
-                themeMode = s?.themeMode ?: "dark",
+                themeMode = s?.themeMode ?: "black",
                 accentColor = s?.accentColor ?: "blue"
             ) {
                 Surface(
