@@ -32,8 +32,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,10 +55,10 @@ fun ScanScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Find Your Wheel") },
+                title = { Text(stringResource(R.string.scan_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -77,11 +79,11 @@ fun ScanScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-                    Text("Scanning for InMotion wheels...", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.scan_scanning), style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 Button(onClick = { viewModel.startScan() }) {
-                    Text("Start Scan")
+                    Text(stringResource(R.string.scan_start))
                 }
             }
 
@@ -89,7 +91,7 @@ fun ScanScreen(
 
             if (devices.isEmpty() && isScanning) {
                 Text(
-                    "Make sure your wheel is powered on and Bluetooth is enabled.",
+                    stringResource(R.string.scan_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

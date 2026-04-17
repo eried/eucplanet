@@ -10,8 +10,10 @@ import com.eried.evendarkerbot.data.repository.WheelRepository
 import com.eried.evendarkerbot.service.VoiceOption
 import com.eried.evendarkerbot.service.VoiceService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -119,6 +121,35 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
 
     fun updateImperialUnits(v: Boolean) = update { copy(imperialUnits = v) }
+
+    private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
+    val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
+
+    // Appearance
+    fun updateLanguage(v: String) {
+        update { copy(language = v) }
+        com.eried.evendarkerbot.util.LocaleHelper.apply(v)
+        val appLang = if (v.isBlank()) "en" else v
+        val ttsLang = voiceService.currentVoiceLanguage().lowercase()
+        if (ttsLang != appLang.lowercase()) {
+            _ttsSwitchPrompt.value = appLang
+        }
+    }
+
+    fun acceptTtsSwitch() {
+        val lang = _ttsSwitchPrompt.value ?: return
+        val tag = voiceService.pickVoiceForLanguage(lang)
+        if (tag != null) {
+            update { copy(voiceLocale = tag) }
+            voiceService.setVoiceLocale(tag)
+        }
+        _ttsSwitchPrompt.value = null
+    }
+
+    fun dismissTtsSwitch() { _ttsSwitchPrompt.value = null }
+
+    fun updateThemeMode(v: String) = update { copy(themeMode = v) }
+    fun updateAccentColor(v: String) = update { copy(accentColor = v) }
 
     // Volume keys
     fun updateVolumeKeysEnabled(v: Boolean) = update { copy(volumeKeysEnabled = v) }

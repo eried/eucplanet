@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="notification_channel_name">Rad-Verbindung</string>
+    <string name="notification_channel_description">Zeigt Verbindungsstatus und Telemetrie des Rads</string>
+
+    <string name="action_back">Zurück</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_test">Testen</string>
+    <string name="action_move_up">Nach oben</string>
+    <string name="action_move_down">Nach unten</string>
+
+    <string name="connection_connected">Verbunden</string>
+    <string name="connection_connecting">Verbinde\u2026</string>
+    <string name="connection_initializing">Initialisiere\u2026</string>
+    <string name="connection_scanning">Suche\u2026</string>
+    <string name="connection_disconnected">Getrennt</string>
+    <string name="connection">Verbindung</string>
+    <string name="settings">Einstellungen</string>
+    <string name="disconnect">Trennen</string>
+    <string name="disconnect_from">Von %1$s trennen?</string>
+    <string name="wheel_generic">Rad</string>
+    <string name="exit_title">EUC Planet beenden</string>
+    <string name="exit_body">Hintergrunddienst weiterlaufen lassen oder alles stoppen?</string>
+    <string name="exit_stop_all">Alles stoppen</string>
+    <string name="exit_background">Hintergrund</string>
+
+    <string name="stat_battery">AKKU</string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_voltage">SPANNUNG</string>
+    <string name="stat_amps">AMPERE</string>
+    <string name="stat_load">LAST</string>
+    <string name="stat_trip">FAHRT</string>
+    <string name="stat_odo">ODO </string>
+
+    <string name="action_horn">Hupe</string>
+    <string name="action_light">Licht</string>
+    <string name="action_voice">Stimme</string>
+    <string name="action_legal_mode">Legal-Modus</string>
+    <string name="action_legal_on">Legal AN</string>
+    <string name="action_lock_wheel">Sperren</string>
+    <string name="action_locked">Gesperrt</string>
+    <string name="action_recorder">Aufnahme</string>
+    <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
+
+    <string name="tab_general">Allgemein</string>
+    <string name="tab_speed">Geschwindigkeit</string>
+    <string name="tab_voice">Stimme</string>
+    <string name="tab_alarms">Alarme</string>
+    <string name="tab_auto">Auto</string>
+    <string name="tab_integration">Integration</string>
+
+    <string name="section_recording">Aufnahme</string>
+    <string name="section_connection">Verbindung</string>
+    <string name="section_display">Anzeige</string>
+    <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
+    <string name="auto_record_caption">Startet die Aufnahme automatisch, wenn sich das Rad verbindet.</string>
+    <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
+    <string name="last_device">Letztes Gerät: %1$s</string>
+    <string name="imperial_units">Imperiale Einheiten (mph, \u00B0F, mi)</string>
+    <string name="language">Sprache</string>
+    <string name="theme">Design</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_system">Systemstandard</string>
+    <string name="accent_color">Akzentfarbe</string>
+    <string name="accent_blue">Blau</string>
+    <string name="accent_green">Grün</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_purple">Violett</string>
+    <string name="accent_teal">Blaugrün</string>
+    <string name="accent_pink">Rosa</string>
+    <string name="tts_switch_title">Stimme auf %1$s umstellen?</string>
+    <string name="tts_switch_body">Die aktuelle TTS-Stimme passt nicht zur gewählten Sprache. Auf eine %1$s-Stimme für Ansagen wechseln?</string>
+    <string name="tts_switch_yes">Stimme wechseln</string>
+    <string name="tts_switch_no">Beibehalten</string>
+
+    <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
+    <string name="section_legal_mode_speed">Legal-Modus — Geschwindigkeit</string>
+    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
+    <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
+    <string name="speed_alarm">Alarm-Geschwindigkeit</string>
+    <string name="speed_legal_tiltback">Legal-Tiltback</string>
+    <string name="speed_legal_alarm">Legal-Alarm</string>
+    <string name="unit_kmh">km/h</string>
+
+    <string name="section_announcements">Ansagen</string>
+    <string name="section_speech">Sprache</string>
+    <string name="section_report_status">Statusbericht</string>
+    <string name="voice_enabled">Status regelmäßig melden</string>
+    <string name="voice_interval">Intervall</string>
+    <string name="unit_sec">Sek</string>
+    <string name="announce_wheel_lock">Rad sperren / entsperren</string>
+    <string name="announce_lights">Licht ein / aus</string>
+    <string name="announce_recording">Fahrtaufnahme</string>
+    <string name="announce_connection">Rad verbunden / getrennt</string>
+    <string name="announce_gps">GPS verloren / wiederhergestellt</string>
+    <string name="announce_legal_mode">Legal-Modus ein / aus</string>
+    <string name="voice_selector_label">Stimme</string>
+    <string name="voice_speech_speed">Sprechgeschwindigkeit</string>
+    <string name="unit_x">x</string>
+    <string name="col_periodic">Regelmäßig</string>
+    <string name="col_trigger">Ereignis</string>
+    <string name="report_speed">Geschwindigkeit</string>
+    <string name="report_battery">Akku</string>
+    <string name="report_temp">Temp</string>
+    <string name="report_pwm">PWM</string>
+    <string name="report_distance">Distanz</string>
+    <string name="report_recording">Aufnahme</string>
+
+    <string name="section_flic_buttons">Flic 2-Tasten</string>
+    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
+    <string name="flic_stop_scan">Suche stoppen</string>
+    <string name="flic_start_scan">Nach Flic 2-Taste suchen</string>
+    <string name="flic_no_buttons">Keine Flic-Tasten gekoppelt</string>
+    <string name="flic_forget">Vergessen</string>
+    <string name="flic_rename">Umbenennen</string>
+    <string name="flic_click">Klick</string>
+    <string name="flic_double_click">Doppelklick</string>
+    <string name="flic_hold">Halten</string>
+    <string name="section_volume_keys">Lautstärketasten</string>
+    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App — Android liefert Lautstärke-Ereignisse im Hintergrund nicht zuverlässig.</string>
+    <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
+    <string name="volume_up">Lautstärke +</string>
+    <string name="volume_down">Lautstärke −</string>
+
+    <string name="voice_warning_fmt">Achtung! %1$s bei %2$s</string>
+    <string name="voice_speed_fmt">Geschwindigkeit %1$s</string>
+    <string name="voice_battery_fmt">Akku %1$d Prozent</string>
+    <string name="voice_temp_fmt">Temperatur %1$s Grad</string>
+    <string name="voice_load_fmt">Last %1$s Prozent</string>
+    <string name="voice_trip_fmt">Fahrt %1$s Kilometer</string>
+    <string name="voice_trip_miles_fmt">Fahrt %1$s Meilen</string>
+    <string name="voice_recording_on">Aufnahme läuft</string>
+    <string name="voice_recording_off">keine Aufnahme</string>
+    <string name="voice_wheel_locked">Rad gesperrt</string>
+    <string name="voice_wheel_unlocked">Rad entsperrt</string>
+    <string name="voice_lights_on">Licht an</string>
+    <string name="voice_lights_off">Licht aus</string>
+    <string name="voice_recording_started">Aufnahme gestartet</string>
+    <string name="voice_recording_finished">Aufnahme beendet</string>
+    <string name="voice_wheel_connected">Rad verbunden</string>
+    <string name="voice_wheel_disconnected">Rad getrennt</string>
+    <string name="voice_gps_acquired">GPS-Signal empfangen</string>
+    <string name="voice_gps_lost">GPS-Signal verloren</string>
+    <string name="voice_legal_on">Legal-Modus an</string>
+    <string name="voice_legal_off">Legal-Modus aus</string>
+
+    <string name="lang_name_en">Englisch</string>
+    <string name="lang_name_es">Spanisch</string>
+    <string name="lang_name_ru">Russisch</string>
+    <string name="lang_name_no">Norwegisch</string>
+    <string name="lang_name_de">Deutsch</string>
+
+    <!-- Scan screen -->
+    <string name="scan_title">Einrad finden</string>
+    <string name="scan_scanning">Suche nach InMotion-Einrädern\u2026</string>
+    <string name="scan_start">Suche starten</string>
+    <string name="scan_hint">Stelle sicher, dass dein Einrad eingeschaltet und Bluetooth aktiviert ist.</string>
+
+    <!-- Trip viewer -->
+    <string name="trip_viewer_title">Fahrt-Ansicht</string>
+
+    <!-- Metric detail -->
+    <string name="metric_detail_title">Verlauf: %1$s</string>
+    <string name="metric_waiting">Warte auf Daten\u2026 Verbinde dich mit dem Einrad.</string>
+    <string name="metric_no_data">Keine Daten</string>
+    <string name="metric_min">MIN</string>
+    <string name="metric_avg">Ø</string>
+    <string name="metric_max">MAX</string>
+    <string name="metric_time">ZEIT</string>
+    <string name="metric_battery">Akku</string>
+    <string name="metric_temperature">Temperatur</string>
+    <string name="metric_voltage">Spannung</string>
+    <string name="metric_current">Strom</string>
+    <string name="metric_load">Last</string>
+    <string name="metric_speed">Geschwindigkeit</string>
+
+    <!-- Recording screen -->
+    <string name="action_delete_all">Alle löschen</string>
+    <string name="action_import">Importieren</string>
+    <string name="action_export_all">Alle exportieren</string>
+    <string name="action_share">Teilen</string>
+    <string name="action_manage">Verwalten</string>
+    <string name="action_view">Ansehen</string>
+    <string name="action_record">Aufnehmen</string>
+    <string name="action_stop">Stopp</string>
+    <string name="recording_title">Fahrtaufzeichnung</string>
+    <string name="recording_clear_all_title">Alle Fahrten löschen</string>
+    <string name="recording_clear_all_body">Dies löscht alle Fahrten und Datendateien dauerhaft. Nicht rückgängig machbar.</string>
+    <string name="recording_delete_trip_title">Fahrt löschen</string>
+    <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
+    <string name="recording_clear_all_menu">Alle Fahrten löschen</string>
+    <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen.</string>
+    <string name="recording_empty">Noch keine Fahrten aufgezeichnet.\nTippe auf Aufnahme, um zu starten.</string>
+    <string name="recording_view_map">Auf Karte anzeigen</string>
+    <string name="recording_view_all_map">Alle auf Karte</string>
+    <string name="recording_stat_trips">Fahrten</string>
+    <string name="recording_stat_distance">Distanz</string>
+    <string name="recording_stat_time">Zeit</string>
+
+    <!-- Trip detail screen -->
+    <string name="recording_detail_title">Fahrtdetails</string>
+    <string name="recording_no_data">Keine Daten für diese Fahrt.</string>
+    <string name="recording_route">Route</string>
+    <string name="recording_summary_distance">Distanz</string>
+    <string name="recording_summary_duration">Dauer</string>
+    <string name="recording_summary_points">Punkte</string>
+    <string name="recording_summary_top_speed">Spitze</string>
+    <string name="recording_summary_avg_speed">Durchschnitt</string>
+    <string name="recording_summary_min_battery">Min. Akku</string>
+    <string name="recording_summary_max_temp">Max. Temp.</string>
+    <string name="recording_chart_speed">Geschwindigkeit (%1$s)</string>
+    <string name="recording_chart_battery">Akku (%%)</string>
+    <string name="recording_chart_temp">Temperatur (%1$s)</string>
+    <string name="recording_chart_voltage">Spannung (V)</string>
+
+    <!-- Automations / Auto tab -->
+    <string name="auto_lights_title">Licht</string>
+    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang</string>
+    <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
+    <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>
+    <string name="auto_minutes_fmt">%1$d Min.</string>
+    <string name="auto_waiting_gps">Warte auf GPS-Position\u2026</string>
+    <string name="auto_volume_title">Lautstärke</string>
+    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
+    <string name="auto_volume_help">Ziehe die Regler, um die Lautstärke bei 0, 40 und 80 km/h anzupassen. Tippe auf den Graph, um die Lautstärke bei jeder Geschwindigkeit zu sehen.</string>
+    <string name="auto_volume_realtime">Die Lautstärke passt sich in Echtzeit an die Geschwindigkeit an.</string>
+    <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
+    <string name="auto_midnight_sun_title">Mitternachtssonne</string>
+    <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter — das Licht bleibt AUS.</string>
+    <string name="auto_polar_night_title">Polarnacht</string>
+    <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf — das Licht bleibt AN.</string>
+
+    <!-- Alarms tab -->
+    <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert.</string>
+    <string name="alarm_voice_vars">Sprachvariablen: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
+    <string name="alarm_empty">Keine Alarmregeln.\nTippe + zum Hinzufügen.</string>
+    <string name="alarm_add">Regel hinzufügen</string>
+    <string name="alarm_new">Neuer Alarm</string>
+    <string name="alarm_edit">Alarm bearbeiten</string>
+    <string name="alarm_name">Name (optional)</string>
+    <string name="alarm_section_condition">Bedingung</string>
+    <string name="alarm_metric_label">Messgröße</string>
+    <string name="alarm_comparator_label">Bedingung</string>
+    <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
+    <string name="alarm_section_beep">Piepton</string>
+    <string name="alarm_enable_beep">Piepton aktivieren</string>
+    <string name="alarm_beep_freq_fmt">Frequenz: %1$d Hz</string>
+    <string name="alarm_beep_duration_fmt">Dauer: %1$d ms</string>
+    <string name="alarm_beep_repeats_fmt">Wiederholungen: %1$d</string>
+    <string name="alarm_section_voice">Stimme</string>
+    <string name="alarm_enable_voice">Stimme aktivieren</string>
+    <string name="alarm_voice_template">Textvorlage</string>
+    <string name="alarm_voice_template_help">Nutze {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_section_vibrate">Vibration</string>
+    <string name="alarm_enable_vibrate">Vibration aktivieren</string>
+    <string name="alarm_vibrate_duration_fmt">Dauer: %1$d ms</string>
+    <string name="alarm_section_timing">Zeitsteuerung</string>
+    <string name="alarm_cooldown_fmt">Abklingzeit: %1$d s</string>
+    <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist.</string>
+    <string name="alarm_repeat">Wiederholen solange aktiv</string>
+    <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt.</string>
+    <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AN — wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt.</string>
+    <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AUS — eine Warnung beim Überschreiten von 30, dann still; du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann.</string>
+</resources>

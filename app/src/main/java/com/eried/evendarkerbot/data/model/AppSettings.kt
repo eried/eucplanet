@@ -91,7 +91,15 @@ data class AppSettings(
     val volumeUpClick: String = "HORN",
     val volumeUpHold: String = "VOICE_ANNOUNCE",
     val volumeDownClick: String = "LIGHT_TOGGLE",
-    val volumeDownHold: String = "SAFETY_TOGGLE"
+    val volumeDownHold: String = "SAFETY_TOGGLE",
+
+    // Appearance
+    // language: BCP-47 tag. "en", "es", "ru", "no", "de". Stored now, wired in Stage B.
+    val language: String = "en",
+    // themeMode: "dark", "light", "system"
+    val themeMode: String = "dark",
+    // accentColor: key into the accent palette
+    val accentColor: String = "blue"
 )
 
 enum class FlicAction(val label: String) {

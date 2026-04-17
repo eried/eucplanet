@@ -1,15 +1,18 @@
 package com.eried.evendarkerbot.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-private val DarkColorScheme = darkColorScheme(
-    primary = AccentBlue,
+private fun darkSchemeFor(accent: Color) = darkColorScheme(
+    primary = accent,
     secondary = AccentGreen,
     tertiary = AccentOrange,
     background = DarkBackground,
@@ -20,6 +23,21 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = TextPrimary,
     onSurface = TextPrimary,
     onSurfaceVariant = TextSecondary,
+    error = AccentRed
+)
+
+private fun lightSchemeFor(accent: Color) = lightColorScheme(
+    primary = accent,
+    secondary = AccentGreen,
+    tertiary = AccentOrange,
+    background = LightBackground,
+    surface = LightSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onBackground = TextPrimaryLight,
+    onSurface = TextPrimaryLight,
+    onSurfaceVariant = TextSecondaryLight,
     error = AccentRed
 )
 
@@ -54,9 +72,20 @@ private val AppTypography = Typography(
 )
 
 @Composable
-fun EvenDarkerBotTheme(content: @Composable () -> Unit) {
+fun EvenDarkerBotTheme(
+    themeMode: String = "dark",
+    accentColor: String = "blue",
+    content: @Composable () -> Unit
+) {
+    val accent = accentColorFor(accentColor)
+    val useDark = when (themeMode) {
+        "light" -> false
+        "system" -> isSystemInDarkTheme()
+        else -> true
+    }
+    val colorScheme = if (useDark) darkSchemeFor(accent) else lightSchemeFor(accent)
     MaterialTheme(
-        colorScheme = DarkColorScheme,
+        colorScheme = colorScheme,
         typography = AppTypography,
         content = content
     )

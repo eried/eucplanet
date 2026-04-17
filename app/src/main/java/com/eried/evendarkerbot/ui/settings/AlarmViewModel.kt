@@ -9,12 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.evendarkerbot.data.db.AlarmDao
 import com.eried.evendarkerbot.data.model.AlarmRule
+import com.eried.evendarkerbot.data.repository.SettingsRepository
 import com.eried.evendarkerbot.service.TonePlayer
 import com.eried.evendarkerbot.service.VoiceService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,8 +26,14 @@ class AlarmViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    settingsRepository: SettingsRepository
 ) : ViewModel() {
+
+    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.imperialUnits }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
 
     private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator

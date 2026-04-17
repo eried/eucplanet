@@ -56,6 +56,7 @@ dependencies {
     // AndroidX
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
 
     // Lifecycle
     implementation(libs.lifecycle.runtime)

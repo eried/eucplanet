@@ -94,7 +94,7 @@ class WheelService : LifecycleService() {
                     when (state) {
                         ConnectionState.CONNECTED -> {
                             if (settings.announceConnection) {
-                                voiceService.announceEvent("Wheel connected")
+                                voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }
                             // Auto-record: start recording when wheel connects
                             if (settings.autoRecord && !tripRepository.recording.value) {
@@ -104,7 +104,7 @@ class WheelService : LifecycleService() {
                         ConnectionState.DISCONNECTED -> {
                             // Only announce if we were actually connected (not just reconnect cycling)
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
-                                voiceService.announceEvent("Wheel disconnected")
+                                voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
                             }
                         }
                         else -> {}
@@ -121,10 +121,10 @@ class WheelService : LifecycleService() {
                 if (settings.announceGps) {
                     if (location != null && !hadGpsFix) {
                         hadGpsFix = true
-                        voiceService.announceEvent("GPS signal acquired")
+                        voiceService.announceEvent(getString(R.string.voice_gps_acquired))
                     } else if (location == null && hadGpsFix) {
                         hadGpsFix = false
-                        voiceService.announceEvent("GPS signal lost")
+                        voiceService.announceEvent(getString(R.string.voice_gps_lost))
                     }
                 }
             }

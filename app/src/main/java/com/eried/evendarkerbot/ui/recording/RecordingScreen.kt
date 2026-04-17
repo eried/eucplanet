@@ -54,10 +54,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.TripRecord
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
@@ -107,15 +109,15 @@ fun RecordingScreen(
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear All Trips") },
-            text = { Text("This will permanently delete all recorded trips and their data files. This cannot be undone.") },
+            title = { Text(stringResource(R.string.recording_clear_all_title)) },
+            text = { Text(stringResource(R.string.recording_clear_all_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllTrips { showClearDialog = false }
-                }) { Text("Delete All", color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete_all), color = AccentRed) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -123,16 +125,16 @@ fun RecordingScreen(
     if (tripToDelete != null) {
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
-            title = { Text("Delete Trip") },
-            text = { Text("Delete this trip and its data file?") },
+            title = { Text(stringResource(R.string.recording_delete_trip_title)) },
+            text = { Text(stringResource(R.string.recording_delete_trip_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteTrip(tripToDelete!!)
                     tripToDelete = null
-                }) { Text("Delete", color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
             },
             dismissButton = {
-                TextButton(onClick = { tripToDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { tripToDelete = null }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -140,22 +142,22 @@ fun RecordingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Trip recorder") },
+                title = { Text(stringResource(R.string.recording_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack, enabled = !importing) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showManageMenu = true }, enabled = !importing) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Manage")
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.action_manage))
                     }
                     DropdownMenu(
                         expanded = showManageMenu,
                         onDismissRequest = { showManageMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Import") },
+                            text = { Text(stringResource(R.string.action_import)) },
                             onClick = {
                                 showManageMenu = false
                                 importLauncher.launch(arrayOf(
@@ -169,14 +171,14 @@ fun RecordingScreen(
                         )
                         if (trips.isNotEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Export all") },
+                                text = { Text(stringResource(R.string.action_export_all)) },
                                 onClick = {
                                     showManageMenu = false
                                     viewModel.exportAllAsZip()
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text("Clear all trips", color = AccentRed) },
+                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = AccentRed) },
                                 onClick = {
                                     showManageMenu = false
                                     showClearDialog = true
@@ -198,7 +200,7 @@ fun RecordingScreen(
                 ) {
                     Icon(
                         if (recording) Icons.Default.Stop else Icons.Default.FiberManualRecord,
-                        contentDescription = if (recording) "Stop" else "Record",
+                        contentDescription = if (recording) stringResource(R.string.action_stop) else stringResource(R.string.action_record),
                         tint = MaterialTheme.colorScheme.background
                     )
                 }
@@ -222,7 +224,7 @@ fun RecordingScreen(
 
             if (!recording && !importing && trips.isEmpty()) {
                 Text(
-                    "Tip: Enable auto-record in Settings to start recording automatically on connect.",
+                    stringResource(R.string.recording_auto_record_tip),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -252,7 +254,7 @@ fun RecordingScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        StatItem("Trips", "${trips.size}")
+                        StatItem(stringResource(R.string.recording_stat_trips), "${trips.size}")
                         if (onOpenViewer != null) {
                             IconButton(
                                 onClick = {
@@ -264,14 +266,14 @@ fun RecordingScreen(
                                 enabled = !importing,
                                 modifier = Modifier.size(32.dp)
                             ) {
-                                Icon(Icons.Default.Map, contentDescription = "View all in map",
+                                Icon(Icons.Default.Map, contentDescription = stringResource(R.string.recording_view_all_map),
                                     tint = if (importing) MaterialTheme.colorScheme.onSurfaceVariant
                                            else AccentBlue,
                                     modifier = Modifier.size(20.dp))
                             }
                         }
-                        StatItem("Distance", "%.1f km".format(totalKm))
-                        StatItem("Time", "${totalHours}h ${totalMins}m")
+                        StatItem(stringResource(R.string.recording_stat_distance), "%.1f km".format(totalKm))
+                        StatItem(stringResource(R.string.recording_stat_time), "${totalHours}h ${totalMins}m")
                     }
                 }
             }
@@ -279,7 +281,7 @@ fun RecordingScreen(
             if (trips.isEmpty()) {
                 Spacer(Modifier.height(24.dp))
                 Text(
-                    "No trips recorded yet.\nTap the record button to start.",
+                    stringResource(R.string.recording_empty),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -403,7 +405,7 @@ private fun TripCard(
             }
             // View (eye) — always available
             IconButton(onClick = onView) {
-                Icon(Icons.Default.Visibility, contentDescription = "View")
+                Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.action_view))
             }
             // Map viewer
             if (onViewInViewer != null) {
@@ -411,19 +413,19 @@ private fun TripCard(
                     onClick = onViewInViewer,
                     enabled = !isRecording && !importing
                 ) {
-                    Icon(Icons.Default.Map, contentDescription = "View in map",
+                    Icon(Icons.Default.Map, contentDescription = stringResource(R.string.recording_view_map),
                         tint = if (isRecording || importing) disabledColor else AccentBlue)
                 }
             }
             // Share
             IconButton(onClick = onShare, enabled = !isRecording) {
-                Icon(Icons.Default.Share, contentDescription = "Share .dbb",
+                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
             // Delete
             IconButton(onClick = onDelete, enabled = !isRecording) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete",
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }

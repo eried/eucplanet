@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.service.encodeVolumeCurve
 import com.eried.evendarkerbot.service.parseVolumeCurve
 import com.eried.evendarkerbot.ui.theme.AccentBlue
@@ -72,7 +74,7 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
-        Text("Lights", style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         Row(
@@ -80,7 +82,7 @@ fun AutomationsContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Turn on or off the headlights based on sunset and sunrise",
+            Text(stringResource(R.string.auto_lights_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.autoLightsEnabled,
@@ -91,8 +93,8 @@ fun AutomationsContent(
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Lights ON before sunset", style = MaterialTheme.typography.bodyLarge)
-                        Text("${settings.autoLightsOnMinutesBefore} min",
+                        Text(stringResource(R.string.auto_lights_on_before_sunset), style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.auto_minutes_fmt, settings.autoLightsOnMinutesBefore),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary)
                     }
@@ -108,8 +110,8 @@ fun AutomationsContent(
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Lights OFF after sunrise", style = MaterialTheme.typography.bodyLarge)
-                        Text("${settings.autoLightsOffMinutesAfter} min",
+                        Text(stringResource(R.string.auto_lights_off_after_sunrise), style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.auto_minutes_fmt, settings.autoLightsOffMinutesAfter),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.primary)
                     }
@@ -138,22 +140,22 @@ fun AutomationsContent(
                         longitude = loc.longitude
                     )
                     SunCalculator.SunResult.MidnightSun -> PolarStateCard(
-                        title = "Midnight Sun",
-                        description = "Sun doesn't set at this latitude today — lights will stay OFF.",
+                        title = stringResource(R.string.auto_midnight_sun_title),
+                        description = stringResource(R.string.auto_midnight_sun_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
                         accent = AccentYellow
                     )
                     SunCalculator.SunResult.PolarNight -> PolarStateCard(
-                        title = "Polar Night",
-                        description = "Sun doesn't rise at this latitude today — lights will stay ON.",
+                        title = stringResource(R.string.auto_polar_night_title),
+                        description = stringResource(R.string.auto_polar_night_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
                         accent = AccentBlue
                     )
                 }
             } else {
-                Text("Waiting for GPS location...",
+                Text(stringResource(R.string.auto_waiting_gps),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -162,7 +164,7 @@ fun AutomationsContent(
         Spacer(Modifier.height(8.dp))
 
         // --- Volume Section ---
-        Text("Volume", style = MaterialTheme.typography.headlineMedium,
+        Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
         Row(
@@ -170,7 +172,7 @@ fun AutomationsContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Adaptive system volume based on speed",
+            Text(stringResource(R.string.auto_volume_desc),
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.autoVolumeEnabled,
@@ -178,7 +180,7 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
-            Text("Drag the handles to adjust volume at 0, 40, and 80 km/h. Touch the graph to see volume at any speed.",
+            Text(stringResource(R.string.auto_volume_help),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
 
@@ -216,7 +218,7 @@ fun AutomationsContent(
                 }
             }
 
-            Text("Volume adjusts in real-time as speed changes.",
+            Text(stringResource(R.string.auto_volume_realtime),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -285,7 +287,7 @@ private fun SunScheduleGraph(
 
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Sunrise and Sunset", style = MaterialTheme.typography.titleMedium,
+            Text(stringResource(R.string.auto_sunrise_sunset), style = MaterialTheme.typography.titleMedium,
                 color = AccentOrange)
             if (latitude != 0.0 || longitude != 0.0) {
                 Text(

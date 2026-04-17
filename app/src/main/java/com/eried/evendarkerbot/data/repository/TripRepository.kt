@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.db.TripDao
 import com.eried.evendarkerbot.data.model.TripRecord
 import com.eried.evendarkerbot.service.VoiceService
@@ -109,7 +110,7 @@ class TripRepository @Inject constructor(
         Log.i(TAG, "Recording started: $fileName")
         scope.launch {
             val s = settingsRepository.get()
-            if (s.announceRecording) voiceService.announceEvent("Recording started")
+            if (s.announceRecording) voiceService.announceEvent(context.getString(R.string.voice_recording_started))
         }
 
         // Periodic write loop
@@ -145,7 +146,7 @@ class TripRepository @Inject constructor(
         Log.i(TAG, "Recording stopped")
         scope.launch {
             val s = settingsRepository.get()
-            if (s.announceRecording) voiceService.announceEvent("Recording finished")
+            if (s.announceRecording) voiceService.announceEvent(context.getString(R.string.voice_recording_finished))
         }
     }
 

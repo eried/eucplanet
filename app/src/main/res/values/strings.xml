@@ -3,4 +3,277 @@
     <string name="app_name">EUC Planet</string>
     <string name="notification_channel_name">Wheel Connection</string>
     <string name="notification_channel_description">Shows wheel connection status and telemetry</string>
+
+    <!-- Common -->
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_test">Test</string>
+    <string name="action_move_up">Move up</string>
+    <string name="action_move_down">Move down</string>
+
+    <!-- Dashboard -->
+    <string name="connection_connected">Connected</string>
+    <string name="connection_connecting">Connecting\u2026</string>
+    <string name="connection_initializing">Initializing\u2026</string>
+    <string name="connection_scanning">Scanning\u2026</string>
+    <string name="connection_disconnected">Disconnected</string>
+    <string name="connection">Connection</string>
+    <string name="settings">Settings</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="disconnect_from">Disconnect from %1$s?</string>
+    <string name="wheel_generic">wheel</string>
+    <string name="exit_title">Exit EUC Planet</string>
+    <string name="exit_body">Keep the background service running, or stop everything?</string>
+    <string name="exit_stop_all">Stop All</string>
+    <string name="exit_background">Background</string>
+
+    <string name="stat_battery">BATTERY</string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_voltage">VOLTAGE</string>
+    <string name="stat_amps">AMPS</string>
+    <string name="stat_load">LOAD</string>
+    <string name="stat_trip">TRIP</string>
+    <string name="stat_odo">ODO </string>
+
+    <string name="action_horn">Horn</string>
+    <string name="action_light">Light</string>
+    <string name="action_voice">Voice</string>
+    <string name="action_legal_mode">Legal Mode</string>
+    <string name="action_legal_on">Legal ON</string>
+    <string name="action_lock_wheel">Lock Wheel</string>
+    <string name="action_locked">Locked</string>
+    <string name="action_recorder">Recorder</string>
+    <string name="action_recorder_trips">Recorder\n(%1$d trips)</string>
+
+    <!-- Settings tabs -->
+    <string name="tab_general">General</string>
+    <string name="tab_speed">Speed</string>
+    <string name="tab_voice">Voice</string>
+    <string name="tab_alarms">Alarms</string>
+    <string name="tab_auto">Auto</string>
+    <string name="tab_integration">Integration</string>
+
+    <!-- Settings: General -->
+    <string name="section_recording">Recording</string>
+    <string name="section_connection">Connection</string>
+    <string name="section_display">Display</string>
+    <string name="auto_record_on_start">Auto-record on start</string>
+    <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects.</string>
+    <string name="auto_connect_on_start">Auto-connect on start</string>
+    <string name="last_device">Last device: %1$s</string>
+    <string name="imperial_units">Imperial units (mph, \u00B0F, mi)</string>
+    <string name="language">Language</string>
+    <string name="theme">Theme</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">Follow system</string>
+    <string name="accent_color">Accent color</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_purple">Purple</string>
+    <string name="accent_teal">Teal</string>
+    <string name="accent_pink">Pink</string>
+    <string name="tts_switch_title">Switch voice to %1$s?</string>
+    <string name="tts_switch_body">The current text-to-speech voice doesn\'t match the selected language. Switch to a %1$s voice for announcements?</string>
+    <string name="tts_switch_yes">Switch voice</string>
+    <string name="tts_switch_no">Keep current</string>
+
+    <!-- Settings: Speed -->
+    <string name="section_speed_limits">Speed Limits</string>
+    <string name="section_legal_mode_speed">Legal Mode Speed</string>
+    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
+    <string name="speed_tiltback">Tiltback Speed</string>
+    <string name="speed_alarm">Alarm Speed</string>
+    <string name="speed_legal_tiltback">Legal Tiltback</string>
+    <string name="speed_legal_alarm">Legal Alarm</string>
+    <string name="unit_kmh">km/h</string>
+
+    <!-- Settings: Voice -->
+    <string name="section_announcements">Announcements</string>
+    <string name="section_speech">Speech</string>
+    <string name="section_report_status">Report Status</string>
+    <string name="voice_enabled">Report status periodically</string>
+    <string name="voice_interval">Interval</string>
+    <string name="unit_sec">sec</string>
+    <string name="announce_wheel_lock">Wheel lock / unlock</string>
+    <string name="announce_lights">Lights on / off</string>
+    <string name="announce_recording">Trip recording</string>
+    <string name="announce_connection">Wheel connected / disconnected</string>
+    <string name="announce_gps">GPS signal lost / regained</string>
+    <string name="announce_legal_mode">Legal mode on / off</string>
+    <string name="voice_selector_label">Voice</string>
+    <string name="voice_speech_speed">Speech Speed</string>
+    <string name="unit_x">x</string>
+    <string name="col_periodic">Periodic</string>
+    <string name="col_trigger">Trigger</string>
+    <string name="report_speed">Speed</string>
+    <string name="report_battery">Battery</string>
+    <string name="report_temp">Temp</string>
+    <string name="report_pwm">PWM</string>
+    <string name="report_distance">Distance</string>
+    <string name="report_recording">Recording</string>
+
+    <!-- Settings: Integration -->
+    <string name="section_flic_buttons">Flic 2 Buttons</string>
+    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
+    <string name="flic_stop_scan">Stop Scan</string>
+    <string name="flic_start_scan">Scan for Flic 2 Button</string>
+    <string name="flic_no_buttons">No Flic buttons paired</string>
+    <string name="flic_forget">Forget</string>
+    <string name="flic_rename">Rename</string>
+    <string name="flic_click">Click</string>
+    <string name="flic_double_click">Double Click</string>
+    <string name="flic_hold">Hold</string>
+    <string name="section_volume_keys">Volume Keys</string>
+    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen — Android doesn\'t reliably deliver volume events to background apps.</string>
+    <string name="volume_keys_enable">Enable volume key actions</string>
+    <string name="volume_up">Volume Up</string>
+    <string name="volume_down">Volume Down</string>
+
+    <!-- Voice (spoken) templates -->
+    <string name="voice_warning_fmt">Warning! %1$s at %2$s</string>
+    <string name="voice_speed_fmt">Speed %1$s</string>
+    <string name="voice_battery_fmt">battery %1$d percent</string>
+    <string name="voice_temp_fmt">temperature %1$s degrees</string>
+    <string name="voice_load_fmt">load %1$s percent</string>
+    <string name="voice_trip_fmt">trip %1$s kilometers</string>
+    <string name="voice_trip_miles_fmt">trip %1$s miles</string>
+    <string name="voice_recording_on">recording</string>
+    <string name="voice_recording_off">not recording</string>
+    <string name="voice_wheel_locked">Wheel locked</string>
+    <string name="voice_wheel_unlocked">Wheel unlocked</string>
+    <string name="voice_lights_on">Lights on</string>
+    <string name="voice_lights_off">Lights off</string>
+    <string name="voice_recording_started">Recording started</string>
+    <string name="voice_recording_finished">Recording finished</string>
+    <string name="voice_wheel_connected">Wheel connected</string>
+    <string name="voice_wheel_disconnected">Wheel disconnected</string>
+    <string name="voice_gps_acquired">GPS signal acquired</string>
+    <string name="voice_gps_lost">GPS signal lost</string>
+    <string name="voice_legal_on">Legal mode on</string>
+    <string name="voice_legal_off">Legal mode off</string>
+
+    <!-- Language display names (shown for TTS mismatch prompt) -->
+    <string name="lang_name_en">English</string>
+    <string name="lang_name_es">Spanish</string>
+    <string name="lang_name_ru">Russian</string>
+    <string name="lang_name_no">Norwegian</string>
+    <string name="lang_name_de">German</string>
+
+    <!-- Scan screen -->
+    <string name="scan_title">Find Your Wheel</string>
+    <string name="scan_scanning">Scanning for InMotion wheels\u2026</string>
+    <string name="scan_start">Start Scan</string>
+    <string name="scan_hint">Make sure your wheel is powered on and Bluetooth is enabled.</string>
+
+    <!-- Trip viewer -->
+    <string name="trip_viewer_title">Trip Viewer</string>
+
+    <!-- Metric detail -->
+    <string name="metric_detail_title">Historical %1$s Data</string>
+    <string name="metric_waiting">Waiting for data\u2026 Connect to wheel to start collecting.</string>
+    <string name="metric_no_data">No data</string>
+    <string name="metric_min">MIN</string>
+    <string name="metric_avg">AVG</string>
+    <string name="metric_max">MAX</string>
+    <string name="metric_time">TIME</string>
+    <string name="metric_battery">Battery</string>
+    <string name="metric_temperature">Temperature</string>
+    <string name="metric_voltage">Voltage</string>
+    <string name="metric_current">Current</string>
+    <string name="metric_load">Load</string>
+    <string name="metric_speed">Speed</string>
+
+    <!-- Recording screen -->
+    <string name="action_delete_all">Delete All</string>
+    <string name="action_import">Import</string>
+    <string name="action_export_all">Export all</string>
+    <string name="action_share">Share</string>
+    <string name="action_manage">Manage</string>
+    <string name="action_view">View</string>
+    <string name="action_record">Record</string>
+    <string name="action_stop">Stop</string>
+    <string name="recording_title">Trip recorder</string>
+    <string name="recording_clear_all_title">Clear All Trips</string>
+    <string name="recording_clear_all_body">This will permanently delete all recorded trips and their data files. This cannot be undone.</string>
+    <string name="recording_delete_trip_title">Delete Trip</string>
+    <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
+    <string name="recording_clear_all_menu">Clear all trips</string>
+    <string name="recording_auto_record_tip">Tip: Enable auto-record in Settings to start recording automatically on connect.</string>
+    <string name="recording_empty">No trips recorded yet.\nTap the record button to start.</string>
+    <string name="recording_view_map">View in map</string>
+    <string name="recording_view_all_map">View all in map</string>
+    <string name="recording_stat_trips">Trips</string>
+    <string name="recording_stat_distance">Distance</string>
+    <string name="recording_stat_time">Time</string>
+
+    <!-- Trip detail screen -->
+    <string name="recording_detail_title">Trip Details</string>
+    <string name="recording_no_data">No data recorded in this trip.</string>
+    <string name="recording_route">Route</string>
+    <string name="recording_summary_distance">Distance</string>
+    <string name="recording_summary_duration">Duration</string>
+    <string name="recording_summary_points">Points</string>
+    <string name="recording_summary_top_speed">Top Speed</string>
+    <string name="recording_summary_avg_speed">Avg Speed</string>
+    <string name="recording_summary_min_battery">Min Battery</string>
+    <string name="recording_summary_max_temp">Max Temp</string>
+    <string name="recording_chart_speed">Speed (%1$s)</string>
+    <string name="recording_chart_battery">Battery (%%)</string>
+    <string name="recording_chart_temp">Temperature (%1$s)</string>
+    <string name="recording_chart_voltage">Voltage (V)</string>
+
+    <!-- Automations / Auto tab -->
+    <string name="auto_lights_title">Lights</string>
+    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
+    <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
+    <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>
+    <string name="auto_minutes_fmt">%1$d min</string>
+    <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
+    <string name="auto_volume_title">Volume</string>
+    <string name="auto_volume_desc">Adaptive system volume based on speed</string>
+    <string name="auto_volume_help">Drag the handles to adjust volume at 0, 40, and 80 km/h. Touch the graph to see volume at any speed.</string>
+    <string name="auto_volume_realtime">Volume adjusts in real-time as speed changes.</string>
+    <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
+    <string name="auto_midnight_sun_title">Midnight Sun</string>
+    <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today — lights will stay OFF.</string>
+    <string name="auto_polar_night_title">Polar Night</string>
+    <string name="auto_polar_night_body">Sun doesn\'t rise at this latitude today — lights will stay ON.</string>
+
+    <!-- Alarms tab -->
+    <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires.</string>
+    <string name="alarm_voice_vars">Voice variables: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
+    <string name="alarm_empty">No alarm rules configured.\nTap + to add one.</string>
+    <string name="alarm_add">Add Alarm Rule</string>
+    <string name="alarm_new">New Alarm</string>
+    <string name="alarm_edit">Edit Alarm</string>
+    <string name="alarm_name">Name (optional)</string>
+    <string name="alarm_section_condition">Condition</string>
+    <string name="alarm_metric_label">Metric</string>
+    <string name="alarm_comparator_label">Condition</string>
+    <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
+    <string name="alarm_section_beep">Beep</string>
+    <string name="alarm_enable_beep">Enable beep</string>
+    <string name="alarm_beep_freq_fmt">Frequency: %1$dHz</string>
+    <string name="alarm_beep_duration_fmt">Duration: %1$dms</string>
+    <string name="alarm_beep_repeats_fmt">Repeats: %1$d</string>
+    <string name="alarm_section_voice">Voice</string>
+    <string name="alarm_enable_voice">Enable voice</string>
+    <string name="alarm_voice_template">Text template</string>
+    <string name="alarm_voice_template_help">Use {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_section_vibrate">Vibrate</string>
+    <string name="alarm_enable_vibrate">Enable vibration</string>
+    <string name="alarm_vibrate_duration_fmt">Duration: %1$dms</string>
+    <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
+    <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching.</string>
+    <string name="alarm_repeat">Repeat while active</string>
+    <string name="alarm_repeat_help">OFF: fires once when the condition starts matching, then stays silent until it stops matching.\nON: keeps re-firing every Cooldown seconds for as long as the condition is still true.</string>
+    <string name="alarm_repeat_on_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat ON — if you hold 35 km/h for a minute you\'ll be warned every %1$ds.</string>
+    <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF — one warning when you cross 30, then silent; you must drop below 30 (and wait %1$ds) before it can fire again.</string>
 </resources>

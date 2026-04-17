@@ -25,6 +25,7 @@ compose-material-icons = { group = "androidx.compose.material", name = "material
 # AndroidX
 androidx-core = { group = "androidx.core", name = "core-ktx", version = "1.15.0" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version = "1.9.3" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.7.0" }
 
 # Lifecycle
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }

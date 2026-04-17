@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
+import com.eried.evendarkerbot.R
 
 private const val VIEWER_URL = "https://eried.github.io/darknessbot/?embedded"
 
@@ -43,10 +45,10 @@ fun TripViewerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Trip Viewer") },
+                title = { Text(stringResource(R.string.trip_viewer_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

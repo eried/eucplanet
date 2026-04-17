@@ -34,6 +34,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -41,19 +42,20 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.repository.MetricSample
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
 import com.eried.evendarkerbot.ui.theme.AccentOrange
 import com.eried.evendarkerbot.ui.theme.AccentRed
 
-enum class MetricType(val title: String, val unit: String, val color: Color) {
-    BATTERY("Battery", "%", AccentGreen),
-    TEMPERATURE("Temperature", "\u00B0C", AccentOrange),
-    VOLTAGE("Voltage", "V", AccentBlue),
-    CURRENT("Current", "A", AccentBlue),
-    LOAD("Load", "%", AccentOrange),
-    SPEED("Speed", "km/h", AccentGreen)
+enum class MetricType(val titleRes: Int, val unit: String, val color: Color) {
+    BATTERY(R.string.metric_battery, "%", AccentGreen),
+    TEMPERATURE(R.string.metric_temperature, "\u00B0C", AccentOrange),
+    VOLTAGE(R.string.metric_voltage, "V", AccentBlue),
+    CURRENT(R.string.metric_current, "A", AccentBlue),
+    LOAD(R.string.metric_load, "%", AccentOrange),
+    SPEED(R.string.metric_speed, "km/h", AccentGreen)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,10 +106,10 @@ fun MetricDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Historical ${metricType.title} Data") },
+                title = { Text(stringResource(R.string.metric_detail_title, stringResource(metricType.titleRes))) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -145,10 +147,10 @@ fun MetricDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    StatSummary("MIN", "%.1f".format(min), unitLabel)
-                    StatSummary("AVG", "%.1f".format(avg), unitLabel)
-                    StatSummary("MAX", "%.1f".format(max), unitLabel)
-                    StatSummary("TIME", formatDuration(duration), "")
+                    StatSummary(stringResource(R.string.metric_min), "%.1f".format(min), unitLabel)
+                    StatSummary(stringResource(R.string.metric_avg), "%.1f".format(avg), unitLabel)
+                    StatSummary(stringResource(R.string.metric_max), "%.1f".format(max), unitLabel)
+                    StatSummary(stringResource(R.string.metric_time), formatDuration(duration), "")
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -163,7 +165,7 @@ fun MetricDetailScreen(
             } else {
                 // No data yet — show empty placeholder graph
                 Spacer(Modifier.height(16.dp))
-                Text("Waiting for data... Connect to wheel to start collecting.",
+                Text(stringResource(R.string.metric_waiting),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(12.dp))
@@ -198,6 +200,7 @@ private fun EmptyGraph(
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
+    val noDataLabel = stringResource(R.string.metric_no_data)
 
     Box(
         modifier = modifier
@@ -233,7 +236,7 @@ private fun EmptyGraph(
             )
 
             // "No data" text
-            val noData = textMeasurer.measure("No data", TextStyle(fontSize = 14.sp, color = labelColor))
+            val noData = textMeasurer.measure(noDataLabel, TextStyle(fontSize = 14.sp, color = labelColor))
             drawText(noData, topLeft = Offset(w / 2f - noData.size.width / 2f, h / 2f - noData.size.height - 8f))
         }
     }

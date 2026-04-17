@@ -1,6 +1,8 @@
 package com.eried.evendarkerbot.data.repository
 
+import android.content.Context
 import android.util.Log
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.ble.BleConnectionManager
 import com.eried.evendarkerbot.ble.ConnectionState
 import com.eried.evendarkerbot.ble.InMotionV2Commands
@@ -10,6 +12,7 @@ import com.eried.evendarkerbot.data.model.WheelData
 import com.eried.evendarkerbot.data.model.WheelSettings
 import com.eried.evendarkerbot.service.AlarmEngine
 import com.eried.evendarkerbot.service.VoiceService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +40,7 @@ data class FullMetricHistory(
 
 @Singleton
 class WheelRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val bleManager: BleConnectionManager,
     private val settingsRepository: SettingsRepository,
     private val alarmEngine: AlarmEngine,
@@ -155,7 +159,7 @@ class WheelRepository @Inject constructor(
         scope.launch {
             val s = settingsRepository.get()
             if (s.announceLights) {
-                voiceService.announceEvent(if (!current) "Lights on" else "Lights off")
+                voiceService.announceEvent(context.getString(if (!current) R.string.voice_lights_on else R.string.voice_lights_off))
             }
         }
     }
@@ -168,7 +172,7 @@ class WheelRepository @Inject constructor(
                 _locked.value = newState
                 val s = settingsRepository.get()
                 if (s.announceWheelLock) {
-                    voiceService.announceEvent(if (newState) "Wheel locked" else "Wheel unlocked")
+                    voiceService.announceEvent(context.getString(if (newState) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked))
                 }
             } else {
                 Log.e(TAG, "Lock command failed: auth unsuccessful")
@@ -406,7 +410,7 @@ class WheelRepository @Inject constructor(
                                 "(wheel=${ws.maxSpeedKmh}, safety=${appSettings.safetyTiltbackKmh}, " +
                                 "normal=${appSettings.normalTiltbackKmh})")
                         if (appSettings.announceSafetyMode) {
-                            voiceService.announceEvent(if (isSafetySpeed) "Legal mode on" else "Legal mode off")
+                            voiceService.announceEvent(context.getString(if (isSafetySpeed) R.string.voice_legal_on else R.string.voice_legal_off))
                         }
                     }
 

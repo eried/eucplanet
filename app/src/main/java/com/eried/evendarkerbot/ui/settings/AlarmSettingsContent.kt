@@ -46,11 +46,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.AlarmComparator
 import com.eried.evendarkerbot.data.model.AlarmMetric
 import com.eried.evendarkerbot.data.model.AlarmRule
@@ -58,12 +60,36 @@ import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
 import com.eried.evendarkerbot.ui.theme.AccentOrange
 import com.eried.evendarkerbot.ui.theme.AccentRed
+import com.eried.evendarkerbot.util.Units
+
+private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, imperial: Boolean): Float =
+    when (metric) {
+        AlarmMetric.SPEED -> Units.speed(valueInternal, imperial)
+        AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, imperial)
+        else -> valueInternal
+    }
+
+private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, imperial: Boolean): Float =
+    when {
+        !imperial -> valueDisplayed
+        metric == AlarmMetric.SPEED -> valueDisplayed / 0.621371f
+        metric == AlarmMetric.TEMPERATURE -> (valueDisplayed - 32f) * 5f / 9f
+        else -> valueDisplayed
+    }
+
+private fun displayUnit(metric: AlarmMetric, imperial: Boolean): String =
+    when (metric) {
+        AlarmMetric.SPEED -> Units.speedUnit(imperial)
+        AlarmMetric.TEMPERATURE -> Units.tempUnit(imperial)
+        else -> metric.unit
+    }
 
 @Composable
 fun AlarmSettingsContent(
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
+    val imperial by viewModel.imperialUnits.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
 
@@ -76,7 +102,7 @@ fun AlarmSettingsContent(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            "Rules are checked top-to-bottom per metric. First matching rule for each metric fires.",
+            stringResource(R.string.alarm_help),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -85,7 +111,7 @@ fun AlarmSettingsContent(
 
         // Template variables help
         Text(
-            "Voice variables: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}",
+            stringResource(R.string.alarm_voice_vars),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
@@ -94,7 +120,7 @@ fun AlarmSettingsContent(
 
         if (rules.isEmpty()) {
             Text(
-                "No alarm rules configured.\nTap + to add one.",
+                stringResource(R.string.alarm_empty),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
@@ -103,6 +129,7 @@ fun AlarmSettingsContent(
         rules.forEachIndexed { index, rule ->
             AlarmRuleCard(
                 rule = rule,
+                imperial = imperial,
                 isFirst = index == 0,
                 isLast = index == rules.lastIndex,
                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
@@ -120,7 +147,7 @@ fun AlarmSettingsContent(
         ) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
-            Text("Add Alarm Rule")
+            Text(stringResource(R.string.alarm_add))
         }
 
         Spacer(Modifier.height(16.dp))
@@ -129,6 +156,7 @@ fun AlarmSettingsContent(
     if (showEditor) {
         AlarmRuleEditorDialog(
             rule = editingRule,
+            imperial = imperial,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -145,6 +173,7 @@ fun AlarmSettingsContent(
 @Composable
 private fun AlarmRuleCard(
     rule: AlarmRule,
+    imperial: Boolean,
     isFirst: Boolean,
     isLast: Boolean,
     onToggle: (Boolean) -> Unit,
@@ -180,8 +209,10 @@ private fun AlarmRuleCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
+                    val shownThresh = displayThreshold(metric, rule.threshold, imperial).toInt()
+                    val shownUnit = displayUnit(metric, imperial)
                     Text(
-                        rule.name.ifBlank { "${metric.label} ${comp.symbol} ${rule.threshold.toInt()}${metric.unit}" },
+                        rule.name.ifBlank { "${metric.label} ${comp.symbol} ${shownThresh}${shownUnit}" },
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
                         color = color
@@ -209,19 +240,19 @@ private fun AlarmRuleCard(
             ) {
                 if (!isFirst) {
                     IconButton(onClick = onMoveUp, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.ArrowUpward, "Move up", modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.ArrowUpward, stringResource(R.string.action_move_up), modifier = Modifier.size(16.dp))
                     }
                 }
                 if (!isLast) {
                     IconButton(onClick = onMoveDown, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.ArrowDownward, "Move down", modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.ArrowDownward, stringResource(R.string.action_move_down), modifier = Modifier.size(16.dp))
                     }
                 }
                 IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Edit, "Edit", modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Edit, stringResource(R.string.action_edit), modifier = Modifier.size(16.dp))
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Delete, "Delete", modifier = Modifier.size(16.dp),
+                    Icon(Icons.Default.Delete, stringResource(R.string.action_delete), modifier = Modifier.size(16.dp),
                         tint = AccentRed)
                 }
             }
@@ -233,6 +264,7 @@ private fun AlarmRuleCard(
 @Composable
 private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
+    imperial: Boolean,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -261,7 +293,7 @@ private fun AlarmRuleEditorDialog(
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
-    val thresholdRange = when (selectedMetric) {
+    val thresholdRangeInternal = when (selectedMetric) {
         AlarmMetric.SPEED -> 5f..100f
         AlarmMetric.BATTERY -> 0f..100f
         AlarmMetric.TEMPERATURE -> 20f..80f
@@ -269,6 +301,10 @@ private fun AlarmRuleEditorDialog(
         AlarmMetric.VOLTAGE -> 50f..130f
         AlarmMetric.CURRENT -> 1f..60f
     }
+    val displayedThreshold = displayThreshold(selectedMetric, threshold, imperial)
+    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, imperial)..
+        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, imperial)
+    val displayedUnit = displayUnit(selectedMetric, imperial)
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -281,7 +317,7 @@ private fun AlarmRuleEditorDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    if (rule != null) "Edit Alarm" else "New Alarm",
+                    if (rule != null) stringResource(R.string.alarm_edit) else stringResource(R.string.alarm_new),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -290,7 +326,7 @@ private fun AlarmRuleEditorDialog(
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Name (optional)") },
+                    label = { Text(stringResource(R.string.alarm_name)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -298,14 +334,14 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(12.dp))
 
                 // --- Condition ---
-                Text("Condition", fontWeight = FontWeight.Medium, fontSize = 13.sp,
+                Text(stringResource(R.string.alarm_section_condition), fontWeight = FontWeight.Medium, fontSize = 13.sp,
                     color = AccentBlue)
 
                 Spacer(Modifier.height(6.dp))
 
                 // Metric dropdown
                 DropdownSelect(
-                    label = "Metric",
+                    label = stringResource(R.string.alarm_metric_label),
                     selected = selectedMetric.label,
                     options = AlarmMetric.entries.map { it.name to it.label },
                     onSelect = { metric = it }
@@ -316,7 +352,7 @@ private fun AlarmRuleEditorDialog(
                 // Comparator dropdown
                 val selectedComp = try { AlarmComparator.valueOf(comparator) } catch (_: Exception) { AlarmComparator.GREATER_THAN }
                 DropdownSelect(
-                    label = "Condition",
+                    label = stringResource(R.string.alarm_comparator_label),
                     selected = selectedComp.label,
                     options = AlarmComparator.entries.map { it.name to "${it.symbol} ${it.label}" },
                     onSelect = { comparator = it }
@@ -325,20 +361,23 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(6.dp))
 
                 // Threshold slider
-                Text("Threshold: ${"%.0f".format(threshold)} ${selectedMetric.unit}",
+                Text(stringResource(R.string.alarm_threshold_fmt, "%.0f".format(displayedThreshold), displayedUnit),
                     fontSize = 13.sp)
                 Slider(
-                    value = threshold.coerceIn(thresholdRange),
-                    onValueChange = { threshold = it },
-                    valueRange = thresholdRange,
-                    steps = ((thresholdRange.endInclusive - thresholdRange.start) - 1).toInt().coerceAtLeast(0)
+                    value = displayedThreshold.coerceIn(displayedRange),
+                    onValueChange = {
+                        threshold = internalThreshold(selectedMetric, it, imperial)
+                            .coerceIn(thresholdRangeInternal)
+                    },
+                    valueRange = displayedRange,
+                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0)
                 )
 
                 Spacer(Modifier.height(12.dp))
 
                 // --- Beep ---
                 SectionTitleWithPreview(
-                    title = "Beep",
+                    title = stringResource(R.string.alarm_section_beep),
                     color = AccentOrange,
                     enabled = beepEnabled,
                     onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount) }
@@ -348,12 +387,12 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Enable beep", fontSize = 13.sp)
+                    Text(stringResource(R.string.alarm_enable_beep), fontSize = 13.sp)
                     Switch(checked = beepEnabled, onCheckedChange = { beepEnabled = it })
                 }
 
                 if (beepEnabled) {
-                    Text("Frequency: ${beepFrequency}Hz", fontSize = 12.sp)
+                    Text(stringResource(R.string.alarm_beep_freq_fmt, beepFrequency), fontSize = 12.sp)
                     Slider(
                         value = beepFrequency.toFloat(),
                         onValueChange = { beepFrequency = it.toInt() },
@@ -361,7 +400,7 @@ private fun AlarmRuleEditorDialog(
                         steps = 25
                     )
 
-                    Text("Duration: ${beepDurationMs}ms", fontSize = 12.sp)
+                    Text(stringResource(R.string.alarm_beep_duration_fmt, beepDurationMs), fontSize = 12.sp)
                     Slider(
                         value = beepDurationMs.toFloat(),
                         onValueChange = { beepDurationMs = it.toInt() },
@@ -369,7 +408,7 @@ private fun AlarmRuleEditorDialog(
                         steps = 8
                     )
 
-                    Text("Repeats: $beepCount", fontSize = 12.sp)
+                    Text(stringResource(R.string.alarm_beep_repeats_fmt, beepCount), fontSize = 12.sp)
                     Slider(
                         value = beepCount.toFloat(),
                         onValueChange = { beepCount = it.toInt() },
@@ -382,7 +421,7 @@ private fun AlarmRuleEditorDialog(
 
                 // --- Voice ---
                 SectionTitleWithPreview(
-                    title = "Voice",
+                    title = stringResource(R.string.alarm_section_voice),
                     color = AccentGreen,
                     enabled = voiceEnabled,
                     onPreview = { onPreviewVoice(voiceText) }
@@ -392,7 +431,7 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Enable voice", fontSize = 13.sp)
+                    Text(stringResource(R.string.alarm_enable_voice), fontSize = 13.sp)
                     Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
                 }
 
@@ -400,12 +439,12 @@ private fun AlarmRuleEditorDialog(
                     OutlinedTextField(
                         value = voiceText,
                         onValueChange = { voiceText = it },
-                        label = { Text("Text template") },
+                        label = { Text(stringResource(R.string.alarm_voice_template)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
                     Text(
-                        "Use {speed}, {battery}, {temp}, {value}, {metric}, etc.",
+                        stringResource(R.string.alarm_voice_template_help),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -415,7 +454,7 @@ private fun AlarmRuleEditorDialog(
 
                 // --- Vibrate ---
                 SectionTitleWithPreview(
-                    title = "Vibrate",
+                    title = stringResource(R.string.alarm_section_vibrate),
                     color = AccentRed,
                     enabled = vibrateEnabled,
                     onPreview = { onPreviewVibrate(vibrateDurationMs) }
@@ -425,12 +464,12 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Enable vibration", fontSize = 13.sp)
+                    Text(stringResource(R.string.alarm_enable_vibrate), fontSize = 13.sp)
                     Switch(checked = vibrateEnabled, onCheckedChange = { vibrateEnabled = it })
                 }
 
                 if (vibrateEnabled) {
-                    Text("Duration: ${vibrateDurationMs}ms", fontSize = 12.sp)
+                    Text(stringResource(R.string.alarm_vibrate_duration_fmt, vibrateDurationMs), fontSize = 12.sp)
                     Slider(
                         value = vibrateDurationMs.toFloat(),
                         onValueChange = { vibrateDurationMs = it.toInt() },
@@ -442,10 +481,10 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(8.dp))
 
                 // --- Timing ---
-                Text("Timing", fontWeight = FontWeight.Medium, fontSize = 13.sp,
+                Text(stringResource(R.string.alarm_section_timing), fontWeight = FontWeight.Medium, fontSize = 13.sp,
                     color = AccentBlue)
 
-                Text("Cooldown: ${cooldownSeconds}s", fontSize = 12.sp)
+                Text(stringResource(R.string.alarm_cooldown_fmt, cooldownSeconds), fontSize = 12.sp)
                 Slider(
                     value = cooldownSeconds.toFloat(),
                     onValueChange = { cooldownSeconds = it.toInt() },
@@ -453,7 +492,7 @@ private fun AlarmRuleEditorDialog(
                     steps = 56
                 )
                 Text(
-                    "Minimum time between fires for this rule, even if the condition keeps matching.",
+                    stringResource(R.string.alarm_cooldown_help),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -463,20 +502,19 @@ private fun AlarmRuleEditorDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Repeat while active", fontSize = 13.sp)
+                    Text(stringResource(R.string.alarm_repeat), fontSize = 13.sp)
                     Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it })
                 }
                 Text(
-                    "OFF: fires once when the condition starts matching, then stays silent until it stops matching.\n" +
-                    "ON: keeps re-firing every Cooldown seconds for as long as the condition is still true.",
+                    stringResource(R.string.alarm_repeat_help),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(6.dp))
                 val example = if (repeatWhileActive) {
-                    "Example: speed > 30, cooldown ${cooldownSeconds}s, repeat ON — if you hold 35 km/h for a minute you'll be warned every ${cooldownSeconds}s."
+                    stringResource(R.string.alarm_repeat_on_example_fmt, cooldownSeconds)
                 } else {
-                    "Example: speed > 30, cooldown ${cooldownSeconds}s, repeat OFF — one warning when you cross 30, then silent; you must drop below 30 (and wait ${cooldownSeconds}s) before it can fire again."
+                    stringResource(R.string.alarm_repeat_off_example_fmt, cooldownSeconds)
                 }
                 Text(
                     example,
@@ -491,7 +529,7 @@ private fun AlarmRuleEditorDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Cancel") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
                     Button(onClick = {
                         onSave(
@@ -513,7 +551,7 @@ private fun AlarmRuleEditorDialog(
                             )
                         )
                     }) {
-                        Text("Save")
+                        Text(stringResource(R.string.action_save))
                     }
                 }
             }
