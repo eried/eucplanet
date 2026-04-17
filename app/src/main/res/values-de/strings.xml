@@ -100,6 +100,7 @@
     <string name="announce_connection">Rad verbunden / getrennt</string>
     <string name="announce_gps">GPS verloren / wiederhergestellt</string>
     <string name="announce_legal_mode">Legal-Modus ein / aus</string>
+    <string name="announce_welcome">Begrüßungsnachricht beim Start</string>
     <string name="voice_selector_label">Stimme</string>
     <string name="voice_speech_speed">Sprechgeschwindigkeit</string>
     <string name="unit_x">x</string>
@@ -149,6 +150,7 @@
     <string name="voice_gps_lost">GPS-Signal verloren</string>
     <string name="voice_legal_on">Legal-Modus an</string>
     <string name="voice_legal_off">Legal-Modus aus</string>
+    <string name="voice_welcome">Willkommen zurück bei EUC Planet</string>
 
     <string name="lang_name_en">Englisch</string>
     <string name="lang_name_es">Spanisch</string>
@@ -267,4 +269,56 @@
     <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt.</string>
     <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AN — wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt.</string>
     <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AUS — eine Warnung beim Überschreiten von 30, dann still; du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann.</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Geschwindigkeit</string>
+    <string name="alarm_metric_battery">Akku</string>
+    <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_pwm">Last (PWM)</string>
+    <string name="alarm_metric_voltage">Spannung</string>
+    <string name="alarm_metric_current">Strom</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_gt">Größer als</string>
+    <string name="alarm_cmp_lt">Kleiner als</string>
+    <string name="alarm_cmp_ge">Größer oder gleich</string>
+    <string name="alarm_cmp_le">Kleiner oder gleich</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Keine</string>
+    <string name="flic_action_horn">Hupe</string>
+    <string name="flic_action_light">Licht umschalten</string>
+    <string name="flic_action_lock">Rad sperren</string>
+    <string name="flic_action_legal_toggle">Legal-Modus umschalten</string>
+    <string name="flic_action_legal_on">Legal-Modus AN</string>
+    <string name="flic_action_legal_off">Legal-Modus AUS</string>
+    <string name="flic_action_voice">Sprachansage</string>
+    <string name="flic_action_record">Aufnahme umschalten</string>
+    <string name="flic_action_media_play">Musik Play / Pause</string>
+    <string name="flic_action_media_next">Nächster Titel</string>
+    <string name="flic_action_media_prev">Vorheriger Titel</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Vorschau %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Piepton %1$dHz×%2$d</string>
+    <string name="alarm_summary_voice">Sprache</string>
+    <string name="alarm_summary_vibrate">Vibration</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Fahrt teilen</string>
+    <string name="export_trips_chooser">Fahrten exportieren</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Alarm-Test</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Suche\u2026</string>
+    <string name="flic_status_found_paired">Gekoppelten Knopf gefunden</string>
+    <string name="flic_status_found_connecting">Knopf gefunden, verbinde\u2026</string>
+    <string name="flic_status_connected_pairing">Verbunden, koppeln\u2026</string>
+    <string name="flic_status_accept_pairing">Kopplung am Telefon bestätigen\u2026</string>
+    <string name="flic_status_paired_fmt">Gekoppelt: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
 </resources>

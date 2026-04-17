@@ -2,6 +2,7 @@ package com.eried.evendarkerbot.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eried.evendarkerbot.R
 
 @Entity(tableName = "app_settings")
 data class AppSettings(
@@ -56,6 +57,7 @@ data class AppSettings(
     val announceConnection: Boolean = true,
     val announceGps: Boolean = true,
     val announceSafetyMode: Boolean = true,
+    val announceWelcome: Boolean = true,
 
     // Recording
     val autoRecord: Boolean = false,
@@ -102,17 +104,17 @@ data class AppSettings(
     val accentColor: String = "blue"
 )
 
-enum class FlicAction(val label: String) {
-    NONE("None"),
-    HORN("Horn"),
-    LIGHT_TOGGLE("Toggle Light"),
-    LOCK_TOGGLE("Lock Wheel"),
-    SAFETY_TOGGLE("Toggle Legal Mode"),
-    SAFETY_ON("Legal Mode ON"),
-    SAFETY_OFF("Legal Mode OFF"),
-    VOICE_ANNOUNCE("Voice Report"),
-    RECORD_TOGGLE("Toggle Recording"),
-    MEDIA_PLAY_PAUSE("Play / Pause Music"),
-    MEDIA_NEXT("Next Song"),
-    MEDIA_PREVIOUS("Previous Song")
+enum class FlicAction(val labelRes: Int) {
+    NONE(R.string.flic_action_none),
+    HORN(R.string.flic_action_horn),
+    LIGHT_TOGGLE(R.string.flic_action_light),
+    LOCK_TOGGLE(R.string.flic_action_lock),
+    SAFETY_TOGGLE(R.string.flic_action_legal_toggle),
+    SAFETY_ON(R.string.flic_action_legal_on),
+    SAFETY_OFF(R.string.flic_action_legal_off),
+    VOICE_ANNOUNCE(R.string.flic_action_voice),
+    RECORD_TOGGLE(R.string.flic_action_record),
+    MEDIA_PLAY_PAUSE(R.string.flic_action_media_play),
+    MEDIA_NEXT(R.string.flic_action_media_next),
+    MEDIA_PREVIOUS(R.string.flic_action_media_prev)
 }

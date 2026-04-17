@@ -211,17 +211,21 @@ private fun AlarmRuleCard(
                 Column(modifier = Modifier.weight(1f)) {
                     val shownThresh = displayThreshold(metric, rule.threshold, imperial).toInt()
                     val shownUnit = displayUnit(metric, imperial)
+                    val metricLabel = stringResource(metric.labelRes)
                     Text(
-                        rule.name.ifBlank { "${metric.label} ${comp.symbol} ${shownThresh}${shownUnit}" },
+                        rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" },
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
                         color = color
                     )
                     // Action summary
+                    val beepSummary = stringResource(R.string.alarm_summary_beep_fmt, rule.beepFrequency, rule.beepCount)
+                    val voiceSummary = stringResource(R.string.alarm_summary_voice)
+                    val vibrateSummary = stringResource(R.string.alarm_summary_vibrate)
                     val actions = buildList {
-                        if (rule.beepEnabled) add("Beep ${rule.beepFrequency}Hz×${rule.beepCount}")
-                        if (rule.voiceEnabled) add("Voice")
-                        if (rule.vibrateEnabled) add("Vibrate")
+                        if (rule.beepEnabled) add(beepSummary)
+                        if (rule.voiceEnabled) add(voiceSummary)
+                        if (rule.vibrateEnabled) add(vibrateSummary)
                     }
                     if (actions.isNotEmpty()) {
                         Text(
@@ -340,10 +344,11 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(6.dp))
 
                 // Metric dropdown
+                val metricOptions = AlarmMetric.entries.map { it.name to stringResource(it.labelRes) }
                 DropdownSelect(
                     label = stringResource(R.string.alarm_metric_label),
-                    selected = selectedMetric.label,
-                    options = AlarmMetric.entries.map { it.name to it.label },
+                    selected = stringResource(selectedMetric.labelRes),
+                    options = metricOptions,
                     onSelect = { metric = it }
                 )
 
@@ -351,10 +356,11 @@ private fun AlarmRuleEditorDialog(
 
                 // Comparator dropdown
                 val selectedComp = try { AlarmComparator.valueOf(comparator) } catch (_: Exception) { AlarmComparator.GREATER_THAN }
+                val comparatorOptions = AlarmComparator.entries.map { it.name to "${it.symbol} ${stringResource(it.labelRes)}" }
                 DropdownSelect(
                     label = stringResource(R.string.alarm_comparator_label),
-                    selected = selectedComp.label,
-                    options = AlarmComparator.entries.map { it.name to "${it.symbol} ${it.label}" },
+                    selected = stringResource(selectedComp.labelRes),
+                    options = comparatorOptions,
                     onSelect = { comparator = it }
                 )
 
@@ -576,7 +582,7 @@ private fun SectionTitleWithPreview(
         ) {
             Icon(
                 Icons.Default.PlayArrow,
-                contentDescription = "Preview $title",
+                contentDescription = stringResource(R.string.alarm_preview_fmt, title),
                 modifier = Modifier.size(14.dp),
                 tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)

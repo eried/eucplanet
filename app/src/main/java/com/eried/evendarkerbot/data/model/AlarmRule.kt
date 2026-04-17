@@ -2,6 +2,7 @@ package com.eried.evendarkerbot.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.eried.evendarkerbot.R
 
 @Entity(tableName = "alarm_rules")
 data class AlarmRule(
@@ -34,18 +35,18 @@ data class AlarmRule(
     val repeatWhileActive: Boolean = false
 )
 
-enum class AlarmMetric(val label: String, val unit: String) {
-    SPEED("Speed", "km/h"),
-    BATTERY("Battery", "%"),
-    TEMPERATURE("Temperature", "°C"),
-    PWM("Load (PWM)", "%"),
-    VOLTAGE("Voltage", "V"),
-    CURRENT("Current", "A")
+enum class AlarmMetric(val labelRes: Int, val unit: String) {
+    SPEED(R.string.alarm_metric_speed, "km/h"),
+    BATTERY(R.string.alarm_metric_battery, "%"),
+    TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
+    PWM(R.string.alarm_metric_pwm, "%"),
+    VOLTAGE(R.string.alarm_metric_voltage, "V"),
+    CURRENT(R.string.alarm_metric_current, "A")
 }
 
-enum class AlarmComparator(val label: String, val symbol: String) {
-    GREATER_THAN("Greater than", ">"),
-    LESS_THAN("Less than", "<"),
-    GREATER_EQUAL("Greater or equal", "≥"),
-    LESS_EQUAL("Less or equal", "≤")
+enum class AlarmComparator(val labelRes: Int, val symbol: String) {
+    GREATER_THAN(R.string.alarm_cmp_gt, ">"),
+    LESS_THAN(R.string.alarm_cmp_lt, "<"),
+    GREATER_EQUAL(R.string.alarm_cmp_ge, "≥"),
+    LESS_EQUAL(R.string.alarm_cmp_le, "≤")
 }

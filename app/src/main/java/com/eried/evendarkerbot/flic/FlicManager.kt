@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.AppSettings
 import com.eried.evendarkerbot.data.model.FlicAction
 import com.eried.evendarkerbot.data.repository.SettingsRepository
@@ -75,34 +76,34 @@ class FlicManager @Inject constructor(
     fun startScan() {
         val manager = flic2Manager ?: return
         _scanning.value = true
-        _scanStatus.value = "Scanning..."
+        _scanStatus.value = context.getString(R.string.flic_status_scanning)
 
         manager.startScan(object : Flic2ScanCallback {
             override fun onDiscoveredAlreadyPairedButton(button: Flic2Button) {
                 Log.i(TAG, "Already paired: ${button.bdAddr}")
-                _scanStatus.value = "Found paired button"
+                _scanStatus.value = context.getString(R.string.flic_status_found_paired)
                 button.addListener(buttonListener)
                 button.connect()
             }
 
             override fun onDiscovered(bdAddr: String) {
                 Log.i(TAG, "Discovered: $bdAddr")
-                _scanStatus.value = "Found button, connecting..."
+                _scanStatus.value = context.getString(R.string.flic_status_found_connecting)
             }
 
             override fun onConnected() {
-                _scanStatus.value = "Connected, pairing..."
+                _scanStatus.value = context.getString(R.string.flic_status_connected_pairing)
             }
 
             override fun onAskToAcceptPairRequest() {
-                _scanStatus.value = "Accept pairing on phone..."
+                _scanStatus.value = context.getString(R.string.flic_status_accept_pairing)
             }
 
             override fun onComplete(result: Int, subCode: Int, button: Flic2Button?) {
                 _scanning.value = false
                 if (result == Flic2ScanCallback.RESULT_SUCCESS && button != null) {
                     Log.i(TAG, "Paired: ${button.bdAddr} name=${button.name}")
-                    _scanStatus.value = "Paired: ${button.name ?: button.bdAddr}"
+                    _scanStatus.value = context.getString(R.string.flic_status_paired_fmt, button.name ?: button.bdAddr)
                     button.addListener(buttonListener)
                     button.connect()
                     _pairedButtons.value = flic2Manager?.buttons ?: emptyList()
@@ -111,7 +112,7 @@ class FlicManager @Inject constructor(
                     scope.launch { saveButtonAddress(button.bdAddr) }
                 } else {
                     Log.w(TAG, "Scan failed: result=$result subCode=$subCode")
-                    _scanStatus.value = "Scan failed (code $result)"
+                    _scanStatus.value = context.getString(R.string.flic_status_scan_failed_fmt, result)
                 }
             }
         })

@@ -143,7 +143,7 @@ class AlarmEngine @Inject constructor(
         data: WheelData,
         triggerValue: Float
     ): String {
-        val metricLabel = try { AlarmMetric.valueOf(rule.metric).label } catch (_: Exception) { rule.metric }
+        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).labelRes) } catch (_: Exception) { rule.metric }
         return template
             .replace("{speed}", "%.0f".format(data.speed.absoluteValue))
             .replace("{battery}", "${data.batteryPercent}")

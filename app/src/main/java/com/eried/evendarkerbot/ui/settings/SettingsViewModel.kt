@@ -117,6 +117,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAnnounceConnection(v: Boolean) = update { copy(announceConnection = v) }
     fun updateAnnounceGps(v: Boolean) = update { copy(announceGps = v) }
     fun updateAnnounceSafetyMode(v: Boolean) = update { copy(announceSafetyMode = v) }
+    fun updateAnnounceWelcome(v: Boolean) = update { copy(announceWelcome = v) }
 
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
 

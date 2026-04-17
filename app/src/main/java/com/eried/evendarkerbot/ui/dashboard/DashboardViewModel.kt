@@ -90,6 +90,7 @@ class DashboardViewModel @Inject constructor(
 
     init {
         voiceService.initialize()
+        voiceService.welcomeOnce()
         autoConnectIfNeeded()
     }
 

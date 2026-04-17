@@ -7,6 +7,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.db.AlarmDao
 import com.eried.evendarkerbot.data.model.AlarmRule
 import com.eried.evendarkerbot.data.repository.SettingsRepository
@@ -91,7 +92,7 @@ class AlarmViewModel @Inject constructor(
     }
 
     fun previewVoice(text: String) {
-        val preview = text.ifBlank { "Alarm test" }
+        val preview = text.ifBlank { context.getString(R.string.alarm_test_default) }
             .replace("{speed}", "35")
             .replace("{battery}", "80")
             .replace("{temp}", "40")
