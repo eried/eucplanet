@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 12: Ember Globe - dark globe with molten cracks + fire glow -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Fire glow behind -->
+    <path android:pathData="M54,14 A40,40 0,1,1 53.99,14 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="44">
+                <item android:offset="0.0" android:color="#00FF6D00"/>
+                <item android:offset="0.75" android:color="#40FF6D00"/>
+                <item android:offset="1.0" android:color="#CCFF6D00"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Dark planet body -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="46" android:centerY="44"
+                android:gradientRadius="38">
+                <item android:offset="0.0" android:color="#FF424242"/>
+                <item android:offset="1.0" android:color="#FF1A1A1A"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Lava cracks -->
+    <path android:fillColor="#00000000" android:strokeColor="#FFFF6D00" android:strokeWidth="2"
+        android:pathData="M32,40 Q42,38 48,44 Q54,50 62,46 Q70,42 78,46"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFF8F00" android:strokeWidth="1.5"
+        android:pathData="M28,56 Q38,52 46,58 Q52,64 60,60 Q68,56 76,62"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFF6D00" android:strokeWidth="1.5"
+        android:pathData="M36,70 Q46,66 54,72 Q62,78 72,72"/>
+    <!-- Inner glow at cracks -->
+    <path android:fillColor="#00000000" android:strokeColor="#40FFD740" android:strokeWidth="4"
+        android:pathData="M32,40 Q42,38 48,44 Q54,50 62,46 Q70,42 78,46"/>
+    <path android:fillColor="#00000000" android:strokeColor="#30FFD740" android:strokeWidth="3"
+        android:pathData="M28,56 Q38,52 46,58 Q52,64 60,60 Q68,56 76,62"/>
+</vector>

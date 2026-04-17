@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 11: Cyber Wheel - tron-style glowing segments -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Dark wheel body -->
+    <path android:pathData="M54,18 A36,36 0,1,1 53.99,18 Z M54,28 A26,26 0,1,0 54.01,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="40">
+                <item android:offset="0.0" android:color="#FF263238"/>
+                <item android:offset="1.0" android:color="#FF0D1517"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Glowing segments on rim -->
+    <path android:fillColor="#00000000" android:strokeWidth="4"
+        android:pathData="M54,18 A36,36 0,0,1 86,36">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="54" android:startY="18"
+                android:endX="86" android:endY="36">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="1.0" android:color="#4000E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#00000000" android:strokeWidth="4"
+        android:pathData="M86,72 A36,36 0,0,1 54,90">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="86" android:startY="72"
+                android:endX="54" android:endY="90">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="1.0" android:color="#4000E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#00000000" android:strokeWidth="4"
+        android:pathData="M22,36 A36,36 0,0,1 54,18">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="22" android:startY="36"
+                android:endX="54" android:endY="18">
+                <item android:offset="0.0" android:color="#4000E5FF"/>
+                <item android:offset="1.0" android:color="#FF00E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Inner glow ring -->
+    <path android:fillColor="#00000000" android:strokeColor="#6000E5FF" android:strokeWidth="1.5"
+        android:pathData="M54,30 A24,24 0,1,1 53.99,30 Z"/>
+    <!-- Center hub glow -->
+    <path android:pathData="M54,48 A6,6 0,1,1 53.99,48 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="48"
+                android:gradientRadius="8">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="1.0" android:color="#4000E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Glow spokes -->
+    <path android:fillColor="#8000E5FF" android:pathData="M53.5,30 L54.5,30 L54.5,48 L53.5,48 Z"/>
+    <path android:fillColor="#8000E5FF" android:pathData="M53.5,56 L54.5,56 L54.5,78 L53.5,78 Z"/>
+    <path android:fillColor="#8000E5FF" android:pathData="M54,54 L34,42 L34.5,41 L54,53 Z"/>
+    <path android:fillColor="#8000E5FF" android:pathData="M54,54 L74,42 L73.5,41 L54,53 Z"/>
+</vector>

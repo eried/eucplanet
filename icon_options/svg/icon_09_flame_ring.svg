@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g9glow" cx="54" cy="54" r="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6D00" stop-opacity="0"/>
+      <stop offset="0.6" stop-color="#FF6D00" stop-opacity="0.25"/>
+      <stop offset="0.8" stop-color="#FF9100" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FF6D00"/>
+    </radialGradient>
+    <radialGradient id="g9rim" cx="48" cy="46" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD740"/>
+      <stop offset="0.5" stop-color="#FF9100"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+    <radialGradient id="g9hub" cx="53" cy="48" r="6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFCC"/>
+      <stop offset="1" stop-color="#FFD740"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Fire halo -->
+  <circle cx="54" cy="54" r="46" fill="url(#g9glow)"/>
+  <!-- Wheel rim -->
+  <path d="M54,24 A30,30 0,1,1 53.99,24 Z M54,32 A22,22 0,1,0 54.01,32 Z" fill="url(#g9rim)"/>
+  <!-- Hub -->
+  <circle cx="54" cy="54" r="5" fill="url(#g9hub)"/>
+  <!-- Spokes -->
+  <rect x="53.5" y="32" width="1" height="17" fill="#FFD740"/>
+  <rect x="53.5" y="55" width="1" height="21" fill="#FFD740"/>
+  <line x1="54" y1="54" x2="34" y2="42" stroke="#FFD740" stroke-width="1"/>
+  <line x1="54" y1="54" x2="74" y2="42" stroke="#FFD740" stroke-width="1"/>
+</svg>

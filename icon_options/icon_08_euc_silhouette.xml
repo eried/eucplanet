@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 8: EUC Silhouette - side view of unicycle wheel with pedals -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Main wheel -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z M54,28 A26,26 0,1,0 54.01,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="38">
+                <item android:offset="0.0" android:color="#FF78909C"/>
+                <item android:offset="1.0" android:color="#FF37474F"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Tire tread highlight -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z M54,24 A30,30 0,1,0 54.01,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="46" android:centerY="38"
+                android:gradientRadius="40">
+                <item android:offset="0.0" android:color="#30FFFFFF"/>
+                <item android:offset="1.0" android:color="#00FFFFFF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hub motor -->
+    <path android:pathData="M54,42 A12,12 0,1,1 53.99,42 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="50" android:centerY="50"
+                android:gradientRadius="14">
+                <item android:offset="0.0" android:color="#FF4FC3F7"/>
+                <item android:offset="1.0" android:color="#FF0277BD"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Left pedal -->
+    <path android:fillColor="#FF4FC3F7" android:pathData="M20,52 L42,52 L42,56 L20,56 Z"/>
+    <!-- Right pedal -->
+    <path android:fillColor="#FF4FC3F7" android:pathData="M66,52 L88,52 L88,56 L66,56 Z"/>
+    <!-- Center axle -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M54,50 A4,4 0,1,1 53.99,50 Z"/>
+</vector>

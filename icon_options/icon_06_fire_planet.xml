@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6: Fire Planet - planet with fire gradient surface + ring -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Planet body - fire gradient -->
+    <path android:pathData="M54,22 A32,32 0,1,1 53.99,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="44" android:centerY="42"
+                android:gradientRadius="38">
+                <item android:offset="0.0" android:color="#FFFFD740"/>
+                <item android:offset="0.3" android:color="#FFFF9100"/>
+                <item android:offset="0.6" android:color="#FFFF6D00"/>
+                <item android:offset="1.0" android:color="#FFE65100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Surface lava flows -->
+    <path android:fillColor="#40BF360F" android:pathData="M30,45 Q42,40 54,44 Q66,48 78,43 Q78,50 76,52 Q64,48 54,52 Q42,56 30,50 Z"/>
+    <path android:fillColor="#40BF360F" android:pathData="M34,60 Q46,56 58,60 Q70,64 76,60 Q74,66 70,70 Q60,66 50,68 Q40,70 34,66 Z"/>
+    <!-- Orbital ring -->
+    <path android:fillColor="#00000000" android:strokeWidth="3"
+        android:pathData="M12,54 Q33,26 54,26 Q75,26 96,54 Q75,82 54,82 Q33,82 12,54 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="12" android:startY="54"
+                android:endX="96" android:endY="54">
+                <item android:offset="0.0" android:color="#FFFFD54F"/>
+                <item android:offset="0.5" android:color="#FFFF8F00"/>
+                <item android:offset="1.0" android:color="#FFFFD54F"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

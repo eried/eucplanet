@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g2a" x1="20" y1="54" x2="44" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6F00"/>
+      <stop offset="0.5" stop-color="#FF9100"/>
+      <stop offset="1" stop-color="#FFAB00"/>
+    </linearGradient>
+    <linearGradient id="g2b" x1="28" y1="52" x2="42" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFAB00"/>
+      <stop offset="1" stop-color="#FFD740"/>
+    </linearGradient>
+    <radialGradient id="g2c" cx="58" cy="54" r="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6D00"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Flame trail -->
+  <path d="M20,58 Q28,40 34,50 Q30,35 38,44 Q35,30 44,42 L44,62 Q38,68 30,64 Q24,62 20,58 Z" fill="url(#g2a)"/>
+  <path d="M28,56 Q33,44 38,50 Q36,38 42,46 L42,58 Q36,62 30,60 Z" fill="url(#g2b)"/>
+  <!-- Wheel -->
+  <path d="M58,22 A32,32 0,1,1 57.99,22 Z M58,30 A24,24 0,1,0 58.01,30 Z" fill="url(#g2c)"/>
+  <circle cx="58" cy="54" r="6" fill="#FFAB00"/>
+  <rect x="57" y="30" width="2" height="18" fill="#FFAB00"/>
+  <rect x="57" y="56" width="2" height="22" fill="#FFAB00"/>
+  <line x1="58" y1="54" x2="37" y2="40" stroke="#FFAB00" stroke-width="2"/>
+  <line x1="58" y1="54" x2="79" y2="40" stroke="#FFAB00" stroke-width="2"/>
+</svg>

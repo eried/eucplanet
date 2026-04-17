@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 17: Earth Wheel - earth-like globe with continents suggesting wheel shape -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Ocean sphere -->
+    <path android:pathData="M54,18 A36,36 0,1,1 53.99,18 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="44" android:centerY="42"
+                android:gradientRadius="42">
+                <item android:offset="0.0" android:color="#FF42A5F5"/>
+                <item android:offset="0.5" android:color="#FF1565C0"/>
+                <item android:offset="1.0" android:color="#FF0D47A1"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Continents (teal/green) -->
+    <path android:pathData="M36,32 Q42,28 50,30 Q56,32 54,38 Q50,44 42,42 Q34,40 36,32 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="44" android:centerY="36"
+                android:gradientRadius="12">
+                <item android:offset="0.0" android:color="#FF66BB6A"/>
+                <item android:offset="1.0" android:color="#FF2E7D32"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M56,44 Q64,40 72,44 Q78,50 74,58 Q68,62 60,58 Q54,52 56,44 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="66" android:centerY="50"
+                android:gradientRadius="14">
+                <item android:offset="0.0" android:color="#FF66BB6A"/>
+                <item android:offset="1.0" android:color="#FF2E7D32"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M38,58 Q44,54 50,58 Q54,64 48,70 Q40,72 36,66 Q34,62 38,58 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="44" android:centerY="64"
+                android:gradientRadius="10">
+                <item android:offset="0.0" android:color="#FF66BB6A"/>
+                <item android:offset="1.0" android:color="#FF2E7D32"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Atmosphere rim glow -->
+    <path android:pathData="M54,16 A38,38 0,1,1 53.99,16 Z M54,18 A36,36 0,1,0 54.01,18 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="40">
+                <item android:offset="0.0" android:color="#0080D8FF"/>
+                <item android:offset="1.0" android:color="#6680D8FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Specular highlight -->
+    <path android:fillColor="#18FFFFFF" android:pathData="M38,28 A20,16 0,0,1 70,28 Q54,24 38,28 Z"/>
+</vector>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4: Speedometer - gauge dial with gradient arc -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Outer gauge ring -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z M54,26 A28,28 0,1,0 54.01,26 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="sweep" android:centerX="54" android:centerY="54">
+                <item android:offset="0.0" android:color="#FF4CAF50"/>
+                <item android:offset="0.35" android:color="#FFFFEB3B"/>
+                <item android:offset="0.6" android:color="#FFFF9800"/>
+                <item android:offset="0.85" android:color="#FFF44336"/>
+                <item android:offset="1.0" android:color="#FF4CAF50"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Inner dark circle -->
+    <path android:pathData="M54,28 A26,26 0,1,1 53.99,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="28">
+                <item android:offset="0.0" android:color="#FF2C2C2C"/>
+                <item android:offset="1.0" android:color="#FF1A1A1A"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Needle -->
+    <path android:fillColor="#FFF44336" android:pathData="M53,54 L55,54 L72,34 L71,33 Z"/>
+    <!-- Hub dot -->
+    <path android:fillColor="#FFFFFF" android:pathData="M54,50 A4,4 0,1,1 53.99,50 Z"/>
+    <!-- "km/h" text area hint -->
+    <path android:fillColor="#80FFFFFF" android:pathData="M44,68 L64,68 L64,74 L44,74 Z" android:fillAlpha="0.1"/>
+</vector>

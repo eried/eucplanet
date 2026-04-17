@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g7a" cx="42" cy="40" r="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#81D4FA"/>
+      <stop offset="0.5" stop-color="#4FC3F7"/>
+      <stop offset="1" stop-color="#0288D1"/>
+    </radialGradient>
+    <radialGradient id="g7b" cx="53" cy="48" r="6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="1" stop-color="#4FC3F7"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Thick ring -->
+  <path d="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z" fill="url(#g7a)"/>
+  <!-- Center dot -->
+  <circle cx="54" cy="54" r="5" fill="url(#g7b)"/>
+</svg>

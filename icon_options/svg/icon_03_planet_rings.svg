@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g3a" cx="46" cy="44" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FC3F7"/>
+      <stop offset="0.5" stop-color="#0288D1"/>
+      <stop offset="1" stop-color="#01579B"/>
+    </radialGradient>
+    <linearGradient id="g3b" x1="16" y1="54" x2="92" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD54F"/>
+      <stop offset="0.5" stop-color="#FFAB00"/>
+      <stop offset="1" stop-color="#FFD54F"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Planet -->
+  <circle cx="54" cy="54" r="30" fill="url(#g3a)"/>
+  <path d="M28,42 Q54,38 80,42 Q80,48 78,50 Q54,46 30,50 Q28,48 28,42 Z" fill="#00E5FF" opacity="0.16"/>
+  <path d="M30,56 Q54,52 78,56 Q78,60 76,62 Q54,58 32,62 Q30,60 30,56 Z" fill="#00E5FF" opacity="0.16"/>
+  <!-- Ring -->
+  <ellipse cx="54" cy="54" rx="42" ry="16" fill="none" stroke="url(#g3b)" stroke-width="3.5" transform="rotate(-20 54 54)"/>
+</svg>

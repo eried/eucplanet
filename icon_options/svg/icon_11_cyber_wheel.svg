@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g11body" cx="54" cy="54" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#263238"/>
+      <stop offset="1" stop-color="#0D1517"/>
+    </radialGradient>
+    <radialGradient id="g11hub" cx="54" cy="48" r="8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="1" stop-color="#00E5FF" stop-opacity="0.25"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Dark body -->
+  <path d="M54,18 A36,36 0,1,1 53.99,18 Z M54,28 A26,26 0,1,0 54.01,28 Z" fill="url(#g11body)"/>
+  <!-- Glowing arc segments -->
+  <circle cx="54" cy="54" r="36" fill="none" stroke="#00E5FF" stroke-width="4" stroke-dasharray="30 20" opacity="0.8"/>
+  <!-- Inner ring -->
+  <circle cx="54" cy="54" r="26" fill="none" stroke="#00E5FF" stroke-width="1.5" opacity="0.4"/>
+  <!-- Hub -->
+  <circle cx="54" cy="54" r="6" fill="url(#g11hub)"/>
+  <!-- Spokes -->
+  <rect x="53.5" y="30" width="1" height="18" fill="#00E5FF" opacity="0.5"/>
+  <rect x="53.5" y="56" width="1" height="22" fill="#00E5FF" opacity="0.5"/>
+  <line x1="54" y1="54" x2="34" y2="42" stroke="#00E5FF" stroke-width="1" opacity="0.5"/>
+  <line x1="54" y1="54" x2="74" y2="42" stroke="#00E5FF" stroke-width="1" opacity="0.5"/>
+</svg>

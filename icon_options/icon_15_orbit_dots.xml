@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 15: Orbit Dots - clean planet with orbiting particles -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Planet -->
+    <path android:pathData="M54,24 A30,30 0,1,1 53.99,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="46" android:centerY="46"
+                android:gradientRadius="34">
+                <item android:offset="0.0" android:color="#FF64B5F6"/>
+                <item android:offset="0.6" android:color="#FF1E88E5"/>
+                <item android:offset="1.0" android:color="#FF0D47A1"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Atmosphere glow -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z M54,24 A30,30 0,1,0 54.01,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="38">
+                <item android:offset="0.0" android:color="#0064B5F6"/>
+                <item android:offset="1.0" android:color="#4064B5F6"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Orbit ring -->
+    <path android:fillColor="#00000000" android:strokeWidth="1.5"
+        android:pathData="M54,16 A38,16 0,1,1 53.99,16 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="16" android:startY="32"
+                android:endX="92" android:endY="32">
+                <item android:offset="0.0" android:color="#40FFFFFF"/>
+                <item android:offset="0.5" android:color="#CCFFFFFF"/>
+                <item android:offset="1.0" android:color="#40FFFFFF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Orbiting particles -->
+    <path android:fillColor="#FFFFD54F" android:pathData="M88,32 A4,4 0,1,1 87.99,32 Z"/>
+    <path android:fillColor="#FFFF9100" android:pathData="M20,32 A2.5,2.5 0,1,1 19.99,32 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M54,16 A2,2 0,1,1 53.99,16 Z"/>
+    <!-- Surface highlight -->
+    <path android:pathData="M42,36 A14,14 0,0,1 66,36 Q54,32 42,36 Z" android:fillColor="#20FFFFFF"/>
+</vector>

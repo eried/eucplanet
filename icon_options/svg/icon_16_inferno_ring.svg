@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g16outer" cx="54" cy="54" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6D00" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FF3D00"/>
+    </radialGradient>
+    <radialGradient id="g16center" cx="50" cy="48" r="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFCC"/>
+      <stop offset="0.3" stop-color="#FFD740"/>
+      <stop offset="0.6" stop-color="#FF9100"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Outer fire glow -->
+  <path d="M54,12 A42,42 0,1,1 53.99,12 Z M54,20 A34,34 0,1,0 54.01,20 Z" fill="url(#g16outer)"/>
+  <!-- Main fiery ring - simulated sweep gradient with overlapping arcs -->
+  <circle cx="54" cy="54" r="30" fill="none" stroke="#FF6D00" stroke-width="14"/>
+  <circle cx="54" cy="54" r="30" fill="none" stroke="#FFD740" stroke-width="14" stroke-dasharray="25 170" stroke-dashoffset="0" opacity="0.7"/>
+  <circle cx="54" cy="54" r="30" fill="none" stroke="#FF9100" stroke-width="14" stroke-dasharray="30 164" stroke-dashoffset="-50" opacity="0.8"/>
+  <circle cx="54" cy="54" r="30" fill="none" stroke="#FFD740" stroke-width="14" stroke-dasharray="20 174" stroke-dashoffset="-100" opacity="0.6"/>
+  <circle cx="54" cy="54" r="30" fill="none" stroke="#E65100" stroke-width="14" stroke-dasharray="35 159" stroke-dashoffset="-140" opacity="0.7"/>
+  <!-- Molten center -->
+  <circle cx="54" cy="54" r="20" fill="url(#g16center)"/>
+</svg>

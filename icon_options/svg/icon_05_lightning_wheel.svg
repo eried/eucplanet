@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g5a" cx="54" cy="54" r="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FC3F7"/>
+      <stop offset="1" stop-color="#0277BD"/>
+    </radialGradient>
+    <linearGradient id="g5b" x1="54" y1="20" x2="54" y2="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD740"/>
+      <stop offset="0.5" stop-color="#FFAB00"/>
+      <stop offset="1" stop-color="#FF8F00"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Wheel -->
+  <path d="M54,20 A34,34 0,1,1 53.99,20 Z M54,28 A26,26 0,1,0 54.01,28 Z" fill="url(#g5a)"/>
+  <!-- Lightning bolt -->
+  <polygon points="58,20 48,48 56,48 46,82 66,46 56,46 64,22" fill="url(#g5b)"/>
+  <!-- Glow -->
+  <polygon points="58,20 48,48 56,48 46,82 66,46 56,46 64,22" fill="white" opacity="0.15"/>
+</svg>

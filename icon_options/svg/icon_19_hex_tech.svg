@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g19hex" x1="54" y1="14" x2="54" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1A237E"/>
+      <stop offset="0.5" stop-color="#0D1240"/>
+      <stop offset="1" stop-color="#1A237E"/>
+    </linearGradient>
+    <linearGradient id="g19border" x1="20" y1="14" x2="88" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="0.5" stop-color="#304FFE"/>
+      <stop offset="1" stop-color="#00E5FF"/>
+    </linearGradient>
+    <radialGradient id="g19wheel" cx="54" cy="54" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="1" stop-color="#0091EA"/>
+    </radialGradient>
+    <radialGradient id="g19hub" cx="53" cy="49" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="1" stop-color="#00E5FF"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Hexagon -->
+  <polygon points="54,14 88,34 88,74 54,94 20,74 20,34" fill="url(#g19hex)"/>
+  <polygon points="54,14 88,34 88,74 54,94 20,74 20,34" fill="none" stroke="url(#g19border)" stroke-width="2"/>
+  <!-- Wheel -->
+  <path d="M54,28 A26,26 0,1,1 53.99,28 Z M54,36 A18,18 0,1,0 54.01,36 Z" fill="url(#g19wheel)"/>
+  <circle cx="54" cy="54" r="4" fill="url(#g19hub)"/>
+  <!-- Spokes -->
+  <rect x="53.5" y="36" width="1" height="14" fill="#00E5FF" opacity="0.8"/>
+  <rect x="53.5" y="58" width="1" height="14" fill="#00E5FF" opacity="0.8"/>
+  <line x1="54" y1="54" x2="40" y2="44" stroke="#00E5FF" stroke-width="1" opacity="0.8"/>
+  <line x1="54" y1="54" x2="68" y2="44" stroke="#00E5FF" stroke-width="1" opacity="0.8"/>
+  <line x1="54" y1="54" x2="40" y2="64" stroke="#00E5FF" stroke-width="1" opacity="0.8"/>
+  <line x1="54" y1="54" x2="68" y2="64" stroke="#00E5FF" stroke-width="1" opacity="0.8"/>
+  <!-- Corner accents -->
+  <polygon points="54,14 62,18 54,22 46,18" fill="#00E5FF" opacity="0.25"/>
+  <polygon points="54,86 62,90 54,94 46,90" fill="#00E5FF" opacity="0.25"/>
+</svg>

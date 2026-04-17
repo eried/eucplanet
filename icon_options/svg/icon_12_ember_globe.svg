@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g12glow" cx="54" cy="54" r="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF6D00" stop-opacity="0"/>
+      <stop offset="0.75" stop-color="#FF6D00" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#FF6D00" stop-opacity="0.8"/>
+    </radialGradient>
+    <radialGradient id="g12body" cx="46" cy="44" r="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#424242"/>
+      <stop offset="1" stop-color="#1A1A1A"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Fire glow -->
+  <circle cx="54" cy="54" r="42" fill="url(#g12glow)"/>
+  <!-- Dark planet -->
+  <circle cx="54" cy="54" r="34" fill="url(#g12body)"/>
+  <!-- Lava cracks -->
+  <path d="M32,40 Q42,38 48,44 Q54,50 62,46 Q70,42 78,46" fill="none" stroke="#FF6D00" stroke-width="2"/>
+  <path d="M28,56 Q38,52 46,58 Q52,64 60,60 Q68,56 76,62" fill="none" stroke="#FF8F00" stroke-width="1.5"/>
+  <path d="M36,70 Q46,66 54,72 Q62,78 72,72" fill="none" stroke="#FF6D00" stroke-width="1.5"/>
+  <!-- Glow on cracks -->
+  <path d="M32,40 Q42,38 48,44 Q54,50 62,46 Q70,42 78,46" fill="none" stroke="#FFD740" stroke-width="4" opacity="0.15"/>
+  <path d="M28,56 Q38,52 46,58 Q52,64 60,60 Q68,56 76,62" fill="none" stroke="#FFD740" stroke-width="3" opacity="0.12"/>
+</svg>

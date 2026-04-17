@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g14trail" x1="10" y1="80" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF9100" stop-opacity="0"/>
+      <stop offset="0.4" stop-color="#FF9100" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#FF9100"/>
+    </linearGradient>
+    <linearGradient id="g14inner" x1="22" y1="78" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD740" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFD740" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FFD740"/>
+    </linearGradient>
+    <radialGradient id="g14rim" cx="56" cy="42" r="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FC3F7"/>
+      <stop offset="1" stop-color="#0277BD"/>
+    </radialGradient>
+    <radialGradient id="g14hub" cx="61" cy="43" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="1" stop-color="#4FC3F7"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Comet trail -->
+  <path d="M10,80 Q20,72 32,66 Q44,60 52,54 L52,58 Q40,64 28,72 Q18,78 10,84 Z" fill="url(#g14trail)"/>
+  <path d="M22,78 Q30,72 40,66 Q48,62 52,56 L52,58 Q46,64 38,68 Q28,74 22,80 Z" fill="url(#g14inner)"/>
+  <!-- Wheel -->
+  <path d="M62,18 A30,30 0,1,1 61.99,18 Z M62,26 A22,22 0,1,0 62.01,26 Z" fill="url(#g14rim)"/>
+  <circle cx="62" cy="48" r="4" fill="url(#g14hub)"/>
+  <rect x="61.5" y="26" width="1" height="18" fill="#4FC3F7"/>
+  <rect x="61.5" y="52" width="1" height="20" fill="#4FC3F7"/>
+  <line x1="62" y1="48" x2="46" y2="38" stroke="#4FC3F7" stroke-width="1"/>
+  <line x1="62" y1="48" x2="78" y2="38" stroke="#4FC3F7" stroke-width="1"/>
+</svg>

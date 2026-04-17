@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g13shield" x1="54" y1="14" x2="54" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1565C0"/>
+      <stop offset="0.5" stop-color="#0D47A1"/>
+      <stop offset="1" stop-color="#0A3069"/>
+    </linearGradient>
+    <linearGradient id="g13border" x1="54" y1="16" x2="54" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#42A5F5"/>
+      <stop offset="1" stop-color="#1565C0"/>
+    </linearGradient>
+    <radialGradient id="g13wheel" cx="54" cy="54" r="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4FC3F7"/>
+      <stop offset="1" stop-color="#29B6F6"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Shield -->
+  <path d="M54,14 L86,28 L86,56 Q86,80 54,94 Q22,80 22,56 L22,28 Z" fill="url(#g13shield)"/>
+  <path d="M54,16 L84,29 L84,56 Q84,78 54,92 Q24,78 24,56 L24,29 Z" fill="none" stroke="url(#g13border)" stroke-width="2"/>
+  <!-- Wheel -->
+  <path d="M54,30 A24,24 0,1,1 53.99,30 Z M54,36 A18,18 0,1,0 54.01,36 Z" fill="url(#g13wheel)"/>
+  <circle cx="54" cy="54" r="4" fill="#4FC3F7"/>
+  <rect x="53.5" y="36" width="1" height="14" fill="#4FC3F7"/>
+  <rect x="53.5" y="58" width="1" height="14" fill="#4FC3F7"/>
+  <line x1="54" y1="54" x2="40" y2="44" stroke="#4FC3F7" stroke-width="1"/>
+  <line x1="54" y1="54" x2="68" y2="44" stroke="#4FC3F7" stroke-width="1"/>
+</svg>

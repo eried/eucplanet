@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 14: Comet Wheel - wheel streaking like a comet with fire trail -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Comet trail -->
+    <path android:pathData="M10,80 Q20,72 32,66 Q44,60 52,54 L52,58 Q40,64 28,72 Q18,78 10,84 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="10" android:startY="80"
+                android:endX="52" android:endY="54">
+                <item android:offset="0.0" android:color="#00FF9100"/>
+                <item android:offset="0.4" android:color="#60FF9100"/>
+                <item android:offset="1.0" android:color="#FFFF9100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Inner trail (hotter) -->
+    <path android:pathData="M22,78 Q30,72 40,66 Q48,62 52,56 L52,58 Q46,64 38,68 Q28,74 22,80 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="22" android:startY="78"
+                android:endX="52" android:endY="56">
+                <item android:offset="0.0" android:color="#00FFD740"/>
+                <item android:offset="0.5" android:color="#80FFD740"/>
+                <item android:offset="1.0" android:color="#FFFFD740"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Wheel rim -->
+    <path android:pathData="M62,18 A30,30 0,1,1 61.99,18 Z M62,26 A22,22 0,1,0 62.01,26 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="56" android:centerY="42"
+                android:gradientRadius="34">
+                <item android:offset="0.0" android:color="#FF4FC3F7"/>
+                <item android:offset="1.0" android:color="#FF0277BD"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hub -->
+    <path android:pathData="M62,44 A4,4 0,1,1 61.99,44 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="61" android:centerY="43"
+                android:gradientRadius="5">
+                <item android:offset="0.0" android:color="#FFFFFFFF"/>
+                <item android:offset="1.0" android:color="#FF4FC3F7"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Spokes -->
+    <path android:fillColor="#FF4FC3F7" android:pathData="M61.5,26 L62.5,26 L62.5,44 L61.5,44 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M61.5,52 L62.5,52 L62.5,72 L61.5,72 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M62,48 L46,38 L46.5,37 L62,47 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M62,48 L78,38 L77.5,37 L62,47 Z"/>
+</vector>

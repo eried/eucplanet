@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g6a" cx="44" cy="42" r="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD740"/>
+      <stop offset="0.3" stop-color="#FF9100"/>
+      <stop offset="0.6" stop-color="#FF6D00"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+    <linearGradient id="g6ring" x1="12" y1="54" x2="96" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD54F"/>
+      <stop offset="0.5" stop-color="#FF8F00"/>
+      <stop offset="1" stop-color="#FFD54F"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Planet body -->
+  <circle cx="54" cy="54" r="32" fill="url(#g6a)"/>
+  <!-- Lava flows -->
+  <path d="M30,45 Q42,40 54,44 Q66,48 78,43 Q78,50 76,52 Q64,48 54,52 Q42,56 30,50 Z" fill="#BF360F" opacity="0.25"/>
+  <path d="M34,60 Q46,56 58,60 Q70,64 76,60 Q74,66 70,70 Q60,66 50,68 Q40,70 34,66 Z" fill="#BF360F" opacity="0.25"/>
+  <!-- Ring -->
+  <ellipse cx="54" cy="54" rx="44" ry="14" fill="none" stroke="url(#g6ring)" stroke-width="3"/>
+</svg>

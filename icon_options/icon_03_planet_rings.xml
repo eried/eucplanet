@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 3: Saturn Planet - solid sphere with gradient + orbital ring -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Planet sphere -->
+    <path android:pathData="M54,22 A30,30 0,1,1 53.99,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="46" android:centerY="44"
+                android:gradientRadius="34">
+                <item android:offset="0.0" android:color="#FF4FC3F7"/>
+                <item android:offset="0.5" android:color="#FF0288D1"/>
+                <item android:offset="1.0" android:color="#FF01579B"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Surface bands -->
+    <path android:fillColor="#2900E5FF" android:pathData="M28,42 Q54,38 80,42 Q80,48 78,50 Q54,46 30,50 Q28,48 28,42 Z"/>
+    <path android:fillColor="#2900E5FF" android:pathData="M30,56 Q54,52 78,56 Q78,60 76,62 Q54,58 32,62 Q30,60 30,56 Z"/>
+    <!-- Ring behind planet (bottom part) -->
+    <path android:fillColor="#00000000" android:strokeWidth="3.5"
+        android:pathData="M54,78 Q78,78 92,54">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="54" android:startY="78"
+                android:endX="92" android:endY="54">
+                <item android:offset="0.0" android:color="#80FFD54F"/>
+                <item android:offset="1.0" android:color="#FFFFD54F"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Ring in front of planet (top part) -->
+    <path android:fillColor="#00000000" android:strokeWidth="3.5"
+        android:pathData="M16,54 Q30,30 54,30 Q78,30 92,54">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="16" android:startY="54"
+                android:endX="92" android:endY="54">
+                <item android:offset="0.0" android:color="#FFFFD54F"/>
+                <item android:offset="0.5" android:color="#FFFFAB00"/>
+                <item android:offset="1.0" android:color="#FFFFD54F"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:fillColor="#00000000" android:strokeWidth="3.5"
+        android:pathData="M16,54 Q30,78 54,78">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="16" android:startY="54"
+                android:endX="54" android:endY="78">
+                <item android:offset="0.0" android:color="#FFFFD54F"/>
+                <item android:offset="1.0" android:color="#80FFD54F"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
