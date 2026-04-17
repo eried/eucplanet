@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eried.evendarkerbot"
+    namespace = "com.eried.eucplanet"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.eried.evendarkerbot"
+        applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
         versionCode = 1
@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.documentfile)
 
     // Lifecycle
     implementation(libs.lifecycle.runtime)
@@ -100,4 +101,9 @@ dependencies {
 
     // Flic 2 button SDK
     implementation(libs.flic2)
+
+    // WorkManager (background trip upload)
+    implementation(libs.work.runtime)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.work.compiler)
 }

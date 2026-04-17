@@ -53,6 +53,7 @@
     <string name="tab_alarms">Сигналы</string>
     <string name="tab_auto">Авто</string>
     <string name="tab_integration">Интеграции</string>
+    <string name="tab_cloud">Облако</string>
 
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>

@@ -53,6 +53,7 @@
     <string name="tab_alarms">Alarmer</string>
     <string name="tab_auto">Auto</string>
     <string name="tab_integration">Integrasjon</string>
+    <string name="tab_cloud">Sky</string>
 
     <string name="section_recording">Opptak</string>
     <string name="section_connection">Tilkobling</string>

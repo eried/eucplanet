@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "EvenDarkerBot"
+rootProject.name = "EucPlanet"
 include(":app")

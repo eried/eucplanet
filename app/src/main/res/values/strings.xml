@@ -56,6 +56,36 @@
     <string name="tab_alarms">Alarms</string>
     <string name="tab_auto">Auto</string>
     <string name="tab_integration">Integration</string>
+    <string name="tab_cloud">Cloud</string>
+
+    <!-- Settings: Cloud -->
+    <string name="section_cloud_folder">Sync folder</string>
+    <string name="cloud_caption">Pick any folder that syncs to the cloud (OneDrive, Google Drive, Dropbox…). Trip CSVs and a settings backup get saved there and your cloud app uploads them.</string>
+    <string name="cloud_choose_folder">Choose folder</string>
+    <string name="cloud_change_folder">Change folder</string>
+    <string name="cloud_remove_folder">Disconnect</string>
+    <string name="cloud_no_folder">No folder selected</string>
+    <string name="cloud_folder_label">Folder: %1$s</string>
+    <string name="cloud_wifi_only">Upload on Wi-Fi only</string>
+    <string name="section_cloud_settings">Settings backup</string>
+    <string name="cloud_backup_now">Back up settings now</string>
+    <string name="cloud_restore">Restore settings from cloud</string>
+    <string name="cloud_last_backup">Last backup: %1$s</string>
+    <string name="cloud_last_backup_never">Not backed up yet</string>
+    <string name="cloud_backup_success">Settings backed up</string>
+    <string name="cloud_backup_failed">Backup failed. Check folder access.</string>
+    <string name="cloud_restore_success">Settings restored</string>
+    <string name="cloud_restore_failed">No backup found in folder</string>
+    <string name="section_cloud_trips">Trip uploads</string>
+    <string name="cloud_trips_caption">New recordings upload when they finish. If one fails, it tries again after the next recording.</string>
+    <string name="cloud_retry_now">Retry uploads now</string>
+    <string name="cloud_retry_enqueued">Upload scheduled</string>
+    <string name="cloud_uploaded_on">Backed up on %1$s</string>
+    <string name="cloud_not_uploaded">Not backed up yet</string>
+    <string name="cloud_upload_failed">Last upload failed</string>
+    <string name="cloud_restore_confirm_title">Restore settings?</string>
+    <string name="cloud_restore_confirm_body">Replace your current settings with the cloud backup? Your paired buttons and wheel connection won\'t be touched.</string>
+    <string name="action_restore">Restore</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Recording</string>
