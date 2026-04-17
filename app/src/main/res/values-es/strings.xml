@@ -100,6 +100,7 @@
     <string name="announce_connection">Rueda conectada / desconectada</string>
     <string name="announce_gps">Señal GPS perdida / recuperada</string>
     <string name="announce_legal_mode">Modo legal activado / desactivado</string>
+    <string name="announce_welcome">Mensaje de bienvenida al iniciar</string>
     <string name="voice_selector_label">Voz</string>
     <string name="voice_speech_speed">Velocidad del habla</string>
     <string name="unit_x">x</string>
@@ -149,6 +150,7 @@
     <string name="voice_gps_lost">Señal GPS perdida</string>
     <string name="voice_legal_on">Modo legal activado</string>
     <string name="voice_legal_off">Modo legal desactivado</string>
+    <string name="voice_welcome">Bienvenido de vuelta a EUC Planet</string>
 
     <string name="lang_name_en">inglés</string>
     <string name="lang_name_es">español</string>
@@ -267,4 +269,56 @@
     <string name="alarm_repeat_help">OFF: dispara una vez cuando empieza a cumplirse, luego silencio hasta que deje de cumplirse.\nON: sigue disparando cada N segundos mientras la condición sea cierta.</string>
     <string name="alarm_repeat_on_example_fmt">Ejemplo: velocidad &gt; 30, pausa %1$ds, repetir ON — si mantienes 35 km/h durante un minuto recibirás aviso cada %1$ds.</string>
     <string name="alarm_repeat_off_example_fmt">Ejemplo: velocidad &gt; 30, pausa %1$ds, repetir OFF — un aviso al cruzar 30, luego silencio; debes bajar de 30 (y esperar %1$ds) para que pueda dispararse de nuevo.</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Velocidad</string>
+    <string name="alarm_metric_battery">Batería</string>
+    <string name="alarm_metric_temperature">Temperatura</string>
+    <string name="alarm_metric_pwm">Carga (PWM)</string>
+    <string name="alarm_metric_voltage">Voltaje</string>
+    <string name="alarm_metric_current">Corriente</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_gt">Mayor que</string>
+    <string name="alarm_cmp_lt">Menor que</string>
+    <string name="alarm_cmp_ge">Mayor o igual</string>
+    <string name="alarm_cmp_le">Menor o igual</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Ninguna</string>
+    <string name="flic_action_horn">Bocina</string>
+    <string name="flic_action_light">Alternar luz</string>
+    <string name="flic_action_lock">Bloquear rueda</string>
+    <string name="flic_action_legal_toggle">Alternar modo legal</string>
+    <string name="flic_action_legal_on">Modo legal ACT.</string>
+    <string name="flic_action_legal_off">Modo legal DES.</string>
+    <string name="flic_action_voice">Reporte de voz</string>
+    <string name="flic_action_record">Alternar grabación</string>
+    <string name="flic_action_media_play">Reproducir / Pausar música</string>
+    <string name="flic_action_media_next">Siguiente canción</string>
+    <string name="flic_action_media_prev">Canción anterior</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Previsualizar %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Pitido %1$dHz×%2$d</string>
+    <string name="alarm_summary_voice">Voz</string>
+    <string name="alarm_summary_vibrate">Vibración</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Compartir viaje</string>
+    <string name="export_trips_chooser">Exportar viajes</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Prueba de alarma</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Buscando\u2026</string>
+    <string name="flic_status_found_paired">Botón emparejado encontrado</string>
+    <string name="flic_status_found_connecting">Botón encontrado, conectando\u2026</string>
+    <string name="flic_status_connected_pairing">Conectado, emparejando\u2026</string>
+    <string name="flic_status_accept_pairing">Acepta el emparejamiento en el teléfono\u2026</string>
+    <string name="flic_status_paired_fmt">Emparejado: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Búsqueda fallida (código %1$d)</string>
 </resources>

@@ -41,6 +41,9 @@ class VoiceService @Inject constructor(
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
     val availableVoices: StateFlow<List<VoiceOption>> = _availableVoices.asStateFlow()
 
+    @Volatile private var welcomedThisProcess = false
+    @Volatile private var welcomePending = false
+
     fun initialize() {
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
@@ -49,8 +52,31 @@ class VoiceService @Inject constructor(
                 Log.i(TAG, "TTS initialized")
                 loadAvailableVoices()
                 observeSettings()
+                if (welcomePending) {
+                    welcomePending = false
+                    speakWelcomeIfEnabled()
+                }
             } else {
                 Log.e(TAG, "TTS initialization failed: $status")
+            }
+        }
+    }
+
+    /**
+     * Called once per app launch. Fires the welcome message if enabled and TTS is ready;
+     * otherwise schedules it to fire as soon as TTS becomes ready.
+     */
+    fun welcomeOnce() {
+        if (welcomedThisProcess) return
+        welcomedThisProcess = true
+        if (isReady) speakWelcomeIfEnabled() else welcomePending = true
+    }
+
+    private fun speakWelcomeIfEnabled() {
+        scope.launch {
+            val s = settingsRepository.get()
+            if (s.announceWelcome) {
+                speak(context.getString(R.string.voice_welcome))
             }
         }
     }

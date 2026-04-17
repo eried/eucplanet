@@ -100,6 +100,7 @@
     <string name="announce_connection">Колесо подключено / отключено</string>
     <string name="announce_gps">GPS потерян / восстановлен</string>
     <string name="announce_legal_mode">Легальный режим вкл / выкл</string>
+    <string name="announce_welcome">Приветственное сообщение при запуске</string>
     <string name="voice_selector_label">Голос</string>
     <string name="voice_speech_speed">Скорость речи</string>
     <string name="unit_x">x</string>
@@ -149,6 +150,7 @@
     <string name="voice_gps_lost">GPS потерян</string>
     <string name="voice_legal_on">Легальный режим включён</string>
     <string name="voice_legal_off">Легальный режим выключен</string>
+    <string name="voice_welcome">С возвращением в EUC Planet</string>
 
     <string name="lang_name_en">английский</string>
     <string name="lang_name_es">испанский</string>
@@ -267,4 +269,56 @@
     <string name="alarm_repeat_help">ВЫКЛ: срабатывает один раз при начале совпадения условия, потом молчит до его исчезновения.\nВКЛ: повторяет каждые N секунд пока условие истинно.</string>
     <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ — при удержании 35 км/ч целую минуту будете получать предупреждение каждые %1$d с.</string>
     <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ — одно предупреждение при пересечении 30, затем тишина; нужно опуститься ниже 30 (и подождать %1$d с) чтобы сработало снова.</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Скорость</string>
+    <string name="alarm_metric_battery">Батарея</string>
+    <string name="alarm_metric_temperature">Температура</string>
+    <string name="alarm_metric_pwm">Нагрузка (PWM)</string>
+    <string name="alarm_metric_voltage">Напряжение</string>
+    <string name="alarm_metric_current">Ток</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_gt">Больше чем</string>
+    <string name="alarm_cmp_lt">Меньше чем</string>
+    <string name="alarm_cmp_ge">Больше или равно</string>
+    <string name="alarm_cmp_le">Меньше или равно</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Нет</string>
+    <string name="flic_action_horn">Гудок</string>
+    <string name="flic_action_light">Переключить свет</string>
+    <string name="flic_action_lock">Заблокировать колесо</string>
+    <string name="flic_action_legal_toggle">Переключить легальный режим</string>
+    <string name="flic_action_legal_on">Легальный режим ВКЛ</string>
+    <string name="flic_action_legal_off">Легальный режим ВЫКЛ</string>
+    <string name="flic_action_voice">Голосовой отчёт</string>
+    <string name="flic_action_record">Переключить запись</string>
+    <string name="flic_action_media_play">Воспроизвести / Пауза</string>
+    <string name="flic_action_media_next">Следующий трек</string>
+    <string name="flic_action_media_prev">Предыдущий трек</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Предпросмотр %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Сигнал %1$dГц×%2$d</string>
+    <string name="alarm_summary_voice">Голос</string>
+    <string name="alarm_summary_vibrate">Вибрация</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Поделиться поездкой</string>
+    <string name="export_trips_chooser">Экспорт поездок</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Тест тревоги</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Поиск\u2026</string>
+    <string name="flic_status_found_paired">Найдена сопряжённая кнопка</string>
+    <string name="flic_status_found_connecting">Кнопка найдена, подключение\u2026</string>
+    <string name="flic_status_connected_pairing">Подключено, сопряжение\u2026</string>
+    <string name="flic_status_accept_pairing">Подтвердите сопряжение на телефоне\u2026</string>
+    <string name="flic_status_paired_fmt">Сопряжено: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 </resources>

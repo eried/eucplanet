@@ -334,6 +334,7 @@ private fun VoiceTab(
         val sGpsLost = stringResource(R.string.voice_gps_lost)
         val sLegalOn = stringResource(R.string.voice_legal_on)
         val sLegalOff = stringResource(R.string.voice_legal_off)
+        val sWelcome = stringResource(R.string.voice_welcome)
 
         AnnounceSwitchSetting(stringResource(R.string.announce_wheel_lock), settings.announceWheelLock,
             onCheckedChange = { viewModel.updateAnnounceWheelLock(it) },
@@ -353,6 +354,9 @@ private fun VoiceTab(
         AnnounceSwitchSetting(stringResource(R.string.announce_legal_mode), settings.announceSafetyMode,
             onCheckedChange = { viewModel.updateAnnounceSafetyMode(it) },
             onTest = { viewModel.testSpeak(listOf(sLegalOn, sLegalOff).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_welcome), settings.announceWelcome,
+            onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
+            onTest = { viewModel.testSpeak(sWelcome) })
 
         SectionHeader(stringResource(R.string.section_speech))
 
@@ -982,7 +986,7 @@ private fun ActionDropdown(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = currentAction.label,
+            value = stringResource(currentAction.labelRes),
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
@@ -997,7 +1001,7 @@ private fun ActionDropdown(
         ) {
             FlicAction.entries.forEach { action ->
                 DropdownMenuItem(
-                    text = { Text(action.label) },
+                    text = { Text(stringResource(action.labelRes)) },
                     onClick = {
                         onValueChange(action.name)
                         expanded = false

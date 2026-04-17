@@ -178,7 +178,7 @@ class WheelService : LifecycleService() {
             now - lastSpeedAlarmMs > ALARM_COOLDOWN_MS
         ) {
             lastSpeedAlarmMs = now
-            triggerAlarm("Speed", data.speed.absoluteValue)
+            triggerAlarm(getString(R.string.alarm_metric_speed), data.speed.absoluteValue)
         }
     }
 
@@ -239,7 +239,7 @@ class WheelService : LifecycleService() {
         }
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("EUC Planet")
+            .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentIntent(pendingIntent)

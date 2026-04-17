@@ -273,7 +273,7 @@ private fun ActionDropdown(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = currentAction.label,
+            value = stringResource(currentAction.labelRes),
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
@@ -288,7 +288,7 @@ private fun ActionDropdown(
         ) {
             FlicAction.entries.forEach { action ->
                 DropdownMenuItem(
-                    text = { Text(action.label) },
+                    text = { Text(stringResource(action.labelRes)) },
                     onClick = {
                         onValueChange(action.name)
                         expanded = false

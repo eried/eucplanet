@@ -100,6 +100,7 @@
     <string name="announce_connection">Hjul tilkoblet / frakoblet</string>
     <string name="announce_gps">GPS tapt / gjenopprettet</string>
     <string name="announce_legal_mode">Lovlig modus på / av</string>
+    <string name="announce_welcome">Velkomstmelding ved oppstart</string>
     <string name="voice_selector_label">Stemme</string>
     <string name="voice_speech_speed">Talehastighet</string>
     <string name="unit_x">x</string>
@@ -149,6 +150,7 @@
     <string name="voice_gps_lost">GPS-signal tapt</string>
     <string name="voice_legal_on">Lovlig modus på</string>
     <string name="voice_legal_off">Lovlig modus av</string>
+    <string name="voice_welcome">Velkommen tilbake til EUC Planet</string>
 
     <string name="lang_name_en">engelsk</string>
     <string name="lang_name_es">spansk</string>
@@ -267,4 +269,56 @@
     <string name="alarm_repeat_help">AV: utløses én gang når betingelsen begynner å matche, så stille til den slutter å matche.\nPÅ: utløses på nytt hvert N sekund så lenge betingelsen er sann.</string>
     <string name="alarm_repeat_on_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter PÅ — holder du 35 km/t i ett minutt blir du varslet hvert %1$d. sekund.</string>
     <string name="alarm_repeat_off_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter AV — ett varsel når du krysser 30, så stille; du må under 30 (og vente %1$d s) før den kan utløses igjen.</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Fart</string>
+    <string name="alarm_metric_battery">Batteri</string>
+    <string name="alarm_metric_temperature">Temperatur</string>
+    <string name="alarm_metric_pwm">Last (PWM)</string>
+    <string name="alarm_metric_voltage">Spenning</string>
+    <string name="alarm_metric_current">Strøm</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_gt">Større enn</string>
+    <string name="alarm_cmp_lt">Mindre enn</string>
+    <string name="alarm_cmp_ge">Større eller lik</string>
+    <string name="alarm_cmp_le">Mindre eller lik</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Ingen</string>
+    <string name="flic_action_horn">Horn</string>
+    <string name="flic_action_light">Veksle lys</string>
+    <string name="flic_action_lock">Lås hjul</string>
+    <string name="flic_action_legal_toggle">Veksle lovlig modus</string>
+    <string name="flic_action_legal_on">Lovlig modus PÅ</string>
+    <string name="flic_action_legal_off">Lovlig modus AV</string>
+    <string name="flic_action_voice">Stemmerapport</string>
+    <string name="flic_action_record">Veksle opptak</string>
+    <string name="flic_action_media_play">Spill av / Pause</string>
+    <string name="flic_action_media_next">Neste låt</string>
+    <string name="flic_action_media_prev">Forrige låt</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Forhåndsvis %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Pip %1$dHz×%2$d</string>
+    <string name="alarm_summary_voice">Stemme</string>
+    <string name="alarm_summary_vibrate">Vibrasjon</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Del tur</string>
+    <string name="export_trips_chooser">Eksporter turer</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Alarmtest</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Søker\u2026</string>
+    <string name="flic_status_found_paired">Fant paret knapp</string>
+    <string name="flic_status_found_connecting">Fant knapp, kobler til\u2026</string>
+    <string name="flic_status_connected_pairing">Tilkoblet, parer\u2026</string>
+    <string name="flic_status_accept_pairing">Godta paring på telefonen\u2026</string>
+    <string name="flic_status_paired_fmt">Paret: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
 </resources>
