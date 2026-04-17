@@ -1,0 +1,257 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.eried.evendarkerbot"
+4    android:versionCode="1"
+5    android:versionName="0.1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="29"
+9        android:targetSdkVersion="35" />
+10
+11    <!-- BLE -->
+12    <uses-permission
+12-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:6:5-73
+13        android:name="android.permission.BLUETOOTH_SCAN"
+13-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:6:22-70
+14        android:usesPermissionFlags="neverForLocation" />
+14-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:18:9-55
+15    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+15-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:7:5-76
+15-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:7:22-73
+16
+17    <!-- Location (for BLE scan + GPS recording) -->
+18    <uses-permission
+18-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:10:5-79
+19        android:name="android.permission.ACCESS_FINE_LOCATION"
+19-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:10:22-76
+20        android:maxSdkVersion="30" />
+20-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:15:9-35
+21    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+21-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:11:5-81
+21-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:11:22-78
+22
+23    <!-- Foreground service -->
+24    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+24-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:14:5-77
+24-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:14:22-74
+25    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+25-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:15:5-94
+25-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:15:22-91
+26    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+26-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:16:5-86
+26-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:16:22-83
+27
+28    <!-- Notifications (API 33+) -->
+29    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+29-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:19:5-77
+29-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:19:22-74
+30
+31    <!-- Internet (WebView for trip viewer) -->
+32    <uses-permission android:name="android.permission.INTERNET" />
+32-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:22:5-67
+32-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:22:22-64
+33    <uses-permission android:name="android.permission.VIBRATE" />
+33-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:24:5-66
+33-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:24:22-63
+34
+35    <!-- BLE feature requirement -->
+36    <uses-feature
+36-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:27:5-29:35
+37        android:name="android.hardware.bluetooth_le"
+37-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:28:9-53
+38        android:required="true" />
+38-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:29:9-32
+39
+40    <permission
+40-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:22:5-24:47
+41        android:name="com.eried.evendarkerbot.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+41-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:23:9-81
+42        android:protectionLevel="signature" />
+42-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:24:9-44
+43
+44    <uses-permission android:name="com.eried.evendarkerbot.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+44-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:26:5-97
+44-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:26:22-94
+45    <uses-permission
+45-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:7:5-9:38
+46        android:name="android.permission.BLUETOOTH"
+46-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:8:9-52
+47        android:maxSdkVersion="30" />
+47-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:9:9-35
+48    <uses-permission
+48-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:10:5-12:38
+49        android:name="android.permission.BLUETOOTH_ADMIN"
+49-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:11:9-58
+50        android:maxSdkVersion="30" />
+50-->[com.github.50ButtonsEach:flic2lib-android:2.0.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2222906eac1ed656c1224ae225af56ae\transformed\flic2lib-android-2.0.1\AndroidManifest.xml:12:9-35
+51
+52    <application
+52-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:31:5-67:19
+53        android:name="com.eried.evendarkerbot.EvenDarkerBotApp"
+53-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:32:9-41
+54        android:allowBackup="true"
+54-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:34:9-35
+55        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+55-->[androidx.core:core:1.15.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\74d0a535b47fd070ed485b1edf94b6aa\transformed\core-1.15.0\AndroidManifest.xml:28:18-86
+56        android:debuggable="true"
+57        android:extractNativeLibs="false"
+58        android:icon="@mipmap/ic_launcher"
+58-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:35:9-43
+59        android:label="@string/app_name"
+59-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:36:9-41
+60        android:supportsRtl="true"
+60-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:37:9-35
+61        android:theme="@style/Theme.EvenDarkerBot"
+61-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:38:9-51
+62        android:usesCleartextTraffic="true" >
+62-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:33:9-44
+63        <activity
+63-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:40:9-50:20
+64            android:name="com.eried.evendarkerbot.MainActivity"
+64-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:41:13-41
+65            android:configChanges="screenSize|screenLayout|keyboardHidden"
+65-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:44:13-75
+66            android:exported="true"
+66-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:42:13-36
+67            android:screenOrientation="portrait"
+67-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:43:13-49
+68            android:theme="@style/Theme.EvenDarkerBot" >
+68-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:45:13-55
+69            <intent-filter>
+69-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:46:13-49:29
+70                <action android:name="android.intent.action.MAIN" />
+70-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:47:17-69
+70-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:47:25-66
+71
+72                <category android:name="android.intent.category.LAUNCHER" />
+72-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:48:17-77
+72-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:48:27-74
+73            </intent-filter>
+74        </activity>
+75
+76        <service
+76-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:52:9-55:40
+77            android:name="com.eried.evendarkerbot.service.WheelService"
+77-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:53:13-49
+78            android:exported="false"
+78-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:55:13-37
+79            android:foregroundServiceType="connectedDevice|location" />
+79-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:54:13-69
+80
+81        <provider
+82            android:name="androidx.core.content.FileProvider"
+82-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:58:13-62
+83            android:authorities="com.eried.evendarkerbot.fileprovider"
+83-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:59:13-64
+84            android:exported="false"
+84-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:60:13-37
+85            android:grantUriPermissions="true" >
+85-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:61:13-47
+86            <meta-data
+86-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:62:13-64:54
+87                android:name="android.support.FILE_PROVIDER_PATHS"
+87-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:63:17-67
+88                android:resource="@xml/file_paths" />
+88-->D:\GitHub\eucplanet\app\src\main\AndroidManifest.xml:64:17-51
+89        </provider>
+90
+91        <activity
+91-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\368aa8cd9f9cecd3d96f33ee2c3271e1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:9-173
+92            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+92-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\368aa8cd9f9cecd3d96f33ee2c3271e1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:19-85
+93            android:exported="false"
+93-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\368aa8cd9f9cecd3d96f33ee2c3271e1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:146-170
+94            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+94-->[com.google.android.gms:play-services-base:18.5.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\368aa8cd9f9cecd3d96f33ee2c3271e1\transformed\play-services-base-18.5.0\AndroidManifest.xml:5:86-145
+95
+96        <meta-data
+96-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b048112a6e590991504192ef6eb3b52\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:9-122
+97            android:name="com.google.android.gms.version"
+97-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b048112a6e590991504192ef6eb3b52\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:20-65
+98            android:value="@integer/google_play_services_version" />
+98-->[com.google.android.gms:play-services-basement:18.4.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b048112a6e590991504192ef6eb3b52\transformed\play-services-basement-18.4.0\AndroidManifest.xml:6:66-119
+99
+100        <activity
+100-->[androidx.compose.ui:ui-tooling-android:1.7.6] C:\Users\erwin\.gradle\caches\8.11.1\transforms\954f8224d2be75113cbac9a7475d0648\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+101            android:name="androidx.compose.ui.tooling.PreviewActivity"
+101-->[androidx.compose.ui:ui-tooling-android:1.7.6] C:\Users\erwin\.gradle\caches\8.11.1\transforms\954f8224d2be75113cbac9a7475d0648\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+102            android:exported="true" />
+102-->[androidx.compose.ui:ui-tooling-android:1.7.6] C:\Users\erwin\.gradle\caches\8.11.1\transforms\954f8224d2be75113cbac9a7475d0648\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+103
+104        <provider
+104-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+105            android:name="androidx.startup.InitializationProvider"
+105-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+106            android:authorities="com.eried.evendarkerbot.androidx-startup"
+106-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+107            android:exported="false" >
+107-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+108            <meta-data
+108-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+109                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+109-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+110                android:value="androidx.startup" />
+110-->[androidx.emoji2:emoji2:1.3.0] C:\Users\erwin\.gradle\caches\8.11.1\transforms\7b15ed9d463fc4935f20d7cd488d97db\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+111            <meta-data
+111-->[androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2ab0120aa3eea18898ead300aec9e98f\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:29:13-31:52
+112                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+112-->[androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2ab0120aa3eea18898ead300aec9e98f\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:30:17-78
+113                android:value="androidx.startup" />
+113-->[androidx.lifecycle:lifecycle-process:2.8.7] C:\Users\erwin\.gradle\caches\8.11.1\transforms\2ab0120aa3eea18898ead300aec9e98f\transformed\lifecycle-process-2.8.7\AndroidManifest.xml:31:17-49
+114            <meta-data
+114-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+115                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+115-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+116                android:value="androidx.startup" />
+116-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+117        </provider>
+118
+119        <service
+119-->[androidx.room:room-runtime:2.6.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\f606ed768206463b26893b8dd074ec93\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+120            android:name="androidx.room.MultiInstanceInvalidationService"
+120-->[androidx.room:room-runtime:2.6.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\f606ed768206463b26893b8dd074ec93\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+121            android:directBootAware="true"
+121-->[androidx.room:room-runtime:2.6.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\f606ed768206463b26893b8dd074ec93\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+122            android:exported="false" />
+122-->[androidx.room:room-runtime:2.6.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\f606ed768206463b26893b8dd074ec93\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+123
+124        <receiver
+124-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+125            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+125-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+126            android:directBootAware="false"
+126-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+127            android:enabled="true"
+127-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+128            android:exported="true"
+128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+129            android:permission="android.permission.DUMP" >
+129-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+130            <intent-filter>
+130-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+131                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+131-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+132            </intent-filter>
+133            <intent-filter>
+133-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+134                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+134-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+134-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+135            </intent-filter>
+136            <intent-filter>
+136-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+137                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+137-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+137-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+138            </intent-filter>
+139            <intent-filter>
+139-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+140                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\erwin\.gradle\caches\8.11.1\transforms\3f7391dbdba1ceb96db8edf66ddc2d0d\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+141            </intent-filter>
+142        </receiver>
+143    </application>
+144
+145</manifest>

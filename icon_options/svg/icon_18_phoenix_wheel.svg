@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g18flames" x1="54" y1="90" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF3D00"/>
+      <stop offset="0.4" stop-color="#FF9100"/>
+      <stop offset="0.7" stop-color="#FFD740"/>
+      <stop offset="1" stop-color="#FFFFCC"/>
+    </linearGradient>
+    <linearGradient id="g18inner" x1="54" y1="88" x2="54" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF9100"/>
+      <stop offset="0.5" stop-color="#FFD740"/>
+      <stop offset="1" stop-color="#FFFFEE"/>
+    </linearGradient>
+    <radialGradient id="g18rim" cx="48" cy="36" r="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD54F"/>
+      <stop offset="0.5" stop-color="#FF9100"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+    <radialGradient id="g18hub" cx="53" cy="37" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFCC"/>
+      <stop offset="1" stop-color="#FFD740"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Flames -->
+  <path d="M24,90 Q30,72 36,78 Q34,62 42,70 Q40,54 50,64 L54,58 L58,64 Q68,54 66,70 Q74,62 72,78 Q78,72 84,90 Z" fill="url(#g18flames)"/>
+  <path d="M36,88 Q40,74 46,78 Q44,66 52,72 L54,66 L56,72 Q64,66 62,78 Q68,74 72,88 Z" fill="url(#g18inner)"/>
+  <!-- Wheel -->
+  <path d="M54,14 A28,28 0,1,1 53.99,14 Z M54,22 A20,20 0,1,0 54.01,22 Z" fill="url(#g18rim)"/>
+  <circle cx="54" cy="42" r="4" fill="url(#g18hub)"/>
+  <rect x="53.5" y="22" width="1" height="16" fill="#FFD740"/>
+  <rect x="53.5" y="44" width="1" height="18" fill="#FFD740"/>
+  <line x1="54" y1="42" x2="40" y2="32" stroke="#FFD740" stroke-width="1"/>
+  <line x1="54" y1="42" x2="68" y2="32" stroke="#FFD740" stroke-width="1"/>
+</svg>

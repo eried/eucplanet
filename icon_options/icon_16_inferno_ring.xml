@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 16: Inferno Ring - thick fiery ring with molten center -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Outer fire glow -->
+    <path android:pathData="M54,12 A42,42 0,1,1 53.99,12 Z M54,20 A34,34 0,1,0 54.01,20 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="46">
+                <item android:offset="0.0" android:color="#80FF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF3D00"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Main ring -->
+    <path android:pathData="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="sweep" android:centerX="54" android:centerY="54">
+                <item android:offset="0.0" android:color="#FFFF6D00"/>
+                <item android:offset="0.15" android:color="#FFFFD740"/>
+                <item android:offset="0.3" android:color="#FFFF9100"/>
+                <item android:offset="0.5" android:color="#FFE65100"/>
+                <item android:offset="0.65" android:color="#FFFFD740"/>
+                <item android:offset="0.8" android:color="#FFFF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF6D00"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Molten center -->
+    <path android:pathData="M54,34 A20,20 0,1,1 53.99,34 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="50" android:centerY="48"
+                android:gradientRadius="22">
+                <item android:offset="0.0" android:color="#FFFFFFCC"/>
+                <item android:offset="0.3" android:color="#FFFFD740"/>
+                <item android:offset="0.6" android:color="#FFFF9100"/>
+                <item android:offset="1.0" android:color="#FFE65100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

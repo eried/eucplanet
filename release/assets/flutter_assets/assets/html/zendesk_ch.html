@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" style="background-color: #f9f9f9;">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 引入 Zendesk Web Widget -->
+    <script id="ze-snippet"
+        src="https://static.zdassets.com/ekr/snippet.js?key=b48903b0-a70e-4d46-8b06-c00dc593911b"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            color: #f9f9f9;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+        }
+
+        .content {
+            color: #000;
+            margin-left: 40px;
+            margin-right: 40px;
+            margin-top: 150px;
+            margin-bottom: 0 auto;
+            text-align: center;
+        }
+
+        /* 引导提示样式 */
+        .chat-guide {
+            position: fixed;
+            right: 20px;
+            bottom: 110px;
+            z-index: 999;
+            animation: float 3s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .chat-guide-bubble {
+            background-color: black;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            max-width: 200px;
+        }
+
+        .chat-guide-arrow {
+            position: absolute;
+            right: 15px;
+            bottom: -25px;
+            width: 30px;
+            height: 30px;
+            animation: point 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes point {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+<!--        /* 适配暗黑模式 */-->
+<!--        @media (prefers-color-scheme: dark) {-->
+<!--            body {-->
+<!--                background-color: #121212;-->
+<!--                color: #e0e0e0;-->
+<!--            }-->
+<!--        }-->
+    </style>
+
+</head>
+
+<body>
+    <div class="content">
+        <h1>欢迎使用帮助中心</h1>
+        <p>如果您需要帮助，请点击右下角的聊天按钮与我们的客服代表联系。</p>
+    </div>
+
+    <!-- 引导用户点击聊天的提示 -->
+    <div class="chat-guide">
+        <div class="chat-guide-bubble">点击这里联系客服</div>
+        <svg class="chat-guide-arrow" viewBox="0 0 24 24" fill="#000000">
+            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+        </svg>
+    </div>
+
+    <script>
+        // 自动隐藏引导提示（当聊天组件加载后）
+        document.addEventListener('DOMContentLoaded', function () {
+            // 假设聊天按钮出现在右下角
+            setTimeout(function () {
+                var guide = document.querySelector('.chat-guide');
+                if (guide) {
+                    guide.style.display = 'none';
+                }
+            }, 8000); // 8秒后自动隐藏引导
+        });
+
+<!--        // 检测暗黑模式-->
+<!--        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {-->
+<!--            document.body.classList.add('dark-mode');-->
+<!--        }-->
+    </script>
+</body>
+
+</html>

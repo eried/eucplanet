@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7: Minimalist Ring - clean thick circle with subtle gradient -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Thick wheel ring -->
+    <path android:pathData="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="42" android:centerY="40"
+                android:gradientRadius="50">
+                <item android:offset="0.0" android:color="#FF81D4FA"/>
+                <item android:offset="0.5" android:color="#FF4FC3F7"/>
+                <item android:offset="1.0" android:color="#FF0288D1"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Center dot -->
+    <path android:pathData="M54,49 A5,5 0,1,1 53.99,49 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="53" android:centerY="48"
+                android:gradientRadius="6">
+                <item android:offset="0.0" android:color="#FFFFFFFF"/>
+                <item android:offset="1.0" android:color="#FF4FC3F7"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

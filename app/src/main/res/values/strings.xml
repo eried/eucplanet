@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="notification_channel_name">Wheel Connection</string>
+    <string name="notification_channel_description">Shows wheel connection status and telemetry</string>
+</resources>

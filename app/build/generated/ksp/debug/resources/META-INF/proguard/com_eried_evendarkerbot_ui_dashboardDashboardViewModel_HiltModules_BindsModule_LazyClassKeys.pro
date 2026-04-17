@@ -1,0 +1,1 @@
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.dashboard.DashboardViewModel

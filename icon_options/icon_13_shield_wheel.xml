@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 13: Shield Wheel - wheel inside a shield badge shape -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Shield shape -->
+    <path android:pathData="M54,14 L86,28 L86,56 Q86,80 54,94 Q22,80 22,56 L22,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="14"
+                android:endX="54" android:endY="94">
+                <item android:offset="0.0" android:color="#FF1565C0"/>
+                <item android:offset="0.5" android:color="#FF0D47A1"/>
+                <item android:offset="1.0" android:color="#FF0A3069"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Shield border -->
+    <path android:fillColor="#00000000" android:strokeWidth="2"
+        android:pathData="M54,16 L84,29 L84,56 Q84,78 54,92 Q24,78 24,56 L24,29 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="54" android:startY="16"
+                android:endX="54" android:endY="92">
+                <item android:offset="0.0" android:color="#FF42A5F5"/>
+                <item android:offset="1.0" android:color="#FF1565C0"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Wheel inside shield -->
+    <path android:pathData="M54,30 A24,24 0,1,1 53.99,30 Z M54,36 A18,18 0,1,0 54.01,36 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="28">
+                <item android:offset="0.0" android:color="#FF4FC3F7"/>
+                <item android:offset="1.0" android:color="#FF29B6F6"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hub -->
+    <path android:fillColor="#FF4FC3F7" android:pathData="M54,50 A4,4 0,1,1 53.99,50 Z"/>
+    <!-- Spokes -->
+    <path android:fillColor="#FF4FC3F7" android:pathData="M53.5,36 L54.5,36 L54.5,50 L53.5,50 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M53.5,58 L54.5,58 L54.5,72 L53.5,72 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M54,54 L40,44 L40.5,43 L54,53 Z"/>
+    <path android:fillColor="#FF4FC3F7" android:pathData="M54,54 L68,44 L67.5,43 L54,53 Z"/>
+</vector>

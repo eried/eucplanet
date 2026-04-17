@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g17ocean" cx="44" cy="42" r="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#42A5F5"/>
+      <stop offset="0.5" stop-color="#1565C0"/>
+      <stop offset="1" stop-color="#0D47A1"/>
+    </radialGradient>
+    <radialGradient id="g17c1" cx="44" cy="36" r="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A"/>
+      <stop offset="1" stop-color="#2E7D32"/>
+    </radialGradient>
+    <radialGradient id="g17c2" cx="66" cy="50" r="14" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A"/>
+      <stop offset="1" stop-color="#2E7D32"/>
+    </radialGradient>
+    <radialGradient id="g17c3" cx="44" cy="64" r="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A"/>
+      <stop offset="1" stop-color="#2E7D32"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Ocean -->
+  <circle cx="54" cy="54" r="36" fill="url(#g17ocean)"/>
+  <!-- Continents -->
+  <path d="M36,32 Q42,28 50,30 Q56,32 54,38 Q50,44 42,42 Q34,40 36,32 Z" fill="url(#g17c1)"/>
+  <path d="M56,44 Q64,40 72,44 Q78,50 74,58 Q68,62 60,58 Q54,52 56,44 Z" fill="url(#g17c2)"/>
+  <path d="M38,58 Q44,54 50,58 Q54,64 48,70 Q40,72 36,66 Q34,62 38,58 Z" fill="url(#g17c3)"/>
+  <!-- Atmosphere -->
+  <circle cx="54" cy="54" r="37" fill="none" stroke="#80D8FF" stroke-width="1.5" opacity="0.3"/>
+  <!-- Specular highlight -->
+  <path d="M38,28 A20,16 0,0,1 70,28 Q54,24 38,28 Z" fill="white" opacity="0.1"/>
+</svg>

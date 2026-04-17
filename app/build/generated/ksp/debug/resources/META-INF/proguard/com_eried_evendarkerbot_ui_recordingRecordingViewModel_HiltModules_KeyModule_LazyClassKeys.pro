@@ -1,0 +1,6 @@
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.dashboard.DashboardViewModel
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.dashboard.DashboardViewModel
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.dashboard.MetricDetailViewModel
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.dashboard.MetricDetailViewModel
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.recording.RecordingViewModel
+-keep,allowobfuscation,allowshrinking class com.eried.evendarkerbot.ui.recording.RecordingViewModel

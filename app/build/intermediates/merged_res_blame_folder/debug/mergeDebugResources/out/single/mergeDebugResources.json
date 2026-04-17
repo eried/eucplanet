@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.eried.evendarkerbot.app-debug-65:/mipmap-anydpi_ic_launcher.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-67:/mipmap-anydpi/ic_launcher.xml"
+    },
+    {
+        "merged": "com.eried.evendarkerbot.app-debug-65:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-67:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.eried.evendarkerbot.app-debug-65:/xml_file_paths.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-67:/xml/file_paths.xml"
+    }
+]

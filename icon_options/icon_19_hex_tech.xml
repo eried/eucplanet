@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 19: Hex Tech - hexagonal tech frame with wheel inside -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Hexagon frame -->
+    <path android:pathData="M54,14 L88,34 L88,74 L54,94 L20,74 L20,34 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="14"
+                android:endX="54" android:endY="94">
+                <item android:offset="0.0" android:color="#FF1A237E"/>
+                <item android:offset="0.5" android:color="#FF0D1240"/>
+                <item android:offset="1.0" android:color="#FF1A237E"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hex border glow -->
+    <path android:fillColor="#00000000" android:strokeWidth="2"
+        android:pathData="M54,14 L88,34 L88,74 L54,94 L20,74 L20,34 Z">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="20" android:startY="14"
+                android:endX="88" android:endY="94">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="0.5" android:color="#FF304FFE"/>
+                <item android:offset="1.0" android:color="#FF00E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Wheel inside -->
+    <path android:pathData="M54,28 A26,26 0,1,1 53.99,28 Z M54,36 A18,18 0,1,0 54.01,36 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="30">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="1.0" android:color="#FF0091EA"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hub -->
+    <path android:pathData="M54,50 A4,4 0,1,1 53.99,50 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="53" android:centerY="49"
+                android:gradientRadius="5">
+                <item android:offset="0.0" android:color="#FFFFFFFF"/>
+                <item android:offset="1.0" android:color="#FF00E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Spokes -->
+    <path android:fillColor="#CC00E5FF" android:pathData="M53.5,36 L54.5,36 L54.5,50 L53.5,50 Z"/>
+    <path android:fillColor="#CC00E5FF" android:pathData="M53.5,58 L54.5,58 L54.5,72 L53.5,72 Z"/>
+    <path android:fillColor="#CC00E5FF" android:pathData="M54,54 L40,44 L40.5,43 L54,53 Z"/>
+    <path android:fillColor="#CC00E5FF" android:pathData="M54,54 L68,44 L67.5,43 L54,53 Z"/>
+    <path android:fillColor="#CC00E5FF" android:pathData="M54,54 L40,64 L40.5,65 L54,55 Z"/>
+    <path android:fillColor="#CC00E5FF" android:pathData="M54,54 L68,64 L67.5,65 L54,55 Z"/>
+    <!-- Corner tech accents -->
+    <path android:fillColor="#4000E5FF" android:pathData="M54,14 L62,18 L54,22 L46,18 Z"/>
+    <path android:fillColor="#4000E5FF" android:pathData="M54,86 L62,90 L54,94 L46,90 Z"/>
+</vector>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g10bg" cx="54" cy="54" r="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C4DFF"/>
+      <stop offset="0.4" stop-color="#311B92"/>
+      <stop offset="1" stop-color="#0D0030"/>
+    </radialGradient>
+    <radialGradient id="g10rim" cx="54" cy="54" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#B388FF"/>
+      <stop offset="1" stop-color="#6200EA"/>
+    </radialGradient>
+    <radialGradient id="g10star" cx="54" cy="50" r="6" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="1" stop-color="#B388FF"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Cosmic fill -->
+  <circle cx="54" cy="54" r="36" fill="url(#g10bg)"/>
+  <!-- Spiral arms -->
+  <path d="M54,54 Q60,44 70,42 Q82,42 84,54 Q84,66 72,70 Q60,72 50,64" fill="none" stroke="#7C4DFF" stroke-width="3" opacity="0.7"/>
+  <path d="M54,54 Q48,64 38,66 Q26,66 24,54 Q24,42 36,38 Q48,36 58,44" fill="none" stroke="#7C4DFF" stroke-width="3" opacity="0.7"/>
+  <!-- Center star -->
+  <circle cx="54" cy="54" r="4" fill="url(#g10star)"/>
+  <!-- Outer rim -->
+  <path d="M54,18 A36,36 0,1,1 53.99,18 Z M54,22 A32,32 0,1,0 54.01,22 Z" fill="url(#g10rim)"/>
+  <!-- Stars -->
+  <circle cx="40" cy="34" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="72" cy="44" r="1" fill="white" opacity="0.6"/>
+  <circle cx="66" cy="68" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="36" cy="62" r="1" fill="white" opacity="0.5"/>
+</svg>

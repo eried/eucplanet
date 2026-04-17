@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 20: Solar Flare - sun-like sphere with radiating corona flares -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Corona flare rays -->
+    <path android:pathData="M54,6 L58,22 L54,18 L50,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="6"
+                android:endX="54" android:endY="22">
+                <item android:offset="0.0" android:color="#40FF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF9100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M54,102 L58,86 L54,90 L50,86 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="102"
+                android:endX="54" android:endY="86">
+                <item android:offset="0.0" android:color="#40FF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF9100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M6,54 L22,50 L18,54 L22,58 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="6" android:startY="54"
+                android:endX="22" android:endY="54">
+                <item android:offset="0.0" android:color="#40FF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF9100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path android:pathData="M102,54 L86,50 L90,54 L86,58 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="102" android:startY="54"
+                android:endX="86" android:endY="54">
+                <item android:offset="0.0" android:color="#40FF6D00"/>
+                <item android:offset="1.0" android:color="#FFFF9100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Diagonal flares -->
+    <path android:pathData="M20,20 L32,30 L28,32 L30,28 Z" android:fillColor="#60FF9100"/>
+    <path android:pathData="M88,20 L76,30 L80,32 L78,28 Z" android:fillColor="#60FF9100"/>
+    <path android:pathData="M20,88 L32,78 L28,76 L30,80 Z" android:fillColor="#60FF9100"/>
+    <path android:pathData="M88,88 L76,78 L80,76 L78,80 Z" android:fillColor="#60FF9100"/>
+    <!-- Outer glow -->
+    <path android:pathData="M54,16 A38,38 0,1,1 53.99,16 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="42">
+                <item android:offset="0.0" android:color="#00FF9100"/>
+                <item android:offset="0.7" android:color="#00FF9100"/>
+                <item android:offset="1.0" android:color="#60FF6D00"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Core sphere -->
+    <path android:pathData="M54,22 A32,32 0,1,1 53.99,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="46" android:centerY="44"
+                android:gradientRadius="36">
+                <item android:offset="0.0" android:color="#FFFFFFEE"/>
+                <item android:offset="0.2" android:color="#FFFFD740"/>
+                <item android:offset="0.5" android:color="#FFFF9100"/>
+                <item android:offset="0.8" android:color="#FFFF6D00"/>
+                <item android:offset="1.0" android:color="#FFE65100"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Surface detail -->
+    <path android:fillColor="#20FFFFFF" android:pathData="M38,36 Q48,30 62,34 Q68,38 64,44 Q56,40 44,42 Q38,42 38,36 Z"/>
+    <!-- Inner ring (wheel hint) -->
+    <path android:fillColor="#00000000" android:strokeColor="#40FFFFFF" android:strokeWidth="2"
+        android:pathData="M54,34 A20,20 0,1,1 53.99,34 Z"/>
+    <!-- Center hub -->
+    <path android:pathData="M54,50 A4,4 0,1,1 53.99,50 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="53" android:centerY="49"
+                android:gradientRadius="5">
+                <item android:offset="0.0" android:color="#FFFFFFFF"/>
+                <item android:offset="1.0" android:color="#FFFFD740"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

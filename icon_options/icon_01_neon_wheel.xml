@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1: Neon Wheel - glowing cyan wheel with electric blue spokes -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Outer glow ring -->
+    <path android:pathData="M54,18 A36,36 0,1,1 53.99,18 Z M54,24 A30,30 0,1,0 54.01,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="40">
+                <item android:offset="0.0" android:color="#6600E5FF"/>
+                <item android:offset="1.0" android:color="#0000E5FF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Main tire -->
+    <path android:pathData="M54,22 A32,32 0,1,1 53.99,22 Z M54,30 A24,24 0,1,0 54.01,30 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="36">
+                <item android:offset="0.0" android:color="#FF00E5FF"/>
+                <item android:offset="1.0" android:color="#FF0091EA"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Hub -->
+    <path android:fillColor="#00E5FF" android:pathData="M54,48 A6,6 0,1,1 53.99,48 Z"/>
+    <!-- Spokes -->
+    <path android:fillColor="#00E5FF" android:pathData="M53,30 L55,30 L55,48 L53,48 Z"/>
+    <path android:fillColor="#00E5FF" android:pathData="M53,56 L55,56 L55,78 L53,78 Z"/>
+    <path android:fillColor="#00E5FF" android:pathData="M54,54 L33,40 L34,38 L54,52 Z"/>
+    <path android:fillColor="#00E5FF" android:pathData="M54,54 L75,40 L74,38 L54,52 Z"/>
+    <path android:fillColor="#00E5FF" android:pathData="M54,54 L33,68 L34,70 L54,56 Z"/>
+    <path android:fillColor="#00E5FF" android:pathData="M54,54 L75,68 L74,70 L54,56 Z"/>
+</vector>

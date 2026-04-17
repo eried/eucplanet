@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g1a" cx="54" cy="54" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#00E5FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g1b" cx="54" cy="54" r="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00E5FF"/>
+      <stop offset="1" stop-color="#0091EA"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Outer glow -->
+  <path d="M54,18 A36,36 0,1,1 53.99,18 Z M54,24 A30,30 0,1,0 54.01,24 Z" fill="url(#g1a)"/>
+  <!-- Tire -->
+  <path d="M54,22 A32,32 0,1,1 53.99,22 Z M54,30 A24,24 0,1,0 54.01,30 Z" fill="url(#g1b)"/>
+  <!-- Hub -->
+  <circle cx="54" cy="54" r="6" fill="#00E5FF"/>
+  <!-- Spokes -->
+  <rect x="53" y="30" width="2" height="18" fill="#00E5FF"/>
+  <rect x="53" y="56" width="2" height="22" fill="#00E5FF"/>
+  <line x1="54" y1="54" x2="33" y2="40" stroke="#00E5FF" stroke-width="2"/>
+  <line x1="54" y1="54" x2="75" y2="40" stroke="#00E5FF" stroke-width="2"/>
+  <line x1="54" y1="54" x2="33" y2="68" stroke="#00E5FF" stroke-width="2"/>
+  <line x1="54" y1="54" x2="75" y2="68" stroke="#00E5FF" stroke-width="2"/>
+</svg>

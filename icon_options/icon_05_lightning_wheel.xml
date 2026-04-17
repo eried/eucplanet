@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5: Lightning Wheel - wheel with electric bolt through center -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Wheel rim -->
+    <path android:pathData="M54,20 A34,34 0,1,1 53.99,20 Z M54,28 A26,26 0,1,0 54.01,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="54"
+                android:gradientRadius="38">
+                <item android:offset="0.0" android:color="#FF4FC3F7"/>
+                <item android:offset="1.0" android:color="#FF0277BD"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Lightning bolt -->
+    <path android:pathData="M58,20 L48,48 L56,48 L46,82 L66,46 L56,46 L64,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="linear" android:startX="54" android:startY="20"
+                android:endX="54" android:endY="82">
+                <item android:offset="0.0" android:color="#FFFFD740"/>
+                <item android:offset="0.5" android:color="#FFFFAB00"/>
+                <item android:offset="1.0" android:color="#FFFF8F00"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Electric glow -->
+    <path android:pathData="M58,20 L48,48 L56,48 L46,82 L66,46 L56,46 L64,22 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient android:type="radial" android:centerX="54" android:centerY="50"
+                android:gradientRadius="20">
+                <item android:offset="0.0" android:color="#40FFFFFF"/>
+                <item android:offset="1.0" android:color="#00FFFFFF"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

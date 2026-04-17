@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="g4gauge" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4CAF50"/>
+      <stop offset="0.35" stop-color="#FFEB3B"/>
+      <stop offset="0.6" stop-color="#FF9800"/>
+      <stop offset="0.85" stop-color="#F44336"/>
+      <stop offset="1" stop-color="#4CAF50"/>
+    </linearGradient>
+    <radialGradient id="g4inner" cx="54" cy="54" r="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2C2C2C"/>
+      <stop offset="1" stop-color="#1A1A1A"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Gauge ring - sweep gradient approximated with arcs -->
+  <circle cx="54" cy="54" r="31" fill="none" stroke="#4CAF50" stroke-width="6" stroke-dasharray="24 170" stroke-dashoffset="-10"/>
+  <circle cx="54" cy="54" r="31" fill="none" stroke="#FFEB3B" stroke-width="6" stroke-dasharray="30 164" stroke-dashoffset="-34"/>
+  <circle cx="54" cy="54" r="31" fill="none" stroke="#FF9800" stroke-width="6" stroke-dasharray="30 164" stroke-dashoffset="-64"/>
+  <circle cx="54" cy="54" r="31" fill="none" stroke="#F44336" stroke-width="6" stroke-dasharray="50 144" stroke-dashoffset="-94"/>
+  <!-- Inner -->
+  <circle cx="54" cy="54" r="26" fill="url(#g4inner)"/>
+  <!-- Needle -->
+  <polygon points="53,54 55,54 72,34 71,33" fill="#F44336"/>
+  <!-- Hub -->
+  <circle cx="54" cy="54" r="4" fill="white"/>
+</svg>

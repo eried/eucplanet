@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="g20core" cx="46" cy="44" r="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFEE"/>
+      <stop offset="0.2" stop-color="#FFD740"/>
+      <stop offset="0.5" stop-color="#FF9100"/>
+      <stop offset="0.8" stop-color="#FF6D00"/>
+      <stop offset="1" stop-color="#E65100"/>
+    </radialGradient>
+    <radialGradient id="g20hub" cx="53" cy="49" r="5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="white"/>
+      <stop offset="1" stop-color="#FFD740"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D"/>
+  <!-- Corona flares -->
+  <polygon points="54,6 58,22 54,18 50,22" fill="#FF9100" opacity="0.5"/>
+  <polygon points="54,102 58,86 54,90 50,86" fill="#FF9100" opacity="0.5"/>
+  <polygon points="6,54 22,50 18,54 22,58" fill="#FF9100" opacity="0.5"/>
+  <polygon points="102,54 86,50 90,54 86,58" fill="#FF9100" opacity="0.5"/>
+  <!-- Diagonal flares -->
+  <polygon points="20,20 32,30 28,32 30,28" fill="#FF9100" opacity="0.35"/>
+  <polygon points="88,20 76,30 80,32 78,28" fill="#FF9100" opacity="0.35"/>
+  <polygon points="20,88 32,78 28,76 30,80" fill="#FF9100" opacity="0.35"/>
+  <polygon points="88,88 76,78 80,76 78,80" fill="#FF9100" opacity="0.35"/>
+  <!-- Outer glow -->
+  <circle cx="54" cy="54" r="40" fill="none" stroke="#FF6D00" stroke-width="4" opacity="0.15"/>
+  <!-- Core -->
+  <circle cx="54" cy="54" r="32" fill="url(#g20core)"/>
+  <!-- Surface detail -->
+  <path d="M38,36 Q48,30 62,34 Q68,38 64,44 Q56,40 44,42 Q38,42 38,36 Z" fill="white" opacity="0.12"/>
+  <!-- Inner ring (wheel hint) -->
+  <circle cx="54" cy="54" r="20" fill="none" stroke="white" stroke-width="2" opacity="0.25"/>
+  <!-- Hub -->
+  <circle cx="54" cy="54" r="4" fill="url(#g20hub)"/>
+</svg>
