@@ -5,7 +5,10 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,13 +41,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.util.GraphScale
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
@@ -183,22 +194,26 @@ fun TripDetailScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Speed chart
-                ChartCard(stringResource(R.string.recording_chart_speed, "km/h"), dataPoints.map { it.speed }, AccentGreen)
+                ChartCard(stringResource(R.string.recording_chart_speed, "km/h"), dataPoints.map { it.speed },
+                    AccentGreen, unitLabel = "km/h", minSpan = GraphScale.SPAN_SPEED_KMH)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Battery chart
-                ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() }, AccentBlue)
+                ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
+                    AccentBlue, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Temperature chart
-                ChartCard(stringResource(R.string.recording_chart_temp, "\u00B0C"), dataPoints.map { it.temperature }, AccentOrange)
+                ChartCard(stringResource(R.string.recording_chart_temp, "\u00B0C"), dataPoints.map { it.temperature },
+                    AccentOrange, unitLabel = "\u00B0C", minSpan = GraphScale.SPAN_TEMPERATURE_C)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Voltage chart
-                ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage }, AccentRed)
+                ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
+                    AccentRed, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
 
                 Spacer(Modifier.height(16.dp))
             }
@@ -283,12 +298,20 @@ private fun RouteMapView(
 private fun ChartCard(
     title: String,
     values: List<Float>,
-    color: Color
+    color: Color,
+    unitLabel: String,
+    minSpan: Float
 ) {
     if (values.isEmpty()) return
 
-    val min = values.min()
-    val max = values.max()
+    val dataMin = values.min()
+    val dataMax = values.max()
+    val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
+    val textMeasurer = rememberTextMeasurer()
+    val tooltipBg = MaterialTheme.colorScheme.surface
+    val tooltipFg = MaterialTheme.colorScheme.onSurface
+
+    var touchX by remember { mutableStateOf<Float?>(null) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -301,7 +324,7 @@ private fun ChartCard(
             ) {
                 Text(title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium)
-                Text("%.1f – %.1f".format(min, max), fontSize = 11.sp,
+                Text("%.1f – %.1f".format(dataMin, dataMax), fontSize = 11.sp,
                     color = color, fontWeight = FontWeight.Medium)
             }
 
@@ -311,19 +334,72 @@ private fun ChartCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
+                    .pointerInput(values) {
+                        awaitEachGesture {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            touchX = down.position.x
+                            down.consume()
+                            while (true) {
+                                val ev = awaitPointerEvent()
+                                val change = ev.changes.firstOrNull() ?: break
+                                if (!change.pressed) {
+                                    touchX = null
+                                    break
+                                }
+                                touchX = change.position.x
+                                change.consume()
+                            }
+                        }
+                    }
             ) {
                 if (values.size < 2) return@Canvas
-                val range = (max - min).coerceAtLeast(1f)
-                val stepX = size.width / (values.size - 1).toFloat()
+                val w = size.width
+                val h = size.height
+                val range = bounds.range
+                val stepX = w / (values.size - 1).toFloat()
 
                 val path = Path()
                 values.forEachIndexed { idx, value ->
                     val x = idx * stepX
-                    val y = size.height - ((value - min) / range) * size.height
+                    val y = h - ((value - bounds.min) / range) * h
                     if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
                 }
 
                 drawPath(path, color = color, style = Stroke(width = 2f))
+
+                val tx = touchX
+                if (tx != null) {
+                    val cursorX = tx.coerceIn(0f, w)
+                    val floatIdx = (cursorX / stepX).coerceIn(0f, (values.size - 1).toFloat())
+                    val leftIdx = floatIdx.toInt().coerceIn(0, values.size - 1)
+                    val rightIdx = (leftIdx + 1).coerceAtMost(values.size - 1)
+                    val frac = floatIdx - leftIdx
+                    val interpValue = values[leftIdx] + (values[rightIdx] - values[leftIdx]) * frac
+                    val cursorY = h - ((interpValue - bounds.min) / range) * h
+
+                    drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
+                    drawCircle(color, radius = 4f, center = Offset(cursorX, cursorY))
+                    drawCircle(Color.White, radius = 2f, center = Offset(cursorX, cursorY))
+
+                    val labelText = "%.1f %s".format(interpValue, unitLabel)
+                    val measured = textMeasurer.measure(
+                        labelText,
+                        TextStyle(fontSize = 10.sp, color = tooltipFg, fontWeight = FontWeight.Medium)
+                    )
+                    val padX = 5f
+                    val padY = 2f
+                    val boxW = measured.size.width + padX * 2
+                    val boxH = measured.size.height + padY * 2
+                    val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
+                    val boxY = (cursorY - boxH - 6f).coerceAtLeast(0f)
+                    drawRoundRect(
+                        color = tooltipBg,
+                        topLeft = Offset(boxX, boxY),
+                        size = Size(boxW, boxH),
+                        cornerRadius = CornerRadius(5f, 5f)
+                    )
+                    drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+                }
             }
         }
     }

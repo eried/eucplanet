@@ -181,21 +181,18 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
-            Text(stringResource(R.string.auto_volume_help),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
             }
 
-            // Ensure exactly 3 points at speeds 0, 40, 80
+            // Ensure exactly 4 points at speeds 0, 25, 50, 75
             val normalizedPoints = remember(points) {
                 val p = points.toMutableList()
                 val result = mutableListOf<Pair<Float, Float>>()
                 result.add(0f to (p.getOrNull(0)?.second ?: 20f))
-                result.add(40f to (p.getOrNull(1)?.second ?: 60f))
-                result.add(80f to (p.getOrNull(2)?.second ?: 100f))
+                result.add(25f to (p.getOrNull(1)?.second ?: 50f))
+                result.add(50f to (p.getOrNull(2)?.second ?: 80f))
+                result.add(75f to (p.getOrNull(3)?.second ?: 100f))
                 result
             }
 
@@ -206,22 +203,6 @@ fun AutomationsContent(
                     viewModel.updateAutoVolumeCurve(encodeVolumeCurve(newPoints))
                 }
             )
-
-            // Show current values
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                for (p in normalizedPoints) {
-                    Text("${p.first.roundToInt()} km/h \u2192 ${p.second.roundToInt()}%",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-
-            Text(stringResource(R.string.auto_volume_realtime),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         Spacer(Modifier.height(32.dp))
@@ -411,7 +392,7 @@ private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit
 ) {
-    val maxSpeed = 80f
+    val maxSpeed = 75f
     val maxVolume = 100f
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -468,8 +449,12 @@ private fun SplineCurveEditor(
                             val h = size.height.toFloat()
 
                             if (dragIndex >= 0 && dragIndex < pointsRef.value.size) {
-                                val newV = ((h - change.position.y) / h * maxVolume)
+                                var newV = ((h - change.position.y) / h * maxVolume)
                                     .coerceIn(0f, maxVolume)
+                                // Enforce monotonic ascending: never below previous, never above next
+                                val prevV = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: 0f
+                                val nextV = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxVolume
+                                newV = newV.coerceIn(prevV, nextV)
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newV
@@ -494,11 +479,11 @@ private fun SplineCurveEditor(
             val h = size.height
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
-            // Grid lines
-            for (i in 0..4) {
-                val x = w * i / 4f
+            // Grid lines — X axis at handle positions (0, 25, 50, 75)
+            for (i in 0..3) {
+                val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
-                val label = "${(maxSpeed * i / 4).roundToInt()}"
+                val label = "${(maxSpeed * i / 3).roundToInt()}"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }

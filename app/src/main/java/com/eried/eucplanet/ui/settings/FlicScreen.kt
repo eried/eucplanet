@@ -104,7 +104,6 @@ fun FlicScreen(
                     Spacer(Modifier.height(12.dp))
                     if (scanning) {
                         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                        Text(scanStatus, style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
                         Button(
                             onClick = { viewModel.stopScan() },

@@ -14,8 +14,10 @@
     <string name="action_move_up">Nach oben</string>
     <string name="action_move_down">Nach unten</string>
     <string name="action_grant_permission">Berechtigung erteilen</string>
+    <string name="action_open_settings">Einstellungen öffnen</string>
     <string name="scan_permission_needed">Berechtigung nötig</string>
     <string name="scan_permission_body">Um dein Wheel zu finden, braucht die App Bluetooth- und Standortzugriff.</string>
+    <string name="scan_permission_body_settings">Berechtigung verweigert. Öffne die Systemeinstellungen, um Bluetooth und Standort zu erlauben.</string>
     <string name="recording_location_permission_needed">Standort nötig</string>
     <string name="recording_location_permission_body">Die Fahrtaufnahme speichert GPS-Punkte, damit du die Strecke auf einer Karte siehst. Gewähre Standortzugriff, um fortzufahren.</string>
 
@@ -113,6 +115,10 @@
     <string name="voice_selector_label">Stimme</string>
     <string name="voice_speech_speed">Sprechgeschwindigkeit</string>
     <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Während der Ansage</string>
+    <string name="voice_audio_focus_duck">Andere Töne leiser</string>
+    <string name="voice_audio_focus_pause">Andere Töne pausieren</string>
+    <string name="voice_audio_focus_off">Nichts tun</string>
     <string name="col_periodic">Regelmäßig</string>
     <string name="col_trigger">Ereignis</string>
     <string name="report_speed">Geschwindigkeit</string>
@@ -124,8 +130,8 @@
 
     <string name="section_flic_buttons">Flic 2-Tasten</string>
     <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
-    <string name="flic_stop_scan">Suche stoppen</string>
-    <string name="flic_start_scan">Nach Flic 2-Taste suchen</string>
+    <string name="flic_stop_scan">Stopp</string>
+    <string name="flic_start_scan">Nach Taste suchen</string>
     <string name="flic_no_buttons">Keine Flic-Tasten gekoppelt</string>
     <string name="flic_forget">Vergessen</string>
     <string name="flic_rename">Umbenennen</string>
@@ -133,7 +139,7 @@
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App — Android liefert Lautstärke-Ereignisse im Hintergrund nicht zuverlässig.</string>
+    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App.</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
@@ -202,7 +208,7 @@
     <string name="recording_clear_all_body">Dies löscht alle Fahrten und Datendateien dauerhaft. Nicht rückgängig machbar.</string>
     <string name="recording_delete_trip_title">Fahrt löschen</string>
     <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
-    <string name="recording_clear_all_menu">Alle Fahrten löschen</string>
+    <string name="recording_clear_all_menu">Alle löschen</string>
     <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen.</string>
     <string name="recording_empty">Noch keine Fahrten aufgezeichnet.\nTippe auf Aufnahme, um zu starten.</string>
     <string name="recording_stat_trips">Fahrten</string>
@@ -236,8 +242,6 @@
     <string name="auto_waiting_gps">Warte auf GPS-Position\u2026</string>
     <string name="auto_volume_title">Lautstärke</string>
     <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
-    <string name="auto_volume_help">Ziehe die Regler, um die Lautstärke bei 0, 40 und 80 km/h anzupassen. Tippe auf den Graph, um die Lautstärke bei jeder Geschwindigkeit zu sehen.</string>
-    <string name="auto_volume_realtime">Die Lautstärke passt sich in Echtzeit an die Geschwindigkeit an.</string>
     <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
     <string name="auto_midnight_sun_title">Mitternachtssonne</string>
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter — das Licht bleibt AUS.</string>
@@ -246,8 +250,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert.</string>
-    <string name="alarm_voice_vars">Sprachvariablen: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">Keine Alarmregeln.\nTippe + zum Hinzufügen.</string>
+    <string name="alarm_empty">Keine Alarmregeln konfiguriert.</string>
     <string name="alarm_add">Regel hinzufügen</string>
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
@@ -264,7 +267,7 @@
     <string name="alarm_section_voice">Stimme</string>
     <string name="alarm_enable_voice">Stimme aktivieren</string>
     <string name="alarm_voice_template">Textvorlage</string>
-    <string name="alarm_voice_template_help">Nutze {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_voice_template_help">Variablen: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Vibration aktivieren</string>
     <string name="alarm_vibrate_duration_fmt">Dauer: %1$d ms</string>

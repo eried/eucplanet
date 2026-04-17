@@ -76,7 +76,7 @@ class FlicManager @Inject constructor(
     fun startScan() {
         val manager = flic2Manager ?: return
         _scanning.value = true
-        _scanStatus.value = context.getString(R.string.flic_status_scanning)
+        _scanStatus.value = ""
 
         manager.startScan(object : Flic2ScanCallback {
             override fun onDiscoveredAlreadyPairedButton(button: Flic2Button) {
@@ -121,6 +121,7 @@ class FlicManager @Inject constructor(
     fun stopScan() {
         flic2Manager?.stopScan()
         _scanning.value = false
+        _scanStatus.value = ""
     }
 
     fun forgetButton(button: Flic2Button) {

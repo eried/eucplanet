@@ -99,6 +99,7 @@ class SettingsViewModel @Inject constructor(
         update { copy(voiceLocale = tag) }
         voiceService.setVoiceLocale(tag)
     }
+    fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
 

@@ -42,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -334,6 +335,33 @@ private fun VoiceTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        SectionHeader(stringResource(R.string.section_speech))
+
+        // Voice type selector
+        val voices by viewModel.availableVoices.collectAsState()
+        if (voices.isNotEmpty()) {
+            VoiceSelector(
+                currentLocale = settings.voiceLocale,
+                voices = voices,
+                onVoiceSelected = { viewModel.updateVoiceLocale(it) }
+            )
+        }
+
+        SliderSetting(
+            label = stringResource(R.string.voice_speech_speed),
+            value = settings.voiceSpeechRate,
+            range = 0.5f..2.5f,
+            unit = stringResource(R.string.unit_x),
+            steps = 19,
+            format = "%.1f",
+            onValueChange = { viewModel.updateVoiceSpeechRate(it) }
+        )
+
+        AudioFocusSelector(
+            current = settings.voiceAudioFocus,
+            onChange = { viewModel.updateVoiceAudioFocus(it) }
+        )
+
         SectionHeader(stringResource(R.string.section_announcements))
 
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
@@ -391,28 +419,6 @@ private fun VoiceTab(
         AnnounceSwitchSetting(stringResource(R.string.announce_welcome), settings.announceWelcome,
             onCheckedChange = { viewModel.updateAnnounceWelcome(it) },
             onTest = { viewModel.testSpeak(sWelcome) })
-
-        SectionHeader(stringResource(R.string.section_speech))
-
-        // Voice type selector
-        val voices by viewModel.availableVoices.collectAsState()
-        if (voices.isNotEmpty()) {
-            VoiceSelector(
-                currentLocale = settings.voiceLocale,
-                voices = voices,
-                onVoiceSelected = { viewModel.updateVoiceLocale(it) }
-            )
-        }
-
-        SliderSetting(
-            label = stringResource(R.string.voice_speech_speed),
-            value = settings.voiceSpeechRate,
-            range = 0.5f..2.5f,
-            unit = stringResource(R.string.unit_x),
-            steps = 19,
-            format = "%.1f",
-            onValueChange = { viewModel.updateVoiceSpeechRate(it) }
-        )
 
         SectionHeader(stringResource(R.string.section_report_status))
 
@@ -583,7 +589,6 @@ private fun FlicTab(
                 Spacer(Modifier.height(12.dp))
                 if (scanning) {
                     CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                    Text(scanStatus, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                     Button(
                         onClick = { viewModel.stopScan() },
@@ -1238,6 +1243,46 @@ private fun VoiceSelector(
                         onVoiceSelected(voice.locale.toString())
                         expanded = false
                     }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AudioFocusSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "DUCK" to stringResource(R.string.voice_audio_focus_duck),
+        "PAUSE" to stringResource(R.string.voice_audio_focus_pause),
+        "OFF" to stringResource(R.string.voice_audio_focus_off)
+    )
+
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            stringResource(R.string.voice_audio_focus_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
+        options.forEach { (key, label) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onChange(key) }
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+                    selected = current == key,
+                    onClick = { onChange(key) }
+                )
+                Text(
+                    label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 4.dp)
                 )
             }
         }

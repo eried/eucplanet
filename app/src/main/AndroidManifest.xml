@@ -2,11 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- BLE -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <!-- BLE (neverForLocation: we don't derive location from BLE scans) -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Location (for BLE scan + GPS recording) -->
+    <!-- Location (only needed on API < 31 for BLE scan; used for GPS trip recording on all versions) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 

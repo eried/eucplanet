@@ -15,10 +15,12 @@
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
     <string name="action_grant_permission">Grant permission</string>
+    <string name="action_open_settings">Open settings</string>
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Permission needed</string>
     <string name="scan_permission_body">To find your wheel, the app needs Bluetooth and location access.</string>
+    <string name="scan_permission_body_settings">Permission was denied. Open system settings to allow Bluetooth and location access.</string>
     <string name="recording_location_permission_needed">Location needed</string>
     <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue.</string>
 
@@ -152,6 +154,10 @@
     <string name="voice_selector_label">Voice</string>
     <string name="voice_speech_speed">Speech Speed</string>
     <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">While speaking</string>
+    <string name="voice_audio_focus_duck">Lower other sounds</string>
+    <string name="voice_audio_focus_pause">Pause other sounds</string>
+    <string name="voice_audio_focus_off">Do nothing</string>
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>
     <string name="report_speed">Speed</string>
@@ -164,8 +170,8 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 Buttons</string>
     <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
-    <string name="flic_stop_scan">Stop Scan</string>
-    <string name="flic_start_scan">Scan for Flic 2 Button</string>
+    <string name="flic_stop_scan">Stop</string>
+    <string name="flic_start_scan">Scan for button</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
     <string name="flic_forget">Forget</string>
     <string name="flic_rename">Rename</string>
@@ -173,7 +179,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volume Keys</string>
-    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen — Android doesn\'t reliably deliver volume events to background apps.</string>
+    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen.</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
@@ -296,7 +302,7 @@
     <string name="recording_clear_all_body">This will permanently delete all recorded trips and their data files. This cannot be undone.</string>
     <string name="recording_delete_trip_title">Delete Trip</string>
     <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
-    <string name="recording_clear_all_menu">Clear all trips</string>
+    <string name="recording_clear_all_menu">Clear all</string>
     <string name="recording_auto_record_tip">Tip: Enable auto-record in Settings to start recording automatically on connect.</string>
     <string name="recording_empty">No trips recorded yet.\nTap the record button to start.</string>
     <string name="recording_stat_trips">Trips</string>
@@ -330,8 +336,6 @@
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
     <string name="auto_volume_desc">Adaptive system volume based on speed</string>
-    <string name="auto_volume_help">Drag the handles to adjust volume at 0, 40, and 80 km/h. Touch the graph to see volume at any speed.</string>
-    <string name="auto_volume_realtime">Volume adjusts in real-time as speed changes.</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today — lights will stay OFF.</string>
@@ -340,8 +344,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires.</string>
-    <string name="alarm_voice_vars">Voice variables: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">No alarm rules configured.\nTap + to add one.</string>
+    <string name="alarm_empty">No alarm rules configured.</string>
     <string name="alarm_add">Add Alarm Rule</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
@@ -358,7 +361,7 @@
     <string name="alarm_section_voice">Voice</string>
     <string name="alarm_enable_voice">Enable voice</string>
     <string name="alarm_voice_template">Text template</string>
-    <string name="alarm_voice_template_help">Use {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_voice_template_help">Variables: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
     <string name="alarm_section_vibrate">Vibrate</string>
     <string name="alarm_enable_vibrate">Enable vibration</string>
     <string name="alarm_vibrate_duration_fmt">Duration: %1$dms</string>

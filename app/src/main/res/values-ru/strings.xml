@@ -14,8 +14,10 @@
     <string name="action_move_up">Вверх</string>
     <string name="action_move_down">Вниз</string>
     <string name="action_grant_permission">Предоставить разрешение</string>
+    <string name="action_open_settings">Открыть настройки</string>
     <string name="scan_permission_needed">Нужно разрешение</string>
     <string name="scan_permission_body">Чтобы найти ваше колесо, приложению нужен доступ к Bluetooth и геолокации.</string>
+    <string name="scan_permission_body_settings">Разрешение отклонено. Откройте системные настройки, чтобы разрешить Bluetooth и геолокацию.</string>
     <string name="recording_location_permission_needed">Нужна геолокация</string>
     <string name="recording_location_permission_body">Запись поездок сохраняет GPS-точки, чтобы показать маршрут на карте. Разрешите доступ к геолокации, чтобы продолжить.</string>
 
@@ -113,6 +115,10 @@
     <string name="voice_selector_label">Голос</string>
     <string name="voice_speech_speed">Скорость речи</string>
     <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Во время речи</string>
+    <string name="voice_audio_focus_duck">Приглушить другие звуки</string>
+    <string name="voice_audio_focus_pause">Остановить другие звуки</string>
+    <string name="voice_audio_focus_off">Ничего не делать</string>
     <string name="col_periodic">Регулярно</string>
     <string name="col_trigger">По кнопке</string>
     <string name="report_speed">Скорость</string>
@@ -124,8 +130,8 @@
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
     <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
-    <string name="flic_stop_scan">Остановить</string>
-    <string name="flic_start_scan">Искать кнопку Flic 2</string>
+    <string name="flic_stop_scan">Стоп</string>
+    <string name="flic_start_scan">Искать кнопку</string>
     <string name="flic_no_buttons">Нет привязанных кнопок Flic</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_rename">Переименовать</string>
@@ -133,7 +139,7 @@
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
     <string name="section_volume_keys">Кнопки громкости</string>
-    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто — в фоне Android не передаёт эти нажатия стабильно.</string>
+    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто.</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
@@ -202,7 +208,7 @@
     <string name="recording_clear_all_body">Все записанные поездки и их файлы будут удалены безвозвратно.</string>
     <string name="recording_delete_trip_title">Удалить поездку</string>
     <string name="recording_delete_trip_body">Удалить эту поездку вместе с её файлом?</string>
-    <string name="recording_clear_all_menu">Удалить все поездки</string>
+    <string name="recording_clear_all_menu">Удалить всё</string>
     <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения.</string>
     <string name="recording_empty">Поездок пока нет.\nНажмите кнопку записи, чтобы начать.</string>
     <string name="recording_stat_trips">Поездок</string>
@@ -236,8 +242,6 @@
     <string name="auto_waiting_gps">Ждём GPS\u2026</string>
     <string name="auto_volume_title">Громкость</string>
     <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
-    <string name="auto_volume_help">Потяните маркеры, чтобы задать громкость на 0, 40 и 80 км/ч. Коснитесь графика, чтобы увидеть значение на любой скорости.</string>
-    <string name="auto_volume_realtime">Громкость меняется на ходу вместе со скоростью.</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится — фары останутся выключенными.</string>
@@ -246,8 +250,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее — остальные пропускаются.</string>
-    <string name="alarm_voice_vars">Доступные переменные: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">Правил пока нет.\nНажмите +, чтобы создать.</string>
+    <string name="alarm_empty">Правила тревог не настроены.</string>
     <string name="alarm_add">Добавить правило</string>
     <string name="alarm_new">Новое правило</string>
     <string name="alarm_edit">Изменить</string>
@@ -264,7 +267,7 @@
     <string name="alarm_section_voice">Голос</string>
     <string name="alarm_enable_voice">Озвучивать</string>
     <string name="alarm_voice_template">Шаблон сообщения</string>
-    <string name="alarm_voice_template_help">Можно вставлять {speed}, {battery}, {temp}, {value}, {metric} и другие.</string>
+    <string name="alarm_voice_template_help">Переменные: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
     <string name="alarm_section_vibrate">Вибрация</string>
     <string name="alarm_enable_vibrate">Вибрировать</string>
     <string name="alarm_vibrate_duration_fmt">Длительность: %1$d мс</string>

@@ -1,7 +1,12 @@
 package com.eried.eucplanet.service
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.util.Log
 import com.eried.eucplanet.R
@@ -35,6 +40,14 @@ class VoiceService @Inject constructor(
     private var isReady = false
     private var currentRate: Float = 1.0f
     private var currentLocaleTag: String = "en-US"
+    @Volatile private var currentAudioFocus: String = "DUCK"
+
+    private val audioManager by lazy {
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+    private var activeFocusRequest: AudioFocusRequest? = null
+    private var focusHeld = false
+    private var pendingUtterances = 0
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -48,6 +61,7 @@ class VoiceService @Inject constructor(
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.US
+                tts?.setOnUtteranceProgressListener(utteranceListener)
                 isReady = true
                 Log.i(TAG, "TTS initialized")
                 loadAvailableVoices()
@@ -60,6 +74,64 @@ class VoiceService @Inject constructor(
                 Log.e(TAG, "TTS initialization failed: $status")
             }
         }
+    }
+
+    private val utteranceListener = object : UtteranceProgressListener() {
+        override fun onStart(utteranceId: String?) {}
+        override fun onDone(utteranceId: String?) { onUtteranceFinished() }
+        @Deprecated("Deprecated in Java")
+        override fun onError(utteranceId: String?) { onUtteranceFinished() }
+        override fun onError(utteranceId: String?, errorCode: Int) { onUtteranceFinished() }
+        override fun onStop(utteranceId: String?, interrupted: Boolean) { onUtteranceFinished() }
+    }
+
+    @Synchronized
+    private fun onUtteranceFinished() {
+        pendingUtterances = (pendingUtterances - 1).coerceAtLeast(0)
+        if (pendingUtterances == 0) abandonAudioFocus()
+    }
+
+    @Synchronized
+    private fun requestAudioFocus() {
+        if (currentAudioFocus == "OFF") return
+        if (focusHeld) return
+
+        val focusGain = when (currentAudioFocus) {
+            "DUCK" -> AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+            "PAUSE" -> AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            else -> return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+            val req = AudioFocusRequest.Builder(focusGain)
+                .setAudioAttributes(attrs)
+                .setOnAudioFocusChangeListener { }
+                .build()
+            audioManager.requestAudioFocus(req)
+            activeFocusRequest = req
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, focusGain)
+        }
+        focusHeld = true
+    }
+
+    @Synchronized
+    private fun abandonAudioFocus() {
+        if (!focusHeld) return
+        val req = activeFocusRequest
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && req != null) {
+            audioManager.abandonAudioFocusRequest(req)
+        } else {
+            @Suppress("DEPRECATION")
+            audioManager.abandonAudioFocus(null)
+        }
+        activeFocusRequest = null
+        focusHeld = false
     }
 
     /**
@@ -86,6 +158,7 @@ class VoiceService @Inject constructor(
             settingsRepository.settings.collect { s ->
                 currentRate = s.voiceSpeechRate
                 currentLocaleTag = s.voiceLocale
+                currentAudioFocus = s.voiceAudioFocus
             }
         }
     }
@@ -136,6 +209,8 @@ class VoiceService @Inject constructor(
         tts?.shutdown()
         tts = null
         isReady = false
+        abandonAudioFocus()
+        pendingUtterances = 0
     }
 
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
@@ -211,6 +286,8 @@ class VoiceService @Inject constructor(
         if (!isReady) return
         tts?.setSpeechRate(currentRate)
         applyLocale(currentLocaleTag)
+        requestAudioFocus()
+        synchronized(this) { pendingUtterances++ }
         tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "edb_${System.currentTimeMillis()}")
     }
 

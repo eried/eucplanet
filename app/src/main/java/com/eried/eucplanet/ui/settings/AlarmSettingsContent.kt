@@ -107,15 +107,6 @@ fun AlarmSettingsContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(Modifier.height(8.dp))
-
-        // Template variables help
-        Text(
-            stringResource(R.string.alarm_voice_vars),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-        )
-
         Spacer(Modifier.height(12.dp))
 
         if (rules.isEmpty()) {

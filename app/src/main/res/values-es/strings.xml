@@ -14,8 +14,10 @@
     <string name="action_move_up">Subir</string>
     <string name="action_move_down">Bajar</string>
     <string name="action_grant_permission">Conceder permiso</string>
+    <string name="action_open_settings">Abrir ajustes</string>
     <string name="scan_permission_needed">Permiso necesario</string>
     <string name="scan_permission_body">Para encontrar tu rueda, la app necesita acceso a Bluetooth y ubicación.</string>
+    <string name="scan_permission_body_settings">El permiso fue denegado. Abre los ajustes del sistema para permitir Bluetooth y ubicación.</string>
     <string name="recording_location_permission_needed">Ubicación necesaria</string>
     <string name="recording_location_permission_body">La grabación de viajes guarda puntos GPS para ver la ruta en el mapa. Concede acceso a la ubicación para continuar.</string>
 
@@ -113,6 +115,10 @@
     <string name="voice_selector_label">Voz</string>
     <string name="voice_speech_speed">Velocidad del habla</string>
     <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Mientras habla</string>
+    <string name="voice_audio_focus_duck">Bajar otros sonidos</string>
+    <string name="voice_audio_focus_pause">Pausar otros sonidos</string>
+    <string name="voice_audio_focus_off">No hacer nada</string>
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Evento</string>
     <string name="report_speed">Velocidad</string>
@@ -124,8 +130,8 @@
 
     <string name="section_flic_buttons">Botones Flic 2</string>
     <string name="flic_scan_hint">Mantén pulsado tu botón Flic 2 durante 6 segundos para ponerlo en emparejamiento, luego pulsa Buscar.</string>
-    <string name="flic_stop_scan">Detener búsqueda</string>
-    <string name="flic_start_scan">Buscar botón Flic 2</string>
+    <string name="flic_stop_scan">Detener</string>
+    <string name="flic_start_scan">Buscar botón</string>
     <string name="flic_no_buttons">No hay botones Flic emparejados</string>
     <string name="flic_forget">Olvidar</string>
     <string name="flic_rename">Renombrar</string>
@@ -133,7 +139,7 @@
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
     <string name="section_volume_keys">Teclas de volumen</string>
-    <string name="volume_keys_caption">Usa los botones de volumen del teléfono como atajos para la rueda. Solo funciona con la app visible — Android no entrega eventos de volumen de forma fiable en segundo plano.</string>
+    <string name="volume_keys_caption">Usa los botones de volumen del teléfono como atajos para la rueda. Solo funciona con la app visible.</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>
@@ -202,7 +208,7 @@
     <string name="recording_clear_all_body">Esto eliminará permanentemente todos los viajes grabados y sus archivos. No se puede deshacer.</string>
     <string name="recording_delete_trip_title">Eliminar viaje</string>
     <string name="recording_delete_trip_body">¿Eliminar este viaje y su archivo de datos?</string>
-    <string name="recording_clear_all_menu">Borrar todos los viajes</string>
+    <string name="recording_clear_all_menu">Borrar todo</string>
     <string name="recording_auto_record_tip">Consejo: Activa grabación automática en Ajustes para empezar a grabar al conectar.</string>
     <string name="recording_empty">No hay viajes grabados.\nPulsa el botón de grabar para empezar.</string>
     <string name="recording_stat_trips">Viajes</string>
@@ -236,8 +242,6 @@
     <string name="auto_waiting_gps">Esperando ubicación GPS\u2026</string>
     <string name="auto_volume_title">Volumen</string>
     <string name="auto_volume_desc">Volumen adaptable según velocidad</string>
-    <string name="auto_volume_help">Arrastra los controles para ajustar el volumen a 0, 40 y 80 km/h. Toca la gráfica para ver el volumen a cualquier velocidad.</string>
-    <string name="auto_volume_realtime">El volumen se ajusta en tiempo real según la velocidad.</string>
     <string name="auto_sunrise_sunset">Amanecer y atardecer</string>
     <string name="auto_midnight_sun_title">Sol de medianoche</string>
     <string name="auto_midnight_sun_body">Hoy el sol no se pone en esta latitud — las luces permanecerán APAGADAS.</string>
@@ -246,8 +250,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Las reglas se revisan de arriba a abajo por métrica. Dispara la primera que coincida.</string>
-    <string name="alarm_voice_vars">Variables: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">No hay reglas de alarma.\nPulsa + para añadir una.</string>
+    <string name="alarm_empty">No hay reglas de alarma configuradas.</string>
     <string name="alarm_add">Añadir regla</string>
     <string name="alarm_new">Nueva alarma</string>
     <string name="alarm_edit">Editar alarma</string>
@@ -264,7 +267,7 @@
     <string name="alarm_section_voice">Voz</string>
     <string name="alarm_enable_voice">Activar voz</string>
     <string name="alarm_voice_template">Plantilla de texto</string>
-    <string name="alarm_voice_template_help">Usa {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_voice_template_help">Variables: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
     <string name="alarm_section_vibrate">Vibración</string>
     <string name="alarm_enable_vibrate">Activar vibración</string>
     <string name="alarm_vibrate_duration_fmt">Duración: %1$dms</string>

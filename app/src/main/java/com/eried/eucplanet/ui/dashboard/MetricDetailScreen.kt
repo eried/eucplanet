@@ -2,6 +2,8 @@ package com.eried.eucplanet.ui.dashboard
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,13 +29,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -42,6 +50,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.ui.theme.AccentBlue
@@ -155,9 +164,20 @@ fun MetricDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
+                val minSpan = when (metricType) {
+                    MetricType.TEMPERATURE -> if (imperial) GraphScale.SPAN_TEMPERATURE_F else GraphScale.SPAN_TEMPERATURE_C
+                    MetricType.VOLTAGE -> GraphScale.SPAN_VOLTAGE
+                    MetricType.BATTERY -> GraphScale.SPAN_BATTERY
+                    MetricType.SPEED -> if (imperial) GraphScale.SPAN_SPEED_MPH else GraphScale.SPAN_SPEED_KMH
+                    MetricType.CURRENT -> GraphScale.SPAN_CURRENT
+                    MetricType.LOAD -> GraphScale.SPAN_LOAD
+                }
+
                 MetricGraph(
                     samples = windowSamples,
                     color = metricType.color,
+                    minSpan = minSpan,
+                    unitLabel = unitLabel,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(280.dp)
@@ -246,11 +266,21 @@ private fun EmptyGraph(
 private fun MetricGraph(
     samples: List<MetricSample>,
     color: Color,
+    minSpan: Float,
+    unitLabel: String,
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val tooltipBg = MaterialTheme.colorScheme.surfaceVariant
+    val tooltipFg = MaterialTheme.colorScheme.onSurface
+
+    var touchX by remember { mutableStateOf<Float?>(null) }
+    var frozenSamples by remember { mutableStateOf<List<MetricSample>?>(null) }
+    val latestSamples = rememberUpdatedState(samples)
+
+    val displaySamples = frozenSamples ?: samples
 
     Box(
         modifier = modifier
@@ -261,18 +291,35 @@ private fun MetricGraph(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 44.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        // Snapshot current samples so the graph stops sliding while held
+                        frozenSamples = latestSamples.value
+                        touchX = down.position.x
+                        down.consume()
+                        while (true) {
+                            val ev = awaitPointerEvent()
+                            val change = ev.changes.firstOrNull() ?: break
+                            if (!change.pressed) {
+                                touchX = null
+                                frozenSamples = null
+                                break
+                            }
+                            touchX = change.position.x
+                            change.consume()
+                        }
+                    }
+                }
         ) {
-            if (samples.size < 2) return@Canvas
+            if (displaySamples.size < 2) return@Canvas
             val w = size.width
             val h = size.height
 
-            val values = samples.map { it.value }
-            val dataMin = values.min()
-            val dataMax = values.max()
-            val range = (dataMax - dataMin).coerceAtLeast(1f)
-            val graphMin = dataMin - range * 0.05f
-            val graphMax = dataMax + range * 0.05f
-            val graphRange = graphMax - graphMin
+            val values = displaySamples.map { it.value }
+            val bounds = GraphScale.pad(values.min(), values.max(), minSpan)
+            val graphMin = bounds.min
+            val graphRange = bounds.range
 
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
@@ -287,8 +334,8 @@ private fun MetricGraph(
             }
 
             // Time axis labels
-            val startTime = samples.first().timestampMs
-            val endTime = samples.last().timestampMs
+            val startTime = displaySamples.first().timestampMs
+            val endTime = displaySamples.last().timestampMs
             val totalSec = ((endTime - startTime) / 1000).toInt().coerceAtLeast(1)
             val timeSteps = if (totalSec > 300) 5 else if (totalSec > 60) 4 else 3
             for (i in 0..timeSteps) {
@@ -301,9 +348,10 @@ private fun MetricGraph(
             }
 
             // Data line
+            val timeRange = (endTime - startTime).coerceAtLeast(1)
             val path = androidx.compose.ui.graphics.Path()
-            samples.forEachIndexed { idx, sample ->
-                val x = ((sample.timestampMs - startTime).toFloat() / (endTime - startTime).coerceAtLeast(1)) * w
+            displaySamples.forEachIndexed { idx, sample ->
+                val x = ((sample.timestampMs - startTime).toFloat() / timeRange) * w
                 val y = h - ((sample.value - graphMin) / graphRange) * h
                 if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
@@ -316,6 +364,48 @@ private fun MetricGraph(
             fillPath.close()
             drawPath(fillPath, color = color.copy(alpha = 0.1f))
             drawPath(path, color = color, style = Stroke(width = 2.5f))
+
+            // Touch crosshair — vertical line follows finger, dot interpolates on the curve
+            val tx = touchX
+            if (tx != null) {
+                val cursorX = tx.coerceIn(0f, w)
+                val targetMs = startTime + (cursorX / w * timeRange).toLong()
+
+                // Find bracketing samples for interpolation
+                var leftIdx = 0
+                for (i in displaySamples.indices) {
+                    if (displaySamples[i].timestampMs <= targetMs) leftIdx = i else break
+                }
+                val rightIdx = (leftIdx + 1).coerceAtMost(displaySamples.size - 1)
+                val left = displaySamples[leftIdx]
+                val right = displaySamples[rightIdx]
+                val span = (right.timestampMs - left.timestampMs).coerceAtLeast(1)
+                val frac = ((targetMs - left.timestampMs).toFloat() / span).coerceIn(0f, 1f)
+                val interpValue = left.value + (right.value - left.value) * frac
+                val cursorY = h - ((interpValue - graphMin) / graphRange) * h
+
+                drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
+                drawCircle(color, radius = 5f, center = Offset(cursorX, cursorY))
+                drawCircle(androidx.compose.ui.graphics.Color.White, radius = 2.5f, center = Offset(cursorX, cursorY))
+
+                val valText = "%.1f %s".format(interpValue, unitLabel)
+                val timeText = formatDuration(((targetMs - startTime) / 1000).coerceAtLeast(0))
+                val labelText = "$valText · $timeText"
+                val measured = textMeasurer.measure(labelText, TextStyle(fontSize = 11.sp, color = tooltipFg, fontWeight = FontWeight.Medium))
+                val padX = 6f
+                val padY = 3f
+                val boxW = measured.size.width + padX * 2
+                val boxH = measured.size.height + padY * 2
+                val boxX = (cursorX - boxW / 2f).coerceIn(0f, w - boxW)
+                val boxY = (cursorY - boxH - 10f).coerceAtLeast(0f)
+                drawRoundRect(
+                    color = tooltipBg,
+                    topLeft = Offset(boxX, boxY),
+                    size = Size(boxW, boxH),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(6f, 6f)
+                )
+                drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+            }
         }
     }
 }

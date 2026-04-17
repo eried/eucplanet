@@ -42,10 +42,13 @@ class ScanViewModel @Inject constructor(
 
     private fun requiredScanPermissions(): List<String> = buildList {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12+: neverForLocation is declared, so no location needed for scan
             add(Manifest.permission.BLUETOOTH_SCAN)
             add(Manifest.permission.BLUETOOTH_CONNECT)
+        } else {
+            // Android 11-: legacy BLE scan requires fine location
+            add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        add(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     fun refreshPermissions(): Boolean {

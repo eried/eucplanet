@@ -14,8 +14,10 @@
     <string name="action_move_up">Flytt opp</string>
     <string name="action_move_down">Flytt ned</string>
     <string name="action_grant_permission">Gi tilgang</string>
+    <string name="action_open_settings">Åpne innstillinger</string>
     <string name="scan_permission_needed">Trenger tilgang</string>
     <string name="scan_permission_body">For å finne hjulet ditt trenger appen Bluetooth- og posisjonstilgang.</string>
+    <string name="scan_permission_body_settings">Tilgang ble avvist. Åpne systeminnstillingene for å tillate Bluetooth og posisjon.</string>
     <string name="recording_location_permission_needed">Trenger posisjon</string>
     <string name="recording_location_permission_body">Turopptak lagrer GPS-punkter så du kan se ruten på et kart. Gi posisjonstilgang for å fortsette.</string>
 
@@ -113,6 +115,10 @@
     <string name="voice_selector_label">Stemme</string>
     <string name="voice_speech_speed">Talehastighet</string>
     <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Under tale</string>
+    <string name="voice_audio_focus_duck">Demp andre lyder</string>
+    <string name="voice_audio_focus_pause">Pause andre lyder</string>
+    <string name="voice_audio_focus_off">Ikke gjør noe</string>
     <string name="col_periodic">Jevnlig</string>
     <string name="col_trigger">Hendelse</string>
     <string name="report_speed">Fart</string>
@@ -124,8 +130,8 @@
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
     <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann.</string>
-    <string name="flic_stop_scan">Stopp skann</string>
-    <string name="flic_start_scan">Skann etter Flic 2-knapp</string>
+    <string name="flic_stop_scan">Stopp</string>
+    <string name="flic_start_scan">Søk etter knapp</string>
     <string name="flic_no_buttons">Ingen Flic-knapper paret</string>
     <string name="flic_forget">Glem</string>
     <string name="flic_rename">Endre navn</string>
@@ -133,7 +139,7 @@
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier for hjulet. Fungerer bare når appen er synlig — Android leverer ikke volum-hendelser pålitelig i bakgrunnen.</string>
+    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier for hjulet. Fungerer bare når appen er synlig.</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
@@ -202,7 +208,7 @@
     <string name="recording_clear_all_body">Dette sletter permanent alle turer og datafiler. Kan ikke angres.</string>
     <string name="recording_delete_trip_title">Slett tur</string>
     <string name="recording_delete_trip_body">Slette denne turen og datafilen?</string>
-    <string name="recording_clear_all_menu">Slett alle turer</string>
+    <string name="recording_clear_all_menu">Slett alt</string>
     <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling.</string>
     <string name="recording_empty">Ingen turer er registrert enda.\nTrykk opptak-knappen for å starte.</string>
     <string name="recording_stat_trips">Turer</string>
@@ -236,8 +242,6 @@
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volum</string>
     <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
-    <string name="auto_volume_help">Dra håndtakene for å justere volumet ved 0, 40 og 80 km/t. Trykk grafen for å se volumet ved enhver fart.</string>
-    <string name="auto_volume_realtime">Volumet justeres i sanntid når farten endres.</string>
     <string name="auto_sunrise_sunset">Soloppgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag — lysene forblir AV.</string>
@@ -246,8 +250,7 @@
 
     <!-- Alarms tab -->
     <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser.</string>
-    <string name="alarm_voice_vars">Stemmevariabler: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">Ingen alarmregler.\nTrykk + for å legge til.</string>
+    <string name="alarm_empty">Ingen alarmregler konfigurert.</string>
     <string name="alarm_add">Legg til regel</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
@@ -264,7 +267,7 @@
     <string name="alarm_section_voice">Stemme</string>
     <string name="alarm_enable_voice">Aktiver stemme</string>
     <string name="alarm_voice_template">Tekstmal</string>
-    <string name="alarm_voice_template_help">Bruk {speed}, {battery}, {temp}, {value}, {metric}, osv.</string>
+    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
     <string name="alarm_section_vibrate">Vibrasjon</string>
     <string name="alarm_enable_vibrate">Aktiver vibrasjon</string>
     <string name="alarm_vibrate_duration_fmt">Varighet: %1$d ms</string>

@@ -772,14 +772,16 @@ private fun WheelInfoBox(
     versionName: String,
     onVersionClick: () -> Unit
 ) {
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // Left: ODO
+        Row(
+            modifier = Modifier.align(Alignment.CenterStart),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             val odoValue = com.eried.eucplanet.util.Units.distance(odoKm, imperial)
             val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
             Text(stringResource(R.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -787,22 +789,29 @@ private fun WheelInfoBox(
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            val infoText = listOfNotNull(modelName, firmwareVersion?.let { "v$it" })
-                .joinToString(" · ")
-            if (infoText.isNotBlank()) {
-                Text(infoText, fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1)
-                Spacer(Modifier.width(8.dp))
-            }
+
+        // Center: model · firmware
+        val infoText = listOfNotNull(modelName, firmwareVersion?.let { "v$it" })
+            .joinToString(" · ")
+        if (infoText.isNotBlank()) {
             Text(
-                text = "v$versionName · ${com.eried.eucplanet.BuildConfig.BUILD_STAMP}",
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                modifier = Modifier.clickable(onClick = onVersionClick)
+                infoText,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
+
+        // Right: app version
+        Text(
+            text = "v$versionName",
+            fontSize = 10.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .clickable(onClick = onVersionClick)
+        )
     }
 }
 

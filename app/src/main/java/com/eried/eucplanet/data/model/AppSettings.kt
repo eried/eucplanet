@@ -27,6 +27,8 @@ data class AppSettings(
     val voiceIntervalSeconds: Int = 30,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
+    // Audio focus behavior while speaking: "DUCK" (lower other), "PAUSE" (pause other), "OFF" (no focus)
+    val voiceAudioFocus: String = "DUCK",
     // Periodic voice report toggles
     val voiceReportSpeed: Boolean = true,
     val voiceReportBattery: Boolean = true,
@@ -78,9 +80,9 @@ data class AppSettings(
     val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
     val autoLightsOffMinutesAfter: Int = 30,   // minutes after sunrise to turn lights OFF
 
-    // Auto-volume (speed-based, 3 control points: 0, 40, 80 km/h)
+    // Auto-volume (speed-based, 4 control points: 0, 25, 50, 75 km/h, monotonic ascending)
     val autoVolumeEnabled: Boolean = false,
-    val autoVolumeCurve: String = "0:20,40:60,80:100",
+    val autoVolumeCurve: String = "0:20,25:50,50:80,75:100",
 
     // Display units
     val imperialUnits: Boolean = false,
