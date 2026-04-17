@@ -5,13 +5,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -29,7 +31,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var flicManager: FlicManager
@@ -63,11 +65,24 @@ class MainActivity : ComponentActivity() {
         requestMissingPermissions()
 
         lifecycleScope.launch {
-            settingsRepository.settings.collect { _settings.value = it }
+            settingsRepository.settings.collect {
+                val first = _settings.value == null
+                _settings.value = it
+                if (first) {
+                    val want = if (it.language.isBlank()) "en" else it.language
+                    if (com.eried.evendarkerbot.util.LocaleHelper.current() != want) {
+                        com.eried.evendarkerbot.util.LocaleHelper.apply(want)
+                    }
+                }
+            }
         }
 
         setContent {
-            EvenDarkerBotTheme {
+            val s by _settings.collectAsState()
+            EvenDarkerBotTheme(
+                themeMode = s?.themeMode ?: "dark",
+                accentColor = s?.accentColor ?: "blue"
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

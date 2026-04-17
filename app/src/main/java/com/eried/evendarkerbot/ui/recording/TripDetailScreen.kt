@@ -41,11 +41,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.TripRecord
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
@@ -73,15 +75,15 @@ fun TripDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Trip Details") },
+                title = { Text(stringResource(R.string.recording_detail_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.shareTrip(trip) }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share .dbb")
+                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -99,7 +101,7 @@ fun TripDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("No data recorded in this trip.",
+                Text(stringResource(R.string.recording_no_data),
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
@@ -134,9 +136,9 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard("Distance", "%.1f km".format(trip.distanceKm), AccentBlue, Modifier.weight(1f))
-                    SummaryCard("Duration", "%d:%02d".format(minutes, seconds), AccentBlue, Modifier.weight(1f))
-                    SummaryCard("Points", "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f km".format(trip.distanceKm), AccentBlue, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), AccentBlue, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -145,8 +147,8 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard("Top Speed", "%.0f km/h".format(maxSpeed), AccentOrange, Modifier.weight(1f))
-                    SummaryCard("Avg Speed", "%.0f km/h".format(avgSpeed), AccentGreen, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f km/h".format(maxSpeed), AccentOrange, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f km/h".format(avgSpeed), AccentGreen, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -155,9 +157,9 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard("Min Battery", "$minBattery%",
+                    SummaryCard(stringResource(R.string.recording_summary_min_battery), "$minBattery%",
                         if (minBattery < 20) AccentRed else AccentGreen, Modifier.weight(1f))
-                    SummaryCard("Max Temp", "%.0f\u00B0C".format(maxTemp),
+                    SummaryCard(stringResource(R.string.recording_summary_max_temp), "%.0f\u00B0C".format(maxTemp),
                         if (maxTemp > 60) AccentRed else AccentOrange, Modifier.weight(1f))
                 }
 
@@ -167,7 +169,7 @@ fun TripDetailScreen(
                 }
                 if (gpsPoints.size >= 2) {
                     Spacer(Modifier.height(8.dp))
-                    Text("Route", style = MaterialTheme.typography.titleSmall,
+                    Text(stringResource(R.string.recording_route), style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(4.dp))
                     RouteMapView(
@@ -181,22 +183,22 @@ fun TripDetailScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Speed chart
-                ChartCard("Speed (km/h)", dataPoints.map { it.speed }, AccentGreen)
+                ChartCard(stringResource(R.string.recording_chart_speed, "km/h"), dataPoints.map { it.speed }, AccentGreen)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Battery chart
-                ChartCard("Battery (%)", dataPoints.map { it.battery.toFloat() }, AccentBlue)
+                ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() }, AccentBlue)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Temperature chart
-                ChartCard("Temperature (\u00B0C)", dataPoints.map { it.temperature }, AccentOrange)
+                ChartCard(stringResource(R.string.recording_chart_temp, "\u00B0C"), dataPoints.map { it.temperature }, AccentOrange)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Voltage chart
-                ChartCard("Voltage (V)", dataPoints.map { it.voltage }, AccentRed)
+                ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage }, AccentRed)
 
                 Spacer(Modifier.height(16.dp))
             }

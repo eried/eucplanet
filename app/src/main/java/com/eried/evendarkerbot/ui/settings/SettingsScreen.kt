@@ -1,5 +1,7 @@
 package com.eried.evendarkerbot.ui.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,14 +57,24 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.FlicAction
 import com.eried.evendarkerbot.service.VoiceOption
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentRed
+import com.eried.evendarkerbot.util.Units
 
-private val tabs = listOf("General", "Voice", "Alarms", "Auto", "Integration")
+private val languageOptions = listOf(
+    "en" to "English",
+    "es" to "Español",
+    "ru" to "Русский",
+    "no" to "Norsk",
+    "de" to "Deutsch"
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,15 +85,51 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
+    val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+
+    ttsSwitchPrompt?.let { lang ->
+        val langName = when (lang) {
+            "en" -> stringResource(R.string.lang_name_en)
+            "es" -> stringResource(R.string.lang_name_es)
+            "ru" -> stringResource(R.string.lang_name_ru)
+            "no" -> stringResource(R.string.lang_name_no)
+            "de" -> stringResource(R.string.lang_name_de)
+            else -> lang
+        }
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissTtsSwitch() },
+            title = { Text(stringResource(R.string.tts_switch_title, langName)) },
+            text = { Text(stringResource(R.string.tts_switch_body, langName)) },
+            confirmButton = {
+                Button(onClick = { viewModel.acceptTtsSwitch() }) {
+                    Text(stringResource(R.string.tts_switch_yes))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { viewModel.dismissTtsSwitch() }) {
+                    Text(stringResource(R.string.tts_switch_no))
+                }
+            }
+        )
+    }
+
+    val tabs = listOf(
+        stringResource(R.string.tab_general),
+        stringResource(R.string.tab_speed),
+        stringResource(R.string.tab_voice),
+        stringResource(R.string.tab_alarms),
+        stringResource(R.string.tab_auto),
+        stringResource(R.string.tab_integration)
+    )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -105,11 +154,12 @@ fun SettingsScreen(
             }
 
             when (selectedTab) {
-                0 -> GeneralTab(settings, maxSpeedCap, viewModel)
-                1 -> VoiceTab(settings, viewModel)
-                2 -> AlarmSettingsContent()
-                3 -> AutomationsContent()
-                4 -> FlicTab()
+                0 -> GeneralTab(settings, viewModel)
+                1 -> SpeedTab(settings, maxSpeedCap, viewModel)
+                2 -> VoiceTab(settings, viewModel)
+                3 -> AlarmSettingsContent()
+                4 -> AutomationsContent()
+                5 -> FlicTab()
             }
         }
     }
@@ -119,6 +169,74 @@ fun SettingsScreen(
 
 @Composable
 private fun GeneralTab(
+    settings: com.eried.evendarkerbot.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val themeOptions = listOf(
+        "dark" to stringResource(R.string.theme_dark),
+        "light" to stringResource(R.string.theme_light),
+        "system" to stringResource(R.string.theme_system)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_recording))
+        SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
+        Text(
+            stringResource(R.string.auto_record_caption),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        SectionHeader(stringResource(R.string.section_connection))
+        SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
+
+        settings.lastDeviceName?.let {
+            Text(
+                stringResource(R.string.last_device, it),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        SectionHeader(stringResource(R.string.section_display))
+        SwitchSetting(stringResource(R.string.imperial_units), settings.imperialUnits) {
+            viewModel.updateImperialUnits(it)
+        }
+
+        SimpleDropdown(
+            label = "Language",
+            currentKey = settings.language,
+            options = languageOptions,
+            onSelect = { viewModel.updateLanguage(it) }
+        )
+
+        SimpleDropdown(
+            label = stringResource(R.string.theme),
+            currentKey = settings.themeMode,
+            options = themeOptions,
+            onSelect = { viewModel.updateThemeMode(it) }
+        )
+
+        Text(stringResource(R.string.accent_color), style = MaterialTheme.typography.labelLarge)
+        AccentPicker(
+            current = settings.accentColor,
+            onSelect = { viewModel.updateAccentColor(it) }
+        )
+
+        Spacer(Modifier.height(32.dp))
+    }
+}
+
+// --- Speed Tab ---
+
+@Composable
+private fun SpeedTab(
     settings: com.eried.evendarkerbot.data.model.AppSettings,
     maxSpeedCap: Float,
     viewModel: SettingsViewModel
@@ -130,67 +248,44 @@ private fun GeneralTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader("Speed Limits")
+        SectionHeader(stringResource(R.string.section_speed_limits))
 
-        SliderSetting(
-            label = "Tiltback Speed",
-            value = settings.tiltbackSpeedKmh,
-            range = 10f..maxSpeedCap,
-            unit = "km/h",
-            onValueChange = { viewModel.updateTiltbackSpeed(it) }
+        val imperial = settings.imperialUnits
+        SpeedSliderSetting(
+            label = stringResource(R.string.speed_tiltback),
+            valueKmh = settings.tiltbackSpeedKmh,
+            rangeKmh = 10f..maxSpeedCap,
+            imperial = imperial,
+            onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
         )
-        SliderSetting(
-            label = "Alarm Speed",
-            value = settings.alarmSpeedKmh,
-            range = 10f..settings.tiltbackSpeedKmh,
-            unit = "km/h",
-            onValueChange = { viewModel.updateAlarmSpeed(it) }
+        SpeedSliderSetting(
+            label = stringResource(R.string.speed_alarm),
+            valueKmh = settings.alarmSpeedKmh,
+            rangeKmh = 10f..settings.tiltbackSpeedKmh,
+            imperial = imperial,
+            onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
         )
 
-        SectionHeader("Legal Mode Speed")
+        SectionHeader(stringResource(R.string.section_legal_mode_speed))
         Text(
-            "Applied when Legal Mode is ON. Must be lower than normal tiltback.",
+            stringResource(R.string.legal_mode_caption),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        SliderSetting(
-            label = "Legal Tiltback",
-            value = settings.safetyTiltbackKmh,
-            range = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
-            unit = "km/h",
-            onValueChange = { viewModel.updateSafetyTiltback(it) }
+        SpeedSliderSetting(
+            label = stringResource(R.string.speed_legal_tiltback),
+            valueKmh = settings.safetyTiltbackKmh,
+            rangeKmh = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
+            imperial = imperial,
+            onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
         )
-        SliderSetting(
-            label = "Legal Alarm",
-            value = settings.safetyAlarmKmh,
-            range = 10f..settings.safetyTiltbackKmh,
-            unit = "km/h",
-            onValueChange = { viewModel.updateSafetyAlarm(it) }
+        SpeedSliderSetting(
+            label = stringResource(R.string.speed_legal_alarm),
+            valueKmh = settings.safetyAlarmKmh,
+            rangeKmh = 10f..settings.safetyTiltbackKmh,
+            imperial = imperial,
+            onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
         )
-
-        SectionHeader("Recording")
-        SwitchSetting("Auto-record on start", settings.autoRecord) { viewModel.updateAutoRecord(it) }
-        Text(
-            "Starts recording automatically as soon as the wheel connects.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        SectionHeader("Connection")
-        SwitchSetting("Auto-connect on start", settings.autoConnect) { viewModel.updateAutoConnect(it) }
-
-        settings.lastDeviceName?.let {
-            Text(
-                "Last device: $it",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-        SectionHeader("Display")
-        SwitchSetting("Imperial units (mph, \u00B0F, mi)", settings.imperialUnits) {
-            viewModel.updateImperialUnits(it)
-        }
 
         Spacer(Modifier.height(32.dp))
     }
@@ -210,43 +305,56 @@ private fun VoiceTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader("Announcements")
+        SectionHeader(stringResource(R.string.section_announcements))
 
-        SwitchSetting("Report status periodically", settings.voiceEnabled) {
+        SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
 
         if (settings.voiceEnabled) {
             SliderSetting(
-                label = "Interval",
+                label = stringResource(R.string.voice_interval),
                 value = settings.voiceIntervalSeconds.toFloat(),
                 range = 10f..300f,
-                unit = "sec",
+                unit = stringResource(R.string.unit_sec),
                 steps = 28,
                 onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
             )
         }
 
-        AnnounceSwitchSetting("Wheel lock / unlock", settings.announceWheelLock,
-            onCheckedChange = { viewModel.updateAnnounceWheelLock(it) },
-            onTest = { viewModel.testSpeak(listOf("Wheel locked", "Wheel unlocked").random()) })
-        AnnounceSwitchSetting("Lights on / off", settings.announceLights,
-            onCheckedChange = { viewModel.updateAnnounceLights(it) },
-            onTest = { viewModel.testSpeak(listOf("Lights on", "Lights off").random()) })
-        AnnounceSwitchSetting("Trip recording", settings.announceRecording,
-            onCheckedChange = { viewModel.updateAnnounceRecording(it) },
-            onTest = { viewModel.testSpeak(listOf("Recording started", "Recording finished").random()) })
-        AnnounceSwitchSetting("Wheel connected / disconnected", settings.announceConnection,
-            onCheckedChange = { viewModel.updateAnnounceConnection(it) },
-            onTest = { viewModel.testSpeak(listOf("Wheel connected", "Wheel disconnected").random()) })
-        AnnounceSwitchSetting("GPS signal lost / regained", settings.announceGps,
-            onCheckedChange = { viewModel.updateAnnounceGps(it) },
-            onTest = { viewModel.testSpeak(listOf("GPS signal acquired", "GPS signal lost").random()) })
-        AnnounceSwitchSetting("Legal mode on / off", settings.announceSafetyMode,
-            onCheckedChange = { viewModel.updateAnnounceSafetyMode(it) },
-            onTest = { viewModel.testSpeak(listOf("Legal mode on", "Legal mode off").random()) })
+        val sLock = stringResource(R.string.voice_wheel_locked)
+        val sUnlock = stringResource(R.string.voice_wheel_unlocked)
+        val sLightsOn = stringResource(R.string.voice_lights_on)
+        val sLightsOff = stringResource(R.string.voice_lights_off)
+        val sRecStart = stringResource(R.string.voice_recording_started)
+        val sRecEnd = stringResource(R.string.voice_recording_finished)
+        val sConn = stringResource(R.string.voice_wheel_connected)
+        val sDisc = stringResource(R.string.voice_wheel_disconnected)
+        val sGpsAcq = stringResource(R.string.voice_gps_acquired)
+        val sGpsLost = stringResource(R.string.voice_gps_lost)
+        val sLegalOn = stringResource(R.string.voice_legal_on)
+        val sLegalOff = stringResource(R.string.voice_legal_off)
 
-        SectionHeader("Speech")
+        AnnounceSwitchSetting(stringResource(R.string.announce_wheel_lock), settings.announceWheelLock,
+            onCheckedChange = { viewModel.updateAnnounceWheelLock(it) },
+            onTest = { viewModel.testSpeak(listOf(sLock, sUnlock).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_lights), settings.announceLights,
+            onCheckedChange = { viewModel.updateAnnounceLights(it) },
+            onTest = { viewModel.testSpeak(listOf(sLightsOn, sLightsOff).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_recording), settings.announceRecording,
+            onCheckedChange = { viewModel.updateAnnounceRecording(it) },
+            onTest = { viewModel.testSpeak(listOf(sRecStart, sRecEnd).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_connection), settings.announceConnection,
+            onCheckedChange = { viewModel.updateAnnounceConnection(it) },
+            onTest = { viewModel.testSpeak(listOf(sConn, sDisc).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_gps), settings.announceGps,
+            onCheckedChange = { viewModel.updateAnnounceGps(it) },
+            onTest = { viewModel.testSpeak(listOf(sGpsAcq, sGpsLost).random()) })
+        AnnounceSwitchSetting(stringResource(R.string.announce_legal_mode), settings.announceSafetyMode,
+            onCheckedChange = { viewModel.updateAnnounceSafetyMode(it) },
+            onTest = { viewModel.testSpeak(listOf(sLegalOn, sLegalOff).random()) })
+
+        SectionHeader(stringResource(R.string.section_speech))
 
         // Voice type selector
         val voices by viewModel.availableVoices.collectAsState()
@@ -259,16 +367,25 @@ private fun VoiceTab(
         }
 
         SliderSetting(
-            label = "Speech Speed",
+            label = stringResource(R.string.voice_speech_speed),
             value = settings.voiceSpeechRate,
             range = 0.5f..2.5f,
-            unit = "x",
+            unit = stringResource(R.string.unit_x),
             steps = 19,
             format = "%.1f",
             onValueChange = { viewModel.updateVoiceSpeechRate(it) }
         )
 
-        SectionHeader("Report Status")
+        SectionHeader(stringResource(R.string.section_report_status))
+
+        val sSpeedEx = stringResource(R.string.voice_speed_fmt, "35")
+        val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
+        val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
+        val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
+        val sTripEx = stringResource(R.string.voice_trip_fmt, "12.3")
+        val sRecOn = stringResource(R.string.voice_recording_on)
+        val sRecOff = stringResource(R.string.voice_recording_off)
+        val fullReport = "$sSpeedEx, $sBatteryEx, $sTempEx, $sLoadEx, $sTripEx"
 
         // Header: Label | Periodic | arrows | Trigger
         Row(
@@ -278,21 +395,17 @@ private fun VoiceTab(
             Spacer(Modifier.weight(1f))
             Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
-                Text("Periodic", style = MaterialTheme.typography.labelMedium,
+                Text(stringResource(R.string.col_periodic), style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    viewModel.testSpeak("Speed 35, battery 80 percent, temperature 32 degrees, load 45 percent, trip 12.3 kilometers")
-                })
+                PlayButton(onClick = { viewModel.testSpeak(fullReport) })
             }
             Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
-                Text("Trigger", style = MaterialTheme.typography.labelMedium,
+                Text(stringResource(R.string.col_trigger), style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = {
-                    viewModel.testSpeak("Speed 35, battery 80 percent, temperature 32 degrees, load 45 percent, trip 12.3 kilometers")
-                })
+                PlayButton(onClick = { viewModel.testSpeak(fullReport) })
             }
         }
 
@@ -309,30 +422,30 @@ private fun VoiceTab(
         )
 
         val allItems = mapOf(
-            "Speed" to ReportItemConfig("Speed", "Speed",
+            "Speed" to ReportItemConfig("Speed", stringResource(R.string.report_speed),
                 settings.voiceReportSpeed, { viewModel.updateVoiceReportSpeed(it) },
                 settings.triggerReportSpeed, { viewModel.updateTriggerReportSpeed(it) },
-                "Speed 35"),
-            "Battery" to ReportItemConfig("Battery", "Battery",
+                sSpeedEx),
+            "Battery" to ReportItemConfig("Battery", stringResource(R.string.report_battery),
                 settings.voiceReportBattery, { viewModel.updateVoiceReportBattery(it) },
                 settings.triggerReportBattery, { viewModel.updateTriggerReportBattery(it) },
-                "battery 80 percent"),
-            "Temp" to ReportItemConfig("Temp", "Temp",
+                sBatteryEx),
+            "Temp" to ReportItemConfig("Temp", stringResource(R.string.report_temp),
                 settings.voiceReportTemp, { viewModel.updateVoiceReportTemp(it) },
                 settings.triggerReportTemp, { viewModel.updateTriggerReportTemp(it) },
-                "temperature 32 degrees"),
-            "PWM" to ReportItemConfig("PWM", "PWM",
+                sTempEx),
+            "PWM" to ReportItemConfig("PWM", stringResource(R.string.report_pwm),
                 settings.voiceReportPwm, { viewModel.updateVoiceReportPwm(it) },
                 settings.triggerReportPwm, { viewModel.updateTriggerReportPwm(it) },
-                "load 45 percent"),
-            "Distance" to ReportItemConfig("Distance", "Distance",
+                sLoadEx),
+            "Distance" to ReportItemConfig("Distance", stringResource(R.string.report_distance),
                 settings.voiceReportDistance, { viewModel.updateVoiceReportDistance(it) },
                 settings.triggerReportDistance, { viewModel.updateTriggerReportDistance(it) },
-                "trip 12.3 kilometers"),
-            "Recording" to ReportItemConfig("Recording", "Recording",
+                sTripEx),
+            "Recording" to ReportItemConfig("Recording", stringResource(R.string.report_recording),
                 settings.voiceReportRecording, { viewModel.updateVoiceReportRecording(it) },
                 settings.triggerReportRecording, { viewModel.updateTriggerReportRecording(it) },
-                listOf("recording", "not recording").random())
+                listOf(sRecOn, sRecOff).random())
         )
 
         val orderedItems = reportOrder.mapNotNull { allItems[it] }
@@ -375,7 +488,7 @@ private fun FlicTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader("Flic 2 Buttons")
+        SectionHeader(stringResource(R.string.section_flic_buttons))
         // Scan section
         Card(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -386,7 +499,7 @@ private fun FlicTab(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.",
+                    stringResource(R.string.flic_scan_hint),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -398,14 +511,14 @@ private fun FlicTab(
                     Button(
                         onClick = { viewModel.stopScan() },
                         colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                    ) { Text("Stop Scan") }
+                    ) { Text(stringResource(R.string.flic_stop_scan)) }
                 } else {
                     if (scanStatus.isNotEmpty()) {
                         Text(scanStatus, style = MaterialTheme.typography.bodyMedium)
                         Spacer(Modifier.height(8.dp))
                     }
                     Button(onClick = { viewModel.startScan() }) {
-                        Text("Scan for Flic 2 Button")
+                        Text(stringResource(R.string.flic_start_scan))
                     }
                 }
             }
@@ -414,7 +527,7 @@ private fun FlicTab(
         // Paired buttons
         if (pairedButtons.isEmpty() && settings.flic1Address == null && settings.flic2Address == null) {
             Text(
-                "No Flic buttons paired",
+                stringResource(R.string.flic_no_buttons),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -448,13 +561,13 @@ private fun FlicTab(
             )
         }
 
-        SectionHeader("Volume Keys")
+        SectionHeader(stringResource(R.string.section_volume_keys))
         Text(
-            "Use the phone's volume buttons as wheel shortcuts. Works only while the app is visible on screen — Android doesn't reliably deliver volume events to background apps.",
+            stringResource(R.string.volume_keys_caption),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        SwitchSetting("Enable volume key actions", settings.volumeKeysEnabled) {
+        SwitchSetting(stringResource(R.string.volume_keys_enable), settings.volumeKeysEnabled) {
             settingsViewModel.updateVolumeKeysEnabled(it)
         }
         if (settings.volumeKeysEnabled) {
@@ -466,9 +579,9 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Volume Up", style = MaterialTheme.typography.titleMedium, color = AccentBlue)
-                    ActionDropdown("Click", settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
-                    ActionDropdown("Hold", settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
+                    Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
+                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
                 }
             }
             Card(
@@ -479,9 +592,9 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Volume Down", style = MaterialTheme.typography.titleMedium, color = AccentBlue)
-                    ActionDropdown("Click", settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
-                    ActionDropdown("Hold", settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
+                    Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
+                    ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
                 }
             }
         }
@@ -498,7 +611,7 @@ private fun PlayButton(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.size(20.dp)
     ) {
-        Icon(Icons.Default.PlayArrow, contentDescription = "Test",
+        Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.action_test),
             modifier = Modifier.size(14.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
     }
@@ -533,7 +646,7 @@ private fun ReportRow(
                     enabled = canMoveUp,
                     modifier = Modifier.size(28.dp)
                 ) {
-                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Move up",
+                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.action_move_up),
                         modifier = Modifier.size(24.dp),
                         tint = if (canMoveUp) MaterialTheme.colorScheme.onSurfaceVariant
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
@@ -543,7 +656,7 @@ private fun ReportRow(
                     enabled = canMoveDown,
                     modifier = Modifier.size(28.dp)
                 ) {
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Move down",
+                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.action_move_down),
                         modifier = Modifier.size(24.dp),
                         tint = if (canMoveDown) MaterialTheme.colorScheme.onSurfaceVariant
                         else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
@@ -583,6 +696,29 @@ private fun SectionHeader(title: String) {
         text = title,
         style = MaterialTheme.typography.headlineMedium,
         color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+private fun SpeedSliderSetting(
+    label: String,
+    valueKmh: Float,
+    rangeKmh: ClosedFloatingPointRange<Float>,
+    imperial: Boolean,
+    onValueChangeKmh: (Float) -> Unit
+) {
+    val displayValue = Units.speed(valueKmh, imperial)
+    val displayStart = Units.speed(rangeKmh.start, imperial)
+    val displayEnd = Units.speed(rangeKmh.endInclusive, imperial)
+    SliderSetting(
+        label = label,
+        value = displayValue,
+        range = displayStart..displayEnd,
+        unit = Units.speedUnit(imperial),
+        onValueChange = { displayed ->
+            val kmh = if (imperial) displayed / 0.621371f else displayed
+            onValueChangeKmh(kmh.coerceIn(rangeKmh))
+        }
     )
 }
 
@@ -639,6 +775,71 @@ private fun SwitchSetting(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SimpleDropdown(
+    label: String,
+    currentKey: String,
+    options: List<Pair<String, String>>,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val currentLabel = options.firstOrNull { it.first == currentKey }?.second ?: currentKey
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { (key, text) ->
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = {
+                        onSelect(key)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccentPicker(current: String, onSelect: (String) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        com.eried.evendarkerbot.ui.theme.AccentOptions.forEach { opt ->
+            val selected = opt.key == current
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size(if (selected) 40.dp else 32.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(opt.color)
+                    .then(
+                        if (selected) Modifier.border(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        ) else Modifier
+                    )
+                    .clickable { onSelect(opt.key) }
+            )
+        }
+    }
+}
+
 // --- Flic button config ---
 
 @Composable
@@ -680,7 +881,7 @@ private fun ButtonConfig(
                                     onTitleChange(editText)
                                     editing = false
                                 }) {
-                                    Icon(Icons.Default.Check, contentDescription = "Save")
+                                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
                                 }
                             }
                         )
@@ -697,7 +898,7 @@ private fun ButtonConfig(
                             Spacer(Modifier.width(6.dp))
                             Icon(
                                 Icons.Default.Edit,
-                                contentDescription = "Rename",
+                                contentDescription = stringResource(R.string.flic_rename),
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             )
@@ -707,15 +908,15 @@ private fun ButtonConfig(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = "Forget", tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
                 }
             }
             Spacer(Modifier.height(12.dp))
-            ActionDropdown("Click", clickAction, onClickChange)
+            ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange)
             Spacer(Modifier.height(8.dp))
-            ActionDropdown("Double Click", doubleClickAction, onDoubleClickChange)
+            ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
             Spacer(Modifier.height(8.dp))
-            ActionDropdown("Hold", holdAction, onHoldChange)
+            ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
         }
     }
 }
@@ -739,7 +940,7 @@ private fun VoiceSelector(
             value = displayText,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Voice") },
+            label = { Text(stringResource(R.string.voice_selector_label)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()

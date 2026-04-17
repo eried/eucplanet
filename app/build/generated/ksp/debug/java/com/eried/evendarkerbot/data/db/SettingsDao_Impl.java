@@ -42,7 +42,7 @@ public final class SettingsDao_Impl implements SettingsDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `app_settings` (`id`,`lastDeviceAddress`,`lastDeviceName`,`autoConnect`,`tiltbackSpeedKmh`,`alarmSpeedKmh`,`safetyTiltbackKmh`,`safetyAlarmKmh`,`normalTiltbackKmh`,`normalBeepKmh`,`voiceEnabled`,`voiceIntervalSeconds`,`voiceSpeechRate`,`voiceLocale`,`voiceReportSpeed`,`voiceReportBattery`,`voiceReportTemp`,`voiceReportPwm`,`voiceReportDistance`,`triggerReportSpeed`,`triggerReportBattery`,`triggerReportTemp`,`triggerReportPwm`,`triggerReportDistance`,`voiceReportRecording`,`triggerReportRecording`,`voiceReportOrder`,`announceWheelLock`,`announceLights`,`announceRecording`,`announceConnection`,`announceGps`,`announceSafetyMode`,`autoRecord`,`flic1Address`,`flic1Name`,`flic1Click`,`flic1DoubleClick`,`flic1Hold`,`flic2Address`,`flic2Name`,`flic2Click`,`flic2DoubleClick`,`flic2Hold`,`autoLightsEnabled`,`autoLightsOnMinutesBefore`,`autoLightsOffMinutesAfter`,`autoVolumeEnabled`,`autoVolumeCurve`,`imperialUnits`,`volumeKeysEnabled`,`volumeUpClick`,`volumeUpHold`,`volumeDownClick`,`volumeDownHold`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `app_settings` (`id`,`lastDeviceAddress`,`lastDeviceName`,`autoConnect`,`tiltbackSpeedKmh`,`alarmSpeedKmh`,`safetyTiltbackKmh`,`safetyAlarmKmh`,`normalTiltbackKmh`,`normalBeepKmh`,`voiceEnabled`,`voiceIntervalSeconds`,`voiceSpeechRate`,`voiceLocale`,`voiceReportSpeed`,`voiceReportBattery`,`voiceReportTemp`,`voiceReportPwm`,`voiceReportDistance`,`triggerReportSpeed`,`triggerReportBattery`,`triggerReportTemp`,`triggerReportPwm`,`triggerReportDistance`,`voiceReportRecording`,`triggerReportRecording`,`voiceReportOrder`,`announceWheelLock`,`announceLights`,`announceRecording`,`announceConnection`,`announceGps`,`announceSafetyMode`,`autoRecord`,`flic1Address`,`flic1Name`,`flic1Click`,`flic1DoubleClick`,`flic1Hold`,`flic2Address`,`flic2Name`,`flic2Click`,`flic2DoubleClick`,`flic2Hold`,`autoLightsEnabled`,`autoLightsOnMinutesBefore`,`autoLightsOffMinutesAfter`,`autoVolumeEnabled`,`autoVolumeCurve`,`imperialUnits`,`volumeKeysEnabled`,`volumeUpClick`,`volumeUpHold`,`volumeDownClick`,`volumeDownHold`,`language`,`themeMode`,`accentColor`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -144,13 +144,16 @@ public final class SettingsDao_Impl implements SettingsDao {
         statement.bindString(53, entity.getVolumeUpHold());
         statement.bindString(54, entity.getVolumeDownClick());
         statement.bindString(55, entity.getVolumeDownHold());
+        statement.bindString(56, entity.getLanguage());
+        statement.bindString(57, entity.getThemeMode());
+        statement.bindString(58, entity.getAccentColor());
       }
     };
     this.__updateAdapterOfAppSettings = new EntityDeletionOrUpdateAdapter<AppSettings>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `app_settings` SET `id` = ?,`lastDeviceAddress` = ?,`lastDeviceName` = ?,`autoConnect` = ?,`tiltbackSpeedKmh` = ?,`alarmSpeedKmh` = ?,`safetyTiltbackKmh` = ?,`safetyAlarmKmh` = ?,`normalTiltbackKmh` = ?,`normalBeepKmh` = ?,`voiceEnabled` = ?,`voiceIntervalSeconds` = ?,`voiceSpeechRate` = ?,`voiceLocale` = ?,`voiceReportSpeed` = ?,`voiceReportBattery` = ?,`voiceReportTemp` = ?,`voiceReportPwm` = ?,`voiceReportDistance` = ?,`triggerReportSpeed` = ?,`triggerReportBattery` = ?,`triggerReportTemp` = ?,`triggerReportPwm` = ?,`triggerReportDistance` = ?,`voiceReportRecording` = ?,`triggerReportRecording` = ?,`voiceReportOrder` = ?,`announceWheelLock` = ?,`announceLights` = ?,`announceRecording` = ?,`announceConnection` = ?,`announceGps` = ?,`announceSafetyMode` = ?,`autoRecord` = ?,`flic1Address` = ?,`flic1Name` = ?,`flic1Click` = ?,`flic1DoubleClick` = ?,`flic1Hold` = ?,`flic2Address` = ?,`flic2Name` = ?,`flic2Click` = ?,`flic2DoubleClick` = ?,`flic2Hold` = ?,`autoLightsEnabled` = ?,`autoLightsOnMinutesBefore` = ?,`autoLightsOffMinutesAfter` = ?,`autoVolumeEnabled` = ?,`autoVolumeCurve` = ?,`imperialUnits` = ?,`volumeKeysEnabled` = ?,`volumeUpClick` = ?,`volumeUpHold` = ?,`volumeDownClick` = ?,`volumeDownHold` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `app_settings` SET `id` = ?,`lastDeviceAddress` = ?,`lastDeviceName` = ?,`autoConnect` = ?,`tiltbackSpeedKmh` = ?,`alarmSpeedKmh` = ?,`safetyTiltbackKmh` = ?,`safetyAlarmKmh` = ?,`normalTiltbackKmh` = ?,`normalBeepKmh` = ?,`voiceEnabled` = ?,`voiceIntervalSeconds` = ?,`voiceSpeechRate` = ?,`voiceLocale` = ?,`voiceReportSpeed` = ?,`voiceReportBattery` = ?,`voiceReportTemp` = ?,`voiceReportPwm` = ?,`voiceReportDistance` = ?,`triggerReportSpeed` = ?,`triggerReportBattery` = ?,`triggerReportTemp` = ?,`triggerReportPwm` = ?,`triggerReportDistance` = ?,`voiceReportRecording` = ?,`triggerReportRecording` = ?,`voiceReportOrder` = ?,`announceWheelLock` = ?,`announceLights` = ?,`announceRecording` = ?,`announceConnection` = ?,`announceGps` = ?,`announceSafetyMode` = ?,`autoRecord` = ?,`flic1Address` = ?,`flic1Name` = ?,`flic1Click` = ?,`flic1DoubleClick` = ?,`flic1Hold` = ?,`flic2Address` = ?,`flic2Name` = ?,`flic2Click` = ?,`flic2DoubleClick` = ?,`flic2Hold` = ?,`autoLightsEnabled` = ?,`autoLightsOnMinutesBefore` = ?,`autoLightsOffMinutesAfter` = ?,`autoVolumeEnabled` = ?,`autoVolumeCurve` = ?,`imperialUnits` = ?,`volumeKeysEnabled` = ?,`volumeUpClick` = ?,`volumeUpHold` = ?,`volumeDownClick` = ?,`volumeDownHold` = ?,`language` = ?,`themeMode` = ?,`accentColor` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -252,7 +255,10 @@ public final class SettingsDao_Impl implements SettingsDao {
         statement.bindString(53, entity.getVolumeUpHold());
         statement.bindString(54, entity.getVolumeDownClick());
         statement.bindString(55, entity.getVolumeDownHold());
-        statement.bindLong(56, entity.getId());
+        statement.bindString(56, entity.getLanguage());
+        statement.bindString(57, entity.getThemeMode());
+        statement.bindString(58, entity.getAccentColor());
+        statement.bindLong(59, entity.getId());
       }
     };
   }
@@ -358,6 +364,9 @@ public final class SettingsDao_Impl implements SettingsDao {
           final int _cursorIndexOfVolumeUpHold = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeUpHold");
           final int _cursorIndexOfVolumeDownClick = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeDownClick");
           final int _cursorIndexOfVolumeDownHold = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeDownHold");
+          final int _cursorIndexOfLanguage = CursorUtil.getColumnIndexOrThrow(_cursor, "language");
+          final int _cursorIndexOfThemeMode = CursorUtil.getColumnIndexOrThrow(_cursor, "themeMode");
+          final int _cursorIndexOfAccentColor = CursorUtil.getColumnIndexOrThrow(_cursor, "accentColor");
           final AppSettings _result;
           if (_cursor.moveToFirst()) {
             final int _tmpId;
@@ -536,7 +545,13 @@ public final class SettingsDao_Impl implements SettingsDao {
             _tmpVolumeDownClick = _cursor.getString(_cursorIndexOfVolumeDownClick);
             final String _tmpVolumeDownHold;
             _tmpVolumeDownHold = _cursor.getString(_cursorIndexOfVolumeDownHold);
-            _result = new AppSettings(_tmpId,_tmpLastDeviceAddress,_tmpLastDeviceName,_tmpAutoConnect,_tmpTiltbackSpeedKmh,_tmpAlarmSpeedKmh,_tmpSafetyTiltbackKmh,_tmpSafetyAlarmKmh,_tmpNormalTiltbackKmh,_tmpNormalBeepKmh,_tmpVoiceEnabled,_tmpVoiceIntervalSeconds,_tmpVoiceSpeechRate,_tmpVoiceLocale,_tmpVoiceReportSpeed,_tmpVoiceReportBattery,_tmpVoiceReportTemp,_tmpVoiceReportPwm,_tmpVoiceReportDistance,_tmpTriggerReportSpeed,_tmpTriggerReportBattery,_tmpTriggerReportTemp,_tmpTriggerReportPwm,_tmpTriggerReportDistance,_tmpVoiceReportRecording,_tmpTriggerReportRecording,_tmpVoiceReportOrder,_tmpAnnounceWheelLock,_tmpAnnounceLights,_tmpAnnounceRecording,_tmpAnnounceConnection,_tmpAnnounceGps,_tmpAnnounceSafetyMode,_tmpAutoRecord,_tmpFlic1Address,_tmpFlic1Name,_tmpFlic1Click,_tmpFlic1DoubleClick,_tmpFlic1Hold,_tmpFlic2Address,_tmpFlic2Name,_tmpFlic2Click,_tmpFlic2DoubleClick,_tmpFlic2Hold,_tmpAutoLightsEnabled,_tmpAutoLightsOnMinutesBefore,_tmpAutoLightsOffMinutesAfter,_tmpAutoVolumeEnabled,_tmpAutoVolumeCurve,_tmpImperialUnits,_tmpVolumeKeysEnabled,_tmpVolumeUpClick,_tmpVolumeUpHold,_tmpVolumeDownClick,_tmpVolumeDownHold);
+            final String _tmpLanguage;
+            _tmpLanguage = _cursor.getString(_cursorIndexOfLanguage);
+            final String _tmpThemeMode;
+            _tmpThemeMode = _cursor.getString(_cursorIndexOfThemeMode);
+            final String _tmpAccentColor;
+            _tmpAccentColor = _cursor.getString(_cursorIndexOfAccentColor);
+            _result = new AppSettings(_tmpId,_tmpLastDeviceAddress,_tmpLastDeviceName,_tmpAutoConnect,_tmpTiltbackSpeedKmh,_tmpAlarmSpeedKmh,_tmpSafetyTiltbackKmh,_tmpSafetyAlarmKmh,_tmpNormalTiltbackKmh,_tmpNormalBeepKmh,_tmpVoiceEnabled,_tmpVoiceIntervalSeconds,_tmpVoiceSpeechRate,_tmpVoiceLocale,_tmpVoiceReportSpeed,_tmpVoiceReportBattery,_tmpVoiceReportTemp,_tmpVoiceReportPwm,_tmpVoiceReportDistance,_tmpTriggerReportSpeed,_tmpTriggerReportBattery,_tmpTriggerReportTemp,_tmpTriggerReportPwm,_tmpTriggerReportDistance,_tmpVoiceReportRecording,_tmpTriggerReportRecording,_tmpVoiceReportOrder,_tmpAnnounceWheelLock,_tmpAnnounceLights,_tmpAnnounceRecording,_tmpAnnounceConnection,_tmpAnnounceGps,_tmpAnnounceSafetyMode,_tmpAutoRecord,_tmpFlic1Address,_tmpFlic1Name,_tmpFlic1Click,_tmpFlic1DoubleClick,_tmpFlic1Hold,_tmpFlic2Address,_tmpFlic2Name,_tmpFlic2Click,_tmpFlic2DoubleClick,_tmpFlic2Hold,_tmpAutoLightsEnabled,_tmpAutoLightsOnMinutesBefore,_tmpAutoLightsOffMinutesAfter,_tmpAutoVolumeEnabled,_tmpAutoVolumeCurve,_tmpImperialUnits,_tmpVolumeKeysEnabled,_tmpVolumeUpClick,_tmpVolumeUpHold,_tmpVolumeDownClick,_tmpVolumeDownHold,_tmpLanguage,_tmpThemeMode,_tmpAccentColor);
           } else {
             _result = null;
           }
@@ -619,6 +634,9 @@ public final class SettingsDao_Impl implements SettingsDao {
           final int _cursorIndexOfVolumeUpHold = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeUpHold");
           final int _cursorIndexOfVolumeDownClick = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeDownClick");
           final int _cursorIndexOfVolumeDownHold = CursorUtil.getColumnIndexOrThrow(_cursor, "volumeDownHold");
+          final int _cursorIndexOfLanguage = CursorUtil.getColumnIndexOrThrow(_cursor, "language");
+          final int _cursorIndexOfThemeMode = CursorUtil.getColumnIndexOrThrow(_cursor, "themeMode");
+          final int _cursorIndexOfAccentColor = CursorUtil.getColumnIndexOrThrow(_cursor, "accentColor");
           final AppSettings _result;
           if (_cursor.moveToFirst()) {
             final int _tmpId;
@@ -797,7 +815,13 @@ public final class SettingsDao_Impl implements SettingsDao {
             _tmpVolumeDownClick = _cursor.getString(_cursorIndexOfVolumeDownClick);
             final String _tmpVolumeDownHold;
             _tmpVolumeDownHold = _cursor.getString(_cursorIndexOfVolumeDownHold);
-            _result = new AppSettings(_tmpId,_tmpLastDeviceAddress,_tmpLastDeviceName,_tmpAutoConnect,_tmpTiltbackSpeedKmh,_tmpAlarmSpeedKmh,_tmpSafetyTiltbackKmh,_tmpSafetyAlarmKmh,_tmpNormalTiltbackKmh,_tmpNormalBeepKmh,_tmpVoiceEnabled,_tmpVoiceIntervalSeconds,_tmpVoiceSpeechRate,_tmpVoiceLocale,_tmpVoiceReportSpeed,_tmpVoiceReportBattery,_tmpVoiceReportTemp,_tmpVoiceReportPwm,_tmpVoiceReportDistance,_tmpTriggerReportSpeed,_tmpTriggerReportBattery,_tmpTriggerReportTemp,_tmpTriggerReportPwm,_tmpTriggerReportDistance,_tmpVoiceReportRecording,_tmpTriggerReportRecording,_tmpVoiceReportOrder,_tmpAnnounceWheelLock,_tmpAnnounceLights,_tmpAnnounceRecording,_tmpAnnounceConnection,_tmpAnnounceGps,_tmpAnnounceSafetyMode,_tmpAutoRecord,_tmpFlic1Address,_tmpFlic1Name,_tmpFlic1Click,_tmpFlic1DoubleClick,_tmpFlic1Hold,_tmpFlic2Address,_tmpFlic2Name,_tmpFlic2Click,_tmpFlic2DoubleClick,_tmpFlic2Hold,_tmpAutoLightsEnabled,_tmpAutoLightsOnMinutesBefore,_tmpAutoLightsOffMinutesAfter,_tmpAutoVolumeEnabled,_tmpAutoVolumeCurve,_tmpImperialUnits,_tmpVolumeKeysEnabled,_tmpVolumeUpClick,_tmpVolumeUpHold,_tmpVolumeDownClick,_tmpVolumeDownHold);
+            final String _tmpLanguage;
+            _tmpLanguage = _cursor.getString(_cursorIndexOfLanguage);
+            final String _tmpThemeMode;
+            _tmpThemeMode = _cursor.getString(_cursorIndexOfThemeMode);
+            final String _tmpAccentColor;
+            _tmpAccentColor = _cursor.getString(_cursorIndexOfAccentColor);
+            _result = new AppSettings(_tmpId,_tmpLastDeviceAddress,_tmpLastDeviceName,_tmpAutoConnect,_tmpTiltbackSpeedKmh,_tmpAlarmSpeedKmh,_tmpSafetyTiltbackKmh,_tmpSafetyAlarmKmh,_tmpNormalTiltbackKmh,_tmpNormalBeepKmh,_tmpVoiceEnabled,_tmpVoiceIntervalSeconds,_tmpVoiceSpeechRate,_tmpVoiceLocale,_tmpVoiceReportSpeed,_tmpVoiceReportBattery,_tmpVoiceReportTemp,_tmpVoiceReportPwm,_tmpVoiceReportDistance,_tmpTriggerReportSpeed,_tmpTriggerReportBattery,_tmpTriggerReportTemp,_tmpTriggerReportPwm,_tmpTriggerReportDistance,_tmpVoiceReportRecording,_tmpTriggerReportRecording,_tmpVoiceReportOrder,_tmpAnnounceWheelLock,_tmpAnnounceLights,_tmpAnnounceRecording,_tmpAnnounceConnection,_tmpAnnounceGps,_tmpAnnounceSafetyMode,_tmpAutoRecord,_tmpFlic1Address,_tmpFlic1Name,_tmpFlic1Click,_tmpFlic1DoubleClick,_tmpFlic1Hold,_tmpFlic2Address,_tmpFlic2Name,_tmpFlic2Click,_tmpFlic2DoubleClick,_tmpFlic2Hold,_tmpAutoLightsEnabled,_tmpAutoLightsOnMinutesBefore,_tmpAutoLightsOffMinutesAfter,_tmpAutoVolumeEnabled,_tmpAutoVolumeCurve,_tmpImperialUnits,_tmpVolumeKeysEnabled,_tmpVolumeUpClick,_tmpVolumeUpHold,_tmpVolumeDownClick,_tmpVolumeDownHold,_tmpLanguage,_tmpThemeMode,_tmpAccentColor);
           } else {
             _result = null;
           }

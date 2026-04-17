@@ -1,14 +1,18 @@
 [
     {
-        "merged": "com.eried.evendarkerbot.app-debug-65:/mipmap-anydpi_ic_launcher.xml.flat",
-        "source": "com.eried.evendarkerbot.app-main-67:/mipmap-anydpi/ic_launcher.xml"
+        "merged": "com.eried.evendarkerbot.app-debug-68:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-70:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.eried.evendarkerbot.app-debug-65:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.eried.evendarkerbot.app-main-67:/drawable/ic_launcher_foreground.xml"
+        "merged": "com.eried.evendarkerbot.app-debug-68:/xml_locales_config.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-70:/xml/locales_config.xml"
     },
     {
-        "merged": "com.eried.evendarkerbot.app-debug-65:/xml_file_paths.xml.flat",
-        "source": "com.eried.evendarkerbot.app-main-67:/xml/file_paths.xml"
+        "merged": "com.eried.evendarkerbot.app-debug-68:/xml_file_paths.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-70:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.eried.evendarkerbot.app-debug-68:/mipmap-anydpi_ic_launcher.xml.flat",
+        "source": "com.eried.evendarkerbot.app-main-70:/mipmap-anydpi/ic_launcher.xml"
     }
 ]

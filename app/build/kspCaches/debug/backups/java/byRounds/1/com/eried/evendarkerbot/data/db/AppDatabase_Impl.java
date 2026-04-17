@@ -35,14 +35,14 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(10) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(11) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`id` INTEGER NOT NULL, `lastDeviceAddress` TEXT, `lastDeviceName` TEXT, `autoConnect` INTEGER NOT NULL, `tiltbackSpeedKmh` REAL NOT NULL, `alarmSpeedKmh` REAL NOT NULL, `safetyTiltbackKmh` REAL NOT NULL, `safetyAlarmKmh` REAL NOT NULL, `normalTiltbackKmh` REAL NOT NULL, `normalBeepKmh` REAL NOT NULL, `voiceEnabled` INTEGER NOT NULL, `voiceIntervalSeconds` INTEGER NOT NULL, `voiceSpeechRate` REAL NOT NULL, `voiceLocale` TEXT NOT NULL, `voiceReportSpeed` INTEGER NOT NULL, `voiceReportBattery` INTEGER NOT NULL, `voiceReportTemp` INTEGER NOT NULL, `voiceReportPwm` INTEGER NOT NULL, `voiceReportDistance` INTEGER NOT NULL, `triggerReportSpeed` INTEGER NOT NULL, `triggerReportBattery` INTEGER NOT NULL, `triggerReportTemp` INTEGER NOT NULL, `triggerReportPwm` INTEGER NOT NULL, `triggerReportDistance` INTEGER NOT NULL, `voiceReportRecording` INTEGER NOT NULL, `triggerReportRecording` INTEGER NOT NULL, `voiceReportOrder` TEXT NOT NULL, `announceWheelLock` INTEGER NOT NULL, `announceLights` INTEGER NOT NULL, `announceRecording` INTEGER NOT NULL, `announceConnection` INTEGER NOT NULL, `announceGps` INTEGER NOT NULL, `announceSafetyMode` INTEGER NOT NULL, `autoRecord` INTEGER NOT NULL, `flic1Address` TEXT, `flic1Name` TEXT NOT NULL, `flic1Click` TEXT NOT NULL, `flic1DoubleClick` TEXT NOT NULL, `flic1Hold` TEXT NOT NULL, `flic2Address` TEXT, `flic2Name` TEXT NOT NULL, `flic2Click` TEXT NOT NULL, `flic2DoubleClick` TEXT NOT NULL, `flic2Hold` TEXT NOT NULL, `autoLightsEnabled` INTEGER NOT NULL, `autoLightsOnMinutesBefore` INTEGER NOT NULL, `autoLightsOffMinutesAfter` INTEGER NOT NULL, `autoVolumeEnabled` INTEGER NOT NULL, `autoVolumeCurve` TEXT NOT NULL, `imperialUnits` INTEGER NOT NULL, `volumeKeysEnabled` INTEGER NOT NULL, `volumeUpClick` TEXT NOT NULL, `volumeUpHold` TEXT NOT NULL, `volumeDownClick` TEXT NOT NULL, `volumeDownHold` TEXT NOT NULL, PRIMARY KEY(`id`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `app_settings` (`id` INTEGER NOT NULL, `lastDeviceAddress` TEXT, `lastDeviceName` TEXT, `autoConnect` INTEGER NOT NULL, `tiltbackSpeedKmh` REAL NOT NULL, `alarmSpeedKmh` REAL NOT NULL, `safetyTiltbackKmh` REAL NOT NULL, `safetyAlarmKmh` REAL NOT NULL, `normalTiltbackKmh` REAL NOT NULL, `normalBeepKmh` REAL NOT NULL, `voiceEnabled` INTEGER NOT NULL, `voiceIntervalSeconds` INTEGER NOT NULL, `voiceSpeechRate` REAL NOT NULL, `voiceLocale` TEXT NOT NULL, `voiceReportSpeed` INTEGER NOT NULL, `voiceReportBattery` INTEGER NOT NULL, `voiceReportTemp` INTEGER NOT NULL, `voiceReportPwm` INTEGER NOT NULL, `voiceReportDistance` INTEGER NOT NULL, `triggerReportSpeed` INTEGER NOT NULL, `triggerReportBattery` INTEGER NOT NULL, `triggerReportTemp` INTEGER NOT NULL, `triggerReportPwm` INTEGER NOT NULL, `triggerReportDistance` INTEGER NOT NULL, `voiceReportRecording` INTEGER NOT NULL, `triggerReportRecording` INTEGER NOT NULL, `voiceReportOrder` TEXT NOT NULL, `announceWheelLock` INTEGER NOT NULL, `announceLights` INTEGER NOT NULL, `announceRecording` INTEGER NOT NULL, `announceConnection` INTEGER NOT NULL, `announceGps` INTEGER NOT NULL, `announceSafetyMode` INTEGER NOT NULL, `autoRecord` INTEGER NOT NULL, `flic1Address` TEXT, `flic1Name` TEXT NOT NULL, `flic1Click` TEXT NOT NULL, `flic1DoubleClick` TEXT NOT NULL, `flic1Hold` TEXT NOT NULL, `flic2Address` TEXT, `flic2Name` TEXT NOT NULL, `flic2Click` TEXT NOT NULL, `flic2DoubleClick` TEXT NOT NULL, `flic2Hold` TEXT NOT NULL, `autoLightsEnabled` INTEGER NOT NULL, `autoLightsOnMinutesBefore` INTEGER NOT NULL, `autoLightsOffMinutesAfter` INTEGER NOT NULL, `autoVolumeEnabled` INTEGER NOT NULL, `autoVolumeCurve` TEXT NOT NULL, `imperialUnits` INTEGER NOT NULL, `volumeKeysEnabled` INTEGER NOT NULL, `volumeUpClick` TEXT NOT NULL, `volumeUpHold` TEXT NOT NULL, `volumeDownClick` TEXT NOT NULL, `volumeDownHold` TEXT NOT NULL, `language` TEXT NOT NULL, `themeMode` TEXT NOT NULL, `accentColor` TEXT NOT NULL, PRIMARY KEY(`id`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `trips` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `startTime` INTEGER NOT NULL, `endTime` INTEGER, `fileName` TEXT NOT NULL, `distanceKm` REAL NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `alarm_rules` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `enabled` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, `metric` TEXT NOT NULL, `comparator` TEXT NOT NULL, `threshold` REAL NOT NULL, `beepEnabled` INTEGER NOT NULL, `beepFrequency` INTEGER NOT NULL, `beepDurationMs` INTEGER NOT NULL, `beepCount` INTEGER NOT NULL, `voiceEnabled` INTEGER NOT NULL, `voiceText` TEXT NOT NULL, `vibrateEnabled` INTEGER NOT NULL, `vibrateDurationMs` INTEGER NOT NULL, `cooldownSeconds` INTEGER NOT NULL, `repeatWhileActive` INTEGER NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b91bb3f423a43d005aa4d0f2863a790d')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfafe63fea8ab959dc1f023f2cf08e66')");
       }
 
       @Override
@@ -93,7 +93,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsAppSettings = new HashMap<String, TableInfo.Column>(55);
+        final HashMap<String, TableInfo.Column> _columnsAppSettings = new HashMap<String, TableInfo.Column>(58);
         _columnsAppSettings.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAppSettings.put("lastDeviceAddress", new TableInfo.Column("lastDeviceAddress", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAppSettings.put("lastDeviceName", new TableInfo.Column("lastDeviceName", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -149,6 +149,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsAppSettings.put("volumeUpHold", new TableInfo.Column("volumeUpHold", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAppSettings.put("volumeDownClick", new TableInfo.Column("volumeDownClick", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsAppSettings.put("volumeDownHold", new TableInfo.Column("volumeDownHold", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAppSettings.put("language", new TableInfo.Column("language", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAppSettings.put("themeMode", new TableInfo.Column("themeMode", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsAppSettings.put("accentColor", new TableInfo.Column("accentColor", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysAppSettings = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesAppSettings = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoAppSettings = new TableInfo("app_settings", _columnsAppSettings, _foreignKeysAppSettings, _indicesAppSettings);
@@ -202,7 +205,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "b91bb3f423a43d005aa4d0f2863a790d", "28bcb33f070c6e5ec7b2b13590731bba");
+    }, "cfafe63fea8ab959dc1f023f2cf08e66", "6fce66e95bb0908577574850398492f7");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

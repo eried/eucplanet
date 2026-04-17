@@ -4,6 +4,7 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.util.Log
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.AppSettings
 import com.eried.evendarkerbot.data.model.WheelData
 import com.eried.evendarkerbot.data.repository.SettingsRepository
@@ -83,6 +84,27 @@ class VoiceService @Inject constructor(
         Log.i(TAG, "TTS voice set to: $locale")
     }
 
+    fun currentVoiceLanguage(): String {
+        return try {
+            tts?.voice?.locale?.language ?: tts?.defaultVoice?.locale?.language ?: "en"
+        } catch (e: Exception) {
+            "en"
+        }
+    }
+
+    fun pickVoiceForLanguage(langCode: String): String? {
+        val engine = tts ?: return null
+        val target = langCode.lowercase()
+        return try {
+            val locales = engine.availableLanguages ?: return null
+            val match = locales.firstOrNull { it.language.equals(target, ignoreCase = true) }
+            match?.toLanguageTag()
+        } catch (e: Exception) {
+            Log.w(TAG, "pickVoiceForLanguage failed", e)
+            null
+        }
+    }
+
     fun shutdown() {
         tts?.stop()
         tts?.shutdown()
@@ -137,12 +159,12 @@ class VoiceService @Inject constructor(
             }
             if (enabled) {
                 when (item) {
-                    "Speed" -> parts.add("Speed %.0f".format(data.speed))
-                    "Battery" -> parts.add("battery ${data.batteryPercent} percent")
-                    "Temp" -> parts.add("temperature %.0f degrees".format(data.maxTemperature))
-                    "PWM" -> parts.add("load %.0f percent".format(data.pwm))
-                    "Distance" -> parts.add("trip %.1f kilometers".format(data.tripDistance))
-                    "Recording" -> parts.add(if (isRecording) "recording" else "not recording")
+                    "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(data.speed)))
+                    "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
+                    "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(data.maxTemperature)))
+                    "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
+                    "Distance" -> parts.add(context.getString(R.string.voice_trip_fmt, "%.1f".format(data.tripDistance)))
+                    "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
                 }
             }
         }
@@ -151,7 +173,7 @@ class VoiceService @Inject constructor(
 
     fun announceAlarm(type: String, value: Float) {
         if (!isReady) return
-        speak("Warning! $type at ${"%.0f".format(value)}")
+        speak(context.getString(R.string.voice_warning_fmt, type, "%.0f".format(value)))
     }
 
     fun announceEvent(text: String) {

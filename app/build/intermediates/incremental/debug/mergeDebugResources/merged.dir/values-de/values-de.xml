@@ -1,5 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Zur Startseite"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Nach oben"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Weitere Optionen"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Fertig"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Alle anzeigen"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"App auswählen"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"AUS"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AN"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Strg +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Löschen"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Eingabetaste"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Funktionstaste +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta-Taste +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Umschalttaste +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"Leertaste"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym-Taste +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menütaste +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Suchen…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Suchanfrage löschen"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Suchanfrage"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Suche"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Anfrage senden"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Sprachsuche"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Teilen mit"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Mit <ns1:g id="APPLICATION_NAME">%s</ns1:g> teilen"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Minimieren"</string>
+    <string name="accent_blue">Blau</string>
+    <string name="accent_color">Akzentfarbe</string>
+    <string name="accent_green">Grün</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_pink">Rosa</string>
+    <string name="accent_purple">Violett</string>
+    <string name="accent_teal">Blaugrün</string>
+    <string name="action_back">Zurück</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_delete_all">Alle löschen</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_export_all">Alle exportieren</string>
+    <string name="action_horn">Hupe</string>
+    <string name="action_import">Importieren</string>
+    <string name="action_legal_mode">Legal-Modus</string>
+    <string name="action_legal_on">Legal AN</string>
+    <string name="action_light">Licht</string>
+    <string name="action_lock_wheel">Sperren</string>
+    <string name="action_locked">Gesperrt</string>
+    <string name="action_manage">Verwalten</string>
+    <string name="action_move_down">Nach unten</string>
+    <string name="action_move_up">Nach oben</string>
+    <string name="action_ok">OK</string>
+    <string name="action_record">Aufnehmen</string>
+    <string name="action_recorder">Aufnahme</string>
+    <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
+    <string name="action_save">Speichern</string>
+    <string name="action_share">Teilen</string>
+    <string name="action_stop">Stopp</string>
+    <string name="action_test">Testen</string>
+    <string name="action_view">Ansehen</string>
+    <string name="action_voice">Stimme</string>
+    <string name="alarm_add">Regel hinzufügen</string>
+    <string name="alarm_beep_duration_fmt">Dauer: %1$d ms</string>
+    <string name="alarm_beep_freq_fmt">Frequenz: %1$d Hz</string>
+    <string name="alarm_beep_repeats_fmt">Wiederholungen: %1$d</string>
+    <string name="alarm_comparator_label">Bedingung</string>
+    <string name="alarm_cooldown_fmt">Abklingzeit: %1$d s</string>
+    <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist.</string>
+    <string name="alarm_edit">Alarm bearbeiten</string>
+    <string name="alarm_empty">Keine Alarmregeln.\nTippe + zum Hinzufügen.</string>
+    <string name="alarm_enable_beep">Piepton aktivieren</string>
+    <string name="alarm_enable_vibrate">Vibration aktivieren</string>
+    <string name="alarm_enable_voice">Stimme aktivieren</string>
+    <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert.</string>
+    <string name="alarm_metric_label">Messgröße</string>
+    <string name="alarm_name">Name (optional)</string>
+    <string name="alarm_new">Neuer Alarm</string>
+    <string name="alarm_repeat">Wiederholen solange aktiv</string>
+    <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt.</string>
+    <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit > 30, Abklingzeit %1$d s, AUS — eine Warnung beim Überschreiten von 30, dann still; du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann.</string>
+    <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit > 30, Abklingzeit %1$d s, AN — wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt.</string>
+    <string name="alarm_section_beep">Piepton</string>
+    <string name="alarm_section_condition">Bedingung</string>
+    <string name="alarm_section_timing">Zeitsteuerung</string>
+    <string name="alarm_section_vibrate">Vibration</string>
+    <string name="alarm_section_voice">Stimme</string>
+    <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
+    <string name="alarm_vibrate_duration_fmt">Dauer: %1$d ms</string>
+    <string name="alarm_voice_template">Textvorlage</string>
+    <string name="alarm_voice_template_help">Nutze {speed}, {battery}, {temp}, {value}, {metric}, etc.</string>
+    <string name="alarm_voice_vars">Sprachvariablen: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
+    <string name="announce_connection">Rad verbunden / getrennt</string>
+    <string name="announce_gps">GPS verloren / wiederhergestellt</string>
+    <string name="announce_legal_mode">Legal-Modus ein / aus</string>
+    <string name="announce_lights">Licht ein / aus</string>
+    <string name="announce_recording">Fahrtaufnahme</string>
+    <string name="announce_wheel_lock">Rad sperren / entsperren</string>
+    <string name="app_name">EUC Planet</string>
+    <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
+    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang</string>
+    <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>
+    <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
+    <string name="auto_lights_title">Licht</string>
+    <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter — das Licht bleibt AUS.</string>
+    <string name="auto_midnight_sun_title">Mitternachtssonne</string>
+    <string name="auto_minutes_fmt">%1$d Min.</string>
+    <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf — das Licht bleibt AN.</string>
+    <string name="auto_polar_night_title">Polarnacht</string>
+    <string name="auto_record_caption">Startet die Aufnahme automatisch, wenn sich das Rad verbindet.</string>
+    <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
+    <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
+    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
+    <string name="auto_volume_help">Ziehe die Regler, um die Lautstärke bei 0, 40 und 80 km/h anzupassen. Tippe auf den Graph, um die Lautstärke bei jeder Geschwindigkeit zu sehen.</string>
+    <string name="auto_volume_realtime">Die Lautstärke passt sich in Echtzeit an die Geschwindigkeit an.</string>
+    <string name="auto_volume_title">Lautstärke</string>
+    <string name="auto_waiting_gps">Warte auf GPS-Position\u2026</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Annehmen"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Ablehnen"</string>
@@ -9,6 +124,8 @@
     <string msgid="59049573811482460" name="call_notification_screening_text">"Filter für eingehenden Anruf"</string>
     <string msgid="406453423630273620" name="close_drawer">"Navigationsmenü schließen"</string>
     <string msgid="7573152094250666567" name="close_sheet">"Tabelle schließen"</string>
+    <string name="col_periodic">Regelmäßig</string>
+    <string name="col_trigger">Ereignis</string>
     <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Aktivieren</string>
     <string msgid="227660514972886228" name="common_google_play_services_enable_text">%1$s funktioniert erst nach der Aktivierung der Google Play-Dienste.</string>
     <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play-Dienste aktivieren</string>
@@ -27,11 +144,41 @@
     <string name="common_open_on_phone">Auf Smartphone öffnen</string>
     <string name="common_signin_button_text">Anmelden</string>
     <string name="common_signin_button_text_long">Über Google anmelden</string>
+    <string name="connection">Verbindung</string>
+    <string name="connection_connected">Verbunden</string>
+    <string name="connection_connecting">Verbinde\u2026</string>
+    <string name="connection_disconnected">Getrennt</string>
+    <string name="connection_initializing">Initialisiere\u2026</string>
+    <string name="connection_scanning">Suche\u2026</string>
     <string msgid="8038256446254964252" name="default_error_message">"Ungültige Eingabe"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Pop-up-Fenster"</string>
+    <string name="disconnect">Trennen</string>
+    <string name="disconnect_from">Von %1$s trennen?</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Drop-down-Menü"</string>
+    <string name="exit_background">Hintergrund</string>
+    <string name="exit_body">Hintergrunddienst weiterlaufen lassen oder alles stoppen?</string>
+    <string name="exit_stop_all">Alles stoppen</string>
+    <string name="exit_title">EUC Planet beenden</string>
+    <string name="flic_click">Klick</string>
+    <string name="flic_double_click">Doppelklick</string>
+    <string name="flic_forget">Vergessen</string>
+    <string name="flic_hold">Halten</string>
+    <string name="flic_no_buttons">Keine Flic-Tasten gekoppelt</string>
+    <string name="flic_rename">Umbenennen</string>
+    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
+    <string name="flic_start_scan">Nach Flic 2-Taste suchen</string>
+    <string name="flic_stop_scan">Suche stoppen</string>
+    <string name="imperial_units">Imperiale Einheiten (mph, \u00B0F, mi)</string>
     <string msgid="6827826412747255547" name="in_progress">"In Bearbeitung"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Teilweise aktiviert"</string>
+    <string name="lang_name_de">Deutsch</string>
+    <string name="lang_name_en">Englisch</string>
+    <string name="lang_name_es">Spanisch</string>
+    <string name="lang_name_no">Norwegisch</string>
+    <string name="lang_name_ru">Russisch</string>
+    <string name="language">Sprache</string>
+    <string name="last_device">Letztes Gerät: %1$s</string>
+    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Ansicht am unteren Rand minimieren"</string>
     <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"Ansicht am unteren Rand schließen"</string>
     <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"Ziehpunkt"</string>
@@ -89,18 +236,141 @@
     <string msgid="6616362054113087709" name="m3c_time_picker_pm">"Nachmittags"</string>
     <string msgid="1805687647081129904" name="m3c_tooltip_long_press_label">"Kurzinfo anzeigen"</string>
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Kurzinfo"</string>
+    <string name="metric_avg">Ø</string>
+    <string name="metric_battery">Akku</string>
+    <string name="metric_current">Strom</string>
+    <string name="metric_detail_title">Verlauf: %1$s</string>
+    <string name="metric_load">Last</string>
+    <string name="metric_max">MAX</string>
+    <string name="metric_min">MIN</string>
+    <string name="metric_no_data">Keine Daten</string>
+    <string name="metric_speed">Geschwindigkeit</string>
+    <string name="metric_temperature">Temperatur</string>
+    <string name="metric_time">ZEIT</string>
+    <string name="metric_voltage">Spannung</string>
+    <string name="metric_waiting">Warte auf Daten\u2026 Verbinde dich mit dem Einrad.</string>
     <string msgid="542007171693138492" name="navigation_menu">"Navigationsmenü"</string>
     <string msgid="6610465462668679431" name="not_selected">"Nicht ausgewählt"</string>
+    <string name="notification_channel_description">Zeigt Verbindungsstatus und Telemetrie des Rads</string>
+    <string name="notification_channel_name">Rad-Verbindung</string>
     <string msgid="5941395253238309765" name="range_end">"Bereichsende"</string>
     <string msgid="7097486360902471446" name="range_start">"Bereichsstart"</string>
+    <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen.</string>
+    <string name="recording_chart_battery">Akku (%%)</string>
+    <string name="recording_chart_speed">Geschwindigkeit (%1$s)</string>
+    <string name="recording_chart_temp">Temperatur (%1$s)</string>
+    <string name="recording_chart_voltage">Spannung (V)</string>
+    <string name="recording_clear_all_body">Dies löscht alle Fahrten und Datendateien dauerhaft. Nicht rückgängig machbar.</string>
+    <string name="recording_clear_all_menu">Alle Fahrten löschen</string>
+    <string name="recording_clear_all_title">Alle Fahrten löschen</string>
+    <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
+    <string name="recording_delete_trip_title">Fahrt löschen</string>
+    <string name="recording_detail_title">Fahrtdetails</string>
+    <string name="recording_empty">Noch keine Fahrten aufgezeichnet.\nTippe auf Aufnahme, um zu starten.</string>
+    <string name="recording_no_data">Keine Daten für diese Fahrt.</string>
+    <string name="recording_route">Route</string>
+    <string name="recording_stat_distance">Distanz</string>
+    <string name="recording_stat_time">Zeit</string>
+    <string name="recording_stat_trips">Fahrten</string>
+    <string name="recording_summary_avg_speed">Durchschnitt</string>
+    <string name="recording_summary_distance">Distanz</string>
+    <string name="recording_summary_duration">Dauer</string>
+    <string name="recording_summary_max_temp">Max. Temp.</string>
+    <string name="recording_summary_min_battery">Min. Akku</string>
+    <string name="recording_summary_points">Punkte</string>
+    <string name="recording_summary_top_speed">Spitze</string>
+    <string name="recording_title">Fahrtaufzeichnung</string>
+    <string name="recording_view_all_map">Alle auf Karte</string>
+    <string name="recording_view_map">Auf Karte anzeigen</string>
+    <string name="report_battery">Akku</string>
+    <string name="report_distance">Distanz</string>
+    <string name="report_pwm">PWM</string>
+    <string name="report_recording">Aufnahme</string>
+    <string name="report_speed">Geschwindigkeit</string>
+    <string name="report_temp">Temp</string>
+    <string name="scan_hint">Stelle sicher, dass dein Einrad eingeschaltet und Bluetooth aktiviert ist.</string>
+    <string name="scan_scanning">Suche nach InMotion-Einrädern\u2026</string>
+    <string name="scan_start">Suche starten</string>
+    <string name="scan_title">Einrad finden</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Suche"</string>
+    <string name="section_announcements">Ansagen</string>
+    <string name="section_connection">Verbindung</string>
+    <string name="section_display">Anzeige</string>
+    <string name="section_flic_buttons">Flic 2-Tasten</string>
+    <string name="section_legal_mode_speed">Legal-Modus — Geschwindigkeit</string>
+    <string name="section_recording">Aufnahme</string>
+    <string name="section_report_status">Statusbericht</string>
+    <string name="section_speech">Sprache</string>
+    <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
+    <string name="section_volume_keys">Lautstärketasten</string>
     <string msgid="6043586758067023" name="selected">"Ausgewählt"</string>
+    <string name="settings">Einstellungen</string>
+    <string name="speed_alarm">Alarm-Geschwindigkeit</string>
+    <string name="speed_legal_alarm">Legal-Alarm</string>
+    <string name="speed_legal_tiltback">Legal-Tiltback</string>
+    <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
+    <string name="stat_amps">AMPERE</string>
+    <string name="stat_battery">AKKU</string>
+    <string name="stat_load">LAST</string>
+    <string name="stat_odo">ODO </string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_trip">FAHRT</string>
+    <string name="stat_voltage">SPANNUNG</string>
     <string msgid="4139871816613051306" name="state_empty">"Leer"</string>
     <string msgid="5834637030682409883" name="state_off">"Aus"</string>
     <string msgid="1490883874751719580" name="state_on">"An"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Wechseln"</string>
     <string msgid="1672349317127674378" name="tab">"Tab"</string>
+    <string name="tab_alarms">Alarme</string>
+    <string name="tab_auto">Auto</string>
+    <string name="tab_general">Allgemein</string>
+    <string name="tab_integration">Integration</string>
+    <string name="tab_speed">Geschwindigkeit</string>
+    <string name="tab_voice">Stimme</string>
     <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> Prozent."</string>
+    <string name="theme">Design</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_system">Systemstandard</string>
     <string msgid="3765533235322692011" name="tooltip_description">"Kurzinfo"</string>
     <string msgid="3124740595719787496" name="tooltip_label">"Kurzinfo anzeigen"</string>
+    <string name="trip_viewer_title">Fahrt-Ansicht</string>
+    <string name="tts_switch_body">Die aktuelle TTS-Stimme passt nicht zur gewählten Sprache. Auf eine %1$s-Stimme für Ansagen wechseln?</string>
+    <string name="tts_switch_no">Beibehalten</string>
+    <string name="tts_switch_title">Stimme auf %1$s umstellen?</string>
+    <string name="tts_switch_yes">Stimme wechseln</string>
+    <string name="unit_kmh">km/h</string>
+    <string name="unit_sec">Sek</string>
+    <string name="unit_x">x</string>
+    <string name="voice_battery_fmt">Akku %1$d Prozent</string>
+    <string name="voice_enabled">Status regelmäßig melden</string>
+    <string name="voice_gps_acquired">GPS-Signal empfangen</string>
+    <string name="voice_gps_lost">GPS-Signal verloren</string>
+    <string name="voice_interval">Intervall</string>
+    <string name="voice_legal_off">Legal-Modus aus</string>
+    <string name="voice_legal_on">Legal-Modus an</string>
+    <string name="voice_lights_off">Licht aus</string>
+    <string name="voice_lights_on">Licht an</string>
+    <string name="voice_load_fmt">Last %1$s Prozent</string>
+    <string name="voice_recording_finished">Aufnahme beendet</string>
+    <string name="voice_recording_off">keine Aufnahme</string>
+    <string name="voice_recording_on">Aufnahme läuft</string>
+    <string name="voice_recording_started">Aufnahme gestartet</string>
+    <string name="voice_selector_label">Stimme</string>
+    <string name="voice_speech_speed">Sprechgeschwindigkeit</string>
+    <string name="voice_speed_fmt">Geschwindigkeit %1$s</string>
+    <string name="voice_temp_fmt">Temperatur %1$s Grad</string>
+    <string name="voice_trip_fmt">Fahrt %1$s Kilometer</string>
+    <string name="voice_trip_miles_fmt">Fahrt %1$s Meilen</string>
+    <string name="voice_warning_fmt">Achtung! %1$s bei %2$s</string>
+    <string name="voice_wheel_connected">Rad verbunden</string>
+    <string name="voice_wheel_disconnected">Rad getrennt</string>
+    <string name="voice_wheel_locked">Rad gesperrt</string>
+    <string name="voice_wheel_unlocked">Rad entsperrt</string>
+    <string name="volume_down">Lautstärke −</string>
+    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App — Android liefert Lautstärke-Ereignisse im Hintergrund nicht zuverlässig.</string>
+    <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
+    <string name="volume_up">Lautstärke +</string>
+    <string name="wheel_generic">Rad</string>
 </resources>

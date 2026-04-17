@@ -515,7 +515,7 @@ public final class DaggerEvenDarkerBotApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.eried.evendarkerbot.ui.settings.AlarmViewModel 
-          return (T) new AlarmViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.alarmDao(), singletonCImpl.tonePlayerProvider.get(), singletonCImpl.voiceServiceProvider.get());
+          return (T) new AlarmViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.alarmDao(), singletonCImpl.tonePlayerProvider.get(), singletonCImpl.voiceServiceProvider.get(), singletonCImpl.settingsRepositoryProvider.get());
 
           case 1: // com.eried.evendarkerbot.ui.dashboard.DashboardViewModel 
           return (T) new DashboardViewModel(singletonCImpl.wheelRepositoryProvider.get(), singletonCImpl.settingsRepositoryProvider.get(), singletonCImpl.tripRepositoryProvider.get(), singletonCImpl.voiceServiceProvider.get(), ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
@@ -733,7 +733,7 @@ public final class DaggerEvenDarkerBotApp_HiltComponents_SingletonC {
           return (T) AppModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           case 3: // com.eried.evendarkerbot.data.repository.WheelRepository 
-          return (T) new WheelRepository(singletonCImpl.bleConnectionManagerProvider.get(), singletonCImpl.settingsRepositoryProvider.get(), singletonCImpl.alarmEngineProvider.get(), singletonCImpl.voiceServiceProvider.get());
+          return (T) new WheelRepository(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.bleConnectionManagerProvider.get(), singletonCImpl.settingsRepositoryProvider.get(), singletonCImpl.alarmEngineProvider.get(), singletonCImpl.voiceServiceProvider.get());
 
           case 4: // com.eried.evendarkerbot.ble.BleConnectionManager 
           return (T) new BleConnectionManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));

@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +69,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.ble.ConnectionState
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
@@ -116,21 +118,22 @@ fun DashboardScreen(
     BackHandler { showQuitDialog = true }
 
     if (showDisconnectDialog) {
+        val wheelLabel = modelName ?: stringResource(R.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
-            title = { Text("Disconnect") },
-            text = { Text("Disconnect from ${modelName ?: "wheel"}?") },
+            title = { Text(stringResource(R.string.disconnect)) },
+            text = { Text(stringResource(R.string.disconnect_from, wheelLabel)) },
             confirmButton = {
                 TextButton(onClick = {
                     showDisconnectDialog = false
                     viewModel.disconnect()
                 }) {
-                    Text("Disconnect", color = AccentRed)
+                    Text(stringResource(R.string.disconnect), color = AccentRed)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDisconnectDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -139,23 +142,23 @@ fun DashboardScreen(
     if (showQuitDialog) {
         AlertDialog(
             onDismissRequest = { showQuitDialog = false },
-            title = { Text("Exit EUC Planet") },
-            text = { Text("Keep the background service running, or stop everything?") },
+            title = { Text(stringResource(R.string.exit_title)) },
+            text = { Text(stringResource(R.string.exit_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.stopEverything()
                     activity?.finish()
                 }) {
-                    Text("Stop All", color = AccentRed)
+                    Text(stringResource(R.string.exit_stop_all), color = AccentRed)
                 }
             },
             dismissButton = {
                 Row {
                     TextButton(onClick = { showQuitDialog = false }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.action_cancel))
                     }
                     TextButton(onClick = { activity?.finish() }) {
-                        Text("Background")
+                        Text(stringResource(R.string.exit_background))
                     }
                 }
             }
@@ -169,13 +172,18 @@ fun DashboardScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         ConnectionDot(connectionState)
                         Spacer(Modifier.width(8.dp))
+                        val connectedLabel = stringResource(R.string.connection_connected)
+                        val connectingLabel = stringResource(R.string.connection_connecting)
+                        val initLabel = stringResource(R.string.connection_initializing)
+                        val scanningLabel = stringResource(R.string.connection_scanning)
+                        val disconnectedLabel = stringResource(R.string.connection_disconnected)
                         Text(
                             text = when (connectionState) {
-                                ConnectionState.CONNECTED -> modelName ?: "Connected"
-                                ConnectionState.CONNECTING -> "Connecting..."
-                                ConnectionState.INITIALIZING -> "Initializing..."
-                                ConnectionState.SCANNING -> "Scanning..."
-                                ConnectionState.DISCONNECTED -> "Disconnected"
+                                ConnectionState.CONNECTED -> modelName ?: connectedLabel
+                                ConnectionState.CONNECTING -> connectingLabel
+                                ConnectionState.INITIALIZING -> initLabel
+                                ConnectionState.SCANNING -> scanningLabel
+                                ConnectionState.DISCONNECTED -> disconnectedLabel
                             },
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1
@@ -194,11 +202,11 @@ fun DashboardScreen(
                             if (connectionState == ConnectionState.DISCONNECTED)
                                 Icons.AutoMirrored.Filled.BluetoothSearching
                             else Icons.Default.Bluetooth,
-                            contentDescription = "Connection"
+                            contentDescription = stringResource(R.string.connection)
                         )
                     }
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -252,11 +260,11 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard("BATTERY", "${wheelData.batteryPercent}%", battColor, history.battery, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_battery), "${wheelData.batteryPercent}%", battColor, history.battery, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("BATTERY") })
                 val tempValue = com.eried.evendarkerbot.util.Units.temperature(wheelData.maxTemperature, imperial)
                 val tempUnit = com.eried.evendarkerbot.util.Units.tempUnit(imperial)
-                StatCard("TEMP", "%.0f%s".format(tempValue, tempUnit), tempColor, history.temperature, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_temp), "%.0f%s".format(tempValue, tempUnit), tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
 
@@ -266,9 +274,9 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard("VOLTAGE", "%.1fV".format(wheelData.voltage), AccentBlue, history.voltage, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_voltage), "%.1fV".format(wheelData.voltage), AccentBlue, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
-                StatCard("AMPS", "%.1fA".format(wheelData.current),
+                StatCard(stringResource(R.string.stat_amps), "%.1fA".format(wheelData.current),
                     if (wheelData.current > 20) AccentOrange else AccentBlue, history.current, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("CURRENT") })
             }
@@ -279,11 +287,11 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard("LOAD", "%.0f%%".format(pwm), loadColor, history.load, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_load), "%.0f%%".format(pwm), loadColor, history.load, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("LOAD") })
                 val tripValue = com.eried.evendarkerbot.util.Units.distance(wheelData.tripDistance, imperial)
                 val distUnit = com.eried.evendarkerbot.util.Units.distanceUnit(imperial)
-                StatCard("TRIP", "%.1f %s".format(tripValue, distUnit), AccentBlue, emptyList(), Modifier.weight(1f))
+                StatCard(stringResource(R.string.stat_trip), "%.1f %s".format(tripValue, distUnit), AccentBlue, emptyList(), Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(14.dp))
@@ -293,16 +301,16 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionButton(Icons.Default.Campaign, "Horn",
+                ActionButton(Icons.Default.Campaign, stringResource(R.string.action_horn),
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onHornPress() },
                     modifier = Modifier.weight(1f))
-                ActionButton(Icons.Default.FlashOn, "Light",
+                ActionButton(Icons.Default.FlashOn, stringResource(R.string.action_light),
                     active = wheelData.lightOn,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLightToggle() },
                     modifier = Modifier.weight(1f))
-                ActionButton(Icons.Default.RecordVoiceOver, "Voice",
+                ActionButton(Icons.Default.RecordVoiceOver, stringResource(R.string.action_voice),
                     onClick = { viewModel.onVoiceAnnounce() },
                     modifier = Modifier.weight(1f))
             }
@@ -314,21 +322,21 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ActionButton(Icons.Default.Shield,
-                    if (safetyActive) "Legal ON" else "Legal Mode",
+                    if (safetyActive) stringResource(R.string.action_legal_on) else stringResource(R.string.action_legal_mode),
                     active = safetyActive, activeColor = AccentOrange,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onSafetySpeedToggle() },
                     modifier = Modifier.weight(1f))
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
-                    if (locked) "Locked" else "Lock Wheel",
+                    if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = AccentRed,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLockToggle() },
                     modifier = Modifier.weight(1f))
                 ActionButton(Icons.Default.FiberManualRecord,
-                    if (tripCount > 0) "Recorder\n($tripCount trips)"
-                    else "Recorder",
+                    if (tripCount > 0) stringResource(R.string.action_recorder_trips, tripCount)
+                    else stringResource(R.string.action_recorder),
                     active = recording, activeColor = AccentRed,
                     onClick = { onNavigateToRecording() },
                     modifier = Modifier.weight(1f))
@@ -362,9 +370,21 @@ fun DashboardScreen(
                             Text("Version $versionName", style = MaterialTheme.typography.bodyMedium)
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "Custom EUC companion app for InMotion V14.\n\nBLE control, voice announcements, trip recording, Flic button support.",
+                                "Custom control app for the InMotion V14 electric unicycle — BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting and adaptive volume.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                "Built with Jetpack Compose (Material 3), AndroidX (AppCompat, Lifecycle, Navigation, Room), Hilt, Kotlin Coroutines, Google Play Services Location and the Flic 2 SDK.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                "Made by Erwin Ried — eucplanet.ried.no",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     },
@@ -597,7 +617,7 @@ private fun WheelInfoBox(
         Row(verticalAlignment = Alignment.CenterVertically) {
             val odoValue = com.eried.evendarkerbot.util.Units.distance(odoKm, imperial)
             val odoUnit = com.eried.evendarkerbot.util.Units.distanceUnit(imperial)
-            Text("ODO ", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Text(stringResource(R.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp)
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)

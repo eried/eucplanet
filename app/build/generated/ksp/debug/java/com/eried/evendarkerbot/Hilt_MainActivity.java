@@ -2,9 +2,9 @@ package com.eried.evendarkerbot;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.activity.ComponentActivity;
 import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.annotation.CallSuper;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories;
 import dagger.hilt.android.internal.managers.ActivityComponentManager;
@@ -20,7 +20,7 @@ import javax.annotation.processing.Generated;
  * A generated base class to be extended by the @dagger.hilt.android.AndroidEntryPoint annotated class. If using the Gradle plugin, this is swapped as the base class via bytecode transformation.
  */
 @Generated("dagger.hilt.android.processor.internal.androidentrypoint.ActivityGenerator")
-public abstract class Hilt_MainActivity extends ComponentActivity implements GeneratedComponentManagerHolder {
+public abstract class Hilt_MainActivity extends AppCompatActivity implements GeneratedComponentManagerHolder {
   private SavedStateHandleHolder savedStateHandleHolder;
 
   private volatile ActivityComponentManager componentManager;
@@ -29,13 +29,13 @@ public abstract class Hilt_MainActivity extends ComponentActivity implements Gen
 
   private boolean injected = false;
 
-  Hilt_MainActivity(int contentLayoutId) {
-    super(contentLayoutId);
+  Hilt_MainActivity() {
+    super();
     _initHiltInternal();
   }
 
-  Hilt_MainActivity() {
-    super();
+  Hilt_MainActivity(int p0) {
+    super(p0);
     _initHiltInternal();
   }
 

@@ -45,8 +45,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.FlicAction
 import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentRed
@@ -65,10 +67,10 @@ fun FlicScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Flic 2 Buttons") },
+                title = { Text(stringResource(R.string.section_flic_buttons)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -95,7 +97,7 @@ fun FlicScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        "Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.",
+                        stringResource(R.string.flic_scan_hint),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -108,7 +110,7 @@ fun FlicScreen(
                             onClick = { viewModel.stopScan() },
                             colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                         ) {
-                            Text("Stop Scan")
+                            Text(stringResource(R.string.flic_stop_scan))
                         }
                     } else {
                         if (scanStatus.isNotEmpty()) {
@@ -116,7 +118,7 @@ fun FlicScreen(
                             Spacer(Modifier.height(8.dp))
                         }
                         Button(onClick = { viewModel.startScan() }) {
-                            Text("Scan for Flic 2 Button")
+                            Text(stringResource(R.string.flic_start_scan))
                         }
                     }
                 }
@@ -125,7 +127,7 @@ fun FlicScreen(
             // Paired buttons
             if (pairedButtons.isEmpty()) {
                 Text(
-                    "No Flic buttons paired",
+                    stringResource(R.string.flic_no_buttons),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -207,7 +209,7 @@ private fun ButtonConfig(
                                     onTitleChange(editText)
                                     editing = false
                                 }) {
-                                    Icon(Icons.Default.Check, contentDescription = "Save")
+                                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
                                 }
                             }
                         )
@@ -224,7 +226,7 @@ private fun ButtonConfig(
                             Spacer(Modifier.width(6.dp))
                             Icon(
                                 Icons.Default.Edit,
-                                contentDescription = "Rename",
+                                contentDescription = stringResource(R.string.flic_rename),
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             )
@@ -237,17 +239,17 @@ private fun ButtonConfig(
                     )
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = "Forget", tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
                 }
             }
 
             Spacer(Modifier.height(12.dp))
 
-            ActionDropdown("Click", clickAction, onClickChange)
+            ActionDropdown(stringResource(R.string.flic_click), clickAction, onClickChange)
             Spacer(Modifier.height(8.dp))
-            ActionDropdown("Double Click", doubleClickAction, onDoubleClickChange)
+            ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
             Spacer(Modifier.height(8.dp))
-            ActionDropdown("Hold", holdAction, onHoldChange)
+            ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
         }
     }
 }

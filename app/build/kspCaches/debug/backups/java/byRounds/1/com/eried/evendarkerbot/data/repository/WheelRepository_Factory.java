@@ -1,5 +1,6 @@
 package com.eried.evendarkerbot.data.repository;
 
+import android.content.Context;
 import com.eried.evendarkerbot.ble.BleConnectionManager;
 import com.eried.evendarkerbot.service.AlarmEngine;
 import com.eried.evendarkerbot.service.VoiceService;
@@ -11,7 +12,7 @@ import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 
 @ScopeMetadata("javax.inject.Singleton")
-@QualifierMetadata
+@QualifierMetadata("dagger.hilt.android.qualifiers.ApplicationContext")
 @DaggerGenerated
 @Generated(
     value = "dagger.internal.codegen.ComponentProcessor",
@@ -27,6 +28,8 @@ import javax.inject.Provider;
     "nullness:initialization.field.uninitialized"
 })
 public final class WheelRepository_Factory implements Factory<WheelRepository> {
+  private final Provider<Context> contextProvider;
+
   private final Provider<BleConnectionManager> bleManagerProvider;
 
   private final Provider<SettingsRepository> settingsRepositoryProvider;
@@ -35,9 +38,11 @@ public final class WheelRepository_Factory implements Factory<WheelRepository> {
 
   private final Provider<VoiceService> voiceServiceProvider;
 
-  public WheelRepository_Factory(Provider<BleConnectionManager> bleManagerProvider,
+  public WheelRepository_Factory(Provider<Context> contextProvider,
+      Provider<BleConnectionManager> bleManagerProvider,
       Provider<SettingsRepository> settingsRepositoryProvider,
       Provider<AlarmEngine> alarmEngineProvider, Provider<VoiceService> voiceServiceProvider) {
+    this.contextProvider = contextProvider;
     this.bleManagerProvider = bleManagerProvider;
     this.settingsRepositoryProvider = settingsRepositoryProvider;
     this.alarmEngineProvider = alarmEngineProvider;
@@ -46,17 +51,18 @@ public final class WheelRepository_Factory implements Factory<WheelRepository> {
 
   @Override
   public WheelRepository get() {
-    return newInstance(bleManagerProvider.get(), settingsRepositoryProvider.get(), alarmEngineProvider.get(), voiceServiceProvider.get());
+    return newInstance(contextProvider.get(), bleManagerProvider.get(), settingsRepositoryProvider.get(), alarmEngineProvider.get(), voiceServiceProvider.get());
   }
 
-  public static WheelRepository_Factory create(Provider<BleConnectionManager> bleManagerProvider,
+  public static WheelRepository_Factory create(Provider<Context> contextProvider,
+      Provider<BleConnectionManager> bleManagerProvider,
       Provider<SettingsRepository> settingsRepositoryProvider,
       Provider<AlarmEngine> alarmEngineProvider, Provider<VoiceService> voiceServiceProvider) {
-    return new WheelRepository_Factory(bleManagerProvider, settingsRepositoryProvider, alarmEngineProvider, voiceServiceProvider);
+    return new WheelRepository_Factory(contextProvider, bleManagerProvider, settingsRepositoryProvider, alarmEngineProvider, voiceServiceProvider);
   }
 
-  public static WheelRepository newInstance(BleConnectionManager bleManager,
+  public static WheelRepository newInstance(Context context, BleConnectionManager bleManager,
       SettingsRepository settingsRepository, AlarmEngine alarmEngine, VoiceService voiceService) {
-    return new WheelRepository(bleManager, settingsRepository, alarmEngine, voiceService);
+    return new WheelRepository(context, bleManager, settingsRepository, alarmEngine, voiceService);
   }
 }

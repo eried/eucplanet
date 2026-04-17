@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.eried.evendarkerbot.app-mergeDebugResources-63:/values-v30/values-v30.xml",
+            "outputFile": "com.eried.evendarkerbot.app-mergeDebugResources-66:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\erwin\\.gradle\\caches\\8.11.1\\transforms\\62bfa35f539827c1dde47441b8285bc6\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\erwin\\.gradle\\caches\\8.11.1\\transforms\\7156a5364d4725e88a5fd94d1d04feb0\\transformed\\material3-release\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
