@@ -76,6 +76,8 @@ class RecordingViewModel @Inject constructor(
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    suspend fun getTripById(id: Long): TripRecord? = tripRepository.getTripById(id)
+
     fun startGpsPreview() {
         tripRepository.startLocationUpdates()
     }

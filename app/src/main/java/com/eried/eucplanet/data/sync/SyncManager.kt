@@ -5,9 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
-import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.eried.eucplanet.data.model.AppSettings
@@ -125,16 +123,10 @@ class SyncManager @Inject constructor(
         }
     }
 
-    /** Enqueue the trip upload worker. Respects Wi-Fi-only preference. */
+    /** Enqueue the trip upload worker. */
     fun enqueueTripUpload(settings: AppSettings) {
         if (settings.syncFolderUri == null) return
-        val network = if (settings.syncWifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(network)
-            .build()
-        val request = OneTimeWorkRequestBuilder<TripUploadWorker>()
-            .setConstraints(constraints)
-            .build()
+        val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
@@ -221,7 +213,6 @@ class SyncManager @Inject constructor(
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
-        put("syncWifiOnly", s.syncWifiOnly)
     }
 
     private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
@@ -277,7 +268,6 @@ class SyncManager @Inject constructor(
         volumeDownHold = j.optString("volumeDownHold", base.volumeDownHold),
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
-        accentColor = j.optString("accentColor", base.accentColor),
-        syncWifiOnly = j.optBoolean("syncWifiOnly", base.syncWifiOnly)
+        accentColor = j.optString("accentColor", base.accentColor)
     )
 }

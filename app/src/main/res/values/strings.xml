@@ -56,20 +56,21 @@
     <string name="tab_alarms">Alarms</string>
     <string name="tab_auto">Auto</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Cloud</string>
+    <string name="tab_cloud">Backup</string>
 
-    <!-- Settings: Cloud -->
-    <string name="section_cloud_folder">Sync folder</string>
-    <string name="cloud_caption">Pick any folder that syncs to the cloud (OneDrive, Google Drive, Dropbox…). Trip CSVs and a settings backup get saved there and your cloud app uploads them.</string>
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Backup folder</string>
+    <string name="cloud_caption">Pick a folder on this phone where trip CSVs and a settings backup will be saved.</string>
+    <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
+    <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Disconnect</string>
     <string name="cloud_no_folder">No folder selected</string>
     <string name="cloud_folder_label">Folder: %1$s</string>
-    <string name="cloud_wifi_only">Upload on Wi-Fi only</string>
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Back up settings now</string>
-    <string name="cloud_restore">Restore settings from cloud</string>
+    <string name="cloud_restore">Restore settings</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
@@ -94,6 +95,7 @@
     <string name="auto_record_on_start">Auto-record on start</string>
     <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects.</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
+    <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time.</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>

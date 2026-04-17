@@ -6,6 +6,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.eried.eucplanet.data.model.TripRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -97,17 +101,27 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val tripId = backStackEntry.arguments?.getLong("tripId")
             val viewModel: RecordingViewModel = hiltViewModel()
-            val trips by viewModel.trips.collectAsState()
-            val trip = tripId?.let { id -> trips.find { it.id == id } }
+            var trip by remember { mutableStateOf<TripRecord?>(null) }
+            var notFound by remember { mutableStateOf(false) }
 
-            if (trip != null) {
+            LaunchedEffect(tripId) {
+                if (tripId == null) {
+                    notFound = true
+                    return@LaunchedEffect
+                }
+                val loaded = viewModel.getTripById(tripId)
+                if (loaded != null) trip = loaded else notFound = true
+            }
+
+            trip?.let {
                 TripDetailScreen(
-                    trip = trip,
+                    trip = it,
                     onBack = { navController.popBackStack() },
                     viewModel = viewModel
                 )
-            } else {
-                LaunchedEffect(tripId) {
+            }
+            if (notFound) {
+                LaunchedEffect(Unit) {
                     Log.w("EucNav", "TripDetail: trip $tripId not found, popping back")
                     navController.popBackStack()
                 }

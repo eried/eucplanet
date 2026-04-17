@@ -205,6 +205,11 @@ private fun GeneralTab(
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
+        Text(
+            stringResource(R.string.auto_connect_caption),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         settings.lastDeviceName?.let {
             Text(
@@ -749,22 +754,26 @@ private fun CloudTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        CloudHelpCard()
+
         if (hasFolder) {
             Text(
                 stringResource(R.string.cloud_folder_label, folderDisplayName!!),
                 style = MaterialTheme.typography.bodyMedium
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { pickFolder.launch(null) }) {
-                    Text(stringResource(R.string.cloud_change_folder))
-                }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { pickFolder.launch(null) },
+                    modifier = Modifier.weight(1f)
+                ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
-            }
-            SwitchSetting(stringResource(R.string.cloud_wifi_only), settings.syncWifiOnly) {
-                viewModel.updateSyncWifiOnly(it)
             }
         } else {
             Text(
@@ -785,13 +794,18 @@ private fun CloudTab(
             } ?: stringResource(R.string.cloud_last_backup_never)
             Text(lastBackupText, style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { viewModel.backupSettingsNow() }) {
-                    Text(stringResource(R.string.cloud_backup_now))
-                }
-                Button(onClick = { showRestoreDialog = true }) {
-                    Text(stringResource(R.string.cloud_restore))
-                }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { viewModel.backupSettingsNow() },
+                    modifier = Modifier.weight(1f)
+                ) { Text(stringResource(R.string.cloud_backup_now)) }
+                Button(
+                    onClick = { showRestoreDialog = true },
+                    modifier = Modifier.weight(1f)
+                ) { Text(stringResource(R.string.cloud_restore)) }
             }
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
@@ -806,6 +820,45 @@ private fun CloudTab(
         }
 
         Spacer(Modifier.height(32.dp))
+    }
+}
+
+@Composable
+private fun CloudHelpCard() {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.cloud_help_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            if (expanded) {
+                Text(
+                    stringResource(R.string.cloud_help_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 12.dp).padding(bottom = 12.dp)
+                )
+            }
+        }
     }
 }
 

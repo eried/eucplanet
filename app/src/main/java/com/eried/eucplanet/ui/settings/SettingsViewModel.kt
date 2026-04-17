@@ -186,8 +186,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { syncManager.clearSyncFolder() }
     }
 
-    fun updateSyncWifiOnly(v: Boolean) = update { copy(syncWifiOnly = v) }
-
     fun backupSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.backupSettings()

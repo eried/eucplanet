@@ -53,7 +53,7 @@
     <string name="tab_alarms">Alarme</string>
     <string name="tab_auto">Auto</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Cloud</string>
+    <string name="tab_cloud">Backup</string>
 
     <string name="section_recording">Aufnahme</string>
     <string name="section_connection">Verbindung</string>

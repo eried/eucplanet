@@ -100,9 +100,8 @@ data class AppSettings(
     // accentColor: key into the accent palette
     val accentColor: String = "default",
 
-    // Cloud sync (SAF tree URI to a folder in OneDrive / Google Drive / any DocumentsProvider)
+    // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
-    val syncWifiOnly: Boolean = true,
     val lastSettingsBackupAt: Long? = null
 )
 
