@@ -68,6 +68,10 @@ class DashboardViewModel @Inject constructor(
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    val accentKey: StateFlow<String> = settingsRepository.settings
+        .map { it.accentColor }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.eried.evendarkerbot.ui.theme.AccentKeyDefault)
+
     val modelName: StateFlow<String?> = wheelRepository.modelName
 
     val firmwareVersion: StateFlow<String?> = wheelRepository.firmwareVersion

@@ -199,11 +199,10 @@ class WheelService : LifecycleService() {
                 val settings = settingsRepository.get()
                 delay(settings.voiceIntervalSeconds * 1000L)
                 if (settings.voiceEnabled) {
+                    val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                    if (settings.voiceOnlyWhenConnected && !connected) continue
                     val data = wheelRepository.wheelData.value
-                    // Only announce if wheel is actually moving or recently active
-                    if (data.speed.absoluteValue > 1f || data.batteryPercent > 0) {
-                        voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
-                    }
+                    voiceService.announceStatus(data, settings, isRecording = tripRepository.recording.value)
                 }
             }
         }

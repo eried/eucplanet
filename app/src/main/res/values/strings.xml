@@ -51,7 +51,7 @@
 
     <!-- Settings tabs -->
     <string name="tab_general">General</string>
-    <string name="tab_speed">Speed</string>
+    <string name="tab_speed">Wheel</string>
     <string name="tab_voice">Voice</string>
     <string name="tab_alarms">Alarms</string>
     <string name="tab_auto">Auto</string>
@@ -87,6 +87,7 @@
     <string name="section_speed_limits">Speed Limits</string>
     <string name="section_legal_mode_speed">Legal Mode Speed</string>
     <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
+    <string name="speed_limits_disconnected">Connect wheel to edit speed limits.</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
     <string name="speed_legal_tiltback">Legal Tiltback</string>
@@ -98,6 +99,7 @@
     <string name="section_speech">Speech</string>
     <string name="section_report_status">Report Status</string>
     <string name="voice_enabled">Report status periodically</string>
+    <string name="voice_only_when_connected">Only when wheel is connected</string>
     <string name="voice_interval">Interval</string>
     <string name="unit_sec">sec</string>
     <string name="announce_wheel_lock">Wheel lock / unlock</string>
@@ -260,6 +262,8 @@
     <string name="recording_stat_trips">Trips</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Time</string>
+    <string name="recording_gps_locked">GPS locked</string>
+    <string name="recording_gps_waiting">Waiting for GPS…</string>
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Trip Details</string>
@@ -329,4 +333,5 @@
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs (tap to share)</string>
     <string name="about_share_crash">Share crash log</string>
+    <string name="about_license">License</string>
 </resources>

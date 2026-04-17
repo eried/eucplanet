@@ -89,12 +89,32 @@ class BleConnectionManager @Inject constructor(
     @SuppressLint("MissingPermission")
     fun disconnect() {
         shouldReconnect = false
-        gatt?.disconnect()
-        gatt?.close()
-        gatt = null
+        currentAddress = null
         rxCharacteristic = null
         writeReady = false
-        _connectionState.value = ConnectionState.DISCONNECTED
+        val g = gatt
+        if (g == null) {
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
+        // Request clean GATT teardown; close() runs in the STATE_DISCONNECTED callback
+        // so the wheel's BLE stack receives the disconnect before we drop the handle.
+        try {
+            g.disconnect()
+        } catch (e: Exception) {
+            Log.w(TAG, "gatt.disconnect() threw", e)
+        }
+        // Safety net: if callback doesn't fire, force-close after a short delay.
+        scope.launch {
+            delay(1000)
+            val still = gatt
+            if (still != null) {
+                Log.w(TAG, "Forcing GATT close after timeout")
+                try { still.close() } catch (_: Exception) {}
+                gatt = null
+                _connectionState.value = ConnectionState.DISCONNECTED
+            }
+        }
     }
 
     fun writeCommand(data: ByteArray) {
@@ -151,9 +171,14 @@ class BleConnectionManager @Inject constructor(
                     gatt.requestMtu(512)
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
-                    Log.i(TAG, "Disconnected from GATT (status=$status)")
+                    Log.i(TAG, "Disconnected from GATT (status=$status, shouldReconnect=$shouldReconnect)")
                     rxCharacteristic = null
                     writeReady = false
+                    // Close the GATT here so the underlying connection is fully torn down
+                    try { gatt.close() } catch (_: Exception) {}
+                    if (this@BleConnectionManager.gatt === gatt) {
+                        this@BleConnectionManager.gatt = null
+                    }
                     _connectionState.value = ConnectionState.DISCONNECTED
 
                     if (shouldReconnect && status != 0) {

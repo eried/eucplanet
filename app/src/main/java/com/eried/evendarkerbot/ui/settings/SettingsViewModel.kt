@@ -3,6 +3,7 @@ package com.eried.evendarkerbot.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.location.Location
+import com.eried.evendarkerbot.ble.ConnectionState
 import com.eried.evendarkerbot.data.model.AppSettings
 import com.eried.evendarkerbot.data.repository.SettingsRepository
 import com.eried.evendarkerbot.data.repository.TripRepository
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,10 +28,14 @@ class SettingsViewModel @Inject constructor(
     private val tripRepository: TripRepository
 ) : ViewModel() {
 
-    val settings: StateFlow<AppSettings> = settingsRepository.settings
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppSettings())
+    val settings: StateFlow<AppSettings?> = settingsRepository.settings
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val maxSpeedCap: StateFlow<Float> = wheelRepository.maxSpeedCap
+
+    val isConnected: StateFlow<Boolean> = wheelRepository.connectionState
+        .map { it == ConnectionState.CONNECTED }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
 
@@ -73,6 +79,7 @@ class SettingsViewModel @Inject constructor(
     fun updateSafetyAlarm(value: Float) =
         update { copy(safetyAlarmKmh = value, safetyTiltbackKmh = safetyTiltbackKmh.coerceAtLeast(value)) }
     fun updateVoiceEnabled(enabled: Boolean) = update { copy(voiceEnabled = enabled) }
+    fun updateVoiceOnlyWhenConnected(enabled: Boolean) = update { copy(voiceOnlyWhenConnected = enabled) }
     fun updateVoiceInterval(seconds: Int) = update { copy(voiceIntervalSeconds = seconds) }
     fun updateVoiceSpeechRate(v: Float) = update { copy(voiceSpeechRate = v) }
     fun updateVoiceReportSpeed(v: Boolean) = update { copy(voiceReportSpeed = v) }

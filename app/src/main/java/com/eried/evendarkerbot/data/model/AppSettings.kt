@@ -13,20 +13,17 @@ data class AppSettings(
     val lastDeviceName: String? = null,
     val autoConnect: Boolean = true,
 
-    // Speed settings (sent to wheel)
+    // Speed settings (sent to wheel) - the "normal" mode values
     val tiltbackSpeedKmh: Float = 50f,
     val alarmSpeedKmh: Float = 40f,
 
-    // Safety speed (applied when safety toggle is ON)
-    val safetyTiltbackKmh: Float = 25f,
-    val safetyAlarmKmh: Float = 20f,
-
-    // Stores wheel's current speeds so we can restore them when safety is OFF
-    val normalTiltbackKmh: Float = 50f,
-    val normalBeepKmh: Float = 40f,
+    // Legal-mode speed (applied when legal toggle is ON)
+    val safetyTiltbackKmh: Float = 20f,
+    val safetyAlarmKmh: Float = 18f,
 
     // Voice
     val voiceEnabled: Boolean = true,
+    val voiceOnlyWhenConnected: Boolean = true,
     val voiceIntervalSeconds: Int = 30,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
@@ -101,7 +98,7 @@ data class AppSettings(
     // themeMode: "dark", "light", "system"
     val themeMode: String = "dark",
     // accentColor: key into the accent palette
-    val accentColor: String = "blue"
+    val accentColor: String = "default"
 )
 
 enum class FlicAction(val labelRes: Int) {

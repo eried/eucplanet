@@ -50,6 +50,9 @@ class WheelRepository @Inject constructor(
         private const val TAG = "WheelRepo"
         private const val POLL_INTERVAL_MS = 250L
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
+        // Re-request settings every N realtime polls to pick up external changes
+        // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
+        private const val SETTINGS_REFRESH_INTERVAL = 12
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -101,6 +104,10 @@ class WheelRepository @Inject constructor(
     private var initState = 0
     private var pollingActive = false
 
+    // True only for the first 0x20 settings packet after each (re)connect.
+    // Used to reconcile stored speed limits with the wheel's actual values.
+    @Volatile private var reconcileNextSettings = false
+
     init {
         // Process incoming packets
         scope.launch {
@@ -113,7 +120,10 @@ class WheelRepository @Inject constructor(
         scope.launch {
             bleManager.connectionState.collect { state ->
                 when (state) {
-                    ConnectionState.CONNECTED -> startInitSequence()
+                    ConnectionState.CONNECTED -> {
+                        reconcileNextSettings = true
+                        startInitSequence()
+                    }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
                         initState = 0
@@ -238,7 +248,7 @@ class WheelRepository @Inject constructor(
         if (wantActive) {
             setSpeed(settings.safetyTiltbackKmh, settings.safetyAlarmKmh)
         } else {
-            setSpeed(settings.normalTiltbackKmh, settings.normalBeepKmh)
+            setSpeed(settings.tiltbackSpeedKmh, settings.alarmSpeedKmh)
         }
         Log.i(TAG, "Safety speed toggle requested: active=$wantActive")
 
@@ -268,6 +278,7 @@ class WheelRepository @Inject constructor(
     }
 
     private suspend fun runPollingLoop() {
+        var realtimeCycle = 0
         while (pollingActive && bleManager.connectionState.value == ConnectionState.CONNECTED) {
             when (initState) {
                 0 -> {
@@ -295,11 +306,78 @@ class WheelRepository @Inject constructor(
                     initState++
                 }
                 else -> {
-                    // Normal polling - request real-time data
-                    bleManager.writeCommand(InMotionV2Commands.getRealTimeData())
+                    // Normal polling - realtime data, interleaved with periodic settings refresh
+                    // so externally-changed state (lock via InMotion app, etc.) is detected.
+                    if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
+                        bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
+                    } else {
+                        bleManager.writeCommand(InMotionV2Commands.getRealTimeData())
+                    }
+                    realtimeCycle++
                 }
             }
             delay(POLL_INTERVAL_MS)
+        }
+    }
+
+    // --- Speed limits reconciliation on (re)connect ---
+
+    /**
+     * The wheel only stores one active (tiltback, alarm) pair at a time, but we keep
+     * both a "normal" pair and a "legal" pair persistently. On reconnect we compare
+     * what the wheel reports against both stored pairs:
+     *
+     *  A) wheel tilt ≈ stored legal   → wheel is in legal mode; keep both stored pairs
+     *  B) wheel tilt ≈ stored normal  → wheel is in normal mode; keep both stored pairs
+     *  C) wheel tilt < stored legal   → user lowered legal externally → adopt as new legal
+     *  D) wheel tilt > legal, ≠ normal → user picked new normal externally → adopt as new normal
+     *
+     * In A/B we never overwrite stored values — so the other pair is preserved across
+     * reconnects even though the wheel forgets it.
+     */
+    private suspend fun reconcileSpeedLimits(ws: WheelSettings, appSettings: AppSettings) {
+        val wTilt = ws.maxSpeedKmh
+        val wAlarm = ws.alarmSpeedKmh
+        val legalTilt = appSettings.safetyTiltbackKmh
+        val normalTilt = appSettings.tiltbackSpeedKmh
+        val tolerance = 0.5f
+
+        val matchesLegal = kotlin.math.abs(wTilt - legalTilt) < tolerance
+        val matchesNormal = kotlin.math.abs(wTilt - normalTilt) < tolerance
+
+        val isLegalOn: Boolean
+        val updated: AppSettings = when {
+            matchesLegal -> {
+                isLegalOn = true
+                appSettings
+            }
+            matchesNormal -> {
+                isLegalOn = false
+                appSettings
+            }
+            wTilt < legalTilt -> {
+                // User lowered their legal via another app — adopt as new legal
+                isLegalOn = true
+                appSettings.copy(safetyTiltbackKmh = wTilt, safetyAlarmKmh = wAlarm)
+            }
+            else -> {
+                // Wheel above legal but != stored normal — adopt as new normal
+                isLegalOn = false
+                appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
+            }
+        }
+
+        if (updated !== appSettings) {
+            settingsRepository.update(updated)
+        }
+        _safetySpeedActive.value = isLegalOn
+
+        Log.i(TAG, "Reconciled: wheel=$wTilt/$wAlarm → " +
+                "normal=${updated.tiltbackSpeedKmh}/${updated.alarmSpeedKmh} " +
+                "legal=${updated.safetyTiltbackKmh}/${updated.safetyAlarmKmh} legalOn=$isLegalOn")
+
+        if (isLegalOn && appSettings.announceSafetyMode) {
+            voiceService.announceEvent(context.getString(R.string.voice_legal_on))
         }
     }
 
@@ -395,28 +473,30 @@ class WheelRepository @Inject constructor(
                     _wheelSettings.value = ws
                     Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
 
-                    // Determine safety speed state from wheel's actual speed values.
-                    // Safety tiltback is always at least 1 km/h below normal tiltback,
-                    // so we can reliably detect which mode is active.
                     val appSettings = settingsRepository.get()
-                    val distToSafety = kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh)
-                    val distToNormal = kotlin.math.abs(ws.maxSpeedKmh - appSettings.normalTiltbackKmh)
-                    val isSafetySpeed = distToSafety < distToNormal
                     val wasSafety = _safetySpeedActive.value
-                    _safetySpeedActive.value = isSafetySpeed
-
-                    if (isSafetySpeed != wasSafety) {
-                        Log.i(TAG, "Safety speed state from wheel: active=$isSafetySpeed " +
-                                "(wheel=${ws.maxSpeedKmh}, safety=${appSettings.safetyTiltbackKmh}, " +
-                                "normal=${appSettings.normalTiltbackKmh})")
-                        if (appSettings.announceSafetyMode) {
-                            voiceService.announceEvent(context.getString(if (isSafetySpeed) R.string.voice_legal_on else R.string.voice_legal_off))
-                        }
+                    val wasLocked = _locked.value
+                    val isLocked = ws.lockState != 0
+                    _locked.value = isLocked
+                    if (isLocked != wasLocked && appSettings.announceWheelLock) {
+                        voiceService.announceEvent(
+                            context.getString(
+                                if (isLocked) R.string.voice_wheel_locked
+                                else R.string.voice_wheel_unlocked
+                            )
+                        )
                     }
 
-                    // Only store as normal speeds if NOT in safety mode
-                    if (!isSafetySpeed) {
-                        settingsRepository.updateWheelSpeedSettings(ws.maxSpeedKmh, ws.alarmSpeedKmh)
+                    if (reconcileNextSettings) {
+                        reconcileNextSettings = false
+                        reconcileSpeedLimits(ws, appSettings)
+                    } else {
+                        // Subsequent packet: simple state detection
+                        val isSafety = kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
+                        _safetySpeedActive.value = isSafety
+                        if (isSafety != wasSafety && appSettings.announceSafetyMode) {
+                            voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
+                        }
                     }
                 }
             }

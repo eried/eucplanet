@@ -48,7 +48,7 @@
     <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
 
     <string name="tab_general">Allgemein</string>
-    <string name="tab_speed">Geschwindigkeit</string>
+    <string name="tab_speed">Rad</string>
     <string name="tab_voice">Stimme</string>
     <string name="tab_alarms">Alarme</string>
     <string name="tab_auto">Auto</string>
@@ -82,6 +82,7 @@
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_legal_mode_speed">Legal-Modus — Geschwindigkeit</string>
     <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
+    <string name="speed_limits_disconnected">Rad verbinden, um Geschwindigkeitsgrenzen zu bearbeiten.</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
@@ -92,6 +93,7 @@
     <string name="section_speech">Sprache</string>
     <string name="section_report_status">Statusbericht</string>
     <string name="voice_enabled">Status regelmäßig melden</string>
+    <string name="voice_only_when_connected">Nur wenn Rad verbunden ist</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">Sek</string>
     <string name="announce_wheel_lock">Rad sperren / entsperren</string>
@@ -199,6 +201,8 @@
     <string name="recording_stat_trips">Fahrten</string>
     <string name="recording_stat_distance">Distanz</string>
     <string name="recording_stat_time">Zeit</string>
+    <string name="recording_gps_locked">GPS aktiv</string>
+    <string name="recording_gps_waiting">Warte auf GPS…</string>
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Fahrtdetails</string>
@@ -320,4 +324,5 @@
     <!-- About / crash logs -->
     <string name="about_crash_logs">Absturz­protokolle (zum Teilen tippen)</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
+    <string name="about_license">Lizenz</string>
 </resources>

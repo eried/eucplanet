@@ -48,7 +48,7 @@
     <string name="action_recorder_trips">Поездки\n(%1$d)</string>
 
     <string name="tab_general">Общие</string>
-    <string name="tab_speed">Скорость</string>
+    <string name="tab_speed">Колесо</string>
     <string name="tab_voice">Голос</string>
     <string name="tab_alarms">Сигналы</string>
     <string name="tab_auto">Авто</string>
@@ -82,6 +82,7 @@
     <string name="section_speed_limits">Ограничения скорости</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
     <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback.</string>
+    <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить ограничения скорости.</string>
     <string name="speed_tiltback">Tiltback</string>
     <string name="speed_alarm">Предупреждение</string>
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
@@ -92,6 +93,7 @@
     <string name="section_speech">Голос</string>
     <string name="section_report_status">Отчёт о состоянии</string>
     <string name="voice_enabled">Регулярный отчёт</string>
+    <string name="voice_only_when_connected">Только когда колесо подключено</string>
     <string name="voice_interval">Интервал</string>
     <string name="unit_sec">с</string>
     <string name="announce_wheel_lock">Блокировка и разблокировка</string>
@@ -199,6 +201,8 @@
     <string name="recording_stat_trips">Поездок</string>
     <string name="recording_stat_distance">Пробег</string>
     <string name="recording_stat_time">Время</string>
+    <string name="recording_gps_locked">GPS найден</string>
+    <string name="recording_gps_waiting">Ожидание GPS…</string>
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Подробности поездки</string>
@@ -320,4 +324,5 @@
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журналы сбоев (коснитесь, чтобы поделиться)</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
+    <string name="about_license">Лицензия</string>
 </resources>

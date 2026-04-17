@@ -63,8 +63,9 @@ import kotlin.math.roundToInt
 fun AutomationsContent(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settings by viewModel.settings.collectAsState()
+    val settingsState by viewModel.settings.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
+    val settings = settingsState ?: return
 
     Column(
         modifier = Modifier

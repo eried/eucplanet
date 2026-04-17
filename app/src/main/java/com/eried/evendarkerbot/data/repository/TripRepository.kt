@@ -94,6 +94,10 @@ class TripRepository @Inject constructor(
     suspend fun startRecording() {
         if (_recording.value) return
 
+        // Ensure location updates are running — may already be started by WheelService,
+        // but we also want GPS when recording without a wheel connected.
+        startLocationUpdates()
+
         val dateStr = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val fileName = "trip_$dateStr.csv"
         val file = File(getTripsDir(), fileName)

@@ -1,3 +1,7 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.TimeZone
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,6 +20,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
+            .apply { timeZone = TimeZone.getTimeZone("UTC") }
+            .format(Date())
+        buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
     }
 
     buildTypes {
@@ -39,6 +48,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

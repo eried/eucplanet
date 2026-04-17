@@ -11,6 +11,8 @@ import androidx.core.content.FileProvider
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -121,6 +123,7 @@ fun DashboardScreen(
     val modelName by viewModel.modelName.collectAsState()
     val firmwareVersion by viewModel.firmwareVersion.collectAsState()
     val imperial by viewModel.imperialUnits.collectAsState()
+    val accentKey by viewModel.accentKey.collectAsState()
 
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
@@ -238,10 +241,14 @@ fun DashboardScreen(
             val pwm = wheelData.pwm.absoluteValue
 
             // Speed gauge — wide arc dial (tap opens history)
+            val useAccent = !com.eried.evendarkerbot.ui.theme.isDefaultAccent(accentKey)
+            val primary = MaterialTheme.colorScheme.primary
+            val safeColor = if (useAccent) primary else AccentGreen
             SpeedGauge(
                 speed = wheelData.speed.absoluteValue,
                 maxSpeed = gaugeMax,
                 imperial = imperial,
+                overrideColor = if (useAccent) primary else null,
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
                     .aspectRatio(1.25f)
@@ -250,21 +257,22 @@ fun DashboardScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Stats grid — 3 rows of 2
+            // Stats grid — 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
+            val live = connectionState == ConnectionState.CONNECTED
             val battColor = when {
-                wheelData.batteryPercent < 20 -> AccentRed
-                wheelData.batteryPercent < 40 -> AccentOrange
-                else -> AccentGreen
+                live && wheelData.batteryPercent < 20 -> AccentRed
+                live && wheelData.batteryPercent < 40 -> AccentOrange
+                else -> safeColor
             }
             val tempColor = when {
-                wheelData.maxTemperature > 60 -> AccentRed
-                wheelData.maxTemperature > 45 -> AccentOrange
-                else -> AccentGreen
+                live && wheelData.maxTemperature > 60 -> AccentRed
+                live && wheelData.maxTemperature > 45 -> AccentOrange
+                else -> safeColor
             }
             val loadColor = when {
-                pwm >= 80 -> AccentRed
-                pwm >= 60 -> AccentOrange
-                else -> AccentGreen
+                live && pwm >= 80 -> AccentRed
+                live && pwm >= 60 -> AccentOrange
+                else -> safeColor
             }
 
             Row(
@@ -285,10 +293,10 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard(stringResource(R.string.stat_voltage), "%.1fV".format(wheelData.voltage), AccentBlue, history.voltage, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_voltage), "%.1fV".format(wheelData.voltage), primary, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
                 StatCard(stringResource(R.string.stat_amps), "%.1fA".format(wheelData.current),
-                    if (wheelData.current > 20) AccentOrange else AccentBlue, history.current, Modifier.weight(1f),
+                    if (wheelData.current > 20) AccentOrange else primary, history.current, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("CURRENT") })
             }
 
@@ -302,7 +310,7 @@ fun DashboardScreen(
                     onClick = { onNavigateToMetric("LOAD") })
                 val tripValue = com.eried.evendarkerbot.util.Units.distance(wheelData.tripDistance, imperial)
                 val distUnit = com.eried.evendarkerbot.util.Units.distanceUnit(imperial)
-                StatCard(stringResource(R.string.stat_trip), "%.1f %s".format(tripValue, distUnit), AccentBlue, emptyList(), Modifier.weight(1f))
+                StatCard(stringResource(R.string.stat_trip), "%.1f %s".format(tripValue, distUnit), primary, emptyList(), Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(14.dp))
@@ -334,21 +342,21 @@ fun DashboardScreen(
             ) {
                 ActionButton(Icons.Default.Shield,
                     if (safetyActive) stringResource(R.string.action_legal_on) else stringResource(R.string.action_legal_mode),
-                    active = safetyActive, activeColor = AccentOrange,
+                    active = safetyActive, activeColor = if (useAccent) primary else AccentOrange,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onSafetySpeedToggle() },
                     modifier = Modifier.weight(1f))
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
-                    active = locked, activeColor = AccentRed,
+                    active = locked, activeColor = if (useAccent) primary else AccentRed,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLockToggle() },
                     modifier = Modifier.weight(1f))
                 ActionButton(Icons.Default.FiberManualRecord,
                     if (tripCount > 0) stringResource(R.string.action_recorder_trips, tripCount)
                     else stringResource(R.string.action_recorder),
-                    active = recording, activeColor = AccentRed,
+                    active = recording, activeColor = if (useAccent) primary else AccentRed,
                     onClick = { onNavigateToRecording() },
                     modifier = Modifier.weight(1f))
             }
@@ -378,8 +386,16 @@ fun DashboardScreen(
                     onDismissRequest = { showAboutDialog = false },
                     title = { Text("EUC Planet") },
                     text = {
-                        Column {
-                            Text("Version $versionName", style = MaterialTheme.typography.bodyMedium)
+                        val licenseText = remember {
+                            try {
+                                context.resources.openRawResource(R.raw.license)
+                                    .bufferedReader().use { it.readText() }
+                            } catch (_: Exception) { "" }
+                        }
+                        Column(
+                            modifier = Modifier.verticalScroll(rememberScrollState())
+                        ) {
+                            Text("Version $versionName · build ${com.eried.evendarkerbot.BuildConfig.BUILD_STAMP}", style = MaterialTheme.typography.bodyMedium)
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 "Custom control app for the InMotion V14 electric unicycle — BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting and adaptive volume.",
@@ -394,9 +410,10 @@ fun DashboardScreen(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                "Made by Erwin Ried — eucplanet.ried.no",
+                                text = "Made by Erwin Ried — eucplanet.ried.no",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable { openUrl(context, "https://eucplanet.ried.no") }
                             )
                             if (crashes.isNotEmpty()) {
                                 Spacer(Modifier.height(12.dp))
@@ -415,6 +432,32 @@ fun DashboardScreen(
                                             .fillMaxWidth()
                                             .clickable { shareCrashFile(context, file) }
                                             .padding(vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            if (licenseText.isNotBlank()) {
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    stringResource(R.string.about_license),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(160.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    Text(
+                                        licenseText,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .verticalScroll(rememberScrollState())
+                                            .padding(8.dp)
                                     )
                                 }
                             }
@@ -438,9 +481,10 @@ private fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
     imperial: Boolean,
+    overrideColor: Color? = null,
     modifier: Modifier = Modifier
 ) {
-    val speedColor = when {
+    val speedColor = overrideColor ?: when {
         speed > maxSpeed * 0.85f -> AccentRed
         speed > maxSpeed * 0.65f -> AccentOrange
         speed > maxSpeed * 0.4f -> AccentYellow
@@ -664,7 +708,7 @@ private fun WheelInfoBox(
                 Spacer(Modifier.width(8.dp))
             }
             Text(
-                text = "v$versionName",
+                text = "v$versionName · ${com.eried.evendarkerbot.BuildConfig.BUILD_STAMP}",
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 modifier = Modifier.clickable(onClick = onVersionClick)
@@ -722,6 +766,16 @@ private fun ActionButton(
             Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
                 maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
         }
+    }
+}
+
+private fun openUrl(context: Context, url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (_: Exception) {
     }
 }
 

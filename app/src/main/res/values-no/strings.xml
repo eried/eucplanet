@@ -48,7 +48,7 @@
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
 
     <string name="tab_general">Generelt</string>
-    <string name="tab_speed">Fart</string>
+    <string name="tab_speed">Hjul</string>
     <string name="tab_voice">Stemme</string>
     <string name="tab_alarms">Alarmer</string>
     <string name="tab_auto">Auto</string>
@@ -82,6 +82,7 @@
     <string name="section_speed_limits">Fartsgrenser</string>
     <string name="section_legal_mode_speed">Lovlig modus — fart</string>
     <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback.</string>
+    <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser.</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
     <string name="speed_legal_tiltback">Lovlig tiltback</string>
@@ -92,6 +93,7 @@
     <string name="section_speech">Tale</string>
     <string name="section_report_status">Statusrapport</string>
     <string name="voice_enabled">Rapporter status jevnlig</string>
+    <string name="voice_only_when_connected">Kun når hjulet er tilkoblet</string>
     <string name="voice_interval">Intervall</string>
     <string name="unit_sec">sek</string>
     <string name="announce_wheel_lock">Hjul lås / lås opp</string>
@@ -199,6 +201,8 @@
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distanse</string>
     <string name="recording_stat_time">Tid</string>
+    <string name="recording_gps_locked">GPS låst</string>
+    <string name="recording_gps_waiting">Venter på GPS…</string>
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Turdetaljer</string>
@@ -320,4 +324,5 @@
     <!-- About / crash logs -->
     <string name="about_crash_logs">Kraslogger (trykk for å dele)</string>
     <string name="about_share_crash">Del krasjlogg</string>
+    <string name="about_license">Lisens</string>
 </resources>

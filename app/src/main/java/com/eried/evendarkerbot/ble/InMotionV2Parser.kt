@@ -98,8 +98,10 @@ object InMotionV2Parser {
         val classicSensitivity = d[12].toInt() and 0xFF
         val standbyDelay = ByteUtils.getUint16LE(d, 20) / 60 // minutes
 
-        val rawByte21 = if (d.size > 21) d[21].toInt() and 0xFF else 0
-        val lockState = (rawByte21 shr 2) and 0x03
+        // Lock flag: byte 31 of d (byte 32 of raw packet, after 0x20 sub-cmd),
+        // bit 2 (0x04) = locked. Verified from V14 live captures.
+        val rawByte31 = if (d.size > 31) d[31].toInt() and 0xFF else 0
+        val lockState = if ((rawByte31 and 0x04) != 0) 1 else 0
 
         val mute = (d[30].toInt() and 0x01) == 0
         val drl = (d[30].toInt() and 0x04) != 0

@@ -12,6 +12,7 @@ val LightSurfaceVariant = Color(0xFFEEEEEE)
 
 val AccentBlue = Color(0xFF4FC3F7)
 val AccentGreen = Color(0xFF66BB6A)
+val AccentDarkGreen = Color(0xFF2E7D32)
 val AccentYellow = Color(0xFFFFCA28)
 val AccentRed = Color(0xFFEF5350)
 val AccentOrange = Color(0xFFFFA726)
@@ -26,14 +27,20 @@ val TextSecondaryLight = Color(0xFF616161)
 
 data class AccentOption(val key: String, val label: String, val color: Color)
 
+const val AccentKeyDefault = "default"
+
 val AccentOptions = listOf(
-    AccentOption("blue", "Blue", AccentBlue),
+    AccentOption(AccentKeyDefault, "Default", AccentTeal),
     AccentOption("green", "Green", AccentGreen),
+    AccentOption("dark_green", "Dark green", AccentDarkGreen),
     AccentOption("orange", "Orange", AccentOrange),
+    AccentOption("pink", "Pink", AccentPink),
     AccentOption("purple", "Purple", AccentPurple),
     AccentOption("teal", "Teal", AccentTeal),
-    AccentOption("pink", "Pink", AccentPink)
+    AccentOption("red", "Red", AccentRed)
 )
 
 fun accentColorFor(key: String): Color =
     AccentOptions.firstOrNull { it.key == key }?.color ?: AccentBlue
+
+fun isDefaultAccent(key: String): Boolean = key == AccentKeyDefault

@@ -1,6 +1,7 @@
 package com.eried.evendarkerbot
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -21,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.eried.evendarkerbot.data.model.AppSettings
 import com.eried.evendarkerbot.data.repository.SettingsRepository
 import com.eried.evendarkerbot.flic.FlicManager
+import com.eried.evendarkerbot.service.WheelService
 import com.eried.evendarkerbot.ui.navigation.NavGraph
 import com.eried.evendarkerbot.ui.theme.EvenDarkerBotTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,6 +74,11 @@ class MainActivity : AppCompatActivity() {
                     val want = if (it.language.isBlank()) "en" else it.language
                     if (com.eried.evendarkerbot.util.LocaleHelper.current() != want) {
                         com.eried.evendarkerbot.util.LocaleHelper.apply(want)
+                    }
+                    // If user wants announcements regardless of connection, start the
+                    // foreground service now so the voice loop runs even with no wheel.
+                    if (it.voiceEnabled && !it.voiceOnlyWhenConnected) {
+                        startForegroundService(Intent(this@MainActivity, WheelService::class.java))
                     }
                 }
             }

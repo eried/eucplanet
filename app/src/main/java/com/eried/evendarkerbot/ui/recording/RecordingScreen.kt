@@ -22,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
@@ -43,6 +45,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -78,6 +81,7 @@ fun RecordingScreen(
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
+    val gpsFix by viewModel.gpsFix.collectAsState()
 
     var showClearDialog by remember { mutableStateOf(false) }
     var showManageMenu by remember { mutableStateOf(false) }
@@ -86,6 +90,12 @@ fun RecordingScreen(
 
     // Block back navigation while importing
     BackHandler(enabled = importing) { /* swallow */ }
+
+    // Keep GPS warm while on the recording screen so the user can see fix status
+    DisposableEffect(Unit) {
+        viewModel.startGpsPreview()
+        onDispose { viewModel.stopGpsPreview() }
+    }
 
     // Auto-scroll to first item (most recent trip) when recording state changes
     LaunchedEffect(recording, trips.size) {
@@ -209,6 +219,28 @@ fun RecordingScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
         ) {
+            // GPS status indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 6.dp)
+            ) {
+                Icon(
+                    if (gpsFix) Icons.Default.LocationOn else Icons.Default.LocationOff,
+                    contentDescription = null,
+                    tint = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.size(6.dp))
+                Text(
+                    stringResource(
+                        if (gpsFix) R.string.recording_gps_locked
+                        else R.string.recording_gps_waiting
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
             // Import progress bar
             if (importing) {
                 LinearProgressIndicator(

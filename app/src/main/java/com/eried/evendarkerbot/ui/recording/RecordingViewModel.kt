@@ -72,6 +72,21 @@ class RecordingViewModel @Inject constructor(
         .map { it.tripDistance }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
 
+    val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
+        .map { it != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun startGpsPreview() {
+        tripRepository.startLocationUpdates()
+    }
+
+    fun stopGpsPreview() {
+        // Only stop if not actively recording — recording needs GPS too
+        if (!tripRepository.recording.value) {
+            tripRepository.stopLocationUpdates()
+        }
+    }
+
     fun toggleRecording() {
         viewModelScope.launch {
             if (tripRepository.recording.value) {

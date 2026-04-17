@@ -24,8 +24,4 @@ class SettingsRepository @Inject constructor(
         update(current.copy(lastDeviceAddress = address, lastDeviceName = name))
     }
 
-    suspend fun updateWheelSpeedSettings(tiltbackKmh: Float, beepKmh: Float) {
-        val current = get()
-        update(current.copy(normalTiltbackKmh = tiltbackKmh, normalBeepKmh = beepKmh))
-    }
 }

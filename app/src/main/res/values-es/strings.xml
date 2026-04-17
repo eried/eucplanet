@@ -48,7 +48,7 @@
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
 
     <string name="tab_general">General</string>
-    <string name="tab_speed">Velocidad</string>
+    <string name="tab_speed">Rueda</string>
     <string name="tab_voice">Voz</string>
     <string name="tab_alarms">Alarmas</string>
     <string name="tab_auto">Auto</string>
@@ -82,6 +82,7 @@
     <string name="section_speed_limits">Límites de velocidad</string>
     <string name="section_legal_mode_speed">Modo Legal - Velocidad</string>
     <string name="legal_mode_caption">Aplicado cuando el Modo Legal está ACTIVO. Debe ser menor al tiltback normal.</string>
+    <string name="speed_limits_disconnected">Conecta la rueda para editar los límites de velocidad.</string>
     <string name="speed_tiltback">Velocidad de Tiltback</string>
     <string name="speed_alarm">Velocidad de alarma</string>
     <string name="speed_legal_tiltback">Tiltback Legal</string>
@@ -92,6 +93,7 @@
     <string name="section_speech">Voz</string>
     <string name="section_report_status">Informe de estado</string>
     <string name="voice_enabled">Informar estado periódicamente</string>
+    <string name="voice_only_when_connected">Solo cuando la rueda esté conectada</string>
     <string name="voice_interval">Intervalo</string>
     <string name="unit_sec">seg</string>
     <string name="announce_wheel_lock">Bloqueo / desbloqueo de rueda</string>
@@ -199,6 +201,8 @@
     <string name="recording_stat_trips">Viajes</string>
     <string name="recording_stat_distance">Distancia</string>
     <string name="recording_stat_time">Tiempo</string>
+    <string name="recording_gps_locked">GPS fijado</string>
+    <string name="recording_gps_waiting">Esperando GPS…</string>
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Detalles del viaje</string>
@@ -320,4 +324,5 @@
     <!-- About / crash logs -->
     <string name="about_crash_logs">Registros de fallos (toca para compartir)</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
+    <string name="about_license">Licencia</string>
 </resources>

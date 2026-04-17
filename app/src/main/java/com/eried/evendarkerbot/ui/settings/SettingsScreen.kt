@@ -83,10 +83,13 @@ fun SettingsScreen(
     onNavigateToFlic: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settings by viewModel.settings.collectAsState()
+    val settingsState by viewModel.settings.collectAsState()
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
+    val isConnected by viewModel.isConnected.collectAsState()
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+
+    val settings = settingsState ?: return
 
     ttsSwitchPrompt?.let { lang ->
         val langName = when (lang) {
@@ -155,7 +158,7 @@ fun SettingsScreen(
 
             when (selectedTab) {
                 0 -> GeneralTab(settings, viewModel)
-                1 -> SpeedTab(settings, maxSpeedCap, viewModel)
+                1 -> SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
                 2 -> VoiceTab(settings, viewModel)
                 3 -> AlarmSettingsContent()
                 4 -> AutomationsContent()
@@ -239,6 +242,7 @@ private fun GeneralTab(
 private fun SpeedTab(
     settings: com.eried.evendarkerbot.data.model.AppSettings,
     maxSpeedCap: Float,
+    isConnected: Boolean,
     viewModel: SettingsViewModel
 ) {
     Column(
@@ -248,6 +252,14 @@ private fun SpeedTab(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (!isConnected) {
+            Text(
+                stringResource(R.string.speed_limits_disconnected),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         SectionHeader(stringResource(R.string.section_speed_limits))
 
         val imperial = settings.imperialUnits
@@ -256,6 +268,7 @@ private fun SpeedTab(
             valueKmh = settings.tiltbackSpeedKmh,
             rangeKmh = 10f..maxSpeedCap,
             imperial = imperial,
+            enabled = isConnected,
             onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
         )
         SpeedSliderSetting(
@@ -263,6 +276,7 @@ private fun SpeedTab(
             valueKmh = settings.alarmSpeedKmh,
             rangeKmh = 10f..settings.tiltbackSpeedKmh,
             imperial = imperial,
+            enabled = isConnected,
             onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
         )
 
@@ -277,6 +291,7 @@ private fun SpeedTab(
             valueKmh = settings.safetyTiltbackKmh,
             rangeKmh = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
             imperial = imperial,
+            enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
         )
         SpeedSliderSetting(
@@ -284,6 +299,7 @@ private fun SpeedTab(
             valueKmh = settings.safetyAlarmKmh,
             rangeKmh = 10f..settings.safetyTiltbackKmh,
             imperial = imperial,
+            enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
         )
 
@@ -312,6 +328,9 @@ private fun VoiceTab(
         }
 
         if (settings.voiceEnabled) {
+            SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
+                viewModel.updateVoiceOnlyWhenConnected(it)
+            }
             SliderSetting(
                 label = stringResource(R.string.voice_interval),
                 value = settings.voiceIntervalSeconds.toFloat(),
@@ -321,6 +340,8 @@ private fun VoiceTab(
                 onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
             )
         }
+
+        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
         val sLock = stringResource(R.string.voice_wheel_locked)
         val sUnlock = stringResource(R.string.voice_wheel_unlocked)
@@ -389,7 +410,42 @@ private fun VoiceTab(
         val sTripEx = stringResource(R.string.voice_trip_fmt, "12.3")
         val sRecOn = stringResource(R.string.voice_recording_on)
         val sRecOff = stringResource(R.string.voice_recording_off)
-        val fullReport = "$sSpeedEx, $sBatteryEx, $sTempEx, $sLoadEx, $sTripEx"
+
+        val reportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
+
+        fun exampleFor(key: String): String? = when (key) {
+            "Speed" -> sSpeedEx
+            "Battery" -> sBatteryEx
+            "Temp" -> sTempEx
+            "PWM" -> sLoadEx
+            "Distance" -> sTripEx
+            "Recording" -> listOf(sRecOn, sRecOff).random()
+            else -> null
+        }
+
+        fun buildPreview(periodic: Boolean): String {
+            val parts = reportOrder.mapNotNull { key ->
+                val enabled = if (periodic) when (key) {
+                    "Speed" -> settings.voiceReportSpeed
+                    "Battery" -> settings.voiceReportBattery
+                    "Temp" -> settings.voiceReportTemp
+                    "PWM" -> settings.voiceReportPwm
+                    "Distance" -> settings.voiceReportDistance
+                    "Recording" -> settings.voiceReportRecording
+                    else -> false
+                } else when (key) {
+                    "Speed" -> settings.triggerReportSpeed
+                    "Battery" -> settings.triggerReportBattery
+                    "Temp" -> settings.triggerReportTemp
+                    "PWM" -> settings.triggerReportPwm
+                    "Distance" -> settings.triggerReportDistance
+                    "Recording" -> settings.triggerReportRecording
+                    else -> false
+                }
+                if (enabled) exampleFor(key) else null
+            }
+            return parts.joinToString(", ")
+        }
 
         // Header: Label | Periodic | arrows | Trigger
         Row(
@@ -402,18 +458,22 @@ private fun VoiceTab(
                 Text(stringResource(R.string.col_periodic), style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = { viewModel.testSpeak(fullReport) })
+                PlayButton(onClick = {
+                    val text = buildPreview(periodic = true)
+                    if (text.isNotBlank()) viewModel.testSpeak(text)
+                })
             }
             Row(modifier = Modifier.weight(0.55f), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center) {
                 Text(stringResource(R.string.col_trigger), style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = { viewModel.testSpeak(fullReport) })
+                PlayButton(onClick = {
+                    val text = buildPreview(periodic = false)
+                    if (text.isNotBlank()) viewModel.testSpeak(text)
+                })
             }
         }
-
-        val reportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
 
         data class ReportItemConfig(
             val key: String,
@@ -709,6 +769,7 @@ private fun SpeedSliderSetting(
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
     imperial: Boolean,
+    enabled: Boolean = true,
     onValueChangeKmh: (Float) -> Unit
 ) {
     val displayValue = Units.speed(valueKmh, imperial)
@@ -719,6 +780,7 @@ private fun SpeedSliderSetting(
         value = displayValue,
         range = displayStart..displayEnd,
         unit = Units.speedUnit(imperial),
+        enabled = enabled,
         onValueChange = { displayed ->
             val kmh = if (imperial) displayed / 0.621371f else displayed
             onValueChangeKmh(kmh.coerceIn(rangeKmh))
@@ -734,6 +796,7 @@ private fun SliderSetting(
     unit: String,
     steps: Int? = null,
     format: String = "%.0f",
+    enabled: Boolean = true,
     onValueChange: (Float) -> Unit
 ) {
     Card(
@@ -757,7 +820,8 @@ private fun SliderSetting(
                 value = value.coerceIn(range),
                 onValueChange = onValueChange,
                 valueRange = range,
-                steps = computedSteps
+                steps = computedSteps,
+                enabled = enabled
             )
         }
     }
@@ -826,11 +890,28 @@ private fun AccentPicker(current: String, onSelect: (String) -> Unit) {
     ) {
         com.eried.evendarkerbot.ui.theme.AccentOptions.forEach { opt ->
             val selected = opt.key == current
+            val isRainbow = com.eried.evendarkerbot.ui.theme.isDefaultAccent(opt.key)
+            val rainbowBrush = if (isRainbow) androidx.compose.ui.graphics.Brush.sweepGradient(
+                listOf(
+                    com.eried.evendarkerbot.ui.theme.AccentRed,
+                    com.eried.evendarkerbot.ui.theme.AccentOrange,
+                    com.eried.evendarkerbot.ui.theme.AccentYellow,
+                    com.eried.evendarkerbot.ui.theme.AccentGreen,
+                    com.eried.evendarkerbot.ui.theme.AccentTeal,
+                    com.eried.evendarkerbot.ui.theme.AccentBlue,
+                    com.eried.evendarkerbot.ui.theme.AccentPurple,
+                    com.eried.evendarkerbot.ui.theme.AccentPink,
+                    com.eried.evendarkerbot.ui.theme.AccentRed
+                )
+            ) else null
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier
                     .size(if (selected) 40.dp else 32.dp)
                     .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(opt.color)
+                    .then(
+                        if (rainbowBrush != null) Modifier.background(rainbowBrush)
+                        else Modifier.background(opt.color)
+                    )
                     .then(
                         if (selected) Modifier.border(
                             width = 2.dp,
