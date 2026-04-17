@@ -61,7 +61,7 @@
     <string name="auto_record_caption">Запись пойдёт сразу после подключения к моноколесу.</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
-    <string name="imperial_units">Имперские единицы (mph, \u00B0F, мили)</string>
+    <string name="imperial_units">Имперские единицы</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
     <string name="theme_dark">Тёмная</string>

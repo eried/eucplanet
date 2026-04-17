@@ -65,7 +65,7 @@
     <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects.</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="last_device">Last device: %1$s</string>
-    <string name="imperial_units">Imperial units (mph, \u00B0F, mi)</string>
+    <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>
     <string name="theme_dark">Dark</string>

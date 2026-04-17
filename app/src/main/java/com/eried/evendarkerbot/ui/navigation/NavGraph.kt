@@ -1,9 +1,13 @@
 package com.eried.evendarkerbot.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,14 +39,30 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, dest, args ->
+            Log.i("EucNav", "→ ${dest.route} args=$args")
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
+    fun NavHostController.navigateSingle(route: String) =
+        navigate(route) { launchSingleTop = true }
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Dashboard.route,
+        enterTransition = { androidx.compose.animation.EnterTransition.None },
+        exitTransition = { androidx.compose.animation.ExitTransition.None },
+        popEnterTransition = { androidx.compose.animation.EnterTransition.None },
+        popExitTransition = { androidx.compose.animation.ExitTransition.None }
+    ) {
         composable(Screen.Dashboard.route) {
             DashboardScreen(
-                onNavigateToScan = { navController.navigate(Screen.Scan.route) },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
-                onNavigateToRecording = { navController.navigate(Screen.Recording.route) },
+                onNavigateToScan = { navController.navigateSingle(Screen.Scan.route) },
+                onNavigateToSettings = { navController.navigateSingle(Screen.Settings.route) },
+                onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
                 onNavigateToMetric = { metric ->
-                    navController.navigate(Screen.MetricDetail.createRoute(metric))
+                    navController.navigateSingle(Screen.MetricDetail.createRoute(metric))
                 }
             )
         }
@@ -55,7 +75,7 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onNavigateToFlic = { navController.navigate(Screen.Flic.route) }
+                onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) }
             )
         }
         composable(Screen.Flic.route) {
@@ -67,7 +87,7 @@ fun NavGraph(navController: NavHostController) {
             RecordingScreen(
                 onBack = { navController.popBackStack() },
                 onViewTrip = { trip ->
-                    navController.navigate(Screen.TripDetail.createRoute(trip.id))
+                    navController.navigateSingle(Screen.TripDetail.createRoute(trip.id))
                 }
             )
         }
@@ -75,10 +95,10 @@ fun NavGraph(navController: NavHostController) {
             Screen.TripDetail.route,
             arguments = listOf(navArgument("tripId") { type = NavType.LongType })
         ) { backStackEntry ->
-            val tripId = backStackEntry.arguments?.getLong("tripId") ?: return@composable
+            val tripId = backStackEntry.arguments?.getLong("tripId")
             val viewModel: RecordingViewModel = hiltViewModel()
             val trips by viewModel.trips.collectAsState()
-            val trip = trips.find { it.id == tripId }
+            val trip = tripId?.let { id -> trips.find { it.id == id } }
 
             if (trip != null) {
                 TripDetailScreen(
@@ -86,18 +106,32 @@ fun NavGraph(navController: NavHostController) {
                     onBack = { navController.popBackStack() },
                     viewModel = viewModel
                 )
+            } else {
+                LaunchedEffect(tripId) {
+                    Log.w("EucNav", "TripDetail: trip $tripId not found, popping back")
+                    navController.popBackStack()
+                }
             }
         }
         composable(
             Screen.MetricDetail.route,
             arguments = listOf(navArgument("metric") { type = NavType.StringType })
         ) { backStackEntry ->
-            val metricName = backStackEntry.arguments?.getString("metric") ?: return@composable
-            val metricType = try { MetricType.valueOf(metricName) } catch (_: Exception) { return@composable }
-            MetricDetailScreen(
-                metricType = metricType,
-                onBack = { navController.popBackStack() }
-            )
+            val metricName = backStackEntry.arguments?.getString("metric")
+            val metricType = metricName?.let {
+                try { MetricType.valueOf(it) } catch (_: Exception) { null }
+            }
+            if (metricType != null) {
+                MetricDetailScreen(
+                    metricType = metricType,
+                    onBack = { navController.popBackStack() }
+                )
+            } else {
+                LaunchedEffect(metricName) {
+                    Log.w("EucNav", "MetricDetail: invalid metric '$metricName', popping back")
+                    navController.popBackStack()
+                }
+            }
         }
     }
 }

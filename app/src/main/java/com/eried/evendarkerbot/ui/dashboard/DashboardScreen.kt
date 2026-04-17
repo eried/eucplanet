@@ -3,7 +3,10 @@ package com.eried.evendarkerbot.ui.dashboard
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -92,8 +95,13 @@ fun DashboardScreen(
     onNavigateToMetric: (String) -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    DisposableEffect(Unit) {
+        Log.i("EucDash", "DashboardScreen ENTER")
+        onDispose { Log.i("EucDash", "DashboardScreen DISPOSE") }
+    }
     val wheelData by viewModel.wheelData.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
+    SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
     val recording by viewModel.recording.collectAsState()
