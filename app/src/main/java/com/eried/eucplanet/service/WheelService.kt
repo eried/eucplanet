@@ -1,16 +1,19 @@
 package com.eried.eucplanet.service
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.MainActivity
@@ -58,16 +61,37 @@ class WheelService : LifecycleService() {
     private var voiceJob: Job? = null
     private var lastConnectionState: ConnectionState? = null
     private var hadGpsFix = false
+    private var lastLightOn: Boolean? = null
+
+    private fun hasPermission(perm: String) =
+        ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(
-            NOTIFICATION_ID,
-            buildNotification(null),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-        )
+
+        val canUseLocation = hasPermission(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val canUseBluetooth = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
+
+        if (!canUseLocation && !canUseBluetooth) {
+            Log.e(TAG, "No permission for either location or bluetooth FGS type — stopping")
+            stopSelf()
+            return
+        }
+
+        var fgType = 0
+        if (canUseBluetooth) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+        if (canUseLocation) fgType = fgType or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+
+        try {
+            startForeground(NOTIFICATION_ID, buildNotification(null), fgType)
+        } catch (e: SecurityException) {
+            Log.e(TAG, "startForeground denied, stopping", e)
+            stopSelf()
+            return
+        }
 
         vibrator = getSystemService(Vibrator::class.java)
         voiceService.initialize()
@@ -79,6 +103,7 @@ class WheelService : LifecycleService() {
                 checkAlarms(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
+                checkLightTransition(data.lightOn, settings)
             }
         }
 
@@ -106,6 +131,7 @@ class WheelService : LifecycleService() {
                             if (lastConnectionState == ConnectionState.CONNECTED && settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
                             }
+                            lastLightOn = null
                         }
                         else -> {}
                     }
@@ -130,8 +156,12 @@ class WheelService : LifecycleService() {
             }
         }
 
-        // Start GPS tracking for trip recording
-        tripRepository.startLocationUpdates()
+        // Start GPS tracking for trip recording (only if permission granted)
+        if (canUseLocation) {
+            tripRepository.startLocationUpdates()
+        } else {
+            Log.w(TAG, "Location permission not granted — GPS tracking disabled")
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -165,6 +195,18 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
         super.onDestroy()
+    }
+
+    private fun checkLightTransition(current: Boolean, settings: com.eried.eucplanet.data.model.AppSettings) {
+        val previous = lastLightOn
+        lastLightOn = current
+        // Skip the first observation — that's the state we inherit on connect,
+        // not a change the user should hear.
+        if (previous == null || previous == current) return
+        if (!settings.announceLights) return
+        voiceService.announceEvent(
+            getString(if (current) R.string.voice_lights_on else R.string.voice_lights_off)
+        )
     }
 
     // --- Alarm logic ---

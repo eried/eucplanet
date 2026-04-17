@@ -1,9 +1,12 @@
 package com.eried.eucplanet.ui.recording
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -76,9 +79,25 @@ class RecordingViewModel @Inject constructor(
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    private val _locationPermissionGranted = MutableStateFlow(hasLocationPermission())
+    val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted.asStateFlow()
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+
+    fun refreshLocationPermission(): Boolean {
+        val granted = hasLocationPermission()
+        _locationPermissionGranted.value = granted
+        return granted
+    }
+
     suspend fun getTripById(id: Long): TripRecord? = tripRepository.getTripById(id)
 
     fun startGpsPreview() {
+        if (!hasLocationPermission()) return
         tripRepository.startLocationUpdates()
     }
 

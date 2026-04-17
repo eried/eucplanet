@@ -59,7 +59,23 @@ class MainActivity : AppCompatActivity() {
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { /* permissions granted/denied - UI will react accordingly */ }
+    ) {
+        val s = _settings.value
+        if (s != null && s.voiceEnabled && !s.voiceOnlyWhenConnected && canStartWheelService()) {
+            startForegroundService(Intent(this, WheelService::class.java))
+        }
+    }
+
+    private fun canStartWheelService(): Boolean {
+        val hasBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) ==
+                PackageManager.PERMISSION_GRANTED
+        val hasLoc = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+        return hasBt || hasLoc
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,9 +91,9 @@ class MainActivity : AppCompatActivity() {
                     if (com.eried.eucplanet.util.LocaleHelper.current() != want) {
                         com.eried.eucplanet.util.LocaleHelper.apply(want)
                     }
-                    // If user wants announcements regardless of connection, start the
-                    // foreground service now so the voice loop runs even with no wheel.
-                    if (it.voiceEnabled && !it.voiceOnlyWhenConnected) {
+                    // Gated on permission because Android 14+ crashes startForeground
+                    // with location/connectedDevice types if neither perm is granted.
+                    if (it.voiceEnabled && !it.voiceOnlyWhenConnected && canStartWheelService()) {
                         startForegroundService(Intent(this@MainActivity, WheelService::class.java))
                     }
                 }

@@ -13,6 +13,11 @@
     <string name="action_test">Test</string>
     <string name="action_move_up">Flytt opp</string>
     <string name="action_move_down">Flytt ned</string>
+    <string name="action_grant_permission">Gi tilgang</string>
+    <string name="scan_permission_needed">Trenger tilgang</string>
+    <string name="scan_permission_body">For å finne hjulet ditt trenger appen Bluetooth- og posisjonstilgang.</string>
+    <string name="recording_location_permission_needed">Trenger posisjon</string>
+    <string name="recording_location_permission_body">Turopptak lagrer GPS-punkter så du kan se ruten på et kart. Gi posisjonstilgang for å fortsette.</string>
 
     <string name="connection_connected">Tilkoblet</string>
     <string name="connection_connecting">Søker\u2026</string>
@@ -324,7 +329,9 @@
     <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Kraslogger (trykk for å dele)</string>
+    <string name="about_crash_logs">Krasjlogger</string>
+    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren.</string>
+    <string name="about_crash_logs_empty">Ingen krasj.</string>
     <string name="about_share_crash">Del krasjlogg</string>
     <string name="about_license">Lisens</string>
 </resources>

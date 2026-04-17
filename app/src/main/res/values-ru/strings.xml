@@ -13,6 +13,11 @@
     <string name="action_test">Проверить</string>
     <string name="action_move_up">Вверх</string>
     <string name="action_move_down">Вниз</string>
+    <string name="action_grant_permission">Предоставить разрешение</string>
+    <string name="scan_permission_needed">Нужно разрешение</string>
+    <string name="scan_permission_body">Чтобы найти ваше колесо, приложению нужен доступ к Bluetooth и геолокации.</string>
+    <string name="recording_location_permission_needed">Нужна геолокация</string>
+    <string name="recording_location_permission_body">Запись поездок сохраняет GPS-точки, чтобы показать маршрут на карте. Разрешите доступ к геолокации, чтобы продолжить.</string>
 
     <string name="connection_connected">Подключено</string>
     <string name="connection_connecting">Поиск\u2026</string>
@@ -324,7 +329,9 @@
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Журналы сбоев (коснитесь, чтобы поделиться)</string>
+    <string name="about_crash_logs">Журналы сбоев</string>
+    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
+    <string name="about_crash_logs_empty">Сбоев нет.</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
     <string name="about_license">Лицензия</string>
 </resources>

@@ -13,6 +13,11 @@
     <string name="action_test">Probar</string>
     <string name="action_move_up">Subir</string>
     <string name="action_move_down">Bajar</string>
+    <string name="action_grant_permission">Conceder permiso</string>
+    <string name="scan_permission_needed">Permiso necesario</string>
+    <string name="scan_permission_body">Para encontrar tu rueda, la app necesita acceso a Bluetooth y ubicación.</string>
+    <string name="recording_location_permission_needed">Ubicación necesaria</string>
+    <string name="recording_location_permission_body">La grabación de viajes guarda puntos GPS para ver la ruta en el mapa. Concede acceso a la ubicación para continuar.</string>
 
     <string name="connection_connected">Conectada</string>
     <string name="connection_connecting">Buscando\u2026</string>
@@ -324,7 +329,9 @@
     <string name="flic_status_scan_failed_fmt">Búsqueda fallida (código %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Registros de fallos (toca para compartir)</string>
+    <string name="about_crash_logs">Registros de fallos</string>
+    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador.</string>
+    <string name="about_crash_logs_empty">Sin fallos registrados.</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
     <string name="about_license">Licencia</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ui.scan
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +48,13 @@ fun ScanScreen(
 ) {
     val devices by viewModel.devices.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()
+    val missingPermissions by viewModel.missingPermissions.collectAsState()
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        if (viewModel.refreshPermissions()) viewModel.startScan()
+    }
 
     DisposableEffect(Unit) {
         viewModel.startScan()
@@ -73,7 +82,32 @@ fun ScanScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            if (isScanning) {
+            if (missingPermissions.isNotEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.scan_permission_needed),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Text(
+                            stringResource(R.string.scan_permission_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Button(onClick = { permissionLauncher.launch(missingPermissions.toTypedArray()) }) {
+                            Text(stringResource(R.string.action_grant_permission))
+                        }
+                    }
+                }
+            } else if (isScanning) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)

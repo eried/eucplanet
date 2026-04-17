@@ -13,6 +13,11 @@
     <string name="action_test">Testen</string>
     <string name="action_move_up">Nach oben</string>
     <string name="action_move_down">Nach unten</string>
+    <string name="action_grant_permission">Berechtigung erteilen</string>
+    <string name="scan_permission_needed">Berechtigung nötig</string>
+    <string name="scan_permission_body">Um dein Wheel zu finden, braucht die App Bluetooth- und Standortzugriff.</string>
+    <string name="recording_location_permission_needed">Standort nötig</string>
+    <string name="recording_location_permission_body">Die Fahrtaufnahme speichert GPS-Punkte, damit du die Strecke auf einer Karte siehst. Gewähre Standortzugriff, um fortzufahren.</string>
 
     <string name="connection_connected">Verbunden</string>
     <string name="connection_connecting">Suche\u2026</string>
@@ -324,7 +329,9 @@
     <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Absturz­protokolle (zum Teilen tippen)</string>
+    <string name="about_crash_logs">Absturz­protokolle</string>
+    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
+    <string name="about_crash_logs_empty">Keine Abstürze.</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_license">Lizenz</string>
 </resources>

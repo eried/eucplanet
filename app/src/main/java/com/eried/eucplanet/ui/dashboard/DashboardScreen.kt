@@ -9,6 +9,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,6 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashOn
@@ -42,6 +45,11 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,7 +76,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
@@ -382,93 +394,170 @@ fun DashboardScreen(
 
             if (showAboutDialog) {
                 val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
-                AlertDialog(
+                val licenseText = remember {
+                    try {
+                        context.resources.openRawResource(R.raw.license)
+                            .bufferedReader().use { it.readText() }
+                    } catch (_: Exception) { "" }
+                }
+                Dialog(
                     onDismissRequest = { showAboutDialog = false },
-                    title = { Text("EUC Planet") },
-                    text = {
-                        val licenseText = remember {
-                            try {
-                                context.resources.openRawResource(R.raw.license)
-                                    .bufferedReader().use { it.readText() }
-                            } catch (_: Exception) { "" }
-                        }
-                        Column(
-                            modifier = Modifier.verticalScroll(rememberScrollState())
-                        ) {
-                            Text("Version $versionName · build ${com.eried.eucplanet.BuildConfig.BUILD_STAMP}", style = MaterialTheme.typography.bodyMedium)
-                            Spacer(Modifier.height(8.dp))
+                    properties = DialogProperties(usePlatformDefaultWidth = false)
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(0.95f)
+                            .heightIn(max = 680.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .clip(CircleShape)
+                                    .background(colorResource(R.color.ic_launcher_background))
+                                    .align(Alignment.CenterHorizontally)
+                            ) {
+                                Image(
+                                    painter = painterResource(R.drawable.ic_launcher_foreground),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            Spacer(Modifier.height(12.dp))
                             Text(
-                                "Custom control app for the InMotion V14 electric unicycle — BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting and adaptive volume.",
+                                "EUC Planet",
+                                style = MaterialTheme.typography.headlineMedium,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                            Text(
+                                "v$versionName · ${com.eried.eucplanet.BuildConfig.BUILD_STAMP}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                            Spacer(Modifier.height(16.dp))
+
+                            Text(
+                                "Custom control app for the InMotion V14 electric unicycle: BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting and adaptive volume.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Spacer(Modifier.height(8.dp))
-                            Text(
-                                "Built with Jetpack Compose (Material 3), AndroidX (AppCompat, Lifecycle, Navigation, Room), Hilt, Kotlin Coroutines, Google Play Services Location and the Flic 2 SDK.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(6.dp))
                             Text(
                                 text = "Made by Erwin Ried — eucplanet.ried.no",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable { openUrl(context, "https://eucplanet.ried.no") }
                             )
-                            if (crashes.isNotEmpty()) {
-                                Spacer(Modifier.height(12.dp))
-                                Text(
-                                    stringResource(R.string.about_crash_logs),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+
+                            Spacer(Modifier.height(12.dp))
+
+                            var aboutTab by remember { mutableStateOf(0) }
+                            TabRow(
+                                selectedTabIndex = aboutTab,
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ) {
+                                Tab(
+                                    selected = aboutTab == 0,
+                                    onClick = { aboutTab = 0 },
+                                    text = { Text(stringResource(R.string.about_license)) }
                                 )
-                                Spacer(Modifier.height(4.dp))
-                                crashes.forEach { file ->
-                                    Text(
-                                        file.name,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { shareCrashFile(context, file) }
-                                            .padding(vertical = 4.dp)
-                                    )
+                                Tab(
+                                    selected = aboutTab == 1,
+                                    onClick = { aboutTab = 1 },
+                                    text = {
+                                        Text(
+                                            if (crashes.isEmpty())
+                                                stringResource(R.string.about_crash_logs)
+                                            else
+                                                "${stringResource(R.string.about_crash_logs)} (${crashes.size})"
+                                        )
+                                    }
+                                )
+                            }
+
+                            Box(modifier = Modifier.weight(1f).padding(top = 12.dp)) {
+                                when (aboutTab) {
+                                    0 -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        ) {
+                                            Text(
+                                                if (licenseText.isNotBlank()) licenseText else "—",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .verticalScroll(rememberScrollState())
+                                                    .padding(10.dp)
+                                            )
+                                        }
+                                    }
+                                    1 -> {
+                                        if (crashes.isEmpty()) {
+                                            Row(
+                                                modifier = Modifier.fillMaxSize(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    stringResource(R.string.about_crash_logs_empty),
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                        } else {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .verticalScroll(rememberScrollState())
+                                            ) {
+                                                crashes.forEach { file ->
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable { shareCrashFile(context, file) }
+                                                            .padding(vertical = 8.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Default.BugReport,
+                                                            contentDescription = null,
+                                                            tint = MaterialTheme.colorScheme.error,
+                                                            modifier = Modifier.size(18.dp)
+                                                        )
+                                                        Text(
+                                                            file.name,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            color = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier.weight(1f)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            if (licenseText.isNotBlank()) {
-                                Spacer(Modifier.height(12.dp))
-                                Text(
-                                    stringResource(R.string.about_license),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(Modifier.height(4.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(160.dp)
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                                ) {
-                                    Text(
-                                        licenseText,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .verticalScroll(rememberScrollState())
-                                            .padding(8.dp)
-                                    )
+
+                            Spacer(Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(onClick = { showAboutDialog = false }) {
+                                    Text(stringResource(R.string.action_ok))
                                 }
                             }
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { showAboutDialog = false }) {
-                            Text("OK")
                         }
                     }
-                )
+                }
             }
         }
     }

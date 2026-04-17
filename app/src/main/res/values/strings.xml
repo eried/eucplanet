@@ -14,6 +14,13 @@
     <string name="action_test">Test</string>
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
+    <string name="action_grant_permission">Grant permission</string>
+
+    <!-- Permissions -->
+    <string name="scan_permission_needed">Permission needed</string>
+    <string name="scan_permission_body">To find your wheel, the app needs Bluetooth and location access.</string>
+    <string name="recording_location_permission_needed">Location needed</string>
+    <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -364,7 +371,9 @@
     <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF — one warning when you cross 30, then silent; you must drop below 30 (and wait %1$ds) before it can fire again.</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Crash logs (tap to share)</string>
+    <string name="about_crash_logs">Crash logs</string>
+    <string name="about_crash_logs_hint">Tap a file to share it with the developer.</string>
+    <string name="about_crash_logs_empty">No crashes recorded.</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_license">License</string>
 </resources>

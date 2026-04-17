@@ -88,6 +88,13 @@ fun RecordingScreen(
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
     val gpsFix by viewModel.gpsFix.collectAsState()
+    val locationGranted by viewModel.locationPermissionGranted.collectAsState()
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        if (viewModel.refreshLocationPermission()) viewModel.startGpsPreview()
+    }
 
     var showClearDialog by remember { mutableStateOf(false) }
     var showManageMenu by remember { mutableStateOf(false) }
@@ -99,6 +106,7 @@ fun RecordingScreen(
 
     // Keep GPS warm while on the recording screen so the user can see fix status
     DisposableEffect(Unit) {
+        viewModel.refreshLocationPermission()
         viewModel.startGpsPreview()
         onDispose { viewModel.stopGpsPreview() }
     }
@@ -225,26 +233,71 @@ fun RecordingScreen(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
         ) {
-            // GPS status indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 6.dp)
-            ) {
-                Icon(
-                    if (gpsFix) Icons.Default.LocationOn else Icons.Default.LocationOff,
-                    contentDescription = null,
-                    tint = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.size(6.dp))
-                Text(
-                    stringResource(
-                        if (gpsFix) R.string.recording_gps_locked
-                        else R.string.recording_gps_waiting
+            // GPS status indicator (or permission prompt)
+            if (!locationGranted) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.LocationOff,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                stringResource(R.string.recording_location_permission_needed),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                        Text(
+                            stringResource(R.string.recording_location_permission_body),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        TextButton(onClick = {
+                            locationPermissionLauncher.launch(arrayOf(
+                                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                android.Manifest.permission.ACCESS_COARSE_LOCATION
+                            ))
+                        }) {
+                            Text(stringResource(R.string.action_grant_permission))
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(vertical = 6.dp)
+                ) {
+                    Icon(
+                        if (gpsFix) Icons.Default.LocationOn else Icons.Default.LocationOff,
+                        contentDescription = null,
+                        tint = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.size(6.dp))
+                    Text(
+                        stringResource(
+                            if (gpsFix) R.string.recording_gps_locked
+                            else R.string.recording_gps_waiting
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             // Import progress bar

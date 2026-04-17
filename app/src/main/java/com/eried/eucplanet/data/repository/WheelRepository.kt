@@ -166,12 +166,8 @@ class WheelRepository @Inject constructor(
     fun toggleLight() {
         val current = _wheelData.value.lightOn
         bleManager.writeCommand(InMotionV2Commands.setLight(!current))
-        scope.launch {
-            val s = settingsRepository.get()
-            if (s.announceLights) {
-                voiceService.announceEvent(context.getString(if (!current) R.string.voice_lights_on else R.string.voice_lights_off))
-            }
-        }
+        // Announcement is emitted by WheelService when the wheel confirms
+        // the new state in telemetry — covers DRL / wheel-side toggles too.
     }
 
     fun toggleLock() {

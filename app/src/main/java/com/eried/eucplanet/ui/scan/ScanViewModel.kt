@@ -1,7 +1,11 @@
 package com.eried.eucplanet.ui.scan
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.BleDevice
@@ -31,10 +35,30 @@ class ScanViewModel @Inject constructor(
     private val _isScanning = MutableStateFlow(false)
     val isScanning: StateFlow<Boolean> = _isScanning.asStateFlow()
 
+    private val _missingPermissions = MutableStateFlow<List<String>>(emptyList())
+    val missingPermissions: StateFlow<List<String>> = _missingPermissions.asStateFlow()
+
     private var scanJob: Job? = null
+
+    private fun requiredScanPermissions(): List<String> = buildList {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            add(Manifest.permission.BLUETOOTH_SCAN)
+            add(Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    fun refreshPermissions(): Boolean {
+        val missing = requiredScanPermissions().filter {
+            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+        }
+        _missingPermissions.value = missing
+        return missing.isEmpty()
+    }
 
     fun startScan() {
         if (_isScanning.value) return
+        if (!refreshPermissions()) return
         _isScanning.value = true
         _devices.value = emptyList()
 
