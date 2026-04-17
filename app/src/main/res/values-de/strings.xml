@@ -164,9 +164,6 @@
     <string name="scan_start">Suche starten</string>
     <string name="scan_hint">Stelle sicher, dass dein Einrad eingeschaltet und Bluetooth aktiviert ist.</string>
 
-    <!-- Trip viewer -->
-    <string name="trip_viewer_title">Fahrt-Ansicht</string>
-
     <!-- Metric detail -->
     <string name="metric_detail_title">Verlauf: %1$s</string>
     <string name="metric_waiting">Warte auf Daten\u2026 Verbinde dich mit dem Einrad.</string>
@@ -199,8 +196,6 @@
     <string name="recording_clear_all_menu">Alle Fahrten löschen</string>
     <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen.</string>
     <string name="recording_empty">Noch keine Fahrten aufgezeichnet.\nTippe auf Aufnahme, um zu starten.</string>
-    <string name="recording_view_map">Auf Karte anzeigen</string>
-    <string name="recording_view_all_map">Alle auf Karte</string>
     <string name="recording_stat_trips">Fahrten</string>
     <string name="recording_stat_distance">Distanz</string>
     <string name="recording_stat_time">Zeit</string>
@@ -321,4 +316,8 @@
     <string name="flic_status_accept_pairing">Kopplung am Telefon bestätigen\u2026</string>
     <string name="flic_status_paired_fmt">Gekoppelt: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs">Absturz­protokolle (zum Teilen tippen)</string>
+    <string name="about_share_crash">Absturz­protokoll teilen</string>
 </resources>

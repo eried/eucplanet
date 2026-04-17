@@ -225,9 +225,6 @@
     <string name="scan_start">Start Scan</string>
     <string name="scan_hint">Make sure your wheel is powered on and Bluetooth is enabled.</string>
 
-    <!-- Trip viewer -->
-    <string name="trip_viewer_title">Trip Viewer</string>
-
     <!-- Metric detail -->
     <string name="metric_detail_title">Historical %1$s Data</string>
     <string name="metric_waiting">Waiting for data\u2026 Connect to wheel to start collecting.</string>
@@ -260,8 +257,6 @@
     <string name="recording_clear_all_menu">Clear all trips</string>
     <string name="recording_auto_record_tip">Tip: Enable auto-record in Settings to start recording automatically on connect.</string>
     <string name="recording_empty">No trips recorded yet.\nTap the record button to start.</string>
-    <string name="recording_view_map">View in map</string>
-    <string name="recording_view_all_map">View all in map</string>
     <string name="recording_stat_trips">Trips</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Time</string>
@@ -330,4 +325,8 @@
     <string name="alarm_repeat_help">OFF: fires once when the condition starts matching, then stays silent until it stops matching.\nON: keeps re-firing every Cooldown seconds for as long as the condition is still true.</string>
     <string name="alarm_repeat_on_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat ON — if you hold 35 km/h for a minute you\'ll be warned every %1$ds.</string>
     <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF — one warning when you cross 30, then silent; you must drop below 30 (and wait %1$ds) before it can fire again.</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs">Crash logs (tap to share)</string>
+    <string name="about_share_crash">Share crash log</string>
 </resources>

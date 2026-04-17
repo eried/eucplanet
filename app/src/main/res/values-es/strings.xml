@@ -164,9 +164,6 @@
     <string name="scan_start">Iniciar búsqueda</string>
     <string name="scan_hint">Asegúrate de que tu monociclo esté encendido y el Bluetooth activado.</string>
 
-    <!-- Trip viewer -->
-    <string name="trip_viewer_title">Visor de viajes</string>
-
     <!-- Metric detail -->
     <string name="metric_detail_title">Datos históricos: %1$s</string>
     <string name="metric_waiting">Esperando datos\u2026 Conéctate al monociclo para empezar.</string>
@@ -199,8 +196,6 @@
     <string name="recording_clear_all_menu">Borrar todos los viajes</string>
     <string name="recording_auto_record_tip">Consejo: Activa grabación automática en Ajustes para empezar a grabar al conectar.</string>
     <string name="recording_empty">No hay viajes grabados.\nPulsa el botón de grabar para empezar.</string>
-    <string name="recording_view_map">Ver en el mapa</string>
-    <string name="recording_view_all_map">Ver todo en el mapa</string>
     <string name="recording_stat_trips">Viajes</string>
     <string name="recording_stat_distance">Distancia</string>
     <string name="recording_stat_time">Tiempo</string>
@@ -321,4 +316,8 @@
     <string name="flic_status_accept_pairing">Acepta el emparejamiento en el teléfono\u2026</string>
     <string name="flic_status_paired_fmt">Emparejado: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Búsqueda fallida (código %1$d)</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs">Registros de fallos (toca para compartir)</string>
+    <string name="about_share_crash">Compartir registro de fallo</string>
 </resources>

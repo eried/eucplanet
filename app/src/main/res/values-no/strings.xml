@@ -164,9 +164,6 @@
     <string name="scan_start">Start søk</string>
     <string name="scan_hint">Sjekk at ettjulingen er på og Bluetooth er aktivert.</string>
 
-    <!-- Trip viewer -->
-    <string name="trip_viewer_title">Turvisning</string>
-
     <!-- Metric detail -->
     <string name="metric_detail_title">Historikk: %1$s</string>
     <string name="metric_waiting">Venter på data\u2026 Koble til ettjulingen for å starte.</string>
@@ -199,8 +196,6 @@
     <string name="recording_clear_all_menu">Slett alle turer</string>
     <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling.</string>
     <string name="recording_empty">Ingen turer er registrert enda.\nTrykk opptak-knappen for å starte.</string>
-    <string name="recording_view_map">Vis på kart</string>
-    <string name="recording_view_all_map">Vis alle på kart</string>
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distanse</string>
     <string name="recording_stat_time">Tid</string>
@@ -321,4 +316,8 @@
     <string name="flic_status_accept_pairing">Godta paring på telefonen\u2026</string>
     <string name="flic_status_paired_fmt">Paret: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs">Kraslogger (trykk for å dele)</string>
+    <string name="about_share_crash">Del krasjlogg</string>
 </resources>

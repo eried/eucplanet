@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">Соединение с колесом</string>
-    <string name="notification_channel_description">Показывает статус соединения и телеметрию колеса</string>
+    <string name="notification_channel_name">Подключение к моноколесу</string>
+    <string name="notification_channel_description">Показывает состояние подключения и телеметрию</string>
 
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
@@ -10,172 +10,169 @@
     <string name="action_save">Сохранить</string>
     <string name="action_delete">Удалить</string>
     <string name="action_edit">Изменить</string>
-    <string name="action_test">Тест</string>
+    <string name="action_test">Проверить</string>
     <string name="action_move_up">Вверх</string>
     <string name="action_move_down">Вниз</string>
 
     <string name="connection_connected">Подключено</string>
-    <string name="connection_connecting">Подключение\u2026</string>
-    <string name="connection_initializing">Инициализация\u2026</string>
-    <string name="connection_scanning">Поиск\u2026</string>
-    <string name="connection_disconnected">Отключено</string>
-    <string name="connection">Соединение</string>
+    <string name="connection_connecting">Подключаемся\u2026</string>
+    <string name="connection_initializing">Читаем данные моноколеса\u2026</string>
+    <string name="connection_scanning">Ищем\u2026</string>
+    <string name="connection_disconnected">Не подключено</string>
+    <string name="connection">Подключение</string>
     <string name="settings">Настройки</string>
-    <string name="disconnect">Отключить</string>
-    <string name="disconnect_from">Отключить от %1$s?</string>
-    <string name="wheel_generic">колесо</string>
-    <string name="exit_title">Выход из EUC Planet</string>
-    <string name="exit_body">Оставить фоновый сервис работать или остановить всё?</string>
-    <string name="exit_stop_all">Остановить всё</string>
+    <string name="disconnect">Отключиться</string>
+    <string name="disconnect_from">Отключиться от %1$s?</string>
+    <string name="wheel_generic">моноколеса</string>
+    <string name="exit_title">Выйти из EUC Planet</string>
+    <string name="exit_body">Оставить приложение работать в фоне или полностью завершить?</string>
+    <string name="exit_stop_all">Завершить</string>
     <string name="exit_background">В фоне</string>
 
-    <string name="stat_battery">БАТАРЕЯ</string>
+    <string name="stat_battery">ЗАРЯД</string>
     <string name="stat_temp">ТЕМП</string>
-    <string name="stat_voltage">НАПРЯЖ</string>
-    <string name="stat_amps">АМПЕР</string>
-    <string name="stat_load">НАГР</string>
+    <string name="stat_voltage">НАПР</string>
+    <string name="stat_amps">ТОК</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">ПОЕЗДКА</string>
     <string name="stat_odo">ОДО </string>
 
     <string name="action_horn">Сигнал</string>
-    <string name="action_light">Свет</string>
-    <string name="action_voice">Голос</string>
+    <string name="action_light">Фары</string>
+    <string name="action_voice">Озвучить</string>
     <string name="action_legal_mode">Лег. режим</string>
-    <string name="action_legal_on">Лег. ON</string>
-    <string name="action_lock_wheel">Заблокир.</string>
-    <string name="action_locked">Блок.</string>
-    <string name="action_recorder">Запись</string>
-    <string name="action_recorder_trips">Запись\n(%1$d поездок)</string>
+    <string name="action_legal_on">Лег. вкл.</string>
+    <string name="action_lock_wheel">Закрыть</string>
+    <string name="action_locked">Закрыто</string>
+    <string name="action_recorder">Поездки</string>
+    <string name="action_recorder_trips">Поездки\n(%1$d)</string>
 
     <string name="tab_general">Общие</string>
     <string name="tab_speed">Скорость</string>
     <string name="tab_voice">Голос</string>
     <string name="tab_alarms">Сигналы</string>
     <string name="tab_auto">Авто</string>
-    <string name="tab_integration">Интеграция</string>
+    <string name="tab_integration">Интеграции</string>
 
-    <string name="section_recording">Запись</string>
-    <string name="section_connection">Соединение</string>
-    <string name="section_display">Отображение</string>
-    <string name="auto_record_on_start">Авто-запись при старте</string>
-    <string name="auto_record_caption">Запись начинается автоматически при подключении колеса.</string>
-    <string name="auto_connect_on_start">Авто-подключение при старте</string>
+    <string name="section_recording">Запись поездок</string>
+    <string name="section_connection">Подключение</string>
+    <string name="section_display">Внешний вид</string>
+    <string name="auto_record_on_start">Автоматически начинать запись</string>
+    <string name="auto_record_caption">Запись пойдёт сразу после подключения к моноколесу.</string>
+    <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
-    <string name="imperial_units">Имперские единицы (mph, \u00B0F, mi)</string>
+    <string name="imperial_units">Имперские единицы (mph, \u00B0F, мили)</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_light">Светлая</string>
-    <string name="theme_system">Системная</string>
-    <string name="accent_color">Акцент</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="accent_color">Акцентный цвет</string>
     <string name="accent_blue">Синий</string>
     <string name="accent_green">Зелёный</string>
     <string name="accent_orange">Оранжевый</string>
     <string name="accent_purple">Фиолетовый</string>
     <string name="accent_teal">Бирюзовый</string>
     <string name="accent_pink">Розовый</string>
-    <string name="tts_switch_title">Сменить голос на %1$s?</string>
-    <string name="tts_switch_body">Текущий голос TTS не соответствует выбранному языку. Переключить голос оповещений на %1$s?</string>
-    <string name="tts_switch_yes">Сменить голос</string>
-    <string name="tts_switch_no">Оставить</string>
+    <string name="tts_switch_title">Переключить озвучку на %1$s?</string>
+    <string name="tts_switch_body">Текущий голос не совпадает с выбранным языком интерфейса. Переключить озвучку на %1$s?</string>
+    <string name="tts_switch_yes">Переключить</string>
+    <string name="tts_switch_no">Оставить как есть</string>
 
     <string name="section_speed_limits">Ограничения скорости</string>
-    <string name="section_legal_mode_speed">Легальный режим — скорость</string>
-    <string name="legal_mode_caption">Применяется при включённом Легальном режиме. Должна быть ниже обычного tiltback.</string>
-    <string name="speed_tiltback">Скорость Tiltback</string>
-    <string name="speed_alarm">Скорость тревоги</string>
-    <string name="speed_legal_tiltback">Легальный Tiltback</string>
-    <string name="speed_legal_alarm">Легальная тревога</string>
+    <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
+    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback.</string>
+    <string name="speed_tiltback">Tiltback</string>
+    <string name="speed_alarm">Предупреждение</string>
+    <string name="speed_legal_tiltback">Tiltback (лег.)</string>
+    <string name="speed_legal_alarm">Предупреждение (лег.)</string>
     <string name="unit_kmh">км/ч</string>
 
-    <string name="section_announcements">Оповещения</string>
-    <string name="section_speech">Речь</string>
-    <string name="section_report_status">Отчёт о статусе</string>
-    <string name="voice_enabled">Периодический отчёт</string>
+    <string name="section_announcements">Озвучка событий</string>
+    <string name="section_speech">Голос</string>
+    <string name="section_report_status">Отчёт о состоянии</string>
+    <string name="voice_enabled">Регулярный отчёт</string>
     <string name="voice_interval">Интервал</string>
-    <string name="unit_sec">сек</string>
-    <string name="announce_wheel_lock">Блокировка / разблокировка</string>
-    <string name="announce_lights">Фары вкл / выкл</string>
-    <string name="announce_recording">Запись поездки</string>
-    <string name="announce_connection">Колесо подключено / отключено</string>
-    <string name="announce_gps">GPS потерян / восстановлен</string>
-    <string name="announce_legal_mode">Легальный режим вкл / выкл</string>
-    <string name="announce_welcome">Приветственное сообщение при запуске</string>
+    <string name="unit_sec">с</string>
+    <string name="announce_wheel_lock">Блокировка и разблокировка</string>
+    <string name="announce_lights">Включение и выключение фар</string>
+    <string name="announce_recording">Старт и остановка записи</string>
+    <string name="announce_connection">Подключение и отключение моноколеса</string>
+    <string name="announce_gps">Потеря и возврат GPS</string>
+    <string name="announce_legal_mode">Включение и выключение лег. режима</string>
+    <string name="announce_welcome">Приветствие при запуске приложения</string>
     <string name="voice_selector_label">Голос</string>
     <string name="voice_speech_speed">Скорость речи</string>
     <string name="unit_x">x</string>
-    <string name="col_periodic">Период</string>
-    <string name="col_trigger">Событие</string>
+    <string name="col_periodic">Регулярно</string>
+    <string name="col_trigger">По кнопке</string>
     <string name="report_speed">Скорость</string>
-    <string name="report_battery">Батарея</string>
-    <string name="report_temp">Темп</string>
+    <string name="report_battery">Заряд</string>
+    <string name="report_temp">Темп.</string>
     <string name="report_pwm">PWM</string>
-    <string name="report_distance">Дистанция</string>
+    <string name="report_distance">Пробег</string>
     <string name="report_recording">Запись</string>
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Удерживайте кнопку Flic 2 6 секунд для режима сопряжения, затем нажмите Сканировать.</string>
-    <string name="flic_stop_scan">Стоп</string>
+    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
+    <string name="flic_stop_scan">Остановить</string>
     <string name="flic_start_scan">Искать кнопку Flic 2</string>
-    <string name="flic_no_buttons">Нет сопряжённых кнопок Flic</string>
+    <string name="flic_no_buttons">Нет привязанных кнопок Flic</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_rename">Переименовать</string>
-    <string name="flic_click">Клик</string>
-    <string name="flic_double_click">Двойной клик</string>
+    <string name="flic_click">Нажатие</string>
+    <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
-    <string name="section_volume_keys">Клавиши громкости</string>
-    <string name="volume_keys_caption">Используйте кнопки громкости как ярлыки. Работает только при активном приложении — Android не доставляет события громкости надёжно в фоне.</string>
-    <string name="volume_keys_enable">Включить действия клавиш громкости</string>
+    <string name="section_volume_keys">Кнопки громкости</string>
+    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто — в фоне Android не передаёт эти нажатия стабильно.</string>
+    <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
 
-    <string name="voice_warning_fmt">Внимание! %1$s при %2$s</string>
-    <string name="voice_speed_fmt">Скорость %1$s</string>
-    <string name="voice_battery_fmt">батарея %1$d процентов</string>
+    <string name="voice_warning_fmt">Внимание! %1$s %2$s</string>
+    <string name="voice_speed_fmt">скорость %1$s</string>
+    <string name="voice_battery_fmt">заряд %1$d процентов</string>
     <string name="voice_temp_fmt">температура %1$s градусов</string>
     <string name="voice_load_fmt">нагрузка %1$s процентов</string>
-    <string name="voice_trip_fmt">поездка %1$s километров</string>
-    <string name="voice_trip_miles_fmt">поездка %1$s миль</string>
-    <string name="voice_recording_on">запись</string>
-    <string name="voice_recording_off">без записи</string>
-    <string name="voice_wheel_locked">Колесо заблокировано</string>
-    <string name="voice_wheel_unlocked">Колесо разблокировано</string>
+    <string name="voice_trip_fmt">пройдено %1$s километров</string>
+    <string name="voice_trip_miles_fmt">пройдено %1$s миль</string>
+    <string name="voice_recording_on">идёт запись</string>
+    <string name="voice_recording_off">запись остановлена</string>
+    <string name="voice_wheel_locked">Моноколесо заблокировано</string>
+    <string name="voice_wheel_unlocked">Моноколесо разблокировано</string>
     <string name="voice_lights_on">Фары включены</string>
     <string name="voice_lights_off">Фары выключены</string>
-    <string name="voice_recording_started">Запись начата</string>
-    <string name="voice_recording_finished">Запись завершена</string>
-    <string name="voice_wheel_connected">Колесо подключено</string>
-    <string name="voice_wheel_disconnected">Колесо отключено</string>
-    <string name="voice_gps_acquired">GPS получен</string>
+    <string name="voice_recording_started">Запись началась</string>
+    <string name="voice_recording_finished">Запись остановлена</string>
+    <string name="voice_wheel_connected">Моноколесо подключено</string>
+    <string name="voice_wheel_disconnected">Моноколесо отключено</string>
+    <string name="voice_gps_acquired">GPS найден</string>
     <string name="voice_gps_lost">GPS потерян</string>
     <string name="voice_legal_on">Легальный режим включён</string>
     <string name="voice_legal_off">Легальный режим выключен</string>
     <string name="voice_welcome">С возвращением в EUC Planet</string>
 
-    <string name="lang_name_en">английский</string>
-    <string name="lang_name_es">испанский</string>
-    <string name="lang_name_ru">русский</string>
-    <string name="lang_name_no">норвежский</string>
-    <string name="lang_name_de">немецкий</string>
+    <string name="lang_name_en">Английский</string>
+    <string name="lang_name_es">Испанский</string>
+    <string name="lang_name_ru">Русский</string>
+    <string name="lang_name_no">Норвежский</string>
+    <string name="lang_name_de">Немецкий</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Найти ваш моноцикл</string>
-    <string name="scan_scanning">Поиск моноциклов InMotion\u2026</string>
+    <string name="scan_title">Найдём ваше моноколесо</string>
+    <string name="scan_scanning">Ищем моноколёса InMotion\u2026</string>
     <string name="scan_start">Начать поиск</string>
-    <string name="scan_hint">Убедитесь, что моноцикл включён и Bluetooth активен.</string>
-
-    <!-- Trip viewer -->
-    <string name="trip_viewer_title">Просмотр поездки</string>
+    <string name="scan_hint">Проверьте, что моноколесо включено, а Bluetooth на телефоне активен.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">История: %1$s</string>
-    <string name="metric_waiting">Ожидание данных\u2026 Подключитесь к моноциклу.</string>
-    <string name="metric_no_data">Нет данных</string>
+    <string name="metric_waiting">Ждём данные\u2026 Подключитесь к моноколесу, чтобы начать сбор.</string>
+    <string name="metric_no_data">Данных пока нет</string>
     <string name="metric_min">МИН</string>
     <string name="metric_avg">СРЕД</string>
     <string name="metric_max">МАКС</string>
     <string name="metric_time">ВРЕМЯ</string>
-    <string name="metric_battery">Батарея</string>
+    <string name="metric_battery">Заряд</string>
     <string name="metric_temperature">Температура</string>
     <string name="metric_voltage">Напряжение</string>
     <string name="metric_current">Ток</string>
@@ -183,142 +180,144 @@
     <string name="metric_speed">Скорость</string>
 
     <!-- Recording screen -->
-    <string name="action_delete_all">Удалить всё</string>
+    <string name="action_delete_all">Удалить все</string>
     <string name="action_import">Импорт</string>
-    <string name="action_export_all">Экспорт</string>
+    <string name="action_export_all">Экспортировать все</string>
     <string name="action_share">Поделиться</string>
     <string name="action_manage">Управление</string>
-    <string name="action_view">Просмотр</string>
+    <string name="action_view">Открыть</string>
     <string name="action_record">Запись</string>
     <string name="action_stop">Стоп</string>
-    <string name="recording_title">Запись поездок</string>
+    <string name="recording_title">Мои поездки</string>
     <string name="recording_clear_all_title">Удалить все поездки</string>
-    <string name="recording_clear_all_body">Это навсегда удалит все поездки и их файлы. Отменить нельзя.</string>
+    <string name="recording_clear_all_body">Все записанные поездки и их файлы будут удалены безвозвратно.</string>
     <string name="recording_delete_trip_title">Удалить поездку</string>
-    <string name="recording_delete_trip_body">Удалить эту поездку и её файл?</string>
+    <string name="recording_delete_trip_body">Удалить эту поездку вместе с её файлом?</string>
     <string name="recording_clear_all_menu">Удалить все поездки</string>
-    <string name="recording_auto_record_tip">Совет: включите автозапись в Настройках, чтобы запись стартовала при подключении.</string>
-    <string name="recording_empty">Нет записанных поездок.\nНажмите кнопку записи, чтобы начать.</string>
-    <string name="recording_view_map">Показать на карте</string>
-    <string name="recording_view_all_map">Показать все на карте</string>
-    <string name="recording_stat_trips">Поездки</string>
-    <string name="recording_stat_distance">Дистанция</string>
+    <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения.</string>
+    <string name="recording_empty">Поездок пока нет.\nНажмите кнопку записи, чтобы начать.</string>
+    <string name="recording_stat_trips">Поездок</string>
+    <string name="recording_stat_distance">Пробег</string>
     <string name="recording_stat_time">Время</string>
 
     <!-- Trip detail screen -->
-    <string name="recording_detail_title">Детали поездки</string>
-    <string name="recording_no_data">Нет данных для этой поездки.</string>
+    <string name="recording_detail_title">Подробности поездки</string>
+    <string name="recording_no_data">Для этой поездки нет данных.</string>
     <string name="recording_route">Маршрут</string>
-    <string name="recording_summary_distance">Дистанция</string>
-    <string name="recording_summary_duration">Время</string>
+    <string name="recording_summary_distance">Пробег</string>
+    <string name="recording_summary_duration">Длительность</string>
     <string name="recording_summary_points">Точек</string>
     <string name="recording_summary_top_speed">Макс. скорость</string>
     <string name="recording_summary_avg_speed">Сред. скорость</string>
-    <string name="recording_summary_min_battery">Мин. батарея</string>
-    <string name="recording_summary_max_temp">Макс. темп.</string>
+    <string name="recording_summary_min_battery">Мин. заряд</string>
+    <string name="recording_summary_max_temp">Макс. температура</string>
     <string name="recording_chart_speed">Скорость (%1$s)</string>
-    <string name="recording_chart_battery">Батарея (%%)</string>
+    <string name="recording_chart_battery">Заряд (%%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напряжение (В)</string>
 
     <!-- Automations / Auto tab -->
-    <string name="auto_lights_title">Свет</string>
-    <string name="auto_lights_desc">Включать или выключать фары по восходу и закату</string>
-    <string name="auto_lights_on_before_sunset">Фары ВКЛ до заката</string>
-    <string name="auto_lights_off_after_sunrise">Фары ВЫКЛ после восхода</string>
+    <string name="auto_lights_title">Фары</string>
+    <string name="auto_lights_desc">Включать и выключать фары по восходу и закату</string>
+    <string name="auto_lights_on_before_sunset">Включать фары до заката</string>
+    <string name="auto_lights_off_after_sunrise">Выключать фары после восхода</string>
     <string name="auto_minutes_fmt">%1$d мин</string>
-    <string name="auto_waiting_gps">Ожидание GPS\u2026</string>
+    <string name="auto_waiting_gps">Ждём GPS\u2026</string>
     <string name="auto_volume_title">Громкость</string>
-    <string name="auto_volume_desc">Адаптивная громкость в зависимости от скорости</string>
-    <string name="auto_volume_help">Перетащите маркеры, чтобы задать громкость на 0, 40 и 80 км/ч. Коснитесь графика, чтобы увидеть громкость на любой скорости.</string>
-    <string name="auto_volume_realtime">Громкость меняется в реальном времени при изменении скорости.</string>
+    <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
+    <string name="auto_volume_help">Потяните маркеры, чтобы задать громкость на 0, 40 и 80 км/ч. Коснитесь графика, чтобы увидеть значение на любой скорости.</string>
+    <string name="auto_volume_realtime">Громкость меняется на ходу вместе со скоростью.</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
-    <string name="auto_midnight_sun_body">Сегодня солнце не заходит на этой широте — фары останутся ВЫКЛ.</string>
+    <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится — фары останутся выключенными.</string>
     <string name="auto_polar_night_title">Полярная ночь</string>
-    <string name="auto_polar_night_body">Сегодня солнце не восходит на этой широте — фары останутся ВКЛ.</string>
+    <string name="auto_polar_night_body">Сегодня на этой широте солнце не восходит — фары останутся включёнными.</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Правила проверяются сверху вниз по метрике. Срабатывает первое подходящее для каждой метрики.</string>
-    <string name="alarm_voice_vars">Переменные: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
-    <string name="alarm_empty">Правил нет.\nНажмите + чтобы добавить.</string>
+    <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее — остальные пропускаются.</string>
+    <string name="alarm_voice_vars">Доступные переменные: {speed} {battery} {temp} {pwm} {voltage} {current} {trip} {value} {metric} {threshold}</string>
+    <string name="alarm_empty">Правил пока нет.\nНажмите +, чтобы создать.</string>
     <string name="alarm_add">Добавить правило</string>
     <string name="alarm_new">Новое правило</string>
-    <string name="alarm_edit">Редактировать</string>
+    <string name="alarm_edit">Изменить</string>
     <string name="alarm_name">Название (необязательно)</string>
     <string name="alarm_section_condition">Условие</string>
     <string name="alarm_metric_label">Метрика</string>
-    <string name="alarm_comparator_label">Условие</string>
+    <string name="alarm_comparator_label">Сравнение</string>
     <string name="alarm_threshold_fmt">Порог: %1$s %2$s</string>
-    <string name="alarm_section_beep">Сигнал</string>
-    <string name="alarm_enable_beep">Включить сигнал</string>
+    <string name="alarm_section_beep">Звуковой сигнал</string>
+    <string name="alarm_enable_beep">Подавать сигнал</string>
     <string name="alarm_beep_freq_fmt">Частота: %1$d Гц</string>
     <string name="alarm_beep_duration_fmt">Длительность: %1$d мс</string>
     <string name="alarm_beep_repeats_fmt">Повторов: %1$d</string>
     <string name="alarm_section_voice">Голос</string>
-    <string name="alarm_enable_voice">Включить голос</string>
-    <string name="alarm_voice_template">Шаблон текста</string>
-    <string name="alarm_voice_template_help">Используй {speed}, {battery}, {temp}, {value}, {metric} и т.д.</string>
+    <string name="alarm_enable_voice">Озвучивать</string>
+    <string name="alarm_voice_template">Шаблон сообщения</string>
+    <string name="alarm_voice_template_help">Можно вставлять {speed}, {battery}, {temp}, {value}, {metric} и другие.</string>
     <string name="alarm_section_vibrate">Вибрация</string>
-    <string name="alarm_enable_vibrate">Включить вибрацию</string>
+    <string name="alarm_enable_vibrate">Вибрировать</string>
     <string name="alarm_vibrate_duration_fmt">Длительность: %1$d мс</string>
     <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_fmt">Пауза: %1$d с</string>
-    <string name="alarm_cooldown_help">Минимальное время между срабатываниями правила, даже если условие сохраняется.</string>
-    <string name="alarm_repeat">Повторять, пока активно</string>
-    <string name="alarm_repeat_help">ВЫКЛ: срабатывает один раз при начале совпадения условия, потом молчит до его исчезновения.\nВКЛ: повторяет каждые N секунд пока условие истинно.</string>
-    <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ — при удержании 35 км/ч целую минуту будете получать предупреждение каждые %1$d с.</string>
-    <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ — одно предупреждение при пересечении 30, затем тишина; нужно опуститься ниже 30 (и подождать %1$d с) чтобы сработало снова.</string>
+    <string name="alarm_cooldown_help">Минимальная пауза между срабатываниями, даже если условие продолжает выполняться.</string>
+    <string name="alarm_repeat">Повторять, пока условие выполняется</string>
+    <string name="alarm_repeat_help">Выкл.: сработает один раз — когда условие только начало выполняться — и замолчит, пока оно снова не перестанет выполняться.\nВкл.: будет повторяться каждые N секунд, пока условие остаётся истинным.</string>
+    <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ. — если удерживать 35 км/ч минуту, предупреждение прозвучит каждые %1$d с.</string>
+    <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ. — одно предупреждение при пересечении 30, потом тишина; чтобы сработало снова, нужно опуститься ниже 30 и подождать %1$d с.</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Скорость</string>
-    <string name="alarm_metric_battery">Батарея</string>
+    <string name="alarm_metric_battery">Заряд</string>
     <string name="alarm_metric_temperature">Температура</string>
     <string name="alarm_metric_pwm">Нагрузка (PWM)</string>
     <string name="alarm_metric_voltage">Напряжение</string>
     <string name="alarm_metric_current">Ток</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_gt">Больше чем</string>
-    <string name="alarm_cmp_lt">Меньше чем</string>
-    <string name="alarm_cmp_ge">Больше или равно</string>
-    <string name="alarm_cmp_le">Меньше или равно</string>
+    <string name="alarm_cmp_gt">больше</string>
+    <string name="alarm_cmp_lt">меньше</string>
+    <string name="alarm_cmp_ge">больше или равно</string>
+    <string name="alarm_cmp_le">меньше или равно</string>
 
     <!-- Flic actions -->
-    <string name="flic_action_none">Нет</string>
-    <string name="flic_action_horn">Гудок</string>
+    <string name="flic_action_none">Ничего не делать</string>
+    <string name="flic_action_horn">Сигнал</string>
     <string name="flic_action_light">Переключить свет</string>
     <string name="flic_action_lock">Заблокировать колесо</string>
-    <string name="flic_action_legal_toggle">Переключить легальный режим</string>
-    <string name="flic_action_legal_on">Легальный режим ВКЛ</string>
-    <string name="flic_action_legal_off">Легальный режим ВЫКЛ</string>
-    <string name="flic_action_voice">Голосовой отчёт</string>
-    <string name="flic_action_record">Переключить запись</string>
-    <string name="flic_action_media_play">Воспроизвести / Пауза</string>
+    <string name="flic_action_legal_toggle">Переключить лег. режим</string>
+    <string name="flic_action_legal_on">Включить лег. режим</string>
+    <string name="flic_action_legal_off">Выключить лег. режим</string>
+    <string name="flic_action_voice">Озвучить отчёт</string>
+    <string name="flic_action_record">Старт / стоп записи</string>
+    <string name="flic_action_media_play">Воспроизведение / пауза</string>
     <string name="flic_action_media_next">Следующий трек</string>
     <string name="flic_action_media_prev">Предыдущий трек</string>
 
     <!-- Alarm editor misc -->
-    <string name="alarm_preview_fmt">Предпросмотр %1$s</string>
+    <string name="alarm_preview_fmt">Проверка: %1$s</string>
 
     <!-- Alarm rule card action summary -->
-    <string name="alarm_summary_beep_fmt">Сигнал %1$dГц×%2$d</string>
+    <string name="alarm_summary_beep_fmt">Сигнал %1$d Гц × %2$d</string>
     <string name="alarm_summary_voice">Голос</string>
     <string name="alarm_summary_vibrate">Вибрация</string>
 
     <!-- Share / export chooser titles -->
     <string name="share_trip_chooser">Поделиться поездкой</string>
-    <string name="export_trips_chooser">Экспорт поездок</string>
+    <string name="export_trips_chooser">Экспорт всех поездок</string>
 
     <!-- Alarm preview default text -->
-    <string name="alarm_test_default">Тест тревоги</string>
+    <string name="alarm_test_default">Проверка сигнала</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Поиск\u2026</string>
-    <string name="flic_status_found_paired">Найдена сопряжённая кнопка</string>
-    <string name="flic_status_found_connecting">Кнопка найдена, подключение\u2026</string>
-    <string name="flic_status_connected_pairing">Подключено, сопряжение\u2026</string>
+    <string name="flic_status_scanning">Ищем\u2026</string>
+    <string name="flic_status_found_paired">Нашли привязанную кнопку</string>
+    <string name="flic_status_found_connecting">Нашли кнопку, подключаемся\u2026</string>
+    <string name="flic_status_connected_pairing">Подключено, идёт сопряжение\u2026</string>
     <string name="flic_status_accept_pairing">Подтвердите сопряжение на телефоне\u2026</string>
-    <string name="flic_status_paired_fmt">Сопряжено: %1$s</string>
+    <string name="flic_status_paired_fmt">Привязано: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs">Журналы сбоев (коснитесь, чтобы поделиться)</string>
+    <string name="about_share_crash">Поделиться журналом сбоя</string>
 </resources>

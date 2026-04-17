@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
@@ -50,7 +49,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,27 +59,25 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.evendarkerbot.R
 import com.eried.evendarkerbot.data.model.TripRecord
-import com.eried.evendarkerbot.ui.theme.AccentBlue
 import com.eried.evendarkerbot.ui.theme.AccentGreen
 import com.eried.evendarkerbot.ui.theme.AccentRed
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordingScreen(
     onBack: () -> Unit,
     onViewTrip: ((TripRecord) -> Unit)? = null,
-    onOpenViewer: ((dbbBase64: String, fileName: String) -> Unit)? = null,
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
-    val scope = rememberCoroutineScope()
 
     var showClearDialog by remember { mutableStateOf(false) }
     var showManageMenu by remember { mutableStateOf(false) }
@@ -255,23 +251,6 @@ fun RecordingScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         StatItem(stringResource(R.string.recording_stat_trips), "${trips.size}")
-                        if (onOpenViewer != null) {
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        val b64 = viewModel.generateAllTripsBase64()
-                                        if (b64 != null) onOpenViewer(b64, "all_trips.dbb")
-                                    }
-                                },
-                                enabled = !importing,
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(Icons.Default.Map, contentDescription = stringResource(R.string.recording_view_all_map),
-                                    tint = if (importing) MaterialTheme.colorScheme.onSurfaceVariant
-                                           else AccentBlue,
-                                    modifier = Modifier.size(20.dp))
-                            }
-                        }
                         StatItem(stringResource(R.string.recording_stat_distance), "%.1f km".format(totalKm))
                         StatItem(stringResource(R.string.recording_stat_time), "${totalHours}h ${totalMins}m")
                     }
@@ -301,16 +280,7 @@ fun RecordingScreen(
                             trip = trip,
                             isRecording = isRecordingTrip,
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
-                            importing = importing,
                             onView = { onViewTrip?.invoke(trip) },
-                            onViewInViewer = if (onOpenViewer != null) {
-                                {
-                                    scope.launch {
-                                        val b64 = viewModel.generateTripBase64(trip)
-                                        if (b64 != null) onOpenViewer(b64, trip.fileName.replace(".csv", ".dbb"))
-                                    }
-                                }
-                            } else null,
                             onShare = { viewModel.shareTrip(trip) },
                             onDelete = { tripToDelete = trip }
                         )
@@ -336,9 +306,7 @@ private fun TripCard(
     trip: TripRecord,
     isRecording: Boolean,
     liveDistanceKm: Float?,
-    importing: Boolean,
     onView: () -> Unit,
-    onViewInViewer: (() -> Unit)?,
     onShare: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -406,16 +374,6 @@ private fun TripCard(
             // View (eye) — always available
             IconButton(onClick = onView) {
                 Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.action_view))
-            }
-            // Map viewer
-            if (onViewInViewer != null) {
-                IconButton(
-                    onClick = onViewInViewer,
-                    enabled = !isRecording && !importing
-                ) {
-                    Icon(Icons.Default.Map, contentDescription = stringResource(R.string.recording_view_map),
-                        tint = if (isRecording || importing) disabledColor else AccentBlue)
-                }
             }
             // Share
             IconButton(onClick = onShare, enabled = !isRecording) {

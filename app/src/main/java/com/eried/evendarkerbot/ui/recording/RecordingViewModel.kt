@@ -3,7 +3,6 @@ package com.eried.evendarkerbot.ui.recording
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Base64
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
@@ -25,7 +24,6 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -124,43 +122,6 @@ class RecordingViewModel @Inject constructor(
             }
             context.startActivity(Intent.createChooser(intent, context.getString(R.string.export_trips_chooser)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
-    }
-
-    // --- Viewer integration ---
-
-    /**
-     * Generate base64-encoded .dbb for all trips (for the web viewer).
-     */
-    suspend fun generateAllTripsBase64(): String? = withContext(Dispatchers.IO) {
-        val tripsDir = tripRepository.getTripsDir()
-        val csvFiles = tripsDir.listFiles { f -> f.extension == "csv" }
-        if (csvFiles.isNullOrEmpty()) return@withContext null
-
-        val baos = ByteArrayOutputStream()
-        ZipOutputStream(BufferedOutputStream(baos)).use { zos ->
-            for (csv in csvFiles) {
-                zos.putNextEntry(ZipEntry(csv.name))
-                BufferedInputStream(FileInputStream(csv)).use { it.copyTo(zos) }
-                zos.closeEntry()
-            }
-        }
-        Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
-    }
-
-    /**
-     * Generate base64-encoded .dbb for a single trip.
-     */
-    suspend fun generateTripBase64(trip: TripRecord): String? = withContext(Dispatchers.IO) {
-        val csvFile = tripRepository.getTripFile(trip)
-        if (!csvFile.exists()) return@withContext null
-
-        val baos = ByteArrayOutputStream()
-        ZipOutputStream(BufferedOutputStream(baos)).use { zos ->
-            zos.putNextEntry(ZipEntry(csvFile.name))
-            BufferedInputStream(FileInputStream(csvFile)).use { it.copyTo(zos) }
-            zos.closeEntry()
-        }
-        Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
     }
 
     // --- Import ---

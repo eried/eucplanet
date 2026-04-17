@@ -1,7 +1,10 @@
 package com.eried.evendarkerbot.ui.dashboard
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.activity.compose.BackHandler
+import androidx.core.content.FileProvider
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -362,6 +365,7 @@ fun DashboardScreen(
             )
 
             if (showAboutDialog) {
+                val crashes = remember { com.eried.evendarkerbot.util.CrashHandler.listCrashes(context) }
                 AlertDialog(
                     onDismissRequest = { showAboutDialog = false },
                     title = { Text("EUC Planet") },
@@ -386,6 +390,26 @@ fun DashboardScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
+                            if (crashes.isNotEmpty()) {
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    stringResource(R.string.about_crash_logs),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                crashes.forEach { file ->
+                                    Text(
+                                        file.name,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { shareCrashFile(context, file) }
+                                            .padding(vertical = 4.dp)
+                                    )
+                                }
+                            }
                         }
                     },
                     confirmButton = {
@@ -691,4 +715,18 @@ private fun ActionButton(
                 maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
         }
     }
+}
+
+private fun shareCrashFile(context: Context, file: java.io.File) {
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_STREAM, uri)
+        putExtra(Intent.EXTRA_SUBJECT, "EUC Planet crash: ${file.name}")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    context.startActivity(
+        Intent.createChooser(intent, context.getString(R.string.about_share_crash))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
 }

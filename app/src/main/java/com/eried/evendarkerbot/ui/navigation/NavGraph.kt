@@ -15,12 +15,9 @@ import com.eried.evendarkerbot.ui.dashboard.MetricType
 import com.eried.evendarkerbot.ui.recording.RecordingScreen
 import com.eried.evendarkerbot.ui.recording.RecordingViewModel
 import com.eried.evendarkerbot.ui.recording.TripDetailScreen
-import com.eried.evendarkerbot.ui.recording.TripViewerScreen
 import com.eried.evendarkerbot.ui.scan.ScanScreen
 import com.eried.evendarkerbot.ui.settings.FlicScreen
 import com.eried.evendarkerbot.ui.settings.SettingsScreen
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
@@ -34,14 +31,6 @@ sealed class Screen(val route: String) {
     data object MetricDetail : Screen("metric_detail/{metric}") {
         fun createRoute(metric: String) = "metric_detail/$metric"
     }
-    data object TripViewer : Screen("trip_viewer/{fileName}") {
-        fun createRoute(fileName: String) = "trip_viewer/${URLEncoder.encode(fileName, "UTF-8")}"
-    }
-}
-
-// Temporary storage for base64 data (too large for nav arguments)
-internal object ViewerDataHolder {
-    var dbbBase64: String? = null
 }
 
 @Composable
@@ -79,10 +68,6 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() },
                 onViewTrip = { trip ->
                     navController.navigate(Screen.TripDetail.createRoute(trip.id))
-                },
-                onOpenViewer = { dbbBase64, fileName ->
-                    ViewerDataHolder.dbbBase64 = dbbBase64
-                    navController.navigate(Screen.TripViewer.createRoute(fileName))
                 }
             )
         }
@@ -113,25 +98,6 @@ fun NavGraph(navController: NavHostController) {
                 metricType = metricType,
                 onBack = { navController.popBackStack() }
             )
-        }
-        composable(
-            Screen.TripViewer.route,
-            arguments = listOf(navArgument("fileName") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val fileName = URLDecoder.decode(
-                backStackEntry.arguments?.getString("fileName") ?: "trips.dbb", "UTF-8"
-            )
-            val dbbBase64 = ViewerDataHolder.dbbBase64
-            if (dbbBase64 != null) {
-                TripViewerScreen(
-                    dbbBase64 = dbbBase64,
-                    fileName = fileName,
-                    onBack = {
-                        ViewerDataHolder.dbbBase64 = null
-                        navController.popBackStack()
-                    }
-                )
-            }
         }
     }
 }
