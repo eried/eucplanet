@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <defs>
+    <radialGradient id="glow" cx="54" cy="54" r="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0091EA" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#0277BD"/>
+    </radialGradient>
+    <radialGradient id="ring" cx="54" cy="54" r="38" gradientUnits="userSpaceOnUse">
+      <stop offset="0.55" stop-color="#01579B"/>
+      <stop offset="0.75" stop-color="#00B0FF"/>
+      <stop offset="1.0" stop-color="#4FC3F7"/>
+    </radialGradient>
+    <radialGradient id="core" cx="50" cy="48" r="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0.0" stop-color="#EEFFFF"/>
+      <stop offset="0.3" stop-color="#80DEEA"/>
+      <stop offset="0.6" stop-color="#00B0FF"/>
+      <stop offset="1.0" stop-color="#01579B"/>
+    </radialGradient>
+  </defs>
+  <rect width="108" height="108" fill="#0D0D0D" rx="16"/>
+  <path d="M54,12 A42,42 0,1,1 53.99,12 Z M54,20 A34,34 0,1,0 54.01,20 Z" fill="url(#glow)" fill-rule="evenodd"/>
+  <path d="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z" fill="url(#ring)" fill-rule="evenodd"/>
+  <circle cx="54" cy="54" r="20" fill="url(#core)"/>
+</svg>
