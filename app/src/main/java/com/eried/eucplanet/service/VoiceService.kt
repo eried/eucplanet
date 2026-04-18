@@ -37,7 +37,7 @@ class VoiceService @Inject constructor(
     }
 
     private var tts: TextToSpeech? = null
-    private var isReady = false
+    @Volatile private var isReady = false
     private var currentRate: Float = 1.0f
     private var currentLocaleTag: String = "en-US"
     @Volatile private var currentAudioFocus: String = "DUCK"
@@ -63,7 +63,18 @@ class VoiceService @Inject constructor(
     @Volatile private var welcomedThisProcess = false
     @Volatile private var welcomePending = false
 
+    // At most one "trigger" message may be queued/playing at a time. Presses that arrive while
+    // one is already in flight are dropped silently. Alerts ignore this flag and queue normally.
+    @Volatile private var triggerInFlight = false
+
+    // Buffer for speak calls that arrive before TTS async init completes.
+    private data class DeferredUtterance(
+        val text: String, val isTrigger: Boolean, val rate: Float, val localeTag: String
+    )
+    private val pendingBeforeReady = mutableListOf<DeferredUtterance>()
+
     fun initialize() {
+        if (tts != null) return
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.US
@@ -77,6 +88,7 @@ class VoiceService @Inject constructor(
                 Log.i(TAG, "TTS initialized")
                 loadAvailableVoices()
                 observeSettings()
+                flushPendingBeforeReady()
                 if (welcomePending) {
                     welcomePending = false
                     speakWelcomeIfEnabled()
@@ -87,18 +99,32 @@ class VoiceService @Inject constructor(
         }
     }
 
+    private fun flushPendingBeforeReady() {
+        val items = synchronized(pendingBeforeReady) {
+            val copy = pendingBeforeReady.toList()
+            pendingBeforeReady.clear()
+            copy
+        }
+        // Flag was set when trigger was deferred; clear so speakInternal re-sets it for real.
+        if (items.any { it.isTrigger }) triggerInFlight = false
+        items.forEach { speakInternal(it.text, it.isTrigger, it.rate, it.localeTag) }
+    }
+
     private val utteranceListener = object : UtteranceProgressListener() {
         override fun onStart(utteranceId: String?) {}
-        override fun onDone(utteranceId: String?) { onUtteranceFinished() }
+        override fun onDone(utteranceId: String?) { onUtteranceFinished(utteranceId) }
         @Deprecated("Deprecated in Java")
-        override fun onError(utteranceId: String?) { onUtteranceFinished() }
-        override fun onError(utteranceId: String?, errorCode: Int) { onUtteranceFinished() }
-        override fun onStop(utteranceId: String?, interrupted: Boolean) { onUtteranceFinished() }
+        override fun onError(utteranceId: String?) { onUtteranceFinished(utteranceId) }
+        override fun onError(utteranceId: String?, errorCode: Int) { onUtteranceFinished(utteranceId) }
+        override fun onStop(utteranceId: String?, interrupted: Boolean) { onUtteranceFinished(utteranceId) }
     }
 
     @Synchronized
-    private fun onUtteranceFinished() {
+    private fun onUtteranceFinished(utteranceId: String?) {
         pendingUtterances = (pendingUtterances - 1).coerceAtLeast(0)
+        if (utteranceId != null && utteranceId.startsWith("trig_")) {
+            triggerInFlight = false
+        }
         if (pendingUtterances == 0) abandonAudioFocus()
     }
 
@@ -224,28 +250,24 @@ class VoiceService @Inject constructor(
         isReady = false
         abandonAudioFocus()
         pendingUtterances = 0
+        triggerInFlight = false
+        synchronized(pendingBeforeReady) { pendingBeforeReady.clear() }
     }
 
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
-        if (!isReady) return
-        tts?.setSpeechRate(settings.voiceSpeechRate)
-        applyLocale(settings.voiceLocale)
-
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
-        if (parts.isNotEmpty()) {
-            speak(parts.joinToString(", "))
-        }
+        if (parts.isEmpty()) return
+        speakInternal(parts.joinToString(", "), isTrigger = false,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale)
     }
 
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
-        if (!isReady) return
-        tts?.setSpeechRate(settings.voiceSpeechRate)
-        applyLocale(settings.voiceLocale)
-
+        // Drop immediately if a trigger is already in flight/queued; never queue more than one.
+        if (triggerInFlight) return
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
-        if (parts.isNotEmpty()) {
-            speak(parts.joinToString(", "))
-        }
+        if (parts.isEmpty()) return
+        speakInternal(parts.joinToString(", "), isTrigger = true,
+            rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale)
     }
 
     private fun buildReportParts(
@@ -286,34 +308,51 @@ class VoiceService @Inject constructor(
     }
 
     fun announceAlarm(type: String, value: Float) {
-        if (!isReady) return
         speak(context.getString(R.string.voice_warning_fmt, type, "%.0f".format(value)))
     }
 
     fun announceEvent(text: String) {
-        if (!isReady) return
         speak(text)
     }
 
     fun speak(text: String) {
-        if (!isReady) return
-        tts?.setSpeechRate(currentRate)
-        applyLocale(currentLocaleTag)
-        val utteranceId = "edb_${System.currentTimeMillis()}"
+        speakInternal(text, isTrigger = false, rate = currentRate, localeTag = currentLocaleTag)
+    }
+
+    private fun speakInternal(text: String, isTrigger: Boolean, rate: Float, localeTag: String) {
+        // Buffer calls that arrive before TTS async init completes.
+        if (!isReady) {
+            synchronized(pendingBeforeReady) {
+                if (isTrigger) {
+                    if (triggerInFlight) return
+                    triggerInFlight = true
+                }
+                pendingBeforeReady.add(DeferredUtterance(text, isTrigger, rate, localeTag))
+            }
+            return
+        }
+        if (isTrigger) {
+            // Double-check after ready; this guards concurrent presses.
+            synchronized(this) {
+                if (triggerInFlight) return
+                triggerInFlight = true
+            }
+        }
+        tts?.setSpeechRate(rate)
+        applyLocale(localeTag)
+        val prefix = if (isTrigger) "trig_" else "alert_"
+        val utteranceId = "$prefix${System.currentTimeMillis()}"
         synchronized(this) { pendingUtterances++ }
         requestAudioFocus()
         val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId) ?: TextToSpeech.ERROR
         if (result == TextToSpeech.ERROR) {
             Log.w(TAG, "TTS speak returned ERROR; releasing focus")
-            onUtteranceFinished()
+            onUtteranceFinished(utteranceId)
         }
     }
 
     fun testSpeak(text: String, speechRate: Float, localeTag: String) {
-        if (!isReady) return
-        tts?.setSpeechRate(speechRate)
-        applyLocale(localeTag)
-        speak(text)
+        speakInternal(text, isTrigger = false, rate = speechRate, localeTag = localeTag)
     }
 
     private fun applyLocale(localeTag: String) {
