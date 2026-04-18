@@ -25,4 +25,9 @@ object GraphScale {
             GraphBounds(mid - minSpan / 2f, mid + minSpan / 2f)
         }
     }
+
+    fun absolute(dataMin: Float, dataMax: Float, pad: Float): GraphBounds =
+        GraphBounds(dataMin - pad, dataMax + pad)
+
+    fun fixed(min: Float, max: Float): GraphBounds = GraphBounds(min, max)
 }

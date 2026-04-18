@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.db.AlarmDao
+import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.TonePlayer
@@ -91,7 +92,8 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun previewVoice(text: String) {
+    fun previewVoice(text: String, metric: AlarmMetric) {
+        val metricLabel = context.getString(metric.labelRes)
         val preview = text.ifBlank { context.getString(R.string.alarm_test_default) }
             .replace("{speed}", "35")
             .replace("{battery}", "80")
@@ -101,7 +103,7 @@ class AlarmViewModel @Inject constructor(
             .replace("{current}", "12")
             .replace("{trip}", "10")
             .replace("{value}", "35")
-            .replace("{metric}", "speed")
+            .replace("{metric}", metricLabel)
             .replace("{threshold}", "30")
         voiceService.speak(preview)
     }

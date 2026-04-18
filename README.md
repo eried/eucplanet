@@ -8,6 +8,22 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 
 ---
 
+## Gallery
+
+<img src="docs/screenshots/main.png" width="22%" alt="Dashboard" />
+<img src="docs/screenshots/customalarms.png" width="22%" alt="Custom alarms" />
+<img src="docs/screenshots/historicalcurrent.png" width="22%" alt="Historical graph" />
+<img src="docs/screenshots/tripdetails.png" width="22%" alt="Trip detail" />
+
+<img src="docs/screenshots/trips.png" width="14%" alt="Trip list" />
+<img src="docs/screenshots/voicesettings.png" width="14%" alt="Voice settings" />
+<img src="docs/screenshots/autolights.png" width="14%" alt="Auto lights" />
+<img src="docs/screenshots/autovolume.png" width="14%" alt="Auto volume" />
+<img src="docs/screenshots/speedsettings.png" width="14%" alt="Speed settings" />
+<img src="docs/screenshots/settings.png" width="14%" alt="Settings" />
+
+---
+
 ## Features
 
 ### Dashboard
@@ -72,18 +88,6 @@ Grab the latest APK from the [releases](../../releases) page and sideload it, or
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
-
-## Screenshots
-
-_Coming soon. I'll drop photos and screen recordings here._
-
-<!--
-![Dashboard](docs/screenshots/dashboard.png)
-![Alarms](docs/screenshots/alarms.png)
-![Trip recording](docs/screenshots/recording.png)
--->
-
----
 
 ## Why does this exist?
 

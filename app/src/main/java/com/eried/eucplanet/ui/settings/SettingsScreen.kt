@@ -569,7 +569,6 @@ private fun FlicTab(
 ) {
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
-    val scanStatus by viewModel.scanStatus.collectAsState()
     val pairedButtons by viewModel.pairedButtons.collectAsState()
 
     Column(
@@ -603,10 +602,6 @@ private fun FlicTab(
                         colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                     ) { Text(stringResource(R.string.flic_stop_scan)) }
                 } else {
-                    if (scanStatus.isNotEmpty()) {
-                        Text(scanStatus, style = MaterialTheme.typography.bodyMedium)
-                        Spacer(Modifier.height(8.dp))
-                    }
                     Button(onClick = { viewModel.startScan() }) {
                         Text(stringResource(R.string.flic_start_scan))
                     }

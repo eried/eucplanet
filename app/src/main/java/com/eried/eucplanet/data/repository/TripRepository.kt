@@ -170,6 +170,7 @@ class TripRepository @Inject constructor(
     suspend fun getTripById(id: Long): TripRecord? = tripDao.getById(id)
 
     suspend fun clearAll() {
+        if (_recording.value) stopRecording()
         val dir = getTripsDir()
         // Delete all CSV and DBB files
         dir.listFiles()?.forEach { f ->

@@ -155,7 +155,7 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onPreviewBeep = { freq, dur, cnt -> viewModel.previewBeep(freq, dur, cnt) },
-            onPreviewVoice = { text -> viewModel.previewVoice(text) },
+            onPreviewVoice = { text, metric -> viewModel.previewVoice(text, metric) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
         )
     }
@@ -263,7 +263,7 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
-    onPreviewVoice: (String) -> Unit,
+    onPreviewVoice: (String, AlarmMetric) -> Unit,
     onPreviewVibrate: (Int) -> Unit
 ) {
     val initial = rule ?: AlarmRule()
@@ -421,7 +421,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_voice),
                     color = AccentGreen,
                     enabled = voiceEnabled,
-                    onPreview = { onPreviewVoice(voiceText) }
+                    onPreview = { onPreviewVoice(voiceText, selectedMetric) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -50,6 +50,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.MetricSample
@@ -164,19 +165,21 @@ fun MetricDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                val minSpan = when (metricType) {
-                    MetricType.TEMPERATURE -> if (imperial) GraphScale.SPAN_TEMPERATURE_F else GraphScale.SPAN_TEMPERATURE_C
-                    MetricType.VOLTAGE -> GraphScale.SPAN_VOLTAGE
-                    MetricType.BATTERY -> GraphScale.SPAN_BATTERY
-                    MetricType.SPEED -> if (imperial) GraphScale.SPAN_SPEED_MPH else GraphScale.SPAN_SPEED_KMH
-                    MetricType.CURRENT -> GraphScale.SPAN_CURRENT
-                    MetricType.LOAD -> GraphScale.SPAN_LOAD
+                val boundsFor: (Float, Float) -> GraphBounds = when (metricType) {
+                    MetricType.BATTERY -> { _, _ -> GraphScale.fixed(0f, 100f) }
+                    MetricType.TEMPERATURE -> { min, max -> GraphScale.absolute(min, max, 5f) }
+                    MetricType.LOAD -> { min, max -> GraphScale.absolute(min, max, 5f) }
+                    MetricType.CURRENT -> { min, max -> GraphScale.absolute(min, max, 1f) }
+                    MetricType.VOLTAGE -> { min, max -> GraphScale.pad(min, max, GraphScale.SPAN_VOLTAGE) }
+                    MetricType.SPEED -> { min, max ->
+                        GraphScale.pad(min, max, if (imperial) GraphScale.SPAN_SPEED_MPH else GraphScale.SPAN_SPEED_KMH)
+                    }
                 }
 
                 MetricGraph(
                     samples = windowSamples,
                     color = metricType.color,
-                    minSpan = minSpan,
+                    boundsFor = boundsFor,
                     unitLabel = unitLabel,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -266,7 +269,7 @@ private fun EmptyGraph(
 private fun MetricGraph(
     samples: List<MetricSample>,
     color: Color,
-    minSpan: Float,
+    boundsFor: (dataMin: Float, dataMax: Float) -> GraphBounds,
     unitLabel: String,
     modifier: Modifier = Modifier
 ) {
@@ -317,7 +320,7 @@ private fun MetricGraph(
             val h = size.height
 
             val values = displaySamples.map { it.value }
-            val bounds = GraphScale.pad(values.min(), values.max(), minSpan)
+            val bounds = boundsFor(values.min(), values.max())
             val graphMin = bounds.min
             val graphRange = bounds.range
 

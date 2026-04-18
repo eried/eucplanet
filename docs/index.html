@@ -57,6 +57,31 @@
   }
   .card h3 { font-size: 15px; margin: 0 0 6px; font-weight: 600; color: #e6edf3; }
   .card p { font-size: 14px; color: #8b949e; margin: 0; }
+  .gallery-featured {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .gallery-thumbs {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .gallery-featured a, .gallery-thumbs a { display: block; line-height: 0; }
+  .gallery-featured img, .gallery-thumbs img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid #30363d;
+    background: #161b22;
+    transition: transform 120ms ease, border-color 120ms ease;
+  }
+  .gallery-thumbs img { border-radius: 8px; }
+  .gallery-featured a:hover img, .gallery-thumbs a:hover img {
+    transform: translateY(-2px);
+    border-color: #58a6ff;
+  }
 </style>
 </head>
 <body>
@@ -72,6 +97,24 @@
 
   <section>
     <p>Subscription free, open-source, community-driven, and never phoning home. Starting with the <strong>InMotion V14</strong> but designed to grow to other wheels.</p>
+  </section>
+
+  <section>
+    <h2>A look inside</h2>
+    <div class="gallery-featured">
+      <a href="screenshots/main.png"><img src="screenshots/main.png" alt="Dashboard"></a>
+      <a href="screenshots/customalarms.png"><img src="screenshots/customalarms.png" alt="Custom alarms"></a>
+      <a href="screenshots/historicalcurrent.png"><img src="screenshots/historicalcurrent.png" alt="Historical graph"></a>
+      <a href="screenshots/tripdetails.png"><img src="screenshots/tripdetails.png" alt="Trip detail"></a>
+    </div>
+    <div class="gallery-thumbs">
+      <a href="screenshots/trips.png"><img src="screenshots/trips.png" alt="Trip list"></a>
+      <a href="screenshots/voicesettings.png"><img src="screenshots/voicesettings.png" alt="Voice settings"></a>
+      <a href="screenshots/autolights.png"><img src="screenshots/autolights.png" alt="Auto lights"></a>
+      <a href="screenshots/autovolume.png"><img src="screenshots/autovolume.png" alt="Auto volume"></a>
+      <a href="screenshots/speedsettings.png"><img src="screenshots/speedsettings.png" alt="Speed settings"></a>
+      <a href="screenshots/settings.png"><img src="screenshots/settings.png" alt="Settings"></a>
+    </div>
   </section>
 
   <section>
@@ -103,6 +146,7 @@
       </div>
     </div>
   </section>
+
 </div>
 </body>
 </html>
