@@ -65,6 +65,7 @@ fun AutomationsContent(
 ) {
     val settingsState by viewModel.settings.collectAsState()
     val location by viewModel.currentLocation.collectAsState()
+    val autoLightsSuspended by viewModel.autoLightsSuspended.collectAsState()
     val settings = settingsState ?: return
 
     Column(
@@ -91,6 +92,16 @@ fun AutomationsContent(
         }
 
         if (settings.autoLightsEnabled) {
+            if (autoLightsSuspended) {
+                Card(colors = CardDefaults.cardColors(containerColor = AccentOrange.copy(alpha = 0.15f))) {
+                    Text(
+                        stringResource(R.string.auto_lights_suspended),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AccentOrange,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

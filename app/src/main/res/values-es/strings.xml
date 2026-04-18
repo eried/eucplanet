@@ -247,6 +247,7 @@
     <string name="auto_midnight_sun_body">Hoy el sol no se pone en esta latitud — las luces permanecerán APAGADAS.</string>
     <string name="auto_polar_night_title">Noche polar</string>
     <string name="auto_polar_night_body">Hoy el sol no sale en esta latitud — las luces permanecerán ENCENDIDAS.</string>
+    <string name="auto_lights_suspended">Suspendido: encendiste/apagaste la luz manualmente en esta sesión. Reconecta la rueda o reinicia la app para reanudar.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Las reglas se revisan de arriba a abajo por métrica. Dispara la primera que coincida.</string>

@@ -247,6 +247,7 @@
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter — das Licht bleibt AUS.</string>
     <string name="auto_polar_night_title">Polarnacht</string>
     <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf — das Licht bleibt AN.</string>
+    <string name="auto_lights_suspended">Ausgesetzt: Du hast das Licht in dieser Sitzung manuell geschaltet. Rad neu verbinden oder App neu starten, um fortzusetzen.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert.</string>

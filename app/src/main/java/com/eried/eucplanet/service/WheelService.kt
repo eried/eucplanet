@@ -118,6 +118,8 @@ class WheelService : LifecycleService() {
 
                     when (state) {
                         ConnectionState.CONNECTED -> {
+                            // Fresh connection — clear any session suspension of auto-lights
+                            automationManager.clearLightsSuspension()
                             if (settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }

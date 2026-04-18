@@ -8,6 +8,9 @@ import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.util.SunCalculator
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,27 +26,76 @@ class AutomationManager @Inject constructor(
     companion object {
         private const val TAG = "AutomationManager"
         private const val LIGHT_CHECK_INTERVAL_MS = 60_000L
+        private const val LIGHT_NO_GPS_RETRY_MS = 2_000L
+        // If light state changes within this window after our command, it's us, not the user
+        private const val AUTO_TOGGLE_GRACE_MS = 4_000L
     }
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private var lastLightCheckMs = 0L
-    private var lastLightState: Boolean? = null
+    private var lastAutoToggleMs = 0L
+    private var lastKnownLightOn: Boolean? = null
+
+    private val _autoLightsSuspended = MutableStateFlow(false)
+    val autoLightsSuspended: StateFlow<Boolean> = _autoLightsSuspended.asStateFlow()
+
+    /** Called from the UI / Flic paths whenever the user toggles the light manually. */
+    fun notifyManualLightChange() {
+        if (!_autoLightsSuspended.value) {
+            Log.i(TAG, "Auto-lights suspended for this session (manual change)")
+        }
+        _autoLightsSuspended.value = true
+    }
+
+    /** Called on wheel reconnect or when the auto-lights setting is toggled. */
+    fun clearLightsSuspension() {
+        if (_autoLightsSuspended.value) {
+            Log.i(TAG, "Auto-lights suspension cleared")
+        }
+        _autoLightsSuspended.value = false
+        lastKnownLightOn = null
+    }
+
+    /** Reset the throttle so the next tick re-evaluates immediately. */
+    fun triggerImmediateLightEvaluation() {
+        lastLightCheckMs = 0L
+    }
 
     /**
      * Called every telemetry tick (~250ms). Evaluates automation rules.
      */
     fun evaluate(settings: AppSettings) {
-        if (settings.autoLightsEnabled) evaluateLights(settings)
+        detectManualLightChange()
+        if (settings.autoLightsEnabled && !_autoLightsSuspended.value) evaluateLights(settings)
         if (settings.autoVolumeEnabled) evaluateVolume(settings)
+    }
+
+    /** Watch telemetry: if the wheel's light state flips without a recent auto-toggle, it's a manual change. */
+    private fun detectManualLightChange() {
+        val current = wheelRepository.wheelData.value.lightOn
+        val previous = lastKnownLightOn
+        lastKnownLightOn = current
+        if (previous == null || previous == current) return
+        // Until we've issued an auto-toggle ourselves, we can't distinguish our effect from
+        // the initial telemetry settling (e.g., short packets defaulting lightOn=false before
+        // a full frame arrives). Don't suspend on state changes that happen before any auto action.
+        if (lastAutoToggleMs == 0L) return
+        val sinceAutoToggle = System.currentTimeMillis() - lastAutoToggleMs
+        if (sinceAutoToggle > AUTO_TOGGLE_GRACE_MS) {
+            notifyManualLightChange()
+        }
     }
 
     private fun evaluateLights(settings: AppSettings) {
         val now = System.currentTimeMillis()
-        if (now - lastLightCheckMs < LIGHT_CHECK_INTERVAL_MS) return
+        val location = tripRepository.currentLocation.value
+        val interval = if (location == null) LIGHT_NO_GPS_RETRY_MS else LIGHT_CHECK_INTERVAL_MS
+        if (now - lastLightCheckMs < interval) return
         lastLightCheckMs = now
 
-        val location = tripRepository.currentLocation.value ?: return
+        if (location == null) return  // will retry in 2s
+
         val lat = location.latitude
         val lon = location.longitude
 
@@ -58,12 +110,10 @@ class AutomationManager @Inject constructor(
         }
 
         val currentLightOn = wheelRepository.wheelData.value.lightOn
-        if (shouldBeOn != lastLightState && shouldBeOn != currentLightOn) {
+        if (shouldBeOn != currentLightOn) {
             Log.i(TAG, "Auto-lights: turning ${if (shouldBeOn) "ON" else "OFF"} (lat=$lat, lon=$lon)")
             wheelRepository.toggleLight()
-            lastLightState = shouldBeOn
-        } else {
-            lastLightState = shouldBeOn
+            lastAutoToggleMs = now
         }
     }
 

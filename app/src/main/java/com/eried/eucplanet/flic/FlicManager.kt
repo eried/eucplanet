@@ -12,6 +12,7 @@ import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.flic.flic2libandroid.Flic2Button
@@ -34,7 +35,8 @@ class FlicManager @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val wheelRepository: WheelRepository,
     private val tripRepository: TripRepository,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    private val automationManager: AutomationManager
 ) {
     companion object {
         private const val TAG = "FlicManager"
@@ -206,7 +208,10 @@ class FlicManager @Inject constructor(
         when (action) {
             FlicAction.NONE -> {}
             FlicAction.HORN -> wheelRepository.sendHorn()
-            FlicAction.LIGHT_TOGGLE -> wheelRepository.toggleLight()
+            FlicAction.LIGHT_TOGGLE -> {
+                automationManager.notifyManualLightChange()
+                wheelRepository.toggleLight()
+            }
             FlicAction.LOCK_TOGGLE -> wheelRepository.toggleLock()
             FlicAction.SAFETY_TOGGLE -> wheelRepository.toggleSafetySpeed()
             FlicAction.SAFETY_ON -> wheelRepository.enableSafetySpeed()

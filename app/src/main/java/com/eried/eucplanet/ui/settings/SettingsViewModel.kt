@@ -9,6 +9,7 @@ import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.sync.SyncManager
+import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
 import android.net.Uri
@@ -28,8 +29,11 @@ class SettingsViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
-    private val syncManager: SyncManager
+    private val syncManager: SyncManager,
+    private val automationManager: AutomationManager
 ) : ViewModel() {
+
+    val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
 
     val settings: StateFlow<AppSettings?> = settingsRepository.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -104,7 +108,13 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
 
     // Automations
-    fun updateAutoLightsEnabled(v: Boolean) = update { copy(autoLightsEnabled = v) }
+    fun updateAutoLightsEnabled(v: Boolean) {
+        update { copy(autoLightsEnabled = v) }
+        // Toggling the setting itself clears any session-level suspension
+        automationManager.clearLightsSuspension()
+        // Apply the correct state immediately instead of waiting for the next 60s tick
+        if (v) automationManager.triggerImmediateLightEvaluation()
+    }
     fun updateAutoLightsOnMinutes(v: Int) = update { copy(autoLightsOnMinutesBefore = v) }
     fun updateAutoLightsOffMinutes(v: Int) = update { copy(autoLightsOffMinutesAfter = v) }
     fun updateAutoVolumeEnabled(v: Boolean) = update { copy(autoVolumeEnabled = v) }

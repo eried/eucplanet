@@ -247,6 +247,7 @@
     <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag — lysene forblir AV.</string>
     <string name="auto_polar_night_title">Mørketid</string>
     <string name="auto_polar_night_body">Sola står ikke opp på denne breddegraden i dag — lysene forblir PÅ.</string>
+    <string name="auto_lights_suspended">Satt på pause: du slo lyset av/på manuelt denne økten. Koble hjulet til på nytt eller start appen på nytt for å gjenoppta.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser.</string>

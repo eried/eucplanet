@@ -341,6 +341,7 @@
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today — lights will stay OFF.</string>
     <string name="auto_polar_night_title">Polar Night</string>
     <string name="auto_polar_night_body">Sun doesn\'t rise at this latitude today — lights will stay ON.</string>
+    <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume.</string>
 
     <!-- Alarms tab -->
     <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires.</string>

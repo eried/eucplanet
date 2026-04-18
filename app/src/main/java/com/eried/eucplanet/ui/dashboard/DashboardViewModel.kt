@@ -10,6 +10,7 @@ import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +37,7 @@ class DashboardViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val voiceService: VoiceService,
+    private val automationManager: AutomationManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -119,6 +121,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun onLightToggle() {
+        automationManager.notifyManualLightChange()
         wheelRepository.toggleLight()
     }
 

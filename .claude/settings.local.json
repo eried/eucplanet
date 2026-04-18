@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(JAVA_HOME=\"/c/Program Files/Android/Android Studio/jbr\" ./gradlew.bat assembleDebug)",
-      "Bash(git -C \"D:/GitHub/eucplanet\" remote -v)"
+      "Bash(git -C \"D:/GitHub/eucplanet\" remote -v)",
+      "Bash(gh release *)",
+      "Bash(JAVA_HOME=\"C:/Program Files/Android/Android Studio/jbr\" ./gradlew assembleRelease)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
