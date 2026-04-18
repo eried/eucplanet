@@ -172,6 +172,10 @@
     <string name="lang_name_ru">Russisch</string>
     <string name="lang_name_no">Norwegisch</string>
     <string name="lang_name_de">Deutsch</string>
+    <string name="lang_name_fr">Französisch</string>
+    <string name="lang_name_da">Dänisch</string>
+    <string name="lang_name_sv">Schwedisch</string>
+    <string name="lang_name_zh">Chinesisch</string>
 
     <!-- Scan screen -->
     <string name="scan_title">Einrad finden</string>

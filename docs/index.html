@@ -21,6 +21,12 @@
   .container { max-width: 520px; text-align: center; }
   h1 { font-size: 32px; margin: 0 0 12px; font-weight: 600; }
   p { color: #8b949e; margin: 0 0 24px; }
+  .links {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
   a {
     display: inline-block;
     padding: 10px 20px;
@@ -31,13 +37,18 @@
     font-weight: 500;
   }
   a:hover { background: #2ea043; }
+  a.secondary { background: #21262d; border: 1px solid #30363d; }
+  a.secondary:hover { background: #30363d; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>EUC Planet</h1>
   <p>Open-source Android companion app for the InMotion V14 electric unicycle. No subscription, no telemetry.</p>
-  <a href="https://github.com/eried/eucplanet">View on GitHub</a>
+  <div class="links">
+    <a href="https://github.com/eried/eucplanet/releases">Download APK</a>
+    <a class="secondary" href="https://github.com/eried/eucplanet">View on GitHub</a>
+  </div>
 </div>
 </body>
 </html>

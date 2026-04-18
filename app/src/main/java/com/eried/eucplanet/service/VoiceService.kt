@@ -45,6 +45,12 @@ class VoiceService @Inject constructor(
     private val audioManager by lazy {
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
+    private val ttsAudioAttributes: AudioAttributes by lazy {
+        AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+    }
     private var activeFocusRequest: AudioFocusRequest? = null
     private var focusHeld = false
     private var pendingUtterances = 0
@@ -62,6 +68,11 @@ class VoiceService @Inject constructor(
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.US
                 tts?.setOnUtteranceProgressListener(utteranceListener)
+                // Route TTS output through the same attributes we use to request focus,
+                // so ducking/pausing other audio is consistent with where TTS actually plays.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
+                }
                 isReady = true
                 Log.i(TAG, "TTS initialized")
                 loadAvailableVoices()
@@ -102,22 +113,19 @@ class VoiceService @Inject constructor(
             else -> return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val attrs = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build()
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val req = AudioFocusRequest.Builder(focusGain)
-                .setAudioAttributes(attrs)
+                .setAudioAttributes(ttsAudioAttributes)
                 .setOnAudioFocusChangeListener { }
                 .build()
-            audioManager.requestAudioFocus(req)
-            activeFocusRequest = req
+            val r = audioManager.requestAudioFocus(req)
+            if (r == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) activeFocusRequest = req
+            r
         } else {
             @Suppress("DEPRECATION")
             audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC, focusGain)
         }
-        focusHeld = true
+        focusHeld = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
     @Synchronized
@@ -147,6 +155,11 @@ class VoiceService @Inject constructor(
     private fun speakWelcomeIfEnabled() {
         scope.launch {
             val s = settingsRepository.get()
+            // Settings observer may not have emitted yet when welcome fires right after init.
+            // Seed the current values so the locale and rate are applied on this first speak.
+            currentRate = s.voiceSpeechRate
+            currentLocaleTag = s.voiceLocale
+            currentAudioFocus = s.voiceAudioFocus
             if (s.announceWelcome) {
                 speak(context.getString(R.string.voice_welcome))
             }
@@ -286,9 +299,14 @@ class VoiceService @Inject constructor(
         if (!isReady) return
         tts?.setSpeechRate(currentRate)
         applyLocale(currentLocaleTag)
-        requestAudioFocus()
+        val utteranceId = "edb_${System.currentTimeMillis()}"
         synchronized(this) { pendingUtterances++ }
-        tts?.speak(text, TextToSpeech.QUEUE_ADD, null, "edb_${System.currentTimeMillis()}")
+        requestAudioFocus()
+        val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId) ?: TextToSpeech.ERROR
+        if (result == TextToSpeech.ERROR) {
+            Log.w(TAG, "TTS speak returned ERROR; releasing focus")
+            onUtteranceFinished()
+        }
     }
 
     fun testSpeak(text: String, speechRate: Float, localeTag: String) {

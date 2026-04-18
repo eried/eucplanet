@@ -172,6 +172,10 @@
     <string name="lang_name_ru">russisk</string>
     <string name="lang_name_no">norsk</string>
     <string name="lang_name_de">tysk</string>
+    <string name="lang_name_fr">fransk</string>
+    <string name="lang_name_da">dansk</string>
+    <string name="lang_name_sv">svensk</string>
+    <string name="lang_name_zh">kinesisk</string>
 
     <!-- Scan screen -->
     <string name="scan_title">Finn ettjulingen din</string>

@@ -172,6 +172,10 @@
     <string name="lang_name_ru">Русский</string>
     <string name="lang_name_no">Норвежский</string>
     <string name="lang_name_de">Немецкий</string>
+    <string name="lang_name_fr">Французский</string>
+    <string name="lang_name_da">Датский</string>
+    <string name="lang_name_sv">Шведский</string>
+    <string name="lang_name_zh">Китайский</string>
 
     <!-- Scan screen -->
     <string name="scan_title">Найдём ваше моноколесо</string>

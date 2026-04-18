@@ -172,6 +172,10 @@
     <string name="lang_name_ru">ruso</string>
     <string name="lang_name_no">noruego</string>
     <string name="lang_name_de">alemán</string>
+    <string name="lang_name_fr">francés</string>
+    <string name="lang_name_da">danés</string>
+    <string name="lang_name_sv">sueco</string>
+    <string name="lang_name_zh">chino</string>
 
     <!-- Scan screen -->
     <string name="scan_title">Busca tu monociclo</string>

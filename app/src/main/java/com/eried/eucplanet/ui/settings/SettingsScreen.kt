@@ -76,10 +76,14 @@ import com.eried.eucplanet.util.Units
 
 private val languageOptions = listOf(
     "en" to "English",
+    "da" to "Dansk",
+    "de" to "Deutsch",
     "es" to "Español",
-    "ru" to "Русский",
+    "fr" to "Français",
     "no" to "Norsk",
-    "de" to "Deutsch"
+    "ru" to "Русский",
+    "sv" to "Svenska",
+    "zh" to "中文"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +108,10 @@ fun SettingsScreen(
             "ru" -> stringResource(R.string.lang_name_ru)
             "no" -> stringResource(R.string.lang_name_no)
             "de" -> stringResource(R.string.lang_name_de)
+            "fr" -> stringResource(R.string.lang_name_fr)
+            "da" -> stringResource(R.string.lang_name_da)
+            "sv" -> stringResource(R.string.lang_name_sv)
+            "zh" -> stringResource(R.string.lang_name_zh)
             else -> lang
         }
         AlertDialog(

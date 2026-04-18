@@ -214,6 +214,10 @@
     <string name="lang_name_ru">Russian</string>
     <string name="lang_name_no">Norwegian</string>
     <string name="lang_name_de">German</string>
+    <string name="lang_name_fr">French</string>
+    <string name="lang_name_da">Danish</string>
+    <string name="lang_name_sv">Swedish</string>
+    <string name="lang_name_zh">Chinese</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Speed</string>
