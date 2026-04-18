@@ -11,7 +11,8 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage
+ * Format: Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed
+ * The trailing GPS speed column is an EUC Planet extension; DarknessBot viewers ignore trailing columns.
  */
 class CsvWriter(private val file: File) {
 
@@ -21,7 +22,7 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed")
         writer?.newLine()
     }
 
@@ -42,7 +43,7 @@ class CsvWriter(private val file: File) {
         val speed = if (data.speed != 0f) data.speed else gpsSpeedKmh
 
         w.write(
-            "$date,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f".format(
+            "$date,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f".format(
                 speed,
                 data.voltage,
                 data.maxTemperature,
@@ -50,7 +51,8 @@ class CsvWriter(private val file: File) {
                 alt,
                 lat,
                 lon,
-                data.totalDistance
+                data.totalDistance,
+                gpsSpeedKmh
             )
         )
         w.newLine()

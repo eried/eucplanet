@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentRed
 import java.text.SimpleDateFormat
@@ -350,10 +351,8 @@ fun RecordingScreen(
 
             if (trips.isEmpty()) {
                 Spacer(Modifier.height(24.dp))
-                Text(
-                    stringResource(R.string.recording_empty),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                InfoHint(
+                    text = stringResource(R.string.recording_empty),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             } else {

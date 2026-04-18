@@ -19,11 +19,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.VolumeDown
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,8 +48,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.ScrollableTabRow
@@ -67,9 +75,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.service.VoiceOption
+import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.util.Units
@@ -309,11 +319,7 @@ private fun SpeedTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (!isConnected) {
-            Text(
-                stringResource(R.string.speed_limits_disconnected),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            InfoHint(stringResource(R.string.speed_limits_disconnected))
         }
 
         SectionHeader(stringResource(R.string.section_speed_limits))
@@ -839,11 +845,7 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
-            Text(
-                stringResource(R.string.cloud_no_folder),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            InfoHint(stringResource(R.string.cloud_no_folder))
             Button(onClick = { pickFolder.launch(null) }) {
                 Text(stringResource(R.string.cloud_choose_folder))
             }
@@ -1316,8 +1318,7 @@ private fun AudioFocusSelector(
         "PAUSE" to stringResource(R.string.voice_audio_focus_pause),
         "OFF" to stringResource(R.string.voice_audio_focus_off)
     )
-
-    RadioGroup(
+    SegmentedChoice(
         label = stringResource(R.string.voice_audio_focus_label),
         options = options,
         current = current,
@@ -1335,7 +1336,7 @@ private fun OutputChannelSelector(
         "NOTIFICATION" to stringResource(R.string.voice_output_channel_notification),
         "ALARM" to stringResource(R.string.voice_output_channel_alarm)
     )
-    RadioGroup(
+    SegmentedChoice(
         label = stringResource(R.string.voice_output_channel_label),
         options = options,
         current = current,
@@ -1344,7 +1345,7 @@ private fun OutputChannelSelector(
 }
 
 @Composable
-private fun RadioGroup(
+private fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
     current: String,
@@ -1356,23 +1357,15 @@ private fun RadioGroup(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(4.dp))
-        options.forEach { (key, optionLabel) ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onChange(key) }
-                    .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
+        Spacer(Modifier.height(6.dp))
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            options.forEachIndexed { index, (key, optLabel) ->
+                SegmentedButton(
                     selected = current == key,
-                    onClick = { onChange(key) }
-                )
-                Text(
-                    optionLabel,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 4.dp)
+                    onClick = { onChange(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    icon = {},
+                    label = { Text(optLabel, style = MaterialTheme.typography.labelMedium) }
                 )
             }
         }

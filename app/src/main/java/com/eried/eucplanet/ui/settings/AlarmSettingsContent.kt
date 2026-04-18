@@ -57,6 +57,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -112,10 +113,9 @@ fun AlarmSettingsContent(
         Spacer(Modifier.height(12.dp))
 
         if (rules.isEmpty()) {
-            Text(
-                stringResource(R.string.alarm_empty),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 16.dp)
+            InfoHint(
+                text = stringResource(R.string.alarm_empty),
+                modifier = Modifier.padding(vertical = 12.dp)
             )
         }
 
