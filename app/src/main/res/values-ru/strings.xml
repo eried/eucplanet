@@ -66,7 +66,7 @@
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Записывает каждую поездку без нажатия «Старт»</string>
+    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
     <string name="auto_record_start_in_motion_caption">Ждёт начала движения, чтобы начать запись, останавливает её после времени простоя и возобновляет при следующей поездке</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
@@ -213,7 +213,8 @@
     <string name="recording_delete_trip_body">Удалить эту поездку вместе с её файлом?</string>
     <string name="recording_clear_all_menu">Удалить всё</string>
     <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения</string>
-    <string name="recording_empty">Поездок пока нет\nНажмите кнопку записи, чтобы начать</string>
+    <string name="recording_empty">Нет данных. Импортируйте или запишите новую</string>
+    <string name="recording_will_auto_stop">Запись остановится через %1$d с простоя</string>
     <string name="recording_stat_trips">Поездок</string>
     <string name="recording_stat_distance">Пробег</string>
     <string name="recording_stat_time">Время</string>
@@ -279,9 +280,7 @@
     <string name="alarm_cooldown_fmt">Пауза: %1$d с</string>
     <string name="alarm_cooldown_help">Минимальная пауза между срабатываниями, даже если условие продолжает выполняться</string>
     <string name="alarm_repeat">Повторять, пока условие выполняется</string>
-    <string name="alarm_repeat_help">Выкл.: сработает один раз, когда условие только начало выполняться, и замолчит, пока оно снова не перестанет выполняться.\nВкл.: будет повторяться каждые N секунд, пока условие остаётся истинным</string>
-    <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ. Если удерживать 35 км/ч минуту, предупреждение прозвучит каждые %1$d с</string>
-    <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ. Одно предупреждение при пересечении 30, потом тишина. Чтобы сработало снова, нужно опуститься ниже 30 и подождать %1$d с</string>
+    <string name="alarm_repeat_help">ВКЛ.: срабатывает снова после каждой паузы, пока условие выполняется.\nВЫКЛ.: срабатывает один раз и молчит, пока условие не перестанет выполняться</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Скорость</string>

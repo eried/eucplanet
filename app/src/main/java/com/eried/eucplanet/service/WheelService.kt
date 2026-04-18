@@ -102,6 +102,15 @@ class WheelService : LifecycleService() {
         // Auto-record idle timeout loop (1 Hz)
         startAutoRecordIdleLoop()
 
+        // Reset idle timer whenever a new recording starts so the stop-after-idle
+        // threshold is measured from the fresh start, not from some stale
+        // lastMotionAtMs left over from a prior session.
+        lifecycleScope.launch {
+            tripRepository.recording.collect { isRecording ->
+                if (isRecording) lastMotionAtMs = System.currentTimeMillis()
+            }
+        }
+
         // Monitor connection state for announcements + auto-record
         lifecycleScope.launch {
             wheelRepository.connectionState.collect { state ->

@@ -386,7 +386,7 @@ private fun AlarmRuleEditorDialog(
                             onClick = { comparator = entry.name },
                             shape = SegmentedButtonDefaults.itemShape(index, comparatorEntries.size)
                         ) {
-                            Text("${entry.symbol} ${stringResource(entry.labelRes)}")
+                            Text(stringResource(entry.labelRes))
                         }
                     }
                 }
@@ -531,17 +531,6 @@ private fun AlarmRuleEditorDialog(
                     Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it })
                 }
                 HintText(stringResource(R.string.alarm_repeat_help), small = true)
-                Spacer(Modifier.height(6.dp))
-                val example = if (repeatWhileActive) {
-                    stringResource(R.string.alarm_repeat_on_example_fmt, cooldownSeconds)
-                } else {
-                    stringResource(R.string.alarm_repeat_off_example_fmt, cooldownSeconds)
-                }
-                Text(
-                    example,
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
 
                 Spacer(Modifier.height(16.dp))
 

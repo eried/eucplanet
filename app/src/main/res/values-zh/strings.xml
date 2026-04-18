@@ -95,7 +95,7 @@
     <string name="section_connection">连接</string>
     <string name="section_display">显示</string>
     <string name="auto_record_on_start">启动时自动记录</string>
-    <string name="auto_record_caption">无需点击"开始"即可自动录制每次行程</string>
+    <string name="auto_record_caption">连接独轮车时自动记录行程</string>
     <string name="auto_record_start_in_motion">运动时开始录制</string>
     <string name="auto_record_start_in_motion_caption">等待运动后开始录制,空闲时间过后自动停止,下次行驶时重新开始</string>
     <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
@@ -171,7 +171,7 @@
     <string name="flic_double_click">双击</string>
     <string name="flic_hold">长按</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">把手机音量键当作车轮快捷键使用,仅在应用可见时生效</string>
+    <string name="volume_keys_caption">把手机音量键当作快捷键使用,仅在应用可见时生效</string>
     <string name="volume_keys_enable">启用音量键操作</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
@@ -282,7 +282,8 @@
     <string name="recording_delete_trip_body">要删除此行程及其数据文件吗?</string>
     <string name="recording_clear_all_menu">全部清除</string>
     <string name="recording_auto_record_tip">提示:在设置中开启自动记录,可在连接时自动开始</string>
-    <string name="recording_empty">暂无记录的行程\n点击记录按钮开始</string>
+    <string name="recording_empty">暂无数据。导入或录制一条新的</string>
+    <string name="recording_will_auto_stop">空闲 %1$d 秒后将自动停止录制</string>
     <string name="recording_stat_trips">行程</string>
     <string name="recording_stat_distance">距离</string>
     <string name="recording_stat_time">时间</string>
@@ -345,9 +346,7 @@
     <string name="alarm_cooldown_fmt">冷却:%1$d 秒</string>
     <string name="alarm_cooldown_help">两次触发之间的最短间隔,即便条件仍然满足</string>
     <string name="alarm_repeat">持续触发</string>
-    <string name="alarm_repeat_help">关:条件首次满足时触发一次,之后保持安静,直到条件不再满足。\n开:只要条件仍然满足,每隔 N 秒重复触发</string>
-    <string name="alarm_repeat_on_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 开。如果保持 35 km/h 一分钟,每 %1$d 秒都会提醒</string>
-    <string name="alarm_repeat_off_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 关。越过 30 时提醒一次,之后保持安静。必须回落到 30 以下(并等待 %1$d 秒)才会再次触发</string>
+    <string name="alarm_repeat_help">开:条件成立期间,每个冷却时间都会重新触发。\n关:触发一次后保持安静,直到条件解除</string>
 
     <string name="about_crash_logs">崩溃日志</string>
     <string name="about_crash_logs_hint">点击文件可分享给开发者</string>

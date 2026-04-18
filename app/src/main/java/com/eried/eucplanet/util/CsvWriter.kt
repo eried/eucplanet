@@ -43,7 +43,10 @@ class CsvWriter(private val file: File) {
         val speed = if (data.speed != 0f) data.speed else gpsSpeedKmh
 
         w.write(
-            "$date,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f".format(
+            String.format(
+                Locale.US,
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f",
+                date,
                 speed,
                 data.voltage,
                 data.maxTemperature,

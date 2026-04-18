@@ -95,7 +95,7 @@
     <string name="section_connection">Forbindelse</string>
     <string name="section_display">Skærm</string>
     <string name="auto_record_on_start">Optag automatisk ved start</string>
-    <string name="auto_record_caption">Optager hver tur uden at trykke Start</string>
+    <string name="auto_record_caption">Optager en tur, når hjulet er tilsluttet</string>
     <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
     <string name="auto_record_start_in_motion_caption">Venter på bevægelse for at starte optagelsen, stopper automatisk efter inaktivitetstiden og starter igen ved næste tur</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
@@ -282,7 +282,8 @@
     <string name="recording_delete_trip_body">Slet denne tur og dens datafil?</string>
     <string name="recording_clear_all_menu">Slet alle</string>
     <string name="recording_auto_record_tip">Tip: Aktivér automatisk optagelse i Indstillinger for at optage fra forbindelsen</string>
-    <string name="recording_empty">Ingen ture optaget endnu\nTryk på optageknappen for at starte</string>
+    <string name="recording_empty">Ingen data at vise. Importér eller optag en ny</string>
+    <string name="recording_will_auto_stop">Optagelse stopper automatisk efter %1$ds uden bevægelse</string>
     <string name="recording_stat_trips">Ture</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Tid</string>
@@ -345,9 +346,7 @@
     <string name="alarm_cooldown_fmt">Pause: %1$ds</string>
     <string name="alarm_cooldown_help">Mindste tid mellem udløsninger, også hvis betingelsen bliver ved at være opfyldt</string>
     <string name="alarm_repeat">Gentag mens aktiv</string>
-    <string name="alarm_repeat_help">FRA: udløses én gang, når betingelsen begynder at være opfyldt, og er så stille, indtil den ophører.\nTIL: udløses hvert N. sekund, så længe betingelsen er sand</string>
-    <string name="alarm_repeat_on_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag TIL. Holder du 35 km/t i et minut, får du en advarsel hver %1$ds</string>
-    <string name="alarm_repeat_off_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag FRA. Én advarsel ved passage af 30, derefter stille. Du skal ned under 30 (og vente %1$ds) før næste udløsning</string>
+    <string name="alarm_repeat_help">TIL: udløses igen efter hver nedkøling, så længe betingelsen er opfyldt.\nFRA: udløses én gang og er stille, indtil betingelsen ophører</string>
 
     <string name="about_crash_logs">Nedbrudslogfiler</string>
     <string name="about_crash_logs_hint">Tryk på en fil for at dele den med udvikleren</string>

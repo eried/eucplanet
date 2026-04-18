@@ -95,7 +95,7 @@
     <string name="section_connection">Anslutning</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
-    <string name="auto_record_caption">Spelar in varje tur utan att trycka Start</string>
+    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet</string>
     <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
     <string name="auto_record_start_in_motion_caption">Väntar på rörelse för att börja spela in, stoppar automatiskt efter inaktivitetstiden och startar igen vid nästa tur</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
@@ -282,7 +282,8 @@
     <string name="recording_delete_trip_body">Radera den här resan och dess datafil?</string>
     <string name="recording_clear_all_menu">Rensa alla</string>
     <string name="recording_auto_record_tip">Tips: Aktivera autoinspelning i Inställningar för att starta vid anslutning</string>
-    <string name="recording_empty">Inga resor inspelade än\nTryck på inspelningsknappen för att börja</string>
+    <string name="recording_empty">Ingen data att visa. Importera eller spela in en ny</string>
+    <string name="recording_will_auto_stop">Inspelning stoppas automatiskt efter %1$ds utan rörelse</string>
     <string name="recording_stat_trips">Resor</string>
     <string name="recording_stat_distance">Distans</string>
     <string name="recording_stat_time">Tid</string>
@@ -345,9 +346,7 @@
     <string name="alarm_cooldown_fmt">Paus: %1$ds</string>
     <string name="alarm_cooldown_help">Minsta tid mellan utlösningar, även om villkoret fortsätter gälla</string>
     <string name="alarm_repeat">Upprepa medan aktivt</string>
-    <string name="alarm_repeat_help">AV: utlöser en gång när villkoret börjar gälla, sedan tyst tills det slutar gälla.\nPÅ: fortsätter utlösa var N:e sekund så länge villkoret är sant</string>
-    <string name="alarm_repeat_on_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa PÅ. Håller du 35 km/h i en minut varnas du var %1$ds</string>
-    <string name="alarm_repeat_off_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa AV. En varning när du passerar 30, sedan tyst. Du måste ned under 30 (och vänta %1$ds) innan nästa utlösning</string>
+    <string name="alarm_repeat_help">PÅ: utlöser igen efter varje paus så länge villkoret gäller.\nAV: utlöser en gång och är tyst tills villkoret upphör</string>
 
     <string name="about_crash_logs">Kraschloggar</string>
     <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren</string>

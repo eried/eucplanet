@@ -218,7 +218,7 @@ fun RecordingScreen(
             if (!importing) {
                 FloatingActionButton(
                     onClick = { viewModel.toggleRecording() },
-                    containerColor = if (recording) AccentRed else AccentGreen
+                    containerColor = AccentRed
                 ) {
                     Icon(
                         if (recording) Icons.Default.Stop else Icons.Default.FiberManualRecord,
@@ -351,10 +351,7 @@ fun RecordingScreen(
 
             if (trips.isEmpty()) {
                 Spacer(Modifier.height(24.dp))
-                InfoHint(
-                    text = stringResource(R.string.recording_empty),
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+                InfoHint(text = stringResource(R.string.recording_empty))
             } else {
                 // The currently recording trip has endTime == null
                 val recordingTripId = if (recording) trips.firstOrNull { it.endTime == null }?.id else null

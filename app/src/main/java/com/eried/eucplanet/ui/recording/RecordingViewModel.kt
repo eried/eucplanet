@@ -11,7 +11,9 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
+import android.widget.Toast
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -58,6 +60,7 @@ data class TripDataPoint(
 class RecordingViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val wheelRepository: com.eried.eucplanet.data.repository.WheelRepository,
+    private val settingsRepository: SettingsRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -127,6 +130,14 @@ class RecordingViewModel @Inject constructor(
                 tripRepository.stopRecording()
             } else {
                 tripRepository.startRecording()
+                val s = settingsRepository.get()
+                if (s.autoRecord && s.autoRecordStartInMotion && s.autoRecordStopIdleSeconds > 0) {
+                    val msg = context.getString(
+                        R.string.recording_will_auto_stop,
+                        s.autoRecordStopIdleSeconds
+                    )
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

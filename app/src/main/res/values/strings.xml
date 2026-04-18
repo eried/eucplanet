@@ -102,7 +102,7 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Records every trip without tapping Start</string>
+    <string name="auto_record_caption">Records a trip when the wheel is connected</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Waits for movement to start recording, auto-stops after the idle time, and restarts on the next ride</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
@@ -189,7 +189,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volume Keys</string>
-    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen</string>
+    <string name="volume_keys_caption">Use the phone\'s volume buttons as shortcuts. Works only while the app is visible on screen</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
@@ -314,7 +314,8 @@
     <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
     <string name="recording_clear_all_menu">Clear all</string>
     <string name="recording_auto_record_tip">Tip: enable auto-record in Settings to start recording automatically on connect</string>
-    <string name="recording_empty">No trips recorded yet\nTap the record button to start</string>
+    <string name="recording_empty">No data to show. Import or Record a new one</string>
+    <string name="recording_will_auto_stop">Recording will auto-stop after %1$ds idle</string>
     <string name="recording_stat_trips">Trips</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Time</string>
@@ -382,9 +383,7 @@
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>
     <string name="alarm_repeat">Repeat while active</string>
-    <string name="alarm_repeat_help">OFF: fires once when the condition starts matching, then stays silent until it stops matching.\nON: keeps re-firing every Cooldown seconds for as long as the condition is still true</string>
-    <string name="alarm_repeat_on_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat ON. If you hold 35 km/h for a minute you\'ll be warned every %1$ds</string>
-    <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF. One warning when you cross 30, then silent. You must drop below 30 (and wait %1$ds) before it can fire again</string>
+    <string name="alarm_repeat_help">ON: re-fires every cooldown while the condition holds.\nOFF: fires once and stays silent until the condition clears</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>

@@ -95,7 +95,7 @@
     <string name="section_connection">Connexion</string>
     <string name="section_display">Affichage</string>
     <string name="auto_record_on_start">Enregistrer dès le démarrage</string>
-    <string name="auto_record_caption">Enregistre chaque trajet sans appuyer sur Démarrer</string>
+    <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée</string>
     <string name="auto_record_start_in_motion">Démarrer l\'enregistrement en mouvement</string>
     <string name="auto_record_start_in_motion_caption">Attend un mouvement pour lancer l\'enregistrement, s\'arrête après le délai d\'inactivité, puis redémarre au prochain trajet</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
@@ -282,7 +282,8 @@
     <string name="recording_delete_trip_body">Supprimer ce trajet et son fichier de données ?</string>
     <string name="recording_clear_all_menu">Tout effacer</string>
     <string name="recording_auto_record_tip">Astuce : activez l\'enregistrement automatique dans les paramètres pour démarrer à la connexion</string>
-    <string name="recording_empty">Aucun trajet enregistré\nAppuyez sur le bouton d\'enregistrement pour commencer</string>
+    <string name="recording_empty">Aucune donnée à afficher. Importer ou enregistrer un nouveau trajet</string>
+    <string name="recording_will_auto_stop">L\'enregistrement s\'arrêtera après %1$ds d\'inactivité</string>
     <string name="recording_stat_trips">Trajets</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Temps</string>
@@ -345,9 +346,7 @@
     <string name="alarm_cooldown_fmt">Pause : %1$ds</string>
     <string name="alarm_cooldown_help">Temps minimum entre deux déclenchements, même si la condition reste vraie</string>
     <string name="alarm_repeat">Répéter tant que c\'est actif</string>
-    <string name="alarm_repeat_help">OFF : déclenche une fois quand la condition devient vraie, puis silencieux jusqu\'à ce qu\'elle cesse.\nON : continue de déclencher toutes les N secondes tant que la condition reste vraie</string>
-    <string name="alarm_repeat_on_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter ON. Si vous tenez 35 km/h pendant une minute, un avertissement toutes les %1$ds</string>
-    <string name="alarm_repeat_off_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter OFF. Un avertissement au passage des 30, puis silence. Il faut retomber sous 30 (et attendre %1$ds) avant un nouveau déclenchement</string>
+    <string name="alarm_repeat_help">ON : redéclenche après chaque pause tant que la condition est vraie.\nOFF : déclenche une fois et reste silencieux jusqu\'à ce que la condition cesse</string>
 
     <string name="about_crash_logs">Journaux de plantage</string>
     <string name="about_crash_logs_hint">Appuyez sur un fichier pour le partager avec le développeur</string>

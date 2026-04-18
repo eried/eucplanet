@@ -66,7 +66,7 @@
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
-    <string name="auto_record_caption">Tar opp hver tur uten å trykke Start</string>
+    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet</string>
     <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
     <string name="auto_record_start_in_motion_caption">Venter på bevegelse for å starte opptak, stopper automatisk etter inaktivitetstiden og starter igjen ved neste tur</string>
     <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
@@ -141,7 +141,7 @@
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier for hjulet. Fungerer bare når appen er synlig</string>
+    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier. Fungerer bare når appen er synlig</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
@@ -213,7 +213,8 @@
     <string name="recording_delete_trip_body">Slette denne turen og datafilen?</string>
     <string name="recording_clear_all_menu">Slett alt</string>
     <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling</string>
-    <string name="recording_empty">Ingen turer er registrert enda\nTrykk opptak-knappen for å starte</string>
+    <string name="recording_empty">Ingen data å vise. Importer eller ta opp en ny</string>
+    <string name="recording_will_auto_stop">Opptak stopper automatisk etter %1$ds uten bevegelse</string>
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distanse</string>
     <string name="recording_stat_time">Tid</string>
@@ -279,9 +280,7 @@
     <string name="alarm_cooldown_fmt">Pause: %1$d s</string>
     <string name="alarm_cooldown_help">Minimum tid mellom utløsninger selv om betingelsen fortsatt er sann</string>
     <string name="alarm_repeat">Gjenta mens aktiv</string>
-    <string name="alarm_repeat_help">AV: utløses én gang når betingelsen begynner å matche, så stille til den slutter å matche.\nPÅ: utløses på nytt hvert N sekund så lenge betingelsen er sann</string>
-    <string name="alarm_repeat_on_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter PÅ. Holder du 35 km/t i ett minutt blir du varslet hvert %1$d. sekund</string>
-    <string name="alarm_repeat_off_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter AV. Ett varsel når du krysser 30, så stille. Du må under 30 (og vente %1$d s) før den kan utløses igjen</string>
+    <string name="alarm_repeat_help">PÅ: utløses på nytt etter hver pause så lenge betingelsen er sann.\nAV: utløses én gang og er stille til betingelsen opphører</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Fart</string>

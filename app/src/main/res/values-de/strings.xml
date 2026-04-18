@@ -66,7 +66,7 @@
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
     <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
-    <string name="auto_record_caption">Zeichnet jede Fahrt auf, ohne dass du Start tippen musst</string>
+    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist</string>
     <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
     <string name="auto_record_start_in_motion_caption">Wartet auf Bewegung, um die Aufnahme zu starten, stoppt automatisch nach der Leerlaufzeit und startet bei der nächsten Fahrt neu</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
@@ -141,7 +141,7 @@
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App</string>
+    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle. Funktioniert nur bei sichtbarer App</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
@@ -213,7 +213,8 @@
     <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
     <string name="recording_clear_all_menu">Alle löschen</string>
     <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen</string>
-    <string name="recording_empty">Noch keine Fahrten aufgezeichnet\nTippe auf Aufnahme, um zu starten</string>
+    <string name="recording_empty">Keine Daten vorhanden. Importieren oder neue Fahrt aufnehmen</string>
+    <string name="recording_will_auto_stop">Aufnahme stoppt automatisch nach %1$ds ohne Bewegung</string>
     <string name="recording_stat_trips">Fahrten</string>
     <string name="recording_stat_distance">Distanz</string>
     <string name="recording_stat_time">Zeit</string>
@@ -279,9 +280,7 @@
     <string name="alarm_cooldown_fmt">Abklingzeit: %1$d s</string>
     <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist</string>
     <string name="alarm_repeat">Wiederholen solange aktiv</string>
-    <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt</string>
-    <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AN. Wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt</string>
-    <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AUS. Eine Warnung beim Überschreiten von 30, dann still. Du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann</string>
+    <string name="alarm_repeat_help">AN: feuert nach jeder Abklingzeit erneut, solange die Bedingung zutrifft.\nAUS: feuert einmal und bleibt still, bis die Bedingung endet</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Geschwindigkeit</string>
