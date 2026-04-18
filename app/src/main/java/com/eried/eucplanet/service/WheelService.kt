@@ -116,8 +116,8 @@ class WheelService : LifecycleService() {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }
                             // Auto-record: start recording when wheel connects, unless the user
-                            // gated it on "only while in motion" — then the telemetry handler starts it.
-                            if (settings.autoRecord && !settings.autoRecordOnlyInMotion &&
+                            // gated it on "start in motion" — then the telemetry handler starts it.
+                            if (settings.autoRecord && !settings.autoRecordStartInMotion &&
                                 !tripRepository.recording.value) {
                                 lifecycleScope.launch { tripRepository.startRecording() }
                             }
@@ -207,8 +207,8 @@ class WheelService : LifecycleService() {
         val moving = kotlin.math.abs(data.speed) > 0f
         if (moving) lastMotionAtMs = System.currentTimeMillis()
 
-        // "Only while in motion": start as soon as we see speed > 0, and only while connected.
-        if (settings.autoRecordOnlyInMotion &&
+        // Motion-linked loop: start on first motion and restart after each idle auto-stop.
+        if (settings.autoRecordStartInMotion &&
             moving &&
             wheelRepository.connectionState.value == ConnectionState.CONNECTED &&
             !tripRepository.recording.value
@@ -222,7 +222,7 @@ class WheelService : LifecycleService() {
             while (true) {
                 delay(1000L)
                 val settings = settingsRepository.get()
-                if (!settings.autoRecord || !settings.autoRecordStopWhenIdle) continue
+                if (!settings.autoRecord || !settings.autoRecordStartInMotion) continue
                 if (!tripRepository.recording.value) continue
 
                 val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED

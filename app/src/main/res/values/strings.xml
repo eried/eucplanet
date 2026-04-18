@@ -102,11 +102,9 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects</string>
-    <string name="auto_record_only_in_motion">Only record when in motion</string>
-    <string name="auto_record_only_in_motion_caption">Waits for the wheel to start moving before starting the recording</string>
-    <string name="auto_record_stop_when_idle">Auto-stop when idle</string>
-    <string name="auto_record_stop_when_idle_caption">Stops the recording if the wheel is stopped or disconnected for the selected time</string>
+    <string name="auto_record_caption">Records every trip without tapping Start</string>
+    <string name="auto_record_start_in_motion">Start recording when in motion</string>
+    <string name="auto_record_start_in_motion_caption">Waits for movement to start recording, auto-stops after the idle time, and restarts on the next ride. When off, recording runs the whole time the wheel is connected</string>
     <string name="auto_record_stop_idle_seconds">Idle time before stopping</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time</string>

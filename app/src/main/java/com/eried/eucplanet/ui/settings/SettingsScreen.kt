@@ -221,16 +221,11 @@ private fun GeneralTab(
         HintText(stringResource(R.string.auto_record_caption), small = true)
         if (settings.autoRecord) {
             SwitchSetting(
-                stringResource(R.string.auto_record_only_in_motion),
-                settings.autoRecordOnlyInMotion
-            ) { viewModel.updateAutoRecordOnlyInMotion(it) }
-            HintText(stringResource(R.string.auto_record_only_in_motion_caption), small = true)
-            SwitchSetting(
-                stringResource(R.string.auto_record_stop_when_idle),
-                settings.autoRecordStopWhenIdle
-            ) { viewModel.updateAutoRecordStopWhenIdle(it) }
-            HintText(stringResource(R.string.auto_record_stop_when_idle_caption), small = true)
-            if (settings.autoRecordStopWhenIdle) {
+                stringResource(R.string.auto_record_start_in_motion),
+                settings.autoRecordStartInMotion
+            ) { viewModel.updateAutoRecordStartInMotion(it) }
+            HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
+            if (settings.autoRecordStartInMotion) {
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
                     value = settings.autoRecordStopIdleSeconds.toFloat(),

@@ -65,12 +65,10 @@ data class AppSettings(
 
     // Recording
     val autoRecord: Boolean = false,
-    // Only start auto-recording once the wheel actually starts moving (speed > 0).
+    // Motion-linked loop: wait for speed > 0 to start recording, auto-stop after idle timeout,
+    // restart on next motion. When false, recording starts at connect and runs until disconnect.
     @ColumnInfo(defaultValue = "0")
-    val autoRecordOnlyInMotion: Boolean = false,
-    // Stop auto-recording if the wheel is idle (speed == 0) OR disconnected for this many seconds.
-    @ColumnInfo(defaultValue = "0")
-    val autoRecordStopWhenIdle: Boolean = false,
+    val autoRecordStartInMotion: Boolean = false,
     @ColumnInfo(defaultValue = "60")
     val autoRecordStopIdleSeconds: Int = 60,
 

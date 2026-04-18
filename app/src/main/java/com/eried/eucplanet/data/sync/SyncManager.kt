@@ -195,8 +195,7 @@ class SyncManager @Inject constructor(
         put("announceSafetyMode", s.announceSafetyMode)
         put("announceWelcome", s.announceWelcome)
         put("autoRecord", s.autoRecord)
-        put("autoRecordOnlyInMotion", s.autoRecordOnlyInMotion)
-        put("autoRecordStopWhenIdle", s.autoRecordStopWhenIdle)
+        put("autoRecordStartInMotion", s.autoRecordStartInMotion)
         put("autoRecordStopIdleSeconds", s.autoRecordStopIdleSeconds)
         put("flic1Name", s.flic1Name)
         put("flic1Click", s.flic1Click)
@@ -258,8 +257,10 @@ class SyncManager @Inject constructor(
         announceSafetyMode = j.optBoolean("announceSafetyMode", base.announceSafetyMode),
         announceWelcome = j.optBoolean("announceWelcome", base.announceWelcome),
         autoRecord = j.optBoolean("autoRecord", base.autoRecord),
-        autoRecordOnlyInMotion = j.optBoolean("autoRecordOnlyInMotion", base.autoRecordOnlyInMotion),
-        autoRecordStopWhenIdle = j.optBoolean("autoRecordStopWhenIdle", base.autoRecordStopWhenIdle),
+        autoRecordStartInMotion = j.optBoolean(
+            "autoRecordStartInMotion",
+            j.optBoolean("autoRecordOnlyInMotion", base.autoRecordStartInMotion)
+        ),
         autoRecordStopIdleSeconds = j.optInt("autoRecordStopIdleSeconds", base.autoRecordStopIdleSeconds),
         flic1Name = j.optString("flic1Name", base.flic1Name),
         flic1Click = j.optString("flic1Click", base.flic1Click),
