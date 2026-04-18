@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EUC Planet — Privacy Policy</title>
+<meta name="description" content="Privacy policy for the EUC Planet Android app.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  header { margin-bottom: 32px; }
+  h1 { font-size: 32px; margin: 0 0 8px; font-weight: 700; letter-spacing: -0.5px; }
+  .sub { color: #8b949e; font-size: 14px; margin: 0; }
+  h2 { font-size: 20px; margin: 32px 0 12px; font-weight: 600; }
+  p, li { color: #c9d1d9; }
+  ul { padding-left: 22px; margin: 0 0 12px; }
+  li { margin-bottom: 6px; }
+  a { color: #58a6ff; }
+  code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 90%; }
+  footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #30363d; color: #8b949e; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Privacy Policy</h1>
+    <p class="sub">EUC Planet Android app · Last updated 2026-04-19</p>
+  </header>
+
+  <p>EUC Planet is an open-source companion app for electric unicycles. It is published and maintained by Erwin Ried. This page describes what the app accesses on your device and what happens to that data.</p>
+
+  <h2>Short version</h2>
+  <ul>
+    <li>The app does not have a server. It runs entirely on your phone.</li>
+    <li>It does not send your data to the developer or to any third party.</li>
+    <li>It does not contain advertising, analytics, or tracking SDKs.</li>
+    <li>Trip recordings, settings, and telemetry stay on your device unless you explicitly choose to sync them to a cloud folder <em>you</em> own (via Android's Storage Access Framework).</li>
+  </ul>
+
+  <h2>What the app accesses</h2>
+  <ul>
+    <li><strong>Bluetooth</strong> — to scan for and connect to your wheel.</li>
+    <li><strong>Precise location (GPS)</strong> — only while a trip is being recorded or while the Recording screen is open, so the recorded CSV contains coordinates, altitude, and GPS speed. Location is <em>never</em> used for advertising, identification, or sent to any server by the app.</li>
+    <li><strong>Notifications</strong> — to show the ongoing connection notification and deliver alarm alerts.</li>
+    <li><strong>Foreground service</strong> — to keep the BLE connection and GPS tracking alive while the screen is off during a ride.</li>
+    <li><strong>Storage access (optional)</strong> — if you enable cloud sync, you pick a folder yourself through Android's file picker (Google Drive, OneDrive, Dropbox, local, etc.). The app only reads/writes inside that folder. You can revoke access at any time through Android settings.</li>
+  </ul>
+
+  <h2>What is collected or stored</h2>
+  <ul>
+    <li><strong>On your device:</strong> your app settings, the Bluetooth MAC address of the last connected wheel (so auto-connect works), and any trip CSV files you record.</li>
+    <li><strong>In your cloud folder (optional, only if you enable sync):</strong> a copy of your app settings and your trip files. This folder belongs to you; the developer has no access to it.</li>
+  </ul>
+
+  <h2>What is <em>not</em> collected</h2>
+  <ul>
+    <li>No account, no login, no email, no phone number.</li>
+    <li>No analytics events, crash reports, or usage metrics sent off-device.</li>
+    <li>No advertising identifiers.</li>
+    <li>No contact list, call log, SMS, camera, microphone, or photo access.</li>
+  </ul>
+
+  <h2>Permissions explained</h2>
+  <ul>
+    <li><code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code> — required to find and control the wheel. The scan is flagged <code>neverForLocation</code>.</li>
+    <li><code>ACCESS_FINE_LOCATION</code>, <code>ACCESS_COARSE_LOCATION</code> — only used to record your position while a trip is being recorded.</li>
+    <li><code>FOREGROUND_SERVICE</code>, <code>FOREGROUND_SERVICE_CONNECTED_DEVICE</code>, <code>FOREGROUND_SERVICE_LOCATION</code> — to keep the wheel connection and GPS running in the background while you ride.</li>
+    <li><code>POST_NOTIFICATIONS</code> — to show the connection status and alerts.</li>
+    <li><code>VIBRATE</code> — for alarm haptic feedback.</li>
+    <li><code>INTERNET</code> — used only when you explicitly upload trip files to your chosen cloud provider through the Android sync stack.</li>
+  </ul>
+
+  <h2>Data retention and deletion</h2>
+  <p>All data is local. Uninstalling the app removes everything stored in the app's private data directory. Trip files that you exported or synced to your own cloud folder remain under your control.</p>
+
+  <h2>Children</h2>
+  <p>The app is not directed at children under 13.</p>
+
+  <h2>Open source</h2>
+  <p>The full source code is public at <a href="https://github.com/eried/eucplanet">github.com/eried/eucplanet</a>, so the claims above can be independently verified.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or concerns: open an issue at <a href="https://github.com/eried/eucplanet/issues">github.com/eried/eucplanet/issues</a>.</p>
+
+  <footer>
+    <a href="/">&larr; Back to EUC Planet</a>
+  </footer>
+</div>
+</body>
+</html>
