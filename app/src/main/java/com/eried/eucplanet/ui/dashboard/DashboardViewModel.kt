@@ -138,7 +138,11 @@ class DashboardViewModel @Inject constructor(
     fun onVoiceAnnounce() {
         viewModelScope.launch {
             val settings = settingsRepository.get()
-            voiceService.announceTrigger(wheelRepository.wheelData.value, settings)
+            voiceService.announceTrigger(
+                wheelRepository.wheelData.value,
+                settings,
+                isRecording = tripRepository.recording.value
+            )
         }
     }
 
