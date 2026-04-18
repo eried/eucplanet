@@ -94,17 +94,23 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceReportTemp(v: Boolean) = update { copy(voiceReportTemp = v) }
     fun updateVoiceReportPwm(v: Boolean) = update { copy(voiceReportPwm = v) }
     fun updateVoiceReportDistance(v: Boolean) = update { copy(voiceReportDistance = v) }
+    fun updateVoiceReportTime(v: Boolean) = update { copy(voiceReportTime = v) }
     fun updateTriggerReportSpeed(v: Boolean) = update { copy(triggerReportSpeed = v) }
     fun updateTriggerReportBattery(v: Boolean) = update { copy(triggerReportBattery = v) }
     fun updateTriggerReportTemp(v: Boolean) = update { copy(triggerReportTemp = v) }
     fun updateTriggerReportPwm(v: Boolean) = update { copy(triggerReportPwm = v) }
     fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
+    fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateVoiceLocale(tag: String) {
         update { copy(voiceLocale = tag) }
         voiceService.setVoiceLocale(tag)
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
+    fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
+    fun updateAutoRecordOnlyInMotion(v: Boolean) = update { copy(autoRecordOnlyInMotion = v) }
+    fun updateAutoRecordStopWhenIdle(v: Boolean) = update { copy(autoRecordStopWhenIdle = v) }
+    fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(10, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
 
     // Automations
@@ -222,7 +228,9 @@ class SettingsViewModel @Inject constructor(
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            val items = current.voiceReportOrder.split(",").map { it.trim() }.toMutableList()
+            val known = listOf("Speed", "Battery", "Temp", "PWM", "Distance", "Recording", "Time")
+            val saved = current.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
+            val items = (saved + known.filter { it !in saved }).toMutableList()
             if (fromIndex in items.indices && toIndex in items.indices) {
                 val item = items.removeAt(fromIndex)
                 items.add(toIndex, item)

@@ -27,14 +27,23 @@ class CsvWriter(private val file: File) {
 
     fun writeRow(data: WheelData, location: Location?) {
         val w = writer ?: return
-        val date = dateFormat.format(Date(data.timestamp))
+        // Use wallclock so rows recorded without wheel telemetry (disconnected or
+        // never connected) still carry a correct date. WheelData.timestamp defaults to
+        // app-start time when no packet has arrived, which would freeze every row.
+        val nowMs = System.currentTimeMillis()
+        val tsMs = if (data.timestamp in (nowMs - 2000L)..nowMs) data.timestamp else nowMs
+        val date = dateFormat.format(Date(tsMs))
         val lat = location?.latitude ?: 0.0
         val lon = location?.longitude ?: 0.0
         val alt = location?.altitude ?: 0.0
 
+        // Prefer wheel speed; fall back to GPS speed (m/s -> km/h) when the wheel is silent.
+        val gpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else 0f
+        val speed = if (data.speed != 0f) data.speed else gpsSpeedKmh
+
         w.write(
             "$date,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f".format(
-                data.speed,
+                speed,
                 data.voltage,
                 data.maxTemperature,
                 data.batteryPercent,

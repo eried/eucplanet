@@ -174,7 +174,6 @@
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
 
-    <string name="voice_warning_fmt">Advarsel! %1$s ved %2$s</string>
     <string name="voice_speed_fmt">hastighed %1$s</string>
     <string name="voice_battery_fmt">batteri %1$d procent</string>
     <string name="voice_temp_fmt">temperatur %1$s grader</string>
@@ -214,10 +213,8 @@
     <string name="alarm_metric_voltage">Spænding</string>
     <string name="alarm_metric_current">Strøm</string>
 
-    <string name="alarm_cmp_gt">Større end</string>
     <string name="alarm_cmp_lt">Mindre end</string>
     <string name="alarm_cmp_ge">Større end eller lig med</string>
-    <string name="alarm_cmp_le">Mindre end eller lig med</string>
 
     <string name="flic_action_none">Ingen</string>
     <string name="flic_action_horn">Horn</string>

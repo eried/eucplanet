@@ -174,7 +174,6 @@
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
 
-    <string name="voice_warning_fmt">Varning! %1$s vid %2$s</string>
     <string name="voice_speed_fmt">hastighet %1$s</string>
     <string name="voice_battery_fmt">batteri %1$d procent</string>
     <string name="voice_temp_fmt">temperatur %1$s grader</string>
@@ -214,10 +213,8 @@
     <string name="alarm_metric_voltage">Spänning</string>
     <string name="alarm_metric_current">Ström</string>
 
-    <string name="alarm_cmp_gt">Större än</string>
     <string name="alarm_cmp_lt">Mindre än</string>
     <string name="alarm_cmp_ge">Större eller lika med</string>
-    <string name="alarm_cmp_le">Mindre eller lika med</string>
 
     <string name="flic_action_none">Ingen</string>
     <string name="flic_action_horn">Tuta</string>

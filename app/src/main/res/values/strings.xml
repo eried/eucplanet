@@ -103,6 +103,11 @@
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
     <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects.</string>
+    <string name="auto_record_only_in_motion">Only record when in motion</string>
+    <string name="auto_record_only_in_motion_caption">Wait until the wheel actually starts moving before starting the recording.</string>
+    <string name="auto_record_stop_when_idle">Auto-stop when idle</string>
+    <string name="auto_record_stop_when_idle_caption">Stops the recording if the wheel is stopped or disconnected for the selected time.</string>
+    <string name="auto_record_stop_idle_seconds">Idle time before stopping</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time.</string>
     <string name="last_device">Last device: %1$s</string>
@@ -158,6 +163,10 @@
     <string name="voice_audio_focus_duck">Lower other sounds</string>
     <string name="voice_audio_focus_pause">Pause other sounds</string>
     <string name="voice_audio_focus_off">Do nothing</string>
+    <string name="voice_output_channel_label">Voice output</string>
+    <string name="voice_output_channel_media">Media (music volume)</string>
+    <string name="voice_output_channel_notification">Notification (ring volume)</string>
+    <string name="voice_output_channel_alarm">Alarm (loudest, ignores silent)</string>
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>
     <string name="report_speed">Speed</string>
@@ -166,6 +175,7 @@
     <string name="report_pwm">PWM</string>
     <string name="report_distance">Distance</string>
     <string name="report_recording">Recording</string>
+    <string name="report_time">Time</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 Buttons</string>
@@ -174,6 +184,8 @@
     <string name="flic_start_scan">Scan for button</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
     <string name="flic_forget">Forget</string>
+    <string name="flic_forget_title">Forget this button?</string>
+    <string name="flic_forget_body">%1$s will be unpaired and its actions cleared. You can pair it again anytime.</string>
     <string name="flic_rename">Rename</string>
     <string name="flic_click">Click</string>
     <string name="flic_double_click">Double Click</string>
@@ -185,13 +197,13 @@
     <string name="volume_down">Volume Down</string>
 
     <!-- Voice (spoken) templates -->
-    <string name="voice_warning_fmt">Warning! %1$s at %2$s</string>
     <string name="voice_speed_fmt">Speed %1$s</string>
     <string name="voice_battery_fmt">battery %1$d percent</string>
     <string name="voice_temp_fmt">temperature %1$s degrees</string>
     <string name="voice_load_fmt">load %1$s percent</string>
     <string name="voice_trip_fmt">trip %1$s kilometers</string>
     <string name="voice_trip_miles_fmt">trip %1$s miles</string>
+    <string name="voice_time_fmt">time %1$s</string>
     <string name="voice_recording_on">recording</string>
     <string name="voice_recording_off">not recording</string>
     <string name="voice_wheel_locked">Wheel locked</string>
@@ -228,10 +240,8 @@
     <string name="alarm_metric_current">Current</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_gt">Greater than</string>
     <string name="alarm_cmp_lt">Less than</string>
     <string name="alarm_cmp_ge">Greater or equal</string>
-    <string name="alarm_cmp_le">Less or equal</string>
 
     <!-- Flic actions -->
     <string name="flic_action_none">None</string>
@@ -353,6 +363,8 @@
     <string name="alarm_add">Add Alarm Rule</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
+    <string name="alarm_delete_title">Delete this alarm?</string>
+    <string name="alarm_delete_body">%1$s will be removed. This cannot be undone.</string>
     <string name="alarm_name">Name (optional)</string>
     <string name="alarm_section_condition">Condition</string>
     <string name="alarm_metric_label">Metric</string>

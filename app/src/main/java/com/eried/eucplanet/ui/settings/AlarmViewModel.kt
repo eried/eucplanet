@@ -1,10 +1,6 @@
 package com.eried.eucplanet.ui.settings
 
 import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
@@ -14,6 +10,7 @@ import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.service.TonePlayer
 import com.eried.eucplanet.service.VoiceService
+import com.eried.eucplanet.util.VibratorHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,12 +34,7 @@ class AlarmViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
 
-    private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-    } else {
-        @Suppress("DEPRECATION")
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
+    private val vibratorHelper = VibratorHelper(context)
 
     val rules: StateFlow<List<AlarmRule>> = alarmDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -109,8 +101,6 @@ class AlarmViewModel @Inject constructor(
     }
 
     fun previewVibrate(durationMs: Int) {
-        vibrator.vibrate(
-            VibrationEffect.createOneShot(durationMs.toLong(), VibrationEffect.DEFAULT_AMPLITUDE)
-        )
+        vibratorHelper.oneShot(durationMs.toLong())
     }
 }

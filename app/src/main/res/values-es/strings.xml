@@ -144,7 +144,6 @@
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>
 
-    <string name="voice_warning_fmt">¡Advertencia! %1$s a %2$s</string>
     <string name="voice_speed_fmt">Velocidad %1$s</string>
     <string name="voice_battery_fmt">batería %1$d por ciento</string>
     <string name="voice_temp_fmt">temperatura %1$s grados</string>
@@ -293,10 +292,8 @@
     <string name="alarm_metric_current">Corriente</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_gt">Mayor que</string>
     <string name="alarm_cmp_lt">Menor que</string>
     <string name="alarm_cmp_ge">Mayor o igual</string>
-    <string name="alarm_cmp_le">Menor o igual</string>
 
     <!-- Flic actions -->
     <string name="flic_action_none">Ninguna</string>

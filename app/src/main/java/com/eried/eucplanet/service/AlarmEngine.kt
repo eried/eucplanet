@@ -1,20 +1,18 @@
 package com.eried.eucplanet.service
 
 import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.util.Log
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.util.VibratorHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -32,12 +30,7 @@ class AlarmEngine @Inject constructor(
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val vibrator: Vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
-    } else {
-        @Suppress("DEPRECATION")
-        context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
+    private val vibratorHelper = VibratorHelper(context)
 
     // Track per-rule state: whether condition was true last check, and last fire time
     private val ruleState = mutableMapOf<Long, RuleState>()
@@ -72,11 +65,8 @@ class AlarmEngine @Inject constructor(
                     val isNewTrigger = !state.wasActive
                     val cooldownExpired = (now - state.lastFireTimeMs) >= cooldownMs
 
-                    val shouldFire = when {
-                        isNewTrigger -> true
-                        rule.repeatWhileActive && cooldownExpired -> true
-                        else -> false
-                    }
+                    // Cooldown is strict: re-crossing the threshold does not bypass it.
+                    val shouldFire = cooldownExpired && (isNewTrigger || rule.repeatWhileActive)
 
                     if (shouldFire) {
                         Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=$value)")
@@ -107,33 +97,30 @@ class AlarmEngine @Inject constructor(
         } catch (_: Exception) { null }
     }
 
-    private fun checkCondition(value: Float, comparator: String, threshold: Float): Boolean {
-        return try {
-            when (AlarmComparator.valueOf(comparator)) {
-                AlarmComparator.GREATER_THAN -> value > threshold
-                AlarmComparator.LESS_THAN -> value < threshold
-                AlarmComparator.GREATER_EQUAL -> value >= threshold
-                AlarmComparator.LESS_EQUAL -> value <= threshold
-            }
-        } catch (_: Exception) { false }
-    }
+    private fun checkCondition(value: Float, comparator: String, threshold: Float): Boolean =
+        when (AlarmComparator.parse(comparator)) {
+            AlarmComparator.GREATER_EQUAL -> value >= threshold
+            AlarmComparator.LESS_THAN -> value < threshold
+        }
 
     private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float) {
-        if (rule.beepEnabled) {
-            scope.launch {
-                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
-            }
-        }
-
-        if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-            val text = expandTemplate(rule.voiceText, rule, data, triggerValue)
-            voiceService.speak(text)
-        }
-
+        // Vibrate fires immediately; beep and voice are sequenced so the beep
+        // finishes before the voice speaks.
         if (rule.vibrateEnabled) {
-            vibrator.vibrate(
-                VibrationEffect.createOneShot(rule.vibrateDurationMs.toLong(), VibrationEffect.DEFAULT_AMPLITUDE)
-            )
+            vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+        }
+
+        scope.launch {
+            if (rule.beepEnabled) {
+                tonePlayer.playBeep(rule.beepFrequency, rule.beepDurationMs, rule.beepCount)
+                if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                    delay(200)
+                }
+            }
+            if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
+                val text = expandTemplate(rule.voiceText, rule, data, triggerValue)
+                voiceService.speak(text)
+            }
         }
     }
 

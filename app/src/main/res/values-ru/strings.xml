@@ -144,7 +144,6 @@
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
 
-    <string name="voice_warning_fmt">Внимание! %1$s %2$s</string>
     <string name="voice_speed_fmt">скорость %1$s</string>
     <string name="voice_battery_fmt">заряд %1$d процентов</string>
     <string name="voice_temp_fmt">температура %1$s градусов</string>
@@ -293,10 +292,8 @@
     <string name="alarm_metric_current">Ток</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_gt">больше</string>
     <string name="alarm_cmp_lt">меньше</string>
     <string name="alarm_cmp_ge">больше или равно</string>
-    <string name="alarm_cmp_le">меньше или равно</string>
 
     <!-- Flic actions -->
     <string name="flic_action_none">Ничего не делать</string>

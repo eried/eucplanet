@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +36,7 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -62,6 +64,24 @@ fun FlicScreen(
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
     val pairedButtons by viewModel.pairedButtons.collectAsState()
+    var forgetTarget by remember { mutableStateOf<Pair<String, String>?>(null) }
+
+    forgetTarget?.let { (addr, name) ->
+        AlertDialog(
+            onDismissRequest = { forgetTarget = null },
+            title = { Text(stringResource(R.string.flic_forget_title)) },
+            text = { Text(stringResource(R.string.flic_forget_body, name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.forgetButton(addr)
+                    forgetTarget = null
+                }) { Text(stringResource(R.string.flic_forget), color = AccentRed) }
+            },
+            dismissButton = {
+                TextButton(onClick = { forgetTarget = null }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -139,7 +159,7 @@ fun FlicScreen(
                     onClickChange = { viewModel.updateFlic1Click(it) },
                     onDoubleClickChange = { viewModel.updateFlic1DoubleClick(it) },
                     onHoldChange = { viewModel.updateFlic1Hold(it) },
-                    onForget = { viewModel.forgetButton(addr) }
+                    onForget = { forgetTarget = addr to settings.flic1Name }
                 )
             }
 
@@ -155,7 +175,7 @@ fun FlicScreen(
                     onClickChange = { viewModel.updateFlic2Click(it) },
                     onDoubleClickChange = { viewModel.updateFlic2DoubleClick(it) },
                     onHoldChange = { viewModel.updateFlic2Hold(it) },
-                    onForget = { viewModel.forgetButton(addr) }
+                    onForget = { forgetTarget = addr to settings.flic2Name }
                 )
             }
 

@@ -40,6 +40,8 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 
+data class LatLon(val latitude: Double, val longitude: Double)
+
 data class TripDataPoint(
     val date: String,
     val speed: Float,
@@ -64,6 +66,17 @@ class RecordingViewModel @Inject constructor(
     }
 
     val recording: StateFlow<Boolean> = tripRepository.recording
+
+    // Current GPS fix as (lat, lon) pair so the trip detail screen can animate a live marker.
+    val liveLocation: StateFlow<LatLon?> = tripRepository.currentLocation
+        .map { loc -> loc?.let { LatLon(it.latitude, it.longitude) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    // True while the given trip is the one currently being recorded.
+    fun isTripLiveRecording(trip: TripRecord): StateFlow<Boolean> =
+        tripRepository.currentTripId
+            .map { it != null && it == trip.id }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val _importing = MutableStateFlow(false)
     val importing: StateFlow<Boolean> = _importing.asStateFlow()

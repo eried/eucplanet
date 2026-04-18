@@ -174,7 +174,6 @@
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
 
-    <string name="voice_warning_fmt">Attention ! %1$s à %2$s</string>
     <string name="voice_speed_fmt">vitesse %1$s</string>
     <string name="voice_battery_fmt">batterie %1$d pour cent</string>
     <string name="voice_temp_fmt">température %1$s degrés</string>
@@ -214,10 +213,8 @@
     <string name="alarm_metric_voltage">Tension</string>
     <string name="alarm_metric_current">Courant</string>
 
-    <string name="alarm_cmp_gt">Supérieur à</string>
     <string name="alarm_cmp_lt">Inférieur à</string>
     <string name="alarm_cmp_ge">Supérieur ou égal</string>
-    <string name="alarm_cmp_le">Inférieur ou égal</string>
 
     <string name="flic_action_none">Aucune</string>
     <string name="flic_action_horn">Klaxon</string>

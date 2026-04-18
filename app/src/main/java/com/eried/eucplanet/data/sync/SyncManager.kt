@@ -170,16 +170,20 @@ class SyncManager @Inject constructor(
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
+        put("voiceAudioFocus", s.voiceAudioFocus)
+        put("voiceOutputChannel", s.voiceOutputChannel)
         put("voiceReportSpeed", s.voiceReportSpeed)
         put("voiceReportBattery", s.voiceReportBattery)
         put("voiceReportTemp", s.voiceReportTemp)
         put("voiceReportPwm", s.voiceReportPwm)
         put("voiceReportDistance", s.voiceReportDistance)
+        put("voiceReportTime", s.voiceReportTime)
         put("triggerReportSpeed", s.triggerReportSpeed)
         put("triggerReportBattery", s.triggerReportBattery)
         put("triggerReportTemp", s.triggerReportTemp)
         put("triggerReportPwm", s.triggerReportPwm)
         put("triggerReportDistance", s.triggerReportDistance)
+        put("triggerReportTime", s.triggerReportTime)
         put("voiceReportRecording", s.voiceReportRecording)
         put("triggerReportRecording", s.triggerReportRecording)
         put("voiceReportOrder", s.voiceReportOrder)
@@ -191,6 +195,9 @@ class SyncManager @Inject constructor(
         put("announceSafetyMode", s.announceSafetyMode)
         put("announceWelcome", s.announceWelcome)
         put("autoRecord", s.autoRecord)
+        put("autoRecordOnlyInMotion", s.autoRecordOnlyInMotion)
+        put("autoRecordStopWhenIdle", s.autoRecordStopWhenIdle)
+        put("autoRecordStopIdleSeconds", s.autoRecordStopIdleSeconds)
         put("flic1Name", s.flic1Name)
         put("flic1Click", s.flic1Click)
         put("flic1DoubleClick", s.flic1DoubleClick)
@@ -226,16 +233,20 @@ class SyncManager @Inject constructor(
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
+        voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
+        voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
         voiceReportSpeed = j.optBoolean("voiceReportSpeed", base.voiceReportSpeed),
         voiceReportBattery = j.optBoolean("voiceReportBattery", base.voiceReportBattery),
         voiceReportTemp = j.optBoolean("voiceReportTemp", base.voiceReportTemp),
         voiceReportPwm = j.optBoolean("voiceReportPwm", base.voiceReportPwm),
         voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
+        voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
         triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
         triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
         triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
         triggerReportPwm = j.optBoolean("triggerReportPwm", base.triggerReportPwm),
         triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
+        triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
         voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
         triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
@@ -247,6 +258,9 @@ class SyncManager @Inject constructor(
         announceSafetyMode = j.optBoolean("announceSafetyMode", base.announceSafetyMode),
         announceWelcome = j.optBoolean("announceWelcome", base.announceWelcome),
         autoRecord = j.optBoolean("autoRecord", base.autoRecord),
+        autoRecordOnlyInMotion = j.optBoolean("autoRecordOnlyInMotion", base.autoRecordOnlyInMotion),
+        autoRecordStopWhenIdle = j.optBoolean("autoRecordStopWhenIdle", base.autoRecordStopWhenIdle),
+        autoRecordStopIdleSeconds = j.optInt("autoRecordStopIdleSeconds", base.autoRecordStopIdleSeconds),
         flic1Name = j.optString("flic1Name", base.flic1Name),
         flic1Click = j.optString("flic1Click", base.flic1Click),
         flic1DoubleClick = j.optString("flic1DoubleClick", base.flic1DoubleClick),

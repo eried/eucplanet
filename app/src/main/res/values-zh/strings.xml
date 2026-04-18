@@ -174,7 +174,6 @@
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
 
-    <string name="voice_warning_fmt">警告!%1$s 达 %2$s</string>
     <string name="voice_speed_fmt">速度 %1$s</string>
     <string name="voice_battery_fmt">电量 百分之 %1$d</string>
     <string name="voice_temp_fmt">温度 %1$s 度</string>
@@ -214,10 +213,8 @@
     <string name="alarm_metric_voltage">电压</string>
     <string name="alarm_metric_current">电流</string>
 
-    <string name="alarm_cmp_gt">大于</string>
     <string name="alarm_cmp_lt">小于</string>
     <string name="alarm_cmp_ge">大于或等于</string>
-    <string name="alarm_cmp_le">小于或等于</string>
 
     <string name="flic_action_none">无</string>
     <string name="flic_action_horn">喇叭</string>

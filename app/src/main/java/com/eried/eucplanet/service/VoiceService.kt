@@ -41,16 +41,26 @@ class VoiceService @Inject constructor(
     private var currentRate: Float = 1.0f
     private var currentLocaleTag: String = "en-US"
     @Volatile private var currentAudioFocus: String = "DUCK"
+    @Volatile private var currentOutputChannel: String = "MEDIA"
 
     private val audioManager by lazy {
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
-    private val ttsAudioAttributes: AudioAttributes by lazy {
-        AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
+
+    private fun buildTtsAudioAttributes(channel: String): AudioAttributes {
+        val usage = when (channel) {
+            "NOTIFICATION" -> AudioAttributes.USAGE_NOTIFICATION
+            "ALARM" -> AudioAttributes.USAGE_ALARM
+            else -> AudioAttributes.USAGE_MEDIA
+        }
+        return AudioAttributes.Builder()
+            .setUsage(usage)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
             .build()
     }
+
+    @Volatile private var ttsAudioAttributes: AudioAttributes =
+        buildTtsAudioAttributes("MEDIA")
     private var activeFocusRequest: AudioFocusRequest? = null
     private var focusHeld = false
     private var pendingUtterances = 0
@@ -186,6 +196,10 @@ class VoiceService @Inject constructor(
             currentRate = s.voiceSpeechRate
             currentLocaleTag = s.voiceLocale
             currentAudioFocus = s.voiceAudioFocus
+            if (s.voiceOutputChannel != currentOutputChannel) {
+                currentOutputChannel = s.voiceOutputChannel
+                applyOutputChannel()
+            }
             if (s.announceWelcome) {
                 speak(context.getString(R.string.voice_welcome))
             }
@@ -198,8 +212,21 @@ class VoiceService @Inject constructor(
                 currentRate = s.voiceSpeechRate
                 currentLocaleTag = s.voiceLocale
                 currentAudioFocus = s.voiceAudioFocus
+                if (s.voiceOutputChannel != currentOutputChannel) {
+                    currentOutputChannel = s.voiceOutputChannel
+                    applyOutputChannel()
+                }
             }
         }
+    }
+
+    private fun applyOutputChannel() {
+        ttsAudioAttributes = buildTtsAudioAttributes(currentOutputChannel)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try { tts?.setAudioAttributes(ttsAudioAttributes) } catch (_: Exception) {}
+        }
+        // Drop any focus held under the old attributes; next speak will re-request with new ones.
+        abandonAudioFocus()
     }
 
     private fun loadAvailableVoices() {
@@ -283,6 +310,7 @@ class VoiceService @Inject constructor(
                 "PWM" -> settings.voiceReportPwm
                 "Distance" -> settings.voiceReportDistance
                 "Recording" -> settings.voiceReportRecording
+                "Time" -> settings.voiceReportTime
                 else -> false
             } else when (item) {
                 "Speed" -> settings.triggerReportSpeed
@@ -291,6 +319,7 @@ class VoiceService @Inject constructor(
                 "PWM" -> settings.triggerReportPwm
                 "Distance" -> settings.triggerReportDistance
                 "Recording" -> settings.triggerReportRecording
+                "Time" -> settings.triggerReportTime
                 else -> false
             }
             if (enabled) {
@@ -301,14 +330,12 @@ class VoiceService @Inject constructor(
                     "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
                     "Distance" -> parts.add(context.getString(R.string.voice_trip_fmt, "%.1f".format(data.tripDistance)))
                     "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
+                    "Time" -> parts.add(context.getString(R.string.voice_time_fmt,
+                        android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date())))
                 }
             }
         }
         return parts
-    }
-
-    fun announceAlarm(type: String, value: Float) {
-        speak(context.getString(R.string.voice_warning_fmt, type, "%.0f".format(value)))
     }
 
     fun announceEvent(text: String) {
@@ -344,7 +371,10 @@ class VoiceService @Inject constructor(
         val utteranceId = "$prefix${System.currentTimeMillis()}"
         synchronized(this) { pendingUtterances++ }
         requestAudioFocus()
-        val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId) ?: TextToSpeech.ERROR
+        val params = android.os.Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+        }
+        val result = tts?.speak(text, TextToSpeech.QUEUE_ADD, params, utteranceId) ?: TextToSpeech.ERROR
         if (result == TextToSpeech.ERROR) {
             Log.w(TAG, "TTS speak returned ERROR; releasing focus")
             onUtteranceFinished(utteranceId)

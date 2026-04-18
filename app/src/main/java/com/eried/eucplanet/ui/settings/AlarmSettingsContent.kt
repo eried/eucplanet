@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -92,6 +93,7 @@ fun AlarmSettingsContent(
     val imperial by viewModel.imperialUnits.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
+    var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
 
     Column(
         modifier = Modifier
@@ -125,7 +127,7 @@ fun AlarmSettingsContent(
                 isLast = index == rules.lastIndex,
                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
                 onEdit = { editingRule = rule; showEditor = true },
-                onDelete = { viewModel.deleteRule(rule) },
+                onDelete = { deleteCandidate = rule },
                 onMoveUp = { viewModel.moveUp(rule) },
                 onMoveDown = { viewModel.moveDown(rule) }
             )
@@ -159,6 +161,29 @@ fun AlarmSettingsContent(
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
         )
     }
+
+    deleteCandidate?.let { rule ->
+        val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
+        val comp = AlarmComparator.parse(rule.comparator)
+        val shownThresh = displayThreshold(metric, rule.threshold, imperial).toInt()
+        val shownUnit = displayUnit(metric, imperial)
+        val metricLabel = stringResource(metric.labelRes)
+        val label = rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" }
+        AlertDialog(
+            onDismissRequest = { deleteCandidate = null },
+            title = { Text(stringResource(R.string.alarm_delete_title)) },
+            text = { Text(stringResource(R.string.alarm_delete_body, label)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.deleteRule(rule)
+                    deleteCandidate = null
+                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
+            },
+            dismissButton = {
+                TextButton(onClick = { deleteCandidate = null }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
 }
 
 @Composable
@@ -174,7 +199,7 @@ private fun AlarmRuleCard(
     onMoveDown: () -> Unit
 ) {
     val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
-    val comp = try { AlarmComparator.valueOf(rule.comparator) } catch (_: Exception) { AlarmComparator.GREATER_THAN }
+    val comp = AlarmComparator.parse(rule.comparator)
 
     val color = when {
         !rule.enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -346,7 +371,7 @@ private fun AlarmRuleEditorDialog(
                 Spacer(Modifier.height(6.dp))
 
                 // Comparator dropdown
-                val selectedComp = try { AlarmComparator.valueOf(comparator) } catch (_: Exception) { AlarmComparator.GREATER_THAN }
+                val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { it.name to "${it.symbol} ${stringResource(it.labelRes)}" }
                 DropdownSelect(
                     label = stringResource(R.string.alarm_comparator_label),

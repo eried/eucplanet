@@ -212,6 +212,40 @@ private fun GeneralTab(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (settings.autoRecord) {
+            SwitchSetting(
+                stringResource(R.string.auto_record_only_in_motion),
+                settings.autoRecordOnlyInMotion
+            ) { viewModel.updateAutoRecordOnlyInMotion(it) }
+            Text(
+                stringResource(R.string.auto_record_only_in_motion_caption),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SwitchSetting(
+                stringResource(R.string.auto_record_stop_when_idle),
+                settings.autoRecordStopWhenIdle
+            ) { viewModel.updateAutoRecordStopWhenIdle(it) }
+            Text(
+                stringResource(R.string.auto_record_stop_when_idle_caption),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (settings.autoRecordStopWhenIdle) {
+                SliderSetting(
+                    label = stringResource(R.string.auto_record_stop_idle_seconds),
+                    value = settings.autoRecordStopIdleSeconds.toFloat(),
+                    range = 10f..600f,
+                    unit = stringResource(R.string.unit_sec),
+                    steps = 58,
+                    onValueChange = {
+                        viewModel.updateAutoRecordStopIdleSeconds(
+                            (Math.round(it / 10f) * 10).coerceIn(10, 600)
+                        )
+                    }
+                )
+            }
+        }
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
@@ -370,6 +404,11 @@ private fun VoiceTab(
             onChange = { viewModel.updateVoiceAudioFocus(it) }
         )
 
+        OutputChannelSelector(
+            current = settings.voiceOutputChannel,
+            onChange = { viewModel.updateVoiceOutputChannel(it) }
+        )
+
         SectionHeader(stringResource(R.string.section_announcements))
 
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
@@ -437,6 +476,11 @@ private fun VoiceTab(
         val sTripEx = stringResource(R.string.voice_trip_fmt, "12.3")
         val sRecOn = stringResource(R.string.voice_recording_on)
         val sRecOff = stringResource(R.string.voice_recording_off)
+        val ctx = androidx.compose.ui.platform.LocalContext.current
+        val sTimeEx = stringResource(
+            R.string.voice_time_fmt,
+            android.text.format.DateFormat.getTimeFormat(ctx).format(java.util.Date())
+        )
 
         val reportOrder = settings.voiceReportOrder.split(",").map { it.trim() }
 
@@ -447,6 +491,7 @@ private fun VoiceTab(
             "PWM" -> sLoadEx
             "Distance" -> sTripEx
             "Recording" -> listOf(sRecOn, sRecOff).random()
+            "Time" -> sTimeEx
             else -> null
         }
 
@@ -459,6 +504,7 @@ private fun VoiceTab(
                     "PWM" -> settings.voiceReportPwm
                     "Distance" -> settings.voiceReportDistance
                     "Recording" -> settings.voiceReportRecording
+                    "Time" -> settings.voiceReportTime
                     else -> false
                 } else when (key) {
                     "Speed" -> settings.triggerReportSpeed
@@ -467,6 +513,7 @@ private fun VoiceTab(
                     "PWM" -> settings.triggerReportPwm
                     "Distance" -> settings.triggerReportDistance
                     "Recording" -> settings.triggerReportRecording
+                    "Time" -> settings.triggerReportTime
                     else -> false
                 }
                 if (enabled) exampleFor(key) else null
@@ -536,10 +583,17 @@ private fun VoiceTab(
             "Recording" to ReportItemConfig("Recording", stringResource(R.string.report_recording),
                 settings.voiceReportRecording, { viewModel.updateVoiceReportRecording(it) },
                 settings.triggerReportRecording, { viewModel.updateTriggerReportRecording(it) },
-                listOf(sRecOn, sRecOff).random())
+                listOf(sRecOn, sRecOff).random()),
+            "Time" to ReportItemConfig("Time", stringResource(R.string.report_time),
+                settings.voiceReportTime, { viewModel.updateVoiceReportTime(it) },
+                settings.triggerReportTime, { viewModel.updateTriggerReportTime(it) },
+                sTimeEx)
         )
 
-        val orderedItems = reportOrder.mapNotNull { allItems[it] }
+        // Existing users may have a saved order that predates new report items (e.g. "Time").
+        // Append any known items missing from the saved order so they still appear.
+        val orderedItems = (reportOrder.mapNotNull { allItems[it] } +
+            allItems.filterKeys { it !in reportOrder }.values)
 
         orderedItems.forEachIndexed { index, item ->
             ReportRow(
@@ -1263,14 +1317,47 @@ private fun AudioFocusSelector(
         "OFF" to stringResource(R.string.voice_audio_focus_off)
     )
 
+    RadioGroup(
+        label = stringResource(R.string.voice_audio_focus_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun OutputChannelSelector(
+    current: String,
+    onChange: (String) -> Unit
+) {
+    val options = listOf(
+        "MEDIA" to stringResource(R.string.voice_output_channel_media),
+        "NOTIFICATION" to stringResource(R.string.voice_output_channel_notification),
+        "ALARM" to stringResource(R.string.voice_output_channel_alarm)
+    )
+    RadioGroup(
+        label = stringResource(R.string.voice_output_channel_label),
+        options = options,
+        current = current,
+        onChange = onChange
+    )
+}
+
+@Composable
+private fun RadioGroup(
+    label: String,
+    options: List<Pair<String, String>>,
+    current: String,
+    onChange: (String) -> Unit
+) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
-            stringResource(R.string.voice_audio_focus_label),
+            label,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(4.dp))
-        options.forEach { (key, label) ->
+        options.forEach { (key, optionLabel) ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1283,7 +1370,7 @@ private fun AudioFocusSelector(
                     onClick = { onChange(key) }
                 )
                 Text(
-                    label,
+                    optionLabel,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(start = 4.dp)
                 )

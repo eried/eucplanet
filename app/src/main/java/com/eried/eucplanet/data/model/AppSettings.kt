@@ -29,25 +29,29 @@ data class AppSettings(
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
     // Audio focus behavior while speaking: "DUCK" (lower other), "PAUSE" (pause other), "OFF" (no focus)
     val voiceAudioFocus: String = "DUCK",
+    // Where to route the voice: "MEDIA" (music slider), "NOTIFICATION" (ring slider), "ALARM" (alarm slider, loudest)
+    val voiceOutputChannel: String = "MEDIA",
     // Periodic voice report toggles
     val voiceReportSpeed: Boolean = true,
     val voiceReportBattery: Boolean = true,
     val voiceReportTemp: Boolean = false,
     val voiceReportPwm: Boolean = false,
     val voiceReportDistance: Boolean = false,
+    val voiceReportTime: Boolean = false,
     // On-trigger (manual/flic) voice report toggles
     val triggerReportSpeed: Boolean = true,
     val triggerReportBattery: Boolean = true,
     val triggerReportTemp: Boolean = true,
     val triggerReportPwm: Boolean = true,
     val triggerReportDistance: Boolean = true,
+    val triggerReportTime: Boolean = false,
 
     // Voice report: include recording state
     val voiceReportRecording: Boolean = false,
     val triggerReportRecording: Boolean = true,
 
-    // Voice report item order (comma-separated: Speed,Battery,Temp,PWM,Distance,Recording)
-    val voiceReportOrder: String = "Speed,Battery,Temp,PWM,Distance,Recording",
+    // Voice report item order (comma-separated: Speed,Battery,Temp,PWM,Distance,Recording,Time)
+    val voiceReportOrder: String = "Speed,Battery,Temp,PWM,Distance,Recording,Time",
 
     // Special announcements (event-driven)
     val announceWheelLock: Boolean = true,
@@ -60,6 +64,11 @@ data class AppSettings(
 
     // Recording
     val autoRecord: Boolean = false,
+    // Only start auto-recording once the wheel actually starts moving (speed > 0).
+    val autoRecordOnlyInMotion: Boolean = false,
+    // Stop auto-recording if the wheel is idle (speed == 0) OR disconnected for this many seconds.
+    val autoRecordStopWhenIdle: Boolean = false,
+    val autoRecordStopIdleSeconds: Int = 60,
 
     // Flic button 1
     val flic1Address: String? = null,

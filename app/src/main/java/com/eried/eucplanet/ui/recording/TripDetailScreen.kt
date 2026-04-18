@@ -34,6 +34,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -178,13 +179,18 @@ fun TripDetailScreen(
                 val gpsPoints = remember(dataPoints) {
                     dataPoints.filter { it.latitude != 0.0 && it.longitude != 0.0 }
                 }
-                if (gpsPoints.size >= 2) {
+                val isLive by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
+                val liveLocation by viewModel.liveLocation.collectAsState()
+                if (gpsPoints.size >= 2 || (isLive && liveLocation != null)) {
                     Spacer(Modifier.height(8.dp))
                     Text(stringResource(R.string.recording_route), style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(4.dp))
                     RouteMapView(
                         points = gpsPoints,
+                        isLive = isLive,
+                        liveLat = liveLocation?.latitude,
+                        liveLon = liveLocation?.longitude,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(250.dp)
@@ -250,31 +256,21 @@ private fun SummaryCard(
 @Composable
 private fun RouteMapView(
     points: List<TripDataPoint>,
+    isLive: Boolean = false,
+    liveLat: Double? = null,
+    liveLon: Double? = null,
     modifier: Modifier = Modifier
 ) {
     val coordsJson = remember(points) {
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
-    val html = remember(coordsJson) {
-        """
-        <!DOCTYPE html><html><head>
-        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <style>html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#1a1a2e;}</style>
-        </head><body>
-        <div id="map"></div>
-        <script>
-        var coords=[$coordsJson];
-        var map=L.map('map',{zoomControl:false,attributionControl:false});
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
-        var line=L.polyline(coords,{color:'#4FC3F7',weight:4}).addTo(map);
-        map.fitBounds(line.getBounds().pad(0.1));
-        L.circleMarker(coords[0],{radius:7,color:'#000',weight:2,fillColor:'#66BB6A',fillOpacity:1}).addTo(map);
-        L.circleMarker(coords[coords.length-1],{radius:7,color:'#000',weight:2,fillColor:'#EF5350',fillOpacity:1}).addTo(map);
-        </script></body></html>
-        """.trimIndent()
+    // Rebuild the WebView only when the historical trace changes or when we first
+    // enter/leave live mode — live marker updates are applied via JS.
+    val html = remember(coordsJson, isLive) {
+        buildMapHtml(coordsJson, isLive)
     }
+
+    var webView by remember { mutableStateOf<WebView?>(null) }
 
     AndroidView(
         factory = { ctx ->
@@ -286,13 +282,109 @@ private fun RouteMapView(
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
                 webViewClient = WebViewClient()
-                setBackgroundColor(android.graphics.Color.parseColor("#1a1a2e"))
+                setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
                 loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+                webView = this
             }
+        },
+        update = { wv ->
+            webView = wv
         },
         modifier = modifier.clip(RoundedCornerShape(12.dp))
     )
+
+    // Push live GPS updates into the map via a JS hook defined in the HTML.
+    LaunchedEffect(isLive, liveLat, liveLon, webView) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!isLive) return@LaunchedEffect
+        val lat = liveLat ?: return@LaunchedEffect
+        val lon = liveLon ?: return@LaunchedEffect
+        wv.evaluateJavascript(
+            "if (window.updateLivePoint) updateLivePoint($lat,$lon);",
+            null
+        )
+    }
 }
+
+private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
+<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#0b0f19;}
+  .half-marker{
+    width:18px;height:18px;border-radius:50%;border:2px solid #000;
+    background: linear-gradient(to right,#66BB6A 50%,#EF5350 50%);
+    box-sizing:border-box;
+  }
+  .live-marker{
+    width:14px;height:14px;border-radius:50%;border:2px solid #fff;
+    background:#FFC107;
+    box-shadow:0 0 6px rgba(255,193,7,0.9);
+  }
+</style>
+</head><body>
+<div id="map"></div>
+<script>
+  var coords=[$coordsJson];
+  var map=L.map('map',{zoomControl:false,attributionControl:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
+    maxZoom:19, subdomains:'abcd'
+  }).addTo(map);
+
+  var hasRoute = coords.length >= 2;
+  var start=null, end=null, overlap=null, line=null;
+
+  function render(){
+    if (hasRoute){
+      line = L.polyline(coords,{color:'#4FC3F7',weight:4}).addTo(map);
+      map.fitBounds(line.getBounds().pad(0.2));
+      placeEndpoints();
+      map.on('zoomend moveend', placeEndpoints);
+    } else if (coords.length === 1) {
+      map.setView(coords[0], 17);
+    } else {
+      map.setView([0,0], 2);
+    }
+  }
+
+  function placeEndpoints(){
+    if (!hasRoute) return;
+    if (start){ map.removeLayer(start); start=null; }
+    if (end){ map.removeLayer(end); end=null; }
+    if (overlap){ map.removeLayer(overlap); overlap=null; }
+
+    var a = coords[0], b = coords[coords.length-1];
+    var pa = map.latLngToContainerPoint(a);
+    var pb = map.latLngToContainerPoint(b);
+    var dist = pa.distanceTo(pb);
+    var r = 7; // circleMarker radius in px
+    // Overlap is more than 50% of a marker's width: dist < 2*r*(1-0.5) = r.
+    if (dist < r){
+      overlap = L.marker(a,{icon:L.divIcon({className:'half-marker',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
+    } else {
+      start = L.circleMarker(a,{radius:r,color:'#000',weight:2,fillColor:'#66BB6A',fillOpacity:1}).addTo(map);
+      end   = L.circleMarker(b,{radius:r,color:'#000',weight:2,fillColor:'#EF5350',fillOpacity:1}).addTo(map);
+    }
+  }
+
+  // Live marker API (called from Kotlin via evaluateJavascript).
+  var live=null, livePath=null;
+  window.updateLivePoint = function(lat, lon){
+    var p = [lat, lon];
+    if (!live){
+      live = L.marker(p,{icon:L.divIcon({className:'live-marker',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(map);
+      if (!hasRoute) map.setView(p, 17);
+    } else {
+      live.setLatLng(p);
+    }
+  };
+
+  render();
+  ${if (isLive) "/* live mode: waiting for updateLivePoint() */" else ""}
+</script></body></html>
+""".trimIndent()
 
 @Composable
 private fun ChartCard(

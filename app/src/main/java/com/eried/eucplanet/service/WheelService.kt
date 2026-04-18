@@ -9,8 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -28,7 +26,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.absoluteValue
 
 @AndroidEntryPoint
 class WheelService : LifecycleService() {
@@ -42,8 +39,6 @@ class WheelService : LifecycleService() {
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val EXTRA_ADDRESS = "device_address"
-
-        private const val ALARM_COOLDOWN_MS = 15_000L
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
@@ -51,11 +46,6 @@ class WheelService : LifecycleService() {
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
-
-    private var vibrator: Vibrator? = null
-
-    // Alarm cooldown tracking
-    private var lastSpeedAlarmMs = 0L
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -93,22 +83,24 @@ class WheelService : LifecycleService() {
             return
         }
 
-        vibrator = getSystemService(Vibrator::class.java)
         voiceService.initialize()
 
         // Update notification + check alarms + automations on telemetry updates
         lifecycleScope.launch {
             wheelRepository.wheelData.collect { data ->
                 updateNotification(data)
-                checkAlarms(data)
                 val settings = settingsRepository.get()
                 automationManager.evaluate(settings)
                 checkLightTransition(data.lightOn, settings)
+                evaluateAutoRecordOnTelemetry(data, settings)
             }
         }
 
         // Start periodic voice announcements
         startVoiceLoop()
+
+        // Auto-record idle timeout loop (1 Hz)
+        startAutoRecordIdleLoop()
 
         // Monitor connection state for announcements + auto-record
         lifecycleScope.launch {
@@ -123,9 +115,11 @@ class WheelService : LifecycleService() {
                             if (settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }
-                            // Auto-record: start recording when wheel connects
-                            if (settings.autoRecord && !tripRepository.recording.value) {
-                                tripRepository.startRecording()
+                            // Auto-record: start recording when wheel connects, unless the user
+                            // gated it on "only while in motion" — then the telemetry handler starts it.
+                            if (settings.autoRecord && !settings.autoRecordOnlyInMotion &&
+                                !tripRepository.recording.value) {
+                                lifecycleScope.launch { tripRepository.startRecording() }
                             }
                         }
                         ConnectionState.DISCONNECTED -> {
@@ -199,6 +193,58 @@ class WheelService : LifecycleService() {
         super.onDestroy()
     }
 
+    // --- Auto-record motion gating ---
+
+    // Timestamp of the last sample with motion (speed > 0) while connected.
+    // Used by the idle-timeout loop to decide when to auto-stop.
+    private var lastMotionAtMs: Long = 0L
+
+    private fun evaluateAutoRecordOnTelemetry(
+        data: WheelData,
+        settings: com.eried.eucplanet.data.model.AppSettings
+    ) {
+        if (!settings.autoRecord) return
+        val moving = kotlin.math.abs(data.speed) > 0f
+        if (moving) lastMotionAtMs = System.currentTimeMillis()
+
+        // "Only while in motion": start as soon as we see speed > 0, and only while connected.
+        if (settings.autoRecordOnlyInMotion &&
+            moving &&
+            wheelRepository.connectionState.value == ConnectionState.CONNECTED &&
+            !tripRepository.recording.value
+        ) {
+            lifecycleScope.launch { tripRepository.startRecording() }
+        }
+    }
+
+    private fun startAutoRecordIdleLoop() {
+        lifecycleScope.launch {
+            while (true) {
+                delay(1000L)
+                val settings = settingsRepository.get()
+                if (!settings.autoRecord || !settings.autoRecordStopWhenIdle) continue
+                if (!tripRepository.recording.value) continue
+
+                val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
+                val moving = connected && kotlin.math.abs(wheelRepository.wheelData.value.speed) > 0f
+                if (moving) {
+                    lastMotionAtMs = System.currentTimeMillis()
+                    continue
+                }
+
+                // Idle = not moving OR disconnected. Give a short grace period when we just started
+                // recording so we don't instantly stop a recording that began before the wheel moves.
+                if (lastMotionAtMs == 0L) lastMotionAtMs = System.currentTimeMillis()
+                val idleMs = System.currentTimeMillis() - lastMotionAtMs
+                val thresholdMs = settings.autoRecordStopIdleSeconds * 1000L
+                if (idleMs >= thresholdMs) {
+                    Log.i(TAG, "Auto-stop: idle for ${idleMs / 1000}s (connected=$connected)")
+                    tripRepository.stopRecording()
+                }
+            }
+        }
+    }
+
     private fun checkLightTransition(current: Boolean, settings: com.eried.eucplanet.data.model.AppSettings) {
         val previous = lastLightOn
         lastLightOn = current
@@ -208,29 +254,6 @@ class WheelService : LifecycleService() {
         if (!settings.announceLights) return
         voiceService.announceEvent(
             getString(if (current) R.string.voice_lights_on else R.string.voice_lights_off)
-        )
-    }
-
-    // --- Alarm logic ---
-
-    private suspend fun checkAlarms(data: WheelData) {
-        val now = System.currentTimeMillis()
-        val settings = settingsRepository.get()
-
-        // Speed alarm (uses the beep alarm speed threshold)
-        if (data.speed.absoluteValue >= settings.alarmSpeedKmh &&
-            now - lastSpeedAlarmMs > ALARM_COOLDOWN_MS
-        ) {
-            lastSpeedAlarmMs = now
-            triggerAlarm(getString(R.string.alarm_metric_speed), data.speed.absoluteValue)
-        }
-    }
-
-    private fun triggerAlarm(type: String, value: Float) {
-        Log.w(TAG, "Alarm triggered: $type = $value")
-        voiceService.announceAlarm(type, value)
-        vibrator?.vibrate(
-            VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
         )
     }
 

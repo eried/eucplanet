@@ -13,7 +13,7 @@ data class AlarmRule(
 
     // Condition
     val metric: String = AlarmMetric.SPEED.name,
-    val comparator: String = AlarmComparator.GREATER_THAN.name,
+    val comparator: String = AlarmComparator.GREATER_EQUAL.name,
     val threshold: Float = 30f,
 
     // Beep action
@@ -45,8 +45,15 @@ enum class AlarmMetric(val labelRes: Int, val unit: String) {
 }
 
 enum class AlarmComparator(val labelRes: Int, val symbol: String) {
-    GREATER_THAN(R.string.alarm_cmp_gt, ">"),
-    LESS_THAN(R.string.alarm_cmp_lt, "<"),
     GREATER_EQUAL(R.string.alarm_cmp_ge, "≥"),
-    LESS_EQUAL(R.string.alarm_cmp_le, "≤")
+    LESS_THAN(R.string.alarm_cmp_lt, "<");
+
+    companion object {
+        // Map legacy stored strings to the reduced set; safe fallback to GREATER_EQUAL.
+        fun parse(raw: String?): AlarmComparator = when (raw) {
+            "GREATER_EQUAL", "GREATER_THAN" -> GREATER_EQUAL
+            "LESS_THAN", "LESS_EQUAL" -> LESS_THAN
+            else -> GREATER_EQUAL
+        }
+    }
 }

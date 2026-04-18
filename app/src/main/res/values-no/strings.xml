@@ -144,7 +144,6 @@
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
 
-    <string name="voice_warning_fmt">Advarsel! %1$s ved %2$s</string>
     <string name="voice_speed_fmt">Fart %1$s</string>
     <string name="voice_battery_fmt">batteri %1$d prosent</string>
     <string name="voice_temp_fmt">temperatur %1$s grader</string>
@@ -293,10 +292,8 @@
     <string name="alarm_metric_current">Strøm</string>
 
     <!-- Alarm comparators -->
-    <string name="alarm_cmp_gt">Større enn</string>
     <string name="alarm_cmp_lt">Mindre enn</string>
     <string name="alarm_cmp_ge">Større eller lik</string>
-    <string name="alarm_cmp_le">Mindre eller lik</string>
 
     <!-- Flic actions -->
     <string name="flic_action_none">Ingen</string>
