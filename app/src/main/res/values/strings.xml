@@ -19,10 +19,10 @@
 
     <!-- Permissions -->
     <string name="scan_permission_needed">Permission needed</string>
-    <string name="scan_permission_body">To find your wheel, the app needs Bluetooth and location access.</string>
-    <string name="scan_permission_body_settings">Permission was denied. Open system settings to allow Bluetooth and location access.</string>
+    <string name="scan_permission_body">To find your wheel, the app needs Bluetooth and location access</string>
+    <string name="scan_permission_body_settings">Permission was denied. Open system settings to allow Bluetooth and location access</string>
     <string name="recording_location_permission_needed">Location needed</string>
-    <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue.</string>
+    <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -69,7 +69,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Pick a folder on this phone where trip CSVs and a settings backup will be saved.</string>
+    <string name="cloud_caption">Pick a folder on this phone where trip CSVs and a settings backup will be saved</string>
     <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
     <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
@@ -87,7 +87,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trip uploads</string>
-    <string name="cloud_trips_caption">New recordings upload when they finish. If one fails, it tries again after the next recording.</string>
+    <string name="cloud_trips_caption">New recordings upload when they finish. If one fails, it tries again after the next recording</string>
     <string name="cloud_retry_now">Retry uploads now</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="cloud_uploaded_on">Backed up on %1$s</string>
@@ -102,14 +102,14 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects.</string>
+    <string name="auto_record_caption">Starts recording automatically as soon as the wheel connects</string>
     <string name="auto_record_only_in_motion">Only record when in motion</string>
-    <string name="auto_record_only_in_motion_caption">Wait until the wheel actually starts moving before starting the recording.</string>
+    <string name="auto_record_only_in_motion_caption">Waits for the wheel to start moving before starting the recording</string>
     <string name="auto_record_stop_when_idle">Auto-stop when idle</string>
-    <string name="auto_record_stop_when_idle_caption">Stops the recording if the wheel is stopped or disconnected for the selected time.</string>
+    <string name="auto_record_stop_when_idle_caption">Stops the recording if the wheel is stopped or disconnected for the selected time</string>
     <string name="auto_record_stop_idle_seconds">Idle time before stopping</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time.</string>
+    <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
@@ -133,8 +133,8 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Speed Limits</string>
     <string name="section_legal_mode_speed">Legal Mode Speed</string>
-    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
-    <string name="speed_limits_disconnected">Connect wheel to edit speed limits.</string>
+    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback</string>
+    <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
     <string name="speed_legal_tiltback">Legal Tiltback</string>
@@ -179,7 +179,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 Buttons</string>
-    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
+    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
     <string name="flic_stop_scan">Stop</string>
     <string name="flic_start_scan">Scan for button</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
@@ -191,7 +191,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volume Keys</string>
-    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen.</string>
+    <string name="volume_keys_caption">Use the phone\'s volume buttons as wheel shortcuts. Works only while the app is visible on screen</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
@@ -282,14 +282,12 @@
     <string name="flic_status_scan_failed_fmt">Scan failed (code %1$d)</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Find Your Wheel</string>
-    <string name="scan_scanning">Scanning for InMotion wheels\u2026</string>
+    <string name="scan_title">Connect</string>
+    <string name="scan_scanning">Waiting for EUCs\u2026</string>
     <string name="scan_start">Start Scan</string>
-    <string name="scan_hint">Make sure your wheel is powered on and Bluetooth is enabled.</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">Historical %1$s Data</string>
-    <string name="metric_waiting">Waiting for data\u2026 Connect to wheel to start collecting.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">No data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">AVG</string>
@@ -317,8 +315,8 @@
     <string name="recording_delete_trip_title">Delete Trip</string>
     <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
     <string name="recording_clear_all_menu">Clear all</string>
-    <string name="recording_auto_record_tip">Tip: Enable auto-record in Settings to start recording automatically on connect.</string>
-    <string name="recording_empty">No trips recorded yet.\nTap the record button to start.</string>
+    <string name="recording_auto_record_tip">Tip: enable auto-record in Settings to start recording automatically on connect</string>
+    <string name="recording_empty">No trips recorded yet\nTap the record button to start</string>
     <string name="recording_stat_trips">Trips</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Time</string>
@@ -327,7 +325,7 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Trip Details</string>
-    <string name="recording_no_data">No data recorded in this trip.</string>
+    <string name="recording_no_data">No data recorded in this trip</string>
     <string name="recording_route">Route</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Duration</string>
@@ -352,14 +350,14 @@
     <string name="auto_volume_desc">Adaptive system volume based on speed</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
-    <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today — lights will stay OFF.</string>
+    <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF</string>
     <string name="auto_polar_night_title">Polar Night</string>
-    <string name="auto_polar_night_body">Sun doesn\'t rise at this latitude today — lights will stay ON.</string>
-    <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume.</string>
+    <string name="auto_polar_night_body">Sun doesn\'t rise at this latitude today, lights will stay ON</string>
+    <string name="auto_lights_suspended">Suspended due to user light toggle for this session. Reconnect the wheel or restart the app to resume</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires.</string>
-    <string name="alarm_empty">No alarm rules configured.</string>
+    <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires</string>
+    <string name="alarm_empty">No alarm rules yet</string>
     <string name="alarm_add">Add Alarm Rule</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
@@ -378,22 +376,22 @@
     <string name="alarm_section_voice">Voice</string>
     <string name="alarm_enable_voice">Enable voice</string>
     <string name="alarm_voice_template">Text template</string>
-    <string name="alarm_voice_template_help">Variables: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variables: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibrate</string>
     <string name="alarm_enable_vibrate">Enable vibration</string>
     <string name="alarm_vibrate_duration_fmt">Duration: %1$dms</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
-    <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching.</string>
+    <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>
     <string name="alarm_repeat">Repeat while active</string>
-    <string name="alarm_repeat_help">OFF: fires once when the condition starts matching, then stays silent until it stops matching.\nON: keeps re-firing every Cooldown seconds for as long as the condition is still true.</string>
-    <string name="alarm_repeat_on_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat ON — if you hold 35 km/h for a minute you\'ll be warned every %1$ds.</string>
-    <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF — one warning when you cross 30, then silent; you must drop below 30 (and wait %1$ds) before it can fire again.</string>
+    <string name="alarm_repeat_help">OFF: fires once when the condition starts matching, then stays silent until it stops matching.\nON: keeps re-firing every Cooldown seconds for as long as the condition is still true</string>
+    <string name="alarm_repeat_on_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat ON. If you hold 35 km/h for a minute you\'ll be warned every %1$ds</string>
+    <string name="alarm_repeat_off_example_fmt">Example: speed &gt; 30, cooldown %1$ds, repeat OFF. One warning when you cross 30, then silent. You must drop below 30 (and wait %1$ds) before it can fire again</string>
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>
-    <string name="about_crash_logs_hint">Tap a file to share it with the developer.</string>
-    <string name="about_crash_logs_empty">No crashes recorded.</string>
+    <string name="about_crash_logs_hint">Tap a file to share it with the developer</string>
+    <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_license">License</string>
 </resources>

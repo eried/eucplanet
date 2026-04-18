@@ -33,6 +33,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -57,6 +60,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AlarmComparator
 import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
+import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
@@ -104,11 +108,7 @@ fun AlarmSettingsContent(
     ) {
         Spacer(Modifier.height(8.dp))
 
-        Text(
-            stringResource(R.string.alarm_help),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.alarm_help), small = true)
 
         Spacer(Modifier.height(12.dp))
 
@@ -370,15 +370,26 @@ private fun AlarmRuleEditorDialog(
 
                 Spacer(Modifier.height(6.dp))
 
-                // Comparator dropdown
+                // Comparator: 2-way segmented selector
                 val selectedComp = AlarmComparator.parse(comparator)
-                val comparatorOptions = AlarmComparator.entries.map { it.name to "${it.symbol} ${stringResource(it.labelRes)}" }
-                DropdownSelect(
-                    label = stringResource(R.string.alarm_comparator_label),
-                    selected = stringResource(selectedComp.labelRes),
-                    options = comparatorOptions,
-                    onSelect = { comparator = it }
+                Text(
+                    stringResource(R.string.alarm_comparator_label),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(Modifier.height(4.dp))
+                val comparatorEntries = AlarmComparator.entries
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    comparatorEntries.forEachIndexed { index, entry ->
+                        SegmentedButton(
+                            selected = entry == selectedComp,
+                            onClick = { comparator = entry.name },
+                            shape = SegmentedButtonDefaults.itemShape(index, comparatorEntries.size)
+                        ) {
+                            Text("${entry.symbol} ${stringResource(entry.labelRes)}")
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(6.dp))
 
@@ -465,11 +476,7 @@ private fun AlarmRuleEditorDialog(
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 2
                     )
-                    Text(
-                        stringResource(R.string.alarm_voice_template_help),
-                        fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    HintText(stringResource(R.string.alarm_voice_template_help), small = true)
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -513,11 +520,7 @@ private fun AlarmRuleEditorDialog(
                     valueRange = 3f..60f,
                     steps = 56
                 )
-                Text(
-                    stringResource(R.string.alarm_cooldown_help),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                HintText(stringResource(R.string.alarm_cooldown_help), small = true)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -527,11 +530,7 @@ private fun AlarmRuleEditorDialog(
                     Text(stringResource(R.string.alarm_repeat), fontSize = 13.sp)
                     Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it })
                 }
-                Text(
-                    stringResource(R.string.alarm_repeat_help),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                HintText(stringResource(R.string.alarm_repeat_help), small = true)
                 Spacer(Modifier.height(6.dp))
                 val example = if (repeatWhileActive) {
                     stringResource(R.string.alarm_repeat_on_example_fmt, cooldownSeconds)
@@ -553,26 +552,30 @@ private fun AlarmRuleEditorDialog(
                 ) {
                     TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = {
-                        onSave(
-                            (rule ?: AlarmRule()).copy(
-                                name = name,
-                                metric = metric,
-                                comparator = comparator,
-                                threshold = threshold,
-                                beepEnabled = beepEnabled,
-                                beepFrequency = beepFrequency,
-                                beepDurationMs = beepDurationMs,
-                                beepCount = beepCount,
-                                voiceEnabled = voiceEnabled,
-                                voiceText = voiceText,
-                                vibrateEnabled = vibrateEnabled,
-                                vibrateDurationMs = vibrateDurationMs,
-                                cooldownSeconds = cooldownSeconds,
-                                repeatWhileActive = repeatWhileActive
+                    val hasOutput = beepEnabled || voiceEnabled || vibrateEnabled
+                    Button(
+                        enabled = hasOutput,
+                        onClick = {
+                            onSave(
+                                (rule ?: AlarmRule()).copy(
+                                    name = name,
+                                    metric = metric,
+                                    comparator = comparator,
+                                    threshold = threshold,
+                                    beepEnabled = beepEnabled,
+                                    beepFrequency = beepFrequency,
+                                    beepDurationMs = beepDurationMs,
+                                    beepCount = beepCount,
+                                    voiceEnabled = voiceEnabled,
+                                    voiceText = voiceText,
+                                    vibrateEnabled = vibrateEnabled,
+                                    vibrateDurationMs = vibrateDurationMs,
+                                    cooldownSeconds = cooldownSeconds,
+                                    repeatWhileActive = repeatWhileActive
+                                )
                             )
-                        )
-                    }) {
+                        }
+                    ) {
                         Text(stringResource(R.string.action_save))
                     }
                 }

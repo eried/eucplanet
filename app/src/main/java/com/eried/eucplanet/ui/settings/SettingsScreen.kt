@@ -79,6 +79,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.service.VoiceOption
+import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
@@ -217,30 +218,18 @@ private fun GeneralTab(
     ) {
         SectionHeader(stringResource(R.string.section_recording))
         SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
-        Text(
-            stringResource(R.string.auto_record_caption),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.auto_record_caption), small = true)
         if (settings.autoRecord) {
             SwitchSetting(
                 stringResource(R.string.auto_record_only_in_motion),
                 settings.autoRecordOnlyInMotion
             ) { viewModel.updateAutoRecordOnlyInMotion(it) }
-            Text(
-                stringResource(R.string.auto_record_only_in_motion_caption),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            HintText(stringResource(R.string.auto_record_only_in_motion_caption), small = true)
             SwitchSetting(
                 stringResource(R.string.auto_record_stop_when_idle),
                 settings.autoRecordStopWhenIdle
             ) { viewModel.updateAutoRecordStopWhenIdle(it) }
-            Text(
-                stringResource(R.string.auto_record_stop_when_idle_caption),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            HintText(stringResource(R.string.auto_record_stop_when_idle_caption), small = true)
             if (settings.autoRecordStopWhenIdle) {
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
@@ -259,11 +248,7 @@ private fun GeneralTab(
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
-        Text(
-            stringResource(R.string.auto_connect_caption),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.auto_connect_caption), small = true)
 
         settings.lastDeviceName?.let {
             Text(
@@ -343,11 +328,7 @@ private fun SpeedTab(
         )
 
         SectionHeader(stringResource(R.string.section_legal_mode_speed))
-        Text(
-            stringResource(R.string.legal_mode_caption),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.legal_mode_caption))
         SpeedSliderSetting(
             label = stringResource(R.string.speed_legal_tiltback),
             valueKmh = settings.safetyTiltbackKmh,
@@ -648,11 +629,7 @@ private fun FlicTab(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    stringResource(R.string.flic_scan_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                HintText(stringResource(R.string.flic_scan_hint))
                 Spacer(Modifier.height(12.dp))
                 if (scanning) {
                     CircularProgressIndicator(modifier = Modifier.padding(8.dp))
@@ -707,11 +684,7 @@ private fun FlicTab(
         }
 
         SectionHeader(stringResource(R.string.section_volume_keys))
-        Text(
-            stringResource(R.string.volume_keys_caption),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.volume_keys_caption), small = true)
         SwitchSetting(stringResource(R.string.volume_keys_enable), settings.volumeKeysEnabled) {
             settingsViewModel.updateVolumeKeysEnabled(it)
         }
@@ -817,11 +790,7 @@ private fun CloudTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_cloud_folder))
-        Text(
-            stringResource(R.string.cloud_caption),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        HintText(stringResource(R.string.cloud_caption))
 
         CloudHelpCard()
 
@@ -874,11 +843,7 @@ private fun CloudTab(
             }
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
-            Text(
-                stringResource(R.string.cloud_trips_caption),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            HintText(stringResource(R.string.cloud_trips_caption))
             Button(onClick = { viewModel.retryUploadsNow() }) {
                 Text(stringResource(R.string.cloud_retry_now))
             }

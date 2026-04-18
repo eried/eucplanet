@@ -179,14 +179,6 @@ fun ScanScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            if (devices.isEmpty() && isScanning) {
-                Text(
-                    stringResource(R.string.scan_hint),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(devices) { device ->
                     Card(

@@ -186,12 +186,7 @@ fun MetricDetailScreen(
                         .height(280.dp)
                 )
             } else {
-                // No data yet — show empty placeholder graph
                 Spacer(Modifier.height(16.dp))
-                Text(stringResource(R.string.metric_waiting),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(12.dp))
                 EmptyGraph(
                     color = metricType.color,
                     modifier = Modifier

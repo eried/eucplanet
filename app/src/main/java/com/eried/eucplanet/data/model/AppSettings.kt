@@ -43,16 +43,16 @@ data class AppSettings(
     val triggerReportSpeed: Boolean = true,
     val triggerReportBattery: Boolean = true,
     val triggerReportTemp: Boolean = true,
-    val triggerReportPwm: Boolean = true,
+    val triggerReportPwm: Boolean = false,
     val triggerReportDistance: Boolean = true,
-    val triggerReportTime: Boolean = false,
+    val triggerReportTime: Boolean = true,
 
     // Voice report: include recording state
     val voiceReportRecording: Boolean = false,
     val triggerReportRecording: Boolean = true,
 
-    // Voice report item order (comma-separated: Speed,Battery,Temp,PWM,Distance,Recording,Time)
-    val voiceReportOrder: String = "Speed,Battery,Temp,PWM,Distance,Recording,Time",
+    // Voice report item order (comma-separated: Speed,Battery,Time,Temp,PWM,Distance,Recording)
+    val voiceReportOrder: String = "Speed,Battery,Time,Temp,PWM,Distance,Recording",
 
     // Special announcements (event-driven)
     val announceWheelLock: Boolean = true,

@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
+import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentRed
@@ -311,10 +312,9 @@ fun RecordingScreen(
             }
 
             if (!recording && !importing && trips.isEmpty()) {
-                Text(
+                HintText(
                     stringResource(R.string.recording_auto_record_tip),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    small = true,
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }

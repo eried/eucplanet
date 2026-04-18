@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.FlicAction
+import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
 
@@ -63,7 +64,6 @@ fun FlicScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
-    val pairedButtons by viewModel.pairedButtons.collectAsState()
     var forgetTarget by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     forgetTarget?.let { (addr, name) ->
@@ -115,11 +115,7 @@ fun FlicScreen(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        stringResource(R.string.flic_scan_hint),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    HintText(stringResource(R.string.flic_scan_hint))
                     Spacer(Modifier.height(12.dp))
                     if (scanning) {
                         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
@@ -136,15 +132,6 @@ fun FlicScreen(
                         }
                     }
                 }
-            }
-
-            // Paired buttons
-            if (pairedButtons.isEmpty()) {
-                Text(
-                    stringResource(R.string.flic_no_buttons),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
 
             // Button 1 config
