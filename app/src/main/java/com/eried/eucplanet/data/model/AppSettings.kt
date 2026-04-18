@@ -1,5 +1,6 @@
 package com.eried.eucplanet.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.eried.eucplanet.R
@@ -65,9 +66,12 @@ data class AppSettings(
     // Recording
     val autoRecord: Boolean = false,
     // Only start auto-recording once the wheel actually starts moving (speed > 0).
+    @ColumnInfo(defaultValue = "0")
     val autoRecordOnlyInMotion: Boolean = false,
     // Stop auto-recording if the wheel is idle (speed == 0) OR disconnected for this many seconds.
+    @ColumnInfo(defaultValue = "0")
     val autoRecordStopWhenIdle: Boolean = false,
+    @ColumnInfo(defaultValue = "60")
     val autoRecordStopIdleSeconds: Int = 60,
 
     // Flic button 1
