@@ -12,22 +12,21 @@
     background: #0d1117;
     color: #e6edf3;
     line-height: 1.6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     min-height: 100vh;
-    padding: 24px;
+    padding: 48px 24px;
   }
-  .container { max-width: 520px; text-align: center; }
-  h1 { font-size: 32px; margin: 0 0 12px; font-weight: 600; }
-  p { color: #8b949e; margin: 0 0 24px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 40px; }
+  h1 { font-size: 40px; margin: 0 0 12px; font-weight: 700; letter-spacing: -0.5px; }
+  .tagline { color: #8b949e; font-size: 18px; margin: 0 0 28px; }
   .links {
     display: flex;
     gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-bottom: 8px;
   }
-  a {
+  a.btn {
     display: inline-block;
     padding: 10px 20px;
     background: #238636;
@@ -36,19 +35,94 @@
     border-radius: 6px;
     font-weight: 500;
   }
-  a:hover { background: #2ea043; }
-  a.secondary { background: #21262d; border: 1px solid #30363d; }
-  a.secondary:hover { background: #30363d; }
+  a.btn:hover { background: #2ea043; }
+  a.btn.secondary { background: #21262d; border: 1px solid #30363d; }
+  a.btn.secondary:hover { background: #30363d; }
+  section { margin-top: 36px; }
+  h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; color: #e6edf3; }
+  p, li { color: #c9d1d9; }
+  ul { padding-left: 20px; margin: 0; }
+  li { margin-bottom: 6px; }
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .card h3 { font-size: 15px; margin: 0 0 6px; font-weight: 600; color: #e6edf3; }
+  .card p { font-size: 14px; color: #8b949e; margin: 0; }
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #21262d;
+    text-align: center;
+    color: #6e7681;
+    font-size: 13px;
+  }
+  footer a { color: #58a6ff; text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>EUC Planet</h1>
-  <p>Open-source Android companion app for the InMotion V14 electric unicycle. No subscription, no telemetry.</p>
-  <div class="links">
-    <a href="https://github.com/eried/eucplanet/releases">Download APK</a>
-    <a class="secondary" href="https://github.com/eried/eucplanet">View on GitHub</a>
-  </div>
+  <header>
+    <h1>EUC Planet</h1>
+    <p class="tagline">A no-nonsense, open-source Android app for electric unicycles.</p>
+    <div class="links">
+      <a class="btn" href="https://github.com/eried/eucplanet/releases">Download APK</a>
+      <a class="btn secondary" href="https://github.com/eried/eucplanet">View on GitHub</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Why EUC Planet?</h2>
+    <p>Built by a rider, for riders. No subscriptions, no accounts, no telemetry sent anywhere. The app is fully open-source and driven by the community — features land because people asked for them and built them, not because a roadmap said so.</p>
+    <p>It starts with the <strong>InMotion V14</strong>, but the architecture is wheel-agnostic. Support for other unicycles is on the way.</p>
+  </section>
+
+  <section>
+    <h2>Built different</h2>
+    <div class="features">
+      <div class="card">
+        <h3>Modern &amp; fast</h3>
+        <p>Kotlin, Jetpack Compose, Material 3. Pure black dark theme. Designed for low latency and quick glances while riding.</p>
+      </div>
+      <div class="card">
+        <h3>Private by default</h3>
+        <p>Your rides stay on your device. No cloud sync, no analytics, no ads. Ever.</p>
+      </div>
+      <div class="card">
+        <h3>Flic 2 ready</h3>
+        <p>Map physical buttons to horn, lights, lock, voice reports, and more — hands stay on the bars.</p>
+      </div>
+      <div class="card">
+        <h3>Voice &amp; alarms</h3>
+        <p>Configurable spoken reports and threshold alarms for speed, battery, and PWM — in your language.</p>
+      </div>
+      <div class="card">
+        <h3>Trip recording</h3>
+        <p>GPS + wheel telemetry exported as DarknessBot-compatible CSV. Own your data.</p>
+      </div>
+      <div class="card">
+        <h3>Wheel-agnostic</h3>
+        <p>V14 first, but the BLE and UI layers are designed to grow. PRs welcome for other wheels.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Get involved</h2>
+    <p>Found a bug? Want a feature? Ride a different wheel and want it supported? Open an issue or a pull request on <a href="https://github.com/eried/eucplanet" style="color:#58a6ff">GitHub</a>. This is a community project — every contribution shapes where it goes next.</p>
+  </section>
+
+  <footer>
+    Open-source under the project <a href="https://github.com/eried/eucplanet/blob/main/LICENSE">LICENSE</a>. Not affiliated with InMotion.
+  </footer>
 </div>
 </body>
 </html>
