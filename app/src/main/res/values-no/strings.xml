@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Gi tilgang</string>
     <string name="action_open_settings">Åpne innstillinger</string>
     <string name="scan_permission_needed">Trenger tilgang</string>
-    <string name="scan_permission_body">For å finne hjulet ditt trenger appen Bluetooth- og posisjonstilgang.</string>
-    <string name="scan_permission_body_settings">Tilgang ble avvist. Åpne systeminnstillingene for å tillate Bluetooth og posisjon.</string>
+    <string name="scan_permission_body">For å finne hjulet ditt trenger appen Bluetooth- og posisjonstilgang</string>
+    <string name="scan_permission_body_settings">Tilgang ble avvist. Åpne systeminnstillingene for å tillate Bluetooth og posisjon</string>
     <string name="recording_location_permission_needed">Trenger posisjon</string>
-    <string name="recording_location_permission_body">Turopptak lagrer GPS-punkter så du kan se ruten på et kart. Gi posisjonstilgang for å fortsette.</string>
+    <string name="recording_location_permission_body">Turopptak lagrer GPS-punkter så du kan se ruten på et kart. Gi posisjonstilgang for å fortsette</string>
 
     <string name="connection_connected">Tilkoblet</string>
     <string name="connection_connecting">Søker\u2026</string>
@@ -66,7 +66,10 @@
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
-    <string name="auto_record_caption">Starter opptak automatisk når hjulet kobler til.</string>
+    <string name="auto_record_caption">Tar opp hver tur uten å trykke Start</string>
+    <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
+    <string name="auto_record_start_in_motion_caption">Venter på bevegelse for å starte opptak, stopper automatisk etter inaktivitetstiden og starter igjen ved neste tur</string>
+    <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
     <string name="auto_connect_on_start">Auto-koble til ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
     <string name="imperial_units">Imperiske enheter</string>
@@ -89,9 +92,9 @@
     <string name="tts_switch_no">Behold</string>
 
     <string name="section_speed_limits">Fartsgrenser</string>
-    <string name="section_legal_mode_speed">Lovlig modus — fart</string>
-    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback.</string>
-    <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser.</string>
+    <string name="section_legal_mode_speed">Lovlig modus, fart</string>
+    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback</string>
+    <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
     <string name="speed_legal_tiltback">Lovlig tiltback</string>
@@ -129,17 +132,16 @@
     <string name="report_recording">Opptak</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann.</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Søk etter knapp</string>
-    <string name="flic_no_buttons">Ingen Flic-knapper paret</string>
     <string name="flic_forget">Glem</string>
     <string name="flic_rename">Endre navn</string>
     <string name="flic_click">Klikk</string>
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier for hjulet. Fungerer bare når appen er synlig.</string>
+    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier for hjulet. Fungerer bare når appen er synlig</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
@@ -177,14 +179,12 @@
     <string name="lang_name_zh">kinesisk</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Finn ettjulingen din</string>
-    <string name="scan_scanning">Søker etter InMotion-ettjulinger\u2026</string>
+    <string name="scan_title">Koble til hjul</string>
+    <string name="scan_scanning">Søker\u2026</string>
     <string name="scan_start">Start søk</string>
-    <string name="scan_hint">Sjekk at ettjulingen er på og Bluetooth er aktivert.</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">Historikk: %1$s</string>
-    <string name="metric_waiting">Venter på data\u2026 Koble til ettjulingen for å starte.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Ingen data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">SNITT</string>
@@ -212,8 +212,8 @@
     <string name="recording_delete_trip_title">Slett tur</string>
     <string name="recording_delete_trip_body">Slette denne turen og datafilen?</string>
     <string name="recording_clear_all_menu">Slett alt</string>
-    <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling.</string>
-    <string name="recording_empty">Ingen turer er registrert enda.\nTrykk opptak-knappen for å starte.</string>
+    <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling</string>
+    <string name="recording_empty">Ingen turer er registrert enda\nTrykk opptak-knappen for å starte</string>
     <string name="recording_stat_trips">Turer</string>
     <string name="recording_stat_distance">Distanse</string>
     <string name="recording_stat_time">Tid</string>
@@ -222,7 +222,7 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Turdetaljer</string>
-    <string name="recording_no_data">Ingen data registrert for denne turen.</string>
+    <string name="recording_no_data">Ingen data registrert for denne turen</string>
     <string name="recording_route">Rute</string>
     <string name="recording_summary_distance">Distanse</string>
     <string name="recording_summary_duration">Varighet</string>
@@ -247,14 +247,14 @@
     <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
     <string name="auto_sunrise_sunset">Soloppgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
-    <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag — lysene forblir AV.</string>
+    <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag, lysene forblir AV</string>
     <string name="auto_polar_night_title">Mørketid</string>
-    <string name="auto_polar_night_body">Sola står ikke opp på denne breddegraden i dag — lysene forblir PÅ.</string>
-    <string name="auto_lights_suspended">Satt på pause: du slo lyset av/på manuelt denne økten. Koble hjulet til på nytt eller start appen på nytt for å gjenoppta.</string>
+    <string name="auto_polar_night_body">Sola står ikke opp på denne breddegraden i dag, lysene forblir PÅ</string>
+    <string name="auto_lights_suspended">Satt på pause: du slo lyset av/på manuelt denne økten. Koble hjulet til på nytt eller start appen på nytt for å gjenoppta</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser.</string>
-    <string name="alarm_empty">Ingen alarmregler konfigurert.</string>
+    <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser</string>
+    <string name="alarm_empty">Ingen alarmregler ennå</string>
     <string name="alarm_add">Legg til regel</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
@@ -271,17 +271,17 @@
     <string name="alarm_section_voice">Stemme</string>
     <string name="alarm_enable_voice">Aktiver stemme</string>
     <string name="alarm_voice_template">Tekstmal</string>
-    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibrasjon</string>
     <string name="alarm_enable_vibrate">Aktiver vibrasjon</string>
     <string name="alarm_vibrate_duration_fmt">Varighet: %1$d ms</string>
     <string name="alarm_section_timing">Tidsstyring</string>
     <string name="alarm_cooldown_fmt">Pause: %1$d s</string>
-    <string name="alarm_cooldown_help">Minimum tid mellom utløsninger selv om betingelsen fortsatt er sann.</string>
+    <string name="alarm_cooldown_help">Minimum tid mellom utløsninger selv om betingelsen fortsatt er sann</string>
     <string name="alarm_repeat">Gjenta mens aktiv</string>
-    <string name="alarm_repeat_help">AV: utløses én gang når betingelsen begynner å matche, så stille til den slutter å matche.\nPÅ: utløses på nytt hvert N sekund så lenge betingelsen er sann.</string>
-    <string name="alarm_repeat_on_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter PÅ — holder du 35 km/t i ett minutt blir du varslet hvert %1$d. sekund.</string>
-    <string name="alarm_repeat_off_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter AV — ett varsel når du krysser 30, så stille; du må under 30 (og vente %1$d s) før den kan utløses igjen.</string>
+    <string name="alarm_repeat_help">AV: utløses én gang når betingelsen begynner å matche, så stille til den slutter å matche.\nPÅ: utløses på nytt hvert N sekund så lenge betingelsen er sann</string>
+    <string name="alarm_repeat_on_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter PÅ. Holder du 35 km/t i ett minutt blir du varslet hvert %1$d. sekund</string>
+    <string name="alarm_repeat_off_example_fmt">Eksempel: fart &gt; 30, pause %1$d s, repeter AV. Ett varsel når du krysser 30, så stille. Du må under 30 (og vente %1$d s) før den kan utløses igjen</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Fart</string>
@@ -335,8 +335,8 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Krasjlogger</string>
-    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren.</string>
-    <string name="about_crash_logs_empty">Ingen krasj.</string>
+    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren</string>
+    <string name="about_crash_logs_empty">Ingen krasj</string>
     <string name="about_share_crash">Del krasjlogg</string>
     <string name="about_license">Lisens</string>
 </resources>

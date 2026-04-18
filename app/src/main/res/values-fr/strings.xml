@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Accorder l\'autorisation</string>
     <string name="action_open_settings">Ouvrir les paramètres</string>
     <string name="scan_permission_needed">Autorisation requise</string>
-    <string name="scan_permission_body">Pour trouver votre roue, l\'application a besoin d\'accéder au Bluetooth et à la localisation.</string>
-    <string name="scan_permission_body_settings">L\'autorisation a été refusée. Ouvrez les paramètres système pour autoriser le Bluetooth et la localisation.</string>
+    <string name="scan_permission_body">Pour trouver votre roue, l\'application a besoin d\'accéder au Bluetooth et à la localisation</string>
+    <string name="scan_permission_body_settings">L\'autorisation a été refusée. Ouvrez les paramètres système pour autoriser le Bluetooth et la localisation</string>
     <string name="recording_location_permission_needed">Localisation requise</string>
-    <string name="recording_location_permission_body">L\'enregistrement des trajets sauvegarde vos points GPS pour afficher l\'itinéraire sur la carte. Accordez l\'accès à la localisation pour continuer.</string>
+    <string name="recording_location_permission_body">L\'enregistrement des trajets sauvegarde vos points GPS pour afficher l\'itinéraire sur la carte. Accordez l\'accès à la localisation pour continuer</string>
 
     <string name="connection_connected">Connectée</string>
     <string name="connection_connecting">Recherche\u2026</string>
@@ -63,7 +63,7 @@
     <string name="tab_cloud">Sauvegarde</string>
 
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
-    <string name="cloud_caption">Choisissez un dossier sur le téléphone où les CSV de trajets et la sauvegarde des paramètres seront enregistrés.</string>
+    <string name="cloud_caption">Choisissez un dossier sur le téléphone où les CSV de trajets et la sauvegarde des paramètres seront enregistrés</string>
     <string name="cloud_help_title">Sauvegarde vers OneDrive, Drive ou Dropbox</string>
     <string name="cloud_help_body">Le sélecteur de dossier Android n\'affiche généralement pas OneDrive, Google Drive ou Dropbox : ces applis ne proposent pas de dossier accessible en écriture. On enregistre donc en local, et une appli de synchro se charge de l\'upload.\n\nMise en place :\n1. Installez Autosync (pour OneDrive, Drive ou Dropbox) ou FolderSync depuis le Play Store.\n2. Connectez-vous dans l\'appli et créez une paire : votre dossier local → un dossier cloud.\n3. Choisissez « Upload uniquement » en synchro instantanée ou sur changement.\n4. Revenez ici et sélectionnez le même dossier local.\n\nLes nouveaux trajets arrivent dans ce dossier à la fin de l\'enregistrement, et l\'appli de synchro les envoie en arrière-plan.</string>
     <string name="cloud_choose_folder">Choisir un dossier</string>
@@ -81,7 +81,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Envoi des trajets</string>
-    <string name="cloud_trips_caption">Les nouveaux enregistrements sont envoyés à la fin du trajet. En cas d\'échec, une nouvelle tentative a lieu après l\'enregistrement suivant.</string>
+    <string name="cloud_trips_caption">Les nouveaux enregistrements sont envoyés à la fin du trajet. En cas d\'échec, une nouvelle tentative a lieu après l\'enregistrement suivant</string>
     <string name="cloud_retry_now">Réessayer maintenant</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="cloud_uploaded_on">Sauvegardé le %1$s</string>
@@ -95,9 +95,12 @@
     <string name="section_connection">Connexion</string>
     <string name="section_display">Affichage</string>
     <string name="auto_record_on_start">Enregistrer dès le démarrage</string>
-    <string name="auto_record_caption">Démarre l\'enregistrement dès que la roue se connecte.</string>
+    <string name="auto_record_caption">Enregistre chaque trajet sans appuyer sur Démarrer</string>
+    <string name="auto_record_start_in_motion">Démarrer l\'enregistrement en mouvement</string>
+    <string name="auto_record_start_in_motion_caption">Attend un mouvement pour lancer l\'enregistrement, s\'arrête après le délai d\'inactivité, puis redémarre au prochain trajet</string>
+    <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
-    <string name="auto_connect_caption">Se reconnecte à la dernière roue appairée. Vous devez faire la première connexion manuellement.</string>
+    <string name="auto_connect_caption">Se reconnecte à la dernière roue appairée. Vous devez faire la première connexion manuellement</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="imperial_units">Unités impériales</string>
     <string name="language">Langue</string>
@@ -120,8 +123,8 @@
 
     <string name="section_speed_limits">Limites de vitesse</string>
     <string name="section_legal_mode_speed">Vitesse en mode légal</string>
-    <string name="legal_mode_caption">Appliquée quand le mode légal est activé. Doit être inférieure au tiltback normal.</string>
-    <string name="speed_limits_disconnected">Connectez la roue pour modifier les limites.</string>
+    <string name="legal_mode_caption">Appliquée quand le mode légal est activé. Doit être inférieure au tiltback normal</string>
+    <string name="speed_limits_disconnected">Connectez la roue pour modifier les limites</string>
     <string name="speed_tiltback">Vitesse de tiltback</string>
     <string name="speed_alarm">Vitesse d\'alarme</string>
     <string name="speed_legal_tiltback">Tiltback légal</string>
@@ -159,17 +162,16 @@
     <string name="report_recording">Enregistrement</string>
 
     <string name="section_flic_buttons">Boutons Flic 2</string>
-    <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher.</string>
+    <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher</string>
     <string name="flic_stop_scan">Arrêter</string>
     <string name="flic_start_scan">Rechercher un bouton</string>
-    <string name="flic_no_buttons">Aucun bouton Flic appairé</string>
     <string name="flic_forget">Oublier</string>
     <string name="flic_rename">Renommer</string>
     <string name="flic_click">Clic</string>
     <string name="flic_double_click">Double clic</string>
     <string name="flic_hold">Maintenir</string>
     <string name="section_volume_keys">Touches de volume</string>
-    <string name="volume_keys_caption">Utilisez les touches de volume du téléphone comme raccourcis. Fonctionne uniquement quand l\'appli est visible.</string>
+    <string name="volume_keys_caption">Utilisez les touches de volume du téléphone comme raccourcis. Fonctionne uniquement quand l\'appli est visible</string>
     <string name="volume_keys_enable">Activer les actions de volume</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
@@ -248,13 +250,11 @@
     <string name="flic_status_paired_fmt">Appairé : %1$s</string>
     <string name="flic_status_scan_failed_fmt">Recherche échouée (code %1$d)</string>
 
-    <string name="scan_title">Trouvez votre roue</string>
-    <string name="scan_scanning">Recherche de roues InMotion\u2026</string>
+    <string name="scan_title">Se connecter à la roue</string>
+    <string name="scan_scanning">Recherche\u2026</string>
     <string name="scan_start">Lancer la recherche</string>
-    <string name="scan_hint">Vérifiez que la roue est allumée et que le Bluetooth est activé.</string>
 
-    <string name="metric_detail_title">Historique : %1$s</string>
-    <string name="metric_waiting">En attente de données\u2026 Connectez-vous à la roue pour démarrer.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Aucune donnée</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">MOY</string>
@@ -281,8 +281,8 @@
     <string name="recording_delete_trip_title">Supprimer le trajet</string>
     <string name="recording_delete_trip_body">Supprimer ce trajet et son fichier de données ?</string>
     <string name="recording_clear_all_menu">Tout effacer</string>
-    <string name="recording_auto_record_tip">Astuce : activez l\'enregistrement automatique dans les paramètres pour démarrer à la connexion.</string>
-    <string name="recording_empty">Aucun trajet enregistré.\nAppuyez sur le bouton d\'enregistrement pour commencer.</string>
+    <string name="recording_auto_record_tip">Astuce : activez l\'enregistrement automatique dans les paramètres pour démarrer à la connexion</string>
+    <string name="recording_empty">Aucun trajet enregistré\nAppuyez sur le bouton d\'enregistrement pour commencer</string>
     <string name="recording_stat_trips">Trajets</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Temps</string>
@@ -290,7 +290,7 @@
     <string name="recording_gps_waiting">En attente du GPS…</string>
 
     <string name="recording_detail_title">Détails du trajet</string>
-    <string name="recording_no_data">Aucune donnée dans ce trajet.</string>
+    <string name="recording_no_data">Aucune donnée dans ce trajet</string>
     <string name="recording_route">Itinéraire</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Durée</string>
@@ -314,13 +314,13 @@
     <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>
     <string name="auto_sunrise_sunset">Lever et coucher du soleil</string>
     <string name="auto_midnight_sun_title">Soleil de minuit</string>
-    <string name="auto_midnight_sun_body">Le soleil ne se couche pas à cette latitude aujourd\'hui — les lumières resteront éteintes.</string>
+    <string name="auto_midnight_sun_body">Le soleil ne se couche pas à cette latitude aujourd\'hui, les lumières resteront éteintes</string>
     <string name="auto_polar_night_title">Nuit polaire</string>
-    <string name="auto_polar_night_body">Le soleil ne se lève pas à cette latitude aujourd\'hui — les lumières resteront allumées.</string>
-    <string name="auto_lights_suspended">Suspendu : vous avez basculé la lumière manuellement pendant cette session. Reconnectez la roue ou relancez l\'appli pour reprendre.</string>
+    <string name="auto_polar_night_body">Le soleil ne se lève pas à cette latitude aujourd\'hui, les lumières resteront allumées</string>
+    <string name="auto_lights_suspended">Suspendu : vous avez basculé la lumière manuellement pendant cette session. Reconnectez la roue ou relancez l\'appli pour reprendre</string>
 
-    <string name="alarm_help">Les règles sont vérifiées de haut en bas par métrique. La première qui correspond se déclenche.</string>
-    <string name="alarm_empty">Aucune règle d\'alarme configurée.</string>
+    <string name="alarm_help">Les règles sont vérifiées de haut en bas par métrique. La première qui correspond se déclenche</string>
+    <string name="alarm_empty">Aucune règle d\'alarme pour le moment</string>
     <string name="alarm_add">Ajouter une règle</string>
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
@@ -337,21 +337,21 @@
     <string name="alarm_section_voice">Voix</string>
     <string name="alarm_enable_voice">Activer la voix</string>
     <string name="alarm_voice_template">Modèle de texte</string>
-    <string name="alarm_voice_template_help">Variables : {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variables : {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Activer la vibration</string>
     <string name="alarm_vibrate_duration_fmt">Durée : %1$dms</string>
     <string name="alarm_section_timing">Temporisation</string>
     <string name="alarm_cooldown_fmt">Pause : %1$ds</string>
-    <string name="alarm_cooldown_help">Temps minimum entre deux déclenchements, même si la condition reste vraie.</string>
+    <string name="alarm_cooldown_help">Temps minimum entre deux déclenchements, même si la condition reste vraie</string>
     <string name="alarm_repeat">Répéter tant que c\'est actif</string>
-    <string name="alarm_repeat_help">OFF : déclenche une fois quand la condition devient vraie, puis silencieux jusqu\'à ce qu\'elle cesse.\nON : continue de déclencher toutes les N secondes tant que la condition reste vraie.</string>
-    <string name="alarm_repeat_on_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter ON — si vous tenez 35 km/h pendant une minute, un avertissement toutes les %1$ds.</string>
-    <string name="alarm_repeat_off_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter OFF — un avertissement au passage des 30, puis silence ; il faut retomber sous 30 (et attendre %1$ds) avant un nouveau déclenchement.</string>
+    <string name="alarm_repeat_help">OFF : déclenche une fois quand la condition devient vraie, puis silencieux jusqu\'à ce qu\'elle cesse.\nON : continue de déclencher toutes les N secondes tant que la condition reste vraie</string>
+    <string name="alarm_repeat_on_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter ON. Si vous tenez 35 km/h pendant une minute, un avertissement toutes les %1$ds</string>
+    <string name="alarm_repeat_off_example_fmt">Exemple : vitesse &gt; 30, pause %1$ds, répéter OFF. Un avertissement au passage des 30, puis silence. Il faut retomber sous 30 (et attendre %1$ds) avant un nouveau déclenchement</string>
 
     <string name="about_crash_logs">Journaux de plantage</string>
-    <string name="about_crash_logs_hint">Appuyez sur un fichier pour le partager avec le développeur.</string>
-    <string name="about_crash_logs_empty">Aucun plantage enregistré.</string>
+    <string name="about_crash_logs_hint">Appuyez sur un fichier pour le partager avec le développeur</string>
+    <string name="about_crash_logs_empty">Aucun plantage enregistré</string>
     <string name="about_share_crash">Partager le journal</string>
     <string name="about_license">Licence</string>
 </resources>

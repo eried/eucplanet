@@ -16,10 +16,10 @@
     <string name="action_grant_permission">授予权限</string>
     <string name="action_open_settings">打开设置</string>
     <string name="scan_permission_needed">需要权限</string>
-    <string name="scan_permission_body">要找到你的车轮,应用需要蓝牙和位置权限。</string>
-    <string name="scan_permission_body_settings">权限被拒绝。请打开系统设置并允许蓝牙和位置权限。</string>
+    <string name="scan_permission_body">要找到你的车轮,应用需要蓝牙和位置权限</string>
+    <string name="scan_permission_body_settings">权限被拒绝。请打开系统设置并允许蓝牙和位置权限</string>
     <string name="recording_location_permission_needed">需要位置权限</string>
-    <string name="recording_location_permission_body">行程记录会保存 GPS 轨迹,让你在地图上查看路线。请授予位置权限以继续。</string>
+    <string name="recording_location_permission_body">行程记录会保存 GPS 轨迹,让你在地图上查看路线。请授予位置权限以继续</string>
 
     <string name="connection_connected">已连接</string>
     <string name="connection_connecting">搜索中\u2026</string>
@@ -63,7 +63,7 @@
     <string name="tab_cloud">备份</string>
 
     <string name="section_cloud_folder">备份文件夹</string>
-    <string name="cloud_caption">选择手机上的一个文件夹,用于保存行程 CSV 和设置备份。</string>
+    <string name="cloud_caption">选择手机上的一个文件夹,用于保存行程 CSV 和设置备份</string>
     <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
     <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox——这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
@@ -81,7 +81,7 @@
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程上传</string>
-    <string name="cloud_trips_caption">新录制的行程结束后会自动上传。如果失败,下次录制后会重试。</string>
+    <string name="cloud_trips_caption">新录制的行程结束后会自动上传。如果失败,下次录制后会重试</string>
     <string name="cloud_retry_now">立即重试上传</string>
     <string name="cloud_retry_enqueued">上传已排队</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
@@ -95,9 +95,12 @@
     <string name="section_connection">连接</string>
     <string name="section_display">显示</string>
     <string name="auto_record_on_start">启动时自动记录</string>
-    <string name="auto_record_caption">车轮连接后自动开始记录。</string>
+    <string name="auto_record_caption">无需点击"开始"即可自动录制每次行程</string>
+    <string name="auto_record_start_in_motion">运动时开始录制</string>
+    <string name="auto_record_start_in_motion_caption">等待运动后开始录制,空闲时间过后自动停止,下次行驶时重新开始</string>
+    <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
     <string name="auto_connect_on_start">启动时自动连接</string>
-    <string name="auto_connect_caption">自动重连上一次配对的车轮。第一次需要手动连接。</string>
+    <string name="auto_connect_caption">自动重连上一次配对的车轮。第一次需要手动连接</string>
     <string name="last_device">上次设备:%1$s</string>
     <string name="imperial_units">英制单位</string>
     <string name="language">语言</string>
@@ -120,8 +123,8 @@
 
     <string name="section_speed_limits">速度限制</string>
     <string name="section_legal_mode_speed">合规模式速度</string>
-    <string name="legal_mode_caption">合规模式开启时生效,必须低于普通回倾速度。</string>
-    <string name="speed_limits_disconnected">连接车轮后才能修改速度限制。</string>
+    <string name="legal_mode_caption">合规模式开启时生效,必须低于普通回倾速度</string>
+    <string name="speed_limits_disconnected">连接车轮后才能修改速度限制</string>
     <string name="speed_tiltback">回倾速度</string>
     <string name="speed_alarm">报警速度</string>
     <string name="speed_legal_tiltback">合规回倾</string>
@@ -159,17 +162,16 @@
     <string name="report_recording">记录</string>
 
     <string name="section_flic_buttons">Flic 2 按钮</string>
-    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式,然后点击搜索。</string>
+    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式,然后点击搜索</string>
     <string name="flic_stop_scan">停止</string>
     <string name="flic_start_scan">搜索按钮</string>
-    <string name="flic_no_buttons">尚未配对 Flic 按钮</string>
     <string name="flic_forget">忘记</string>
     <string name="flic_rename">重命名</string>
     <string name="flic_click">单击</string>
     <string name="flic_double_click">双击</string>
     <string name="flic_hold">长按</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">把手机音量键当作车轮快捷键使用,仅在应用可见时生效。</string>
+    <string name="volume_keys_caption">把手机音量键当作车轮快捷键使用,仅在应用可见时生效</string>
     <string name="volume_keys_enable">启用音量键操作</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
@@ -248,13 +250,11 @@
     <string name="flic_status_paired_fmt">已配对:%1$s</string>
     <string name="flic_status_scan_failed_fmt">搜索失败(代码 %1$d)</string>
 
-    <string name="scan_title">查找你的车轮</string>
-    <string name="scan_scanning">正在搜索 InMotion 车轮\u2026</string>
+    <string name="scan_title">连接到独轮车</string>
+    <string name="scan_scanning">搜索中\u2026</string>
     <string name="scan_start">开始搜索</string>
-    <string name="scan_hint">请确保车轮已开机,并且蓝牙已打开。</string>
 
-    <string name="metric_detail_title">历史数据:%1$s</string>
-    <string name="metric_waiting">等待数据\u2026 连接车轮后开始采集。</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">无数据</string>
     <string name="metric_min">最小</string>
     <string name="metric_avg">平均</string>
@@ -281,8 +281,8 @@
     <string name="recording_delete_trip_title">删除行程</string>
     <string name="recording_delete_trip_body">要删除此行程及其数据文件吗?</string>
     <string name="recording_clear_all_menu">全部清除</string>
-    <string name="recording_auto_record_tip">提示:在设置中开启自动记录,可在连接时自动开始。</string>
-    <string name="recording_empty">暂无记录的行程。\n点击记录按钮开始。</string>
+    <string name="recording_auto_record_tip">提示:在设置中开启自动记录,可在连接时自动开始</string>
+    <string name="recording_empty">暂无记录的行程\n点击记录按钮开始</string>
     <string name="recording_stat_trips">行程</string>
     <string name="recording_stat_distance">距离</string>
     <string name="recording_stat_time">时间</string>
@@ -290,7 +290,7 @@
     <string name="recording_gps_waiting">等待 GPS…</string>
 
     <string name="recording_detail_title">行程详情</string>
-    <string name="recording_no_data">此行程未记录任何数据。</string>
+    <string name="recording_no_data">此行程未记录任何数据</string>
     <string name="recording_route">路线</string>
     <string name="recording_summary_distance">距离</string>
     <string name="recording_summary_duration">时长</string>
@@ -314,13 +314,13 @@
     <string name="auto_volume_desc">根据速度自动调节系统音量</string>
     <string name="auto_sunrise_sunset">日出与日落</string>
     <string name="auto_midnight_sun_title">极昼</string>
-    <string name="auto_midnight_sun_body">当前纬度今日无日落——大灯将保持关闭。</string>
+    <string name="auto_midnight_sun_body">当前纬度今日无日落,大灯将保持关闭</string>
     <string name="auto_polar_night_title">极夜</string>
-    <string name="auto_polar_night_body">当前纬度今日无日出——大灯将保持开启。</string>
-    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接车轮或重启应用以恢复。</string>
+    <string name="auto_polar_night_body">当前纬度今日无日出,大灯将保持开启</string>
+    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接车轮或重启应用以恢复</string>
 
-    <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发。</string>
-    <string name="alarm_empty">尚未配置报警规则。</string>
+    <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发</string>
+    <string name="alarm_empty">暂无报警规则</string>
     <string name="alarm_add">添加报警规则</string>
     <string name="alarm_new">新建报警</string>
     <string name="alarm_edit">编辑报警</string>
@@ -337,21 +337,21 @@
     <string name="alarm_section_voice">语音</string>
     <string name="alarm_enable_voice">启用语音</string>
     <string name="alarm_voice_template">文本模板</string>
-    <string name="alarm_voice_template_help">变量:{speed}、{battery}、{temp}、{pwm}、{voltage}、{current}、{trip}、{value}、{metric}、{threshold}。</string>
+    <string name="alarm_voice_template_help">变量:{speed}、{battery}、{temp}、{pwm}、{voltage}、{current}、{trip}、{value}、{metric}、{threshold}</string>
     <string name="alarm_section_vibrate">振动</string>
     <string name="alarm_enable_vibrate">启用振动</string>
     <string name="alarm_vibrate_duration_fmt">时长:%1$dms</string>
     <string name="alarm_section_timing">触发时机</string>
     <string name="alarm_cooldown_fmt">冷却:%1$d 秒</string>
-    <string name="alarm_cooldown_help">两次触发之间的最短间隔,即便条件仍然满足。</string>
+    <string name="alarm_cooldown_help">两次触发之间的最短间隔,即便条件仍然满足</string>
     <string name="alarm_repeat">持续触发</string>
-    <string name="alarm_repeat_help">关:条件首次满足时触发一次,之后保持安静,直到条件不再满足。\n开:只要条件仍然满足,每隔 N 秒重复触发。</string>
-    <string name="alarm_repeat_on_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 开——如果保持 35 km/h 一分钟,每 %1$d 秒都会提醒。</string>
-    <string name="alarm_repeat_off_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 关——越过 30 时提醒一次,之后保持安静;必须回落到 30 以下(并等待 %1$d 秒)才会再次触发。</string>
+    <string name="alarm_repeat_help">关:条件首次满足时触发一次,之后保持安静,直到条件不再满足。\n开:只要条件仍然满足,每隔 N 秒重复触发</string>
+    <string name="alarm_repeat_on_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 开。如果保持 35 km/h 一分钟,每 %1$d 秒都会提醒</string>
+    <string name="alarm_repeat_off_example_fmt">例:速度 &gt; 30,冷却 %1$d 秒,重复 关。越过 30 时提醒一次,之后保持安静。必须回落到 30 以下(并等待 %1$d 秒)才会再次触发</string>
 
     <string name="about_crash_logs">崩溃日志</string>
-    <string name="about_crash_logs_hint">点击文件可分享给开发者。</string>
-    <string name="about_crash_logs_empty">没有崩溃记录。</string>
+    <string name="about_crash_logs_hint">点击文件可分享给开发者</string>
+    <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
     <string name="about_license">许可证</string>
 </resources>

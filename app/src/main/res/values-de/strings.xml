@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Berechtigung erteilen</string>
     <string name="action_open_settings">Einstellungen öffnen</string>
     <string name="scan_permission_needed">Berechtigung nötig</string>
-    <string name="scan_permission_body">Um dein Wheel zu finden, braucht die App Bluetooth- und Standortzugriff.</string>
-    <string name="scan_permission_body_settings">Berechtigung verweigert. Öffne die Systemeinstellungen, um Bluetooth und Standort zu erlauben.</string>
+    <string name="scan_permission_body">Um dein Wheel zu finden, braucht die App Bluetooth- und Standortzugriff</string>
+    <string name="scan_permission_body_settings">Berechtigung verweigert. Öffne die Systemeinstellungen, um Bluetooth und Standort zu erlauben</string>
     <string name="recording_location_permission_needed">Standort nötig</string>
-    <string name="recording_location_permission_body">Die Fahrtaufnahme speichert GPS-Punkte, damit du die Strecke auf einer Karte siehst. Gewähre Standortzugriff, um fortzufahren.</string>
+    <string name="recording_location_permission_body">Die Fahrtaufnahme speichert GPS-Punkte, damit du die Strecke auf einer Karte siehst. Gewähre Standortzugriff, um fortzufahren</string>
 
     <string name="connection_connected">Verbunden</string>
     <string name="connection_connecting">Suche\u2026</string>
@@ -66,7 +66,10 @@
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
     <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
-    <string name="auto_record_caption">Startet die Aufnahme automatisch, wenn sich das Rad verbindet.</string>
+    <string name="auto_record_caption">Zeichnet jede Fahrt auf, ohne dass du Start tippen musst</string>
+    <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
+    <string name="auto_record_start_in_motion_caption">Wartet auf Bewegung, um die Aufnahme zu starten, stoppt automatisch nach der Leerlaufzeit und startet bei der nächsten Fahrt neu</string>
+    <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
     <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
     <string name="imperial_units">Imperiale Einheiten</string>
@@ -89,9 +92,9 @@
     <string name="tts_switch_no">Beibehalten</string>
 
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
-    <string name="section_legal_mode_speed">Legal-Modus — Geschwindigkeit</string>
-    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
-    <string name="speed_limits_disconnected">Rad verbinden, um Geschwindigkeitsgrenzen zu bearbeiten.</string>
+    <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
+    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein</string>
+    <string name="speed_limits_disconnected">Rad verbinden, um Geschwindigkeitsgrenzen zu bearbeiten</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
@@ -129,17 +132,16 @@
     <string name="report_recording">Aufnahme</string>
 
     <string name="section_flic_buttons">Flic 2-Tasten</string>
-    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
+    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Nach Taste suchen</string>
-    <string name="flic_no_buttons">Keine Flic-Tasten gekoppelt</string>
     <string name="flic_forget">Vergessen</string>
     <string name="flic_rename">Umbenennen</string>
     <string name="flic_click">Klick</string>
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App.</string>
+    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle fürs Rad. Funktioniert nur bei sichtbarer App</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
@@ -177,14 +179,12 @@
     <string name="lang_name_zh">Chinesisch</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Einrad finden</string>
-    <string name="scan_scanning">Suche nach InMotion-Einrädern\u2026</string>
+    <string name="scan_title">Mit Rad verbinden</string>
+    <string name="scan_scanning">Suche\u2026</string>
     <string name="scan_start">Suche starten</string>
-    <string name="scan_hint">Stelle sicher, dass dein Einrad eingeschaltet und Bluetooth aktiviert ist.</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">Verlauf: %1$s</string>
-    <string name="metric_waiting">Warte auf Daten\u2026 Verbinde dich mit dem Einrad.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Keine Daten</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">Ø</string>
@@ -212,8 +212,8 @@
     <string name="recording_delete_trip_title">Fahrt löschen</string>
     <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
     <string name="recording_clear_all_menu">Alle löschen</string>
-    <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen.</string>
-    <string name="recording_empty">Noch keine Fahrten aufgezeichnet.\nTippe auf Aufnahme, um zu starten.</string>
+    <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen</string>
+    <string name="recording_empty">Noch keine Fahrten aufgezeichnet\nTippe auf Aufnahme, um zu starten</string>
     <string name="recording_stat_trips">Fahrten</string>
     <string name="recording_stat_distance">Distanz</string>
     <string name="recording_stat_time">Zeit</string>
@@ -222,7 +222,7 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Fahrtdetails</string>
-    <string name="recording_no_data">Keine Daten für diese Fahrt.</string>
+    <string name="recording_no_data">Keine Daten für diese Fahrt</string>
     <string name="recording_route">Route</string>
     <string name="recording_summary_distance">Distanz</string>
     <string name="recording_summary_duration">Dauer</string>
@@ -247,14 +247,14 @@
     <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
     <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
     <string name="auto_midnight_sun_title">Mitternachtssonne</string>
-    <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter — das Licht bleibt AUS.</string>
+    <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS</string>
     <string name="auto_polar_night_title">Polarnacht</string>
-    <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf — das Licht bleibt AN.</string>
-    <string name="auto_lights_suspended">Ausgesetzt: Du hast das Licht in dieser Sitzung manuell geschaltet. Rad neu verbinden oder App neu starten, um fortzusetzen.</string>
+    <string name="auto_polar_night_body">Die Sonne geht heute an diesem Breitengrad nicht auf, das Licht bleibt AN</string>
+    <string name="auto_lights_suspended">Ausgesetzt: Du hast das Licht in dieser Sitzung manuell geschaltet. Rad neu verbinden oder App neu starten, um fortzusetzen</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert.</string>
-    <string name="alarm_empty">Keine Alarmregeln konfiguriert.</string>
+    <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert</string>
+    <string name="alarm_empty">Noch keine Alarmregeln</string>
     <string name="alarm_add">Regel hinzufügen</string>
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
@@ -271,17 +271,17 @@
     <string name="alarm_section_voice">Stimme</string>
     <string name="alarm_enable_voice">Stimme aktivieren</string>
     <string name="alarm_voice_template">Textvorlage</string>
-    <string name="alarm_voice_template_help">Variablen: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variablen: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Vibration aktivieren</string>
     <string name="alarm_vibrate_duration_fmt">Dauer: %1$d ms</string>
     <string name="alarm_section_timing">Zeitsteuerung</string>
     <string name="alarm_cooldown_fmt">Abklingzeit: %1$d s</string>
-    <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist.</string>
+    <string name="alarm_cooldown_help">Mindestzeit zwischen Auslösungen, auch wenn die Bedingung weiterhin erfüllt ist</string>
     <string name="alarm_repeat">Wiederholen solange aktiv</string>
-    <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt.</string>
-    <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AN — wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt.</string>
-    <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AUS — eine Warnung beim Überschreiten von 30, dann still; du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann.</string>
+    <string name="alarm_repeat_help">AUS: feuert einmal, wenn die Bedingung erstmals zutrifft, dann still bis sie nicht mehr zutrifft.\nAN: feuert weiter alle N Sekunden solange die Bedingung wahr bleibt</string>
+    <string name="alarm_repeat_on_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AN. Wenn du eine Minute lang 35 km/h hältst, wirst du alle %1$d s gewarnt</string>
+    <string name="alarm_repeat_off_example_fmt">Beispiel: Geschwindigkeit &gt; 30, Abklingzeit %1$d s, AUS. Eine Warnung beim Überschreiten von 30, dann still. Du musst unter 30 fallen (und %1$d s warten), bevor erneut ausgelöst werden kann</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Geschwindigkeit</string>
@@ -335,8 +335,8 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Absturz­protokolle</string>
-    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
-    <string name="about_crash_logs_empty">Keine Abstürze.</string>
+    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen</string>
+    <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_license">Lizenz</string>
 </resources>

@@ -105,7 +105,7 @@
     <string name="auto_record_caption">Records every trip without tapping Start</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Waits for movement to start recording, auto-stops after the idle time, and restarts on the next ride</string>
-    <string name="auto_record_stop_idle_seconds">Idle time before stopping</string>
+    <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time</string>
     <string name="last_device">Last device: %1$s</string>
@@ -280,8 +280,8 @@
     <string name="flic_status_scan_failed_fmt">Scan failed (code %1$d)</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Connect</string>
-    <string name="scan_scanning">Waiting for EUCs\u2026</string>
+    <string name="scan_title">Connect to wheel</string>
+    <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
 
     <!-- Metric detail -->

@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Ge behörighet</string>
     <string name="action_open_settings">Öppna inställningar</string>
     <string name="scan_permission_needed">Behörighet krävs</string>
-    <string name="scan_permission_body">För att hitta ditt hjul behöver appen tillgång till Bluetooth och plats.</string>
-    <string name="scan_permission_body_settings">Behörigheten nekades. Öppna systeminställningarna för att tillåta Bluetooth och plats.</string>
+    <string name="scan_permission_body">För att hitta ditt hjul behöver appen tillgång till Bluetooth och plats</string>
+    <string name="scan_permission_body_settings">Behörigheten nekades. Öppna systeminställningarna för att tillåta Bluetooth och plats</string>
     <string name="recording_location_permission_needed">Plats krävs</string>
-    <string name="recording_location_permission_body">Turinspelningen sparar GPS-punkter så att du kan se rutten på kartan. Ge platsåtkomst för att fortsätta.</string>
+    <string name="recording_location_permission_body">Turinspelningen sparar GPS-punkter så att du kan se rutten på kartan. Ge platsåtkomst för att fortsätta</string>
 
     <string name="connection_connected">Ansluten</string>
     <string name="connection_connecting">Söker\u2026</string>
@@ -63,7 +63,7 @@
     <string name="tab_cloud">Säkerhets­kopia</string>
 
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
-    <string name="cloud_caption">Välj en mapp på telefonen där tur-CSV:er och en säkerhetskopia av inställningarna sparas.</string>
+    <string name="cloud_caption">Välj en mapp på telefonen där tur-CSV:er och en säkerhetskopia av inställningarna sparas</string>
     <string name="cloud_help_title">Säkerhetskopiera till OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappväljare visar oftast inte OneDrive, Google Drive eller Dropbox — de apparna exponerar ingen skrivbar mapp för andra appar. Därför sparar vi lokalt och låter en synk-app sköta uppladdningen.\n\nGör så här:\n1. Installera Autosync (för OneDrive, Drive eller Dropbox) eller FolderSync från Play Butik.\n2. Logga in i appen och skapa ett synk-par: din lokala mapp → en molnmapp.\n3. Välj \"Endast uppladdning\" med direktsynk eller synk vid ändring.\n4. Kom tillbaka hit och välj samma lokala mapp.\n\nNya resor hamnar i mappen när inspelningen är klar. Synk-appen laddar upp dem i bakgrunden.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
@@ -81,7 +81,7 @@
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Uppladdning av resor</string>
-    <string name="cloud_trips_caption">Nya inspelningar laddas upp när de är klara. Misslyckas en, görs ett nytt försök efter nästa inspelning.</string>
+    <string name="cloud_trips_caption">Nya inspelningar laddas upp när de är klara. Misslyckas en, görs ett nytt försök efter nästa inspelning</string>
     <string name="cloud_retry_now">Försök igen nu</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>
@@ -95,9 +95,12 @@
     <string name="section_connection">Anslutning</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
-    <string name="auto_record_caption">Startar inspelningen så snart hjulet ansluter.</string>
+    <string name="auto_record_caption">Spelar in varje tur utan att trycka Start</string>
+    <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
+    <string name="auto_record_start_in_motion_caption">Väntar på rörelse för att börja spela in, stoppar automatiskt efter inaktivitetstiden och startar igen vid nästa tur</string>
+    <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
-    <string name="auto_connect_caption">Återansluter till det hjul du senast parade. Första gången måste du ansluta manuellt.</string>
+    <string name="auto_connect_caption">Återansluter till det hjul du senast parade. Första gången måste du ansluta manuellt</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="imperial_units">Imperiella enheter</string>
     <string name="language">Språk</string>
@@ -120,8 +123,8 @@
 
     <string name="section_speed_limits">Hastighetsgränser</string>
     <string name="section_legal_mode_speed">Hastighet i lagligt läge</string>
-    <string name="legal_mode_caption">Används när lagligt läge är på. Måste vara lägre än normal tiltback.</string>
-    <string name="speed_limits_disconnected">Anslut hjulet för att ändra hastighetsgränser.</string>
+    <string name="legal_mode_caption">Används när lagligt läge är på. Måste vara lägre än normal tiltback</string>
+    <string name="speed_limits_disconnected">Anslut hjulet för att ändra hastighetsgränser</string>
     <string name="speed_tiltback">Tiltback-hastighet</string>
     <string name="speed_alarm">Larmhastighet</string>
     <string name="speed_legal_tiltback">Laglig tiltback</string>
@@ -159,17 +162,16 @@
     <string name="report_recording">Inspelning</string>
 
     <string name="section_flic_buttons">Flic 2-knappar</string>
-    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök.</string>
+    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök</string>
     <string name="flic_stop_scan">Stoppa</string>
     <string name="flic_start_scan">Sök efter knapp</string>
-    <string name="flic_no_buttons">Inga Flic-knappar parade</string>
     <string name="flic_forget">Glöm</string>
     <string name="flic_rename">Byt namn</string>
     <string name="flic_click">Klick</string>
     <string name="flic_double_click">Dubbelklick</string>
     <string name="flic_hold">Håll</string>
     <string name="section_volume_keys">Volymknappar</string>
-    <string name="volume_keys_caption">Använd telefonens volymknappar som genvägar. Funkar bara när appen är synlig.</string>
+    <string name="volume_keys_caption">Använd telefonens volymknappar som genvägar. Funkar bara när appen är synlig</string>
     <string name="volume_keys_enable">Aktivera åtgärder på volymknappar</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
@@ -248,13 +250,11 @@
     <string name="flic_status_paired_fmt">Parad: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Sökning misslyckades (kod %1$d)</string>
 
-    <string name="scan_title">Hitta ditt hjul</string>
-    <string name="scan_scanning">Söker efter InMotion-hjul\u2026</string>
+    <string name="scan_title">Anslut till hjul</string>
+    <string name="scan_scanning">Söker\u2026</string>
     <string name="scan_start">Börja söka</string>
-    <string name="scan_hint">Se till att hjulet är påslaget och att Bluetooth är aktiverat.</string>
 
-    <string name="metric_detail_title">Historik: %1$s</string>
-    <string name="metric_waiting">Väntar på data\u2026 Anslut till hjulet för att börja.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Inga data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">SNITT</string>
@@ -281,8 +281,8 @@
     <string name="recording_delete_trip_title">Radera resa</string>
     <string name="recording_delete_trip_body">Radera den här resan och dess datafil?</string>
     <string name="recording_clear_all_menu">Rensa alla</string>
-    <string name="recording_auto_record_tip">Tips: Aktivera autoinspelning i Inställningar för att starta vid anslutning.</string>
-    <string name="recording_empty">Inga resor inspelade än.\nTryck på inspelningsknappen för att börja.</string>
+    <string name="recording_auto_record_tip">Tips: Aktivera autoinspelning i Inställningar för att starta vid anslutning</string>
+    <string name="recording_empty">Inga resor inspelade än\nTryck på inspelningsknappen för att börja</string>
     <string name="recording_stat_trips">Resor</string>
     <string name="recording_stat_distance">Distans</string>
     <string name="recording_stat_time">Tid</string>
@@ -290,7 +290,7 @@
     <string name="recording_gps_waiting">Väntar på GPS…</string>
 
     <string name="recording_detail_title">Resedetaljer</string>
-    <string name="recording_no_data">Inga data inspelade under resan.</string>
+    <string name="recording_no_data">Inga data inspelade under resan</string>
     <string name="recording_route">Rutt</string>
     <string name="recording_summary_distance">Distans</string>
     <string name="recording_summary_duration">Varaktighet</string>
@@ -314,13 +314,13 @@
     <string name="auto_volume_desc">Volymen justeras efter hastigheten</string>
     <string name="auto_sunrise_sunset">Soluppgång och solnedgång</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
-    <string name="auto_midnight_sun_body">Solen går inte ned här i dag — ljuset hålls släckt.</string>
+    <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt</string>
     <string name="auto_polar_night_title">Polarnatt</string>
-    <string name="auto_polar_night_body">Solen går inte upp här i dag — ljuset hålls tänt.</string>
-    <string name="auto_lights_suspended">Pausad: du växlade ljuset manuellt under den här sessionen. Anslut hjulet igen eller starta om appen för att återuppta.</string>
+    <string name="auto_polar_night_body">Solen går inte upp här i dag, ljuset hålls tänt</string>
+    <string name="auto_lights_suspended">Pausad: du växlade ljuset manuellt under den här sessionen. Anslut hjulet igen eller starta om appen för att återuppta</string>
 
-    <string name="alarm_help">Reglerna kollas uppifrån och ner per mätning. Den första som matchar utlöses.</string>
-    <string name="alarm_empty">Inga larmregler skapade.</string>
+    <string name="alarm_help">Reglerna kollas uppifrån och ner per mätning. Den första som matchar utlöses</string>
+    <string name="alarm_empty">Inga alarmregler ännu</string>
     <string name="alarm_add">Lägg till larmregel</string>
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
@@ -337,21 +337,21 @@
     <string name="alarm_section_voice">Röst</string>
     <string name="alarm_enable_voice">Aktivera röst</string>
     <string name="alarm_voice_template">Textmall</string>
-    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Aktivera vibration</string>
     <string name="alarm_vibrate_duration_fmt">Längd: %1$dms</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Paus: %1$ds</string>
-    <string name="alarm_cooldown_help">Minsta tid mellan utlösningar, även om villkoret fortsätter gälla.</string>
+    <string name="alarm_cooldown_help">Minsta tid mellan utlösningar, även om villkoret fortsätter gälla</string>
     <string name="alarm_repeat">Upprepa medan aktivt</string>
-    <string name="alarm_repeat_help">AV: utlöser en gång när villkoret börjar gälla, sedan tyst tills det slutar gälla.\nPÅ: fortsätter utlösa var N:e sekund så länge villkoret är sant.</string>
-    <string name="alarm_repeat_on_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa PÅ — håller du 35 km/h i en minut varnas du var %1$ds.</string>
-    <string name="alarm_repeat_off_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa AV — en varning när du passerar 30, sedan tyst; du måste ned under 30 (och vänta %1$ds) innan nästa utlösning.</string>
+    <string name="alarm_repeat_help">AV: utlöser en gång när villkoret börjar gälla, sedan tyst tills det slutar gälla.\nPÅ: fortsätter utlösa var N:e sekund så länge villkoret är sant</string>
+    <string name="alarm_repeat_on_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa PÅ. Håller du 35 km/h i en minut varnas du var %1$ds</string>
+    <string name="alarm_repeat_off_example_fmt">Exempel: hastighet &gt; 30, paus %1$ds, upprepa AV. En varning när du passerar 30, sedan tyst. Du måste ned under 30 (och vänta %1$ds) innan nästa utlösning</string>
 
     <string name="about_crash_logs">Kraschloggar</string>
-    <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren.</string>
-    <string name="about_crash_logs_empty">Inga krascher registrerade.</string>
+    <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren</string>
+    <string name="about_crash_logs_empty">Inga krascher registrerade</string>
     <string name="about_share_crash">Dela kraschlogg</string>
     <string name="about_license">Licens</string>
 </resources>

@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Giv tilladelse</string>
     <string name="action_open_settings">Åbn indstillinger</string>
     <string name="scan_permission_needed">Tilladelse kræves</string>
-    <string name="scan_permission_body">For at finde dit hjul har appen brug for Bluetooth og placering.</string>
-    <string name="scan_permission_body_settings">Tilladelsen blev afvist. Åbn systemindstillinger for at tillade Bluetooth og placering.</string>
+    <string name="scan_permission_body">For at finde dit hjul har appen brug for Bluetooth og placering</string>
+    <string name="scan_permission_body_settings">Tilladelsen blev afvist. Åbn systemindstillinger for at tillade Bluetooth og placering</string>
     <string name="recording_location_permission_needed">Placering kræves</string>
-    <string name="recording_location_permission_body">Turoptagelse gemmer GPS-punkter, så du kan se ruten på kortet. Giv adgang til placering for at fortsætte.</string>
+    <string name="recording_location_permission_body">Turoptagelse gemmer GPS-punkter, så du kan se ruten på kortet. Giv adgang til placering for at fortsætte</string>
 
     <string name="connection_connected">Forbundet</string>
     <string name="connection_connecting">Søger\u2026</string>
@@ -63,7 +63,7 @@
     <string name="tab_cloud">Backup</string>
 
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Vælg en mappe på telefonen, hvor tur-CSV\'er og en indstillingsbackup gemmes.</string>
+    <string name="cloud_caption">Vælg en mappe på telefonen, hvor tur-CSV\'er og en indstillingsbackup gemmes</string>
     <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox — de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
@@ -81,7 +81,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-uploads</string>
-    <string name="cloud_trips_caption">Nye optagelser uploades, når de er færdige. Mislykkes en, prøves igen efter den næste optagelse.</string>
+    <string name="cloud_trips_caption">Nye optagelser uploades, når de er færdige. Mislykkes en, prøves igen efter den næste optagelse</string>
     <string name="cloud_retry_now">Prøv upload igen nu</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="cloud_uploaded_on">Sikkerhedskopieret %1$s</string>
@@ -95,9 +95,12 @@
     <string name="section_connection">Forbindelse</string>
     <string name="section_display">Skærm</string>
     <string name="auto_record_on_start">Optag automatisk ved start</string>
-    <string name="auto_record_caption">Begynder optagelsen, så snart hjulet forbindes.</string>
+    <string name="auto_record_caption">Optager hver tur uden at trykke Start</string>
+    <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
+    <string name="auto_record_start_in_motion_caption">Venter på bevægelse for at starte optagelsen, stopper automatisk efter inaktivitetstiden og starter igen ved næste tur</string>
+    <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
-    <string name="auto_connect_caption">Forbinder igen til det hjul, du senest parrede. Første gang skal du forbinde manuelt.</string>
+    <string name="auto_connect_caption">Forbinder igen til det hjul, du senest parrede. Første gang skal du forbinde manuelt</string>
     <string name="last_device">Seneste enhed: %1$s</string>
     <string name="imperial_units">Imperiale enheder</string>
     <string name="language">Sprog</string>
@@ -120,8 +123,8 @@
 
     <string name="section_speed_limits">Hastighedsgrænser</string>
     <string name="section_legal_mode_speed">Hastighed i lovlig tilstand</string>
-    <string name="legal_mode_caption">Bruges, når lovlig tilstand er slået til. Skal være lavere end normal tiltback.</string>
-    <string name="speed_limits_disconnected">Forbind hjulet for at ændre hastighedsgrænser.</string>
+    <string name="legal_mode_caption">Bruges, når lovlig tilstand er slået til. Skal være lavere end normal tiltback</string>
+    <string name="speed_limits_disconnected">Forbind hjulet for at ændre hastighedsgrænser</string>
     <string name="speed_tiltback">Tiltback-hastighed</string>
     <string name="speed_alarm">Alarmhastighed</string>
     <string name="speed_legal_tiltback">Lovlig tiltback</string>
@@ -159,17 +162,16 @@
     <string name="report_recording">Optagelse</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_scan_hint">Hold din Flic 2-knap nede i 6 sekunder for at sætte den i parringstilstand, og tryk så Scan.</string>
+    <string name="flic_scan_hint">Hold din Flic 2-knap nede i 6 sekunder for at sætte den i parringstilstand, og tryk så Scan</string>
     <string name="flic_stop_scan">Stop</string>
     <string name="flic_start_scan">Scan efter knap</string>
-    <string name="flic_no_buttons">Ingen Flic-knapper parret</string>
     <string name="flic_forget">Glem</string>
     <string name="flic_rename">Omdøb</string>
     <string name="flic_click">Klik</string>
     <string name="flic_double_click">Dobbeltklik</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje. Virker kun, når appen er synlig.</string>
+    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje. Virker kun, når appen er synlig</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
@@ -248,13 +250,11 @@
     <string name="flic_status_paired_fmt">Parret: %1$s</string>
     <string name="flic_status_scan_failed_fmt">Scan mislykkedes (kode %1$d)</string>
 
-    <string name="scan_title">Find dit hjul</string>
-    <string name="scan_scanning">Søger efter InMotion-hjul\u2026</string>
+    <string name="scan_title">Forbind til hjul</string>
+    <string name="scan_scanning">Søger\u2026</string>
     <string name="scan_start">Start scanning</string>
-    <string name="scan_hint">Sørg for, at hjulet er tændt, og at Bluetooth er slået til.</string>
 
-    <string name="metric_detail_title">Historik: %1$s</string>
-    <string name="metric_waiting">Venter på data\u2026 Forbind til hjulet for at begynde.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Ingen data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">GNS</string>
@@ -281,8 +281,8 @@
     <string name="recording_delete_trip_title">Slet tur</string>
     <string name="recording_delete_trip_body">Slet denne tur og dens datafil?</string>
     <string name="recording_clear_all_menu">Slet alle</string>
-    <string name="recording_auto_record_tip">Tip: Aktivér automatisk optagelse i Indstillinger for at optage fra forbindelsen.</string>
-    <string name="recording_empty">Ingen ture optaget endnu.\nTryk på optageknappen for at starte.</string>
+    <string name="recording_auto_record_tip">Tip: Aktivér automatisk optagelse i Indstillinger for at optage fra forbindelsen</string>
+    <string name="recording_empty">Ingen ture optaget endnu\nTryk på optageknappen for at starte</string>
     <string name="recording_stat_trips">Ture</string>
     <string name="recording_stat_distance">Distance</string>
     <string name="recording_stat_time">Tid</string>
@@ -290,7 +290,7 @@
     <string name="recording_gps_waiting">Venter på GPS…</string>
 
     <string name="recording_detail_title">Turdetaljer</string>
-    <string name="recording_no_data">Ingen data optaget på denne tur.</string>
+    <string name="recording_no_data">Ingen data optaget på denne tur</string>
     <string name="recording_route">Rute</string>
     <string name="recording_summary_distance">Distance</string>
     <string name="recording_summary_duration">Varighed</string>
@@ -314,13 +314,13 @@
     <string name="auto_volume_desc">Lydstyrken justeres efter hastigheden</string>
     <string name="auto_sunrise_sunset">Solopgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnatssol</string>
-    <string name="auto_midnight_sun_body">Solen går ikke ned her i dag — lyset forbliver slukket.</string>
+    <string name="auto_midnight_sun_body">Solen går ikke ned her i dag, lyset forbliver slukket</string>
     <string name="auto_polar_night_title">Mørketid</string>
-    <string name="auto_polar_night_body">Solen står ikke op her i dag — lyset forbliver tændt.</string>
-    <string name="auto_lights_suspended">Sat på pause: du har selv tændt/slukket lyset i denne session. Forbind hjulet igen eller genstart appen for at fortsætte.</string>
+    <string name="auto_polar_night_body">Solen står ikke op her i dag, lyset forbliver tændt</string>
+    <string name="auto_lights_suspended">Sat på pause: du har selv tændt/slukket lyset i denne session. Forbind hjulet igen eller genstart appen for at fortsætte</string>
 
-    <string name="alarm_help">Reglerne gennemgås oppefra og ned pr. måling. Den første regel, der matcher, udløses.</string>
-    <string name="alarm_empty">Ingen alarmregler oprettet.</string>
+    <string name="alarm_help">Reglerne gennemgås oppefra og ned pr. måling. Den første regel, der matcher, udløses</string>
+    <string name="alarm_empty">Ingen alarmregler endnu</string>
     <string name="alarm_add">Tilføj alarmregel</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
@@ -337,21 +337,21 @@
     <string name="alarm_section_voice">Stemme</string>
     <string name="alarm_enable_voice">Aktivér stemme</string>
     <string name="alarm_voice_template">Tekstskabelon</string>
-    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Aktivér vibration</string>
     <string name="alarm_vibrate_duration_fmt">Varighed: %1$dms</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Pause: %1$ds</string>
-    <string name="alarm_cooldown_help">Mindste tid mellem udløsninger, også hvis betingelsen bliver ved at være opfyldt.</string>
+    <string name="alarm_cooldown_help">Mindste tid mellem udløsninger, også hvis betingelsen bliver ved at være opfyldt</string>
     <string name="alarm_repeat">Gentag mens aktiv</string>
-    <string name="alarm_repeat_help">FRA: udløses én gang, når betingelsen begynder at være opfyldt, og er så stille, indtil den ophører.\nTIL: udløses hvert N. sekund, så længe betingelsen er sand.</string>
-    <string name="alarm_repeat_on_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag TIL — holder du 35 km/t i et minut, får du en advarsel hver %1$ds.</string>
-    <string name="alarm_repeat_off_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag FRA — én advarsel ved passage af 30, derefter stille; du skal ned under 30 (og vente %1$ds) før næste udløsning.</string>
+    <string name="alarm_repeat_help">FRA: udløses én gang, når betingelsen begynder at være opfyldt, og er så stille, indtil den ophører.\nTIL: udløses hvert N. sekund, så længe betingelsen er sand</string>
+    <string name="alarm_repeat_on_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag TIL. Holder du 35 km/t i et minut, får du en advarsel hver %1$ds</string>
+    <string name="alarm_repeat_off_example_fmt">Eksempel: hastighed &gt; 30, pause %1$ds, gentag FRA. Én advarsel ved passage af 30, derefter stille. Du skal ned under 30 (og vente %1$ds) før næste udløsning</string>
 
     <string name="about_crash_logs">Nedbrudslogfiler</string>
-    <string name="about_crash_logs_hint">Tryk på en fil for at dele den med udvikleren.</string>
-    <string name="about_crash_logs_empty">Ingen nedbrud registreret.</string>
+    <string name="about_crash_logs_hint">Tryk på en fil for at dele den med udvikleren</string>
+    <string name="about_crash_logs_empty">Ingen nedbrud registreret</string>
     <string name="about_share_crash">Del nedbrudslog</string>
     <string name="about_license">Licens</string>
 </resources>

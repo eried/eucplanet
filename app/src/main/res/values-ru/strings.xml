@@ -16,10 +16,10 @@
     <string name="action_grant_permission">Предоставить разрешение</string>
     <string name="action_open_settings">Открыть настройки</string>
     <string name="scan_permission_needed">Нужно разрешение</string>
-    <string name="scan_permission_body">Чтобы найти ваше колесо, приложению нужен доступ к Bluetooth и геолокации.</string>
-    <string name="scan_permission_body_settings">Разрешение отклонено. Откройте системные настройки, чтобы разрешить Bluetooth и геолокацию.</string>
+    <string name="scan_permission_body">Чтобы найти ваше колесо, приложению нужен доступ к Bluetooth и геолокации</string>
+    <string name="scan_permission_body_settings">Разрешение отклонено. Откройте системные настройки, чтобы разрешить Bluetooth и геолокацию</string>
     <string name="recording_location_permission_needed">Нужна геолокация</string>
-    <string name="recording_location_permission_body">Запись поездок сохраняет GPS-точки, чтобы показать маршрут на карте. Разрешите доступ к геолокации, чтобы продолжить.</string>
+    <string name="recording_location_permission_body">Запись поездок сохраняет GPS-точки, чтобы показать маршрут на карте. Разрешите доступ к геолокации, чтобы продолжить</string>
 
     <string name="connection_connected">Подключено</string>
     <string name="connection_connecting">Поиск\u2026</string>
@@ -66,7 +66,10 @@
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Запись пойдёт сразу после подключения к моноколесу.</string>
+    <string name="auto_record_caption">Записывает каждую поездку без нажатия «Старт»</string>
+    <string name="auto_record_start_in_motion">Начинать запись при движении</string>
+    <string name="auto_record_start_in_motion_caption">Ждёт начала движения, чтобы начать запись, останавливает её после времени простоя и возобновляет при следующей поездке</string>
+    <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
     <string name="imperial_units">Имперские единицы</string>
@@ -90,8 +93,8 @@
 
     <string name="section_speed_limits">Ограничения скорости</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
-    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback.</string>
-    <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить ограничения скорости.</string>
+    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback</string>
+    <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить ограничения скорости</string>
     <string name="speed_tiltback">Tiltback</string>
     <string name="speed_alarm">Предупреждение</string>
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
@@ -129,17 +132,16 @@
     <string name="report_recording">Запись</string>
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
+    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск</string>
     <string name="flic_stop_scan">Стоп</string>
     <string name="flic_start_scan">Искать кнопку</string>
-    <string name="flic_no_buttons">Нет привязанных кнопок Flic</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_rename">Переименовать</string>
     <string name="flic_click">Нажатие</string>
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
     <string name="section_volume_keys">Кнопки громкости</string>
-    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто.</string>
+    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
@@ -177,14 +179,12 @@
     <string name="lang_name_zh">Китайский</string>
 
     <!-- Scan screen -->
-    <string name="scan_title">Найдём ваше моноколесо</string>
-    <string name="scan_scanning">Ищем моноколёса InMotion\u2026</string>
+    <string name="scan_title">Подключить к моноколесу</string>
+    <string name="scan_scanning">Поиск\u2026</string>
     <string name="scan_start">Начать поиск</string>
-    <string name="scan_hint">Проверьте, что моноколесо включено, а Bluetooth на телефоне активен.</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">История: %1$s</string>
-    <string name="metric_waiting">Ждём данные\u2026 Подключитесь к моноколесу, чтобы начать сбор.</string>
+    <string name="metric_detail_title">%1$s</string>
     <string name="metric_no_data">Данных пока нет</string>
     <string name="metric_min">МИН</string>
     <string name="metric_avg">СРЕД</string>
@@ -212,8 +212,8 @@
     <string name="recording_delete_trip_title">Удалить поездку</string>
     <string name="recording_delete_trip_body">Удалить эту поездку вместе с её файлом?</string>
     <string name="recording_clear_all_menu">Удалить всё</string>
-    <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения.</string>
-    <string name="recording_empty">Поездок пока нет.\nНажмите кнопку записи, чтобы начать.</string>
+    <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения</string>
+    <string name="recording_empty">Поездок пока нет\nНажмите кнопку записи, чтобы начать</string>
     <string name="recording_stat_trips">Поездок</string>
     <string name="recording_stat_distance">Пробег</string>
     <string name="recording_stat_time">Время</string>
@@ -222,7 +222,7 @@
 
     <!-- Trip detail screen -->
     <string name="recording_detail_title">Подробности поездки</string>
-    <string name="recording_no_data">Для этой поездки нет данных.</string>
+    <string name="recording_no_data">Для этой поездки нет данных</string>
     <string name="recording_route">Маршрут</string>
     <string name="recording_summary_distance">Пробег</string>
     <string name="recording_summary_duration">Длительность</string>
@@ -247,14 +247,14 @@
     <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
-    <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится — фары останутся выключенными.</string>
+    <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными</string>
     <string name="auto_polar_night_title">Полярная ночь</string>
-    <string name="auto_polar_night_body">Сегодня на этой широте солнце не восходит — фары останутся включёнными.</string>
-    <string name="auto_lights_suspended">Приостановлено: вы вручную переключили свет в этой сессии. Переподключите колесо или перезапустите приложение, чтобы возобновить.</string>
+    <string name="auto_polar_night_body">Сегодня на этой широте солнце не восходит, фары останутся включёнными</string>
+    <string name="auto_lights_suspended">Приостановлено: вы вручную переключили свет в этой сессии. Переподключите колесо или перезапустите приложение, чтобы возобновить</string>
 
     <!-- Alarms tab -->
-    <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее — остальные пропускаются.</string>
-    <string name="alarm_empty">Правила тревог не настроены.</string>
+    <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее, остальные пропускаются</string>
+    <string name="alarm_empty">Ещё нет правил тревог</string>
     <string name="alarm_add">Добавить правило</string>
     <string name="alarm_new">Новое правило</string>
     <string name="alarm_edit">Изменить</string>
@@ -271,17 +271,17 @@
     <string name="alarm_section_voice">Голос</string>
     <string name="alarm_enable_voice">Озвучивать</string>
     <string name="alarm_voice_template">Шаблон сообщения</string>
-    <string name="alarm_voice_template_help">Переменные: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}.</string>
+    <string name="alarm_voice_template_help">Переменные: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
     <string name="alarm_section_vibrate">Вибрация</string>
     <string name="alarm_enable_vibrate">Вибрировать</string>
     <string name="alarm_vibrate_duration_fmt">Длительность: %1$d мс</string>
     <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_fmt">Пауза: %1$d с</string>
-    <string name="alarm_cooldown_help">Минимальная пауза между срабатываниями, даже если условие продолжает выполняться.</string>
+    <string name="alarm_cooldown_help">Минимальная пауза между срабатываниями, даже если условие продолжает выполняться</string>
     <string name="alarm_repeat">Повторять, пока условие выполняется</string>
-    <string name="alarm_repeat_help">Выкл.: сработает один раз — когда условие только начало выполняться — и замолчит, пока оно снова не перестанет выполняться.\nВкл.: будет повторяться каждые N секунд, пока условие остаётся истинным.</string>
-    <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ. — если удерживать 35 км/ч минуту, предупреждение прозвучит каждые %1$d с.</string>
-    <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ. — одно предупреждение при пересечении 30, потом тишина; чтобы сработало снова, нужно опуститься ниже 30 и подождать %1$d с.</string>
+    <string name="alarm_repeat_help">Выкл.: сработает один раз, когда условие только начало выполняться, и замолчит, пока оно снова не перестанет выполняться.\nВкл.: будет повторяться каждые N секунд, пока условие остаётся истинным</string>
+    <string name="alarm_repeat_on_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВКЛ. Если удерживать 35 км/ч минуту, предупреждение прозвучит каждые %1$d с</string>
+    <string name="alarm_repeat_off_example_fmt">Пример: скорость &gt; 30, пауза %1$d с, повтор ВЫКЛ. Одно предупреждение при пересечении 30, потом тишина. Чтобы сработало снова, нужно опуститься ниже 30 и подождать %1$d с</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Скорость</string>
@@ -335,8 +335,8 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журналы сбоев</string>
-    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
-    <string name="about_crash_logs_empty">Сбоев нет.</string>
+    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику</string>
+    <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
     <string name="about_license">Лицензия</string>
 </resources>
