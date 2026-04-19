@@ -82,7 +82,7 @@ I got tired of:
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI, so adding a new wheel is mostly: write a new protocol encoder/decoder and a new parser, then wire it into `WheelRepository`. PRs welcome. Issues and requests are also welcome, just open one on GitHub.
+The BLE protocol layer is separate from the UI, so adding a new wheel is mostly: write a new protocol encoder/decoder and a new parser, then wire it into `WheelRepository`. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
 ## License
 
