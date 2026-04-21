@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.absoluteValue
@@ -32,6 +34,11 @@ class AlarmEngine @Inject constructor(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val vibratorHelper = VibratorHelper(context)
 
+    // Serializes evaluate() bodies so the read-check-write on RuleState.lastFireTimeMs
+    // is atomic. Without this, telemetry updates ~250ms apart can both pass the cooldown
+    // check before either writes the timestamp, producing duplicate alarm fires.
+    private val evalMutex = Mutex()
+
     // Track per-rule state: whether condition was true last check, and last fire time
     private val ruleState = mutableMapOf<Long, RuleState>()
 
@@ -46,6 +53,7 @@ class AlarmEngine @Inject constructor(
      */
     fun evaluate(data: WheelData) {
         scope.launch {
+            evalMutex.withLock {
             val rules = alarmDao.getEnabled()
             val firedMetrics = mutableSetOf<String>()
 
@@ -81,6 +89,7 @@ class AlarmEngine @Inject constructor(
             // Clean up state for deleted rules
             val activeIds = rules.map { it.id }.toSet()
             ruleState.keys.removeAll { it !in activeIds }
+            }
         }
     }
 

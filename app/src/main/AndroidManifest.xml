@@ -8,9 +8,13 @@
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <!-- Location (only needed on API < 31 for BLE scan; used for GPS trip recording on all versions) -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Location: used for GPS trip recording on all versions, and by BLE scan on API < 31.
+         tools:remove strips maxSdkVersion="30" that some merged library manifests inject, which
+         would otherwise leave FINE undeclared on Android 12+ and downgrade trip GPS to coarse. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:remove="android:maxSdkVersion" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        tools:remove="android:maxSdkVersion" />
 
     <!-- Foreground service -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

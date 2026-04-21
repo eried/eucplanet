@@ -148,10 +148,11 @@ class RecordingViewModel @Inject constructor(
 
     fun shareTrip(trip: TripRecord) {
         viewModelScope.launch {
-            val dbbFile = createDbbForTrip(trip) ?: return@launch
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", dbbFile)
+            val csvFile = tripRepository.getTripFile(trip)
+            if (!csvFile.exists()) return@launch
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", csvFile)
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/octet-stream"
+                type = "text/csv"
                 putExtra(Intent.EXTRA_STREAM, uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -348,19 +349,6 @@ class RecordingViewModel @Inject constructor(
         }
     }
 
-    // --- Existing helpers ---
-
-    private fun createDbbForTrip(trip: TripRecord): File? {
-        val csvFile = tripRepository.getTripFile(trip)
-        if (!csvFile.exists()) return null
-        val dbbFile = File(csvFile.parentFile, csvFile.nameWithoutExtension + ".dbb")
-        ZipOutputStream(BufferedOutputStream(FileOutputStream(dbbFile))).use { zos ->
-            zos.putNextEntry(ZipEntry(csvFile.name))
-            BufferedInputStream(FileInputStream(csvFile)).use { it.copyTo(zos) }
-            zos.closeEntry()
-        }
-        return dbbFile
-    }
 
     fun readTripData(trip: TripRecord): List<TripDataPoint> {
         val file = tripRepository.getTripFile(trip)

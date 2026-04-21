@@ -75,16 +75,16 @@ data class AppSettings(
     // Flic button 1
     val flic1Address: String? = null,
     val flic1Name: String = "Button 1",
-    val flic1Click: String = "HORN",
-    val flic1DoubleClick: String = "LIGHT_TOGGLE",
-    val flic1Hold: String = "SAFETY_TOGGLE",
+    val flic1Click: String = "VOICE_ANNOUNCE",
+    val flic1DoubleClick: String = "HORN",
+    val flic1Hold: String = "LIGHT_TOGGLE",
 
     // Flic button 2
     val flic2Address: String? = null,
     val flic2Name: String = "Button 2",
-    val flic2Click: String = "VOICE_ANNOUNCE",
-    val flic2DoubleClick: String = "RECORD_TOGGLE",
-    val flic2Hold: String = "LOCK_TOGGLE",
+    val flic2Click: String = "NONE",
+    val flic2DoubleClick: String = "NONE",
+    val flic2Hold: String = "SAFETY_ON",
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
     val autoLightsEnabled: Boolean = false,

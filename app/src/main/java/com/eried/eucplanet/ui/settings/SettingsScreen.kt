@@ -226,15 +226,17 @@ private fun GeneralTab(
             ) { viewModel.updateAutoRecordStartInMotion(it) }
             HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
             if (settings.autoRecordStartInMotion) {
+                val idleSec = settings.autoRecordStopIdleSeconds
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
-                    value = settings.autoRecordStopIdleSeconds.toFloat(),
-                    range = 10f..600f,
-                    unit = stringResource(R.string.unit_sec),
-                    steps = 58,
+                    value = idleSec.toFloat(),
+                    range = 30f..600f,
+                    unit = "",
+                    steps = 18,
+                    valueText = "%d:%02d".format(idleSec / 60, idleSec % 60),
                     onValueChange = {
                         viewModel.updateAutoRecordStopIdleSeconds(
-                            (Math.round(it / 10f) * 10).coerceIn(10, 600)
+                            (Math.round(it / 30f) * 30).coerceIn(30, 600)
                         )
                     }
                 )
@@ -1016,6 +1018,7 @@ private fun SliderSetting(
     unit: String,
     steps: Int? = null,
     format: String = "%.0f",
+    valueText: String? = null,
     enabled: Boolean = true,
     onValueChange: (Float) -> Unit
 ) {
@@ -1029,7 +1032,7 @@ private fun SliderSetting(
             ) {
                 Text(label, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    "${format.format(value)} $unit",
+                    valueText ?: "${format.format(value)} $unit",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )

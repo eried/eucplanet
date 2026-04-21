@@ -109,7 +109,7 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
-    fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(10, 600)) }
+    fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
 
     // Automations

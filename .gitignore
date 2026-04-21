@@ -18,3 +18,5 @@ keystore.properties
 
 # Decompiled / reverse-engineering artifacts
 release/
+/.playwright-mcp
+/.claude

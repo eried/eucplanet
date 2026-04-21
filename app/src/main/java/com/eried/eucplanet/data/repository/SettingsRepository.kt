@@ -11,9 +11,9 @@ import javax.inject.Singleton
 class SettingsRepository @Inject constructor(
     private val settingsDao: SettingsDao
 ) {
-    val settings: Flow<AppSettings> = settingsDao.observe().map { it ?: AppSettings() }
+    val settings: Flow<AppSettings> = settingsDao.observe().map { (it ?: AppSettings()).sanitized() }
 
-    suspend fun get(): AppSettings = settingsDao.get() ?: AppSettings()
+    suspend fun get(): AppSettings = (settingsDao.get() ?: AppSettings()).sanitized()
 
     suspend fun update(settings: AppSettings) {
         settingsDao.upsert(settings)
@@ -24,4 +24,10 @@ class SettingsRepository @Inject constructor(
         update(current.copy(lastDeviceAddress = address, lastDeviceName = name))
     }
 
+    // Clamps values that used to allow ranges we no longer support, so older installs
+    // with now-illegal stored values (e.g. idle timeout < 30s from the pre-30s-step UI)
+    // read back as valid. The corrected value persists the next time anything saves
+    // settings via copy().
+    private fun AppSettings.sanitized(): AppSettings =
+        if (autoRecordStopIdleSeconds < 30) copy(autoRecordStopIdleSeconds = 30) else this
 }

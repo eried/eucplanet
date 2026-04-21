@@ -69,6 +69,12 @@ class TripRepository @Inject constructor(
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
 
+    // GPS-accumulated distance for the active recording. Reset at start, read at stop.
+    // Preferred over wheel tripDistance because BLE can drop mid-ride, leaving the wheel
+    // counter stale or zero while GPS keeps producing valid fixes.
+    private var gpsDistanceKm = 0.0
+    private var lastGpsPoint: Location? = null
+
     private var locationFixCount = 0
     private var locationUpdatesActive = false
 
@@ -123,7 +129,10 @@ class TripRepository @Inject constructor(
     }
 
     suspend fun startRecording() {
-        if (_recording.value) return
+        // Atomically claim the recording slot. If another caller already flipped
+        // _recording to true (e.g. connect + first-motion racing, or a duplicate
+        // intent), this returns false and we bail before announcing or opening files.
+        if (!_recording.compareAndSet(expect = false, update = true)) return
 
         // Sanity-check location permission at recording start so missing permission is obvious in logs.
         val hasFine = androidx.core.content.ContextCompat.checkSelfPermission(
@@ -148,12 +157,14 @@ class TripRepository @Inject constructor(
         writer.open()
         csvWriter = writer
 
+        gpsDistanceKm = 0.0
+        lastGpsPoint = null
+
         val trip = TripRecord(fileName = fileName)
         val id = tripDao.insert(trip)
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
 
-        _recording.value = true
         Log.i(TAG, "Recording started: $fileName")
         scope.launch {
             val s = settingsRepository.get()
@@ -169,9 +180,22 @@ class TripRepository @Inject constructor(
                 val location = _currentLocation.value
                 csvWriter?.writeRow(data, location)
                 rowsWritten++
-                if (location != null) rowsWithGps++
+                if (location != null) {
+                    rowsWithGps++
+                    val prev = lastGpsPoint
+                    // Only accumulate when the fix looks credible: reasonable accuracy and a
+                    // meaningful jump. Skip the first meters after acquiring a fix (prev==null)
+                    // so cold-start jitter doesn't inflate the total.
+                    if (prev != null && location.accuracy <= 25f) {
+                        val deltaMeters = prev.distanceTo(location)
+                        if (deltaMeters in 0.5f..200f) {
+                            gpsDistanceKm += deltaMeters / 1000.0
+                        }
+                    }
+                    lastGpsPoint = location
+                }
                 if (rowsWritten % 30 == 0) {
-                    Log.i(TAG, "Recording: $rowsWritten rows ($rowsWithGps with GPS)")
+                    Log.i(TAG, "Recording: $rowsWritten rows ($rowsWithGps with GPS, ${"%.2f".format(gpsDistanceKm)} km)")
                 }
                 kotlinx.coroutines.delay(RECORD_INTERVAL_MS)
             }
@@ -180,8 +204,9 @@ class TripRepository @Inject constructor(
     }
 
     suspend fun stopRecording() {
-        if (!_recording.value) return
-        _recording.value = false
+        // Atomically release the recording slot so a second stop caller cannot
+        // double-cleanup or double-announce the stop.
+        if (!_recording.compareAndSet(expect = true, update = false)) return
         recordJob?.cancel()
         recordJob = null
 
@@ -192,10 +217,13 @@ class TripRepository @Inject constructor(
         val willSync = appSettings.syncFolderUri != null
         currentTrip?.let { trip ->
             val data = wheelRepository.wheelData.value
+            // GPS-derived distance is preferred; fall back to wheel session counter only if
+            // we never accumulated any GPS movement (e.g. recording without location permission).
+            val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
             tripDao.update(
                 trip.copy(
                     endTime = System.currentTimeMillis(),
-                    distanceKm = data.tripDistance,
+                    distanceKm = distance,
                     uploadStatus = if (willSync) 1 else 0
                 )
             )
