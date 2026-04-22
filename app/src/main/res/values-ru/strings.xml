@@ -56,6 +56,7 @@
 
     <string name="tab_general">Общие</string>
     <string name="tab_speed">Колесо</string>
+    <string name="tab_display">Экран</string>
     <string name="tab_voice">Голос</string>
     <string name="tab_alarms">Сигналы</string>
     <string name="tab_auto">Авто</string>

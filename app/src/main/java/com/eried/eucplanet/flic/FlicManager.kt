@@ -48,6 +48,10 @@ class FlicManager @Inject constructor(
     private val _scanning = MutableStateFlow(false)
     val scanning: StateFlow<Boolean> = _scanning.asStateFlow()
 
+    // Timestamp of last dispatched Flic action. UI uses this to flash a Flic indicator briefly.
+    private val _lastActionAt = MutableStateFlow(0L)
+    val lastActionAt: StateFlow<Long> = _lastActionAt.asStateFlow()
+
     private val _scanStatus = MutableStateFlow("")
     val scanStatus: StateFlow<String> = _scanStatus.asStateFlow()
 
@@ -205,6 +209,7 @@ class FlicManager @Inject constructor(
     }
 
     private suspend fun executeAction(action: FlicAction, settings: AppSettings) {
+        if (action != FlicAction.NONE) _lastActionAt.value = System.currentTimeMillis()
         when (action) {
             FlicAction.NONE -> {}
             FlicAction.HORN -> wheelRepository.sendHorn()

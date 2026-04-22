@@ -112,6 +112,20 @@ data class AppSettings(
     val themeMode: String = "black",
     // accentColor: key into the accent palette
     val accentColor: String = "default",
+    // Colored danger-zone band behind the speed arc (yellow/orange/red thresholds).
+    @ColumnInfo(defaultValue = "0")
+    val showGaugeColorBand: Boolean = false,
+    // Percentages of the full speed sweep where orange and red zones begin (yellow fills below orange).
+    @ColumnInfo(defaultValue = "65")
+    val gaugeOrangeThresholdPct: Int = 65,
+    @ColumnInfo(defaultValue = "85")
+    val gaugeRedThresholdPct: Int = 85,
+    // Haptic feedback on dashboard action button taps.
+    @ColumnInfo(defaultValue = "1")
+    val hapticFeedback: Boolean = true,
+    // "AMPS" or "WATTS" — long-press the amps card to switch.
+    @ColumnInfo(defaultValue = "AMPS")
+    val currentDisplayMode: String = "AMPS",
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,

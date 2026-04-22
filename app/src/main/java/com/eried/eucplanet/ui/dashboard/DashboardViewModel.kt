@@ -10,16 +10,19 @@ import com.eried.eucplanet.data.repository.MetricSample
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
 import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 data class MetricHistory(
@@ -38,12 +41,18 @@ class DashboardViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
+    private val flicManager: FlicManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     companion object {
         private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec
     }
+
+    // Synchronous initial settings read so StateFlows start with the user's persisted values
+    // instead of hardcoded defaults (prevents a visible flash on app open).
+    private val initialSettings: com.eried.eucplanet.data.model.AppSettings =
+        runBlocking(Dispatchers.IO) { settingsRepository.get() }
 
     val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> = wheelRepository.wheelData
 
@@ -58,21 +67,67 @@ class DashboardViewModel @Inject constructor(
     val tripCount: StateFlow<Int> = tripRepository.tripCount
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    // Newest trip id (first row of trips sorted by startTime DESC), or null if none.
+    val latestTripId: StateFlow<Long?> = tripRepository.allTrips
+        .map { it.firstOrNull()?.id }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
     val tiltbackSpeed: StateFlow<Float> = settingsRepository.settings
         .map { it.tiltbackSpeedKmh }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 50f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.tiltbackSpeedKmh)
 
     val safetyTiltbackSpeed: StateFlow<Float> = settingsRepository.settings
         .map { it.safetyTiltbackKmh }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 25f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.safetyTiltbackKmh)
 
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { it.imperialUnits }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.imperialUnits)
 
     val accentKey: StateFlow<String> = settingsRepository.settings
         .map { it.accentColor }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), com.eried.eucplanet.ui.theme.AccentKeyDefault)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.accentColor)
+
+    val showGaugeColorBand: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.showGaugeColorBand }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.showGaugeColorBand)
+
+    // Orange/red threshold percentages for the gauge color band (both 0-100).
+    val gaugeOrangePct: StateFlow<Int> = settingsRepository.settings
+        .map { it.gaugeOrangeThresholdPct }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.gaugeOrangeThresholdPct)
+
+    val gaugeRedPct: StateFlow<Int> = settingsRepository.settings
+        .map { it.gaugeRedThresholdPct }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.gaugeRedThresholdPct)
+
+    val currentDisplayMode: StateFlow<String> = settingsRepository.settings
+        .map { it.currentDisplayMode }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.currentDisplayMode)
+
+    val hasFlicConfigured: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.flic1Address != null || it.flic2Address != null }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flic1Address != null || initialSettings.flic2Address != null)
+
+    val flicFlashAt: StateFlow<Long> = flicManager.lastActionAt
+
+    fun toggleCurrentDisplayMode() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val next = if (current.currentDisplayMode == "WATTS") "AMPS" else "WATTS"
+            settingsRepository.update(current.copy(currentDisplayMode = next))
+        }
+    }
+
+    fun startRecording() {
+        viewModelScope.launch { tripRepository.startRecording() }
+    }
+
+    fun stopRecording() {
+        viewModelScope.launch { tripRepository.stopRecording() }
+    }
 
     val modelName: StateFlow<String?> = wheelRepository.modelName
 

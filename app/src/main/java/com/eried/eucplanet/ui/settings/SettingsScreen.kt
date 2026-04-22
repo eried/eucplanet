@@ -3,9 +3,12 @@ package com.eried.eucplanet.ui.settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,16 +25,24 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -53,6 +64,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.RangeSlider
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.ScrollableTabRow
@@ -107,13 +119,14 @@ private val languageOptions = listOf(
 fun SettingsScreen(
     onBack: () -> Unit,
     onNavigateToFlic: () -> Unit = {},
+    initialTab: Int = 0,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settingsState by viewModel.settings.collectAsState()
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
-    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(initialTab) }
 
     val settings = settingsState ?: return
 
@@ -147,14 +160,15 @@ fun SettingsScreen(
         )
     }
 
-    val tabs = listOf(
-        stringResource(R.string.tab_general),
-        stringResource(R.string.tab_speed),
-        stringResource(R.string.tab_voice),
-        stringResource(R.string.tab_cloud),
-        stringResource(R.string.tab_alarms),
-        stringResource(R.string.tab_auto),
-        stringResource(R.string.tab_integration)
+    val tabs: List<Pair<String, ImageVector>> = listOf(
+        stringResource(R.string.tab_general) to Icons.Default.Tune,
+        stringResource(R.string.tab_display) to Icons.Default.DisplaySettings,
+        stringResource(R.string.tab_speed) to Icons.Default.Speed,
+        stringResource(R.string.tab_voice) to Icons.Default.RecordVoiceOver,
+        stringResource(R.string.tab_cloud) to Icons.Default.Archive,
+        stringResource(R.string.tab_alarms) to Icons.Default.NotificationsActive,
+        stringResource(R.string.tab_auto) to Icons.Default.AutoAwesome,
+        stringResource(R.string.tab_integration) to Icons.Default.Extension
     )
 
     Scaffold(
@@ -177,24 +191,60 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            ScrollableTabRow(selectedTabIndex = selectedTab, edgePadding = 0.dp) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) }
-                    )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+            ) {
+                tabs.forEachIndexed { index, (title, icon) ->
+                    val isSelected = selectedTab == index
+                    val tint = if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+                    Column(
+                        modifier = Modifier
+                            .clickable { selectedTab = index }
+                            .padding(horizontal = 8.dp)
+                            .padding(top = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = tint
+                        )
+                        Text(
+                            title,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = tint
+                        )
+                        Box(
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .height(2.dp)
+                                .fillMaxWidth()
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.primary
+                                    else androidx.compose.ui.graphics.Color.Transparent
+                                )
+                        )
+                    }
                 }
             }
+            androidx.compose.material3.HorizontalDivider(
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            )
 
             when (selectedTab) {
                 0 -> GeneralTab(settings, viewModel)
-                1 -> SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
-                2 -> VoiceTab(settings, viewModel)
-                3 -> CloudTab(settings, viewModel)
-                4 -> AlarmSettingsContent()
-                5 -> AutomationsContent()
-                6 -> FlicTab()
+                1 -> DisplayTab(settings, viewModel)
+                2 -> SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
+                3 -> VoiceTab(settings, viewModel)
+                4 -> CloudTab(settings, viewModel)
+                5 -> AlarmSettingsContent()
+                6 -> AutomationsContent()
+                7 -> FlicTab()
             }
         }
     }
@@ -207,13 +257,6 @@ private fun GeneralTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    val themeOptions = listOf(
-        "black" to stringResource(R.string.theme_black),
-        "dark" to stringResource(R.string.theme_dark),
-        "light" to stringResource(R.string.theme_light),
-        "system" to stringResource(R.string.theme_system)
-    )
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -260,6 +303,31 @@ private fun GeneralTab(
             )
         }
 
+        Spacer(Modifier.height(32.dp))
+    }
+}
+
+// --- Display Tab ---
+
+@Composable
+private fun DisplayTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val themeOptions = listOf(
+        "black" to stringResource(R.string.theme_black),
+        "dark" to stringResource(R.string.theme_dark),
+        "light" to stringResource(R.string.theme_light),
+        "system" to stringResource(R.string.theme_system)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         SectionHeader(stringResource(R.string.section_display))
         SwitchSetting(stringResource(R.string.imperial_units), settings.imperialUnits) {
             viewModel.updateImperialUnits(it)
@@ -284,6 +352,25 @@ private fun GeneralTab(
             current = settings.accentColor,
             onSelect = { viewModel.updateAccentColor(it) }
         )
+
+        SwitchSetting(
+            stringResource(R.string.show_gauge_color_band),
+            settings.showGaugeColorBand
+        ) { viewModel.updateShowGaugeColorBand(it) }
+
+        if (settings.showGaugeColorBand) {
+            val safeColor = if (com.eried.eucplanet.ui.theme.isDefaultAccent(settings.accentColor)) {
+                AccentBlue
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
+            GaugeThresholdSlider(
+                orangePct = settings.gaugeOrangeThresholdPct,
+                redPct = settings.gaugeRedThresholdPct,
+                safeColor = safeColor,
+                onChange = { o, r -> viewModel.updateGaugeThresholds(o, r) }
+            )
+        }
 
         Spacer(Modifier.height(32.dp))
     }
@@ -927,17 +1014,17 @@ private fun ReportRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(
+            Icons.Default.DragHandle,
+            contentDescription = stringResource(R.string.action_reorder),
+            modifier = dragHandleModifier.size(28.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.width(6.dp))
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(6.dp))
             PlayButton(onClick = onTest)
-            Spacer(Modifier.weight(1f))
-            Icon(
-                Icons.Default.DragHandle,
-                contentDescription = stringResource(R.string.action_reorder),
-                modifier = dragHandleModifier.size(28.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
         Switch(checked = periodicChecked, onCheckedChange = onPeriodicChange,
             modifier = Modifier.weight(0.55f))
@@ -1053,6 +1140,96 @@ private fun SwitchSetting(
     ) {
         Text(label, style = MaterialTheme.typography.bodyLarge)
         Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GaugeThresholdSlider(
+    orangePct: Int,
+    redPct: Int,
+    safeColor: androidx.compose.ui.graphics.Color,
+    onChange: (orange: Int, red: Int) -> Unit
+) {
+    // Stored range 25..100 aligns with the gauge arc's visible portion. 20 divisions = 3.75 per
+    // step, stored as Int (rounded). No text labels — the slider track shows the zones directly.
+    val stepSize = 3.75f
+    var range by remember(orangePct, redPct) {
+        mutableStateOf(orangePct.toFloat()..redPct.toFloat())
+    }
+    val orangeColor = com.eried.eucplanet.ui.theme.AccentOrange
+    val redColor = com.eried.eucplanet.ui.theme.AccentRed
+
+    Column(modifier = Modifier.padding(top = 4.dp)) {
+        RangeSlider(
+            value = range,
+            onValueChange = { v ->
+                val start = kotlin.math.round(v.start / stepSize) * stepSize
+                val end = kotlin.math.round(v.endInclusive / stepSize) * stepSize
+                val clampedStart = start.coerceIn(25f, 100f - stepSize)
+                val clampedEnd = end.coerceIn(clampedStart + stepSize, 100f)
+                range = clampedStart..clampedEnd
+            },
+            onValueChangeFinished = {
+                onChange(
+                    kotlin.math.round(range.start).toInt(),
+                    kotlin.math.round(range.endInclusive).toInt()
+                )
+            },
+            valueRange = 25f..100f,
+            steps = 19,  // 20 divisions (3.75 per step) over 25..100
+            track = { state ->
+                val span = state.valueRange.endInclusive - state.valueRange.start
+                val startFrac = ((state.activeRangeStart - state.valueRange.start) / span)
+                    .coerceIn(0f, 1f)
+                val endFrac = ((state.activeRangeEnd - state.valueRange.start) / span)
+                    .coerceIn(0f, 1f)
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                ) {
+                    val trackH = 4.dp.toPx()
+                    val y = size.height / 2f
+                    val r = trackH / 2f
+                    val w = size.width
+                    val gap = 6.dp.toPx()
+                    val sx = w * startFrac
+                    val ex = w * endFrac
+                    // Safe zone (left): 0 .. sx - gap
+                    val safeEnd = (sx - gap).coerceAtLeast(0f)
+                    if (safeEnd > 0f) {
+                        drawRoundRect(
+                            color = safeColor,
+                            topLeft = androidx.compose.ui.geometry.Offset(0f, y - r),
+                            size = androidx.compose.ui.geometry.Size(safeEnd, trackH),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(r, r)
+                        )
+                    }
+                    // Orange zone (middle): sx + gap .. ex - gap
+                    val orangeStart = (sx + gap).coerceAtMost(w)
+                    val orangeEnd = (ex - gap).coerceAtLeast(orangeStart)
+                    if (orangeEnd > orangeStart) {
+                        drawRoundRect(
+                            color = orangeColor,
+                            topLeft = androidx.compose.ui.geometry.Offset(orangeStart, y - r),
+                            size = androidx.compose.ui.geometry.Size(orangeEnd - orangeStart, trackH),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(r, r)
+                        )
+                    }
+                    // Red zone (right): ex + gap .. w
+                    val redStart = (ex + gap).coerceAtMost(w)
+                    if (w > redStart) {
+                        drawRoundRect(
+                            color = redColor,
+                            topLeft = androidx.compose.ui.geometry.Offset(redStart, y - r),
+                            size = androidx.compose.ui.geometry.Size(w - redStart, trackH),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(r, r)
+                        )
+                    }
+                }
+            }
+        )
     }
 }
 

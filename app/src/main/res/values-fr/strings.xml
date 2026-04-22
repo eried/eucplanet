@@ -56,6 +56,7 @@
 
     <string name="tab_general">Général</string>
     <string name="tab_speed">Roue</string>
+    <string name="tab_display">Affichage</string>
     <string name="tab_voice">Voix</string>
     <string name="tab_alarms">Alarmes</string>
     <string name="tab_auto">Auto</string>

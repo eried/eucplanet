@@ -177,6 +177,13 @@ class SettingsViewModel @Inject constructor(
 
     fun updateThemeMode(v: String) = update { copy(themeMode = v) }
     fun updateAccentColor(v: String) = update { copy(accentColor = v) }
+    fun updateShowGaugeColorBand(v: Boolean) = update { copy(showGaugeColorBand = v) }
+    fun updateGaugeThresholds(orangePct: Int, redPct: Int) = update {
+        val o = orangePct.coerceIn(25, 96)
+        val r = redPct.coerceIn((o + 4).coerceAtMost(100), 100)
+        copy(gaugeOrangeThresholdPct = o, gaugeRedThresholdPct = r)
+    }
+    fun updateCurrentDisplayMode(v: String) = update { copy(currentDisplayMode = v) }
 
     // Volume keys
     fun updateVolumeKeysEnabled(v: Boolean) = update { copy(volumeKeysEnabled = v) }

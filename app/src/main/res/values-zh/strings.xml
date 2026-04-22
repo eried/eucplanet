@@ -56,6 +56,7 @@
 
     <string name="tab_general">通用</string>
     <string name="tab_speed">车轮</string>
+    <string name="tab_display">显示</string>
     <string name="tab_voice">语音</string>
     <string name="tab_alarms">报警</string>
     <string name="tab_auto">自动</string>

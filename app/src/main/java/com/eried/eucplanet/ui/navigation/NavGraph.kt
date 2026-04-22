@@ -30,7 +30,9 @@ import com.eried.eucplanet.util.MultipleEventsCutter
 sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
     data object Scan : Screen("scan")
-    data object Settings : Screen("settings")
+    data object Settings : Screen("settings?tab={tab}") {
+        fun createRoute(tab: Int?) = if (tab == null) "settings" else "settings?tab=$tab"
+    }
     data object Recording : Screen("recording")
     data object Flic : Screen("flic")
     data object TripDetail : Screen("trip_detail/{tripId}") {
@@ -68,8 +70,14 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Dashboard.route) {
             DashboardScreen(
                 onNavigateToScan = { navController.navigateSingle(Screen.Scan.route) },
-                onNavigateToSettings = { navController.navigateSingle(Screen.Settings.route) },
+                onNavigateToSettings = { tab ->
+                    navController.navigateSingle(Screen.Settings.createRoute(tab))
+                },
                 onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
+                onNavigateToFlic = { navController.navigateSingle(Screen.Settings.createRoute(7)) },
+                onNavigateToTripDetail = { tripId ->
+                    navController.navigateSingle(Screen.TripDetail.createRoute(tripId))
+                },
                 onNavigateToMetric = { metric ->
                     navController.navigateSingle(Screen.MetricDetail.createRoute(metric))
                 }
@@ -81,10 +89,18 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popSingle() }
             )
         }
-        composable(Screen.Settings.route) {
+        composable(
+            Screen.Settings.route,
+            arguments = listOf(navArgument("tab") {
+                type = NavType.IntType
+                defaultValue = 0
+            })
+        ) { backStackEntry ->
+            val tab = backStackEntry.arguments?.getInt("tab") ?: 0
             SettingsScreen(
                 onBack = { navController.popSingle() },
-                onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) }
+                onNavigateToFlic = { navController.navigateSingle(Screen.Flic.route) },
+                initialTab = tab
             )
         }
         composable(Screen.Flic.route) {
@@ -106,9 +122,10 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val tripId = backStackEntry.arguments?.getLong("tripId")
             val recordingEntry = remember(backStackEntry) {
-                navController.getBackStackEntry(Screen.Recording.route)
+                runCatching { navController.getBackStackEntry(Screen.Recording.route) }.getOrNull()
             }
-            val viewModel: RecordingViewModel = hiltViewModel(recordingEntry)
+            val viewModel: RecordingViewModel =
+                if (recordingEntry != null) hiltViewModel(recordingEntry) else hiltViewModel()
             val trips by viewModel.trips.collectAsState()
             val trip = tripId?.let { id -> trips.find { it.id == id } }
             var notFound by remember { mutableStateOf(false) }

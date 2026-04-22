@@ -6,17 +6,23 @@ import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +45,8 @@ import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
@@ -47,6 +55,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -68,6 +78,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -100,12 +111,14 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(
     onNavigateToScan: () -> Unit,
-    onNavigateToSettings: () -> Unit,
+    onNavigateToSettings: (Int?) -> Unit,
     onNavigateToRecording: () -> Unit,
+    onNavigateToFlic: () -> Unit = {},
+    onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
@@ -136,7 +149,14 @@ fun DashboardScreen(
     val firmwareVersion by viewModel.firmwareVersion.collectAsState()
     val imperial by viewModel.imperialUnits.collectAsState()
     val accentKey by viewModel.accentKey.collectAsState()
-
+    val showGaugeColorBand by viewModel.showGaugeColorBand.collectAsState()
+    val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
+    val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
+    val currentMode by viewModel.currentDisplayMode.collectAsState()
+    val hasFlic by viewModel.hasFlicConfigured.collectAsState()
+    val flicFlashAt by viewModel.flicFlashAt.collectAsState()
+    val latestTripId by viewModel.latestTripId.collectAsState()
+    val currentTripId by viewModel.currentTripId.collectAsState()
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
     val activity = LocalContext.current as? Activity
@@ -217,6 +237,11 @@ fun DashboardScreen(
                     }
                 },
                 actions = {
+                    FlicIndicator(
+                        hasFlic = hasFlic,
+                        flashAt = flicFlashAt,
+                        onClick = onNavigateToFlic
+                    )
                     IconButton(onClick = {
                         if (connectionState == ConnectionState.CONNECTED) {
                             showDisconnectDialog = true
@@ -231,7 +256,7 @@ fun DashboardScreen(
                             contentDescription = stringResource(R.string.connection)
                         )
                     }
-                    IconButton(onClick = onNavigateToSettings) {
+                    IconButton(onClick = { onNavigateToSettings(null) }) {
                         Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 },
@@ -261,6 +286,11 @@ fun DashboardScreen(
                 maxSpeed = gaugeMax,
                 imperial = imperial,
                 overrideColor = if (useAccent) primary else null,
+                showColorBand = showGaugeColorBand,
+                orangeThresholdPct = gaugeOrangePct,
+                redThresholdPct = gaugeRedPct,
+                safeBandColor = if (useAccent) primary else AccentBlue,
+                pcMode = if (connectionState == ConnectionState.CONNECTED) wheelData.pcMode else -1,
                 modifier = Modifier
                     .fillMaxWidth(0.75f)
                     .aspectRatio(1.25f)
@@ -287,15 +317,21 @@ fun DashboardScreen(
                 else -> safeColor
             }
 
+            val placeholder = "—"
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard(stringResource(R.string.stat_battery), "${wheelData.batteryPercent}%", battColor, history.battery, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_battery),
+                    if (live) "${wheelData.batteryPercent}%" else placeholder,
+                    battColor, history.battery, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("BATTERY") })
                 val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
                 val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
-                StatCard(stringResource(R.string.stat_temp), "%.0f%s".format(tempValue, tempUnit), tempColor, history.temperature, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_temp),
+                    if (live) "%.0f%s".format(tempValue, tempUnit) else placeholder,
+                    tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
 
@@ -305,11 +341,29 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard(stringResource(R.string.stat_voltage), "%.1fV".format(wheelData.voltage), primary, history.voltage, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_voltage),
+                    if (live) "%.1fV".format(wheelData.voltage) else placeholder,
+                    primary, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
-                StatCard(stringResource(R.string.stat_amps), "%.1fA".format(wheelData.current),
-                    if (wheelData.current > 20) AccentOrange else primary, history.current, Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("CURRENT") })
+
+                val showWatts = currentMode == "WATTS"
+                val ampsLabel = stringResource(R.string.stat_amps)
+                val wattsLabel = stringResource(R.string.stat_watts)
+                val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
+                val currentText = when {
+                    !live -> placeholder
+                    showWatts -> "%.0fW".format(currentValue)
+                    else -> "%.1fA".format(currentValue)
+                }
+                StatCard(
+                    if (showWatts) wattsLabel else ampsLabel,
+                    currentText,
+                    if (live && wheelData.current > 20) AccentOrange else primary,
+                    history.current,
+                    Modifier.weight(1f),
+                    onClick = { onNavigateToMetric("CURRENT") },
+                    onLongClick = { viewModel.toggleCurrentDisplayMode() }
+                )
             }
 
             Spacer(Modifier.height(10.dp))
@@ -318,11 +372,15 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                StatCard(stringResource(R.string.stat_load), "%.0f%%".format(pwm), loadColor, history.load, Modifier.weight(1f),
+                StatCard(stringResource(R.string.stat_load),
+                    if (live) "%.0f%%".format(pwm) else placeholder,
+                    loadColor, history.load, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("LOAD") })
                 val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
                 val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
-                StatCard(stringResource(R.string.stat_trip), "%.1f %s".format(tripValue, distUnit), primary, emptyList(), Modifier.weight(1f))
+                StatCard(stringResource(R.string.stat_trip),
+                    if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
+                    primary, emptyList(), Modifier.weight(1f))
             }
 
             Spacer(Modifier.height(14.dp))
@@ -336,14 +394,36 @@ fun DashboardScreen(
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onHornPress() },
                     modifier = Modifier.weight(1f))
-                ActionButton(Icons.Default.FlashOn, stringResource(R.string.action_light),
+                ActionTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.FlashOn,
+                    label = stringResource(R.string.action_light),
                     active = wheelData.lightOn,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLightToggle() },
-                    modifier = Modifier.weight(1f))
-                ActionButton(Icons.Default.RecordVoiceOver, stringResource(R.string.action_voice),
+                    menu = { dismiss ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_auto_lights)) },
+                            onClick = { dismiss(); onNavigateToSettings(6) }
+                        )
+                    }
+                )
+                ActionTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.RecordVoiceOver,
+                    label = stringResource(R.string.action_voice),
                     onClick = { viewModel.onVoiceAnnounce() },
-                    modifier = Modifier.weight(1f))
+                    menu = { dismiss ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_voice_settings)) },
+                            onClick = { dismiss(); onNavigateToSettings(3) }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_alarms)) },
+                            onClick = { dismiss(); onNavigateToSettings(5) }
+                        )
+                    }
+                )
             }
 
             Spacer(Modifier.height(8.dp))
@@ -352,12 +432,21 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ActionButton(Icons.Default.Shield,
-                    if (safetyActive) stringResource(R.string.action_legal_on) else stringResource(R.string.action_legal_mode),
-                    active = safetyActive, activeColor = if (useAccent) primary else AccentOrange,
+                ActionTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.Shield,
+                    label = if (safetyActive) stringResource(R.string.action_legal_on) else stringResource(R.string.action_legal_mode),
+                    active = safetyActive,
+                    activeColor = if (useAccent) primary else AccentOrange,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onSafetySpeedToggle() },
-                    modifier = Modifier.weight(1f))
+                    menu = { dismiss ->
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.menu_legal_settings)) },
+                            onClick = { dismiss(); onNavigateToSettings(2) }
+                        )
+                    }
+                )
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
@@ -365,12 +454,47 @@ fun DashboardScreen(
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLockToggle() },
                     modifier = Modifier.weight(1f))
-                ActionButton(Icons.Default.FiberManualRecord,
-                    if (tripCount > 0) stringResource(R.string.action_recorder_trips, tripCount)
-                    else stringResource(R.string.action_recorder),
-                    active = recording, activeColor = if (useAccent) primary else AccentRed,
-                    onClick = { onNavigateToRecording() },
-                    modifier = Modifier.weight(1f))
+                ActionTile(
+                    modifier = Modifier.weight(1f),
+                    icon = Icons.Default.FiberManualRecord,
+                    label = if (tripCount > 0) stringResource(R.string.action_recorder_trips, tripCount)
+                        else stringResource(R.string.action_recorder),
+                    active = recording,
+                    activeColor = if (useAccent) primary else AccentRed,
+                    onClick = {
+                        val targetTripId = currentTripId ?: latestTripId
+                        if (targetTripId != null) onNavigateToTripDetail(targetTripId)
+                        else onNavigateToRecording()
+                    },
+                    menu = { dismiss ->
+                        val targetTripId = currentTripId ?: latestTripId
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (recording) stringResource(R.string.menu_view_current_trip)
+                                    else stringResource(R.string.menu_view_last_trip)
+                                )
+                            },
+                            enabled = targetTripId != null,
+                            onClick = {
+                                dismiss()
+                                targetTripId?.let { onNavigateToTripDetail(it) }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (recording) stringResource(R.string.menu_stop_recording)
+                                    else stringResource(R.string.menu_start_recording)
+                                )
+                            },
+                            onClick = {
+                                dismiss()
+                                if (recording) viewModel.stopRecording() else viewModel.startRecording()
+                            }
+                        )
+                    }
+                )
             }
 
             Spacer(Modifier.weight(1f, fill = true))
@@ -571,6 +695,11 @@ private fun SpeedGauge(
     maxSpeed: Float,
     imperial: Boolean,
     overrideColor: Color? = null,
+    showColorBand: Boolean = false,
+    orangeThresholdPct: Int = 65,
+    redThresholdPct: Int = 85,
+    safeBandColor: Color = AccentBlue,
+    pcMode: Int = -1,
     modifier: Modifier = Modifier
 ) {
     val speedColor = overrideColor ?: when {
@@ -611,6 +740,35 @@ private fun SpeedGauge(
             style = Stroke(width = arcThickness, cap = StrokeCap.Round)
         )
 
+        // Thin color band behind the arc: safe (accent/blue) > orange > red.
+        if (showColorBand) {
+            val bandThickness = arcThickness * 0.35f
+            val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f
+            val bandAlpha = 0.65f
+            // Stored values are 25..100 and already correspond to the arc's visible portion.
+            val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.25f, 0.95f)
+            val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.01f, 1f)
+            val orangeStart = startAngle + sweepTotal * orangeFrac
+            val orangeSweep = sweepTotal * (redFrac - orangeFrac)
+            val redStart = startAngle + sweepTotal * redFrac
+            val redSweep = sweepTotal * (1f - redFrac)
+            val bandTopLeft = Offset(center.x - bandRadius, center.y - bandRadius)
+            val bandSize = Size(bandRadius * 2, bandRadius * 2)
+            // Safe zone: entire arc from 0 up to the orange handle.
+            drawArc(color = safeBandColor.copy(alpha = bandAlpha),
+                startAngle = startAngle, sweepAngle = sweepTotal * orangeFrac,
+                useCenter = false, topLeft = bandTopLeft, size = bandSize,
+                style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
+            drawArc(color = AccentOrange.copy(alpha = bandAlpha),
+                startAngle = orangeStart, sweepAngle = orangeSweep,
+                useCenter = false, topLeft = bandTopLeft, size = bandSize,
+                style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
+            drawArc(color = AccentRed.copy(alpha = bandAlpha),
+                startAngle = redStart, sweepAngle = redSweep,
+                useCenter = false, topLeft = bandTopLeft, size = bandSize,
+                style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
+        }
+
         // Speed arc
         if (speedSweep > 0.5f) {
             drawArc(
@@ -640,8 +798,8 @@ private fun SpeedGauge(
             )
         }
 
-        // Scale labels outside ticks
-        val labelRadius = arcRadius + arcThickness + size.minDimension * 0.04f
+        // Scale labels outside ticks — pushed outward so digits aren't hugging the dial.
+        val labelRadius = arcRadius + arcThickness + size.minDimension * 0.08f
         for ((idx, label) in scaleLabels.withIndex()) {
             val angle = startAngle + (sweepTotal * idx / (scaleLabels.size - 1).toFloat())
             val rad = Math.toRadians(angle.toDouble())
@@ -659,10 +817,13 @@ private fun SpeedGauge(
         }
 
         // Speed number — dead center of the arc circle.
-        // Scaled down for 3-digit speeds so the digits don't touch the arc.
+        // Dynamically clamp text width so digits keep a visible horizontal margin from the arc.
         val speedText = "%.0f".format(displaySpeed)
-        val speedFontFactor = if (speedText.length >= 3) 0.17f else 0.2f
-        val speedMeasured = textMeasurer.measure(
+        val baseFactor = if (speedText.length >= 3) 0.17f else 0.2f
+        val innerRadius = arcRadius - arcThickness * 0.5f
+        val maxTextHalfWidth = innerRadius * 0.72f  // leaves ~28% clearance each side
+        var speedFontFactor = baseFactor
+        var speedMeasured = textMeasurer.measure(
             speedText,
             style = TextStyle(
                 fontSize = (size.minDimension * speedFontFactor).sp,
@@ -670,6 +831,18 @@ private fun SpeedGauge(
                 color = speedColor
             )
         )
+        if (speedMeasured.size.width / 2f > maxTextHalfWidth) {
+            val scale = maxTextHalfWidth / (speedMeasured.size.width / 2f)
+            speedFontFactor *= scale
+            speedMeasured = textMeasurer.measure(
+                speedText,
+                style = TextStyle(
+                    fontSize = (size.minDimension * speedFontFactor).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = speedColor
+                )
+            )
+        }
         drawText(
             speedMeasured,
             topLeft = Offset(
@@ -690,11 +863,37 @@ private fun SpeedGauge(
                 center.y + speedMeasured.size.height / 2f - size.minDimension * 0.01f
             )
         )
+
+        // P/D indicator below the unit label, only when we have telemetry.
+        val gearLabel = when (pcMode) {
+            1 -> "D"
+            3 -> "P"
+            else -> null
+        }
+        if (gearLabel != null) {
+            val gearColor = if (gearLabel == "P") dimColor else speedColor
+            val gearMeasured = textMeasurer.measure(
+                gearLabel,
+                style = TextStyle(
+                    fontSize = (size.minDimension * 0.08f).sp,
+                    fontWeight = FontWeight.Bold,
+                    color = gearColor
+                )
+            )
+            drawText(
+                gearMeasured,
+                topLeft = Offset(
+                    center.x - gearMeasured.size.width / 2f,
+                    center.y + speedMeasured.size.height / 2f + unitMeasured.size.height
+                )
+            )
+        }
     }
 }
 
 // --- Stat card with sparkline ---
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StatCard(
     label: String,
@@ -702,13 +901,21 @@ private fun StatCard(
     color: Color,
     sparkData: List<Float> = emptyList(),
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null
 ) {
+    val clickModifier = when {
+        onClick != null || onLongClick != null -> Modifier.combinedClickable(
+            onClick = { onClick?.invoke() },
+            onLongClick = onLongClick
+        )
+        else -> Modifier
+    }
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .then(clickModifier)
     ) {
         // Sparkline background
         if (sparkData.size >= 2) {
@@ -820,6 +1027,37 @@ private fun WheelInfoBox(
 // --- Helpers ---
 
 @Composable
+private fun FlicIndicator(
+    hasFlic: Boolean,
+    flashAt: Long,
+    onClick: () -> Unit
+) {
+    val flashAlpha = remember { Animatable(0f) }
+    LaunchedEffect(flashAt) {
+        if (flashAt == 0L) return@LaunchedEffect
+        flashAlpha.snapTo(1f)
+        flashAlpha.animateTo(0f, animationSpec = tween(durationMillis = 1200))
+    }
+    // Always visible. Filled circle when paired, hollow ring when not. Flash turns it green on action.
+    val baseAlpha = if (hasFlic) 1f else 0.55f
+    val alpha = (baseAlpha + flashAlpha.value * (1f - baseAlpha)).coerceAtMost(1f)
+    val tint = if (flashAlpha.value > 0f) AccentGreen
+               else MaterialTheme.colorScheme.onSurface
+    val icon = if (hasFlic || flashAlpha.value > 0f) Icons.Default.RadioButtonChecked
+               else Icons.Default.RadioButtonUnchecked
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.alpha(alpha)
+    ) {
+        Icon(
+            icon,
+            contentDescription = stringResource(R.string.flic_button),
+            tint = tint
+        )
+    }
+}
+
+@Composable
 private fun ConnectionDot(state: ConnectionState) {
     val color = when (state) {
         ConnectionState.CONNECTED -> AccentGreen
@@ -834,6 +1072,7 @@ private fun ConnectionDot(state: ConnectionState) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ActionButton(
     icon: ImageVector,
@@ -842,29 +1081,72 @@ private fun ActionButton(
     active: Boolean = false,
     activeColor: Color = AccentBlue,
     enabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
 ) {
     val disabledAlpha = 0.35f
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.aspectRatio(1f),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (active) activeColor.copy(alpha = 0.2f)
-            else MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (active) activeColor
-            else MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = disabledAlpha),
-            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = disabledAlpha)
-        ),
-        contentPadding = PaddingValues(4.dp)
+    val container = when {
+        !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = disabledAlpha)
+        active -> activeColor.copy(alpha = 0.2f)
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val content = when {
+        !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = disabledAlpha)
+        active -> activeColor
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Box(
+        modifier = modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(container)
+            .combinedClickable(
+                enabled = enabled,
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+            .padding(4.dp),
+        contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = label, modifier = Modifier.size(26.dp))
+            Icon(icon, contentDescription = label, tint = content, modifier = Modifier.size(26.dp))
             Spacer(Modifier.height(4.dp))
             Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium,
+                color = content,
                 maxLines = 2, textAlign = TextAlign.Center, lineHeight = 13.sp)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ActionTile(
+    modifier: Modifier,
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    menu: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
+    active: Boolean = false,
+    activeColor: Color = AccentBlue,
+    enabled: Boolean = true
+) {
+    Box(modifier = modifier) {
+        var menuOpen by remember { mutableStateOf(false) }
+        ActionButton(
+            icon = icon,
+            label = label,
+            active = active,
+            activeColor = activeColor,
+            enabled = enabled,
+            onClick = onClick,
+            onLongClick = { menuOpen = true },
+            modifier = Modifier.fillMaxWidth()
+        )
+        DropdownMenu(
+            expanded = menuOpen,
+            onDismissRequest = { menuOpen = false }
+        ) {
+            menu { menuOpen = false }
         }
     }
 }

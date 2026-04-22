@@ -15,6 +15,17 @@
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
     <string name="action_reorder">Drag to reorder</string>
+    <string name="show_gauge_color_band">Speed-gauge color band</string>
+    <string name="stat_watts">WATTS</string>
+    <string name="flic_button">Flic button</string>
+    <string name="menu_auto_lights">Auto-light settings</string>
+    <string name="menu_voice_settings">Voice settings</string>
+    <string name="menu_alarms">Alarms</string>
+    <string name="menu_legal_settings">Legal mode settings</string>
+    <string name="menu_view_last_trip">View last trip</string>
+    <string name="menu_view_current_trip">View current trip</string>
+    <string name="menu_start_recording">Start recording</string>
+    <string name="menu_stop_recording">Stop recording</string>
     <string name="action_grant_permission">Grant permission</string>
     <string name="action_open_settings">Open settings</string>
 
@@ -62,6 +73,7 @@
     <!-- Settings tabs -->
     <string name="tab_general">General</string>
     <string name="tab_speed">Wheel</string>
+    <string name="tab_display">Display</string>
     <string name="tab_voice">Voice</string>
     <string name="tab_alarms">Alarms</string>
     <string name="tab_auto">Auto</string>
