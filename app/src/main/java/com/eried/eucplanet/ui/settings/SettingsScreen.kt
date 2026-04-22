@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -63,6 +64,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +73,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -84,6 +88,7 @@ import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.util.Units
+import sh.calvin.reorderable.ReorderableColumn
 
 private val languageOptions = listOf(
     "en" to "English",
@@ -577,21 +582,26 @@ private fun VoiceTab(
         // Existing users may have a saved order that predates new report items (e.g. "Time").
         // Append any known items missing from the saved order so they still appear.
         val orderedItems = (reportOrder.mapNotNull { allItems[it] } +
-            allItems.filterKeys { it !in reportOrder }.values)
+            allItems.filterKeys { it !in reportOrder }.values).toList()
 
-        orderedItems.forEachIndexed { index, item ->
-            ReportRow(
-                label = item.label,
-                periodicChecked = item.periodicChecked,
-                onPeriodicChange = item.onPeriodicChange,
-                triggerChecked = item.triggerChecked,
-                onTriggerChange = item.onTriggerChange,
-                onTest = { viewModel.testSpeak(item.testText) },
-                canMoveUp = index > 0,
-                canMoveDown = index < orderedItems.size - 1,
-                onMoveUp = { viewModel.moveReportItem(index, index - 1) },
-                onMoveDown = { viewModel.moveReportItem(index, index + 1) }
-            )
+        val haptic = LocalHapticFeedback.current
+        ReorderableColumn(
+            list = orderedItems,
+            onSettle = { from, to -> viewModel.moveReportItem(from, to) },
+            onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+            modifier = Modifier.fillMaxWidth()
+        ) { _, item, _ ->
+            key(item.key) {
+                ReportRow(
+                    label = item.label,
+                    periodicChecked = item.periodicChecked,
+                    onPeriodicChange = item.onPeriodicChange,
+                    triggerChecked = item.triggerChecked,
+                    onTriggerChange = item.onTriggerChange,
+                    onTest = { viewModel.testSpeak(item.testText) },
+                    dragHandleModifier = Modifier.draggableHandle()
+                )
+            }
         }
 
         Spacer(Modifier.height(32.dp))
@@ -911,10 +921,7 @@ private fun ReportRow(
     triggerChecked: Boolean,
     onTriggerChange: (Boolean) -> Unit,
     onTest: () -> Unit = {},
-    canMoveUp: Boolean = false,
-    canMoveDown: Boolean = false,
-    onMoveUp: () -> Unit = {},
-    onMoveDown: () -> Unit = {}
+    dragHandleModifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -925,29 +932,12 @@ private fun ReportRow(
             Spacer(Modifier.width(6.dp))
             PlayButton(onClick = onTest)
             Spacer(Modifier.weight(1f))
-            // Reorder arrows on the right of the label area, just left of the first switch
-            Column {
-                IconButton(
-                    onClick = onMoveUp,
-                    enabled = canMoveUp,
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.action_move_up),
-                        modifier = Modifier.size(24.dp),
-                        tint = if (canMoveUp) MaterialTheme.colorScheme.onSurfaceVariant
-                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-                }
-                IconButton(
-                    onClick = onMoveDown,
-                    enabled = canMoveDown,
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.action_move_down),
-                        modifier = Modifier.size(24.dp),
-                        tint = if (canMoveDown) MaterialTheme.colorScheme.onSurfaceVariant
-                        else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f))
-                }
-            }
+            Icon(
+                Icons.Default.DragHandle,
+                contentDescription = stringResource(R.string.action_reorder),
+                modifier = dragHandleModifier.size(28.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         Switch(checked = periodicChecked, onCheckedChange = onPeriodicChange,
             modifier = Modifier.weight(0.55f))

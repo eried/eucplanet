@@ -14,6 +14,7 @@
     <string name="action_test">Test</string>
     <string name="action_move_up">Move up</string>
     <string name="action_move_down">Move down</string>
+    <string name="action_reorder">Drag to reorder</string>
     <string name="action_grant_permission">Grant permission</string>
     <string name="action_open_settings">Open settings</string>
 

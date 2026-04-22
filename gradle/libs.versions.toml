@@ -13,6 +13,7 @@ maplibre = "11.5.2"
 datastore = "1.1.1"
 work = "2.9.1"
 hiltWork = "1.2.0"
+reorderable = "2.4.3"
 
 [libraries]
 # Compose
@@ -69,6 +70,9 @@ flic2 = { group = "com.github.50ButtonsEach", name = "flic2lib-android", version
 work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
 hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
+
+# Drag-to-reorder
+reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

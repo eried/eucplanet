@@ -658,12 +658,14 @@ private fun SpeedGauge(
             )
         }
 
-        // Speed number — dead center of the arc circle
+        // Speed number — dead center of the arc circle.
+        // Scaled down for 3-digit speeds so the digits don't touch the arc.
         val speedText = "%.0f".format(displaySpeed)
+        val speedFontFactor = if (speedText.length >= 3) 0.17f else 0.2f
         val speedMeasured = textMeasurer.measure(
             speedText,
             style = TextStyle(
-                fontSize = (size.minDimension * 0.22f).sp,
+                fontSize = (size.minDimension * speedFontFactor).sp,
                 fontWeight = FontWeight.Bold,
                 color = speedColor
             )
