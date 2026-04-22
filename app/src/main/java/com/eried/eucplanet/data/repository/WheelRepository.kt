@@ -133,6 +133,9 @@ class WheelRepository @Inject constructor(
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
+                        _modelName.value = null
+                        _firmwareVersion.value = null
+                        _wheelData.value = _wheelData.value.copy(totalDistance = 0f)
                         // History is preserved across disconnects (cleared only on new wheel)
                     }
                     else -> {}
