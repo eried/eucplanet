@@ -15,6 +15,10 @@
     <string name="action_move_down">下移</string>
     <string name="action_grant_permission">授予权限</string>
     <string name="action_open_settings">打开设置</string>
+    <string name="no_trips_title">暂无行程</string>
+    <string name="no_trips_body">开始录制或导入行程。此快捷方式将打开最新的一次。</string>
+    <string name="no_trips_action_recorder">行程记录器</string>
+    <string name="voice_volume_low_toast">音量较低，可能听不到语音</string>
     <string name="scan_permission_needed">需要权限</string>
     <string name="scan_permission_body">要找到你的车轮,应用需要蓝牙和位置权限</string>
     <string name="scan_permission_body_settings">权限被拒绝。请打开系统设置并允许蓝牙和位置权限</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">记录器</string>
     <string name="action_recorder_trips">记录器\n(%1$d 条行程)</string>
 
+    <string name="search_settings">搜索设置</string>
     <string name="tab_general">通用</string>
-    <string name="tab_speed">车轮</string>
-    <string name="tab_display">显示</string>
-    <string name="tab_voice">语音</string>
-    <string name="tab_alarms">报警</string>
-    <string name="tab_auto">自动</string>
+    <string name="tab_speed">车轮速度限制</string>
+    <string name="tab_display">显示与外观</string>
+    <string name="tab_voice">语音与播报</string>
+    <string name="tab_alarms">警报规则</string>
+    <string name="tab_auto">自动化</string>
     <string name="tab_integration">集成</string>
-    <string name="tab_cloud">备份</string>
+    <string name="tab_cloud">行程与设置备份</string>
 
     <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">选择手机上的一个文件夹,用于保存行程 CSV 和设置备份</string>

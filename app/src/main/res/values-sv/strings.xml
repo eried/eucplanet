@@ -15,6 +15,10 @@
     <string name="action_move_down">Flytta ned</string>
     <string name="action_grant_permission">Ge behörighet</string>
     <string name="action_open_settings">Öppna inställningar</string>
+    <string name="no_trips_title">Inga turer ännu</string>
+    <string name="no_trips_body">Starta en inspelning eller importera turer. Den här genvägen öppnar den senaste.</string>
+    <string name="no_trips_action_recorder">Turinspelare</string>
+    <string name="voice_volume_low_toast">Volymen är låg, rösten kanske inte hörs</string>
     <string name="scan_permission_needed">Behörighet krävs</string>
     <string name="scan_permission_body">För att hitta ditt hjul behöver appen tillgång till Bluetooth och plats</string>
     <string name="scan_permission_body_settings">Behörigheten nekades. Öppna systeminställningarna för att tillåta Bluetooth och plats</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Inspelare</string>
     <string name="action_recorder_trips">Inspelare\n(%1$d resor)</string>
 
+    <string name="search_settings">Sök inställningar</string>
     <string name="tab_general">Allmänt</string>
-    <string name="tab_speed">Hjul</string>
-    <string name="tab_display">Skärm</string>
-    <string name="tab_voice">Röst</string>
-    <string name="tab_alarms">Larm</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Hastighetsgränser</string>
+    <string name="tab_display">Skärm och utseende</string>
+    <string name="tab_voice">Röst och meddelanden</string>
+    <string name="tab_alarms">Larmregler</string>
+    <string name="tab_auto">Automatiseringar</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Säkerhets­kopia</string>
+    <string name="tab_cloud">Säkerhetskopiering av turer och inställningar</string>
 
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
     <string name="cloud_caption">Välj en mapp på telefonen där tur-CSV:er och en säkerhetskopia av inställningarna sparas</string>

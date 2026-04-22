@@ -274,7 +274,7 @@ class WheelService : LifecycleService() {
             while (true) {
                 val settings = settingsRepository.get()
                 delay(settings.voiceIntervalSeconds * 1000L)
-                if (settings.voiceEnabled) {
+                if (settings.voiceEnabled && settings.voicePeriodicEnabled) {
                     val connected = wheelRepository.connectionState.value == ConnectionState.CONNECTED
                     if (settings.voiceOnlyWhenConnected && !connected) continue
                     val data = wheelRepository.wheelData.value

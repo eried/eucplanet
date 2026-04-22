@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.foundation.layout.size
@@ -97,6 +99,8 @@ import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
+import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
+import com.eried.eucplanet.ui.common.highlightMatches
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.util.Units
@@ -126,7 +130,18 @@ fun SettingsScreen(
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
-    var selectedTab by rememberSaveable { mutableIntStateOf(initialTab) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val expandedSections = rememberSaveable(
+        saver = androidx.compose.runtime.saveable.listSaver(
+            save = { it.toList() },
+            restore = { androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(it) } }
+        )
+    ) {
+        val initial = initialTabSectionKey(initialTab)
+        androidx.compose.runtime.mutableStateListOf<String>().apply {
+            if (initial != null) add(initial)
+        }
+    }
 
     val settings = settingsState ?: return
 
@@ -160,21 +175,150 @@ fun SettingsScreen(
         )
     }
 
-    val tabs: List<Pair<String, ImageVector>> = listOf(
-        stringResource(R.string.tab_general) to Icons.Default.Tune,
-        stringResource(R.string.tab_display) to Icons.Default.DisplaySettings,
-        stringResource(R.string.tab_speed) to Icons.Default.Speed,
-        stringResource(R.string.tab_voice) to Icons.Default.RecordVoiceOver,
-        stringResource(R.string.tab_cloud) to Icons.Default.Archive,
-        stringResource(R.string.tab_alarms) to Icons.Default.NotificationsActive,
-        stringResource(R.string.tab_auto) to Icons.Default.AutoAwesome,
-        stringResource(R.string.tab_integration) to Icons.Default.Extension
+    data class SectionDef(
+        val key: String,
+        val title: String,
+        val icon: ImageVector,
+        val searchCorpus: String,
+        val content: @Composable () -> Unit
+    )
+
+    val titleGeneral = stringResource(R.string.tab_general)
+    val titleDisplay = stringResource(R.string.tab_display)
+    val titleSpeed = stringResource(R.string.tab_speed)
+    val titleVoice = stringResource(R.string.tab_voice)
+    val titleCloud = stringResource(R.string.tab_cloud)
+    val titleAlarms = stringResource(R.string.tab_alarms)
+    val titleAuto = stringResource(R.string.tab_auto)
+    val titleIntegration = stringResource(R.string.tab_integration)
+
+    val corpusGeneral = listOf(
+        titleGeneral,
+        stringResource(R.string.section_recording),
+        stringResource(R.string.auto_record_on_start),
+        stringResource(R.string.auto_record_start_in_motion),
+        stringResource(R.string.auto_record_stop_idle_seconds),
+        stringResource(R.string.section_connection),
+        stringResource(R.string.auto_connect_on_start)
+    ).joinToString(" ")
+
+    val corpusDisplay = listOf(
+        titleDisplay,
+        stringResource(R.string.section_display),
+        stringResource(R.string.imperial_units),
+        stringResource(R.string.theme),
+        stringResource(R.string.accent_color),
+        stringResource(R.string.show_gauge_color_band),
+        "Language"
+    ).joinToString(" ")
+
+    val corpusSpeed = listOf(
+        titleSpeed,
+        stringResource(R.string.section_speed_limits),
+        stringResource(R.string.speed_tiltback),
+        stringResource(R.string.speed_alarm),
+        stringResource(R.string.section_legal_mode_speed),
+        stringResource(R.string.speed_legal_tiltback),
+        stringResource(R.string.speed_legal_alarm)
+    ).joinToString(" ")
+
+    val corpusVoice = listOf(
+        titleVoice,
+        stringResource(R.string.section_speech),
+        stringResource(R.string.voice_speech_speed),
+        stringResource(R.string.voice_audio_focus_label),
+        stringResource(R.string.voice_output_channel_label),
+        stringResource(R.string.section_announcements),
+        stringResource(R.string.voice_enabled),
+        stringResource(R.string.voice_interval),
+        stringResource(R.string.announce_wheel_lock),
+        stringResource(R.string.announce_lights),
+        stringResource(R.string.announce_recording),
+        stringResource(R.string.announce_connection),
+        stringResource(R.string.announce_gps),
+        stringResource(R.string.announce_legal_mode),
+        stringResource(R.string.announce_welcome),
+        stringResource(R.string.section_report_status),
+        stringResource(R.string.report_speed),
+        stringResource(R.string.report_battery),
+        stringResource(R.string.report_temp),
+        stringResource(R.string.report_pwm),
+        stringResource(R.string.report_distance),
+        stringResource(R.string.report_recording),
+        stringResource(R.string.report_time)
+    ).joinToString(" ")
+
+    val corpusCloud = listOf(
+        titleCloud,
+        stringResource(R.string.section_cloud_folder),
+        stringResource(R.string.section_cloud_settings),
+        stringResource(R.string.section_cloud_trips)
+    ).joinToString(" ")
+
+    val corpusAlarms = titleAlarms + " " + stringResource(R.string.alarm_help)
+
+    val corpusAuto = listOf(
+        titleAuto,
+        stringResource(R.string.auto_lights_title),
+        stringResource(R.string.auto_volume_title),
+        stringResource(R.string.auto_volume_desc)
+    ).joinToString(" ")
+
+    val corpusIntegration = listOf(
+        titleIntegration,
+        stringResource(R.string.section_flic_buttons),
+        stringResource(R.string.section_volume_keys),
+        stringResource(R.string.volume_keys_enable)
+    ).joinToString(" ")
+
+    val sections: List<SectionDef> = listOf(
+        SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
+            GeneralTab(settings, viewModel)
+        },
+        SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
+            DisplayTab(settings, viewModel)
+        },
+        SectionDef("speed", titleSpeed, Icons.Default.Speed, corpusSpeed) {
+            SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
+        },
+        SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
+            VoiceTab(settings, viewModel)
+        },
+        SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
+            CloudTab(settings, viewModel)
+        },
+        SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
+            AlarmSettingsContent()
+        },
+        SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
+            AutomationsContent()
+        },
+        SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
+            FlicTab()
+        }
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings)) },
+                title = {
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = { Text(stringResource(R.string.search_settings)) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Close, contentDescription = null)
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 10.dp)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.action_back))
@@ -190,61 +334,101 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
         ) {
+            Spacer(Modifier.height(8.dp))
+
+            val query = searchQuery.trim()
+            val visibleSections = sections.filter { sec ->
+                query.isEmpty() || sec.searchCorpus.contains(query, ignoreCase = true)
+            }
+
+            androidx.compose.runtime.CompositionLocalProvider(LocalSettingsSearchQuery provides query) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    visibleSections.forEach { sec ->
+                        val explicitlyExpanded = expandedSections.contains(sec.key)
+                        val isExpanded = explicitlyExpanded || query.isNotEmpty()
+                        CollapsibleSection(
+                            title = sec.title,
+                            icon = sec.icon,
+                            expanded = isExpanded,
+                            query = query,
+                            onToggle = {
+                                if (explicitlyExpanded) expandedSections.remove(sec.key)
+                                else expandedSections.add(sec.key)
+                            }
+                        ) {
+                            sec.content()
+                        }
+                    }
+                    Spacer(Modifier.height(32.dp))
+                }
+            }
+        }
+    }
+}
+
+private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
+    1 -> "display"
+    2 -> "speed"
+    3 -> "voice"
+    4 -> "cloud"
+    5 -> "alarms"
+    6 -> "auto"
+    7 -> "integration"
+    else -> null
+}
+
+@Composable
+private fun CollapsibleSection(
+    title: String,
+    icon: ImageVector,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    query: String = "",
+    content: @Composable () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
+                    .clickable { onToggle() }
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                tabs.forEachIndexed { index, (title, icon) ->
-                    val isSelected = selectedTab == index
-                    val tint = if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                    Column(
-                        modifier = Modifier
-                            .clickable { selectedTab = index }
-                            .padding(horizontal = 8.dp)
-                            .padding(top = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
-                    ) {
-                        Icon(
-                            icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = tint
-                        )
-                        Text(
-                            title,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = tint
-                        )
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .height(2.dp)
-                                .fillMaxWidth()
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.primary
-                                    else androidx.compose.ui.graphics.Color.Transparent
-                                )
-                        )
-                    }
-                }
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.width(17.dp))
+                Text(
+                    highlightMatches(title, query),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
             }
-            androidx.compose.material3.HorizontalDivider(
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            )
-
-            when (selectedTab) {
-                0 -> GeneralTab(settings, viewModel)
-                1 -> DisplayTab(settings, viewModel)
-                2 -> SpeedTab(settings, maxSpeedCap, isConnected, viewModel)
-                3 -> VoiceTab(settings, viewModel)
-                4 -> CloudTab(settings, viewModel)
-                5 -> AlarmSettingsContent()
-                6 -> AutomationsContent()
-                7 -> FlicTab()
+            if (expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
+                ) {
+                    content()
+                }
             }
         }
     }
@@ -258,10 +442,7 @@ private fun GeneralTab(
     viewModel: SettingsViewModel
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_recording))
@@ -303,7 +484,6 @@ private fun GeneralTab(
             )
         }
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -322,13 +502,9 @@ private fun DisplayTab(
     )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader(stringResource(R.string.section_display))
         SwitchSetting(stringResource(R.string.imperial_units), settings.imperialUnits) {
             viewModel.updateImperialUnits(it)
         }
@@ -372,7 +548,6 @@ private fun DisplayTab(
             )
         }
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -386,10 +561,7 @@ private fun SpeedTab(
     viewModel: SettingsViewModel
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (!isConnected) {
@@ -435,7 +607,6 @@ private fun SpeedTab(
             onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
         )
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -447,10 +618,7 @@ private fun VoiceTab(
     viewModel: SettingsViewModel
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_speech))
@@ -691,7 +859,6 @@ private fun VoiceTab(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -707,47 +874,10 @@ private fun FlicTab(
     val pairedButtons by viewModel.pairedButtons.collectAsState()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_flic_buttons))
-        // Scan section
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                HintText(stringResource(R.string.flic_scan_hint))
-                Spacer(Modifier.height(12.dp))
-                if (scanning) {
-                    CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = { viewModel.stopScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                    ) { Text(stringResource(R.string.flic_stop_scan)) }
-                } else {
-                    Button(onClick = { viewModel.startScan() }) {
-                        Text(stringResource(R.string.flic_start_scan))
-                    }
-                }
-            }
-        }
-
-        // Paired buttons
-        if (pairedButtons.isEmpty() && settings.flic1Address == null && settings.flic2Address == null) {
-            Text(
-                stringResource(R.string.flic_no_buttons),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
 
         settings.flic1Address?.let { addr ->
             ButtonConfig(
@@ -775,6 +905,64 @@ private fun FlicTab(
                 onHoldChange = { viewModel.updateFlic2Hold(it) },
                 onForget = { viewModel.forgetButton(addr) }
             )
+        }
+
+        settings.flic3Address?.let { addr ->
+            ButtonConfig(
+                title = settings.flic3Name, address = addr,
+                onTitleChange = { viewModel.updateFlic3Name(it) },
+                clickAction = settings.flic3Click,
+                doubleClickAction = settings.flic3DoubleClick,
+                holdAction = settings.flic3Hold,
+                onClickChange = { viewModel.updateFlic3Click(it) },
+                onDoubleClickChange = { viewModel.updateFlic3DoubleClick(it) },
+                onHoldChange = { viewModel.updateFlic3Hold(it) },
+                onForget = { viewModel.forgetButton(addr) }
+            )
+        }
+
+        settings.flic4Address?.let { addr ->
+            ButtonConfig(
+                title = settings.flic4Name, address = addr,
+                onTitleChange = { viewModel.updateFlic4Name(it) },
+                clickAction = settings.flic4Click,
+                doubleClickAction = settings.flic4DoubleClick,
+                holdAction = settings.flic4Hold,
+                onClickChange = { viewModel.updateFlic4Click(it) },
+                onDoubleClickChange = { viewModel.updateFlic4DoubleClick(it) },
+                onHoldChange = { viewModel.updateFlic4Hold(it) },
+                onForget = { viewModel.forgetButton(addr) }
+            )
+        }
+
+        // Scan section — only shown when there's an empty slot to fill.
+        val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
+                settings.flic3Address != null && settings.flic4Address != null
+        if (!allSlotsFull) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    HintText(stringResource(R.string.flic_scan_hint))
+                    Spacer(Modifier.height(12.dp))
+                    if (scanning) {
+                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = { viewModel.stopScan() },
+                            colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                        ) { Text(stringResource(R.string.flic_stop_scan)) }
+                    } else {
+                        Button(onClick = { viewModel.startScan() }) {
+                            Text(stringResource(R.string.flic_start_scan))
+                        }
+                    }
+                }
+            }
         }
 
         SectionHeader(stringResource(R.string.section_volume_keys))
@@ -811,7 +999,6 @@ private fun FlicTab(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -877,13 +1064,9 @@ private fun CloudTab(
     val hasFolder = settings.syncFolderUri != null && folderDisplayName != null
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SectionHeader(stringResource(R.string.section_cloud_folder))
         HintText(stringResource(R.string.cloud_caption))
 
         CloudHelpCard()
@@ -943,7 +1126,6 @@ private fun CloudTab(
             }
         }
 
-        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -1045,7 +1227,7 @@ private fun AnnounceSwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
@@ -1055,8 +1237,9 @@ private fun AnnounceSwitchSetting(
 
 @Composable
 private fun SectionHeader(title: String) {
+    val query = LocalSettingsSearchQuery.current
     Text(
-        text = title,
+        text = highlightMatches(title, query),
         style = MaterialTheme.typography.headlineMedium,
         color = MaterialTheme.colorScheme.primary
     )
@@ -1107,7 +1290,7 @@ private fun SliderSetting(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(label, style = MaterialTheme.typography.bodyLarge)
+                Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
                 Text(
                     valueText ?: "${format.format(value)} $unit",
                     style = MaterialTheme.typography.bodyLarge,
@@ -1138,7 +1321,7 @@ private fun SwitchSetting(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
@@ -1251,7 +1434,7 @@ private fun SimpleDropdown(
             value = currentLabel,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -1524,7 +1707,7 @@ private fun ActionDropdown(
             value = stringResource(currentAction.labelRes),
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()

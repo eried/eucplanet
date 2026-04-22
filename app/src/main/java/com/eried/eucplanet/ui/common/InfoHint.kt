@@ -33,7 +33,7 @@ fun InfoHint(
             modifier = Modifier.size(18.dp)
         )
         Text(
-            text,
+            highlightMatches(text, LocalSettingsSearchQuery.current),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontStyle = FontStyle.Italic
@@ -49,7 +49,7 @@ fun HintText(
     textAlign: TextAlign? = null
 ) {
     Text(
-        text,
+        highlightMatches(text, LocalSettingsSearchQuery.current),
         modifier = modifier,
         style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

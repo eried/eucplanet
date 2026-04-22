@@ -101,13 +101,8 @@ fun AlarmSettingsContent(
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Spacer(Modifier.height(8.dp))
-
         HintText(stringResource(R.string.alarm_help), small = true)
 
         Spacer(Modifier.height(12.dp))

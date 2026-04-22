@@ -15,6 +15,10 @@
     <string name="action_move_down">Bajar</string>
     <string name="action_grant_permission">Conceder permiso</string>
     <string name="action_open_settings">Abrir ajustes</string>
+    <string name="no_trips_title">Aún no hay viajes</string>
+    <string name="no_trips_body">Inicia una grabación o importa viajes. Este atajo abrirá el más reciente.</string>
+    <string name="no_trips_action_recorder">Grabador de viajes</string>
+    <string name="voice_volume_low_toast">El volumen es bajo, es posible que la voz no se oiga</string>
     <string name="scan_permission_needed">Permiso necesario</string>
     <string name="scan_permission_body">Para encontrar tu rueda, la app necesita acceso a Bluetooth y ubicación</string>
     <string name="scan_permission_body_settings">El permiso fue denegado. Abre los ajustes del sistema para permitir Bluetooth y ubicación</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Grabación</string>
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
 
+    <string name="search_settings">Buscar ajustes</string>
     <string name="tab_general">General</string>
-    <string name="tab_speed">Rueda</string>
-    <string name="tab_display">Pantalla</string>
-    <string name="tab_voice">Voz</string>
-    <string name="tab_alarms">Alarmas</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Límites de velocidad</string>
+    <string name="tab_display">Pantalla y apariencia</string>
+    <string name="tab_voice">Voz y anuncios</string>
+    <string name="tab_alarms">Reglas de alarma</string>
+    <string name="tab_auto">Automatizaciones</string>
     <string name="tab_integration">Integración</string>
-    <string name="tab_cloud">Respaldo</string>
+    <string name="tab_cloud">Respaldo de viajes y ajustes</string>
 
     <string name="section_recording">Grabación</string>
     <string name="section_connection">Conexión</string>

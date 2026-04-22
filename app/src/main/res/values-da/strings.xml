@@ -15,6 +15,10 @@
     <string name="action_move_down">Flyt ned</string>
     <string name="action_grant_permission">Giv tilladelse</string>
     <string name="action_open_settings">Åbn indstillinger</string>
+    <string name="no_trips_title">Ingen ture endnu</string>
+    <string name="no_trips_body">Start en optagelse eller importér ture. Denne genvej åbner den nyeste.</string>
+    <string name="no_trips_action_recorder">Turoptager</string>
+    <string name="voice_volume_low_toast">Lydstyrken er lav, stemmen er måske ikke hørbar</string>
     <string name="scan_permission_needed">Tilladelse kræves</string>
     <string name="scan_permission_body">For at finde dit hjul har appen brug for Bluetooth og placering</string>
     <string name="scan_permission_body_settings">Tilladelsen blev afvist. Åbn systemindstillinger for at tillade Bluetooth og placering</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Optager</string>
     <string name="action_recorder_trips">Optager\n(%1$d ture)</string>
 
+    <string name="search_settings">Søg indstillinger</string>
     <string name="tab_general">Generelt</string>
-    <string name="tab_speed">Hjul</string>
-    <string name="tab_display">Skærm</string>
-    <string name="tab_voice">Stemme</string>
-    <string name="tab_alarms">Alarmer</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Hastighedsgrænser</string>
+    <string name="tab_display">Skærm og udseende</string>
+    <string name="tab_voice">Stemme og meddelelser</string>
+    <string name="tab_alarms">Alarmregler</string>
+    <string name="tab_auto">Automatiseringer</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Backup</string>
+    <string name="tab_cloud">Backup af ture og indstillinger</string>
 
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Vælg en mappe på telefonen, hvor tur-CSV\'er og en indstillingsbackup gemmes</string>

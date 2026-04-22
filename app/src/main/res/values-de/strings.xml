@@ -15,6 +15,10 @@
     <string name="action_move_down">Nach unten</string>
     <string name="action_grant_permission">Berechtigung erteilen</string>
     <string name="action_open_settings">Einstellungen öffnen</string>
+    <string name="no_trips_title">Noch keine Fahrten</string>
+    <string name="no_trips_body">Starte eine Aufnahme oder importiere Fahrten. Diese Verknüpfung öffnet dann die neueste Fahrt.</string>
+    <string name="no_trips_action_recorder">Fahrtenrekorder</string>
+    <string name="voice_volume_low_toast">Lautstärke ist niedrig, Stimme könnte unhörbar sein</string>
     <string name="scan_permission_needed">Berechtigung nötig</string>
     <string name="scan_permission_body">Um dein Wheel zu finden, braucht die App Bluetooth- und Standortzugriff</string>
     <string name="scan_permission_body_settings">Berechtigung verweigert. Öffne die Systemeinstellungen, um Bluetooth und Standort zu erlauben</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Aufnahme</string>
     <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
 
+    <string name="search_settings">Einstellungen suchen</string>
     <string name="tab_general">Allgemein</string>
-    <string name="tab_speed">Rad</string>
-    <string name="tab_display">Anzeige</string>
-    <string name="tab_voice">Stimme</string>
-    <string name="tab_alarms">Alarme</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Radgeschwindigkeitslimits</string>
+    <string name="tab_display">Anzeige &amp; Darstellung</string>
+    <string name="tab_voice">Stimme &amp; Ansagen</string>
+    <string name="tab_alarms">Alarmregeln</string>
+    <string name="tab_auto">Automatisierungen</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Backup</string>
+    <string name="tab_cloud">Fahrten &amp; Einstellungen sichern</string>
 
     <string name="section_recording">Aufnahme</string>
     <string name="section_connection">Verbindung</string>

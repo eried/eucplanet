@@ -49,4 +49,12 @@ class FlicViewModel @Inject constructor(
     fun updateFlic2Click(v: String) = update { copy(flic2Click = v) }
     fun updateFlic2DoubleClick(v: String) = update { copy(flic2DoubleClick = v) }
     fun updateFlic2Hold(v: String) = update { copy(flic2Hold = v) }
+    fun updateFlic3Name(v: String) = update { copy(flic3Name = v) }
+    fun updateFlic3Click(v: String) = update { copy(flic3Click = v) }
+    fun updateFlic3DoubleClick(v: String) = update { copy(flic3DoubleClick = v) }
+    fun updateFlic3Hold(v: String) = update { copy(flic3Hold = v) }
+    fun updateFlic4Name(v: String) = update { copy(flic4Name = v) }
+    fun updateFlic4Click(v: String) = update { copy(flic4Click = v) }
+    fun updateFlic4DoubleClick(v: String) = update { copy(flic4DoubleClick = v) }
+    fun updateFlic4Hold(v: String) = update { copy(flic4Hold = v) }
 }

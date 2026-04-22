@@ -171,17 +171,23 @@ class WheelRepository @Inject constructor(
     }
 
     fun toggleLock() {
-        val newState = !_locked.value
+        val targetState = !_locked.value
+        // Optimistic flip: the button reflects the requested state immediately so the user
+        // doesn't mash it again. Telemetry (0x20 settings) is the final source of truth —
+        // if the wheel reports back a different state, _locked is corrected then.
+        _locked.value = targetState
         scope.launch {
-            val success = authenticateAndLock(newState)
+            val success = authenticateAndLock(targetState)
+            // Re-read settings so the wheel can confirm (or override) the optimistic UI.
+            delay(800)
+            bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
             if (success) {
-                _locked.value = newState
                 val s = settingsRepository.get()
                 if (s.announceWheelLock) {
-                    voiceService.announceEvent(context.getString(if (newState) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked))
+                    voiceService.announceEvent(context.getString(if (targetState) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked))
                 }
             } else {
-                Log.e(TAG, "Lock command failed: auth unsuccessful")
+                Log.e(TAG, "Lock command failed: auth unsuccessful — awaiting wheel telemetry resync")
             }
         }
     }
@@ -197,7 +203,7 @@ class WheelRepository @Inject constructor(
         bleManager.writeCommand(InMotionV2Commands.requestAuthKey())
         Log.i(TAG, "Lock: requesting auth key...")
 
-        val key = withTimeoutOrNull(2000L) { keyDeferred.await() }
+        val key = withTimeoutOrNull(4000L) { keyDeferred.await() }
         pendingAuthKeyDeferred = null
 
         if (key == null) {
@@ -213,7 +219,7 @@ class WheelRepository @Inject constructor(
         bleManager.writeCommand(InMotionV2Commands.verifyAuth(key))
         Log.i(TAG, "Lock: verifying auth...")
 
-        val confirmed = withTimeoutOrNull(2000L) { confirmDeferred.await() } ?: false
+        val confirmed = withTimeoutOrNull(4000L) { confirmDeferred.await() } ?: false
         pendingAuthConfirmDeferred = null
 
         if (!confirmed) {

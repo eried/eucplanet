@@ -24,6 +24,11 @@ data class AppSettings(
 
     // Voice
     val voiceEnabled: Boolean = true,
+    // Independent toggle for the periodic (every N seconds) status announcements. When false,
+    // voice still works for triggered events (manual button, Flic, alarms) but the periodic
+    // loop is silent. Toggled from the dashboard via long-press on the Voice action.
+    @ColumnInfo(defaultValue = "1")
+    val voicePeriodicEnabled: Boolean = true,
     val voiceOnlyWhenConnected: Boolean = true,
     val voiceIntervalSeconds: Int = 30,
     val voiceSpeechRate: Float = 1.2f,
@@ -85,6 +90,30 @@ data class AppSettings(
     val flic2Click: String = "NONE",
     val flic2DoubleClick: String = "NONE",
     val flic2Hold: String = "SAFETY_ON",
+
+    // Flic button 3
+    @ColumnInfo(defaultValue = "NULL")
+    val flic3Address: String? = null,
+    @ColumnInfo(defaultValue = "Button 3")
+    val flic3Name: String = "Button 3",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic3Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic3DoubleClick: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic3Hold: String = "NONE",
+
+    // Flic button 4
+    @ColumnInfo(defaultValue = "NULL")
+    val flic4Address: String? = null,
+    @ColumnInfo(defaultValue = "Button 4")
+    val flic4Name: String = "Button 4",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic4Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic4DoubleClick: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val flic4Hold: String = "NONE",
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
     val autoLightsEnabled: Boolean = false,

@@ -15,6 +15,10 @@
     <string name="action_move_down">Descendre</string>
     <string name="action_grant_permission">Accorder l\'autorisation</string>
     <string name="action_open_settings">Ouvrir les paramètres</string>
+    <string name="no_trips_title">Aucun trajet</string>
+    <string name="no_trips_body">Démarrez un enregistrement ou importez des trajets. Ce raccourci ouvrira le plus récent.</string>
+    <string name="no_trips_action_recorder">Enregistreur de trajets</string>
+    <string name="voice_volume_low_toast">Le volume est faible, la voix pourrait être inaudible</string>
     <string name="scan_permission_needed">Autorisation requise</string>
     <string name="scan_permission_body">Pour trouver votre roue, l\'application a besoin d\'accéder au Bluetooth et à la localisation</string>
     <string name="scan_permission_body_settings">L\'autorisation a été refusée. Ouvrez les paramètres système pour autoriser le Bluetooth et la localisation</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Enregistreur</string>
     <string name="action_recorder_trips">Enregistreur\n(%1$d trajets)</string>
 
+    <string name="search_settings">Rechercher</string>
     <string name="tab_general">Général</string>
-    <string name="tab_speed">Roue</string>
-    <string name="tab_display">Affichage</string>
-    <string name="tab_voice">Voix</string>
-    <string name="tab_alarms">Alarmes</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Limites de vitesse</string>
+    <string name="tab_display">Affichage et apparence</string>
+    <string name="tab_voice">Voix et annonces</string>
+    <string name="tab_alarms">Règles d\'alarme</string>
+    <string name="tab_auto">Automatisations</string>
     <string name="tab_integration">Intégration</string>
-    <string name="tab_cloud">Sauvegarde</string>
+    <string name="tab_cloud">Sauvegarde des trajets et réglages</string>
 
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
     <string name="cloud_caption">Choisissez un dossier sur le téléphone où les CSV de trajets et la sauvegarde des paramètres seront enregistrés</string>

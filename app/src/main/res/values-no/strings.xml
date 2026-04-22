@@ -15,6 +15,10 @@
     <string name="action_move_down">Flytt ned</string>
     <string name="action_grant_permission">Gi tilgang</string>
     <string name="action_open_settings">Åpne innstillinger</string>
+    <string name="no_trips_title">Ingen turer ennå</string>
+    <string name="no_trips_body">Start et opptak eller importer turer. Denne snarveien åpner den nyeste.</string>
+    <string name="no_trips_action_recorder">Turopptaker</string>
+    <string name="voice_volume_low_toast">Volumet er lavt, stemmen kan være uhørlig</string>
     <string name="scan_permission_needed">Trenger tilgang</string>
     <string name="scan_permission_body">For å finne hjulet ditt trenger appen Bluetooth- og posisjonstilgang</string>
     <string name="scan_permission_body_settings">Tilgang ble avvist. Åpne systeminnstillingene for å tillate Bluetooth og posisjon</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Opptak</string>
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
 
+    <string name="search_settings">Søk i innstillinger</string>
     <string name="tab_general">Generelt</string>
-    <string name="tab_speed">Hjul</string>
-    <string name="tab_display">Skjerm</string>
-    <string name="tab_voice">Stemme</string>
-    <string name="tab_alarms">Alarmer</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Fartsgrenser</string>
+    <string name="tab_display">Skjerm og utseende</string>
+    <string name="tab_voice">Stemme og kunngjøringer</string>
+    <string name="tab_alarms">Alarmregler</string>
+    <string name="tab_auto">Automatiseringer</string>
     <string name="tab_integration">Integrasjon</string>
-    <string name="tab_cloud">Sikkerhetskopi</string>
+    <string name="tab_cloud">Sikkerhetskopi av turer og innstillinger</string>
 
     <string name="section_recording">Opptak</string>
     <string name="section_connection">Tilkobling</string>

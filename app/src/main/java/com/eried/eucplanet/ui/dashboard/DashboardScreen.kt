@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +44,9 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.GpsNotFixed
+import androidx.compose.material.icons.filled.GpsOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RadioButtonChecked
@@ -157,11 +161,35 @@ fun DashboardScreen(
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
+    val gpsFix by viewModel.gpsFix.collectAsState()
+    val locationGranted by viewModel.locationPermissionGranted.collectAsState()
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
+    var showNoTripsDialog by remember { mutableStateOf(false) }
     val activity = LocalContext.current as? Activity
 
     BackHandler { showQuitDialog = true }
+
+    if (showNoTripsDialog) {
+        AlertDialog(
+            onDismissRequest = { showNoTripsDialog = false },
+            title = { Text(stringResource(R.string.no_trips_title)) },
+            text = { Text(stringResource(R.string.no_trips_body)) },
+            confirmButton = {
+                TextButton(onClick = { showNoTripsDialog = false }) {
+                    Text(stringResource(R.string.action_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showNoTripsDialog = false
+                    onNavigateToRecording()
+                }) {
+                    Text(stringResource(R.string.no_trips_action_recorder))
+                }
+            }
+        )
+    }
 
     if (showDisconnectDialog) {
         val wheelLabel = modelName ?: stringResource(R.string.wheel_generic)
@@ -215,7 +243,10 @@ fun DashboardScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.padding(start = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         ConnectionDot(connectionState)
                         Spacer(Modifier.width(8.dp))
                         val connectedLabel = stringResource(R.string.connection_connected)
@@ -281,21 +312,52 @@ fun DashboardScreen(
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
             val safeColor = if (useAccent) primary else AccentGreen
-            SpeedGauge(
-                speed = wheelData.speed.absoluteValue,
-                maxSpeed = gaugeMax,
-                imperial = imperial,
-                overrideColor = if (useAccent) primary else null,
-                showColorBand = showGaugeColorBand,
-                orangeThresholdPct = gaugeOrangePct,
-                redThresholdPct = gaugeRedPct,
-                safeBandColor = if (useAccent) primary else AccentBlue,
-                pcMode = if (connectionState == ConnectionState.CONNECTED) wheelData.pcMode else -1,
-                modifier = Modifier
-                    .fillMaxWidth(0.75f)
-                    .aspectRatio(1.25f)
-                    .clickable { onNavigateToMetric("SPEED") }
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                SpeedGauge(
+                    speed = wheelData.speed.absoluteValue,
+                    maxSpeed = gaugeMax,
+                    imperial = imperial,
+                    overrideColor = if (useAccent) primary else null,
+                    showColorBand = showGaugeColorBand,
+                    orangeThresholdPct = gaugeOrangePct,
+                    redThresholdPct = gaugeRedPct,
+                    safeBandColor = if (useAccent) primary else AccentBlue,
+                    modifier = Modifier
+                        .fillMaxWidth(0.75f)
+                        .aspectRatio(1.25f)
+                        .align(Alignment.TopCenter)
+                        .clickable { onNavigateToMetric("SPEED") }
+                )
+                // Car-dashboard status cluster, top-left: P (park) / D (drive).
+                val live = connectionState == ConnectionState.CONNECTED
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(top = 8.dp, start = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = MaterialTheme.colorScheme.onSurface)
+                    DashIndicatorLetter("D", active = live && wheelData.pcMode == 1, activeColor = if (useAccent) primary else AccentGreen)
+                }
+                // GPS indicator, top-right. Three states:
+                //   no permission  -> GpsOff (dim)
+                //   no fix yet     -> GpsNotFixed (dim)
+                //   locked         -> GpsFixed (green)
+                val gpsIcon = when {
+                    !locationGranted -> Icons.Default.GpsOff
+                    gpsFix -> Icons.Default.GpsFixed
+                    else -> Icons.Default.GpsNotFixed
+                }
+                DashIndicatorIcon(
+                    icon = gpsIcon,
+                    active = gpsFix && locationGranted,
+                    activeColor = AccentGreen,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 4.dp)
+                        .padding(top = 8.dp)
+                )
+            }
 
             Spacer(Modifier.height(16.dp))
 
@@ -380,7 +442,12 @@ fun DashboardScreen(
                 val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
                 StatCard(stringResource(R.string.stat_trip),
                     if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
-                    primary, emptyList(), Modifier.weight(1f))
+                    primary, emptyList(), Modifier.weight(1f),
+                    onClick = {
+                        val targetTripId = currentTripId ?: latestTripId
+                        if (targetTripId != null) onNavigateToTripDetail(targetTripId)
+                        else showNoTripsDialog = true
+                    })
             }
 
             Spacer(Modifier.height(14.dp))
@@ -408,6 +475,7 @@ fun DashboardScreen(
                         )
                     }
                 )
+                val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
                 ActionTile(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.RecordVoiceOver,
@@ -415,12 +483,24 @@ fun DashboardScreen(
                     onClick = { viewModel.onVoiceAnnounce() },
                     menu = { dismiss ->
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_voice_settings)) },
+                            text = { Text(stringResource(R.string.tab_voice)) },
                             onClick = { dismiss(); onNavigateToSettings(3) }
                         )
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_alarms)) },
+                            text = { Text(stringResource(R.string.tab_alarms)) },
                             onClick = { dismiss(); onNavigateToSettings(5) }
+                        )
+                        androidx.compose.material3.HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    if (periodicVoiceOn) stringResource(R.string.menu_voice_periodic_off)
+                                    else stringResource(R.string.menu_voice_periodic_on)
+                                )
+                            },
+                            onClick = { dismiss(); viewModel.toggleVoicePeriodic() }
                         )
                     }
                 )
@@ -442,7 +522,7 @@ fun DashboardScreen(
                     onClick = { viewModel.onSafetySpeedToggle() },
                     menu = { dismiss ->
                         DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_legal_settings)) },
+                            text = { Text(stringResource(R.string.section_legal_mode_speed)) },
                             onClick = { dismiss(); onNavigateToSettings(2) }
                         )
                     }
@@ -461,11 +541,7 @@ fun DashboardScreen(
                         else stringResource(R.string.action_recorder),
                     active = recording,
                     activeColor = if (useAccent) primary else AccentRed,
-                    onClick = {
-                        val targetTripId = currentTripId ?: latestTripId
-                        if (targetTripId != null) onNavigateToTripDetail(targetTripId)
-                        else onNavigateToRecording()
-                    },
+                    onClick = { onNavigateToRecording() },
                     menu = { dismiss ->
                         val targetTripId = currentTripId ?: latestTripId
                         DropdownMenuItem(
@@ -699,7 +775,6 @@ private fun SpeedGauge(
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
     safeBandColor: Color = AccentBlue,
-    pcMode: Int = -1,
     modifier: Modifier = Modifier
 ) {
     val speedColor = overrideColor ?: when {
@@ -864,31 +939,35 @@ private fun SpeedGauge(
             )
         )
 
-        // P/D indicator below the unit label, only when we have telemetry.
-        val gearLabel = when (pcMode) {
-            1 -> "D"
-            3 -> "P"
-            else -> null
-        }
-        if (gearLabel != null) {
-            val gearColor = if (gearLabel == "P") dimColor else speedColor
-            val gearMeasured = textMeasurer.measure(
-                gearLabel,
-                style = TextStyle(
-                    fontSize = (size.minDimension * 0.08f).sp,
-                    fontWeight = FontWeight.Bold,
-                    color = gearColor
-                )
-            )
-            drawText(
-                gearMeasured,
-                topLeft = Offset(
-                    center.x - gearMeasured.size.width / 2f,
-                    center.y + speedMeasured.size.height / 2f + unitMeasured.size.height
-                )
-            )
-        }
     }
+}
+
+// Car-dashboard style status indicator: dim (off) / lit (on).
+@Composable
+private fun DashIndicatorLetter(letter: String, active: Boolean, activeColor: Color) {
+    val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.20f)
+    Text(
+        text = letter,
+        fontSize = 34.sp,
+        fontWeight = FontWeight.Bold,
+        color = if (active) activeColor else dim
+    )
+}
+
+@Composable
+private fun DashIndicatorIcon(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    active: Boolean,
+    activeColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.20f)
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = if (active) activeColor else dim,
+        modifier = modifier.size(32.dp)
+    )
 }
 
 // --- Stat card with sparkline ---

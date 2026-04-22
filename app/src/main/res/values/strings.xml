@@ -19,13 +19,16 @@
     <string name="stat_watts">WATTS</string>
     <string name="flic_button">Flic button</string>
     <string name="menu_auto_lights">Auto-light settings</string>
-    <string name="menu_voice_settings">Voice settings</string>
-    <string name="menu_alarms">Alarms</string>
-    <string name="menu_legal_settings">Legal mode settings</string>
+    <string name="menu_voice_periodic_on">Turn on periodic announcements</string>
+    <string name="menu_voice_periodic_off">Turn off periodic announcements</string>
     <string name="menu_view_last_trip">View last trip</string>
     <string name="menu_view_current_trip">View current trip</string>
     <string name="menu_start_recording">Start recording</string>
     <string name="menu_stop_recording">Stop recording</string>
+    <string name="no_trips_title">No trips yet</string>
+    <string name="no_trips_body">Start a recording or import trips. This shortcut opens the most recent one.</string>
+    <string name="no_trips_action_recorder">Trip recorder</string>
+    <string name="voice_volume_low_toast">Volume is low, voice might not be audible</string>
     <string name="action_grant_permission">Grant permission</string>
     <string name="action_open_settings">Open settings</string>
 
@@ -71,14 +74,15 @@
     <string name="action_recorder_trips">Recorder\n(%1$d trips)</string>
 
     <!-- Settings tabs -->
+    <string name="search_settings">Search settings</string>
     <string name="tab_general">General</string>
-    <string name="tab_speed">Wheel</string>
-    <string name="tab_display">Display</string>
-    <string name="tab_voice">Voice</string>
-    <string name="tab_alarms">Alarms</string>
-    <string name="tab_auto">Auto</string>
+    <string name="tab_speed">Wheel speed limits</string>
+    <string name="tab_display">Display &amp; appearance</string>
+    <string name="tab_voice">Voice &amp; announcements</string>
+    <string name="tab_alarms">Alarm rules</string>
+    <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
-    <string name="tab_cloud">Backup</string>
+    <string name="tab_cloud">Backup trips &amp; settings</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>

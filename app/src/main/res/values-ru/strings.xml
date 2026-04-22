@@ -15,6 +15,10 @@
     <string name="action_move_down">Вниз</string>
     <string name="action_grant_permission">Предоставить разрешение</string>
     <string name="action_open_settings">Открыть настройки</string>
+    <string name="no_trips_title">Поездок пока нет</string>
+    <string name="no_trips_body">Начните запись или импортируйте поездки. Этот ярлык откроет самую последнюю.</string>
+    <string name="no_trips_action_recorder">Запись поездок</string>
+    <string name="voice_volume_low_toast">Громкость низкая, голос может быть не слышен</string>
     <string name="scan_permission_needed">Нужно разрешение</string>
     <string name="scan_permission_body">Чтобы найти ваше колесо, приложению нужен доступ к Bluetooth и геолокации</string>
     <string name="scan_permission_body_settings">Разрешение отклонено. Откройте системные настройки, чтобы разрешить Bluetooth и геолокацию</string>
@@ -54,14 +58,15 @@
     <string name="action_recorder">Поездки</string>
     <string name="action_recorder_trips">Поездки\n(%1$d)</string>
 
+    <string name="search_settings">Поиск настроек</string>
     <string name="tab_general">Общие</string>
-    <string name="tab_speed">Колесо</string>
-    <string name="tab_display">Экран</string>
-    <string name="tab_voice">Голос</string>
-    <string name="tab_alarms">Сигналы</string>
-    <string name="tab_auto">Авто</string>
+    <string name="tab_speed">Ограничения скорости</string>
+    <string name="tab_display">Экран и оформление</string>
+    <string name="tab_voice">Голос и оповещения</string>
+    <string name="tab_alarms">Правила сигналов</string>
+    <string name="tab_auto">Автоматизации</string>
     <string name="tab_integration">Интеграции</string>
-    <string name="tab_cloud">Резервная копия</string>
+    <string name="tab_cloud">Резервная копия поездок и настроек</string>
 
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>

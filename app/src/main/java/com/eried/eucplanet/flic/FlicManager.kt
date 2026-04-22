@@ -63,6 +63,7 @@ class FlicManager @Inject constructor(
             flic2Manager = Flic2Manager.initAndGetInstance(context, Handler(Looper.getMainLooper()))
             Log.i(TAG, "Flic2Manager initialized")
             reconnectPairedButtons()
+            scope.launch { reconcileSettings() }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to init Flic2Manager", e)
         }
@@ -79,6 +80,36 @@ class FlicManager @Inject constructor(
         Log.i(TAG, "Reconnected ${buttons.size} paired buttons")
     }
 
+    // Keep AppSettings.flic1..4Address in sync with the Flic2 lib's paired list.
+    // Clears stale addresses (button forgotten outside the app) and auto-fills empty slots
+    // with buttons the lib already knows — fixes the case where pairing data was lost but the
+    // buttons remain known to the Flic lib.
+    private suspend fun reconcileSettings() {
+        val addrs = (flic2Manager?.buttons ?: return).map { it.bdAddr }.toSet()
+        val settings = settingsRepository.get()
+        var updated = settings
+        if (updated.flic1Address != null && updated.flic1Address !in addrs) updated = updated.copy(flic1Address = null)
+        if (updated.flic2Address != null && updated.flic2Address !in addrs) updated = updated.copy(flic2Address = null)
+        if (updated.flic3Address != null && updated.flic3Address !in addrs) updated = updated.copy(flic3Address = null)
+        if (updated.flic4Address != null && updated.flic4Address !in addrs) updated = updated.copy(flic4Address = null)
+        for (addr in addrs) {
+            val alreadyAssigned = addr == updated.flic1Address || addr == updated.flic2Address ||
+                    addr == updated.flic3Address || addr == updated.flic4Address
+            if (alreadyAssigned) continue
+            updated = when {
+                updated.flic1Address == null -> updated.copy(flic1Address = addr)
+                updated.flic2Address == null -> updated.copy(flic2Address = addr)
+                updated.flic3Address == null -> updated.copy(flic3Address = addr)
+                updated.flic4Address == null -> updated.copy(flic4Address = addr)
+                else -> updated  // all slots full
+            }
+        }
+        if (updated != settings) {
+            Log.i(TAG, "Reconciled Flic addresses: 1=${updated.flic1Address} 2=${updated.flic2Address} 3=${updated.flic3Address} 4=${updated.flic4Address}")
+            settingsRepository.update(updated)
+        }
+    }
+
     fun startScan() {
         val manager = flic2Manager ?: return
         _scanning.value = true
@@ -86,10 +117,31 @@ class FlicManager @Inject constructor(
 
         manager.startScan(object : Flic2ScanCallback {
             override fun onDiscoveredAlreadyPairedButton(button: Flic2Button) {
+                // Button is in the Flic2 lib's storage already. Two cases:
+                //  (1) It's also saved in our AppSettings (flic1/flic2) — just reconnect
+                //      silently and keep scanning, otherwise scanning for a second button
+                //      would abort the moment the first already-paired one is seen.
+                //  (2) Lib knows it but AppSettings lost it (e.g. DB reset) — complete the
+                //      pair flow so the address gets saved and the UI can leave scanning state.
                 Log.i(TAG, "Already paired: ${button.bdAddr}")
-                _scanStatus.value = context.getString(R.string.flic_status_found_paired)
                 button.addListener(buttonListener)
                 button.connect()
+                _pairedButtons.value = flic2Manager?.buttons ?: emptyList()
+                scope.launch {
+                    val s = settingsRepository.get()
+                    val knownInApp = button.bdAddr == s.flic1Address || button.bdAddr == s.flic2Address ||
+                            button.bdAddr == s.flic3Address || button.bdAddr == s.flic4Address
+                    if (!knownInApp) {
+                        saveButtonAddress(button.bdAddr)
+                        _scanStatus.value = context.getString(
+                            R.string.flic_status_paired_fmt,
+                            button.name ?: button.bdAddr
+                        )
+                        _scanning.value = false
+                        flic2Manager?.stopScan()
+                    }
+                    // If known in app, leave the scan running so another button can be added.
+                }
             }
 
             override fun onDiscovered(bdAddr: String) {
@@ -135,22 +187,31 @@ class FlicManager @Inject constructor(
         flic2Manager?.forgetButton(button)
         _pairedButtons.value = flic2Manager?.buttons ?: emptyList()
         scope.launch {
-            val settings = settingsRepository.get()
-            if (settings.flic1Address == button.bdAddr) {
-                settingsRepository.update(settings.copy(flic1Address = null))
-            } else if (settings.flic2Address == button.bdAddr) {
-                settingsRepository.update(settings.copy(flic2Address = null))
+            val s = settingsRepository.get()
+            val updated = when (button.bdAddr) {
+                s.flic1Address -> s.copy(flic1Address = null)
+                s.flic2Address -> s.copy(flic2Address = null)
+                s.flic3Address -> s.copy(flic3Address = null)
+                s.flic4Address -> s.copy(flic4Address = null)
+                else -> s
             }
+            if (updated !== s) settingsRepository.update(updated)
         }
     }
 
     private suspend fun saveButtonAddress(bdAddr: String) {
-        val settings = settingsRepository.get()
-        if (settings.flic1Address == null) {
-            settingsRepository.update(settings.copy(flic1Address = bdAddr))
-        } else if (settings.flic2Address == null && settings.flic1Address != bdAddr) {
-            settingsRepository.update(settings.copy(flic2Address = bdAddr))
+        val s = settingsRepository.get()
+        // Skip if this button is already assigned to any slot.
+        if (bdAddr == s.flic1Address || bdAddr == s.flic2Address ||
+            bdAddr == s.flic3Address || bdAddr == s.flic4Address) return
+        val updated = when {
+            s.flic1Address == null -> s.copy(flic1Address = bdAddr)
+            s.flic2Address == null -> s.copy(flic2Address = bdAddr)
+            s.flic3Address == null -> s.copy(flic3Address = bdAddr)
+            s.flic4Address == null -> s.copy(flic4Address = bdAddr)
+            else -> return  // all slots full
         }
+        settingsRepository.update(updated)
     }
 
     // --- Button event handling ---
@@ -173,19 +234,17 @@ class FlicManager @Inject constructor(
 
     private suspend fun dispatchAction(bdAddr: String, gesture: String) {
         val settings = settingsRepository.get()
-        val actionName = when {
-            bdAddr == settings.flic1Address -> when (gesture) {
-                "click" -> settings.flic1Click
-                "doubleClick" -> settings.flic1DoubleClick
-                "hold" -> settings.flic1Hold
-                else -> return
-            }
-            bdAddr == settings.flic2Address -> when (gesture) {
-                "click" -> settings.flic2Click
-                "doubleClick" -> settings.flic2DoubleClick
-                "hold" -> settings.flic2Hold
-                else -> return
-            }
+        val (click, dbl, hold) = when (bdAddr) {
+            settings.flic1Address -> Triple(settings.flic1Click, settings.flic1DoubleClick, settings.flic1Hold)
+            settings.flic2Address -> Triple(settings.flic2Click, settings.flic2DoubleClick, settings.flic2Hold)
+            settings.flic3Address -> Triple(settings.flic3Click, settings.flic3DoubleClick, settings.flic3Hold)
+            settings.flic4Address -> Triple(settings.flic4Click, settings.flic4DoubleClick, settings.flic4Hold)
+            else -> return
+        }
+        val actionName = when (gesture) {
+            "click" -> click
+            "doubleClick" -> dbl
+            "hold" -> hold
             else -> return
         }
 

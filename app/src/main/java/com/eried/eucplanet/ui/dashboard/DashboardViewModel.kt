@@ -1,7 +1,10 @@
 package com.eried.eucplanet.ui.dashboard
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
@@ -74,6 +77,23 @@ class DashboardViewModel @Inject constructor(
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
 
+    val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
+        .map { it != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    private val _locationPermissionGranted = kotlinx.coroutines.flow.MutableStateFlow(hasLocationPermission())
+    val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+
+    fun refreshLocationPermission() {
+        _locationPermissionGranted.value = hasLocationPermission()
+    }
+
     val tiltbackSpeed: StateFlow<Float> = settingsRepository.settings
         .map { it.tiltbackSpeedKmh }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.tiltbackSpeedKmh)
@@ -108,8 +128,14 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.currentDisplayMode)
 
     val hasFlicConfigured: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.flic1Address != null || it.flic2Address != null }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flic1Address != null || initialSettings.flic2Address != null)
+        .map { it.flic1Address != null || it.flic2Address != null || it.flic3Address != null || it.flic4Address != null }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            initialSettings.flic1Address != null || initialSettings.flic2Address != null ||
+                initialSettings.flic3Address != null || initialSettings.flic4Address != null)
+
+    val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.voicePeriodicEnabled }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
 
     val flicFlashAt: StateFlow<Long> = flicManager.lastActionAt
 
@@ -118,6 +144,13 @@ class DashboardViewModel @Inject constructor(
             val current = settingsRepository.get()
             val next = if (current.currentDisplayMode == "WATTS") "AMPS" else "WATTS"
             settingsRepository.update(current.copy(currentDisplayMode = next))
+        }
+    }
+
+    fun toggleVoicePeriodic() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(voicePeriodicEnabled = !current.voicePeriodicEnabled))
         }
     }
 

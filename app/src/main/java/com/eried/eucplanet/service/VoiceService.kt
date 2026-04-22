@@ -289,12 +289,39 @@ class VoiceService @Inject constructor(
     }
 
     fun announceTrigger(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
+        warnIfLowVolume(settings.voiceOutputChannel)
         // Drop immediately if a trigger is already in flight/queued; never queue more than one.
         if (triggerInFlight) return
         val parts = buildReportParts(data, settings, isRecording, periodic = false)
         if (parts.isEmpty()) return
         speakInternal(parts.joinToString(", "), isTrigger = true,
             rate = settings.voiceSpeechRate, localeTag = settings.voiceLocale)
+    }
+
+    private fun streamTypeFor(channel: String): Int = when (channel) {
+        "NOTIFICATION" -> AudioManager.STREAM_NOTIFICATION
+        "ALARM" -> AudioManager.STREAM_ALARM
+        else -> AudioManager.STREAM_MUSIC
+    }
+
+    fun warnIfLowVolume(channel: String) {
+        try {
+            val stream = streamTypeFor(channel)
+            val max = audioManager.getStreamMaxVolume(stream)
+            if (max <= 0) return
+            val cur = audioManager.getStreamVolume(stream)
+            val pct = cur.toFloat() / max.toFloat()
+            if (pct <= 0.20f) {
+                scope.launch {
+                    android.widget.Toast.makeText(
+                        context,
+                        context.getString(R.string.voice_volume_low_toast),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } catch (_: Exception) {
+        }
     }
 
     private fun buildReportParts(
@@ -382,6 +409,7 @@ class VoiceService @Inject constructor(
     }
 
     fun testSpeak(text: String, speechRate: Float, localeTag: String) {
+        warnIfLowVolume(currentOutputChannel)
         speakInternal(text, isTrigger = false, rate = speechRate, localeTag = localeTag)
     }
 
