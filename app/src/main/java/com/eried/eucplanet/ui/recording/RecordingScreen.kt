@@ -21,11 +21,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CloudDone
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
@@ -38,6 +35,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -83,6 +81,7 @@ import java.util.Locale
 fun RecordingScreen(
     onBack: () -> Unit,
     onViewTrip: ((TripRecord) -> Unit)? = null,
+    onOpenBackupSettings: (() -> Unit)? = null,
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
@@ -178,6 +177,16 @@ fun RecordingScreen(
                         expanded = showManageMenu,
                         onDismissRequest = { showManageMenu = false }
                     ) {
+                        if (onOpenBackupSettings != null) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_trip_backup_options)) },
+                                onClick = {
+                                    showManageMenu = false
+                                    onOpenBackupSettings()
+                                }
+                            )
+                            HorizontalDivider()
+                        }
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_import)) },
                             onClick = {
@@ -458,8 +467,9 @@ private fun TripCard(
                     )
                 }
             }
-            // Cloud upload status (only for completed trips with sync configured)
-            if (!isRecording && trip.uploadStatus != 0) {
+            // Backup indicator — only shown once the trip is actually backed up.
+            // Pending/failed/never-configured all render nothing to keep the row clean.
+            if (!isRecording && trip.uploadStatus == 2) {
                 UploadStatusIcon(trip)
             }
             // View (eye) — always available
@@ -488,21 +498,12 @@ private fun UploadStatusIcon(trip: TripRecord) {
     val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
 
     val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
-    val uploadedMsg = uploadedAtText?.let {
+    val msg = uploadedAtText?.let {
         stringResource(R.string.cloud_uploaded_on, it)
     } ?: stringResource(R.string.cloud_not_uploaded)
-    val failedMsg = stringResource(R.string.cloud_upload_failed)
-    val pendingMsg = stringResource(R.string.cloud_not_uploaded)
-
-    val (icon, tint, msg) = when (trip.uploadStatus) {
-        2 -> Triple(Icons.Default.CloudDone, AccentGreen, uploadedMsg)
-        3 -> Triple(Icons.Default.ErrorOutline, AccentRed, failedMsg)
-        1 -> Triple(Icons.Default.CloudQueue, MaterialTheme.colorScheme.onSurfaceVariant, pendingMsg)
-        else -> Triple(Icons.Default.CloudOff, MaterialTheme.colorScheme.onSurfaceVariant, pendingMsg)
-    }
 
     IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
-        Icon(icon, contentDescription = msg, tint = tint,
+        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = AccentGreen,
             modifier = Modifier.size(20.dp))
     }
 }

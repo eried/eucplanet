@@ -68,6 +68,46 @@
     <string name="tab_integration">Интеграции</string>
     <string name="tab_cloud">Резервная копия поездок и настроек</string>
 
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Папка резервных копий</string>
+    <string name="cloud_caption">Выберите папку на этом телефоне, куда будут сохраняться CSV-файлы поездок и резервная копия настроек</string>
+    <string name="cloud_help_title">Как делать копии в OneDrive, Drive или Dropbox</string>
+    <string name="cloud_help_body">Выбор папок в Android обычно не показывает OneDrive, Google Drive или Dropbox. Эти приложения не предоставляют другим приложениям доступ к папке для записи, поэтому мы сохраняем локально, а загрузку делает приложение синхронизации.\n\nНастройка:\n1. Установите Autosync (для OneDrive, Drive или Dropbox) или FolderSync из Play Store.\n2. Войдите в это приложение и создайте пару синхронизации: ваша локальная папка к папке в облаке.\n3. Настройте \"Только загрузка\" с мгновенной синхронизацией или по изменению.\n4. Вернитесь сюда и выберите ту же локальную папку.\n\nНовые поездки попадают в эту папку, когда запись заканчивается. Приложение синхронизации загружает их в фоне.</string>
+    <string name="cloud_choose_folder">Выбрать папку</string>
+    <string name="cloud_change_folder">Сменить папку</string>
+    <string name="cloud_remove_folder">Отвязать</string>
+    <string name="cloud_no_folder">Папка не выбрана</string>
+    <string name="cloud_folder_label">Папка: %1$s</string>
+    <string name="section_cloud_settings">Резервная копия настроек</string>
+    <string name="cloud_backup_now">Сделать копию</string>
+    <string name="cloud_restore">Восстановить</string>
+    <string name="cloud_last_backup">Последняя копия: %1$s</string>
+    <string name="cloud_last_backup_never">Копий ещё нет</string>
+    <string name="cloud_backup_success">Настройки сохранены</string>
+    <string name="cloud_backup_failed">Сбой резервного копирования. Проверьте доступ к папке.</string>
+    <string name="cloud_restore_success">Настройки восстановлены</string>
+    <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
+    <string name="section_cloud_trips">Резервная копия поездок</string>
+    <string name="cloud_trips_caption">Новые поездки сохраняются в вашу папку автоматически.</string>
+    <string name="cloud_retry_now">Синхронизировать всё</string>
+    <string name="cloud_retry_enqueued">Загрузка запланирована</string>
+    <string name="sync_progress">Синхронизация %1$d из %2$d</string>
+    <string name="sync_no_folder">Сначала выберите папку для копий</string>
+    <string name="sync_finished">Синхронизировано поездок: %1$d</string>
+    <string name="sync_conflict_title">Конфликт синхронизации</string>
+    <string name="sync_conflict_body">%1$d поездок есть с обеих сторон.</string>
+    <string name="sync_conflict_app">Из приложения в копию</string>
+    <string name="sync_conflict_folder">Из копии в приложение</string>
+    <string name="sync_conflict_ignore">Пропустить все конфликты</string>
+    <string name="cloud_uploaded_on">Сохранено %1$s</string>
+    <string name="cloud_not_uploaded">Пока не сохранено</string>
+    <string name="cloud_upload_failed">Последняя загрузка не удалась</string>
+    <string name="cloud_restore_confirm_title">Восстановить настройки</string>
+    <string name="cloud_restore_confirm_body_p1">Ваши текущие настройки будут заменены настройками из резервной копии.</string>
+    <string name="cloud_restore_confirm_body_p2">Жесты Flic восстановятся, но кнопки и колесо придётся снова спарить на этом телефоне. Bluetooth-привязки хранятся в Android, а не в приложении.</string>
+    <string name="sync_checking">Проверка папки копий…</string>
+    <string name="action_restore">Восстановить</string>
+
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
@@ -205,7 +245,8 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Удалить все</string>
-    <string name="action_import">Импорт</string>
+    <string name="action_import">Импорт одного файла</string>
+    <string name="action_trip_backup_options">Параметры копий поездок</string>
     <string name="action_export_all">Экспортировать все</string>
     <string name="action_share">Поделиться</string>
     <string name="action_manage">Управление</string>

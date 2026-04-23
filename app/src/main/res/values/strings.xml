@@ -91,27 +91,37 @@
     <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
-    <string name="cloud_remove_folder">Disconnect</string>
+    <string name="cloud_remove_folder">Unlink</string>
     <string name="cloud_no_folder">No folder selected</string>
     <string name="cloud_folder_label">Folder: %1$s</string>
     <string name="section_cloud_settings">Settings backup</string>
-    <string name="cloud_backup_now">Back up settings now</string>
-    <string name="cloud_restore">Restore settings</string>
+    <string name="cloud_backup_now">Backup</string>
+    <string name="cloud_restore">Restore</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
     <string name="cloud_backup_failed">Backup failed. Check folder access.</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
-    <string name="section_cloud_trips">Trip uploads</string>
-    <string name="cloud_trips_caption">New recordings upload when they finish. If one fails, it tries again after the next recording</string>
-    <string name="cloud_retry_now">Retry uploads now</string>
+    <string name="section_cloud_trips">Trips backup</string>
+    <string name="cloud_trips_caption">New trips are saved to your folder automatically.</string>
+    <string name="cloud_retry_now">Synchronize all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
+    <string name="sync_progress">Synchronizing %1$d of %2$d</string>
+    <string name="sync_no_folder">Pick a backup folder first</string>
+    <string name="sync_finished">Synchronized %1$d trips</string>
+    <string name="sync_conflict_title">Synchronization conflict</string>
+    <string name="sync_conflict_body">%1$d trips are on both sides.</string>
+    <string name="sync_conflict_app">Copy App to Backup</string>
+    <string name="sync_conflict_folder">Copy Backup to App</string>
+    <string name="sync_conflict_ignore">Skip all conflicts</string>
     <string name="cloud_uploaded_on">Backed up on %1$s</string>
     <string name="cloud_not_uploaded">Not backed up yet</string>
     <string name="cloud_upload_failed">Last upload failed</string>
-    <string name="cloud_restore_confirm_title">Restore settings?</string>
-    <string name="cloud_restore_confirm_body">Replace your current settings with the cloud backup? Your paired buttons and wheel connection won\'t be touched.</string>
+    <string name="cloud_restore_confirm_title">Restore settings</string>
+    <string name="cloud_restore_confirm_body_p1">Your current settings will be replaced by the settings in the backup.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic gestures are restored, but the buttons and wheel have to be paired again on this phone. Their Bluetooth bonds live in Android, not in the app.</string>
+    <string name="sync_checking">Checking backup folder…</string>
     <string name="action_restore">Restore</string>
 
     <!-- Settings: General -->
@@ -317,7 +327,8 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Delete All</string>
-    <string name="action_import">Import</string>
+    <string name="action_import">Import single file</string>
+    <string name="action_trip_backup_options">Trips backup options</string>
     <string name="action_export_all">Export all</string>
     <string name="action_share">Share</string>
     <string name="action_manage">Manage</string>

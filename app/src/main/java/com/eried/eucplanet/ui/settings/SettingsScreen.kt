@@ -53,6 +53,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -87,6 +89,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -96,6 +100,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.FlicAction
+import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -140,6 +145,23 @@ fun SettingsScreen(
         val initial = initialTabSectionKey(initialTab)
         androidx.compose.runtime.mutableStateListOf<String>().apply {
             if (initial != null) add(initial)
+        }
+    }
+
+    val targetSectionKey = remember(initialTab) { initialTabSectionKey(initialTab) }
+    val scrollState = rememberScrollState()
+    var scrollContainerTop by remember { mutableStateOf<Float?>(null) }
+    var targetSectionTop by remember { mutableStateOf<Float?>(null) }
+    var hasScrolledToSection by rememberSaveable(initialTab) { mutableStateOf(false) }
+
+    LaunchedEffect(scrollContainerTop, targetSectionTop, hasScrolledToSection) {
+        val container = scrollContainerTop
+        val target = targetSectionTop
+        if (!hasScrolledToSection && targetSectionKey != null &&
+            container != null && target != null) {
+            val offset = (target - container).toInt().coerceAtLeast(0)
+            if (offset > 0) scrollState.animateScrollTo(offset)
+            hasScrolledToSection = true
         }
     }
 
@@ -334,7 +356,12 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .onGloballyPositioned {
+                    if (scrollContainerTop == null) {
+                        scrollContainerTop = it.positionInWindow().y
+                    }
+                }
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(Modifier.height(8.dp))
@@ -352,7 +379,17 @@ fun SettingsScreen(
                     visibleSections.forEach { sec ->
                         val explicitlyExpanded = expandedSections.contains(sec.key)
                         val isExpanded = explicitlyExpanded || query.isNotEmpty()
+                        val sectionModifier = if (sec.key == targetSectionKey) {
+                            Modifier.onGloballyPositioned {
+                                if (targetSectionTop == null) {
+                                    targetSectionTop = it.positionInWindow().y
+                                }
+                            }
+                        } else {
+                            Modifier
+                        }
                         CollapsibleSection(
+                            modifier = sectionModifier,
                             title = sec.title,
                             icon = sec.icon,
                             expanded = isExpanded,
@@ -389,11 +426,12 @@ private fun CollapsibleSection(
     icon: ImageVector,
     expanded: Boolean,
     onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
     query: String = "",
     content: @Composable () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1011,6 +1049,9 @@ private fun CloudTab(
 ) {
     val context = LocalContext.current
     val cloudEvent by viewModel.cloudEvent.collectAsState()
+    val syncProgress by viewModel.syncProgress.collectAsState()
+    val syncRunning by viewModel.syncRunning.collectAsState()
+    val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
 
     val pickFolder = rememberLauncherForActivityResult(
@@ -1026,6 +1067,7 @@ private fun CloudTab(
     val sRestoreOk = stringResource(R.string.cloud_restore_success)
     val sRestoreFail = stringResource(R.string.cloud_restore_failed)
     val sEnqueued = stringResource(R.string.cloud_retry_enqueued)
+    val sSyncNoFolder = stringResource(R.string.sync_no_folder)
     LaunchedEffect(cloudEvent) {
         val event = cloudEvent ?: return@LaunchedEffect
         val msg = when (event) {
@@ -1036,16 +1078,55 @@ private fun CloudTab(
             CloudEvent.RestoreSuccess -> sRestoreOk
             CloudEvent.RestoreFailed -> sRestoreFail
             CloudEvent.UploadEnqueued -> sEnqueued
+            CloudEvent.SyncNoFolder -> sSyncNoFolder
+            is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
         }
         if (msg != null) Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         viewModel.consumeCloudEvent()
+    }
+
+    if (syncConflict != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.cancelSyncConflict() },
+            title = { Text(stringResource(R.string.sync_conflict_title)) },
+            text = { Text(stringResource(R.string.sync_conflict_body, syncConflict!!)) },
+            confirmButton = {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = { viewModel.resolveSyncConflict(SyncChoice.FOLDER) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.sync_conflict_folder)) }
+                    Button(
+                        onClick = { viewModel.resolveSyncConflict(SyncChoice.APP) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.sync_conflict_app)) }
+                    Button(
+                        onClick = { viewModel.resolveSyncConflict(SyncChoice.IGNORE) },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.sync_conflict_ignore)) }
+                    Button(
+                        onClick = { viewModel.cancelSyncConflict() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.action_cancel)) }
+                }
+            }
+        )
     }
 
     if (showRestoreDialog) {
         AlertDialog(
             onDismissRequest = { showRestoreDialog = false },
             title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
-            text = { Text(stringResource(R.string.cloud_restore_confirm_body)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.cloud_restore_confirm_body_p1))
+                    Text(stringResource(R.string.cloud_restore_confirm_body_p2))
+                }
+            },
             confirmButton = {
                 Button(onClick = {
                     viewModel.restoreSettingsNow()
@@ -1121,8 +1202,44 @@ private fun CloudTab(
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
-            Button(onClick = { viewModel.retryUploadsNow() }) {
-                Text(stringResource(R.string.cloud_retry_now))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { viewModel.syncAllTrips() },
+                    enabled = !syncRunning,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.cloud_retry_now))
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
+            if (syncRunning) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (syncProgress != null) {
+                        val (done, total) = syncProgress!!
+                        val fraction = if (total > 0) done.toFloat() / total else 0f
+                        LinearProgressIndicator(
+                            progress = { fraction },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            stringResource(R.string.sync_progress, done, total),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            stringResource(R.string.sync_checking),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
 

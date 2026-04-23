@@ -10,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.FullMetricHistory
 import com.eried.eucplanet.data.repository.MetricSample
+import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceService
@@ -20,9 +22,12 @@ import com.eried.eucplanet.service.WheelService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,6 +50,7 @@ class DashboardViewModel @Inject constructor(
     private val voiceService: VoiceService,
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
+    private val syncManager: SyncManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -138,6 +144,27 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
 
     val flicFlashAt: StateFlow<Long> = flicManager.lastActionAt
+
+    val hasSyncFolder: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.syncFolderUri != null }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.syncFolderUri != null)
+
+    private val _cloudToasts = Channel<Int>(capacity = Channel.BUFFERED)
+    val cloudToasts: Flow<Int> = _cloudToasts.receiveAsFlow()
+
+    fun backupSettingsNow() {
+        viewModelScope.launch {
+            val ok = syncManager.backupSettings()
+            _cloudToasts.send(if (ok) R.string.cloud_backup_success else R.string.cloud_backup_failed)
+        }
+    }
+
+    fun restoreSettingsNow() {
+        viewModelScope.launch {
+            val ok = syncManager.restoreSettings()
+            _cloudToasts.send(if (ok) R.string.cloud_restore_success else R.string.cloud_restore_failed)
+        }
+    }
 
     fun toggleCurrentDisplayMode() {
         viewModelScope.launch {

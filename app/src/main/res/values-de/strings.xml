@@ -68,6 +68,46 @@
     <string name="tab_integration">Integration</string>
     <string name="tab_cloud">Fahrten &amp; Einstellungen sichern</string>
 
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Backup-Ordner</string>
+    <string name="cloud_caption">Wähle einen Ordner auf diesem Telefon, in dem Fahrten-CSVs und ein Einstellungs-Backup gespeichert werden</string>
+    <string name="cloud_help_title">So sicherst du in OneDrive, Drive oder Dropbox</string>
+    <string name="cloud_help_body">Androids Ordnerauswahl zeigt OneDrive, Google Drive oder Dropbox normalerweise nicht an. Diese Apps stellen anderen Apps keinen beschreibbaren Ordner bereit, daher speichern wir lokal und überlassen den Upload einer Sync-App.\n\nEinrichtung:\n1. Installiere Autosync (für OneDrive, Drive oder Dropbox) oder FolderSync aus dem Play Store.\n2. Melde dich in dieser App an und erstelle ein Sync-Paar: dein gewählter lokaler Ordner → ein Cloud-Ordner.\n3. Stelle \"Nur hochladen\" mit sofortiger oder Änderungs-Sync ein.\n4. Komm hierher zurück und wähle denselben lokalen Ordner.\n\nNeue Fahrten landen in diesem Ordner, wenn eine Aufnahme endet. Die Sync-App lädt sie im Hintergrund hoch.</string>
+    <string name="cloud_choose_folder">Ordner wählen</string>
+    <string name="cloud_change_folder">Ordner ändern</string>
+    <string name="cloud_remove_folder">Trennen</string>
+    <string name="cloud_no_folder">Kein Ordner gewählt</string>
+    <string name="cloud_folder_label">Ordner: %1$s</string>
+    <string name="section_cloud_settings">Einstellungs-Backup</string>
+    <string name="cloud_backup_now">Sichern</string>
+    <string name="cloud_restore">Wiederherstellen</string>
+    <string name="cloud_last_backup">Letztes Backup: %1$s</string>
+    <string name="cloud_last_backup_never">Noch nicht gesichert</string>
+    <string name="cloud_backup_success">Einstellungen gesichert</string>
+    <string name="cloud_backup_failed">Sicherung fehlgeschlagen. Ordnerzugriff prüfen.</string>
+    <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
+    <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
+    <string name="section_cloud_trips">Fahrten-Backup</string>
+    <string name="cloud_trips_caption">Neue Fahrten werden automatisch in deinem Ordner gespeichert.</string>
+    <string name="cloud_retry_now">Alle synchronisieren</string>
+    <string name="cloud_retry_enqueued">Upload geplant</string>
+    <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
+    <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
+    <string name="sync_finished">%1$d Fahrten synchronisiert</string>
+    <string name="sync_conflict_title">Synchronisierungskonflikt</string>
+    <string name="sync_conflict_body">%1$d Fahrten sind auf beiden Seiten vorhanden.</string>
+    <string name="sync_conflict_app">App ins Backup kopieren</string>
+    <string name="sync_conflict_folder">Backup in App kopieren</string>
+    <string name="sync_conflict_ignore">Alle Konflikte überspringen</string>
+    <string name="cloud_uploaded_on">Gesichert am %1$s</string>
+    <string name="cloud_not_uploaded">Noch nicht gesichert</string>
+    <string name="cloud_upload_failed">Letzter Upload fehlgeschlagen</string>
+    <string name="cloud_restore_confirm_title">Einstellungen wiederherstellen</string>
+    <string name="cloud_restore_confirm_body_p1">Deine aktuellen Einstellungen werden durch die Einstellungen aus dem Backup ersetzt.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic-Gesten werden wiederhergestellt, aber die Tasten und das Rad müssen auf diesem Telefon erneut gekoppelt werden. Ihre Bluetooth-Bindungen liegen in Android, nicht in der App.</string>
+    <string name="sync_checking">Backup-Ordner wird geprüft…</string>
+    <string name="action_restore">Wiederherstellen</string>
+
     <string name="section_recording">Aufnahme</string>
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
@@ -205,7 +245,8 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Alle löschen</string>
-    <string name="action_import">Importieren</string>
+    <string name="action_import">Einzelne Datei importieren</string>
+    <string name="action_trip_backup_options">Fahrten-Backup-Optionen</string>
     <string name="action_export_all">Alle exportieren</string>
     <string name="action_share">Teilen</string>
     <string name="action_manage">Verwalten</string>

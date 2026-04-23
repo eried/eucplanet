@@ -245,6 +245,8 @@ class TripRepository @Inject constructor(
 
     suspend fun insertTrip(trip: TripRecord): Long = tripDao.insert(trip)
 
+    suspend fun updateTrip(trip: TripRecord) = tripDao.update(trip)
+
     suspend fun getTripById(id: Long): TripRecord? = tripDao.getById(id)
 
     suspend fun clearAll() {

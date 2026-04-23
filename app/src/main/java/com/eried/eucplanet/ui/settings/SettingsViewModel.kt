@@ -8,7 +8,9 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
+import com.eried.eucplanet.data.sync.SyncResult
 import com.eried.eucplanet.service.AutomationManager
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.service.VoiceService
@@ -231,6 +233,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    // --- Two-way trip sync ---
+    // Runs in SyncManager's app-scoped coroutine so it survives Settings navigation.
+
+    val syncRunning: StateFlow<Boolean> = syncManager.syncRunning
+    val syncProgress: StateFlow<Pair<Int, Int>?> = syncManager.syncProgress
+    val syncConflictPrompt: StateFlow<Int?> = syncManager.syncConflictPrompt
+
+    init {
+        viewModelScope.launch {
+            syncManager.syncResult.collect { result ->
+                if (result == null) return@collect
+                _cloudEvent.value = when (result) {
+                    is SyncResult.NoFolder -> CloudEvent.SyncNoFolder
+                    is SyncResult.Finished -> CloudEvent.SyncFinished(result.count)
+                }
+                syncManager.consumeSyncResult()
+            }
+        }
+    }
+
+    fun syncAllTrips() = syncManager.startSync()
+    fun resolveSyncConflict(choice: SyncChoice) = syncManager.resolveSyncConflict(choice)
+    fun cancelSyncConflict() = syncManager.cancelSyncConflict()
+
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()
@@ -251,9 +277,14 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
-enum class CloudEvent {
-    FolderSet, FolderFailed,
-    BackupSuccess, BackupFailed,
-    RestoreSuccess, RestoreFailed,
-    UploadEnqueued
+sealed interface CloudEvent {
+    data object FolderSet : CloudEvent
+    data object FolderFailed : CloudEvent
+    data object BackupSuccess : CloudEvent
+    data object BackupFailed : CloudEvent
+    data object RestoreSuccess : CloudEvent
+    data object RestoreFailed : CloudEvent
+    data object UploadEnqueued : CloudEvent
+    data object SyncNoFolder : CloudEvent
+    data class SyncFinished(val count: Int) : CloudEvent
 }

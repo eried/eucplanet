@@ -68,6 +68,46 @@
     <string name="tab_integration">Integración</string>
     <string name="tab_cloud">Respaldo de viajes y ajustes</string>
 
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Carpeta de respaldo</string>
+    <string name="cloud_caption">Elige una carpeta en este teléfono donde se guardarán los CSV de viajes y una copia de los ajustes</string>
+    <string name="cloud_help_title">Cómo hacer copia a OneDrive, Drive o Dropbox</string>
+    <string name="cloud_help_body">El selector de carpetas de Android normalmente no muestra OneDrive, Google Drive ni Dropbox. Esas apps no exponen una carpeta escribible a otras apps, así que guardamos localmente y dejamos que una app de sincronización haga la subida.\n\nConfiguración:\n1. Instala Autosync (para OneDrive, Drive o Dropbox) o FolderSync desde Play Store.\n2. Inicia sesión en esa app y crea un par de sincronización: tu carpeta local elegida a una carpeta en la nube.\n3. Configúralo como \"Solo subir\" con sincronización instantánea o al cambiar.\n4. Vuelve aquí y selecciona la misma carpeta local.\n\nLos viajes nuevos llegan a esa carpeta cuando termina una grabación. La app de sincronización los sube en segundo plano.</string>
+    <string name="cloud_choose_folder">Elegir carpeta</string>
+    <string name="cloud_change_folder">Cambiar carpeta</string>
+    <string name="cloud_remove_folder">Desvincular</string>
+    <string name="cloud_no_folder">Sin carpeta seleccionada</string>
+    <string name="cloud_folder_label">Carpeta: %1$s</string>
+    <string name="section_cloud_settings">Respaldo de ajustes</string>
+    <string name="cloud_backup_now">Respaldar</string>
+    <string name="cloud_restore">Restaurar</string>
+    <string name="cloud_last_backup">Último respaldo: %1$s</string>
+    <string name="cloud_last_backup_never">Sin respaldo aún</string>
+    <string name="cloud_backup_success">Ajustes respaldados</string>
+    <string name="cloud_backup_failed">Fallo al respaldar. Comprueba el acceso a la carpeta.</string>
+    <string name="cloud_restore_success">Ajustes restaurados</string>
+    <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
+    <string name="section_cloud_trips">Respaldo de viajes</string>
+    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente.</string>
+    <string name="cloud_retry_now">Sincronizar todo</string>
+    <string name="cloud_retry_enqueued">Subida programada</string>
+    <string name="sync_progress">Sincronizando %1$d de %2$d</string>
+    <string name="sync_no_folder">Primero elige una carpeta de respaldo</string>
+    <string name="sync_finished">%1$d viajes sincronizados</string>
+    <string name="sync_conflict_title">Conflicto de sincronización</string>
+    <string name="sync_conflict_body">Hay %1$d viajes en ambos lados.</string>
+    <string name="sync_conflict_app">Copiar app al respaldo</string>
+    <string name="sync_conflict_folder">Copiar respaldo a la app</string>
+    <string name="sync_conflict_ignore">Omitir todos los conflictos</string>
+    <string name="cloud_uploaded_on">Respaldado el %1$s</string>
+    <string name="cloud_not_uploaded">Sin respaldar todavía</string>
+    <string name="cloud_upload_failed">Falló la última subida</string>
+    <string name="cloud_restore_confirm_title">Restaurar ajustes</string>
+    <string name="cloud_restore_confirm_body_p1">Tus ajustes actuales se reemplazarán por los del respaldo.</string>
+    <string name="cloud_restore_confirm_body_p2">Los gestos de Flic se restauran, pero los botones y la rueda deben vincularse de nuevo en este teléfono. Sus enlaces Bluetooth viven en Android, no en la app.</string>
+    <string name="sync_checking">Comprobando carpeta de respaldo…</string>
+    <string name="action_restore">Restaurar</string>
+
     <string name="section_recording">Grabación</string>
     <string name="section_connection">Conexión</string>
     <string name="section_display">Visualización</string>
@@ -205,7 +245,8 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Eliminar todo</string>
-    <string name="action_import">Importar</string>
+    <string name="action_import">Importar un archivo</string>
+    <string name="action_trip_backup_options">Opciones de respaldo de viajes</string>
     <string name="action_export_all">Exportar todo</string>
     <string name="action_share">Compartir</string>
     <string name="action_manage">Administrar</string>

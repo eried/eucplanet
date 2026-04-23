@@ -30,7 +30,8 @@ data class AppSettings(
     @ColumnInfo(defaultValue = "1")
     val voicePeriodicEnabled: Boolean = true,
     val voiceOnlyWhenConnected: Boolean = true,
-    val voiceIntervalSeconds: Int = 30,
+    @ColumnInfo(defaultValue = "60")
+    val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
     // Audio focus behavior while speaking: "DUCK" (lower other), "PAUSE" (pause other), "OFF" (no focus)
@@ -69,13 +70,13 @@ data class AppSettings(
     val announceWelcome: Boolean = true,
 
     // Recording
-    val autoRecord: Boolean = false,
+    val autoRecord: Boolean = true,
     // Motion-linked loop: wait for speed > 0 to start recording, auto-stop after idle timeout,
     // restart on next motion. When false, recording starts at connect and runs until disconnect.
-    @ColumnInfo(defaultValue = "0")
-    val autoRecordStartInMotion: Boolean = false,
-    @ColumnInfo(defaultValue = "60")
-    val autoRecordStopIdleSeconds: Int = 60,
+    @ColumnInfo(defaultValue = "1")
+    val autoRecordStartInMotion: Boolean = true,
+    @ColumnInfo(defaultValue = "180")
+    val autoRecordStopIdleSeconds: Int = 180,
 
     // Flic button 1
     val flic1Address: String? = null,

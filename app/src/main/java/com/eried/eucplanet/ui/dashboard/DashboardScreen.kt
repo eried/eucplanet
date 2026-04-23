@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -166,7 +167,16 @@ fun DashboardScreen(
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
     var showNoTripsDialog by remember { mutableStateOf(false) }
+    var showSettingsMenu by remember { mutableStateOf(false) }
+    var showRestoreConfirmDialog by remember { mutableStateOf(false) }
+    val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
+    val toastContext = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.cloudToasts.collect { resId ->
+            Toast.makeText(toastContext, resId, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     BackHandler { showQuitDialog = true }
 
@@ -186,6 +196,30 @@ fun DashboardScreen(
                     onNavigateToRecording()
                 }) {
                     Text(stringResource(R.string.no_trips_action_recorder))
+                }
+            }
+        )
+    }
+
+    if (showRestoreConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestoreConfirmDialog = false },
+            title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.cloud_restore_confirm_body_p1))
+                    Text(stringResource(R.string.cloud_restore_confirm_body_p2))
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showRestoreConfirmDialog = false
+                    viewModel.restoreSettingsNow()
+                }) { Text(stringResource(R.string.action_restore)) }
+            },
+            dismissButton = {
+                Button(onClick = { showRestoreConfirmDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
                 }
             }
         )
@@ -287,8 +321,53 @@ fun DashboardScreen(
                             contentDescription = stringResource(R.string.connection)
                         )
                     }
-                    IconButton(onClick = { onNavigateToSettings(null) }) {
-                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+                    Box {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .combinedClickable(
+                                    onClick = { onNavigateToSettings(null) },
+                                    onLongClick = { showSettingsMenu = true }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.settings)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = showSettingsMenu,
+                            onDismissRequest = { showSettingsMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.section_cloud_settings)) },
+                                onClick = {
+                                    showSettingsMenu = false
+                                    onNavigateToSettings(4)
+                                }
+                            )
+                            if (hasSyncFolder) {
+                                androidx.compose.material3.HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.cloud_backup_now)) },
+                                    onClick = {
+                                        showSettingsMenu = false
+                                        viewModel.backupSettingsNow()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.cloud_restore)) },
+                                    onClick = {
+                                        showSettingsMenu = false
+                                        showRestoreConfirmDialog = true
+                                    }
+                                )
+                            }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -544,6 +623,13 @@ fun DashboardScreen(
                     onClick = { onNavigateToRecording() },
                     menu = { dismiss ->
                         val targetTripId = currentTripId ?: latestTripId
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.action_trip_backup_options)) },
+                            onClick = { dismiss(); onNavigateToSettings(4) }
+                        )
+                        androidx.compose.material3.HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                        )
                         DropdownMenuItem(
                             text = {
                                 Text(

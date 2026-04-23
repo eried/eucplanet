@@ -113,6 +113,9 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popSingle() },
                 onViewTrip = { trip ->
                     navController.navigateSingle(Screen.TripDetail.createRoute(trip.id))
+                },
+                onOpenBackupSettings = {
+                    navController.navigateSingle(Screen.Settings.createRoute(4))
                 }
             )
         }

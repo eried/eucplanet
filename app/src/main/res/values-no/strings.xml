@@ -68,6 +68,46 @@
     <string name="tab_integration">Integrasjon</string>
     <string name="tab_cloud">Sikkerhetskopi av turer og innstillinger</string>
 
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Backup-mappe</string>
+    <string name="cloud_caption">Velg en mappe på denne telefonen der tur-CSV-er og en innstillings-backup lagres</string>
+    <string name="cloud_help_title">Slik tar du backup til OneDrive, Drive eller Dropbox</string>
+    <string name="cloud_help_body">Androids mappevelger viser vanligvis ikke OneDrive, Google Drive eller Dropbox. De appene eksponerer ikke en skrivbar mappe til andre apper, så vi lagrer lokalt og lar en synkroniserings-app gjøre opplastingen.\n\nOppsett:\n1. Installer Autosync (for OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Logg inn i den appen og opprett et synkpar: din valgte lokale mappe til en skymappe.\n3. Sett det til \"Kun opplasting\" med umiddelbar eller ved-endring-synk.\n4. Kom tilbake hit og velg den samme lokale mappen.\n\nNye turer havner i den mappen når et opptak slutter. Synk-appen laster dem opp i bakgrunnen.</string>
+    <string name="cloud_choose_folder">Velg mappe</string>
+    <string name="cloud_change_folder">Bytt mappe</string>
+    <string name="cloud_remove_folder">Koble fra</string>
+    <string name="cloud_no_folder">Ingen mappe valgt</string>
+    <string name="cloud_folder_label">Mappe: %1$s</string>
+    <string name="section_cloud_settings">Backup av innstillinger</string>
+    <string name="cloud_backup_now">Ta backup</string>
+    <string name="cloud_restore">Gjenopprett</string>
+    <string name="cloud_last_backup">Siste backup: %1$s</string>
+    <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
+    <string name="cloud_backup_success">Innstillinger sikkerhetskopiert</string>
+    <string name="cloud_backup_failed">Backup feilet. Sjekk mappetilgang.</string>
+    <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
+    <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
+    <string name="section_cloud_trips">Tur-backup</string>
+    <string name="cloud_trips_caption">Nye turer lagres automatisk i mappen din.</string>
+    <string name="cloud_retry_now">Synkroniser alle</string>
+    <string name="cloud_retry_enqueued">Opplasting planlagt</string>
+    <string name="sync_progress">Synkroniserer %1$d av %2$d</string>
+    <string name="sync_no_folder">Velg en backup-mappe først</string>
+    <string name="sync_finished">%1$d turer synkronisert</string>
+    <string name="sync_conflict_title">Synkroniseringskonflikt</string>
+    <string name="sync_conflict_body">%1$d turer finnes på begge sider.</string>
+    <string name="sync_conflict_app">Kopier app til backup</string>
+    <string name="sync_conflict_folder">Kopier backup til app</string>
+    <string name="sync_conflict_ignore">Hopp over alle konflikter</string>
+    <string name="cloud_uploaded_on">Sikkerhetskopiert %1$s</string>
+    <string name="cloud_not_uploaded">Ikke sikkerhetskopiert ennå</string>
+    <string name="cloud_upload_failed">Siste opplasting feilet</string>
+    <string name="cloud_restore_confirm_title">Gjenopprett innstillinger</string>
+    <string name="cloud_restore_confirm_body_p1">Dine nåværende innstillinger blir erstattet av innstillingene i backupen.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic-bevegelser gjenopprettes, men knappene og hjulet må pares på nytt på denne telefonen. Bluetooth-parringen ligger i Android, ikke i appen.</string>
+    <string name="sync_checking">Sjekker backup-mappen…</string>
+    <string name="action_restore">Gjenopprett</string>
+
     <string name="section_recording">Opptak</string>
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
@@ -205,7 +245,8 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Slett alle</string>
-    <string name="action_import">Importer</string>
+    <string name="action_import">Importer enkelt fil</string>
+    <string name="action_trip_backup_options">Tur-backup-alternativer</string>
     <string name="action_export_all">Eksporter alle</string>
     <string name="action_share">Del</string>
     <string name="action_manage">Administrer</string>
