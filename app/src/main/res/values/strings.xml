@@ -374,7 +374,7 @@
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Adaptive system volume based on speed</string>
+    <string name="auto_volume_desc">Boost music volume based on speed</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF</string>

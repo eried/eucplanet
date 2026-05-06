@@ -52,12 +52,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
+import com.eried.eucplanet.service.pchipInterpolate
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
 import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.util.SunCalculator
+import com.eried.eucplanet.util.Units
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -207,19 +209,20 @@ fun AutomationsContent(
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
             }
 
-            // Ensure exactly 4 points at speeds 0, 25, 50, 75
+            // Ensure exactly 4 points at speeds 0/25/50/75. 0 km/h is locked at 1× (baseline).
             val normalizedPoints = remember(points) {
                 val p = points.toMutableList()
-                val result = mutableListOf<Pair<Float, Float>>()
-                result.add(0f to (p.getOrNull(0)?.second ?: 20f))
-                result.add(25f to (p.getOrNull(1)?.second ?: 50f))
-                result.add(50f to (p.getOrNull(2)?.second ?: 80f))
-                result.add(75f to (p.getOrNull(3)?.second ?: 100f))
-                result
+                listOf(
+                    0f to 1f,
+                    25f to (p.getOrNull(1)?.second ?: 1.0f),
+                    50f to (p.getOrNull(2)?.second ?: 1.5f),
+                    75f to (p.getOrNull(3)?.second ?: 2.0f),
+                )
             }
 
             SplineCurveEditor(
                 points = normalizedPoints,
+                useImperial = settings.imperialUnits,
                 onPointsChanged = { newPoints ->
                     points = newPoints
                     viewModel.updateAutoVolumeCurve(encodeVolumeCurve(newPoints))
@@ -407,15 +410,19 @@ private fun SunScheduleGraph(
     }
 }
 
-// --- Editable spline volume curve graph with 3 fixed-speed handles ---
+// --- Editable PCHIP volume-multiplier graph (0 km/h locked at 0x) ---
 
 @Composable
 private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
+    useImperial: Boolean,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit
 ) {
     val maxSpeed = 75f
-    val maxVolume = 100f
+    val speedUnitLabel = if (useImperial) "mph" else "km/h"
+    val minMultiplier = 1f
+    val maxMultiplier = 2f
+    val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val lineColor = AccentBlue
@@ -450,13 +457,14 @@ private fun SplineCurveEditor(
                             val nearest = pts
                                 .mapIndexed { idx, (s, v) ->
                                     val px = s / maxSpeed * w
-                                    val py = h - v / maxVolume * h
+                                    val py = h - (v - minMultiplier) / multiplierRange * h
                                     idx to (offset - Offset(px, py)).getDistance()
                                 }
                                 .filter { it.second < 100f }
                                 .minByOrNull { it.second }
 
-                            if (nearest != null) {
+                            // Index 0 (0 km/h) is locked at 0x and not draggable.
+                            if (nearest != null && nearest.first != 0) {
                                 dragIndex = nearest.first
                                 probeSpeed = null
                             } else {
@@ -470,16 +478,16 @@ private fun SplineCurveEditor(
                             val w = size.width.toFloat()
                             val h = size.height.toFloat()
 
-                            if (dragIndex >= 0 && dragIndex < pointsRef.value.size) {
-                                var newV = ((h - change.position.y) / h * maxVolume)
-                                    .coerceIn(0f, maxVolume)
-                                // Enforce monotonic ascending: never below previous, never above next
-                                val prevV = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: 0f
-                                val nextV = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxVolume
-                                newV = newV.coerceIn(prevV, nextV)
+                            if (dragIndex > 0 && dragIndex < pointsRef.value.size) {
+                                var newM = (minMultiplier + (h - change.position.y) / h * multiplierRange)
+                                    .coerceIn(minMultiplier, maxMultiplier)
+                                // Monotonic ascending: never below previous, never above next.
+                                val prevM = pointsRef.value.getOrNull(dragIndex - 1)?.second ?: minMultiplier
+                                val nextM = pointsRef.value.getOrNull(dragIndex + 1)?.second ?: maxMultiplier
+                                newM = newM.coerceIn(prevM, nextM)
                                 val (oldS, _) = pointsRef.value[dragIndex]
                                 val mutable = pointsRef.value.toMutableList()
-                                mutable[dragIndex] = oldS to newV
+                                mutable[dragIndex] = oldS to newM
                                 onPointsChanged(mutable)
                             } else {
                                 val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
@@ -501,61 +509,57 @@ private fun SplineCurveEditor(
             val h = size.height
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
-            // Grid lines — X axis at handle positions (0, 25, 50, 75)
+            // Grid lines — X axis at handle positions (0, 25, 50, 75 km/h internally; converted for label)
             for (i in 0..3) {
                 val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
-                val label = "${(maxSpeed * i / 3).roundToInt()}"
+                val speedKmh = maxSpeed * i / 3
+                val displaySpeed = Units.speed(speedKmh, useImperial)
+                val label = "${displaySpeed.roundToInt()}"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
-            for (i in 0..4) {
-                val y = h - h * i / 4f
+            // Y-axis ticks at 1×, 1.5×, 2× (3 lines for clean labels)
+            for (i in 0..2) {
+                val mult = minMultiplier + i * 0.5f
+                val y = h - (mult - minMultiplier) / multiplierRange * h
                 drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
-                val label = "${(maxVolume * i / 4).roundToInt()}%"
+                val label = if (mult == mult.toInt().toFloat()) "${mult.toInt()}x" else "${mult}x"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
 
-            // Axis labels
-            val speedLabel = textMeasurer.measure("km/h", TextStyle(fontSize = 10.sp, color = labelColor))
-            drawText(speedLabel, topLeft = Offset(w - speedLabel.size.width, h + 14f))
+            // Axis label — centered between the "25" and "50" ticks so it doesn't overlap "75"
+            val speedLabel = textMeasurer.measure(speedUnitLabel, TextStyle(fontSize = 10.sp, color = labelColor))
+            drawText(speedLabel, topLeft = Offset((w - speedLabel.size.width) / 2f, h + 4f))
 
-            // Draw smooth spline curve through the 3 points
-            if (points.size >= 3) {
-                val sorted = points.sortedBy { it.first }
-                val splinePath = androidx.compose.ui.graphics.Path()
-
-                // Generate spline with ~100 segments
+            // PCHIP curve through control points (smooth, never overshoots between monotonic points)
+            if (points.size >= 2) {
+                val curvePath = androidx.compose.ui.graphics.Path()
                 val steps = 100
                 for (i in 0..steps) {
-                    val t = i.toFloat() / steps
-                    val speed = t * maxSpeed
-                    val vol = catmullRomInterpolate(sorted, speed, maxSpeed)
+                    val speed = i.toFloat() / steps * maxSpeed
+                    val mult = pchipInterpolate(points, speed)
                     val x = speed / maxSpeed * w
-                    val y = h - vol / maxVolume * h
-                    if (i == 0) splinePath.moveTo(x, y) else splinePath.lineTo(x, y)
+                    val y = h - (mult - minMultiplier) / multiplierRange * h
+                    if (i == 0) curvePath.moveTo(x, y) else curvePath.lineTo(x, y)
                 }
-
-                // Filled area
                 val fillPath = androidx.compose.ui.graphics.Path()
-                fillPath.addPath(splinePath)
+                fillPath.addPath(curvePath)
                 fillPath.lineTo(w, h)
                 fillPath.lineTo(0f, h)
                 fillPath.close()
                 drawPath(fillPath, color = lineColor.copy(alpha = 0.1f))
-                drawPath(splinePath, color = lineColor, style = Stroke(width = 3f))
+                drawPath(curvePath, color = lineColor, style = Stroke(width = 3f))
             }
 
-            // Probe line and label
+            // Probe line + multiplier readout
             val currentProbe = probeSpeed
-            if (currentProbe != null && points.size >= 3) {
-                val sorted = points.sortedBy { it.first }
-                val probeVol = catmullRomInterpolate(sorted, currentProbe, maxSpeed)
+            if (currentProbe != null && points.size >= 2) {
+                val probeMult = pchipInterpolate(points, currentProbe)
                 val px = currentProbe / maxSpeed * w
-                val py = h - probeVol / maxVolume * h
+                val py = h - (probeMult - minMultiplier) / multiplierRange * h
 
-                // Vertical line
                 drawLine(
                     color = probeColor.copy(alpha = 0.5f),
                     start = Offset(px, 0f),
@@ -563,12 +567,10 @@ private fun SplineCurveEditor(
                     strokeWidth = 1.5f,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f))
                 )
-
-                // Dot on curve
                 drawCircle(color = lineColor, radius = 6f, center = Offset(px, py))
 
-                // Label
-                val probeLabel = "${currentProbe.roundToInt()} km/h \u2014 ${probeVol.roundToInt()}%"
+                val displayProbe = Units.speed(currentProbe, useImperial).roundToInt()
+                val probeLabel = "$displayProbe $speedUnitLabel \u2192 ${"%.2f".format(probeMult)}x"
                 val probeMeasured = textMeasurer.measure(
                     probeLabel,
                     TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Bold, color = probeColor)
@@ -581,69 +583,19 @@ private fun SplineCurveEditor(
                 drawText(probeMeasured, topLeft = Offset(labelX, labelY))
             }
 
-            // Control point handles — bigger for easier touch
-            for ((s, v) in points) {
+            // Control point handles. Index 0 (0 km/h locked at 0x) has no visible handle —
+            // the curve simply starts at the origin.
+            for ((idx, p) in points.withIndex()) {
+                if (idx == 0) continue
+                val (s, m) = p
                 val cx = s / maxSpeed * w
-                val cy = h - v / maxVolume * h
-                // Outer ring
+                val cy = h - (m - minMultiplier) / multiplierRange * h
                 drawCircle(color = pointColor, radius = 22f, center = Offset(cx, cy))
                 drawCircle(color = Color.Black, radius = 22f, center = Offset(cx, cy),
                     style = Stroke(width = 3f))
-                // Inner dot
                 drawCircle(color = Color.White, radius = 6f, center = Offset(cx, cy))
             }
         }
     }
 }
 
-/**
- * Catmull-Rom spline interpolation through control points.
- * Clamps output to [0, 100].
- */
-private fun catmullRomInterpolate(
-    points: List<Pair<Float, Float>>,
-    speed: Float,
-    maxSpeed: Float
-): Float {
-    if (points.size < 2) return points.firstOrNull()?.second ?: 0f
-    if (speed <= points.first().first) return points.first().second
-    if (speed >= points.last().first) return points.last().second
-
-    // Find the segment
-    var segIdx = 0
-    for (i in 0 until points.size - 1) {
-        if (speed >= points[i].first && speed <= points[i + 1].first) {
-            segIdx = i
-            break
-        }
-    }
-
-    val p0 = if (segIdx > 0) points[segIdx - 1] else {
-        val (s1, v1) = points[0]
-        val (s2, v2) = points[1]
-        (s1 - (s2 - s1)) to (v1 - (v2 - v1))
-    }
-    val p1 = points[segIdx]
-    val p2 = points[segIdx + 1]
-    val p3 = if (segIdx + 2 < points.size) points[segIdx + 2] else {
-        val (s1, v1) = points[points.size - 2]
-        val (s2, v2) = points[points.size - 1]
-        (s2 + (s2 - s1)) to (v2 + (v2 - v1))
-    }
-
-    val t = if (p2.first != p1.first) {
-        (speed - p1.first) / (p2.first - p1.first)
-    } else 0f
-
-    val t2 = t * t
-    val t3 = t2 * t
-
-    val v = 0.5f * (
-        (2f * p1.second) +
-        (-p0.second + p2.second) * t +
-        (2f * p0.second - 5f * p1.second + 4f * p2.second - p3.second) * t2 +
-        (-p0.second + 3f * p1.second - 3f * p2.second + p3.second) * t3
-    )
-
-    return v.coerceIn(0f, 100f)
-}

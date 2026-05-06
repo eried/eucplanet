@@ -121,9 +121,16 @@ data class AppSettings(
     val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
     val autoLightsOffMinutesAfter: Int = 30,   // minutes after sunrise to turn lights OFF
 
-    // Auto-volume (speed-based, 4 control points: 0, 25, 50, 75 km/h, monotonic ascending)
+    // Speed-based volume boost. Multiplier curve maps speed to 1×–2× of the user's baseline volume.
+    // 1× = no boost (baseline), 2× = double the baseline (capped at 100% by the system).
+    // 4 control points at 0/25/50/75 km/h. 0 km/h is locked at 1× (no boost at standstill).
+    // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
+    // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
     val autoVolumeEnabled: Boolean = false,
-    val autoVolumeCurve: String = "0:20,25:50,50:80,75:100",
+    @ColumnInfo(defaultValue = "0:1.0,25:1.0,50:1.5,75:2.0")
+    val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
+    @ColumnInfo(defaultValue = "-1")
+    val autoVolumeBaselinePercent: Int = -1,
 
     // Display units
     val imperialUnits: Boolean = false,

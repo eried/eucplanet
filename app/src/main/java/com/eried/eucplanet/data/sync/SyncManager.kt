@@ -494,6 +494,7 @@ class SyncManager @Inject constructor(
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
         put("autoVolumeEnabled", s.autoVolumeEnabled)
         put("autoVolumeCurve", s.autoVolumeCurve)
+        put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("imperialUnits", s.imperialUnits)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
@@ -573,6 +574,7 @@ class SyncManager @Inject constructor(
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
+        autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
