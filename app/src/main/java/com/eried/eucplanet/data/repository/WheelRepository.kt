@@ -5,8 +5,8 @@ import android.util.Log
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.ble.InMotionV2Commands
-import com.eried.eucplanet.ble.InMotionV2Parser
+import com.eried.eucplanet.ble.DecodeResult
+import com.eried.eucplanet.ble.WheelAdapter
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
@@ -42,6 +42,7 @@ data class FullMetricHistory(
 class WheelRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bleManager: BleConnectionManager,
+    private val wheelAdapter: WheelAdapter,
     private val settingsRepository: SettingsRepository,
     private val alarmEngine: AlarmEngine,
     private val voiceService: VoiceService
@@ -112,7 +113,7 @@ class WheelRepository @Inject constructor(
         // Process incoming packets
         scope.launch {
             bleManager.receivedPackets.collect { packet ->
-                handlePacket(packet.command, packet.data)
+                handleDecoded(wheelAdapter.decode(packet.command, packet.data))
             }
         }
 
@@ -163,12 +164,12 @@ class WheelRepository @Inject constructor(
     // --- Control commands ---
 
     fun sendHorn() {
-        bleManager.writeCommand(InMotionV2Commands.horn())
+        wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
     }
 
     fun toggleLight() {
         val current = _wheelData.value.lightOn
-        bleManager.writeCommand(InMotionV2Commands.setLight(!current))
+        wheelAdapter.setLight(!current)?.let { bleManager.writeCommand(it) }
         // Announcement is emitted by WheelService when the wheel confirms
         // the new state in telemetry — covers DRL / wheel-side toggles too.
     }
@@ -183,7 +184,7 @@ class WheelRepository @Inject constructor(
             val success = authenticateAndLock(targetState)
             // Re-read settings so the wheel can confirm (or override) the optimistic UI.
             delay(800)
-            bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
+            bleManager.writeCommand(wheelAdapter.pollSettings())
             if (success) {
                 val s = settingsRepository.get()
                 if (s.announceWheelLock) {
@@ -196,14 +197,31 @@ class WheelRepository @Inject constructor(
     }
 
     /**
-     * V14 lock/unlock requires password authentication before the lock command.
-     * Flow: requestAuthKey → receive 16-byte key → verifyAuth (echo key) → receive confirm → send lock.
+     * Lock/unlock with optional password authentication. The adapter declares whether
+     * auth is required (V14: yes, others: no). When required, we run the
+     * requestAuthKey → receive 16-byte key → verifyAuth → receive confirm → setLock
+     * handshake; otherwise we just send setLock directly.
      */
     private suspend fun authenticateAndLock(locked: Boolean): Boolean {
+        val lockPacket = wheelAdapter.setLock(locked) ?: return false
+
+        if (!wheelAdapter.capabilities.needsAuthForLock) {
+            bleManager.writeCommand(lockPacket)
+            return true
+        }
+
+        val authReqPacket = wheelAdapter.requestAuthKey()
+        val verifyBuilder = wheelAdapter::verifyAuth
+        if (authReqPacket == null) {
+            // Capabilities say auth is required but adapter exposes no key request — bug.
+            Log.e(TAG, "Lock: adapter requires auth but provides no requestAuthKey()")
+            return false
+        }
+
         // Step 1: Request auth key from wheel
         val keyDeferred = CompletableDeferred<ByteArray>()
         pendingAuthKeyDeferred = keyDeferred
-        bleManager.writeCommand(InMotionV2Commands.requestAuthKey())
+        bleManager.writeCommand(authReqPacket)
         Log.i(TAG, "Lock: requesting auth key...")
 
         val key = withTimeoutOrNull(4000L) { keyDeferred.await() }
@@ -217,9 +235,13 @@ class WheelRepository @Inject constructor(
         Log.i(TAG, "Lock: got auth key (${key.size} bytes): ${key.joinToString(" ") { "%02X".format(it) }}")
 
         // Step 2: Verify auth by echoing the key back
+        val verifyPacket = verifyBuilder(key) ?: run {
+            Log.e(TAG, "Lock: adapter returned null for verifyAuth")
+            return false
+        }
         val confirmDeferred = CompletableDeferred<Boolean>()
         pendingAuthConfirmDeferred = confirmDeferred
-        bleManager.writeCommand(InMotionV2Commands.verifyAuth(key))
+        bleManager.writeCommand(verifyPacket)
         Log.i(TAG, "Lock: verifying auth...")
 
         val confirmed = withTimeoutOrNull(4000L) { confirmDeferred.await() } ?: false
@@ -232,18 +254,17 @@ class WheelRepository @Inject constructor(
         Log.i(TAG, "Lock: auth verified, sending lock=$locked")
 
         // Step 3: Send lock/unlock command
-        val packet = InMotionV2Commands.setLock(locked)
-        Log.i(TAG, "Lock packet (${packet.size} bytes): ${packet.joinToString(" ") { "%02X".format(it) }}")
-        bleManager.writeCommand(packet)
+        Log.i(TAG, "Lock packet (${lockPacket.size} bytes): ${lockPacket.joinToString(" ") { "%02X".format(it) }}")
+        bleManager.writeCommand(lockPacket)
         return true
     }
 
     fun setDRL(on: Boolean) {
-        bleManager.writeCommand(InMotionV2Commands.setDRL(on))
+        wheelAdapter.setDRL(on)?.let { bleManager.writeCommand(it) }
     }
 
     fun setSpeed(tiltbackKmh: Float, beepKmh: Float) {
-        bleManager.writeCommand(InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, beepKmh))
+        wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
     }
 
     suspend fun toggleSafetySpeed() {
@@ -259,7 +280,7 @@ class WheelRepository @Inject constructor(
 
         // Request settings back from wheel to confirm
         delay(300)
-        bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
+        bleManager.writeCommand(wheelAdapter.pollSettings())
     }
 
     fun enableSafetySpeed() {
@@ -283,43 +304,21 @@ class WheelRepository @Inject constructor(
     }
 
     private suspend fun runPollingLoop() {
+        val initSequence = wheelAdapter.initSequence()
         var realtimeCycle = 0
         while (pollingActive && bleManager.connectionState.value == ConnectionState.CONNECTED) {
-            when (initState) {
-                0 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getCarType())
-                    initState++
+            if (initState < initSequence.size) {
+                bleManager.writeCommand(initSequence[initState])
+                initState++
+            } else {
+                // Normal polling - realtime data, interleaved with periodic settings refresh
+                // so externally-changed state (lock via InMotion app, etc.) is detected.
+                if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
+                    bleManager.writeCommand(wheelAdapter.pollSettings())
+                } else {
+                    bleManager.writeCommand(wheelAdapter.pollRealtime())
                 }
-                1 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getSerialNumber())
-                    initState++
-                }
-                2 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getVersions())
-                    initState++
-                }
-                3 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
-                    initState++
-                }
-                4 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getUselessData())
-                    initState++
-                }
-                5 -> {
-                    bleManager.writeCommand(InMotionV2Commands.getStatistics())
-                    initState++
-                }
-                else -> {
-                    // Normal polling - realtime data, interleaved with periodic settings refresh
-                    // so externally-changed state (lock via InMotion app, etc.) is detected.
-                    if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
-                        bleManager.writeCommand(InMotionV2Commands.getCurrentSettings())
-                    } else {
-                        bleManager.writeCommand(InMotionV2Commands.getRealTimeData())
-                    }
-                    realtimeCycle++
-                }
+                realtimeCycle++
             }
             delay(POLL_INTERVAL_MS)
         }
@@ -386,125 +385,87 @@ class WheelRepository @Inject constructor(
         }
     }
 
-    // --- Packet handling ---
+    // --- Decoded packet handling ---
 
-    private suspend fun handlePacket(command: Byte, data: ByteArray) {
-        when (command.toInt() and 0x7F) {
-            0x02 -> {
-                // MainInfo response OR auth response (both arrive as command=0x02)
-                if (data.isNotEmpty()) {
-                    when (data[0].toInt() and 0xFF) {
-                        0x01 -> {
-                            val info = InMotionV2Parser.parseCarType(data.copyOfRange(1, data.size))
-                            info?.let { _modelName.value = it.modelName }
-                        }
-                        0x06 -> {
-                            val fw = InMotionV2Parser.parseVersions(data.copyOfRange(1, data.size))
-                            if (fw != null) {
-                                _firmwareVersion.value = fw.displayString
-                                Log.i(TAG, "Firmware: Main=${fw.mainBoardVersion} Drv=${fw.driverBoardVersion} BLE=${fw.bleVersion}")
-                            }
-                        }
-                        0x80 -> {
-                            // Auth response (routing byte 0x80 = response from routing [02,00])
-                            // data = [0x80, sub_cmd, payload...]
-                            if (data.size >= 2) {
-                                val subCmd = data[1].toInt() and 0xFF
-                                when (subCmd) {
-                                    0x02 -> {
-                                        // Auth key response: 16 bytes of encrypted password
-                                        if (data.size >= 18) {
-                                            val key = data.copyOfRange(2, 18)
-                                            Log.i(TAG, "Auth key received: ${key.joinToString(" ") { "%02X".format(it) }}")
-                                            pendingAuthKeyDeferred?.complete(key)
-                                        }
-                                    }
-                                    0x82 -> {
-                                        // Auth verify response: data[2] = 0x01 for success
-                                        val success = data.size >= 3 && data[2].toInt() == 0x01
-                                        Log.i(TAG, "Auth verify result: $success")
-                                        pendingAuthConfirmDeferred?.complete(success)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+    private suspend fun handleDecoded(result: DecodeResult) {
+        when (result) {
+            is DecodeResult.ModelName -> {
+                _modelName.value = result.name
             }
-            0x04 -> {
-                // RealTimeInfo
-                val telemetry = InMotionV2Parser.parseTelemetry(data)
-                if (telemetry != null) {
-                    _wheelData.value = telemetry.copy(
-                        totalDistance = _wheelData.value.totalDistance
-                    )
-                    // Sample history at 1 Hz
-                    val now = System.currentTimeMillis()
-                    if (now - lastHistorySampleMs >= HISTORY_SAMPLE_INTERVAL_MS) {
-                        lastHistorySampleMs = now
-                        val d = _wheelData.value
-                        battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
-                        tempHist.add(MetricSample(now, d.maxTemperature))
-                        voltHist.add(MetricSample(now, d.voltage))
-                        ampsHist.add(MetricSample(now, d.current.absoluteValue))
-                        loadHist.add(MetricSample(now, d.pwm.absoluteValue))
-                        speedHist.add(MetricSample(now, d.speed.absoluteValue))
-                        _fullHistory.value = FullMetricHistory(
-                            battery = battHist.toList(),
-                            temperature = tempHist.toList(),
-                            voltage = voltHist.toList(),
-                            current = ampsHist.toList(),
-                            load = loadHist.toList(),
-                            speed = speedHist.toList()
-                        )
-                    }
-                    // Evaluate alarm rules against new telemetry
-                    alarmEngine.evaluate(_wheelData.value)
-                }
+            is DecodeResult.Firmware -> {
+                _firmwareVersion.value = result.display
+                Log.i(TAG, "Firmware: Main=${result.mainBoard} Drv=${result.driverBoard} BLE=${result.ble}")
             }
-            0x11 -> {
-                // TotalStats
-                val stats = InMotionV2Parser.parseTotalStats(data)
-                if (stats != null) {
-                    _wheelData.value = _wheelData.value.copy(
-                        totalDistance = stats.totalDistanceKm
+            is DecodeResult.AuthKey -> {
+                Log.i(TAG, "Auth key received: ${result.encryptedKey.joinToString(" ") { "%02X".format(it) }}")
+                pendingAuthKeyDeferred?.complete(result.encryptedKey)
+            }
+            is DecodeResult.AuthConfirm -> {
+                Log.i(TAG, "Auth verify result: ${result.success}")
+                pendingAuthConfirmDeferred?.complete(result.success)
+            }
+            is DecodeResult.Telemetry -> {
+                _wheelData.value = result.data.copy(
+                    totalDistance = _wheelData.value.totalDistance
+                )
+                // Sample history at 1 Hz
+                val now = System.currentTimeMillis()
+                if (now - lastHistorySampleMs >= HISTORY_SAMPLE_INTERVAL_MS) {
+                    lastHistorySampleMs = now
+                    val d = _wheelData.value
+                    battHist.add(MetricSample(now, d.batteryPercent.toFloat()))
+                    tempHist.add(MetricSample(now, d.maxTemperature))
+                    voltHist.add(MetricSample(now, d.voltage))
+                    ampsHist.add(MetricSample(now, d.current.absoluteValue))
+                    loadHist.add(MetricSample(now, d.pwm.absoluteValue))
+                    speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                    _fullHistory.value = FullMetricHistory(
+                        battery = battHist.toList(),
+                        temperature = tempHist.toList(),
+                        voltage = voltHist.toList(),
+                        current = ampsHist.toList(),
+                        load = loadHist.toList(),
+                        speed = speedHist.toList()
                     )
                 }
+                // Evaluate alarm rules against new telemetry
+                alarmEngine.evaluate(_wheelData.value)
             }
-            0x20 -> {
-                // Settings
-                val ws = InMotionV2Parser.parseSettings(data)
-                if (ws != null) {
-                    _wheelSettings.value = ws
-                    Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
+            is DecodeResult.TotalDistance -> {
+                _wheelData.value = _wheelData.value.copy(totalDistance = result.km)
+            }
+            is DecodeResult.Settings -> {
+                val ws = result.data
+                _wheelSettings.value = ws
+                Log.i(TAG, "Wheel settings: tiltback=${ws.maxSpeedKmh} beep=${ws.alarmSpeedKmh} lockState=${ws.lockState}")
 
-                    val appSettings = settingsRepository.get()
-                    val wasSafety = _safetySpeedActive.value
-                    val wasLocked = _locked.value
-                    val isLocked = ws.lockState != 0
-                    _locked.value = isLocked
-                    if (isLocked != wasLocked && appSettings.announceWheelLock) {
-                        voiceService.announceEvent(
-                            context.getString(
-                                if (isLocked) R.string.voice_wheel_locked
-                                else R.string.voice_wheel_unlocked
-                            )
+                val appSettings = settingsRepository.get()
+                val wasSafety = _safetySpeedActive.value
+                val wasLocked = _locked.value
+                val isLocked = ws.lockState != 0
+                _locked.value = isLocked
+                if (isLocked != wasLocked && appSettings.announceWheelLock) {
+                    voiceService.announceEvent(
+                        context.getString(
+                            if (isLocked) R.string.voice_wheel_locked
+                            else R.string.voice_wheel_unlocked
                         )
-                    }
+                    )
+                }
 
-                    if (reconcileNextSettings) {
-                        reconcileNextSettings = false
-                        reconcileSpeedLimits(ws, appSettings)
-                    } else {
-                        // Subsequent packet: simple state detection
-                        val isSafety = kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
-                        _safetySpeedActive.value = isSafety
-                        if (isSafety != wasSafety && appSettings.announceSafetyMode) {
-                            voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
-                        }
+                if (reconcileNextSettings) {
+                    reconcileNextSettings = false
+                    reconcileSpeedLimits(ws, appSettings)
+                } else {
+                    // Subsequent packet: simple state detection
+                    val isSafety = kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
+                    _safetySpeedActive.value = isSafety
+                    if (isSafety != wasSafety && appSettings.announceSafetyMode) {
+                        voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
                     }
                 }
             }
+            DecodeResult.Unknown -> { /* skip */ }
         }
     }
 }
