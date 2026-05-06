@@ -132,16 +132,9 @@ object InMotionV2Parser {
         val series = data[1].toInt() and 0xFF
         val type = data[2].toInt() and 0xFF
         val modelId = series * 10 + type
-        val modelName = when (modelId) {
-            91 -> "V14 50GB"
-            92 -> "V14 50S"
-            81 -> "V13"
-            72 -> "V12 HT"
-            71 -> "V12 HS"
-            61 -> "V11"
-            else -> "InMotion ($modelId)"
-        }
-        return CarInfo(series = series, type = type, modelId = modelId, modelName = modelName)
+        val model = InMotionV2Model.fromId(modelId)
+        val modelName = model?.displayName ?: "InMotion ($modelId)"
+        return CarInfo(series = series, type = type, modelId = modelId, modelName = modelName, model = model)
     }
 
     /**
@@ -201,7 +194,9 @@ data class CarInfo(
     val series: Int,
     val type: Int,
     val modelId: Int,
-    val modelName: String
+    val modelName: String,
+    /** Resolved model from the WheelLog registry, or null if the wheel reports an unknown ID. */
+    val model: InMotionV2Model? = null
 )
 
 data class FirmwareInfo(

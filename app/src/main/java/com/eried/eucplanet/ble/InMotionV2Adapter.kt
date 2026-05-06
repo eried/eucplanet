@@ -20,6 +20,17 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override val familyId: String = "inmotion_v2"
     override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
 
+    /**
+     * Detected model from the wheel's MainInfo response. Set the first time
+     * [decode] sees a CarType packet on each connection. Read by per-model
+     * command dispatch (Phase 3+) — Phase 2 just exposes it for the UI.
+     *
+     * Volatile because decode runs on the BLE coroutine and reads happen from
+     * the main thread. Cleared to null by the repository on disconnect.
+     */
+    @Volatile var detectedModel: InMotionV2Model? = null
+        private set
+
     override fun initSequence(): List<ByteArray> = listOf(
         InMotionV2Commands.getCarType(),
         InMotionV2Commands.getSerialNumber(),
@@ -64,7 +75,10 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             0x01 -> {
                 // Car type
                 val info = InMotionV2Parser.parseCarType(data.copyOfRange(1, data.size))
-                if (info != null) DecodeResult.ModelName(info.modelName) else DecodeResult.Unknown
+                if (info != null) {
+                    detectedModel = info.model
+                    DecodeResult.ModelName(info.modelName, info.model)
+                } else DecodeResult.Unknown
             }
             0x06 -> {
                 // Firmware versions

@@ -53,7 +53,13 @@ interface WheelAdapter {
 sealed class DecodeResult {
     data class Telemetry(val data: WheelData) : DecodeResult()
     data class Settings(val data: WheelSettings) : DecodeResult()
-    data class ModelName(val name: String) : DecodeResult()
+    /**
+     * Wheel-reported identity. [model] is the brand-specific identifier (currently
+     * [InMotionV2Model], later includes V1 / KingSong / Veteran), null if the wheel
+     * reports an ID we don't recognize. Adapters keep [name] populated regardless
+     * for display.
+     */
+    data class ModelName(val name: String, val model: Any? = null) : DecodeResult()
     data class Firmware(val display: String, val mainBoard: String, val driverBoard: String, val ble: String) : DecodeResult()
     data class TotalDistance(val km: Float) : DecodeResult()
     data class AuthKey(val encryptedKey: ByteArray) : DecodeResult() {
