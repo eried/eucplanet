@@ -1,5 +1,5 @@
 name: Wheel report
-description: Report behavior on your wheel — works, broken, or partially working
+description: Report behavior on your wheel: works, broken, or partially working
 title: "[Wheel report] "
 labels: ["wheel-report"]
 body:
@@ -29,6 +29,7 @@ body:
         - InMotion V10
         - InMotion V8 / V8F
         - InMotion V9
+        - InMotion P6
         - KingSong S18
         - KingSong S18L
         - KingSong S20 Eagle
@@ -103,6 +104,6 @@ body:
   - type: input
     id: phone
     attributes:
-      label: Phone model + Android version
+      label: Phone model + OS version
       description: Optional but helps for crashes or BLE issues.
       placeholder: e.g. Pixel 7 / Android 14

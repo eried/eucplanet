@@ -160,6 +160,7 @@ private fun matchWheelTemplateOption(name: String?): String? {
         "v10f"     in n -> "InMotion V10F"
         "v10"      in n -> "InMotion V10"
         "v9"       in n -> "InMotion V9"
+        "p6"       in n -> "InMotion P6"
         else -> null
     }
 }
