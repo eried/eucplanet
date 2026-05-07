@@ -33,8 +33,9 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 /**
- * Thin orange strip at the top of the dashboard inviting users to report issues
- * on the multi-wheel build. Click flow:
+ * Thin orange strip on the dashboard inviting users to report issues for
+ * preliminary-supported wheels. Hidden when no wheel is connected and when the
+ * connected wheel is the verified V14 family. Click flow:
  *
  *   first click  → explainer dialog → [Report an issue] opens GitHub Issues form
  *                                   → [Cancel] keeps the dialog reappearing on next click
@@ -50,6 +51,10 @@ fun ExperimentalBanner(
     detectedWheelName: String? = null,
     detectedFirmware: String? = null
 ) {
+    // Only show for wheels other than the verified V14 family. A null name
+    // (disconnected) hides the banner — there's nothing to report yet.
+    if (!isPreliminaryWheel(detectedWheelName)) return
+
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
@@ -161,3 +166,14 @@ private fun matchWheelTemplateOption(name: String?): String? {
 
 private fun urlEncode(s: String): String =
     URLEncoder.encode(s, StandardCharsets.UTF_8.name())
+
+/**
+ * Returns true for wheels we treat as preliminary — anything that's connected
+ * but not the V14 family. The V14 is the only wheel the author has actually
+ * tested on real hardware, so V14 owners don't need the warning. Disconnected
+ * (null name) → hidden too: nothing useful to report when no wheel is paired.
+ */
+private fun isPreliminaryWheel(name: String?): Boolean {
+    if (name.isNullOrBlank()) return false
+    return !name.contains("V14")
+}
