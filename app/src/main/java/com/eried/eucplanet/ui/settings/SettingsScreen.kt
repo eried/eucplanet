@@ -1003,6 +1003,8 @@ private fun FlicTab(
             }
         }
 
+        ExternalGpsSection()
+
         SectionHeader(stringResource(R.string.section_volume_keys))
         HintText(stringResource(R.string.volume_keys_caption), small = true)
         SwitchSetting(stringResource(R.string.volume_keys_enable), settings.volumeKeysEnabled) {

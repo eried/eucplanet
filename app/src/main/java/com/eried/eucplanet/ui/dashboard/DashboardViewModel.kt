@@ -51,6 +51,7 @@ class DashboardViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
     private val syncManager: SyncManager,
+    private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -82,6 +83,20 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
+    /**
+     * Live external-GPS speed in km/h, or null when no device is paired or no
+     * sample has arrived recently. The dashboard's speedometer renders a small
+     * accent-coloured marker on the dial and a numeric readout under the main
+     * speed when this is non-null.
+     */
+    val externalGpsSpeedKmh: StateFlow<Float?> = externalGpsRepository.currentSample
+        .map { sample ->
+            sample
+                ?.takeIf { System.currentTimeMillis() - it.timestamp < 5_000L }
+                ?.speedKmh
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
         .map { it != null }

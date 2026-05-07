@@ -2,38 +2,61 @@ package com.eried.eucplanet.data.repository
 
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ble.gps.ExternalGpsAdapter
+import com.eried.eucplanet.ble.gps.ExternalGpsConnectionManager
 import com.eried.eucplanet.data.model.ExternalGpsSample
 import com.eried.eucplanet.data.model.ExternalGpsSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Owns the external-GPS BLE connection and exposes the current sample.
  *
- * Phase 1 is a state-holder skeleton: persists pairing settings and exposes
- * connection state, but doesn't actually open a GATT connection — that lands
- * in Phase 2 along with the RaceBox UBX parser. UI can already query
- * [pairedAddress] / [pairedSource] to render the Integration tab card.
+ * State flows:
+ *  * [connectionState] mirrors the underlying GATT manager.
+ *  * [currentSample] is the latest decoded fix from whichever adapter is active.
+ *
+ * Pairing persists in three AppSettings columns (address / name / source enum)
+ * so [autoConnect] can re-open the paired device on app start without prompting.
  */
 @Singleton
 class ExternalGpsRepository @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val connectionManager: ExternalGpsConnectionManager,
+    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
     }
 
-    private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
-    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    val connectionState: StateFlow<ConnectionState> = connectionManager.connectionState
 
     private val _currentSample = MutableStateFlow<ExternalGpsSample?>(null)
     val currentSample: StateFlow<ExternalGpsSample?> = _currentSample.asStateFlow()
 
+    init {
+        // Bridge the connection manager's sample stream into a StateFlow so the
+        // dashboard can render the latest fix without subscribing to a hot
+        // SharedFlow each time it recomposes.
+        scope.launch {
+            connectionManager.samples.collect { _currentSample.value = it }
+        }
+    }
+
     /** Address of the paired device, or null if no pairing. Mirrors AppSettings. */
     suspend fun pairedAddress(): String? = settingsRepository.get().externalGpsAddress
+
+    /** Display name of the paired device. */
+    suspend fun pairedName(): String? = settingsRepository.get().externalGpsName
 
     /** Source family of the paired device (RaceBox today; more later). */
     suspend fun pairedSource(): ExternalGpsSource? =
@@ -66,16 +89,29 @@ class ExternalGpsRepository @Inject constructor(
         Log.i(TAG, "Pairing cleared")
     }
 
-    fun connect(@Suppress("UNUSED_PARAMETER") address: String) {
-        // Phase 2 wires the actual GATT connection through ExternalGpsConnectionManager.
-        // For now just flip state so the UI can render "connecting" / "connected".
-        _connectionState.value = ConnectionState.CONNECTING
-        Log.i(TAG, "connect() invoked but Phase 2 not implemented; state forced DISCONNECTED")
-        _connectionState.value = ConnectionState.DISCONNECTED
+    /**
+     * Open the GATT connection to the currently-paired device. Returns silently
+     * if no pairing exists. Picks the matching adapter from the registry by
+     * source-family enum; if the family no longer ships an adapter (e.g. user
+     * upgraded a build that removed Draggy support) the call is a no-op.
+     */
+    suspend fun connectPaired(): Boolean {
+        val address = pairedAddress() ?: return false
+        val source = pairedSource() ?: return false
+        val adapter = adapters.firstOrNull { it.source == source } ?: run {
+            Log.w(TAG, "No adapter for paired source $source — skipping connect")
+            return false
+        }
+        connectionManager.connect(address, adapter)
+        return true
+    }
+
+    fun connect(address: String, adapter: ExternalGpsAdapter) {
+        connectionManager.connect(address, adapter)
     }
 
     fun disconnect() {
         _currentSample.value = null
-        _connectionState.value = ConnectionState.DISCONNECTED
+        connectionManager.disconnect()
     }
 }

@@ -65,6 +65,7 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
+import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -199,9 +200,17 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Speed chart
+                // Speed chart — adds an external-GPS overlay when the CSV has
+                // any non-empty Ext GPS speed cells (i.e. a RaceBox was paired
+                // during this trip). Phone GPS already folds into the main
+                // `speed` series via CsvWriter so it doesn't need its own layer.
+                val extSpeedSeries = dataPoints.map { it.extGpsSpeed }
+                val speedOverlays = if (extSpeedSeries.any { !it.isNaN() }) {
+                    listOf(ChartOverlay(extSpeedSeries, AccentPurple))
+                } else emptyList()
                 ChartCard(stringResource(R.string.recording_chart_speed, "km/h"), dataPoints.map { it.speed },
-                    AccentGreen, unitLabel = "km/h", minSpan = GraphScale.SPAN_SPEED_KMH)
+                    AccentGreen, unitLabel = "km/h", minSpan = GraphScale.SPAN_SPEED_KMH,
+                    overlays = speedOverlays)
 
                 Spacer(Modifier.height(12.dp))
 
@@ -386,18 +395,32 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
 </script></body></html>
 """.trimIndent()
 
+/**
+ * Optional secondary series drawn behind the main chart line. Used by the
+ * speed chart to overlay external GPS speed (RaceBox) when available, with
+ * NaN values treated as breaks in the line so missing samples don't pull
+ * the curve down to zero.
+ */
+data class ChartOverlay(val values: List<Float>, val color: Color)
+
 @Composable
 private fun ChartCard(
     title: String,
     values: List<Float>,
     color: Color,
     unitLabel: String,
-    minSpan: Float
+    minSpan: Float,
+    overlays: List<ChartOverlay> = emptyList()
 ) {
     if (values.isEmpty()) return
 
-    val dataMin = values.min()
-    val dataMax = values.max()
+    // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
+    // Filter NaN out of overlay reductions because external GPS uses NaN as
+    // "no data this row" — those rows shouldn't push the bounds.
+    val allMins = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + values
+    val allMaxs = allMins  // same set covers both extremes
+    val dataMin = allMins.minOrNull() ?: 0f
+    val dataMax = allMaxs.maxOrNull() ?: 0f
     val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
     val textMeasurer = rememberTextMeasurer()
     val tooltipBg = MaterialTheme.colorScheme.surface
@@ -449,6 +472,33 @@ private fun ChartCard(
                 val h = size.height
                 val range = bounds.range
                 val stepX = w / (values.size - 1).toFloat()
+
+                // Overlay series first so the main line draws on top. NaN values
+                // break the line so empty CSV cells don't pull the curve to zero.
+                overlays.forEach { overlay ->
+                    if (overlay.values.size < 2) return@forEach
+                    val overlayPath = Path()
+                    var penDown = false
+                    overlay.values.forEachIndexed { idx, value ->
+                        if (value.isNaN()) {
+                            penDown = false
+                            return@forEachIndexed
+                        }
+                        val x = idx * stepX
+                        val y = h - ((value - bounds.min) / range) * h
+                        if (!penDown) {
+                            overlayPath.moveTo(x, y)
+                            penDown = true
+                        } else {
+                            overlayPath.lineTo(x, y)
+                        }
+                    }
+                    drawPath(
+                        overlayPath,
+                        color = overlay.color,
+                        style = Stroke(width = 1.5f)
+                    )
+                }
 
                 val path = Path()
                 values.forEachIndexed { idx, value ->

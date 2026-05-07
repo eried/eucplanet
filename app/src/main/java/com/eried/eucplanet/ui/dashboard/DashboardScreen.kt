@@ -110,6 +110,7 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
+import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
 import kotlin.math.absoluteValue
@@ -137,6 +138,7 @@ fun DashboardScreen(
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
     val recording by viewModel.recording.collectAsState()
+    val externalGpsSpeed by viewModel.externalGpsSpeedKmh.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
@@ -401,6 +403,7 @@ fun DashboardScreen(
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
                     safeBandColor = if (useAccent) primary else AccentBlue,
+                    externalSpeed = externalGpsSpeed,
                     modifier = Modifier
                         .fillMaxWidth(0.75f)
                         .aspectRatio(1.25f)
@@ -861,6 +864,11 @@ private fun SpeedGauge(
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
     safeBandColor: Color = AccentBlue,
+    /** External GPS speed in km/h, or null when no external GPS box is connected.
+     *  Drives a small marker on the dial and a smaller readout under the main number,
+     *  both in [externalAccentColor]. */
+    externalSpeed: Float? = null,
+    externalAccentColor: Color = AccentPurple,
     modifier: Modifier = Modifier
 ) {
     val speedColor = overrideColor ?: when {
@@ -1025,6 +1033,52 @@ private fun SpeedGauge(
             )
         )
 
+        // External GPS marker. Tiny dot on the arc at the angle matching the
+        // external speed, plus a small numeric readout under the main number.
+        // Drawn last so it sits on top of the speed arc.
+        if (externalSpeed != null) {
+            val extFraction = (externalSpeed / maxSpeed).coerceIn(0f, 1f)
+            val extAngle = startAngle + sweepTotal * extFraction
+            val extRad = Math.toRadians(extAngle.toDouble())
+            val dotRadius = arcThickness * 0.45f
+            // Sit the dot just outside the speed arc so it can't be hidden by the
+            // arc's coloured fill at the same angle.
+            val dotDistance = arcRadius + arcThickness * 0.5f
+            val dotCenter = Offset(
+                center.x + dotDistance * cos(extRad).toFloat(),
+                center.y + dotDistance * sin(extRad).toFloat()
+            )
+            // Halo for contrast against any arc colour.
+            drawCircle(
+                color = androidx.compose.ui.graphics.Color.Black,
+                radius = dotRadius * 1.45f,
+                center = dotCenter
+            )
+            drawCircle(
+                color = externalAccentColor,
+                radius = dotRadius,
+                center = dotCenter
+            )
+
+            // Small numeric readout under the unit label, e.g. "GPS 31.4".
+            val extDisplay = com.eried.eucplanet.util.Units.speed(externalSpeed, imperial)
+            val extText = "GPS %.1f".format(extDisplay)
+            val extMeasured = textMeasurer.measure(
+                extText,
+                style = TextStyle(
+                    fontSize = (size.minDimension * 0.045f).sp,
+                    color = externalAccentColor,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+            drawText(
+                extMeasured,
+                topLeft = Offset(
+                    center.x - extMeasured.size.width / 2f,
+                    center.y + speedMeasured.size.height / 2f + unitMeasured.size.height
+                )
+            )
+        }
     }
 }
 
