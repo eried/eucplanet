@@ -39,6 +39,12 @@
     <string name="recording_location_permission_needed">Location needed</string>
     <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue</string>
 
+    <!-- Experimental banner -->
+    <string name="experimental_banner">Experimental build, multi-wheel support in progress. Tap to report an issue.</string>
+    <string name="experimental_dialog_title">Help improve EUC Planet</string>
+    <string name="experimental_dialog_body">Tapping this banner will open a GitHub form where you can report what works, what doesn\'t, and which wheel you\'re using. Some fields are pre-filled from the app to save you typing.\n\nA GitHub account is required to post the issue.</string>
+    <string name="experimental_dialog_report">Report an issue</string>
+
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
     <string name="connection_connecting">Searching\u2026</string>
