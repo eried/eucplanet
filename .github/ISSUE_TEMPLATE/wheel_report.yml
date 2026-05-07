@@ -1,0 +1,108 @@
+name: Wheel report
+description: Report behavior on your wheel — works, broken, or partially working
+title: "[Wheel report] "
+labels: ["wheel-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping! Tell us what wheel you have and what's working or broken.
+        The more detail, the faster we can fix things.
+
+  - type: dropdown
+    id: wheel
+    attributes:
+      label: Wheel
+      description: Pick the closest match. Use "Other" for anything not listed.
+      options:
+        - InMotion V14 (50GB)
+        - InMotion V14 (50S)
+        - InMotion V13
+        - InMotion V13 Pro
+        - InMotion V12 HS
+        - InMotion V12 HT
+        - InMotion V12 Pro
+        - InMotion V12S
+        - InMotion V11
+        - InMotion V11Y
+        - InMotion V10F
+        - InMotion V10
+        - InMotion V8 / V8F
+        - InMotion V9
+        - KingSong S18
+        - KingSong S18L
+        - KingSong S20 Eagle
+        - KingSong S22 Eagle
+        - KingSong KS-16 / KS-18 (other)
+        - Veteran Lynx
+        - Veteran Sherman / Sherman S
+        - Veteran Patton
+        - Begode / Gotway (any)
+        - Other (please describe in details)
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Wheel firmware version
+      description: If known. The app shows this on the dashboard once connected.
+      placeholder: e.g. Main 1.2.3 / Driver 4.5.6
+
+  - type: input
+    id: app_version
+    attributes:
+      label: EUC Planet app version
+      description: Visible at the bottom of the dashboard.
+      placeholder: e.g. 0.3.0
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Overall status
+      options:
+        - Works perfectly
+        - Connects but some features missing or wrong
+        - Connects but telemetry shows wrong values
+        - Doesn't connect at all
+        - App crashes
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: working
+    attributes:
+      label: What works
+      description: Tick everything that worked correctly during your test.
+      options:
+        - label: App found and connected to the wheel
+        - label: Telemetry (speed, voltage, battery) shows correct values
+        - label: Horn
+        - label: Lights toggle
+        - label: Lock / unlock
+        - label: Safety mode / max-speed limit
+        - label: Volume control on the wheel
+        - label: Trip recording (CSV export)
+        - label: Voice announcements
+        - label: Flic button actions
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What's broken? Steps to reproduce? Screenshots? Anything else useful for debugging.
+      placeholder: |
+        Examples:
+        - "Speed shows 250 km/h when I'm standing still"
+        - "Horn works but light button does nothing"
+        - "App crashes when I open Settings → Alarms"
+    validations:
+      required: true
+
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model + Android version
+      description: Optional but helps for crashes or BLE issues.
+      placeholder: e.g. Pixel 7 / Android 14
