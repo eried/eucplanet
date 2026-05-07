@@ -45,6 +45,12 @@ class TripRepository @Inject constructor(
     companion object {
         private const val TAG = "TripRepo"
         private const val RECORD_INTERVAL_MS = 1000L
+        // After stopRecording with sync configured, we hold the trip in a "pending"
+        // state for this long so the user has a chance to discard it (e.g., a stray
+        // short trip from moving the wheel by hand) before it's enqueued for upload.
+        // Without a sync folder there's nothing to defer — the trip just stays in
+        // the local DB regardless — so the grace window is skipped entirely.
+        private const val FINALIZE_GRACE_MS = 15_000L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -62,12 +68,23 @@ class TripRepository @Inject constructor(
     private val _currentTripId = MutableStateFlow<Long?>(null)
     val currentTripId: StateFlow<Long?> = _currentTripId.asStateFlow()
 
+    // Id of the trip that just finished recording and is in the discard-grace window.
+    // Non-null only while we're waiting out [FINALIZE_GRACE_MS] before triggering sync /
+    // voice announcement. Cleared when the trip is finalized or discarded by the user.
+    private val _pendingTripId = MutableStateFlow<Long?>(null)
+    val pendingTripId: StateFlow<Long?> = _pendingTripId.asStateFlow()
+
     val allTrips: Flow<List<TripRecord>> = tripDao.observeAll()
     val tripCount: Flow<Int> = tripDao.observeCount()
 
     private var csvWriter: CsvWriter? = null
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
+
+    // The just-stopped trip waiting for grace-period finalization, plus the job
+    // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
+    private var pendingTrip: TripRecord? = null
+    private var pendingFinalizeJob: kotlinx.coroutines.Job? = null
 
     // GPS-accumulated distance for the active recording. Reset at start, read at stop.
     // Preferred over wheel tripDistance because BLE can drop mid-ride, leaving the wheel
@@ -213,31 +230,111 @@ class TripRepository @Inject constructor(
         csvWriter?.close()
         csvWriter = null
 
-        val appSettings = settingsRepository.get()
-        val willSync = appSettings.syncFolderUri != null
-        currentTrip?.let { trip ->
-            val data = wheelRepository.wheelData.value
-            // GPS-derived distance is preferred; fall back to wheel session counter only if
-            // we never accumulated any GPS movement (e.g. recording without location permission).
-            val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
-            tripDao.update(
-                trip.copy(
-                    endTime = System.currentTimeMillis(),
-                    distanceKm = distance,
-                    uploadStatus = if (willSync) 1 else 0
-                )
-            )
-        }
+        // If a previous stop is still in its grace window, finalize it now (the new
+        // stop pre-empts the old undo opportunity — only one trip is ever pending).
+        finalizePendingTripIfAny()
+
+        val trip = currentTrip
         currentTrip = null
         _currentTripId.value = null
-        Log.i(TAG, "Recording stopped")
-        if (willSync) syncManager.enqueueTripUpload(appSettings)
-        scope.launch {
-            if (appSettings.announceRecording) voiceService.announceEvent(context.getString(R.string.voice_recording_finished))
+        if (trip == null) {
+            Log.i(TAG, "Recording stopped (no current trip to finalize)")
+            return
+        }
+
+        val data = wheelRepository.wheelData.value
+        // GPS-derived distance is preferred; fall back to wheel session counter only if
+        // we never accumulated any GPS movement (e.g. recording without location permission).
+        val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
+        val finishedTrip = trip.copy(
+            endTime = System.currentTimeMillis(),
+            distanceKm = distance,
+            uploadStatus = 0
+        )
+        // Write endTime/distance immediately so the trip list shows it correctly.
+        // uploadStatus stays 0 — we only flip it to 1 (queued for sync) after grace.
+        tripDao.update(finishedTrip)
+
+        // Voice announcement fires immediately so the user gets audible feedback
+        // that the recording stopped, even if they end up discarding the trip in
+        // the grace window. Only the sync upload is gated by the timer.
+        val appSettings = settingsRepository.get()
+        if (appSettings.announceRecording) {
+            scope.launch {
+                voiceService.announceEvent(context.getString(R.string.voice_recording_finished))
+            }
+        }
+
+        // No sync folder = no upload to defer = no grace window. The trip is fully
+        // saved locally already (endTime/distance written above); just exit.
+        if (appSettings.syncFolderUri == null) {
+            Log.i(TAG, "Recording stopped (no sync folder, finalized immediately)")
+            return
+        }
+
+        pendingTrip = finishedTrip
+        _pendingTripId.value = finishedTrip.id
+        Log.i(TAG, "Recording stopped, ${FINALIZE_GRACE_MS / 1000}s grace before sync")
+
+        pendingFinalizeJob = scope.launch {
+            try {
+                kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
+                finalizePendingTrip()
+            } catch (_: kotlinx.coroutines.CancellationException) {
+                // Cancelled by deleteTrip on the pending trip — user discarded it.
+            }
         }
     }
 
+    /** Run the deferred finalize step: queue the trip for sync upload. */
+    private suspend fun finalizePendingTrip() {
+        val trip = pendingTrip ?: return
+        val appSettings = settingsRepository.get()
+        val willSync = appSettings.syncFolderUri != null
+        if (willSync) {
+            tripDao.update(trip.copy(uploadStatus = 1))
+        }
+        pendingTrip = null
+        _pendingTripId.value = null
+        pendingFinalizeJob = null
+        Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync)")
+        if (willSync) syncManager.enqueueTripUpload(appSettings)
+    }
+
+    /**
+     * If a stop is already in its grace window when a new stop arrives (or the app
+     * shuts down cleanly), bring the old pending trip across the finish line instead
+     * of leaving it half-saved.
+     */
+    private suspend fun finalizePendingTripIfAny() {
+        if (pendingTrip == null) return
+        pendingFinalizeJob?.cancel()
+        pendingFinalizeJob = null
+        finalizePendingTrip()
+    }
+
+    /**
+     * Cancel and discard the just-finished trip during the grace window. Equivalent
+     * to calling [deleteTrip] on the pending trip — kept as an explicit entry point
+     * for screens that want a "just throw it away" call without holding the
+     * TripRecord. No-op if no trip is pending.
+     */
+    suspend fun cancelPendingTrip() {
+        val trip = pendingTrip ?: return
+        deleteTrip(trip)
+        Log.i(TAG, "Pending trip discarded: ${trip.fileName}")
+    }
+
     suspend fun deleteTrip(trip: TripRecord) {
+        // If the user is deleting the trip currently in its discard-grace window,
+        // cancel the finalize timer so the just-deleted row doesn't sneak through
+        // and get queued for sync upload after the fact.
+        if (pendingTrip?.id == trip.id) {
+            pendingFinalizeJob?.cancel()
+            pendingFinalizeJob = null
+            pendingTrip = null
+            _pendingTripId.value = null
+        }
         tripDao.delete(trip)
         val file = File(getTripsDir(), trip.fileName)
         if (file.exists()) file.delete()
@@ -251,6 +348,9 @@ class TripRepository @Inject constructor(
 
     suspend fun clearAll() {
         if (_recording.value) stopRecording()
+        // Drop any pending trip so the user-initiated wipe doesn't leave a
+        // ghost finalize job waiting to enqueue a sync upload.
+        cancelPendingTrip()
         val dir = getTripsDir()
         // Delete all CSV and DBB files
         dir.listFiles()?.forEach { f ->

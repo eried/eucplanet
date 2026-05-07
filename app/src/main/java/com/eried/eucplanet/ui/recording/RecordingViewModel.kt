@@ -70,6 +70,15 @@ class RecordingViewModel @Inject constructor(
 
     val recording: StateFlow<Boolean> = tripRepository.recording
 
+    /**
+     * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
+     * row for this id shows an hourglass instead of the upload-success tick. Tapping
+     * delete on that row goes through the regular confirmation dialog;
+     * TripRepository.deleteTrip cancels the pending grace if the deleted trip is
+     * the pending one.
+     */
+    val pendingTripId: StateFlow<Long?> = tripRepository.pendingTripId
+
     // Current GPS fix as (lat, lon) pair so the trip detail screen can animate a live marker.
     val liveLocation: StateFlow<LatLon?> = tripRepository.currentLocation
         .map { loc -> loc?.let { LatLon(it.latitude, it.longitude) } }

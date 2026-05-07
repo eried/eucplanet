@@ -25,6 +25,7 @@
     <string name="menu_view_current_trip">View current trip</string>
     <string name="menu_start_recording">Start recording</string>
     <string name="menu_stop_recording">Stop recording</string>
+    <string name="discard_trip_pending_label">Trip will be backed up shortly</string>
     <string name="no_trips_title">No trips yet</string>
     <string name="no_trips_body">Start a recording or import trips. This shortcut opens the most recent one.</string>
     <string name="no_trips_action_recorder">Trip recorder</string>

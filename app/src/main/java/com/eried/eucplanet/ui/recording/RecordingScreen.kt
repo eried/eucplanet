@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
@@ -69,6 +70,7 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentGreen
+import com.eried.eucplanet.ui.theme.AccentOrange
 import com.eried.eucplanet.ui.theme.AccentRed
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -85,6 +87,7 @@ fun RecordingScreen(
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
+    val pendingTripId by viewModel.pendingTripId.collectAsState()
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
@@ -372,9 +375,11 @@ fun RecordingScreen(
                 ) {
                     items(trips, key = { it.id }) { trip ->
                         val isRecordingTrip = trip.id == recordingTripId
+                        val isPendingTrip = trip.id == pendingTripId
                         TripCard(
                             trip = trip,
                             isRecording = isRecordingTrip,
+                            isPending = isPendingTrip,
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
                             onView = { onViewTrip?.invoke(trip) },
                             onShare = { viewModel.shareTrip(trip) },
@@ -401,6 +406,7 @@ private fun StatItem(label: String, value: String) {
 private fun TripCard(
     trip: TripRecord,
     isRecording: Boolean,
+    isPending: Boolean,
     liveDistanceKm: Float?,
     onView: () -> Unit,
     onShare: () -> Unit,
@@ -467,28 +473,48 @@ private fun TripCard(
                     )
                 }
             }
-            // Backup indicator — only shown once the trip is actually backed up.
-            // Pending/failed/never-configured all render nothing to keep the row clean.
-            if (!isRecording && trip.uploadStatus == 2) {
-                UploadStatusIcon(trip)
+            // Status icon slot — same position as the green upload-success tick.
+            // Orange "pending" icon covers two phases: the discard-grace window
+            // (isPending=true) and the brief in-flight period after grace while the
+            // sync worker is uploading (uploadStatus=1). Without this, there is a
+            // visible gap between the orange icon disappearing and the green tick
+            // appearing once the upload completes. Recording trips show neither.
+            when {
+                isPending || (!isRecording && trip.uploadStatus == 1) -> PendingStatusIcon()
+                !isRecording && trip.uploadStatus == 2 -> UploadStatusIcon(trip)
             }
             // View (eye) — always available
             IconButton(onClick = onView) {
                 Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.action_view))
             }
-            // Share
+            // Share — uses the local CSV which exists from the moment recording stops,
+            // independent of backup state. Always available except while actively
+            // recording (CSV writer is open).
             IconButton(onClick = onShare, enabled = !isRecording) {
                 Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            // Delete
+            // Delete — same confirmation dialog whether the trip is in the discard
+            // grace window or already finalized. TripRepository.deleteTrip cancels
+            // the pending grace if the deleted trip is the pending one, so the dialog
+            // path is the only place that asks the user to confirm.
             IconButton(onClick = onDelete, enabled = !isRecording) {
                 Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.action_delete),
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+}
+
+@Composable
+private fun PendingStatusIcon() {
+    val context = LocalContext.current
+    val msg = stringResource(R.string.discard_trip_pending_label)
+    IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
+        Icon(Icons.Default.Pending, contentDescription = msg, tint = AccentOrange,
+            modifier = Modifier.size(20.dp))
     }
 }
 
