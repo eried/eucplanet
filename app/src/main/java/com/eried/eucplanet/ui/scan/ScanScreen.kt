@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bluetooth
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,7 +48,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ble.BleDevice
+import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -221,6 +225,71 @@ fun ScanScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                        }
+                    }
+                }
+
+                // Debug-only simulator section. Pretends to be a wheel for development
+                // when no real hardware is around — bypasses BLE, exercises the rest
+                // of the stack (parser, repo, UI, alarms, recording).
+                if (BuildConfig.DEBUG) {
+                    item {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            stringResource(R.string.scan_simulate_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            stringResource(R.string.scan_simulate_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                        )
+                    }
+                    items(VirtualWheelRegistry.all()) { virtual ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selecting = true
+                                    viewModel.selectDevice(
+                                        BleDevice(
+                                            name = virtual.displayName,
+                                            address = VirtualWheelRegistry.pseudoAddress(virtual.id),
+                                            rssi = 0
+                                        )
+                                    )
+                                    onDeviceSelected()
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Science,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = virtual.displayName,
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    Text(
+                                        text = VirtualWheelRegistry.pseudoAddress(virtual.id),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
                 }

@@ -45,6 +45,10 @@
     <string name="experimental_dialog_body">Tapping this banner will open a GitHub form where you can report what works, what doesn\'t, and which wheel you\'re using. Some fields are pre-filled from the app to save you typing.\n\nA GitHub account is required to post the issue.</string>
     <string name="experimental_dialog_report">Report an issue</string>
 
+    <!-- Scan: virtual wheel section (debug builds only) -->
+    <string name="scan_simulate_title">Simulate a wheel (debug)</string>
+    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline.</string>
+
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
     <string name="connection_connecting">Searching\u2026</string>

@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.eried.eucplanet.ble.virtual.VirtualWheel
+import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -67,12 +69,25 @@ class BleConnectionManager @Inject constructor(
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
     private var writeReady = false
 
+    // Active virtual wheel when in demo mode (address starts with "VIRTUAL:").
+    // When non-null, writes are routed to the simulator instead of GATT and the
+    // simulator's response bytes are fed back through the adapter pipeline as if
+    // they had arrived as real BLE notifications. GATT handles stay null.
+    @Volatile private var virtualWheel: VirtualWheel? = null
+
     init {
         scope.launch { processWriteQueue() }
     }
 
     @SuppressLint("MissingPermission")
     fun connect(address: String) {
+        // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
+        val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
+        if (virtualId != null) {
+            connectVirtual(virtualId)
+            return
+        }
+
         currentAddress = address
         shouldReconnect = true
         _connectionState.value = ConnectionState.CONNECTING
@@ -81,12 +96,57 @@ class BleConnectionManager @Inject constructor(
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
     }
 
+    /**
+     * Skip GATT entirely and run a simulated wheel. The fake produces the same
+     * raw-byte responses a real wheel would emit, so the parser/adapter/repository
+     * pipeline runs unchanged. Disconnect by calling [disconnect] as usual.
+     */
+    private fun connectVirtual(id: String) {
+        val wheel = VirtualWheelRegistry.create(id) ?: run {
+            Log.e(TAG, "Unknown virtual wheel id: $id")
+            return
+        }
+        Log.i(TAG, "Connecting to virtual wheel: ${wheel.displayName}")
+        wheel.reset()
+        virtualWheel = wheel
+        currentAddress = VirtualWheelRegistry.pseudoAddress(id)
+        shouldReconnect = false
+        _connectionState.value = ConnectionState.CONNECTING
+        scope.launch {
+            // Brief delays so the UI's connection-state animations actually animate.
+            delay(150)
+            _connectionState.value = ConnectionState.INITIALIZING
+            for (resp in wheel.onConnect()) emitVirtualResponse(resp)
+            delay(150)
+            // Mark CONNECTED last so writeReady gates open AFTER on-connect responses
+            // have already filtered through the adapter — same ordering a real wheel
+            // gets, where notifications start landing once the GATT subscription is up.
+            writeReady = true
+            _connectionState.value = ConnectionState.CONNECTED
+        }
+    }
+
+    private fun emitVirtualResponse(rawBytes: ByteArray) {
+        for (result in wheelAdapter.onRawNotification(rawBytes)) {
+            _decodedResults.tryEmit(result)
+        }
+    }
+
     @SuppressLint("MissingPermission")
     fun disconnect() {
         shouldReconnect = false
         currentAddress = null
         rxCharacteristic = null
         writeReady = false
+
+        // Virtual wheel: just drop the reference; no GATT to tear down.
+        if (virtualWheel != null) {
+            wheelAdapter.onDisconnect()
+            virtualWheel = null
+            _connectionState.value = ConnectionState.DISCONNECTED
+            return
+        }
+
         val g = gatt
         if (g == null) {
             _connectionState.value = ConnectionState.DISCONNECTED
@@ -120,6 +180,13 @@ class BleConnectionManager @Inject constructor(
     @SuppressLint("MissingPermission")
     private suspend fun processWriteQueue() {
         for (data in writeChannel) {
+            // Virtual mode: hand the write to the simulator and feed any responses
+            // back through the adapter pipeline. No GATT, no writeReady gating.
+            val virtual = virtualWheel
+            if (virtual != null) {
+                for (resp in virtual.onWrite(data)) emitVirtualResponse(resp)
+                continue
+            }
             if (!writeReady || rxCharacteristic == null || gatt == null) {
                 Log.w(TAG, "Write skipped: ready=$writeReady rx=${rxCharacteristic != null} gatt=${gatt != null}")
                 continue
