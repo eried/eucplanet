@@ -17,8 +17,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -154,7 +154,7 @@ private fun ActionRow(state: WatchState) {
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.VolumeUp,
+                    imageVector = Icons.Filled.Campaign,
                     contentDescription = stringResource(R.string.watch_horn),
                     modifier = Modifier.size(20.dp)
                 )
@@ -170,7 +170,7 @@ private fun ActionRow(state: WatchState) {
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Lightbulb,
+                    imageVector = Icons.Filled.FlashOn,
                     contentDescription = stringResource(R.string.watch_light),
                     tint = if (state.lightOn) Color(0xFFFFC107) else Color(0xFF606060),
                     modifier = Modifier.size(20.dp)
