@@ -49,11 +49,7 @@ fun ExternalGpsSection(viewModel: ExternalGpsViewModel = hiltViewModel()) {
     val sample by viewModel.currentSample.collectAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            stringResource(R.string.section_external_gps),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+        SectionHeader(stringResource(R.string.section_external_gps))
         HintText(stringResource(R.string.external_gps_caption), small = true)
 
         if (pairedAddress == null) {

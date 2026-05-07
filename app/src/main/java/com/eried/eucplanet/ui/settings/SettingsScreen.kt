@@ -1355,7 +1355,7 @@ private fun AnnounceSwitchSetting(
 }
 
 @Composable
-private fun SectionHeader(title: String) {
+internal fun SectionHeader(title: String) {
     val query = LocalSettingsSearchQuery.current
     Text(
         text = highlightMatches(title, query),
