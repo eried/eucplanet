@@ -1,0 +1,138 @@
+name: Branch APK
+
+# On every push to a non-main branch, build a debug APK and replace the
+# rolling pre-release tagged `branch-<name>` with the freshly built artifact.
+# Testers always get the latest commit by visiting the same release URL.
+#
+# Pull-request runs build the APK as a workflow artifact (downloadable from
+# the Actions tab for ~90 days) but do not touch the release list, so PRs
+# from forks can't push tags.
+
+on:
+  push:
+    branches-ignore:
+      - main
+    tags-ignore:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so we can produce a "since main" log
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Compute build metadata
+        id: meta
+        if: github.event_name != 'pull_request'
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          SHORT_SHA="$(git rev-parse --short HEAD)"
+          TAG="branch-${BRANCH}"
+          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}.apk"
+
+          # Pull the per-branch description if BRANCH.md exists, otherwise
+          # fall back to a generic notice. This becomes the release body header.
+          if [ -f BRANCH.md ]; then
+            cp BRANCH.md /tmp/branch-notes.md
+          else
+            cat > /tmp/branch-notes.md <<EOF
+          # ${BRANCH}
+
+          No \`BRANCH.md\` found at repo root. Add one to describe what this
+          branch is for and who should test it.
+          EOF
+          fi
+
+          # Recent commits since branching from main, capped to keep the
+          # release body readable on big branches.
+          git log --pretty=format:'- %h %s' main..HEAD | head -50 > /tmp/commit-log.md || true
+
+          {
+            echo "**Pre-release from branch \`${BRANCH}\`** — automatic build at \`${SHORT_SHA}\`."
+            echo
+            echo "This is a CI-built debug APK. It can't update an existing Play Store install in place — uninstall the Play version first to install this build."
+            echo
+            cat /tmp/branch-notes.md
+            echo
+            echo "## Recent commits"
+            echo
+            cat /tmp/commit-log.md
+          } > /tmp/release-body.md
+
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Rename APK for release
+        if: github.event_name != 'pull_request'
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             "/tmp/${{ steps.meta.outputs.apk_name }}"
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-${{ github.run_id }}
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 90
+
+      - name: Strip prior APKs from rolling release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # action-gh-release attaches new files but doesn't remove the previous
+          # commit's APK; without this step the rolling pre-release accumulates
+          # one APK per push. Delete every existing .apk on the tag before the
+          # next step uploads the freshly built one. Tolerate the tag not
+          # existing yet (first run on a brand-new branch).
+          tag="${{ steps.meta.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release view "$tag" --json assets \
+              --jq '.assets[] | select(.name | endswith(".apk")) | .name' \
+            | while read -r asset; do
+                [ -n "$asset" ] && gh release delete-asset "$tag" "$asset" --yes || true
+              done
+          fi
+
+      - name: Replace rolling pre-release with new APK
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.tag }} (${{ steps.meta.outputs.short_sha }})
+          body_path: /tmp/release-body.md
+          prerelease: true
+          # Replace the existing tag/release on every push so testers can
+          # always find the latest at the same URL.
+          make_latest: "false"
+          files: /tmp/${{ steps.meta.outputs.apk_name }}
