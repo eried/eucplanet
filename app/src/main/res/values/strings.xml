@@ -42,7 +42,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Preliminary supported wheel. Tap to report issues.</string>
     <string name="experimental_dialog_title">Help improve EUC Planet</string>
-    <string name="experimental_dialog_body">The support for this wheel is not tested by the author (the author only has a V14). Use it with caution.\n\nTapping the banner will open a form where you can report what works and what doesn\'t.</string>
+    <string name="experimental_dialog_body">The support for this wheel is not tested by the author (the author only has a V14). Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
     <string name="experimental_dialog_report">Report an issue</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
