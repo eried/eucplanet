@@ -105,6 +105,25 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 90
 
+      - name: Strip prior APKs from rolling release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # action-gh-release attaches new files but doesn't remove the previous
+          # commit's APK; without this step the rolling pre-release accumulates
+          # one APK per push. Delete every existing .apk on the tag before the
+          # next step uploads the freshly built one. Tolerate the tag not
+          # existing yet (first run on a brand-new branch).
+          tag="${{ steps.meta.outputs.tag }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release view "$tag" --json assets \
+              --jq '.assets[] | select(.name | endswith(".apk")) | .name' \
+            | while read -r asset; do
+                [ -n "$asset" ] && gh release delete-asset "$tag" "$asset" --yes || true
+              done
+          fi
+
       - name: Replace rolling pre-release with new APK
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
