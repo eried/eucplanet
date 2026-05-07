@@ -52,8 +52,9 @@ fun ExternalGpsSection(viewModel: ExternalGpsViewModel = hiltViewModel()) {
         SectionHeader(stringResource(R.string.section_external_gps))
 
         if (pairedAddress == null) {
-            // Not paired: scan card with start/stop and a list of discovered devices.
-            // Mirrors the Flic scan card so the two integrations read as one family.
+            // Match the Volume Keys / Flic layout: hint outside the card as small
+            // italic text, action button inside the card, full width.
+            HintText(stringResource(R.string.external_gps_caption), small = true)
             UnpairedExternalGpsCard(
                 scanning = scanning,
                 results = scanResults,
@@ -86,18 +87,13 @@ private fun UnpairedExternalGpsCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp)
     ) {
-        // Mirrors the Flic scan card: centered column, hint above the button,
-        // intrinsic button width. Discovered devices appear as inset rows
-        // between the hint and the action button.
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            HintText(stringResource(R.string.external_gps_caption))
             results.forEach { result ->
-                Spacer(Modifier.height(8.dp))
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(8.dp),
@@ -125,21 +121,20 @@ private fun UnpairedExternalGpsCard(
                 }
             }
             if (scanning && results.isEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                HintText(stringResource(R.string.external_gps_no_results))
+                HintText(stringResource(R.string.external_gps_no_results), small = true)
             }
-            Spacer(Modifier.height(12.dp))
             if (scanning) {
-                CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                Spacer(Modifier.height(8.dp))
+                CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
                 Button(
                     onClick = onStopScan,
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                 ) { Text(stringResource(R.string.external_gps_stop_scan)) }
             } else {
-                Button(onClick = onStartScan) {
-                    Text(stringResource(R.string.external_gps_pair_button))
-                }
+                Button(
+                    onClick = onStartScan,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.external_gps_pair_button)) }
             }
         }
     }

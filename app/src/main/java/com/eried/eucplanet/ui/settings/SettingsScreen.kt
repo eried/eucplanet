@@ -974,30 +974,33 @@ private fun FlicTab(
         }
 
         // Scan section — only shown when there's an empty slot to fill.
+        // Layout matches Volume Keys: hint sits outside the card as small italic
+        // body text, action button sits inside the card and stretches full width
+        // for an obvious tap target.
         val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
+            HintText(stringResource(R.string.flic_scan_hint), small = true)
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    HintText(stringResource(R.string.flic_scan_hint))
-                    Spacer(Modifier.height(12.dp))
                     if (scanning) {
-                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                        Spacer(Modifier.height(8.dp))
+                        CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
                         Button(
                             onClick = { viewModel.stopScan() },
+                            modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
                         ) { Text(stringResource(R.string.flic_stop_scan)) }
                     } else {
-                        Button(onClick = { viewModel.startScan() }) {
-                            Text(stringResource(R.string.flic_start_scan))
-                        }
+                        Button(
+                            onClick = { viewModel.startScan() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text(stringResource(R.string.flic_start_scan)) }
                     }
                 }
             }
