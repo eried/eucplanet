@@ -166,7 +166,17 @@ data class AppSettings(
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
-    val lastSettingsBackupAt: Long? = null
+    val lastSettingsBackupAt: Long? = null,
+
+    // External BLE GPS pairing (RaceBox today; future Draggy/VBox/etc. share this slot).
+    // Three values stored: BLE MAC, advertised name (for display), and the source-family
+    // enum name as a string ("RACEBOX") so we know which adapter to instantiate on connect.
+    @ColumnInfo(defaultValue = "NULL")
+    val externalGpsAddress: String? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val externalGpsName: String? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val externalGpsSource: String? = null
 )
 
 enum class FlicAction(val labelRes: Int) {
