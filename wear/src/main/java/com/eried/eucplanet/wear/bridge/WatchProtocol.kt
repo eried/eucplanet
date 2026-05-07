@@ -21,6 +21,7 @@ object WatchKeys {
     const val CONNECTED = "c"
     const val SPEED = "s"
     const val BATTERY = "b"
+    const val PHONE_BATT = "b2"
     const val VOLTAGE = "v"
     const val CURRENT = "i"
     const val PWM = "p"
@@ -32,6 +33,8 @@ object WatchKeys {
     const val WHEEL_NAME = "n"
     const val HAS_HORN = "ch"
     const val HAS_LIGHT = "cl"
+    const val IMPERIAL = "im"
+    const val ACCENT = "ac"
     /** Bumped on every snapshot so the watch always sees a fresh DataItem. */
     const val TIMESTAMP = "ts"
 }
@@ -51,6 +54,7 @@ data class WatchState(
     val wheelName: String = "",
     val speedKmh: Float = 0f,
     val batteryPercent: Int = 0,
+    val phoneBatteryPercent: Int = 0,
     val voltage: Float = 0f,
     val current: Float = 0f,
     val pwmPercent: Float = 0f,
@@ -60,5 +64,7 @@ data class WatchState(
     val lightOn: Boolean = false,
     val maxSpeedKmh: Float = 0f,
     val hasHorn: Boolean = false,
-    val hasLight: Boolean = false
+    val hasLight: Boolean = false,
+    val imperialUnits: Boolean = false,
+    val accentKey: String = "default"
 )

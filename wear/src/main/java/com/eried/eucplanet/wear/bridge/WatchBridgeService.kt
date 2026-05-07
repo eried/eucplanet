@@ -27,6 +27,7 @@ class WatchBridgeService : WearableListenerService() {
                         wheelName = map.getString(WatchKeys.WHEEL_NAME, "") ?: "",
                         speedKmh = map.getFloat(WatchKeys.SPEED, 0f),
                         batteryPercent = map.getInt(WatchKeys.BATTERY, 0),
+                        phoneBatteryPercent = map.getInt(WatchKeys.PHONE_BATT, 0),
                         voltage = map.getFloat(WatchKeys.VOLTAGE, 0f),
                         current = map.getFloat(WatchKeys.CURRENT, 0f),
                         pwmPercent = map.getFloat(WatchKeys.PWM, 0f),
@@ -36,7 +37,9 @@ class WatchBridgeService : WearableListenerService() {
                         lightOn = map.getBoolean(WatchKeys.LIGHT_ON, false),
                         maxSpeedKmh = map.getFloat(WatchKeys.MAX_SPEED, 0f),
                         hasHorn = map.getBoolean(WatchKeys.HAS_HORN, false),
-                        hasLight = map.getBoolean(WatchKeys.HAS_LIGHT, false)
+                        hasLight = map.getBoolean(WatchKeys.HAS_LIGHT, false),
+                        imperialUnits = map.getBoolean(WatchKeys.IMPERIAL, false),
+                        accentKey = map.getString(WatchKeys.ACCENT, "default") ?: "default"
                     )
                 )
             }

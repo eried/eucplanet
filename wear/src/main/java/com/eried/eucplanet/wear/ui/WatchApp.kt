@@ -1,34 +1,45 @@
 package com.eried.eucplanet.wear.ui
 
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Watch
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,21 +55,20 @@ import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
 
 /**
- * Two-page horizontal pager: page 0 is the dashboard the user sees first
- * (speed, battery, horn, light); page 1 is the detail strip (voltage,
- * current, PWM, temperature, trip, torque). Round-display friendly because
- * everything stays in the centre rectangle.
+ * Two-page horizontal pager: page 0 is the dashboard (gauge + horn/light);
+ * page 1 is the detail strip (voltage / current / PWM / temp / trip / torque).
  */
 @Composable
 fun WatchApp() {
     val state by WatchStateRepository.state.collectAsStateWithLifecycle()
+    val accent = accentColorFor(state.accentKey)
     MaterialTheme {
         Scaffold(timeText = {}) {
             val pagerState = rememberPagerState(pageCount = { 2 })
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                 when (page) {
-                    0 -> MainScreen(state)
-                    1 -> DetailsScreen(state)
+                    0 -> MainScreen(state, accent)
+                    1 -> DetailsScreen(state, accent)
                 }
             }
         }
@@ -66,8 +76,8 @@ fun WatchApp() {
 }
 
 @Composable
-private fun MainScreen(state: WatchState) {
-    Box(
+private fun MainScreen(state: WatchState, accent: Color) {
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
@@ -75,88 +85,187 @@ private fun MainScreen(state: WatchState) {
     ) {
         if (!state.connected) {
             DisconnectedPlaceholder()
-            return@Box
+            return@BoxWithConstraints
         }
+        val sw = maxWidth.value
+        val batteryFontSp = (sw * 0.034f).coerceIn(9f, 12f).sp
+        val batteryIconDp = (sw * 0.038f).coerceIn(10f, 14f).dp
+        val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
+        val buttonDp = (sw * 0.115f).coerceIn(34f, 50f).dp
+        val buttonIconDp = (sw * 0.055f).coerceIn(16f, 24f).dp
+        val speedFontSp = (sw * 0.20f).coerceIn(48f, 78f).sp
+        val unitFontSp = (sw * 0.05f).coerceIn(11f, 16f).sp
+        val watchPercent = rememberWatchBatteryPercent()
+
+        // Gauge as full-screen frame; we'll draw the speed text + unit
+        // ourselves so we can stack them with the buttons cleanly.
+        SpeedGauge(
+            speed = state.speedKmh,
+            maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f,
+            imperial = state.imperialUnits,
+            accent = accent,
+            showColorBand = true,
+            fullBleed = true,
+            drawSpeedText = false,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Stacked overlay inside the dial: batteries (top), speed number
+        // (centre), action buttons (bottom). Vertical offsets are fractions
+        // of the screen so the same code looks right on small round (~390 dp)
+        // and Watch Ultra (~454 dp) alike.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = (sw * 0.13f).coerceIn(36f, 60f).dp)
         ) {
-            Text(
-                text = "%.1f".format(state.speedKmh),
-                fontSize = 56.sp,
-                fontWeight = FontWeight.Bold,
-                color = speedColor(state.speedKmh, state.maxSpeedKmh),
-                textAlign = TextAlign.Center
+            BatteryRow(
+                wheelPercent = state.batteryPercent,
+                phonePercent = state.phoneBatteryPercent,
+                watchPercent = watchPercent,
+                fontSize = batteryFontSp,
+                iconSize = batteryIconDp,
+                spacing = batterySpacingDp
             )
-            Text(
-                text = stringResource(R.string.watch_speed_unit),
-                fontSize = 12.sp,
-                color = Color(0xFFB0B0B0)
+            CenterSpeed(
+                speedKmh = state.speedKmh,
+                imperial = state.imperialUnits,
+                maxSpeedKmh = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f,
+                speedFontSize = speedFontSp,
+                unitFontSize = unitFontSp
             )
-            Spacer(Modifier.height(6.dp))
-            BatteryRow(state.batteryPercent)
-            Spacer(Modifier.height(8.dp))
-            ActionRow(state)
+            ActionRow(state, accent, buttonDp, buttonIconDp)
         }
+    }
+}
+
+@Composable
+private fun CenterSpeed(
+    speedKmh: Float,
+    imperial: Boolean,
+    maxSpeedKmh: Float,
+    speedFontSize: TextUnit,
+    unitFontSize: TextUnit
+) {
+    val color = when {
+        speedKmh > maxSpeedKmh * 0.85f -> Color(0xFFEF5350)
+        speedKmh > maxSpeedKmh * 0.65f -> Color(0xFFFFA726)
+        speedKmh > maxSpeedKmh * 0.4f -> Color(0xFFFFCA28)
+        else -> Color(0xFF66BB6A)
+    }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = "%.0f".format(WatchUnits.speed(speedKmh, imperial)),
+            fontSize = speedFontSize,
+            fontWeight = FontWeight.Bold,
+            color = color
+        )
+        Text(
+            text = WatchUnits.speedUnit(imperial),
+            fontSize = unitFontSize,
+            color = Color(0xFF9AA0A6)
+        )
     }
 }
 
 @Composable
 private fun DisconnectedPlaceholder() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFB00020))
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.watch_waiting_phone),
-            fontSize = 14.sp,
-            color = Color(0xFFE0E0E0),
-            textAlign = TextAlign.Center
-        )
+        val sw = maxWidth.value
+        val iconDp = (sw * 0.18f).coerceIn(36f, 56f).dp
+        val textSp = (sw * 0.038f).coerceIn(12f, 15f).sp
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.PhoneAndroid,
+                contentDescription = null,
+                tint = Color(0xFF9AA0A6),
+                modifier = Modifier.size(iconDp)
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.watch_waiting_phone),
+                fontSize = textSp,
+                color = Color(0xFFB0B0B0),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
 @Composable
-private fun BatteryRow(percent: Int) {
-    val tint = when {
-        percent < 15 -> Color(0xFFE53935)
-        percent < 30 -> Color(0xFFFFB300)
-        else -> Color(0xFF66BB6A)
+private fun BatteryRow(
+    wheelPercent: Int,
+    phonePercent: Int,
+    watchPercent: Int,
+    fontSize: TextUnit,
+    iconSize: Dp,
+    spacing: Dp
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        BatteryChip(Icons.Outlined.Speed, wheelPercent, fontSize, iconSize)
+        BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, fontSize, iconSize)
+        BatteryChip(Icons.Filled.Watch, watchPercent, fontSize, iconSize)
     }
+}
+
+@Composable
+private fun BatteryChip(icon: ImageVector, percent: Int, fontSize: TextUnit, iconSize: Dp) {
+    val tint = batteryTint(percent)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            imageVector = Icons.Filled.Bolt,
+            imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(14.dp)
+            modifier = Modifier.size(iconSize)
         )
-        Text(text = " $percent%", fontSize = 14.sp, color = tint, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.width(2.dp))
+        Text(
+            text = "$percent",
+            fontSize = fontSize,
+            color = tint,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
+private fun batteryTint(percent: Int): Color = when {
+    percent <= 0 -> Color(0xFF606060)
+    percent < 15 -> Color(0xFFE53935)
+    percent < 30 -> Color(0xFFFFB300)
+    else -> Color(0xFF66BB6A)
+}
+
 @Composable
-private fun ActionRow(state: WatchState) {
+private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize: Dp) {
     val context = LocalContext.current
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         if (state.hasHorn) {
             Button(
                 onClick = { WatchStateRepository.sendControl(context, WatchControl.HORN) },
-                colors = ButtonDefaults.primaryButtonColors(),
-                modifier = Modifier.size(40.dp)
+                colors = ButtonDefaults.primaryButtonColors(
+                    backgroundColor = accent,
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier.size(buttonSize)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Campaign,
                     contentDescription = stringResource(R.string.watch_horn),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
         }
@@ -166,14 +275,17 @@ private fun ActionRow(state: WatchState) {
                     val intent = if (state.lightOn) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
                     WatchStateRepository.sendControl(context, intent)
                 },
-                colors = ButtonDefaults.secondaryButtonColors(),
-                modifier = Modifier.size(40.dp)
+                colors = ButtonDefaults.secondaryButtonColors(
+                    backgroundColor = if (state.lightOn) accent.copy(alpha = 0.30f) else Color(0xFF2A2A2A),
+                    contentColor = if (state.lightOn) accent else Color(0xFFB0B0B0)
+                ),
+                modifier = Modifier.size(buttonSize)
             ) {
                 Icon(
                     imageVector = Icons.Filled.FlashOn,
                     contentDescription = stringResource(R.string.watch_light),
                     tint = if (state.lightOn) Color(0xFFFFC107) else Color(0xFF606060),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
         }
@@ -181,8 +293,8 @@ private fun ActionRow(state: WatchState) {
 }
 
 @Composable
-private fun DetailsScreen(state: WatchState) {
-    Box(
+private fun DetailsScreen(state: WatchState, accent: Color) {
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
@@ -190,44 +302,124 @@ private fun DetailsScreen(state: WatchState) {
     ) {
         if (!state.connected) {
             DisconnectedPlaceholder()
-            return@Box
+            return@BoxWithConstraints
         }
+        val sw = maxWidth.value
+        val labelSp = (sw * 0.034f).coerceIn(10f, 13f).sp
+        val valueSp = (sw * 0.038f).coerceIn(11f, 14f).sp
+        val headerSp = (sw * 0.040f).coerceIn(12f, 15f).sp
+        val speedSp = (sw * 0.060f).coerceIn(18f, 26f).sp
+        val labelWidth = (sw * 0.22f).coerceIn(60f, 90f).dp
+        val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
+
+        val imperial = state.imperialUnits
+        val distUnit = WatchUnits.distanceUnit(imperial)
+        val tempUnit = WatchUnits.tempUnit(imperial)
+        val speedUnit = WatchUnits.speedUnit(imperial)
+        val tripDisplay = WatchUnits.distance(state.tripKm, imperial)
+        val tempDisplay = WatchUnits.temperature(state.temperatureC, imperial)
+        val speedDisplay = WatchUnits.speed(state.speedKmh, imperial)
+        val powerW = state.voltage * state.current
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            DetailRow(R.string.watch_voltage_label, "%.1f V".format(state.voltage))
-            DetailRow(R.string.watch_current_label, "%.1f A".format(state.current))
-            DetailRow(R.string.watch_pwm_label, "%.0f %%".format(state.pwmPercent))
-            DetailRow(R.string.watch_temp_label, "%.0f °C".format(state.temperatureC))
-            DetailRow(R.string.watch_torque_label, "%.1f".format(state.torque))
-            DetailRow(R.string.watch_trip_label, "%.2f km".format(state.tripKm))
+            if (state.wheelName.isNotBlank()) {
+                Text(
+                    text = state.wheelName,
+                    fontSize = headerSp,
+                    color = accent,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            Text(
+                text = "%.0f %s".format(speedDisplay, speedUnit),
+                fontSize = speedSp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Spacer(Modifier.height(4.dp))
+            DetailRow(R.string.watch_voltage_label, "%.1f V".format(state.voltage), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_current_label, "%.1f A".format(state.current), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_power_label, "%.0f W".format(powerW), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_pwm_label, "%.0f %%".format(state.pwmPercent), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_temp_label, "%.0f %s".format(tempDisplay, tempUnit), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_torque_label, "%.1f".format(state.torque), labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_trip_label, "%.2f %s".format(tripDisplay, distUnit), labelSp, valueSp, labelWidth, valueWidth)
         }
     }
 }
 
 @Composable
-private fun DetailRow(labelRes: Int, value: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+private fun DetailRow(
+    labelRes: Int,
+    value: String,
+    labelSp: TextUnit,
+    valueSp: TextUnit,
+    labelWidth: Dp,
+    valueWidth: Dp
+) {
+    // Fixed-width label + fixed-width value gives a tabular alignment so
+    // values stack vertically across rows. The whole row is centred by the
+    // Column's CenterHorizontally alignment.
+    Row(
+        modifier = Modifier.wrapContentWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = stringResource(labelRes),
-            fontSize = 12.sp,
+            fontSize = labelSp,
             color = Color(0xFF9AA0A6),
-            modifier = Modifier.width(72.dp)
+            textAlign = TextAlign.End,
+            modifier = Modifier.width(labelWidth)
         )
-        Spacer(Modifier.width(4.dp))
-        Text(text = value, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = value,
+            fontSize = valueSp,
+            color = Color.White,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.width(valueWidth)
+        )
     }
 }
 
-private fun speedColor(speed: Float, max: Float): Color {
-    if (max <= 0f) return Color(0xFF66BB6A)
-    val ratio = (speed / max).coerceIn(0f, 1f)
-    return when {
-        ratio < 0.6f -> Color(0xFF66BB6A)
-        ratio < 0.85f -> Color(0xFFFFB300)
-        else -> Color(0xFFE53935)
+/**
+ * Reads the watch's own battery via the sticky ACTION_BATTERY_CHANGED broadcast.
+ * `BATTERY_PROPERTY_CAPACITY` is unreliable on some Wear OS skins, so the
+ * receiver picks up the regular OS broadcasts and unregisters with the
+ * composition.
+ */
+@Composable
+private fun rememberWatchBatteryPercent(): Int {
+    val context = LocalContext.current
+    var percent by remember { mutableIntStateOf(initialBatteryPercent(context)) }
+    DisposableEffect(Unit) {
+        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(c: android.content.Context?, intent: Intent?) {
+                if (intent == null) return
+                val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                if (level >= 0 && scale > 0) {
+                    percent = (level * 100 / scale).coerceIn(0, 100)
+                }
+            }
+        }
+        context.registerReceiver(receiver, filter)
+        onDispose { runCatching { context.unregisterReceiver(receiver) } }
     }
+    return percent
+}
+
+private fun initialBatteryPercent(context: android.content.Context): Int {
+    val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+    val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+    val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+    return if (level >= 0 && scale > 0) (level * 100 / scale).coerceIn(0, 100) else 0
 }

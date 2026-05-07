@@ -1,8 +1,13 @@
 package com.eried.eucplanet.wear
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
@@ -36,7 +41,8 @@ import javax.inject.Singleton
 @Singleton
 class WearBridge @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val wheelRepository: WheelRepository
+    private val wheelRepository: WheelRepository,
+    private val settingsRepository: SettingsRepository
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -48,6 +54,7 @@ class WearBridge @Inject constructor(
         private const val K_CONNECTED = "c"
         private const val K_SPEED = "s"
         private const val K_BATTERY = "b"
+        private const val K_PHONE_BATT = "b2"
         private const val K_VOLTAGE = "v"
         private const val K_CURRENT = "i"
         private const val K_PWM = "p"
@@ -59,6 +66,8 @@ class WearBridge @Inject constructor(
         private const val K_WHEEL_NAME = "n"
         private const val K_HAS_HORN = "ch"
         private const val K_HAS_LIGHT = "cl"
+        private const val K_IMPERIAL = "im"
+        private const val K_ACCENT = "ac"
         private const val K_TIMESTAMP = "ts"
     }
 
@@ -80,14 +89,15 @@ class WearBridge @Inject constructor(
                 wheelRepository.wheelData,
                 wheelRepository.connectionState,
                 wheelRepository.modelName,
-                wheelRepository.maxSpeedCap
-            ) { data, state, name, maxSpeed ->
-                Quad(data, state, name, maxSpeed)
+                wheelRepository.maxSpeedCap,
+                settingsRepository.settings
+            ) { data, state, name, maxSpeed, settings ->
+                Snapshot(data, state, name, maxSpeed, settings)
             }
                 .sample(PUBLISH_INTERVAL_MS)
                 .distinctUntilChanged()
-                .collect { (data, state, name, maxSpeed) ->
-                    publish(data, state, name, maxSpeed)
+                .collect { snap ->
+                    publish(snap.data, snap.state, snap.name, snap.maxSpeed, snap.settings)
                 }
         }
     }
@@ -96,7 +106,8 @@ class WearBridge @Inject constructor(
         data: com.eried.eucplanet.data.model.WheelData,
         state: ConnectionState,
         name: String?,
-        maxSpeed: Float
+        maxSpeed: Float,
+        settings: AppSettings
     ) {
         try {
             val request = PutDataMapRequest.create(PATH_STATE).apply {
@@ -104,6 +115,7 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
                 dataMap.putFloat(K_SPEED, data.speed)
                 dataMap.putInt(K_BATTERY, data.batteryPercent)
+                dataMap.putInt(K_PHONE_BATT, readPhoneBatteryPercent())
                 dataMap.putFloat(K_VOLTAGE, data.voltage)
                 dataMap.putFloat(K_CURRENT, data.current)
                 dataMap.putFloat(K_PWM, data.pwm)
@@ -116,6 +128,8 @@ class WearBridge @Inject constructor(
                 // don't, gate these on WheelAdapter.capabilities. For now true.
                 dataMap.putBoolean(K_HAS_HORN, true)
                 dataMap.putBoolean(K_HAS_LIGHT, true)
+                dataMap.putBoolean(K_IMPERIAL, settings.imperialUnits)
+                dataMap.putString(K_ACCENT, settings.accentColor)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).
@@ -128,5 +142,24 @@ class WearBridge @Inject constructor(
         }
     }
 
-    private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+    private fun readPhoneBatteryPercent(): Int {
+        val bm = context.getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+        bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)?.let { lvl ->
+            if (lvl in 0..100) return lvl
+        }
+        // Fallback to the sticky ACTION_BATTERY_CHANGED broadcast on devices where
+        // BATTERY_PROPERTY_CAPACITY isn't reliable.
+        val intent: Intent? = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+        return if (level >= 0 && scale > 0) (level * 100 / scale).coerceIn(0, 100) else 0
+    }
+
+    private data class Snapshot(
+        val data: com.eried.eucplanet.data.model.WheelData,
+        val state: ConnectionState,
+        val name: String?,
+        val maxSpeed: Float,
+        val settings: AppSettings
+    )
 }
