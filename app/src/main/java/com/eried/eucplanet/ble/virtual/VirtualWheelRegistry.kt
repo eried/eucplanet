@@ -10,7 +10,8 @@ object VirtualWheelRegistry {
 
     /** Builds a fresh wheel each time so internal state is reset on every connect. */
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
-        "V14" to ::V14VirtualWheel
+        "V14" to ::V14VirtualWheel,
+        "P6" to ::P6VirtualWheel
     )
 
     fun all(): List<VirtualWheelInfo> =

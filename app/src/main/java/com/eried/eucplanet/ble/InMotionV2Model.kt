@@ -27,6 +27,15 @@ enum class InMotionV2Model(
      */
     val hornOpcode: Byte
 ) {
+    /**
+     * The P6 actually uses an extended-routing-only variant of the V2 protocol
+     * (every query goes `02 21 [sub]`, every response `21 02 [sub|0x80]`) per
+     * BLE captures. We don't have a P6 parser yet — this entry exists so the
+     * developer P6 simulator can identify itself, and so future Phase 4 work
+     * has the model already wired in. The flags here are placeholders that
+     * keep the simulator on the V14 command path.
+     */
+    P6(     21, "InMotion P6",         maxSpeedHasAlarms = true,  hornOpcode = 0x18),
     V11(    61, "InMotion V11",        maxSpeedHasAlarms = false, hornOpcode = 0x18),
     V11Y(   62, "InMotion V11y",       maxSpeedHasAlarms = true,  hornOpcode = 0x02),
     V12HS(  71, "InMotion V12 HS",     maxSpeedHasAlarms = false, hornOpcode = 0x18),
