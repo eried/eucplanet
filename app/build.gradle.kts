@@ -132,4 +132,7 @@ dependencies {
 
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
+
+    // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
+    implementation(libs.play.services.wearable)
 }

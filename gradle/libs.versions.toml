@@ -14,6 +14,8 @@ datastore = "1.1.1"
 work = "2.9.1"
 hiltWork = "1.2.0"
 reorderable = "2.4.3"
+wearCompose = "1.4.0"
+playServicesWearable = "18.2.0"
 
 [libraries]
 # Compose
@@ -73,6 +75,12 @@ hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.
 
 # Drag-to-reorder
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
+
+# Wear OS (Compose for Wear, Data Layer)
+wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }
+wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wearCompose" }
+wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
+play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
