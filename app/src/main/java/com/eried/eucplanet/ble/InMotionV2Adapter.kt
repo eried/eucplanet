@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import android.util.Log
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,14 +24,21 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     /**
      * Detected model from the wheel's MainInfo response. Set the first time
-     * [decode] sees a CarType packet on each connection. Read by per-model
-     * command dispatch (Phase 3+) — Phase 2 just exposes it for the UI.
+     * [decode] sees a CarType packet on each connection.
      *
      * Volatile because decode runs on the BLE coroutine and reads happen from
-     * the main thread. Cleared to null by the repository on disconnect.
+     * the main thread. Cleared to null on disconnect.
      */
     @Volatile var detectedModel: InMotionV2Model? = null
         private set
+
+    /**
+     * BLE notifications can split a single AA AA frame across multiple packets.
+     * Buffer them here and scan for complete frames. Stays in this adapter so
+     * sibling adapters (V1, KingSong, Veteran) can keep their own framing state
+     * without interference.
+     */
+    private val reassemblyBuffer = ByteArrayOutputStream()
 
     override fun initSequence(): List<ByteArray> = listOf(
         InMotionV2Commands.getCarType(),
@@ -86,7 +95,58 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray =
         InMotionV2Commands.verifyAuth(encryptedKey)
 
-    override fun decode(command: Byte, data: ByteArray): DecodeResult {
+    /**
+     * Walk the reassembly buffer for complete AA AA frames, parse each, decode,
+     * and return the resulting DecodeResults. Mirrors the legacy reassembly that
+     * used to live in BleConnectionManager — preserved byte-for-byte to keep V14
+     * behavior identical.
+     */
+    override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
+        reassemblyBuffer.write(rawBytes)
+        val buffer = reassemblyBuffer.toByteArray()
+        val results = mutableListOf<DecodeResult>()
+
+        var start = -1
+        for (i in 0 until buffer.size - 1) {
+            if (buffer[i] == InMotionV2Protocol.HEADER && buffer[i + 1] == InMotionV2Protocol.HEADER) {
+                if (start >= 0) {
+                    // Found next header — previous packet ends just before it
+                    InMotionV2Protocol.parsePacket(buffer.copyOfRange(start, i))?.let {
+                        results += decode(it.command, it.data)
+                    }
+                }
+                start = i
+            }
+        }
+
+        if (start >= 0) {
+            val candidate = buffer.copyOfRange(start, buffer.size)
+            if (candidate.size >= 5) {
+                val packet = InMotionV2Protocol.parsePacket(candidate)
+                if (packet != null) {
+                    results += decode(packet.command, packet.data)
+                    reassemblyBuffer.reset()
+                    return results
+                }
+            }
+            // Incomplete trailing packet — keep it in the buffer for the next notification
+            reassemblyBuffer.reset()
+            reassemblyBuffer.write(candidate)
+        } else {
+            // No header in the buffer at all — discard
+            reassemblyBuffer.reset()
+        }
+
+        return results
+    }
+
+    override fun onDisconnect() {
+        reassemblyBuffer.reset()
+        detectedModel = null
+    }
+
+    /** Internal decode of an unwrapped V2 packet. Called from [onRawNotification]. */
+    private fun decode(command: Byte, data: ByteArray): DecodeResult {
         return when (command.toInt() and 0x7F) {
             0x02 -> decodeMainInfoOrAuth(data)
             0x04 -> parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown

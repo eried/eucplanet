@@ -110,10 +110,11 @@ class WheelRepository @Inject constructor(
     @Volatile private var reconcileNextSettings = false
 
     init {
-        // Process incoming packets
+        // The adapter does its own framing + decoding; the connection manager
+        // forwards already-decoded results from raw BLE notifications.
         scope.launch {
-            bleManager.receivedPackets.collect { packet ->
-                handleDecoded(wheelAdapter.decode(packet.command, packet.data))
+            bleManager.decodedResults.collect { result ->
+                handleDecoded(result)
             }
         }
 

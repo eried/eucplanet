@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,15 +38,13 @@ enum class ConnectionState {
 
 @Singleton
 class BleConnectionManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val wheelAdapter: WheelAdapter
 ) {
     companion object {
         private const val TAG = "BleConnection"
 
-        // Nordic UART Service UUIDs
-        val NUS_SERVICE_UUID: UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-        val NUS_RX_UUID: UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")  // write
-        val NUS_TX_UUID: UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")  // notify
+        // Client Characteristic Configuration Descriptor — same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
@@ -57,8 +54,9 @@ class BleConnectionManager @Inject constructor(
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
-    private val _receivedPackets = MutableSharedFlow<ParsedPacket>(extraBufferCapacity = 64)
-    val receivedPackets: SharedFlow<ParsedPacket> = _receivedPackets.asSharedFlow()
+    private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
+    /** Stream of decoded results from the active wheel adapter. */
+    val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
 
     private var gatt: BluetoothGatt? = null
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
@@ -68,9 +66,6 @@ class BleConnectionManager @Inject constructor(
     // Write serialization - only one BLE write at a time
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
     private var writeReady = false
-
-    // Packet reassembly buffer
-    private val reassemblyBuffer = ByteArrayOutputStream()
 
     init {
         scope.launch { processWriteQueue() }
@@ -174,6 +169,8 @@ class BleConnectionManager @Inject constructor(
                     Log.i(TAG, "Disconnected from GATT (status=$status, shouldReconnect=$shouldReconnect)")
                     rxCharacteristic = null
                     writeReady = false
+                    // Reset adapter framing state for the next connection
+                    wheelAdapter.onDisconnect()
                     // Close the GATT here so the underlying connection is fully torn down
                     try { gatt.close() } catch (_: Exception) {}
                     if (this@BleConnectionManager.gatt === gatt) {
@@ -202,17 +199,18 @@ class BleConnectionManager @Inject constructor(
                 return
             }
 
-            val nusService = gatt.getService(NUS_SERVICE_UUID)
-            if (nusService == null) {
-                Log.e(TAG, "NUS service not found")
+            val profile = wheelAdapter.bleProfile()
+            val service = gatt.getService(profile.serviceUuid)
+            if (service == null) {
+                Log.e(TAG, "Adapter service ${profile.serviceUuid} not found on this wheel")
                 return
             }
 
-            rxCharacteristic = nusService.getCharacteristic(NUS_RX_UUID)
-            val txCharacteristic = nusService.getCharacteristic(NUS_TX_UUID)
+            rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
+            val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
 
             if (rxCharacteristic == null || txCharacteristic == null) {
-                Log.e(TAG, "NUS characteristics not found")
+                Log.e(TAG, "Adapter characteristics not found on service ${profile.serviceUuid}")
                 return
             }
 
@@ -232,7 +230,7 @@ class BleConnectionManager @Inject constructor(
 
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
-            Log.i(TAG, "NUS service ready")
+            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
         }
 
         override fun onCharacteristicWrite(
@@ -263,48 +261,13 @@ class BleConnectionManager @Inject constructor(
     }
 
     /**
-     * Process incoming BLE notification data. Handles packet reassembly
-     * since NUS may split packets across multiple notifications.
+     * Forward each BLE notification to the active wheel adapter and emit any
+     * DecodeResults it produces. Framing (reassembly, parsing) lives in the
+     * adapter — each protocol family has its own.
      */
     private fun processIncomingData(data: ByteArray) {
-        reassemblyBuffer.write(data)
-        val buffer = reassemblyBuffer.toByteArray()
-
-        // Scan for complete packets
-        var start = -1
-        for (i in 0 until buffer.size - 1) {
-            if (buffer[i] == InMotionV2Protocol.HEADER && buffer[i + 1] == InMotionV2Protocol.HEADER) {
-                if (start >= 0) {
-                    // Found next header - previous packet ends here
-                    val packetBytes = buffer.copyOfRange(start, i)
-                    tryParseAndEmit(packetBytes)
-                }
-                start = i
-            }
+        for (result in wheelAdapter.onRawNotification(data)) {
+            _decodedResults.tryEmit(result)
         }
-
-        if (start >= 0) {
-            // Try to parse from start to end of buffer
-            val candidate = buffer.copyOfRange(start, buffer.size)
-            if (candidate.size >= 5) {
-                val packet = InMotionV2Protocol.parsePacket(candidate)
-                if (packet != null) {
-                    _receivedPackets.tryEmit(packet)
-                    reassemblyBuffer.reset()
-                    return
-                }
-            }
-            // Keep remaining data in buffer
-            reassemblyBuffer.reset()
-            reassemblyBuffer.write(candidate)
-        } else {
-            // No header found, clear buffer
-            reassemblyBuffer.reset()
-        }
-    }
-
-    private fun tryParseAndEmit(data: ByteArray) {
-        val packet = InMotionV2Protocol.parsePacket(data) ?: return
-        _receivedPackets.tryEmit(packet)
     }
 }

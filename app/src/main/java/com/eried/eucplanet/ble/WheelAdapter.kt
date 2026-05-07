@@ -2,6 +2,32 @@ package com.eried.eucplanet.ble
 
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
+import java.util.UUID
+
+/**
+ * BLE GATT profile a wheel adapter binds to. Each protocol family advertises a
+ * different combination — InMotion V2 uses Nordic UART, InMotion V1 uses the
+ * proprietary InMotion service, KingSong uses 0xFFE0/FFE1, Gotway/Veteran also
+ * use 0xFFE0/FFE1 (disambiguated by first packet bytes after connect).
+ *
+ * The connection manager reads this from the active adapter on service discovery.
+ */
+data class BleProfile(
+    val serviceUuid: UUID,
+    /** Characteristic the adapter writes commands to. */
+    val writeCharacteristic: UUID,
+    /** Characteristic the wheel sends notifications on. */
+    val notifyCharacteristic: UUID
+) {
+    companion object {
+        /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
+        val NORDIC_UART = BleProfile(
+            serviceUuid = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e"),
+            writeCharacteristic = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"),
+            notifyCharacteristic = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
+        )
+    }
+}
 
 /**
  * Per-protocol-family wheel adapter. Each BLE-protocol family (InMotion V2, V1,
@@ -20,6 +46,9 @@ import com.eried.eucplanet.data.model.WheelSettings
 interface WheelAdapter {
     val familyId: String
     val capabilities: WheelCapabilities
+
+    /** BLE service + characteristic UUIDs the adapter binds to on connect. */
+    fun bleProfile(): BleProfile = BleProfile.NORDIC_UART
 
     /** Packets sent in order on first connect, before the realtime poll loop starts. */
     fun initSequence(): List<ByteArray>
@@ -42,8 +71,26 @@ interface WheelAdapter {
     fun requestAuthKey(): ByteArray?
     fun verifyAuth(encryptedKey: ByteArray): ByteArray?
 
-    /** Decode a parsed BLE packet. Returns the appropriate DecodeResult variant. */
-    fun decode(command: Byte, data: ByteArray): DecodeResult
+    /**
+     * Process a raw BLE notification and return zero or more decoded results.
+     *
+     * Each protocol family handles its own framing here — InMotion V2 reassembles
+     * packets across notifications and parses the AA AA … XOR-checksum frame,
+     * KingSong reads a fixed 20-byte structure, Veteran walks the DC 5A 5C state
+     * machine, etc. Returning a list lets one notification carry multiple frames
+     * (uncommon but possible when the wheel batches them tighter than the MTU).
+     *
+     * Adapters with persistent framing state (reassembly buffers) reset it in
+     * [onDisconnect]; the connection manager guarantees that hook is called.
+     */
+    fun onRawNotification(rawBytes: ByteArray): List<DecodeResult>
+
+    /**
+     * Called by the connection manager on disconnect so adapters can reset any
+     * connection-scoped state (reassembly buffers, detected model, etc.). Default
+     * is a no-op for stateless adapters.
+     */
+    fun onDisconnect() {}
 }
 
 /**
