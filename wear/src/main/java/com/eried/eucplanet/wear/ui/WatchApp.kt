@@ -87,10 +87,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        if (!state.connected) {
-            DisconnectedPlaceholder()
-            return@BoxWithConstraints
-        }
+        // The disconnected state is rendered by zeroing every metric and
+        // graying the action buttons rather than swapping in a placeholder
+        // screen — the rider always sees the same layout, and the second
+        // page (DetailsScreen) is where the explicit "Disconnected" hint
+        // lives. Mirrors the phone dashboard's behaviour.
         val sw = maxWidth.value
         val batteryFontSp = (sw * 0.034f).coerceIn(9f, 12f).sp
         val batteryIconDp = (sw * 0.038f).coerceIn(10f, 14f).dp
@@ -254,39 +255,6 @@ private fun LoadBar(percent: Float, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DisconnectedPlaceholder() {
-    BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        val sw = maxWidth.value
-        val iconDp = (sw * 0.18f).coerceIn(36f, 56f).dp
-        val textSp = (sw * 0.038f).coerceIn(12f, 15f).sp
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.PhoneAndroid,
-                contentDescription = null,
-                tint = Color(0xFF9AA0A6),
-                modifier = Modifier.size(iconDp)
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.watch_waiting_phone),
-                fontSize = textSp,
-                color = Color(0xFFB0B0B0),
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
 private fun BatteryRow(
     wheelPercent: Int?,
     phonePercent: Int?,
@@ -342,13 +310,21 @@ private fun batteryTint(percent: Int): Color = when {
 @Composable
 private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize: Dp) {
     val context = LocalContext.current
+    val enabled = state.connected
+    // Use the same dim grey as the phone dashboard's grayed action tiles so
+    // disconnected reads identically across surfaces.
+    val disabledBg = Color(0xFF1A1A1A)
+    val disabledFg = Color(0xFF555555)
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         if (state.hasHorn) {
             Button(
-                onClick = { WatchStateRepository.sendControl(context, WatchControl.HORN) },
+                onClick = {
+                    if (enabled) WatchStateRepository.sendControl(context, WatchControl.HORN)
+                },
+                enabled = enabled,
                 colors = ButtonDefaults.primaryButtonColors(
-                    backgroundColor = accent,
-                    contentColor = Color.Black
+                    backgroundColor = if (enabled) accent else disabledBg,
+                    contentColor = if (enabled) Color.Black else disabledFg
                 ),
                 modifier = Modifier.size(buttonSize)
             ) {
@@ -362,19 +338,33 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
         if (state.hasLight) {
             Button(
                 onClick = {
+                    if (!enabled) return@Button
                     val intent = if (state.lightOn) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
                     WatchStateRepository.sendControl(context, intent)
                 },
+                enabled = enabled,
                 colors = ButtonDefaults.secondaryButtonColors(
-                    backgroundColor = if (state.lightOn) accent.copy(alpha = 0.30f) else Color(0xFF2A2A2A),
-                    contentColor = if (state.lightOn) accent else Color(0xFFB0B0B0)
+                    backgroundColor = when {
+                        !enabled -> disabledBg
+                        state.lightOn -> accent.copy(alpha = 0.30f)
+                        else -> Color(0xFF2A2A2A)
+                    },
+                    contentColor = when {
+                        !enabled -> disabledFg
+                        state.lightOn -> accent
+                        else -> Color(0xFFB0B0B0)
+                    }
                 ),
                 modifier = Modifier.size(buttonSize)
             ) {
                 Icon(
                     imageVector = Icons.Filled.FlashlightOn,
                     contentDescription = stringResource(R.string.watch_light),
-                    tint = if (state.lightOn) Color(0xFFFFC107) else Color(0xFF606060),
+                    tint = when {
+                        !enabled -> disabledFg
+                        state.lightOn -> Color(0xFFFFC107)
+                        else -> Color(0xFF606060)
+                    },
                     modifier = Modifier.size(iconSize)
                 )
             }
@@ -390,10 +380,6 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             .background(Color.Black),
         contentAlignment = Alignment.Center
     ) {
-        if (!state.connected) {
-            DisconnectedPlaceholder()
-            return@BoxWithConstraints
-        }
         val sw = maxWidth.value
         val labelSp = (sw * 0.034f).coerceIn(10f, 13f).sp
         val valueSp = (sw * 0.038f).coerceIn(11f, 14f).sp
@@ -418,7 +404,17 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            if (state.wheelName.isNotBlank()) {
+            // When disconnected we still render every metric (all zeros) but
+            // swap the wheel-name accent header for a muted "Disconnected"
+            // hint so the rider knows the values aren't live.
+            if (!state.connected) {
+                Text(
+                    text = stringResource(R.string.watch_disconnected),
+                    fontSize = headerSp,
+                    color = Color(0xFF9AA0A6),
+                    fontWeight = FontWeight.SemiBold
+                )
+            } else if (state.wheelName.isNotBlank()) {
                 Text(
                     text = state.wheelName,
                     fontSize = headerSp,

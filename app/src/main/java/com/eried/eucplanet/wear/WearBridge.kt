@@ -17,9 +17,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -113,21 +111,27 @@ class WearBridge @Inject constructor(
             }
         }
 
+        // Periodic publisher rather than a Flow combine. Reasoning: when the
+        // wheel is disconnected the upstream flows don't emit, so a sample +
+        // distinctUntilChanged pipeline goes silent — and the watch ends up
+        // in the "phone not here" placeholder even though the phone app is
+        // running and paired. Polling at PUBLISH_INTERVAL_MS keeps the
+        // watch's freshness signal alive without per-emission complexity.
         scope.launch {
-            combine(
-                wheelRepository.wheelData,
-                wheelRepository.connectionState,
-                wheelRepository.modelName,
-                wheelRepository.maxSpeedCap,
-                settingsRepository.settings
-            ) { data, state, name, maxSpeed, settings ->
-                Snapshot(data, state, name, maxSpeed, settings)
-            }
-                .sample(PUBLISH_INTERVAL_MS)
-                .distinctUntilChanged()
-                .collect { snap ->
-                    publish(snap.data, snap.state, snap.name, snap.maxSpeed, snap.settings)
+            while (true) {
+                try {
+                    publish(
+                        data = wheelRepository.wheelData.value,
+                        state = wheelRepository.connectionState.value,
+                        name = wheelRepository.modelName.value,
+                        maxSpeed = wheelRepository.maxSpeedCap.value,
+                        settings = settingsRepository.get()
+                    )
+                } catch (e: Exception) {
+                    Log.w(TAG, "publish loop error", e)
                 }
+                delay(PUBLISH_INTERVAL_MS)
+            }
         }
     }
 
@@ -190,11 +194,4 @@ class WearBridge @Inject constructor(
         return if (level >= 0 && scale > 0) (level * 100 / scale).coerceIn(0, 100) else 0
     }
 
-    private data class Snapshot(
-        val data: com.eried.eucplanet.data.model.WheelData,
-        val state: ConnectionState,
-        val name: String?,
-        val maxSpeed: Float,
-        val settings: AppSettings
-    )
 }

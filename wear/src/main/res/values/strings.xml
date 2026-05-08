@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">EUC Planet</string>
     <string name="watch_waiting_phone">Open EUC Planet\non your phone</string>
+    <string name="watch_waiting_wheel">Connect a wheel\nin EUC Planet</string>
     <string name="watch_disconnected">Wheel disconnected</string>
     <string name="watch_horn">Horn</string>
     <string name="watch_light">Light</string>
