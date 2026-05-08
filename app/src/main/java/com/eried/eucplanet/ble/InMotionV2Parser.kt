@@ -227,19 +227,32 @@ object InMotionV2Parser {
     }
 
     /**
-     * Parse the P6 settings response (sub 0x20 with arg 0x20). The 51-byte
-     * body has current tiltback at offset 13-14 as uint16 LE in 0.01 km/h.
-     * Only that field is filled in today — alarm thresholds at 17-19 are
-     * present in the bytes but we don't have a labelled capture confirming
-     * which is alarm-1 / alarm-2 / alarm-3, so they stay at their defaults.
+     * Parse the P6 settings response (sub 0x20 with arg 0x20). Layout
+     * confirmed against a labelled InMotion-app capture (see
+     * docs/P6_CAPTURE_LABELS.md). The 51-byte body, after stripping the
+     * leading 0x20 sub-cmd echo:
+     *
+     *   d[8..9]   tiltback set speed     uint16 LE / 100 = km/h
+     *   d[10..11] speed limit alarm      uint16 LE / 100 = km/h
+     *   d[14..15] PWM tilt-back limit    uint16 LE / 100 = %
+     *   d[16..17] PWM level 1 alarm      uint16 LE / 100 = %
+     *   d[18..19] PWM level 2 alarm      uint16 LE / 100 = %
+     *
+     * Earlier builds read tiltback at d[12..13] which only worked when
+     * the user's tiltback equalled their alarm (the value at d[8..9]
+     * happened to look like a "mirror" of d[10..11] in that test set).
      */
     fun parseP6Settings(data: ByteArray): WheelSettings? {
         if (data.size < 21) return null
         // First byte echoes the sub-cmd (0x20). Skip it.
         val d = if (data[0] == 0x20.toByte()) data.copyOfRange(1, data.size) else data
-        if (d.size < 14) return null
-        val tiltback = ByteUtils.getUint16LE(d, 12) / 100f
-        return WheelSettings(maxSpeedKmh = tiltback)
+        if (d.size < 20) return null
+        val tiltback = ByteUtils.getUint16LE(d, 8) / 100f
+        val alarm = ByteUtils.getUint16LE(d, 10) / 100f
+        return WheelSettings(
+            maxSpeedKmh = tiltback,
+            alarmSpeedKmh = alarm
+        )
     }
 
     /**
