@@ -49,13 +49,27 @@ object WatchKeys {
     /** "BAR" / "NUMBERS" / "BOTH". */
     const val OPT_PWM_DISPLAY = "wpd"
     const val OPT_SHOW_SPEED_UNIT = "wsu"
-    const val OPT_GPS_SPEED = "wgs"
 }
 
 object WatchControl {
     const val HORN = "horn"
     const val LIGHT_ON = "light_on"
     const val LIGHT_OFF = "light_off"
+}
+
+/**
+ * Phone-to-watch hint paths. Distinct from `/euc/control` because the watch
+ * is the one *receiving* these (control flows the other way), and we want a
+ * separate listener path so the bridge service can tell which direction the
+ * payload came from.
+ */
+object WatchHints {
+    /**
+     * Phone asks the watch to fire its own vibrator. Payload is a 4-byte
+     * little-endian int = duration in milliseconds. Used by alarm rules with
+     * `vibrateTarget = WATCH` or `BOTH`.
+     */
+    const val VIBRATE = "/euc/vibrate"
 }
 
 /**
@@ -86,6 +100,5 @@ data class WatchState(
     val showPhoneBattery: Boolean = true,
     val showWatchBattery: Boolean = true,
     val pwmDisplay: String = "BOTH",
-    val showSpeedUnit: Boolean = true,
-    val gpsSpeedEnabled: Boolean = false
+    val showSpeedUnit: Boolean = true
 )

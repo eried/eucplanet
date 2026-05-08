@@ -29,6 +29,13 @@ data class AlarmRule(
     // Vibrate action
     val vibrateEnabled: Boolean = false,
     val vibrateDurationMs: Int = 500,
+    /**
+     * Where the buzz fires when [vibrateEnabled] is true: "PHONE", "WATCH",
+     * or "BOTH". Wear OS uses the same Vibrator API as Android phones, so the
+     * duration applies on the watch identically. Defaults to PHONE so existing
+     * rules behave unchanged for users who haven't paired a watch.
+     */
+    val vibrateTarget: String = "PHONE",
 
     // Timing
     val cooldownSeconds: Int = 10,

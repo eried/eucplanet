@@ -19,14 +19,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
-import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.ElectricScooter
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.SatelliteAlt
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -70,37 +68,13 @@ fun WatchApp() {
     val accent = accentColorFor(state.accentKey)
     MaterialTheme {
         Scaffold(timeText = {}) {
-            // Horizontal pager: dashboard <-> details. Each page is itself a
-            // vertical pager so the dashboard can swipe up to the GPS-speed
-            // page without the details screen having a sibling-vertical-pager
-            // it doesn't need.
             val hPager = rememberPagerState(pageCount = { 2 })
             HorizontalPager(state = hPager, modifier = Modifier.fillMaxSize()) { page ->
                 when (page) {
-                    0 -> MainPaged(state, accent)
+                    0 -> MainScreen(state, accent)
                     1 -> DetailsScreen(state, accent)
                 }
             }
-        }
-    }
-}
-
-/**
- * Vertical pager wrapping the dashboard so the user can swipe up for the GPS
- * speed page when the option is enabled. When disabled it collapses to just
- * the dashboard so accidental vertical drags don't reveal an empty screen.
- */
-@Composable
-private fun MainPaged(state: WatchState, accent: Color) {
-    if (!state.gpsSpeedEnabled) {
-        MainScreen(state, accent)
-        return
-    }
-    val vPager = rememberPagerState(pageCount = { 2 })
-    VerticalPager(state = vPager, modifier = Modifier.fillMaxSize()) { page ->
-        when (page) {
-            0 -> MainScreen(state, accent)
-            1 -> GpsSpeedScreen(state, accent)
         }
     }
 }
@@ -147,8 +121,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
 
         // Speed number + optional unit + PWM cluster, slightly above center so
         // the bottom cluster (batteries + buttons) has more room.
-        val unitSp = (sw * 0.045f).coerceIn(13f, 18f).sp
-        val pwmNumberSp = (sw * 0.040f).coerceIn(11f, 15f).sp
+        // The unit is tiny and rendered with an invisible mirror on the left
+        // so the speed glyph stays visually centred — the row is symmetric
+        // around the speed even when the unit is shown.
+        val unitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
+        val pwmNumberSp = (sw * 0.038f).coerceIn(11f, 14f).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
         val showPwmNumber = state.pwmDisplay == "NUMBERS" || state.pwmDisplay == "BOTH"
         Column(
@@ -158,6 +135,16 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
+                if (state.showSpeedUnit) {
+                    // Invisible mirror keeps the speed glyph centred.
+                    Text(
+                        text = WatchUnits.speedUnit(state.imperialUnits),
+                        fontSize = unitSp,
+                        color = Color.Transparent,
+                        modifier = Modifier.padding(bottom = (sw * 0.05f).coerceIn(12f, 18f).dp)
+                    )
+                    Spacer(Modifier.width(3.dp))
+                }
                 Text(
                     text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
                     fontSize = speedFontSp,
@@ -165,34 +152,44 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     color = speedTierColor(state.speedKmh, maxSpeed)
                 )
                 if (state.showSpeedUnit) {
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(3.dp))
                     Text(
                         text = WatchUnits.speedUnit(state.imperialUnits),
                         fontSize = unitSp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFFB0B0B0),
-                        modifier = Modifier.padding(bottom = (sw * 0.04f).coerceIn(10f, 16f).dp)
+                        color = Color(0xFF9AA0A6),
+                        modifier = Modifier.padding(bottom = (sw * 0.05f).coerceIn(12f, 18f).dp)
                     )
                 }
             }
             Spacer(Modifier.height(1.dp))
-            if (showBar) {
-                LoadBar(
-                    percent = state.pwmPercent,
-                    modifier = Modifier
-                        .offset(y = -(sw * 0.025f).coerceIn(8f, 14f).dp)
-                        .width(loadBarWidth)
-                        .height(loadBarHeight)
-                )
-            }
-            if (showPwmNumber) {
-                Text(
-                    text = "%.0f%%".format(state.pwmPercent),
-                    fontSize = pwmNumberSp,
-                    fontWeight = FontWeight.Medium,
-                    color = pwmTierColor(state.pwmPercent),
-                    modifier = Modifier.offset(y = if (showBar) -(sw * 0.020f).coerceIn(6f, 10f).dp else -(sw * 0.025f).coerceIn(8f, 14f).dp)
-                )
+            // PWM cluster: bar and % live on the same horizontal row when both
+            // are enabled, so the % sits to the right of the bar instead of
+            // below it. Each side falls back to its solo layout when only one
+            // is enabled.
+            if (showBar || showPwmNumber) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.offset(y = -(sw * 0.020f).coerceIn(6f, 12f).dp)
+                ) {
+                    if (showBar) {
+                        LoadBar(
+                            percent = state.pwmPercent,
+                            modifier = Modifier
+                                .width(loadBarWidth)
+                                .height(loadBarHeight)
+                        )
+                    }
+                    if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
+                    if (showPwmNumber) {
+                        Text(
+                            text = "%.0f%%".format(state.pwmPercent),
+                            fontSize = pwmNumberSp,
+                            fontWeight = FontWeight.Medium,
+                            color = pwmTierColor(state.pwmPercent)
+                        )
+                    }
+                }
             }
         }
 
@@ -375,7 +372,7 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
                 modifier = Modifier.size(buttonSize)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.FlashOn,
+                    imageVector = Icons.Filled.FlashlightOn,
                     contentDescription = stringResource(R.string.watch_light),
                     tint = if (state.lightOn) Color(0xFFFFC107) else Color(0xFF606060),
                     modifier = Modifier.size(iconSize)

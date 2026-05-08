@@ -1,11 +1,18 @@
 package com.eried.eucplanet.wear.bridge
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Wakes up when the phone publishes a new `/euc/state` DataItem. The actual
@@ -47,8 +54,7 @@ class WatchBridgeService : WearableListenerService() {
                         showPhoneBattery = map.getBoolean(WatchKeys.OPT_SHOW_PHONE_BATT, true),
                         showWatchBattery = map.getBoolean(WatchKeys.OPT_SHOW_WATCH_BATT, true),
                         pwmDisplay = map.getString(WatchKeys.OPT_PWM_DISPLAY, "BOTH") ?: "BOTH",
-                        showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true),
-                        gpsSpeedEnabled = map.getBoolean(WatchKeys.OPT_GPS_SPEED, false)
+                        showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true)
                     )
                 )
             }
@@ -61,16 +67,35 @@ class WatchBridgeService : WearableListenerService() {
      * has fresh state ready to ship.
      */
     override fun onMessageReceived(event: MessageEvent) {
-        if (event.path != WatchPaths.WAKE) return
-        val intent = Intent().apply {
-            setClassName(packageName, "com.eried.eucplanet.wear.MainActivity")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        when (event.path) {
+            WatchPaths.WAKE -> {
+                val intent = Intent().apply {
+                    setClassName(packageName, "com.eried.eucplanet.wear.MainActivity")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                try { startActivity(intent) } catch (_: Exception) {
+                    // Foreground-launch restrictions can refuse this on some
+                    // OEMs; the user will see the app next interaction.
+                }
+            }
+            WatchHints.VIBRATE -> {
+                val ms = if (event.data.size >= 4) {
+                    ByteBuffer.wrap(event.data).order(ByteOrder.LITTLE_ENDIAN).int
+                } else 500
+                vibrateOnce(ms.coerceIn(50, 5000).toLong())
+            }
         }
+    }
+
+    private fun vibrateOnce(durationMs: Long) {
+        val v = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        } ?: return
         try {
-            startActivity(intent)
-        } catch (_: Exception) {
-            // Foreground-launch restrictions can refuse this on some OEMs;
-            // the user will see the app on their next watch interaction.
-        }
+            v.vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
+        } catch (_: Exception) { /* best effort */ }
     }
 }

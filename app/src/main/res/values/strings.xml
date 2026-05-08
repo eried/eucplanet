@@ -96,14 +96,12 @@
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>
-    <string name="watch_pwm_display">PWM indicator</string>
-    <string name="watch_pwm_bar">Bar only</string>
-    <string name="watch_pwm_numbers">Numbers only</string>
-    <string name="watch_pwm_both">Bar and numbers</string>
-    <string name="watch_show_speed_unit">Speed unit (km/h or mph)</string>
+    <string name="watch_pwm_display">Load indicator</string>
+    <string name="watch_pwm_bar">Bar</string>
+    <string name="watch_pwm_numbers">Numbers</string>
+    <string name="watch_pwm_both">Both</string>
+    <string name="watch_show_speed_unit">Speed unit label</string>
     <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number</string>
-    <string name="watch_enable_gps_speed">GPS speed page</string>
-    <string name="watch_enable_gps_speed_desc">Swipe up from the dashboard to see the watch\'s own GPS speed</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
@@ -428,6 +426,10 @@
     <string name="alarm_section_vibrate">Vibrate</string>
     <string name="alarm_enable_vibrate">Enable vibration</string>
     <string name="alarm_vibrate_duration_fmt">Duration: %1$dms</string>
+    <string name="alarm_vibrate_target_label">Vibrate on</string>
+    <string name="alarm_vibrate_target_phone">Phone</string>
+    <string name="alarm_vibrate_target_watch">Watch</string>
+    <string name="alarm_vibrate_target_both">Both</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>

@@ -8,6 +8,7 @@ import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.VibratorHelper
+import com.eried.eucplanet.wear.WatchVibrator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,8 @@ class AlarmEngine @Inject constructor(
     @ApplicationContext private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    private val watchVibrator: WatchVibrator
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -116,7 +118,10 @@ class AlarmEngine @Inject constructor(
         // Vibrate fires immediately; beep and voice are sequenced so the beep
         // finishes before the voice speaks.
         if (rule.vibrateEnabled) {
-            vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            val onPhone = rule.vibrateTarget != "WATCH"
+            val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
+            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
         }
 
         scope.launch {

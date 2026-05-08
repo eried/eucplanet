@@ -305,8 +305,7 @@ fun SettingsScreen(
         stringResource(R.string.watch_show_phone_battery),
         stringResource(R.string.watch_show_watch_battery),
         stringResource(R.string.watch_pwm_display),
-        stringResource(R.string.watch_show_speed_unit),
-        stringResource(R.string.watch_enable_gps_speed)
+        stringResource(R.string.watch_show_speed_unit)
     ).joinToString(" ")
 
     val sections: List<SectionDef> = listOf(
@@ -1073,16 +1072,16 @@ private fun WatchTab(
         SectionHeader(stringResource(R.string.section_watch_general))
 
         SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_keep_on),
-            description = stringResource(R.string.watch_keep_on_desc),
-            checked = settings.watchKeepScreenOn,
-            onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
-        )
-        SwitchSettingWithDesc(
             label = stringResource(R.string.watch_auto_start),
             description = stringResource(R.string.watch_auto_start_desc),
             checked = settings.watchAutoStart,
             onCheckedChange = { viewModel.updateWatchAutoStart(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_keep_on),
+            description = stringResource(R.string.watch_keep_on_desc),
+            checked = settings.watchKeepScreenOn,
+            onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
         )
 
         SectionHeader(stringResource(R.string.section_watch_display))
@@ -1100,28 +1099,30 @@ private fun WatchTab(
             settings.watchShowWatchBattery
         ) { viewModel.updateWatchShowWatchBattery(it) }
 
-        SimpleDropdown(
-            label = stringResource(R.string.watch_pwm_display),
-            currentKey = settings.watchPwmDisplay,
-            options = listOf(
-                "BAR" to stringResource(R.string.watch_pwm_bar),
-                "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
-                "BOTH" to stringResource(R.string.watch_pwm_both)
-            ),
-            onSelect = { viewModel.updateWatchPwmDisplay(it) }
+        Text(
+            stringResource(R.string.watch_pwm_display),
+            style = MaterialTheme.typography.bodyLarge
         )
+        val loadOptions = listOf(
+            "BAR" to stringResource(R.string.watch_pwm_bar),
+            "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+            "BOTH" to stringResource(R.string.watch_pwm_both)
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            loadOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    selected = key == settings.watchPwmDisplay,
+                    onClick = { viewModel.updateWatchPwmDisplay(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
+                ) { Text(label) }
+            }
+        }
 
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_show_speed_unit),
             description = stringResource(R.string.watch_show_speed_unit_desc),
             checked = settings.watchShowSpeedUnit,
             onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
-        )
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_enable_gps_speed),
-            description = stringResource(R.string.watch_enable_gps_speed_desc),
-            checked = settings.watchEnableGpsSpeed,
-            onCheckedChange = { viewModel.updateWatchEnableGpsSpeed(it) }
         )
     }
 }

@@ -55,7 +55,6 @@ class MainActivity : ComponentActivity() {
                     showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),
                     showPhoneBattery = intent.getBooleanExtra("showPhoneBatt", true),
                     showWatchBattery = intent.getBooleanExtra("showWatchBatt", true),
-                    gpsSpeedEnabled = intent.getBooleanExtra("gpsEnabled", false),
                     keepScreenOn = intent.getBooleanExtra("keepOn", true)
                 )
             )
