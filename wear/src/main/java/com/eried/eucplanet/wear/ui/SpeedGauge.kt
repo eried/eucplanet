@@ -86,7 +86,11 @@ fun SpeedGauge(
             style = Stroke(width = arcThickness, cap = StrokeCap.Round)
         )
 
-        // Thin color band behind the arc: safe (accent) > orange > red.
+        // Thin color band behind the arc: safe (green) > warning (yellow) >
+        // danger (red). Hardcoded green for the safe zone so the gauge keeps
+        // its safety semantics regardless of which accent the user picked
+        // — using accent here meant a teal accent matched the safe zone but
+        // a red accent made the whole band look like one long danger zone.
         if (showColorBand) {
             val bandThickness = arcThickness * 0.35f
             val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f
@@ -99,11 +103,11 @@ fun SpeedGauge(
             val redSweep = sweepTotal * (1f - redFrac)
             val bandTopLeft = Offset(center.x - bandRadius, center.y - bandRadius)
             val bandSize = Size(bandRadius * 2, bandRadius * 2)
-            drawArc(color = accent.copy(alpha = bandAlpha),
+            drawArc(color = GaugeAccentGreen.copy(alpha = bandAlpha),
                 startAngle = startAngle, sweepAngle = sweepTotal * orangeFrac,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
-            drawArc(color = GaugeAccentOrange.copy(alpha = bandAlpha),
+            drawArc(color = GaugeAccentYellow.copy(alpha = bandAlpha),
                 startAngle = orangeStart, sweepAngle = orangeSweep,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))

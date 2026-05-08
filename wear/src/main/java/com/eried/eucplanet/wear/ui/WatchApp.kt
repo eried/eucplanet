@@ -157,11 +157,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    // Disconnected: use the accent color so the dashboard
-                    // matches the gauge's safe-band tint instead of the
-                    // green-tier "0" that reads as if the wheel were idle.
-                    color = if (state.connected) speedTierColor(state.speedKmh, maxSpeed)
-                            else accent
+                    // The gauge band already encodes the safety zones via
+                    // green/yellow/red. The speed glyph follows the user's
+                    // accent so the watch identity matches their phone.
+                    color = accent
                 )
                 if (state.showSpeedUnit) {
                     Spacer(Modifier.width(3.dp))
@@ -453,17 +452,21 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 text = "%.0f %s".format(speedDisplay, speedUnit),
                 fontSize = speedSp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = accent
             )
             Spacer(Modifier.height(4.dp))
             val live = state.connected
-            DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_pwm_label, if (live) "%.0f %%".format(state.pwmPercent) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_temp_label, if (live) "%.0f %s".format(tempDisplay, tempUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_torque_label, if (live) "%.1f".format(state.torque) else DASH, labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_trip_label, if (live) "%.2f %s".format(tripDisplay, distUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            // Accent-tint live values so the page reads as a continuation of
+            // the dashboard's accent identity. Disconnected dashes stay grey
+            // so the rider can tell at a glance that the row isn't live.
+            val valueColor = if (live) accent else Color(0xFF606060)
+            DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_pwm_label, if (live) "%.0f %%".format(state.pwmPercent) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_temp_label, if (live) "%.0f %s".format(tempDisplay, tempUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_torque_label, if (live) "%.1f".format(state.torque) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            DetailRow(R.string.watch_trip_label, if (live) "%.2f %s".format(tripDisplay, distUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
         }
     }
 }
@@ -475,7 +478,8 @@ private fun DetailRow(
     labelSp: TextUnit,
     valueSp: TextUnit,
     labelWidth: Dp,
-    valueWidth: Dp
+    valueWidth: Dp,
+    valueColor: Color = Color.White
 ) {
     // Fixed-width label + fixed-width value gives a tabular alignment so
     // values stack vertically across rows. The whole row is centred by the
@@ -495,7 +499,7 @@ private fun DetailRow(
         Text(
             text = value,
             fontSize = valueSp,
-            color = Color.White,
+            color = valueColor,
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Start,
             modifier = Modifier.width(valueWidth)
