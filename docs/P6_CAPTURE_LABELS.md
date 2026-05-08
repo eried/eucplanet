@@ -68,6 +68,23 @@ correlating writes.
 | `0x50` | `[on/off, on/off]` (2B mirror) | **Light** on/off | mirrored byte for confirmation |
 | `0x51` | `[18 01]` (2B fixed) | **Horn** beep | fixed args |
 
+## Realtime telemetry offsets (confirmed)
+
+The body of every `21 02 87 01 00 …` realtime response, after stripping
+the `01 00` status pair, has these confirmed fields (all uint16 LE
+unless noted):
+
+| offset | type | scale | field | confirmation |
+|-------:|:-----|:------|:------|:-------------|
+| 0..1  | uint16 LE | / 100 | voltage (V) | matched on-screen 230-228 V |
+| 2..3  | int16 LE  | / 100 | current (A, signed) | idle ~0 parked, swings during accel |
+| 8..9  | uint16 LE | / 100 | **speed (km/h)** | 2650 at labelled "16 mph" frame = 26.50 km/h = 16.5 mph |
+| 12..13 | int16 LE | / 100 | **PWM duty (%)** signed | -9584 (-95.84%) during hard regen brake, +7775 during 42 mph accel ramp |
+| 20..21 | uint16 LE | / 100 | battery 1 percent | matched on-screen 98% / 90% |
+| 22..23 | uint16 LE | / 100 | battery 2 percent | matched on-screen 96% / 89% |
+| 36..37 | uint16 LE | (W) | lifetime max power | matched 1511 W / 10950 W on screen |
+| 58..61 | uint32 LE | / 100 km | total mileage | matched on-screen 1773.5 mi / 2853.7 km |
+
 ## Pending / still uncertain
 
 - `0x22` semantics: only two values seen (1000 and 0). Could be:
