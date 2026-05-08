@@ -205,11 +205,13 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         }
                         // Same tier scale as the phone dashboard's LOAD card:
                         // ≥ 80% red, ≥ 60% orange, else green (or accent for
-                        // custom accents). Disconnected stays muted grey.
+                        // custom accents). Disconnected falls back to the
+                        // safe-tier color so the dash matches the speed
+                        // glyph above it instead of going dim grey.
                         val pwmAccent = state.accentKey != "default"
                         val pwmTextColor = when {
-                            !state.connected -> Color(0xFF606060)
                             pwmAccent -> accent
+                            !state.connected -> GaugeAccentGreen
                             state.pwmPercent >= 80f -> GaugeAccentRed
                             state.pwmPercent >= 60f -> GaugeAccentOrange
                             else -> GaugeAccentGreen
@@ -344,9 +346,12 @@ private fun BatteryChip(
     // Default accent → tier coloring (green / amber / red) so the rider
     // gets a glanceable sense of remaining range. Any other accent →
     // the chip wears the accent so the watch identity stays consistent.
+    // Disconnected (percent == null) falls back to the safe-tier green
+    // so the dash matches the speed glyph above it instead of dimming
+    // out — same logic the dashboard uses for the speed reading.
     val tint = when {
-        percent == null -> Color(0xFF606060)
         useAccentTint -> accent
+        percent == null -> GaugeAccentGreen
         else -> batteryTint(percent)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -523,18 +528,20 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             // tiered green / amber / red thresholds, battery in BatteryRow
             // is already tier-coloured. Custom accent collapses everything
             // to the picked accent so the watch wears one identity colour.
-            val muted = Color(0xFF606060)
-            val cyanColor = if (live) accent else muted
+            // Disconnected dashes wear the same colour the live value
+            // would at zero (green safe-tier or accent) so the row reads
+            // continuous with the speed glyph at the top of the page.
+            val cyanColor = accent
             val tempColor = when {
-                !live -> muted
                 useAccent -> accent
+                !live -> GaugeAccentGreen
                 state.temperatureC > 60f -> GaugeAccentRed
                 state.temperatureC > 45f -> GaugeAccentOrange
                 else -> GaugeAccentGreen
             }
             val pwmColor = when {
-                !live -> muted
                 useAccent -> accent
+                !live -> GaugeAccentGreen
                 state.pwmPercent > 80f -> GaugeAccentRed
                 state.pwmPercent > 60f -> GaugeAccentOrange
                 else -> GaugeAccentGreen
