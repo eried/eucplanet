@@ -28,23 +28,27 @@
     justify-content: center;
     flex-wrap: wrap;
     margin-bottom: 8px;
+    align-items: center;
   }
   a.btn {
-    display: inline-block;
-    padding: 10px 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-width: 155px;
+    padding: 0 16px;
     background: #238636;
     color: #fff;
     text-decoration: none;
     border-radius: 6px;
     font-weight: 500;
+    box-sizing: border-box;
   }
   a.btn:hover { background: #2ea043; }
   a.btn.secondary { background: #21262d; border: 1px solid #30363d; }
   a.btn.secondary:hover { background: #30363d; }
-  a.btn-play { display: inline-flex; align-items: center; line-height: 0; }
-  a.btn-play img { height: 44px; width: auto; display: block; }
-  a.btn-play-hero { display: inline-flex; margin: 0 auto 20px; }
-  a.btn-play-hero img { height: 56px; }
+  a.btn-badge { display: inline-flex; align-items: center; line-height: 0; height: 44px; }
+  a.btn-badge img { height: 44px; width: auto; display: block; }
   section { margin-top: 36px; }
   h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; color: #e6edf3; }
   p, li { color: #c9d1d9; }
@@ -94,11 +98,11 @@
 <div class="container">
   <header>
     <h1><a href="https://eucplanet.ried.no">EUC Planet</a></h1>
-    <a class="btn-play btn-play-hero" href="https://play.google.com/apps/testing/com.eried.eucplanet"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play"></a>
     <p class="tagline">A no-nonsense, open-source app for electric unicycles.</p>
     <div class="links">
+      <a class="btn-badge" href="https://play.google.com/apps/testing/com.eried.eucplanet"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play"></a>
+      <a class="btn-badge" href="https://github.com/eried/eucplanet"><img src="https://img.shields.io/badge/View%20on-GitHub-181717?logo=github&logoColor=white&style=for-the-badge" alt="View on GitHub"></a>
       <a class="btn" href="https://github.com/eried/eucplanet/releases">Download APK</a>
-      <a class="btn secondary" href="https://github.com/eried/eucplanet">View on GitHub</a>
       <a class="btn secondary" href="https://ideas.ried.no/euc-planet">Share an idea</a>
       <a class="btn secondary" href="https://eucviewer.ried.no">Trip viewer</a>
     </div>
