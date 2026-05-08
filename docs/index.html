@@ -30,25 +30,24 @@
     margin-bottom: 8px;
     align-items: center;
   }
-  a.btn {
+  a.btn, a.btn-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 44px;
-    min-width: 155px;
-    padding: 0 16px;
-    background: #238636;
-    color: #fff;
+    width: 180px;
+    height: 56px;
     text-decoration: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 500;
     box-sizing: border-box;
+    overflow: hidden;
   }
+  a.btn { background: #238636; color: #fff; }
   a.btn:hover { background: #2ea043; }
-  a.btn.secondary { background: #21262d; border: 1px solid #30363d; }
+  a.btn.secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
   a.btn.secondary:hover { background: #30363d; }
-  a.btn-badge { display: inline-flex; align-items: center; line-height: 0; height: 44px; }
-  a.btn-badge img { height: 44px; width: auto; display: block; }
+  a.btn-badge { background: #000; padding: 0; }
+  a.btn-badge img, a.btn-badge svg { width: 100%; height: 100%; object-fit: contain; display: block; }
   section { margin-top: 36px; }
   h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; color: #e6edf3; }
   p, li { color: #c9d1d9; }
@@ -101,7 +100,7 @@
     <p class="tagline">A no-nonsense, open-source app for electric unicycles.</p>
     <div class="links">
       <a class="btn-badge" href="https://play.google.com/apps/testing/com.eried.eucplanet"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play"></a>
-      <a class="btn-badge" href="https://github.com/eried/eucplanet"><img src="https://img.shields.io/badge/View%20on-GitHub-181717?logo=github&logoColor=white&style=for-the-badge" alt="View on GitHub"></a>
+      <a class="btn-badge" href="https://github.com/eried/eucplanet" aria-label="View on GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 56"><rect width="180" height="56" rx="8" fill="#000"/><path fill="#fff" transform="translate(14,16)" d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2 1-.3 2-.4 3-.4s2 .1 3 .4c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.7.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12 24 5.4 18.6 0 12 0z"/><text x="50" y="24" fill="#fff" font-family="Roboto, Arial, sans-serif" font-size="10" letter-spacing="0.5">VIEW ON</text><text x="50" y="44" fill="#fff" font-family="Roboto, Arial, sans-serif" font-size="22" font-weight="500">GitHub</text></svg></a>
       <a class="btn" href="https://github.com/eried/eucplanet/releases">Download APK</a>
       <a class="btn secondary" href="https://ideas.ried.no/euc-planet">Share an idea</a>
       <a class="btn secondary" href="https://eucviewer.ried.no">Trip viewer</a>
