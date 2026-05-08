@@ -64,8 +64,8 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           SHORT_SHA="$(git rev-parse --short HEAD)"
           TAG="branch-${BRANCH}"
-          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}.apk"
-          WEAR_APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-wear.apk"
+          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-phone.apk"
+          WEAR_APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-wear_os.apk"
 
           # Pull the per-branch description if BRANCH.md exists, otherwise
           # fall back to a generic notice. This becomes the release body header.
