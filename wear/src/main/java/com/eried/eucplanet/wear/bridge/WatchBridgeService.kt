@@ -58,9 +58,9 @@ class WatchBridgeService : WearableListenerService() {
                         showGaugeBand = map.getBoolean(WatchKeys.OPT_GAUGE_BAND, false),
                         gaugeOrangeThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_ORANGE, 65),
                         gaugeRedThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_RED, 85),
-                        stem1Click = map.getString(WatchKeys.STEM1_CLICK, "HORN") ?: "HORN",
+                        stem1Click = map.getString(WatchKeys.STEM1_CLICK, "NONE") ?: "NONE",
                         stem1Hold = map.getString(WatchKeys.STEM1_HOLD, "NONE") ?: "NONE",
-                        stem2Click = map.getString(WatchKeys.STEM2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
+                        stem2Click = map.getString(WatchKeys.STEM2_CLICK, "NONE") ?: "NONE",
                         stem2Hold = map.getString(WatchKeys.STEM2_HOLD, "NONE") ?: "NONE"
                     )
                 )

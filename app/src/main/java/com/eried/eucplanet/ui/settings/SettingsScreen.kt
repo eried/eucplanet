@@ -1126,11 +1126,6 @@ private fun WatchTab(
         )
 
         SectionHeader(stringResource(R.string.section_watch_buttons))
-        Text(
-            stringResource(R.string.watch_buttons_help),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
 
         Text(stringResource(R.string.watch_button_1), style = MaterialTheme.typography.bodyLarge)
         WatchActionPicker(

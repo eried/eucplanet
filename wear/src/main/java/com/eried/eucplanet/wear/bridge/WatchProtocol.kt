@@ -130,8 +130,8 @@ data class WatchState(
     val showGaugeBand: Boolean = false,
     val gaugeOrangeThresholdPct: Int = 65,
     val gaugeRedThresholdPct: Int = 85,
-    val stem1Click: String = "HORN",
+    val stem1Click: String = "NONE",
     val stem1Hold: String = "NONE",
-    val stem2Click: String = "LIGHT_TOGGLE",
+    val stem2Click: String = "NONE",
     val stem2Hold: String = "NONE"
 )

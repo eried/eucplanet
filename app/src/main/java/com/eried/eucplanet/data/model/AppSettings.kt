@@ -196,12 +196,12 @@ data class AppSettings(
      * KEYCODE_STEM_* in MainActivity, and either fires a local control
      * intent or routes to the phone over /euc/control.
      */
-    @ColumnInfo(defaultValue = "HORN")
-    val watchStem1Click: String = "HORN",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Click: String = "NONE",
     @ColumnInfo(defaultValue = "NONE")
     val watchStem1Hold: String = "NONE",
-    @ColumnInfo(defaultValue = "LIGHT_TOGGLE")
-    val watchStem2Click: String = "LIGHT_TOGGLE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Click: String = "NONE",
     @ColumnInfo(defaultValue = "NONE")
     val watchStem2Hold: String = "NONE"
 )

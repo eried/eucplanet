@@ -196,20 +196,29 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     }
                     if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
                     if (showPwmNumber) {
-                        // When the bar is alongside, the "%" is enough — the
-                        // bar itself is the visual context. Text-only mode
-                        // gets a full "Load (PWM): N%" label since there's no
-                        // bar to clue the rider in.
+                        // Bar alongside → just "N%". Text-only → "Load (PWM): N%"
+                        // since there's no bar to give the value context.
                         val pwmText = when {
                             !state.connected -> if (showBar) DASH else "Load (PWM): $DASH"
                             showBar -> "%.0f%%".format(state.pwmPercent)
                             else -> "Load (PWM): %.0f%%".format(state.pwmPercent)
                         }
+                        // Same tier scale as the phone dashboard's LOAD card:
+                        // ≥ 80% red, ≥ 60% orange, else green (or accent for
+                        // custom accents). Disconnected stays muted grey.
+                        val pwmAccent = state.accentKey != "default"
+                        val pwmTextColor = when {
+                            !state.connected -> Color(0xFF606060)
+                            pwmAccent -> accent
+                            state.pwmPercent >= 80f -> GaugeAccentRed
+                            state.pwmPercent >= 60f -> GaugeAccentOrange
+                            else -> GaugeAccentGreen
+                        }
                         Text(
                             text = pwmText,
                             fontSize = pwmNumberSp,
                             fontWeight = FontWeight.Medium,
-                            color = if (state.connected) pwmTierColor(state.pwmPercent) else Color(0xFF606060)
+                            color = pwmTextColor
                         )
                     }
                 }
@@ -265,9 +274,8 @@ private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color = when {
 private fun LoadBar(percent: Float, modifier: Modifier = Modifier) {
     val pct = percent.coerceIn(0f, 100f)
     val fillColor = when {
-        pct > 80f -> Color(0xFFEF5350)
-        pct > 60f -> Color(0xFFFFA726)
-        pct > 40f -> Color(0xFFFFCA28)
+        pct >= 80f -> Color(0xFFEF5350)
+        pct >= 60f -> Color(0xFFFFA726)
         else -> Color(0xFF66BB6A)
     }
     val trackColor = Color(0xFF333333)
@@ -468,9 +476,9 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            // When disconnected we still render every metric (all zeros) but
-            // swap the wheel-name accent header for a muted "Disconnected"
-            // hint so the rider knows the values aren't live.
+            // Wheel-name and Disconnected header both wear the same muted
+            // caption tint as the phone dashboard's status row — the speed
+            // is the page's visual focus, the header is just context.
             if (!state.connected) {
                 Text(
                     text = stringResource(R.string.watch_disconnected),
@@ -482,7 +490,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 Text(
                     text = state.wheelName,
                     fontSize = headerSp,
-                    color = accent,
+                    color = Color.White,
                     fontWeight = FontWeight.SemiBold
                 )
             }
