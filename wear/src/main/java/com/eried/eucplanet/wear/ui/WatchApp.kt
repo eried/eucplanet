@@ -58,6 +58,9 @@ import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
 
+/** Em-dash placeholder used when a metric isn't live. Matches the phone dashboard. */
+private const val DASH = "—"
+
 /**
  * Two-page horizontal pager: page 0 is the dashboard (gauge + horn/light);
  * page 1 is the detail strip (voltage / current / PWM / temp / trip / torque).
@@ -108,13 +111,17 @@ private fun MainScreen(state: WatchState, accent: Color) {
         val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
         val watchPercent = rememberWatchBatteryPercent()
 
-        // Full-bleed dial as the background frame.
+        // Full-bleed dial as the background frame. Color-band visibility and
+        // its orange/red thresholds follow the phone's Display settings so the
+        // two surfaces always agree.
         SpeedGauge(
             speed = state.speedKmh,
             maxSpeed = maxSpeed,
             imperial = state.imperialUnits,
             accent = accent,
-            showColorBand = true,
+            showColorBand = state.showGaugeBand,
+            orangeThresholdPct = state.gaugeOrangeThresholdPct,
+            redThresholdPct = state.gaugeRedThresholdPct,
             fullBleed = true,
             drawSpeedText = false,
             modifier = Modifier.fillMaxSize()
@@ -150,7 +157,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    color = speedTierColor(state.speedKmh, maxSpeed)
+                    // Disconnected: use the accent color so the dashboard
+                    // matches the gauge's safe-band tint instead of the
+                    // green-tier "0" that reads as if the wheel were idle.
+                    color = if (state.connected) speedTierColor(state.speedKmh, maxSpeed)
+                            else accent
                 )
                 if (state.showSpeedUnit) {
                     Spacer(Modifier.width(3.dp))
@@ -183,11 +194,20 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     }
                     if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
                     if (showPwmNumber) {
+                        // When the bar is alongside, the "%" is enough — the
+                        // bar itself is the visual context. Text-only mode
+                        // gets a full "Load (PWM): N%" label since there's no
+                        // bar to clue the rider in.
+                        val pwmText = when {
+                            !state.connected -> if (showBar) DASH else "Load (PWM): $DASH"
+                            showBar -> "%.0f%%".format(state.pwmPercent)
+                            else -> "Load (PWM): %.0f%%".format(state.pwmPercent)
+                        }
                         Text(
-                            text = "%.0f%%".format(state.pwmPercent),
+                            text = pwmText,
                             fontSize = pwmNumberSp,
                             fontWeight = FontWeight.Medium,
-                            color = pwmTierColor(state.pwmPercent)
+                            color = if (state.connected) pwmTierColor(state.pwmPercent) else Color(0xFF606060)
                         )
                     }
                 }
@@ -204,9 +224,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
             BatteryRow(
-                wheelPercent = state.batteryPercent.takeIf { state.showWheelBattery },
+                wheelPercent = state.batteryPercent.takeIf { state.showWheelBattery && state.connected },
                 phonePercent = state.phoneBatteryPercent.takeIf { state.showPhoneBattery },
                 watchPercent = watchPercent.takeIf { state.showWatchBattery },
+                showWheelChip = state.showWheelBattery,
                 fontSize = batteryFontSp,
                 iconSize = batteryIconDp,
                 spacing = batterySpacingDp
@@ -259,6 +280,7 @@ private fun BatteryRow(
     wheelPercent: Int?,
     phonePercent: Int?,
     watchPercent: Int?,
+    showWheelChip: Boolean,
     fontSize: TextUnit,
     iconSize: Dp,
     spacing: Dp
@@ -267,9 +289,14 @@ private fun BatteryRow(
         horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (wheelPercent != null) BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, fontSize, iconSize)
-        if (phonePercent != null) BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, fontSize, iconSize)
-        if (watchPercent != null) BatteryChip(Icons.Filled.Watch, watchPercent, fontSize, iconSize)
+        // Wheel chip is visible when the user enabled it; disconnected shows
+        // an em-dash so the row layout stays put rather than collapsing the
+        // moment a wheel drops out.
+        if (showWheelChip) {
+            BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, fontSize, iconSize)
+        }
+        phonePercent?.let { BatteryChip(Icons.Filled.PhoneAndroid, it, fontSize, iconSize) }
+        watchPercent?.let { BatteryChip(Icons.Filled.Watch, it, fontSize, iconSize) }
     }
 }
 
@@ -281,8 +308,8 @@ private fun pwmTierColor(percent: Float): Color = when {
 }
 
 @Composable
-private fun BatteryChip(icon: ImageVector, percent: Int, fontSize: TextUnit, iconSize: Dp) {
-    val tint = batteryTint(percent)
+private fun BatteryChip(icon: ImageVector, percent: Int?, fontSize: TextUnit, iconSize: Dp) {
+    val tint = if (percent != null) batteryTint(percent) else Color(0xFF606060)
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = icon,
@@ -292,7 +319,7 @@ private fun BatteryChip(icon: ImageVector, percent: Int, fontSize: TextUnit, ico
         )
         Spacer(Modifier.width(2.dp))
         Text(
-            text = "$percent",
+            text = percent?.toString() ?: DASH,
             fontSize = fontSize,
             color = tint,
             fontWeight = FontWeight.Medium
@@ -429,13 +456,14 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 color = Color.White
             )
             Spacer(Modifier.height(4.dp))
-            DetailRow(R.string.watch_voltage_label, "%.1f V".format(state.voltage), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_current_label, "%.1f A".format(state.current), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_power_label, "%.0f W".format(powerW), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_pwm_label, "%.0f %%".format(state.pwmPercent), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_temp_label, "%.0f %s".format(tempDisplay, tempUnit), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_torque_label, "%.1f".format(state.torque), labelSp, valueSp, labelWidth, valueWidth)
-            DetailRow(R.string.watch_trip_label, "%.2f %s".format(tripDisplay, distUnit), labelSp, valueSp, labelWidth, valueWidth)
+            val live = state.connected
+            DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_pwm_label, if (live) "%.0f %%".format(state.pwmPercent) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_temp_label, if (live) "%.0f %s".format(tempDisplay, tempUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_torque_label, if (live) "%.1f".format(state.torque) else DASH, labelSp, valueSp, labelWidth, valueWidth)
+            DetailRow(R.string.watch_trip_label, if (live) "%.2f %s".format(tripDisplay, distUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth)
         }
     }
 }

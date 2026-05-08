@@ -54,7 +54,10 @@ class WatchBridgeService : WearableListenerService() {
                         showPhoneBattery = map.getBoolean(WatchKeys.OPT_SHOW_PHONE_BATT, true),
                         showWatchBattery = map.getBoolean(WatchKeys.OPT_SHOW_WATCH_BATT, true),
                         pwmDisplay = map.getString(WatchKeys.OPT_PWM_DISPLAY, "BOTH") ?: "BOTH",
-                        showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true)
+                        showSpeedUnit = map.getBoolean(WatchKeys.OPT_SHOW_SPEED_UNIT, true),
+                        showGaugeBand = map.getBoolean(WatchKeys.OPT_GAUGE_BAND, false),
+                        gaugeOrangeThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_ORANGE, 65),
+                        gaugeRedThresholdPct = map.getInt(WatchKeys.OPT_GAUGE_RED, 85)
                     )
                 )
             }

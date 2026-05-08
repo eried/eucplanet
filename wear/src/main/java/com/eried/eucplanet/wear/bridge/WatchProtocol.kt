@@ -49,6 +49,13 @@ object WatchKeys {
     /** "BAR" / "NUMBERS" / "BOTH". */
     const val OPT_PWM_DISPLAY = "wpd"
     const val OPT_SHOW_SPEED_UNIT = "wsu"
+    /** Phone's `showGaugeColorBand` toggle. When false, the gauge stays
+     *  monochrome on the watch too. */
+    const val OPT_GAUGE_BAND = "wgb"
+    /** Phone's orange-zone threshold percentage of the speed range. */
+    const val OPT_GAUGE_ORANGE = "wgo"
+    /** Phone's red-zone threshold percentage. */
+    const val OPT_GAUGE_RED = "wgr"
 }
 
 object WatchControl {
@@ -90,8 +97,12 @@ data class WatchState(
     val torque: Float = 0f,
     val lightOn: Boolean = false,
     val maxSpeedKmh: Float = 0f,
-    val hasHorn: Boolean = false,
-    val hasLight: Boolean = false,
+    // Default both to true so the disconnected dashboard still renders the
+    // (greyed) horn + light buttons — V14 family always has these and the
+    // watch never sees a wheel without them. Phone's WearBridge will overwrite
+    // with the wheel's actual capabilities once telemetry starts.
+    val hasHorn: Boolean = true,
+    val hasLight: Boolean = true,
     val imperialUnits: Boolean = false,
     val accentKey: String = "default",
     // Watch UI options sourced from phone Settings.
@@ -100,5 +111,8 @@ data class WatchState(
     val showPhoneBattery: Boolean = true,
     val showWatchBattery: Boolean = true,
     val pwmDisplay: String = "BOTH",
-    val showSpeedUnit: Boolean = true
+    val showSpeedUnit: Boolean = true,
+    val showGaugeBand: Boolean = false,
+    val gaugeOrangeThresholdPct: Int = 65,
+    val gaugeRedThresholdPct: Int = 85
 )
