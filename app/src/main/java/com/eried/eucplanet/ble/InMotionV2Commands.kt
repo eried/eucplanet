@@ -80,6 +80,67 @@ object InMotionV2Commands {
     fun getP6RealTimeData(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x07, byteArrayOf())
 
+    /**
+     * Read settings page A (`02 21 20 [20]`). Comes back as a 51-byte body
+     * with current tiltback at offset 13-14 (uint16 LE / 100, km/h).
+     */
+    fun getP6Settings(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
+
+    /**
+     * Set the P6 tiltback / max speed.
+     *
+     * P6 takes a 2-byte uint16 LE value in 0.01 km/h units, NOT the V14's
+     * 4-byte (tilt + alarm) packet. From a real-hardware capture, the
+     * InMotion app pairs each `60 21 [val]` write with a `60 3e [val 00 00]`
+     * commit-to-flash write a few hundred milliseconds later. We mimic that
+     * pairing — the caller writes both packets back to back.
+     */
+    fun setP6MaxSpeed(tiltbackKmh: Float): ByteArray {
+        val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.SET_MAX_SPEED, v[0], v[1])
+        )
+    }
+
+    /**
+     * Persist-to-flash companion to [setP6MaxSpeed]. The InMotion app sends
+     * this immediately after the `60 21` write; without it the change is
+     * volatile and gets lost when the wheel sleeps.
+     */
+    fun commitP6MaxSpeed(tiltbackKmh: Float): ByteArray {
+        val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x3E, v[0], v[1], 0x00, 0x00)
+        )
+    }
+
+    /**
+     * P6 light: `60 50 [on/off, on/off]`. The second byte mirrors the first
+     * — V14 uses a 1-byte arg and is silently ignored by the P6, which is
+     * why the watch / phone toggle didn't take on Gio's wheel.
+     */
+    fun setP6Light(on: Boolean): ByteArray {
+        val v = if (on) 0x01.toByte() else 0x00.toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.SET_LIGHT, v, v)
+        )
+    }
+
+    /**
+     * P6 horn: `60 51 [18 01]`. V14 sends `[02 64]` (sound id + volume) and
+     * the P6 ignores it. Args here are taken verbatim from the InMotion app
+     * capture and produce the standard P6 chirp.
+     */
+    fun hornP6(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.PLAY_SOUND, 0x18, 0x01)
+        )
+
     // --- Control commands ---
 
     /**

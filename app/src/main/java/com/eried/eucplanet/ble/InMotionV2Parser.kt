@@ -197,15 +197,49 @@ object InMotionV2Parser {
         if (data.size < 4) return null
         val voltage = ByteUtils.getUint16LE(data, 0) / 100f
         val current = ByteUtils.getInt16LE(data, 2) / 100f
-        val batteryPercent = ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
+
+        // Real per-pack battery percent at offsets 20-23 of the data block
+        // (98.94 / 96.90 in the real-P6 capture, matched the on-screen 98%).
+        // Falls back to a voltage estimate while frames are still partial.
+        val battery1 = if (data.size >= 22) ByteUtils.getUint16LE(data, 20) / 100f else 0f
+        val battery2 = if (data.size >= 24) ByteUtils.getUint16LE(data, 22) / 100f else 0f
+        val batteryPercent = if (battery1 > 0f || battery2 > 0f) {
+            ((battery1 + battery2) / 2f).toInt().coerceIn(0, 100)
+        } else {
+            ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
+        }
+
+        // Total mileage as uint32 LE at offset 58, in 0.01 km units.
+        // (Matched on-screen 1773.2 mi / 2853.72 km.)
+        val tripDistanceKm = if (data.size >= 62) {
+            ByteUtils.getUint32LE(data, 58) / 100f
+        } else 0f
+
         return WheelData(
             voltage = voltage,
             current = current,
             batteryPercent = batteryPercent,
-            battery1Percent = batteryPercent.toFloat(),
-            battery2Percent = batteryPercent.toFloat(),
+            battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
+            battery2Percent = battery2.takeIf { it > 0f } ?: batteryPercent.toFloat(),
+            tripDistance = tripDistanceKm,
             timestamp = System.currentTimeMillis()
         )
+    }
+
+    /**
+     * Parse the P6 settings response (sub 0x20 with arg 0x20). The 51-byte
+     * body has current tiltback at offset 13-14 as uint16 LE in 0.01 km/h.
+     * Only that field is filled in today — alarm thresholds at 17-19 are
+     * present in the bytes but we don't have a labelled capture confirming
+     * which is alarm-1 / alarm-2 / alarm-3, so they stay at their defaults.
+     */
+    fun parseP6Settings(data: ByteArray): WheelSettings? {
+        if (data.size < 21) return null
+        // First byte echoes the sub-cmd (0x20). Skip it.
+        val d = if (data[0] == 0x20.toByte()) data.copyOfRange(1, data.size) else data
+        if (d.size < 14) return null
+        val tiltback = ByteUtils.getUint16LE(d, 12) / 100f
+        return WheelSettings(maxSpeedKmh = tiltback)
     }
 
     /**

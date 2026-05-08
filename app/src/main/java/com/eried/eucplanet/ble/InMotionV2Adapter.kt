@@ -65,11 +65,13 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     }
 
     override fun initSequence(): List<ByteArray> {
-        // P6 doesn't answer the V14 carType / settings / stats queries; only the
-        // info bundle (`02 21 06`) returns useful data. Telemetry kicks in via
-        // pollRealtime once the loop starts.
+        // P6: query info bundle for serial, then settings page A so the UI
+        // shows the current tiltback. Telemetry kicks in via pollRealtime.
         if (useP6Protocol) {
-            return listOf(InMotionV2Commands.getP6Info())
+            return listOf(
+                InMotionV2Commands.getP6Info(),
+                InMotionV2Commands.getP6Settings()
+            )
         }
         return listOf(
             InMotionV2Commands.getCarType(),
@@ -86,13 +88,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         else InMotionV2Commands.getRealTimeData()
 
     /**
-     * P6 settings (`02 21 20 …`) come back in a TLV layout we haven't decoded
-     * yet, so re-polling them adds load with no benefit. Returning the realtime
-     * query keeps the polling loop's settings-refresh tick benign — the wheel
-     * just emits another telemetry packet.
+     * Periodic settings refresh. The P6 returns a 51-byte settings page on
+     * `02 21 20 [20]`; the parser pulls the current tiltback at offset 13-14.
      */
     override fun pollSettings(): ByteArray =
-        if (useP6Protocol) InMotionV2Commands.getP6RealTimeData()
+        if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
 
     /**
@@ -102,6 +102,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * isn't yet known the V14 path is the safer default.
      */
     override fun horn(): ByteArray {
+        if (useP6Protocol) return InMotionV2Commands.hornP6()
         val m = detectedModel
         return if (m == null || m.hornOpcode == InMotionV2Model.HORN_PLAY_BEEP) {
             InMotionV2Commands.horn()
@@ -110,7 +111,9 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         }
     }
 
-    override fun setLight(on: Boolean): ByteArray = InMotionV2Commands.setLight(on)
+    override fun setLight(on: Boolean): ByteArray =
+        if (useP6Protocol) InMotionV2Commands.setP6Light(on)
+        else InMotionV2Commands.setLight(on)
 
     /**
      * Max speed dispatch. Models that can carry alarm thresholds in the same
@@ -122,6 +125,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * just means the wheel keeps whatever alarm value it had configured.
      */
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray {
+        if (useP6Protocol) return InMotionV2Commands.setP6MaxSpeed(tiltbackKmh)
         val m = detectedModel
         return if (m == null || m.maxSpeedHasAlarms) {
             InMotionV2Commands.setMaxSpeedV14(tiltbackKmh, alarmKmh)
@@ -129,6 +133,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             InMotionV2LegacyCommands.setMaxSpeedShort(tiltbackKmh)
         }
     }
+
+    /**
+     * P6 follows up `60 21 [val]` with `60 3e [val 00 00]` to commit the new
+     * tiltback to flash; without it the change is volatile. The repository
+     * sends both back to back when this returns non-null.
+     */
+    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =
+        if (useP6Protocol) InMotionV2Commands.commitP6MaxSpeed(tiltbackKmh) else null
 
     override fun setVolume(percent: Int): ByteArray = InMotionV2Commands.setVolume(percent)
     override fun setDRL(on: Boolean): ByteArray = InMotionV2Commands.setDRL(on)
@@ -227,6 +239,13 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 if (serial != null) {
                     DecodeResult.ModelName("InMotion P6 ($serial)", InMotionV2Model.P6)
                 } else DecodeResult.Unknown
+            }
+            0x20 -> {
+                // settings page A: `02 a0 [body]` — the body starts with a 0x20
+                // sub-cmd echo and the parser pulls tiltback at offset 13-14.
+                if (data.size < 3) return DecodeResult.Unknown
+                val settings = InMotionV2Parser.parseP6Settings(data.copyOfRange(2, data.size))
+                settings?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             }
             else -> DecodeResult.Unknown
         }

@@ -10,11 +10,16 @@ state for any of them. Concretely shipped here:
   V12S / V13 / V13 Pro / V14 50GB / V14 50S / V9 / P6. The wheel reports
   its model ID on connect and the registry maps it to the right command
   variant (horn opcode, max-speed packet shape, etc.).
-- **P6 connect path.** The scan now lists `P6-XXXXXXXX` peripherals, and
-  the InMotion V2 adapter switches to the P6's extended-routing-only
-  command set when it sees that name. Voltage, discharge current, and a
-  rough battery estimate come through; richer telemetry parsing is the
-  remaining work tracked under `docs/BLE_CAPTURE_GUIDE.md`.
+- **P6 connect path + parser pass.** The scan now lists `P6-XXXXXXXX`
+  peripherals; the adapter switches to the extended-routing-only command
+  set when it sees that name. Voltage, discharge current, real per-pack
+  battery percent, total mileage, and current tiltback all parse from
+  real-hardware captures. The control plane now uses the P6-specific
+  opcodes the InMotion app sends — light becomes a 3-byte mirrored
+  packet, horn drops the V14 sound id, setMaxSpeed sends a single
+  uint16 followed by a flash-commit. Speed, PWM, and per-sensor
+  temperatures still wait on a labelled riding capture
+  (`docs/BLE_CAPTURE_GUIDE.md`).
 - **Wheel simulator** in the connect screen. Two virtual wheels (V14 and
   P6) feed canned BLE responses through the real adapter pipeline, so the
   whole UI works without hardware. Useful for translation, layout, and
@@ -31,11 +36,13 @@ state for any of them. Concretely shipped here:
 - **V14 owners**: confirm that nothing changed for you. The banner stays
   hidden, the dashboard reads the same values, horn / light / lock /
   safety mode still work.
-- **P6 owners**: connecting now works. Confirm the dashboard reports a
-  plausible pack voltage (around 230–240 V at full charge) and that
-  battery current swings positive when accelerating. Speed and the
-  remaining telemetry will read zero until the byte offsets are pinned —
-  the orange banner walks you through filing a labeled capture.
+- **P6 owners**: connecting now works and the control plane is wired up
+  properly. Verify horn beeps, light toggles on/off, and that adjusting
+  the tiltback slider actually changes the wheel's speed cap (the
+  flash-commit packet is meant to persist it past sleep). Voltage,
+  per-pack battery, and total mileage should match the InMotion app.
+  Speed, PWM, and temperatures still read zero — those need a labelled
+  riding capture to confirm offsets.
 - **Owners of any other InMotion wheel** (V11, V12, V13, V9): try
   connecting. Telemetry decoding outside the V14 family is unverified,
   so expect wrong values. If anything works or fails, tap the orange

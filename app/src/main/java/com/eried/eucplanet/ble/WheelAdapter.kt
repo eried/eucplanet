@@ -73,6 +73,14 @@ interface WheelAdapter {
     fun horn(): ByteArray?
     fun setLight(on: Boolean): ByteArray?
     fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray?
+
+    /**
+     * Optional second packet to send right after [setMaxSpeed], used by the P6
+     * to commit the new tiltback to flash via `60 3e [val 00 00]`. Return null
+     * for wheels that persist the change in a single write.
+     */
+    fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
+
     fun setVolume(percent: Int): ByteArray?
     fun setDRL(on: Boolean): ByteArray?
     fun setLock(locked: Boolean): ByteArray?

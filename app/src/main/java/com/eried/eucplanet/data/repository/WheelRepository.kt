@@ -292,6 +292,9 @@ class WheelRepository @Inject constructor(
         // tiltback, the readback-based detector would lock the toggle on.
         lastSentTiltbackKmh = tiltbackKmh
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
+        // Some wheels (P6) need a follow-up flash-commit packet for the change
+        // to persist past sleep. Adapter returns null for wheels that don't.
+        wheelAdapter.setMaxSpeedCommit(tiltbackKmh)?.let { bleManager.writeCommand(it) }
     }
 
     suspend fun toggleSafetySpeed() {
