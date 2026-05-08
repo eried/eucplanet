@@ -1075,7 +1075,8 @@ private fun WatchTab(
             label = stringResource(R.string.watch_auto_start),
             description = stringResource(R.string.watch_auto_start_desc),
             checked = settings.watchAutoStart,
-            onCheckedChange = { viewModel.updateWatchAutoStart(it) }
+            onCheckedChange = { viewModel.updateWatchAutoStart(it) },
+            onTest = { viewModel.testWatchWake() }
         )
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_keep_on),
@@ -1155,19 +1156,24 @@ private fun SwitchSettingWithDesc(
     label: String,
     description: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    onTest: (() -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                highlightMatches(label, LocalSettingsSearchQuery.current),
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f)
-            )
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    highlightMatches(label, LocalSettingsSearchQuery.current),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (onTest != null) {
+                    Spacer(Modifier.width(4.dp))
+                    PlayButton(onClick = onTest)
+                }
+            }
             Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
         Text(

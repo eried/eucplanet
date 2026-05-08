@@ -32,8 +32,14 @@ class SettingsViewModel @Inject constructor(
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
-    private val automationManager: AutomationManager
+    private val automationManager: AutomationManager,
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge
 ) : ViewModel() {
+
+    /** Manual "wake the watch app" trigger — fires the same /euc/wake
+     *  message that MainActivity.onResume() sends. Lets the user verify
+     *  pairing without restarting the phone app. */
+    fun testWatchWake() = wearBridge.pingWatchToWake()
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
 
