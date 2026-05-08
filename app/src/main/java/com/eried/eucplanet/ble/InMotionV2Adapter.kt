@@ -135,12 +135,18 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     }
 
     /**
-     * P6 follows up `60 21 [val]` with `60 3e [val 00 00]` to commit the new
-     * tiltback to flash; without it the change is volatile. The repository
-     * sends both back to back when this returns non-null.
+     * P6 needs three writes after a max-speed change to land both the
+     * tiltback and the alarm — matches what the InMotion app does (see
+     * docs/P6_CAPTURE_LABELS.md). The first one (`60 21 [tilt]`) is
+     * already sent by [setMaxSpeed]; this returns the flash-commit for
+     * the tiltback; [setAlarmSpeedCommit] returns the alarm commit.
+     * V14 returns null and uses its single-packet path unchanged.
      */
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =
         if (useP6Protocol) InMotionV2Commands.commitP6MaxSpeed(tiltbackKmh) else null
+
+    override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? =
+        if (useP6Protocol) InMotionV2Commands.setP6AlarmSpeed(alarmKmh) else null
 
     override fun setVolume(percent: Int): ByteArray = InMotionV2Commands.setVolume(percent)
     override fun setDRL(on: Boolean): ByteArray = InMotionV2Commands.setDRL(on)

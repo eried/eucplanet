@@ -141,6 +141,63 @@ object InMotionV2Commands {
             byteArrayOf(ControlSubCmd.PLAY_SOUND, 0x18, 0x01)
         )
 
+    /**
+     * Set the P6 **Speed Limit Alarm** (the threshold above which the wheel
+     * beeps). Goes through `60 3e [v_lo v_hi 00 00]` — same opcode the
+     * InMotion app uses for any commit-to-flash scalar setting. Confirmed
+     * against `docs/P6_CAPTURE_LABELS.md`: 13679 = 136.79 km/h = 85 mph
+     * matched the on-screen 85 mph alarm value during the labelled capture.
+     */
+    fun setP6AlarmSpeed(alarmKmh: Float): ByteArray {
+        val v = ByteUtils.putUint16LE((alarmKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x3E, v[0], v[1], 0x00, 0x00)
+        )
+    }
+
+    /**
+     * Set all three P6 **PWM thresholds** at once via `60 4c`:
+     *   - `tiltbackPct`: PWM Tilt-back Limit  (0-100)
+     *   - `alarm1Pct`:   PWM Level 1 Alarm    (0-100)
+     *   - `alarm2Pct`:   PWM Level 2 Alarm    (0-100)
+     *
+     * Wire format: 3 × uint16 LE in 0.01% units. The InMotion app sends all
+     * three in one packet whenever any slider changes, so we mirror that.
+     */
+    fun setP6PwmThresholds(tiltbackPct: Float, alarm1Pct: Float, alarm2Pct: Float): ByteArray {
+        val t = ByteUtils.putUint16LE((tiltbackPct * 100).toInt())
+        val a1 = ByteUtils.putUint16LE((alarm1Pct * 100).toInt())
+        val a2 = ByteUtils.putUint16LE((alarm2Pct * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x4C, t[0], t[1], a1[0], a1[1], a2[0], a2[1])
+        )
+    }
+
+    /**
+     * Toggle the P6 **Speed Clamp at 25 km/h** safety. Maps to the InMotion
+     * app's "Speed Clamp at 25km/h" switch in General Settings.
+     */
+    fun setP6SpeedClamp25(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x24, if (on) 0x01 else 0x00)
+        )
+
+    /**
+     * Set the P6 **Pedal Hardness** slider. The InMotion app sends two bytes
+     * `[live, committed]` while dragging — we send the same value in both
+     * since we're emitting a single atomic set rather than a drag stream.
+     */
+    fun setP6PedalHardness(percent: Int): ByteArray {
+        val v = percent.coerceIn(0, 100).toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x25, v, v)
+        )
+    }
+
     // --- Control commands ---
 
     /**

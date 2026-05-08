@@ -81,6 +81,14 @@ interface WheelAdapter {
      */
     fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
+    /**
+     * Optional third packet for the P6 — sets the alarm-speed threshold
+     * separately via the same `60 3e` flash-commit opcode. Returns null
+     * for wheels where the alarm threshold ships in the [setMaxSpeed]
+     * packet (V14 family) or where alarm isn't a separate setting.
+     */
+    fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? = null
+
     fun setVolume(percent: Int): ByteArray?
     fun setDRL(on: Boolean): ByteArray?
     fun setLock(locked: Boolean): ByteArray?
