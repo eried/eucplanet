@@ -2,6 +2,7 @@ package com.eried.eucplanet.wear
 
 import android.util.Log
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.flic.FlicManager
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,17 +28,22 @@ class PhoneWearListenerService : WearableListenerService() {
         private const val CMD_HORN = "horn"
         private const val CMD_LIGHT_ON = "light_on"
         private const val CMD_LIGHT_OFF = "light_off"
+        private const val ACTION_PREFIX = "action:"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
+    @Inject lateinit var flicManager: FlicManager
 
     override fun onMessageReceived(event: MessageEvent) {
         if (event.path != PATH_CONTROL) return
         val command = String(event.data)
         Log.i(TAG, "control from watch: $command")
-        when (command) {
-            CMD_HORN -> wheelRepository.sendHorn()
-            CMD_LIGHT_ON, CMD_LIGHT_OFF -> wheelRepository.toggleLight()
+        when {
+            command == CMD_HORN -> wheelRepository.sendHorn()
+            command == CMD_LIGHT_ON || command == CMD_LIGHT_OFF ->
+                wheelRepository.toggleLight()
+            command.startsWith(ACTION_PREFIX) ->
+                flicManager.dispatchActionByName(command.removePrefix(ACTION_PREFIX))
             else -> Log.w(TAG, "unknown control: $command")
         }
     }

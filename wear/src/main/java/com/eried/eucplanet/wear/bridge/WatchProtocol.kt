@@ -56,12 +56,27 @@ object WatchKeys {
     const val OPT_GAUGE_ORANGE = "wgo"
     /** Phone's red-zone threshold percentage. */
     const val OPT_GAUGE_RED = "wgr"
+
+    // --- Hardware-button bindings (KEYCODE_STEM_1 / STEM_2). Stored as
+    //     FlicAction.name strings; "NONE" disables the binding. ---
+    const val STEM1_CLICK = "s1c"
+    const val STEM1_HOLD = "s1h"
+    const val STEM2_CLICK = "s2c"
+    const val STEM2_HOLD = "s2h"
 }
 
 object WatchControl {
     const val HORN = "horn"
     const val LIGHT_ON = "light_on"
     const val LIGHT_OFF = "light_off"
+    /**
+     * Generic action passthrough: payload is a [FlicAction] name. Used by
+     * the watch's stem-button handler when the bound action needs phone
+     * routing (LOCK_TOGGLE, SAFETY_TOGGLE, RECORD_TOGGLE, VOICE_ANNOUNCE,
+     * MEDIA_*). Horn / light keep their dedicated paths above for back-
+     * compat with prior watch builds.
+     */
+    const val ACTION_PREFIX = "action:"
 }
 
 /**
@@ -114,5 +129,9 @@ data class WatchState(
     val showSpeedUnit: Boolean = true,
     val showGaugeBand: Boolean = false,
     val gaugeOrangeThresholdPct: Int = 65,
-    val gaugeRedThresholdPct: Int = 85
+    val gaugeRedThresholdPct: Int = 85,
+    val stem1Click: String = "HORN",
+    val stem1Hold: String = "NONE",
+    val stem2Click: String = "LIGHT_TOGGLE",
+    val stem2Hold: String = "NONE"
 )

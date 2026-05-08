@@ -6,11 +6,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
 import com.eried.eucplanet.wear.ui.WatchApp
@@ -93,6 +95,78 @@ class MainActivity : ComponentActivity() {
         if (isDebuggable()) {
             runCatching { unregisterReceiver(demoReceiver) }
         }
+    }
+
+    /**
+     * Watch hardware-button intercept. Galaxy Watch Ultra surfaces the orange
+     * Action button as KEYCODE_STEM_1 and the lower side button as STEM_2
+     * (after the user has bound EUC Planet to launch on press in the watch's
+     * Customize-buttons menu). The bindings come from phone settings via the
+     * Data Layer; we look them up at press time so live changes take effect.
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val state = WatchStateRepository.state.value
+        val action = when (keyCode) {
+            KeyEvent.KEYCODE_STEM_1 -> state.stem1Click
+            KeyEvent.KEYCODE_STEM_2 -> state.stem2Click
+            else -> null
+        }
+        if (action == null || action == "NONE") return super.onKeyDown(keyCode, event)
+        if (event?.repeatCount == 0) {
+            // Mark as long-press-eligible so onKeyLongPress can intercept the
+            // hold variant. KeyEvent.startTracking requires this to fire.
+            event.startTracking()
+        }
+        return true
+    }
+
+    override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+        val state = WatchStateRepository.state.value
+        val action = when (keyCode) {
+            KeyEvent.KEYCODE_STEM_1 -> state.stem1Hold
+            KeyEvent.KEYCODE_STEM_2 -> state.stem2Hold
+            else -> null
+        }
+        if (action == null || action == "NONE") return super.onKeyLongPress(keyCode, event)
+        dispatchAction(action)
+        return true
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // If the press was tracking (long-press eligible) and DIDN'T trigger
+        // a long-press handler, treat it as a click and dispatch the click
+        // binding. Long-press already consumed the event in onKeyLongPress.
+        if (event != null && (keyCode == KeyEvent.KEYCODE_STEM_1 || keyCode == KeyEvent.KEYCODE_STEM_2)) {
+            if (event.isTracking && !event.isCanceled) {
+                val state = WatchStateRepository.state.value
+                val action = if (keyCode == KeyEvent.KEYCODE_STEM_1) state.stem1Click
+                             else state.stem2Click
+                if (action != "NONE") {
+                    dispatchAction(action)
+                    return true
+                }
+            }
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    /**
+     * Dispatches a [com.eried.eucplanet.data.model.FlicAction] name. HORN and
+     * LIGHT_TOGGLE use the existing dedicated control intents so older watch
+     * builds without the action: prefix handler still work; everything else
+     * goes through the prefixed passthrough that PhoneWearListenerService
+     * forwards to FlicManager.dispatchActionByName().
+     */
+    private fun dispatchAction(action: String) {
+        val intent = when (action) {
+            "HORN" -> WatchControl.HORN
+            "LIGHT_TOGGLE" -> {
+                val on = WatchStateRepository.state.value.lightOn
+                if (on) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
+            }
+            else -> WatchControl.ACTION_PREFIX + action
+        }
+        WatchStateRepository.sendControl(this, intent)
     }
 }
 

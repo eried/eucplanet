@@ -225,11 +225,19 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
+            // Phone battery is meaningful only after the phone has pushed at
+            // least one snapshot — before that "0" reads as "phone is dead"
+            // when really the watch just hasn't heard from the phone yet.
+            // Falling back to a dash makes the disconnected case obvious.
+            val lastPush by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
+            val phoneAlive = lastPush > 0
             BatteryRow(
                 wheelPercent = state.batteryPercent.takeIf { state.showWheelBattery && state.connected },
-                phonePercent = state.phoneBatteryPercent.takeIf { state.showPhoneBattery },
+                phonePercent = if (state.showPhoneBattery && phoneAlive)
+                    state.phoneBatteryPercent else null,
                 watchPercent = watchPercent.takeIf { state.showWatchBattery },
                 showWheelChip = state.showWheelBattery,
+                showPhoneChip = state.showPhoneBattery,
                 accent = accent,
                 useAccentTint = state.accentKey != "default",
                 fontSize = batteryFontSp,
@@ -285,6 +293,7 @@ private fun BatteryRow(
     phonePercent: Int?,
     watchPercent: Int?,
     showWheelChip: Boolean,
+    showPhoneChip: Boolean,
     accent: Color,
     useAccentTint: Boolean,
     fontSize: TextUnit,
@@ -295,13 +304,15 @@ private fun BatteryRow(
         horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Wheel chip is visible when the user enabled it; disconnected shows
-        // an em-dash so the row layout stays put rather than collapsing the
-        // moment a wheel drops out.
+        // Each chip stays in the row when the user enabled it; the percent
+        // becomes null + dash whenever its source isn't live, so the layout
+        // doesn't reflow when a wheel disconnects or the phone hasn't pushed.
         if (showWheelChip) {
             BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, accent, useAccentTint, fontSize, iconSize)
         }
-        phonePercent?.let { BatteryChip(Icons.Filled.PhoneAndroid, it, accent, useAccentTint, fontSize, iconSize) }
+        if (showPhoneChip) {
+            BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, accent, useAccentTint, fontSize, iconSize)
+        }
         watchPercent?.let { BatteryChip(Icons.Filled.Watch, it, accent, useAccentTint, fontSize, iconSize) }
     }
 }
@@ -471,33 +482,48 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                     fontWeight = FontWeight.SemiBold
                 )
             }
-            // Same accent rule as the dial: default accent → white speed
-            // so the row aligns with the rest of the value column; any
-            // custom accent → wear that accent.
+            // Same accent rule as the dial: default accent → tier-coloured
+            // speed (green/yellow/orange/red) so the second screen matches
+            // the phone dashboard; any custom accent → wear that accent.
             val useAccent = state.accentKey != "default"
+            val detailMaxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
             Text(
                 text = "%.0f %s".format(speedDisplay, speedUnit),
                 fontSize = speedSp,
                 fontWeight = FontWeight.Bold,
-                color = if (useAccent) accent else Color.White
+                color = if (useAccent) accent else speedTierColor(state.speedKmh, detailMaxSpeed)
             )
             Spacer(Modifier.height(4.dp))
             val live = state.connected
-            // Live values: white when default accent (matches phone dashboard's
-            // value column) or the accent color when the user picked one.
-            // Disconnected dashes stay muted grey.
-            val valueColor = when {
-                !live -> Color(0xFF606060)
+            // Per-metric coloring on default accent mirrors the phone
+            // dashboard: voltage / current / power / trip / torque get the
+            // accent (which IS cyan when accent=default), temp and PWM use
+            // tiered green / amber / red thresholds, battery in BatteryRow
+            // is already tier-coloured. Custom accent collapses everything
+            // to the picked accent so the watch wears one identity colour.
+            val muted = Color(0xFF606060)
+            val cyanColor = if (live) accent else muted
+            val tempColor = when {
+                !live -> muted
                 useAccent -> accent
-                else -> Color.White
+                state.temperatureC > 60f -> GaugeAccentRed
+                state.temperatureC > 45f -> GaugeAccentOrange
+                else -> GaugeAccentGreen
             }
-            DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_pwm_label, if (live) "%.0f %%".format(state.pwmPercent) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_temp_label, if (live) "%.0f %s".format(tempDisplay, tempUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_torque_label, if (live) "%.1f".format(state.torque) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
-            DetailRow(R.string.watch_trip_label, if (live) "%.2f %s".format(tripDisplay, distUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
+            val pwmColor = when {
+                !live -> muted
+                useAccent -> accent
+                state.pwmPercent > 80f -> GaugeAccentRed
+                state.pwmPercent > 60f -> GaugeAccentOrange
+                else -> GaugeAccentGreen
+            }
+            DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
+            DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
+            DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
+            DetailRow(R.string.watch_pwm_label, if (live) "%.0f %%".format(state.pwmPercent) else DASH, labelSp, valueSp, labelWidth, valueWidth, pwmColor)
+            DetailRow(R.string.watch_temp_label, if (live) "%.0f %s".format(tempDisplay, tempUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, tempColor)
+            DetailRow(R.string.watch_torque_label, if (live) "%.1f".format(state.torque) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
+            DetailRow(R.string.watch_trip_label, if (live) "%.2f %s".format(tripDisplay, distUnit) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
         }
     }
 }

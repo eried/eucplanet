@@ -79,6 +79,10 @@ class WearBridge @Inject constructor(
         private const val K_OPT_GAUGE_BAND = "wgb"
         private const val K_OPT_GAUGE_ORANGE = "wgo"
         private const val K_OPT_GAUGE_RED = "wgr"
+        private const val K_STEM1_CLICK = "s1c"
+        private const val K_STEM1_HOLD = "s1h"
+        private const val K_STEM2_CLICK = "s2c"
+        private const val K_STEM2_HOLD = "s2h"
 
         private const val PATH_WAKE = "/euc/wake"
     }
@@ -175,6 +179,10 @@ class WearBridge @Inject constructor(
                 dataMap.putBoolean(K_OPT_GAUGE_BAND, settings.showGaugeColorBand)
                 dataMap.putInt(K_OPT_GAUGE_ORANGE, settings.gaugeOrangeThresholdPct)
                 dataMap.putInt(K_OPT_GAUGE_RED, settings.gaugeRedThresholdPct)
+                dataMap.putString(K_STEM1_CLICK, settings.watchStem1Click)
+                dataMap.putString(K_STEM1_HOLD, settings.watchStem1Hold)
+                dataMap.putString(K_STEM2_CLICK, settings.watchStem2Click)
+                dataMap.putString(K_STEM2_HOLD, settings.watchStem2Hold)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).

@@ -1124,7 +1124,55 @@ private fun WatchTab(
             checked = settings.watchShowSpeedUnit,
             onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
         )
+
+        SectionHeader(stringResource(R.string.section_watch_buttons))
+        Text(
+            stringResource(R.string.watch_buttons_help),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Text(stringResource(R.string.watch_button_1), style = MaterialTheme.typography.bodyLarge)
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_click_label),
+            currentKey = settings.watchStem1Click,
+            onSelect = { viewModel.updateWatchStem1Click(it) }
+        )
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_hold_label),
+            currentKey = settings.watchStem1Hold,
+            onSelect = { viewModel.updateWatchStem1Hold(it) }
+        )
+
+        Text(stringResource(R.string.watch_button_2), style = MaterialTheme.typography.bodyLarge)
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_click_label),
+            currentKey = settings.watchStem2Click,
+            onSelect = { viewModel.updateWatchStem2Click(it) }
+        )
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_hold_label),
+            currentKey = settings.watchStem2Hold,
+            onSelect = { viewModel.updateWatchStem2Hold(it) }
+        )
     }
+}
+
+@Composable
+private fun WatchActionPicker(
+    label: String,
+    currentKey: String,
+    onSelect: (String) -> Unit
+) {
+    val options = com.eried.eucplanet.data.model.FlicAction.entries.map { action ->
+        action.name to stringResource(action.labelRes)
+    }
+    SimpleDropdown(
+        label = label,
+        currentKey = currentKey,
+        options = options,
+        onSelect = onSelect
+    )
 }
 
 @Composable

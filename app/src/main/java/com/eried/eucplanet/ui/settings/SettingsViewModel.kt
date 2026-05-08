@@ -160,6 +160,10 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchPwmDisplay(v: String) = update { copy(watchPwmDisplay = v) }
     fun updateWatchShowSpeedUnit(v: Boolean) = update { copy(watchShowSpeedUnit = v) }
     fun updateWatchEnableGpsSpeed(v: Boolean) = update { copy(watchEnableGpsSpeed = v) }
+    fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
+    fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
+    fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
