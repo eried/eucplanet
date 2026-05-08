@@ -3,8 +3,10 @@ package com.eried.eucplanet.wear.ui
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,9 +23,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.ElectricScooter
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Watch
-import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -91,17 +95,22 @@ private fun MainScreen(state: WatchState, accent: Color) {
         val batteryFontSp = (sw * 0.034f).coerceIn(9f, 12f).sp
         val batteryIconDp = (sw * 0.038f).coerceIn(10f, 14f).dp
         val batterySpacingDp = (sw * 0.018f).coerceIn(5f, 9f).dp
-        val buttonDp = (sw * 0.115f).coerceIn(34f, 50f).dp
-        val buttonIconDp = (sw * 0.055f).coerceIn(16f, 24f).dp
-        val speedFontSp = (sw * 0.20f).coerceIn(48f, 78f).sp
-        val unitFontSp = (sw * 0.05f).coerceIn(11f, 16f).sp
+        // ~10% bigger than the previous 0.115f / 0.055f values.
+        val buttonDp = (sw * 0.127f).coerceIn(37f, 55f).dp
+        val buttonIconDp = (sw * 0.060f).coerceIn(18f, 26f).dp
+        // Speed gets all the visual weight in the centre now that the unit
+        // label is gone (swipe to page 2 to see km/h vs mph).
+        val speedFontSp = (sw * 0.245f).coerceIn(60f, 92f).sp
+        val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
+        val loadBarWidth = (sw * 0.30f).coerceIn(82f, 130f).dp
+        val loadBarHeight = (sw * 0.018f).coerceIn(5f, 8f).dp
+        val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
         val watchPercent = rememberWatchBatteryPercent()
 
-        // Gauge as full-screen frame; we'll draw the speed text + unit
-        // ourselves so we can stack them with the buttons cleanly.
+        // Full-bleed dial as the background frame.
         SpeedGauge(
             speed = state.speedKmh,
-            maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f,
+            maxSpeed = maxSpeed,
             imperial = state.imperialUnits,
             accent = accent,
             showColorBand = true,
@@ -110,16 +119,38 @@ private fun MainScreen(state: WatchState, accent: Color) {
             modifier = Modifier.fillMaxSize()
         )
 
-        // Stacked overlay inside the dial: batteries (top), speed number
-        // (centre), action buttons (bottom). Vertical offsets are fractions
-        // of the screen so the same code looks right on small round (~390 dp)
-        // and Watch Ultra (~454 dp) alike.
+        // Speed number + load bar, slightly above center so the bottom
+        // cluster (batteries + buttons) has more room.
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = (sw * 0.13f).coerceIn(36f, 60f).dp)
+                .align(Alignment.Center)
+                .offset(y = centerOffsetY),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
+                fontSize = speedFontSp,
+                fontWeight = FontWeight.Bold,
+                color = speedTierColor(state.speedKmh, maxSpeed)
+            )
+            Spacer(Modifier.height(1.dp))
+            LoadBar(
+                percent = state.pwmPercent,
+                modifier = Modifier
+                    .offset(y = -(sw * 0.025f).coerceIn(8f, 14f).dp)
+                    .width(loadBarWidth)
+                    .height(loadBarHeight)
+            )
+        }
+
+        // Bottom cluster: batteries directly above the action buttons, both
+        // pushed near the bottom of the dial.
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = (sw * 0.07f).coerceIn(20f, 34f).dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
             BatteryRow(
                 wheelPercent = state.batteryPercent,
@@ -129,44 +160,46 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 iconSize = batteryIconDp,
                 spacing = batterySpacingDp
             )
-            CenterSpeed(
-                speedKmh = state.speedKmh,
-                imperial = state.imperialUnits,
-                maxSpeedKmh = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f,
-                speedFontSize = speedFontSp,
-                unitFontSize = unitFontSp
-            )
             ActionRow(state, accent, buttonDp, buttonIconDp)
         }
     }
 }
 
+private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color = when {
+    speedKmh > maxSpeedKmh * 0.85f -> Color(0xFFEF5350)
+    speedKmh > maxSpeedKmh * 0.65f -> Color(0xFFFFA726)
+    speedKmh > maxSpeedKmh * 0.4f -> Color(0xFFFFCA28)
+    else -> Color(0xFF66BB6A)
+}
+
+/**
+ * Compact PWM-as-load progress bar. Track is dim grey; fill colour shifts
+ * from green to red as the wheel approaches its torque limit, so a glance
+ * tells you how hard the motor is working.
+ */
 @Composable
-private fun CenterSpeed(
-    speedKmh: Float,
-    imperial: Boolean,
-    maxSpeedKmh: Float,
-    speedFontSize: TextUnit,
-    unitFontSize: TextUnit
-) {
-    val color = when {
-        speedKmh > maxSpeedKmh * 0.85f -> Color(0xFFEF5350)
-        speedKmh > maxSpeedKmh * 0.65f -> Color(0xFFFFA726)
-        speedKmh > maxSpeedKmh * 0.4f -> Color(0xFFFFCA28)
+private fun LoadBar(percent: Float, modifier: Modifier = Modifier) {
+    val pct = percent.coerceIn(0f, 100f)
+    val fillColor = when {
+        pct > 80f -> Color(0xFFEF5350)
+        pct > 60f -> Color(0xFFFFA726)
+        pct > 40f -> Color(0xFFFFCA28)
         else -> Color(0xFF66BB6A)
     }
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = "%.0f".format(WatchUnits.speed(speedKmh, imperial)),
-            fontSize = speedFontSize,
-            fontWeight = FontWeight.Bold,
-            color = color
+    val trackColor = Color(0xFF333333)
+    Canvas(modifier = modifier) {
+        val radius = size.height / 2f
+        drawRoundRect(
+            color = trackColor,
+            cornerRadius = CornerRadius(radius, radius)
         )
-        Text(
-            text = WatchUnits.speedUnit(imperial),
-            fontSize = unitFontSize,
-            color = Color(0xFF9AA0A6)
-        )
+        if (pct > 0f) {
+            drawRoundRect(
+                color = fillColor,
+                size = Size(size.width * pct / 100f, size.height),
+                cornerRadius = CornerRadius(radius, radius)
+            )
+        }
     }
 }
 
@@ -216,7 +249,7 @@ private fun BatteryRow(
         horizontalArrangement = Arrangement.spacedBy(spacing),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BatteryChip(Icons.Outlined.Speed, wheelPercent, fontSize, iconSize)
+        BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, fontSize, iconSize)
         BatteryChip(Icons.Filled.PhoneAndroid, phonePercent, fontSize, iconSize)
         BatteryChip(Icons.Filled.Watch, watchPercent, fontSize, iconSize)
     }
