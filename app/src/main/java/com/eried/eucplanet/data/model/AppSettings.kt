@@ -185,7 +185,25 @@ data class AppSettings(
     @ColumnInfo(defaultValue = "1")
     val watchShowSpeedUnit: Boolean = true,
     @ColumnInfo(defaultValue = "0")
-    val watchEnableGpsSpeed: Boolean = false
+    val watchEnableGpsSpeed: Boolean = false,
+
+    /**
+     * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
+     * orange Action button as STEM_1 and the bottom side button as STEM_2;
+     * Pixel Watch only has one). Stored as the [FlicAction] enum name so the
+     * picker can reuse the same UI/string set as Flic and Volume keys. The
+     * Wear OS side reads these via the Data Layer publish, intercepts
+     * KEYCODE_STEM_* in MainActivity, and either fires a local control
+     * intent or routes to the phone over /euc/control.
+     */
+    @ColumnInfo(defaultValue = "HORN")
+    val watchStem1Click: String = "HORN",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Hold: String = "NONE",
+    @ColumnInfo(defaultValue = "LIGHT_TOGGLE")
+    val watchStem2Click: String = "LIGHT_TOGGLE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Hold: String = "NONE"
 )
 
 enum class FlicAction(val labelRes: Int) {

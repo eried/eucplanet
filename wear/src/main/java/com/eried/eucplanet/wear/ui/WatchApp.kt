@@ -153,14 +153,17 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     )
                     Spacer(Modifier.width(3.dp))
                 }
+                val useAccent = state.accentKey != "default"
                 Text(
                     text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    // The gauge band already encodes the safety zones via
-                    // green/yellow/red. The speed glyph follows the user's
-                    // accent so the watch identity matches their phone.
-                    color = accent
+                    // Default accent → tier coloring (green/yellow/orange/red)
+                    // so the watch matches the phone dashboard's "rainbow"
+                    // mode. Any other accent → wear that accent so the
+                    // watch identity stays consistent with the phone's pick.
+                    color = if (useAccent) accent
+                            else speedTierColor(state.speedKmh, maxSpeed)
                 )
                 if (state.showSpeedUnit) {
                     Spacer(Modifier.width(3.dp))
@@ -227,6 +230,8 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 phonePercent = state.phoneBatteryPercent.takeIf { state.showPhoneBattery },
                 watchPercent = watchPercent.takeIf { state.showWatchBattery },
                 showWheelChip = state.showWheelBattery,
+                accent = accent,
+                useAccentTint = state.accentKey != "default",
                 fontSize = batteryFontSp,
                 iconSize = batteryIconDp,
                 spacing = batterySpacingDp
@@ -280,6 +285,8 @@ private fun BatteryRow(
     phonePercent: Int?,
     watchPercent: Int?,
     showWheelChip: Boolean,
+    accent: Color,
+    useAccentTint: Boolean,
     fontSize: TextUnit,
     iconSize: Dp,
     spacing: Dp
@@ -292,10 +299,10 @@ private fun BatteryRow(
         // an em-dash so the row layout stays put rather than collapsing the
         // moment a wheel drops out.
         if (showWheelChip) {
-            BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, fontSize, iconSize)
+            BatteryChip(Icons.Filled.ElectricScooter, wheelPercent, accent, useAccentTint, fontSize, iconSize)
         }
-        phonePercent?.let { BatteryChip(Icons.Filled.PhoneAndroid, it, fontSize, iconSize) }
-        watchPercent?.let { BatteryChip(Icons.Filled.Watch, it, fontSize, iconSize) }
+        phonePercent?.let { BatteryChip(Icons.Filled.PhoneAndroid, it, accent, useAccentTint, fontSize, iconSize) }
+        watchPercent?.let { BatteryChip(Icons.Filled.Watch, it, accent, useAccentTint, fontSize, iconSize) }
     }
 }
 
@@ -307,8 +314,22 @@ private fun pwmTierColor(percent: Float): Color = when {
 }
 
 @Composable
-private fun BatteryChip(icon: ImageVector, percent: Int?, fontSize: TextUnit, iconSize: Dp) {
-    val tint = if (percent != null) batteryTint(percent) else Color(0xFF606060)
+private fun BatteryChip(
+    icon: ImageVector,
+    percent: Int?,
+    accent: Color,
+    useAccentTint: Boolean,
+    fontSize: TextUnit,
+    iconSize: Dp
+) {
+    // Default accent → tier coloring (green / amber / red) so the rider
+    // gets a glanceable sense of remaining range. Any other accent →
+    // the chip wears the accent so the watch identity stays consistent.
+    val tint = when {
+        percent == null -> Color(0xFF606060)
+        useAccentTint -> accent
+        else -> batteryTint(percent)
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = icon,
@@ -336,27 +357,30 @@ private fun batteryTint(percent: Int): Color = when {
 @Composable
 private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize: Dp) {
     val context = LocalContext.current
-    val enabled = state.connected
-    // Use the same dim grey as the phone dashboard's grayed action tiles so
-    // disconnected reads identically across surfaces.
+    val live = state.connected
+    // Custom dim palette for the disconnected state — the Wear Button's own
+    // `enabled = false` styling fades the whole button to ~12% alpha which
+    // makes the icon nearly invisible. Keeping the button "enabled" with our
+    // own muted colors and guarding the onClick keeps it visually present
+    // while still being non-interactive.
     val disabledBg = Color(0xFF1A1A1A)
     val disabledFg = Color(0xFF555555)
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         if (state.hasHorn) {
             Button(
                 onClick = {
-                    if (enabled) WatchStateRepository.sendControl(context, WatchControl.HORN)
+                    if (live) WatchStateRepository.sendControl(context, WatchControl.HORN)
                 },
-                enabled = enabled,
                 colors = ButtonDefaults.primaryButtonColors(
-                    backgroundColor = if (enabled) accent else disabledBg,
-                    contentColor = if (enabled) Color.Black else disabledFg
+                    backgroundColor = if (live) accent else disabledBg,
+                    contentColor = if (live) Color.Black else disabledFg
                 ),
                 modifier = Modifier.size(buttonSize)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Campaign,
                     contentDescription = stringResource(R.string.watch_horn),
+                    tint = if (live) Color.Black else disabledFg,
                     modifier = Modifier.size(iconSize)
                 )
             }
@@ -364,19 +388,18 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
         if (state.hasLight) {
             Button(
                 onClick = {
-                    if (!enabled) return@Button
+                    if (!live) return@Button
                     val intent = if (state.lightOn) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
                     WatchStateRepository.sendControl(context, intent)
                 },
-                enabled = enabled,
                 colors = ButtonDefaults.secondaryButtonColors(
                     backgroundColor = when {
-                        !enabled -> disabledBg
+                        !live -> disabledBg
                         state.lightOn -> accent.copy(alpha = 0.30f)
                         else -> Color(0xFF2A2A2A)
                     },
                     contentColor = when {
-                        !enabled -> disabledFg
+                        !live -> disabledFg
                         state.lightOn -> accent
                         else -> Color(0xFFB0B0B0)
                     }
@@ -387,7 +410,7 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
                     imageVector = Icons.Filled.FlashlightOn,
                     contentDescription = stringResource(R.string.watch_light),
                     tint = when {
-                        !enabled -> disabledFg
+                        !live -> disabledFg
                         state.lightOn -> Color(0xFFFFC107)
                         else -> Color(0xFF606060)
                     },
@@ -448,18 +471,26 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                     fontWeight = FontWeight.SemiBold
                 )
             }
+            // Same accent rule as the dial: default accent → white speed
+            // so the row aligns with the rest of the value column; any
+            // custom accent → wear that accent.
+            val useAccent = state.accentKey != "default"
             Text(
                 text = "%.0f %s".format(speedDisplay, speedUnit),
                 fontSize = speedSp,
                 fontWeight = FontWeight.Bold,
-                color = accent
+                color = if (useAccent) accent else Color.White
             )
             Spacer(Modifier.height(4.dp))
             val live = state.connected
-            // Accent-tint live values so the page reads as a continuation of
-            // the dashboard's accent identity. Disconnected dashes stay grey
-            // so the rider can tell at a glance that the row isn't live.
-            val valueColor = if (live) accent else Color(0xFF606060)
+            // Live values: white when default accent (matches phone dashboard's
+            // value column) or the accent color when the user picked one.
+            // Disconnected dashes stay muted grey.
+            val valueColor = when {
+                !live -> Color(0xFF606060)
+                useAccent -> accent
+                else -> Color.White
+            }
             DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
             DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)
             DetailRow(R.string.watch_power_label, if (live) "%.0f W".format(powerW) else DASH, labelSp, valueSp, labelWidth, valueWidth, valueColor)

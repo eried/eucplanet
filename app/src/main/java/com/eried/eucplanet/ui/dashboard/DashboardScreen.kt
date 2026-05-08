@@ -400,7 +400,10 @@ fun DashboardScreen(
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
-                    safeBandColor = if (useAccent) primary else AccentBlue,
+                    // Safe band is always green so it reads as the safety
+                    // signal and not the user's accent. The speed indicator
+                    // arc (overrideColor above) still wears the accent.
+                    safeBandColor = AccentGreen,
                     modifier = Modifier
                         .fillMaxWidth(0.75f)
                         .aspectRatio(1.25f)

@@ -8,7 +8,7 @@ import com.eried.eucplanet.data.model.TripRecord
 
 @Database(
     entities = [AppSettings::class, TripRecord::class, AlarmRule::class],
-    version = 28,
+    version = 29,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
