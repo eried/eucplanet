@@ -443,8 +443,12 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val sw = maxWidth.value
         val labelSp = (sw * 0.034f).coerceIn(10f, 13f).sp
         val valueSp = (sw * 0.038f).coerceIn(11f, 14f).sp
-        val headerSp = (sw * 0.040f).coerceIn(12f, 15f).sp
+        // Header (wheel name / "Disconnected") is meant to be a quiet caption,
+        // not a heading — it shrinks under the speed which carries the visual
+        // weight on this page.
+        val headerSp = (sw * 0.030f).coerceIn(9f, 12f).sp
         val speedSp = (sw * 0.060f).coerceIn(18f, 26f).sp
+        val speedUnitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
         val labelWidth = (sw * 0.22f).coerceIn(60f, 90f).dp
         val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
 
@@ -482,17 +486,27 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                     fontWeight = FontWeight.SemiBold
                 )
             }
-            // Same accent rule as the dial: default accent → tier-coloured
-            // speed (green/yellow/orange/red) so the second screen matches
-            // the phone dashboard; any custom accent → wear that accent.
+            // Speed number colours per main-screen rules; the km/h unit
+            // stays the muted grey from the dashboard's small label.
             val useAccent = state.accentKey != "default"
             val detailMaxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-            Text(
-                text = "%.0f %s".format(speedDisplay, speedUnit),
-                fontSize = speedSp,
-                fontWeight = FontWeight.Bold,
-                color = if (useAccent) accent else speedTierColor(state.speedKmh, detailMaxSpeed)
-            )
+            val speedColor = if (useAccent) accent else speedTierColor(state.speedKmh, detailMaxSpeed)
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(
+                    text = "%.0f".format(speedDisplay),
+                    fontSize = speedSp,
+                    fontWeight = FontWeight.Bold,
+                    color = speedColor
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = speedUnit,
+                    fontSize = speedUnitSp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF9AA0A6),
+                    modifier = Modifier.padding(bottom = (speedSp.value * 0.18f).dp)
+                )
+            }
             Spacer(Modifier.height(4.dp))
             val live = state.connected
             // Per-metric coloring on default accent mirrors the phone
