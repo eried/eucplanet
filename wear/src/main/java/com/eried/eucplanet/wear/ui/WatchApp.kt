@@ -30,6 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,6 +62,24 @@ import com.eried.eucplanet.wear.bridge.WatchStateRepository
 
 /** Em-dash placeholder used when a metric isn't live. Matches the phone dashboard. */
 private const val DASH = "—"
+
+/**
+ * Recomposes the caller every second with the current wall-clock millis.
+ * Used to time-check the freshness of the last push from the phone so the
+ * battery / connection-state UI flips to "stale" without needing a fresh
+ * push to trigger recomposition.
+ */
+@Composable
+private fun rememberSecondTick(): Long {
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000)
+            now = System.currentTimeMillis()
+        }
+    }
+    return now
+}
 
 /**
  * Two-page horizontal pager: page 0 is the dashboard (gauge + horn/light);
@@ -196,32 +216,46 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     }
                     if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
                     if (showPwmNumber) {
-                        // Bar alongside → just "N%". Text-only → "Load (PWM): N%"
-                        // since there's no bar to give the value context.
-                        val pwmText = when {
-                            !state.connected -> if (showBar) DASH else "Load (PWM): $DASH"
-                            showBar -> "%.0f%%".format(state.pwmPercent)
-                            else -> "Load (PWM): %.0f%%".format(state.pwmPercent)
-                        }
-                        // Same tier scale as the phone dashboard's LOAD card:
+                        // Tier scale matches the phone dashboard's LOAD card:
                         // ≥ 80% red, ≥ 60% orange, else green (or accent for
-                        // custom accents). Disconnected falls back to the
-                        // safe-tier color so the dash matches the speed
-                        // glyph above it instead of going dim grey.
+                        // custom accents). Disconnected -> safe-tier green so
+                        // the dash reads continuous with the speed glyph.
                         val pwmAccent = state.accentKey != "default"
-                        val pwmTextColor = when {
+                        val pwmNumberColor = when {
                             pwmAccent -> accent
                             !state.connected -> GaugeAccentGreen
                             state.pwmPercent >= 80f -> GaugeAccentRed
                             state.pwmPercent >= 60f -> GaugeAccentOrange
                             else -> GaugeAccentGreen
                         }
-                        Text(
-                            text = pwmText,
-                            fontSize = pwmNumberSp,
-                            fontWeight = FontWeight.Medium,
-                            color = pwmTextColor
-                        )
+                        val numberText = if (state.connected) "%.0f%%".format(state.pwmPercent) else DASH
+                        if (showBar) {
+                            // Bar alongside → just the tier-coloured "N%".
+                            Text(
+                                text = numberText,
+                                fontSize = pwmNumberSp,
+                                fontWeight = FontWeight.Medium,
+                                color = pwmNumberColor
+                            )
+                        } else {
+                            // Text-only → "Load (PWM):" stays muted grey
+                            // (caption colour) so only the live percent
+                            // reflects load tier.
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Load (PWM): ",
+                                    fontSize = pwmNumberSp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = Color(0xFF9AA0A6)
+                                )
+                                Text(
+                                    text = numberText,
+                                    fontSize = pwmNumberSp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = pwmNumberColor
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -236,12 +270,14 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
-            // Phone battery is meaningful only after the phone has pushed at
-            // least one snapshot — before that "0" reads as "phone is dead"
-            // when really the watch just hasn't heard from the phone yet.
-            // Falling back to a dash makes the disconnected case obvious.
+            // Phone battery is only valid while the phone is actively pushing.
+            // The bridge ticks every 200 ms; if it's been silent for >3 s
+            // (phone app killed, emulator stopped, BT range), the value goes
+            // stale — fall back to a dash so the disconnected state is
+            // obvious. nowTick recomposes once a second to update the check.
             val lastPush by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
-            val phoneAlive = lastPush > 0
+            val nowTick = rememberSecondTick()
+            val phoneAlive = lastPush > 0 && (nowTick - lastPush) < 3000L
             BatteryRow(
                 wheelPercent = state.batteryPercent.takeIf { state.showWheelBattery && state.connected },
                 phonePercent = if (state.showPhoneBattery && phoneAlive)

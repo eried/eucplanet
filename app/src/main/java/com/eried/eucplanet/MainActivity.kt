@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var flicManager: FlicManager
+    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
 
     private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -75,6 +76,17 @@ class MainActivity : AppCompatActivity() {
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
         return hasBt || hasLoc
+    }
+
+    /**
+     * Pinging the wear bridge on every resume rather than only at process
+     * start makes the auto-launch reliable: opening the phone app brings
+     * the watch app to the foreground each time, even if the watch service
+     * was killed for memory after the previous session.
+     */
+    override fun onResume() {
+        super.onResume()
+        wearBridge.pingWatchToWake()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

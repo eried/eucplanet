@@ -95,28 +95,43 @@ class WearBridge @Inject constructor(
      * Safe to call from Application.onCreate even if no watch is paired; the
      * Data Layer just keeps a local cache that future watches sync from.
      */
-    fun start() {
-        if (started) return
-        started = true
-        Log.i(TAG, "Wear bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
-
-        // Auto-start watch app: ping every paired node so the watch wakes its
-        // MainActivity. Gated by the user setting; if a tester turns it off,
-        // they can still open the watch app manually. Best-effort — failures
-        // are logged but don't block bridge startup.
+    /**
+     * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
+     * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
+     * launch MainActivity. Gated by the user's `watchAutoStart` setting.
+     * Best-effort — failures are logged at DEBUG and don't propagate. Called
+     * once on bridge startup and again from MainActivity.onResume() so the
+     * watch wakes whenever the user re-opens the phone app.
+     */
+    fun pingWatchToWake() {
         scope.launch {
             try {
                 val settings = settingsRepository.get()
                 if (!settings.watchAutoStart) return@launch
                 val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+                if (nodes.isEmpty()) {
+                    Log.d(TAG, "watch wake: no paired nodes")
+                    return@launch
+                }
                 nodes.forEach { node: Node ->
                     Wearable.getMessageClient(context)
                         .sendMessage(node.id, PATH_WAKE, ByteArray(0))
                 }
+                Log.i(TAG, "watch wake sent to ${nodes.size} node(s)")
             } catch (e: Exception) {
                 Log.d(TAG, "watch wake skipped: ${e.message}")
             }
         }
+    }
+
+    fun start() {
+        if (started) return
+        started = true
+        Log.i(TAG, "Wear bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
+
+        // First wake on bridge startup. Additional wakes fire whenever
+        // MainActivity resumes — see pingWatchToWake() below.
+        pingWatchToWake()
 
         // Periodic publisher rather than a Flow combine. Reasoning: when the
         // wheel is disconnected the upstream flows don't emit, so a sample +
