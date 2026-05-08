@@ -151,6 +151,16 @@ class SettingsViewModel @Inject constructor(
 
     fun updateImperialUnits(v: Boolean) = update { copy(imperialUnits = v) }
 
+    // Wear OS companion
+    fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
+    fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
+    fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
+    fun updateWatchShowPhoneBattery(v: Boolean) = update { copy(watchShowPhoneBattery = v) }
+    fun updateWatchShowWatchBattery(v: Boolean) = update { copy(watchShowWatchBattery = v) }
+    fun updateWatchPwmDisplay(v: String) = update { copy(watchPwmDisplay = v) }
+    fun updateWatchShowSpeedUnit(v: Boolean) = update { copy(watchShowSpeedUnit = v) }
+    fun updateWatchEnableGpsSpeed(v: Boolean) = update { copy(watchEnableGpsSpeed = v) }
+
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
 

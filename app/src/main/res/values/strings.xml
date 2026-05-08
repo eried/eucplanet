@@ -83,7 +83,27 @@
     <string name="tab_alarms">Alarm rules</string>
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
+    <string name="tab_watch">Watch</string>
     <string name="tab_cloud">Backup trips &amp; settings</string>
+
+    <!-- Wear OS companion settings -->
+    <string name="section_watch_general">General</string>
+    <string name="section_watch_display">Display</string>
+    <string name="watch_keep_on">Keep display on</string>
+    <string name="watch_keep_on_desc">Stop the watch from sleeping while the EUC Planet app is open</string>
+    <string name="watch_auto_start">Auto-start on watch</string>
+    <string name="watch_auto_start_desc">Open the watch app automatically when you open the phone app</string>
+    <string name="watch_show_wheel_battery">Show wheel battery</string>
+    <string name="watch_show_phone_battery">Show phone battery</string>
+    <string name="watch_show_watch_battery">Show watch battery</string>
+    <string name="watch_pwm_display">PWM indicator</string>
+    <string name="watch_pwm_bar">Bar only</string>
+    <string name="watch_pwm_numbers">Numbers only</string>
+    <string name="watch_pwm_both">Bar and numbers</string>
+    <string name="watch_show_speed_unit">Speed unit (km/h or mph)</string>
+    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number</string>
+    <string name="watch_enable_gps_speed">GPS speed page</string>
+    <string name="watch_enable_gps_speed_desc">Swipe up from the dashboard to see the watch\'s own GPS speed</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>

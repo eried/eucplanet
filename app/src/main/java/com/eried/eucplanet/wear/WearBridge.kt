@@ -9,6 +9,8 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.PutDataMapRequest
 import com.google.android.gms.wearable.Wearable
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -69,6 +71,16 @@ class WearBridge @Inject constructor(
         private const val K_IMPERIAL = "im"
         private const val K_ACCENT = "ac"
         private const val K_TIMESTAMP = "ts"
+        // Watch-display option keys mirror WatchKeys.OPT_* on the wear side.
+        private const val K_OPT_KEEP_ON = "wko"
+        private const val K_OPT_SHOW_WHEEL_BATT = "wsb"
+        private const val K_OPT_SHOW_PHONE_BATT = "wpb"
+        private const val K_OPT_SHOW_WATCH_BATT = "wwb"
+        private const val K_OPT_PWM_DISPLAY = "wpd"
+        private const val K_OPT_SHOW_SPEED_UNIT = "wsu"
+        private const val K_OPT_GPS_SPEED = "wgs"
+
+        private const val PATH_WAKE = "/euc/wake"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -83,6 +95,24 @@ class WearBridge @Inject constructor(
         if (started) return
         started = true
         Log.i(TAG, "Wear bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
+
+        // Auto-start watch app: ping every paired node so the watch wakes its
+        // MainActivity. Gated by the user setting; if a tester turns it off,
+        // they can still open the watch app manually. Best-effort — failures
+        // are logged but don't block bridge startup.
+        scope.launch {
+            try {
+                val settings = settingsRepository.get()
+                if (!settings.watchAutoStart) return@launch
+                val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+                nodes.forEach { node: Node ->
+                    Wearable.getMessageClient(context)
+                        .sendMessage(node.id, PATH_WAKE, ByteArray(0))
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "watch wake skipped: ${e.message}")
+            }
+        }
 
         scope.launch {
             combine(
@@ -130,6 +160,13 @@ class WearBridge @Inject constructor(
                 dataMap.putBoolean(K_HAS_LIGHT, true)
                 dataMap.putBoolean(K_IMPERIAL, settings.imperialUnits)
                 dataMap.putString(K_ACCENT, settings.accentColor)
+                dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
+                dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
+                dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)
+                dataMap.putBoolean(K_OPT_SHOW_WATCH_BATT, settings.watchShowWatchBattery)
+                dataMap.putString(K_OPT_PWM_DISPLAY, settings.watchPwmDisplay)
+                dataMap.putBoolean(K_OPT_SHOW_SPEED_UNIT, settings.watchShowSpeedUnit)
+                dataMap.putBoolean(K_OPT_GPS_SPEED, settings.watchEnableGpsSpeed)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).

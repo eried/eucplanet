@@ -15,4 +15,7 @@
     <string name="watch_trip_label">Trip</string>
     <string name="watch_torque_label">Torque</string>
     <string name="watch_action_failed">Couldn\'t reach phone</string>
+    <string name="watch_gps_label">GPS speed</string>
+    <string name="watch_gps_permission">Tap to allow GPS</string>
+    <string name="watch_gps_waiting">Waiting for fix…</string>
 </resources>

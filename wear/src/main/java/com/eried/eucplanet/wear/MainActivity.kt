@@ -6,12 +6,17 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
 import com.eried.eucplanet.wear.ui.WatchApp
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -44,7 +49,14 @@ class MainActivity : ComponentActivity() {
                     hasHorn = intent.getBooleanExtra("horn", true),
                     hasLight = intent.getBooleanExtra("hasLight", true),
                     imperialUnits = intent.getBooleanExtra("imperial", false),
-                    accentKey = intent.getStringExtra("accent") ?: "default"
+                    accentKey = intent.getStringExtra("accent") ?: "default",
+                    pwmDisplay = intent.getStringExtra("pwmDisplay") ?: "BOTH",
+                    showSpeedUnit = intent.getBooleanExtra("showSpeedUnit", true),
+                    showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),
+                    showPhoneBattery = intent.getBooleanExtra("showPhoneBatt", true),
+                    showWatchBattery = intent.getBooleanExtra("showWatchBatt", true),
+                    gpsSpeedEnabled = intent.getBooleanExtra("gpsEnabled", false),
+                    keepScreenOn = intent.getBooleanExtra("keepOn", true)
                 )
             )
         }
@@ -60,6 +72,20 @@ class MainActivity : ComponentActivity() {
                 ContextCompat.RECEIVER_EXPORTED
             )
         }
+
+        // Apply / clear FLAG_KEEP_SCREEN_ON whenever the phone-pushed setting
+        // toggles. The watch's own ambient mode still kicks in if the user
+        // covers the screen — this only blocks the inactivity timeout.
+        lifecycleScope.launch {
+            WatchStateRepository.state
+                .map { it.keepScreenOn }
+                .distinctUntilChanged()
+                .collect { keepOn ->
+                    if (keepOn) window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    else window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+        }
+
         setContent { WatchApp() }
     }
 

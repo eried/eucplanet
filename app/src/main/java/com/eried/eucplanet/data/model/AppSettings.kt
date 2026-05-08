@@ -166,7 +166,26 @@ data class AppSettings(
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
-    val lastSettingsBackupAt: Long? = null
+    val lastSettingsBackupAt: Long? = null,
+
+    // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
+    @ColumnInfo(defaultValue = "1")
+    val watchKeepScreenOn: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchAutoStart: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWheelBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowPhoneBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWatchBattery: Boolean = true,
+    /** "BAR", "NUMBERS", or "BOTH". */
+    @ColumnInfo(defaultValue = "BOTH")
+    val watchPwmDisplay: String = "BOTH",
+    @ColumnInfo(defaultValue = "1")
+    val watchShowSpeedUnit: Boolean = true,
+    @ColumnInfo(defaultValue = "0")
+    val watchEnableGpsSpeed: Boolean = false
 )
 
 enum class FlicAction(val labelRes: Int) {

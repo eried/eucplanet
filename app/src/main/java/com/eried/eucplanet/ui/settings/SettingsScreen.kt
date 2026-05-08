@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MusicNote
@@ -213,6 +214,7 @@ fun SettingsScreen(
     val titleAlarms = stringResource(R.string.tab_alarms)
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
+    val titleWatch = stringResource(R.string.tab_watch)
 
     val corpusGeneral = listOf(
         titleGeneral,
@@ -293,6 +295,20 @@ fun SettingsScreen(
         stringResource(R.string.volume_keys_enable)
     ).joinToString(" ")
 
+    val corpusWatch = listOf(
+        titleWatch,
+        stringResource(R.string.section_watch_general),
+        stringResource(R.string.section_watch_display),
+        stringResource(R.string.watch_keep_on),
+        stringResource(R.string.watch_auto_start),
+        stringResource(R.string.watch_show_wheel_battery),
+        stringResource(R.string.watch_show_phone_battery),
+        stringResource(R.string.watch_show_watch_battery),
+        stringResource(R.string.watch_pwm_display),
+        stringResource(R.string.watch_show_speed_unit),
+        stringResource(R.string.watch_enable_gps_speed)
+    ).joinToString(" ")
+
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel)
@@ -317,6 +333,9 @@ fun SettingsScreen(
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()
+        },
+        SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
+            WatchTab(settings, viewModel)
         }
     )
 
@@ -1037,6 +1056,101 @@ private fun FlicTab(
             }
         }
 
+    }
+}
+
+// --- Watch Tab ---
+
+@Composable
+private fun WatchTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_watch_general))
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_keep_on),
+            description = stringResource(R.string.watch_keep_on_desc),
+            checked = settings.watchKeepScreenOn,
+            onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_auto_start),
+            description = stringResource(R.string.watch_auto_start_desc),
+            checked = settings.watchAutoStart,
+            onCheckedChange = { viewModel.updateWatchAutoStart(it) }
+        )
+
+        SectionHeader(stringResource(R.string.section_watch_display))
+
+        SwitchSetting(
+            stringResource(R.string.watch_show_wheel_battery),
+            settings.watchShowWheelBattery
+        ) { viewModel.updateWatchShowWheelBattery(it) }
+        SwitchSetting(
+            stringResource(R.string.watch_show_phone_battery),
+            settings.watchShowPhoneBattery
+        ) { viewModel.updateWatchShowPhoneBattery(it) }
+        SwitchSetting(
+            stringResource(R.string.watch_show_watch_battery),
+            settings.watchShowWatchBattery
+        ) { viewModel.updateWatchShowWatchBattery(it) }
+
+        SimpleDropdown(
+            label = stringResource(R.string.watch_pwm_display),
+            currentKey = settings.watchPwmDisplay,
+            options = listOf(
+                "BAR" to stringResource(R.string.watch_pwm_bar),
+                "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+                "BOTH" to stringResource(R.string.watch_pwm_both)
+            ),
+            onSelect = { viewModel.updateWatchPwmDisplay(it) }
+        )
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_show_speed_unit),
+            description = stringResource(R.string.watch_show_speed_unit_desc),
+            checked = settings.watchShowSpeedUnit,
+            onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_enable_gps_speed),
+            description = stringResource(R.string.watch_enable_gps_speed_desc),
+            checked = settings.watchEnableGpsSpeed,
+            onCheckedChange = { viewModel.updateWatchEnableGpsSpeed(it) }
+        )
+    }
+}
+
+@Composable
+private fun SwitchSettingWithDesc(
+    label: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                highlightMatches(label, LocalSettingsSearchQuery.current),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        }
+        Text(
+            description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

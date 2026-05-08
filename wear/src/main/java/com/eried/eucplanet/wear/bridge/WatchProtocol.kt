@@ -15,6 +15,9 @@ package com.eried.eucplanet.wear.bridge
 object WatchPaths {
     const val STATE = "/euc/state"
     const val CONTROL = "/euc/control"
+    /** Phone-to-watch ping that wakes the watch app when the user opens the
+     *  phone app. Watch listener launches MainActivity when it sees this. */
+    const val WAKE = "/euc/wake"
 }
 
 object WatchKeys {
@@ -37,6 +40,16 @@ object WatchKeys {
     const val ACCENT = "ac"
     /** Bumped on every snapshot so the watch always sees a fresh DataItem. */
     const val TIMESTAMP = "ts"
+
+    // --- Watch UI options pushed from the phone Settings -> Watch section ---
+    const val OPT_KEEP_ON = "wko"
+    const val OPT_SHOW_WHEEL_BATT = "wsb"
+    const val OPT_SHOW_PHONE_BATT = "wpb"
+    const val OPT_SHOW_WATCH_BATT = "wwb"
+    /** "BAR" / "NUMBERS" / "BOTH". */
+    const val OPT_PWM_DISPLAY = "wpd"
+    const val OPT_SHOW_SPEED_UNIT = "wsu"
+    const val OPT_GPS_SPEED = "wgs"
 }
 
 object WatchControl {
@@ -66,5 +79,13 @@ data class WatchState(
     val hasHorn: Boolean = false,
     val hasLight: Boolean = false,
     val imperialUnits: Boolean = false,
-    val accentKey: String = "default"
+    val accentKey: String = "default",
+    // Watch UI options sourced from phone Settings.
+    val keepScreenOn: Boolean = true,
+    val showWheelBattery: Boolean = true,
+    val showPhoneBattery: Boolean = true,
+    val showWatchBattery: Boolean = true,
+    val pwmDisplay: String = "BOTH",
+    val showSpeedUnit: Boolean = true,
+    val gpsSpeedEnabled: Boolean = false
 )
