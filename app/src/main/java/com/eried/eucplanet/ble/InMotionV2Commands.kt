@@ -64,6 +64,22 @@ object InMotionV2Commands {
     fun getRealTimeData(): ByteArray =
         InMotionV2Protocol.buildPacket(Flags.DEFAULT, Command.REAL_TIME_INFO, byteArrayOf())
 
+    // --- InMotion P6 (extended-routing-only variant) ---
+    //
+    // The P6 ignores the legacy `02 [cmd]` queries (carType returns all zeros in
+    // captures) and only responds to extended-routing queries `02 21 [sub]`.
+    // Confirmed sub-commands seen on a real P6 (firmware A14219B): 0x06 info
+    // bundle (serial + version), 0x07 realtime telemetry, 0x04 total stats.
+    // We send only the info + realtime queries — settings (sub 0x20) and ride
+    // history (sub 0x10/0x11) have a TLV-style layout we haven't reverse-
+    // engineered yet, so polling them just produces unparsed bytes.
+
+    fun getP6Info(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x06, byteArrayOf())
+
+    fun getP6RealTimeData(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x07, byteArrayOf())
+
     // --- Control commands ---
 
     /**

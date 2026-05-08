@@ -178,6 +178,50 @@ object InMotionV2Parser {
     }
 
     /**
+     * Parse P6 realtime telemetry from the data block of a `21 02 87 01 00 …`
+     * response. The data passed in here is the part *after* the `21 02 87 01 00`
+     * routing prefix — exactly the bytes the wheel reports for each sample.
+     *
+     * What we trust today: voltage and current at offsets 0/2 match the InMotion
+     * app's reported values across all captures (Voltage 230 V, Current ≈ 0 A
+     * while parked). Battery percent is derived linearly from voltage on the
+     * 56s pack curve (3.0–4.2 V per cell → 165–235 V end-to-end), which is
+     * rough but lets the dashboard ring fill in.
+     *
+     * Everything else (speed, PWM, temperatures, trip distance, etc.) sits at
+     * different offsets than V14 and we don't have labelled riding captures yet.
+     * Those fields stay at defaults — the dashboard reads blank for them, which
+     * is honest about what we can't yet decode.
+     */
+    fun parseP6Telemetry(data: ByteArray): WheelData? {
+        if (data.size < 4) return null
+        val voltage = ByteUtils.getUint16LE(data, 0) / 100f
+        val current = ByteUtils.getInt16LE(data, 2) / 100f
+        val batteryPercent = ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
+        return WheelData(
+            voltage = voltage,
+            current = current,
+            batteryPercent = batteryPercent,
+            battery1Percent = batteryPercent.toFloat(),
+            battery2Percent = batteryPercent.toFloat(),
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
+     * bundle response. Returns null if the layout doesn't match what we've seen.
+     */
+    fun parseP6Serial(data: ByteArray): String? {
+        if (data.size < 17 || data[0] != 0x01.toByte()) return null
+        val serialBytes = data.copyOfRange(1, 17)
+        // Trim trailing nulls and spaces so we don't render junk in the UI.
+        return String(serialBytes, Charsets.US_ASCII)
+            .trimEnd { it == ' ' || it.code == 0 }
+            .ifBlank { null }
+    }
+
+    /**
      * Parse TotalStats response (command 0x11).
      */
     fun parseTotalStats(data: ByteArray): TotalStats? {

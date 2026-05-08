@@ -50,6 +50,16 @@ interface WheelAdapter {
     /** BLE service + characteristic UUIDs the adapter binds to on connect. */
     fun bleProfile(): BleProfile = BleProfile.NORDIC_UART
 
+    /**
+     * Hook called once per connect attempt with the BLE advertised name (when
+     * available). Adapters can use it to pre-select a model variant before the
+     * first packet is sent — e.g., the InMotion P6 broadcasts as `P6-XXXXXXXX`
+     * and uses an extended-routing-only command set, so we pick the P6 code
+     * path before the legacy carType query reaches the wheel and times out.
+     * Default is a no-op.
+     */
+    fun notifyConnectingTo(deviceName: String?) {}
+
     /** Packets sent in order on first connect, before the realtime poll loop starts. */
     fun initSequence(): List<ByteArray>
 

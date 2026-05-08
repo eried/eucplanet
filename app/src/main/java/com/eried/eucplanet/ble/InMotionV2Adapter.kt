@@ -33,6 +33,15 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         private set
 
     /**
+     * Use the P6's extended-routing-only command set. Only set by
+     * [notifyConnectingTo] from the BLE name (`P6-XXXXXXXX`) and never flipped
+     * by telemetry — keeping it name-bound means the virtual P6 simulator,
+     * which emits V14-shaped packets, can keep using the V14 command path even
+     * after carType identifies it as a P6.
+     */
+    @Volatile private var useP6Protocol: Boolean = false
+
+    /**
      * BLE notifications can split a single AA AA frame across multiple packets.
      * Buffer them here and scan for complete frames. Stays in this adapter so
      * sibling adapters (V1, KingSong, Veteran) can keep their own framing state
@@ -40,17 +49,51 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     private val reassemblyBuffer = ByteArrayOutputStream()
 
-    override fun initSequence(): List<ByteArray> = listOf(
-        InMotionV2Commands.getCarType(),
-        InMotionV2Commands.getSerialNumber(),
-        InMotionV2Commands.getVersions(),
-        InMotionV2Commands.getCurrentSettings(),
-        InMotionV2Commands.getUselessData(),
-        InMotionV2Commands.getStatistics()
-    )
+    /**
+     * Pre-select model from the BLE advertised name. The InMotion P6 uses an
+     * extended-routing-only command set: the legacy `02 [cmd]` queries return
+     * all-zero blobs (verified in real-hardware captures), so we have to know
+     * we're talking to a P6 *before* sending the first init packet. The name
+     * `P6-XXXXXXXX` is the cleanest pre-connect signal — we set the model now
+     * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
+     */
+    override fun notifyConnectingTo(deviceName: String?) {
+        if (deviceName != null && deviceName.startsWith("P6-")) {
+            detectedModel = InMotionV2Model.P6
+            useP6Protocol = true
+        }
+    }
 
-    override fun pollRealtime(): ByteArray = InMotionV2Commands.getRealTimeData()
-    override fun pollSettings(): ByteArray = InMotionV2Commands.getCurrentSettings()
+    override fun initSequence(): List<ByteArray> {
+        // P6 doesn't answer the V14 carType / settings / stats queries; only the
+        // info bundle (`02 21 06`) returns useful data. Telemetry kicks in via
+        // pollRealtime once the loop starts.
+        if (useP6Protocol) {
+            return listOf(InMotionV2Commands.getP6Info())
+        }
+        return listOf(
+            InMotionV2Commands.getCarType(),
+            InMotionV2Commands.getSerialNumber(),
+            InMotionV2Commands.getVersions(),
+            InMotionV2Commands.getCurrentSettings(),
+            InMotionV2Commands.getUselessData(),
+            InMotionV2Commands.getStatistics()
+        )
+    }
+
+    override fun pollRealtime(): ByteArray =
+        if (useP6Protocol) InMotionV2Commands.getP6RealTimeData()
+        else InMotionV2Commands.getRealTimeData()
+
+    /**
+     * P6 settings (`02 21 20 …`) come back in a TLV layout we haven't decoded
+     * yet, so re-polling them adds load with no benefit. Returning the realtime
+     * query keeps the polling loop's settings-refresh tick benign — the wheel
+     * just emits another telemetry packet.
+     */
+    override fun pollSettings(): ByteArray =
+        if (useP6Protocol) InMotionV2Commands.getP6RealTimeData()
+        else InMotionV2Commands.getCurrentSettings()
 
     /**
      * Horn dispatch. V14 family models (V14g/V14s/V13/V13PRO/V11Y) use the
@@ -143,6 +186,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         reassemblyBuffer.reset()
         detectedModel = null
+        useP6Protocol = false
     }
 
     /** Internal decode of an unwrapped V2 packet. Called from [onRawNotification]. */
@@ -152,6 +196,38 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             0x04 -> parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
             0x11 -> InMotionV2Parser.parseTotalStats(data)?.let { DecodeResult.TotalDistance(it.totalDistanceKm) } ?: DecodeResult.Unknown
             0x20 -> parseSettingsForModel(data)?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
+            0x21 -> decodeP6Extended(data)
+            else -> DecodeResult.Unknown
+        }
+    }
+
+    /**
+     * Unwrap a P6-style extended-routing response. The frame body looks like
+     * `02 (sub|0x80) (01 00) (payload)` for sub 0x06 (info) and 0x07 (realtime),
+     * and `02 (sub|0x80) (payload)` for sub 0x10 / 0x11 / 0x60 etc. We only
+     * decode the two we trust today; the rest pass through silently.
+     */
+    private fun decodeP6Extended(data: ByteArray): DecodeResult {
+        if (data.size < 3 || data[0] != 0x02.toByte()) return DecodeResult.Unknown
+        val sub = data[1].toInt() and 0x7F
+        return when (sub) {
+            0x07 -> {
+                // realtime: skip the `02 87 01 00` prefix to land on the data block
+                if (data.size < 4) return DecodeResult.Unknown
+                val telem = InMotionV2Parser.parseP6Telemetry(data.copyOfRange(4, data.size))
+                telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            }
+            0x06 -> {
+                // info bundle: skip `02 86 01 00`, then ASCII serial follows the
+                // 0x01 record marker. We surface the serial as the model name so
+                // the dashboard has *something* to identify the wheel until a
+                // proper P6 parser lands.
+                if (data.size < 4) return DecodeResult.Unknown
+                val serial = InMotionV2Parser.parseP6Serial(data.copyOfRange(4, data.size))
+                if (serial != null) {
+                    DecodeResult.ModelName("InMotion P6 ($serial)", InMotionV2Model.P6)
+                } else DecodeResult.Unknown
+            }
             else -> DecodeResult.Unknown
         }
     }

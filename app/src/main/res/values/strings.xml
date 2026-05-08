@@ -46,7 +46,7 @@
     <string name="experimental_dialog_report">Report an issue</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
-    <string name="scan_simulate_title">Simulate a wheel</string>
+    <string name="scan_simulate_title">Virtual wheels</string>
     <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline.</string>
 
     <!-- Dashboard -->
@@ -320,6 +320,8 @@
     <string name="scan_title">Connect to wheel</string>
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
+    <string name="scan_show_all_title">Show all devices</string>
+    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>

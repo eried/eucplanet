@@ -39,6 +39,7 @@ class WheelService : LifecycleService() {
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val EXTRA_ADDRESS = "device_address"
+        const val EXTRA_NAME = "device_name"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
@@ -175,8 +176,9 @@ class WheelService : LifecycleService() {
         when (intent?.action) {
             ACTION_CONNECT -> {
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
+                val name = intent.getStringExtra(EXTRA_NAME)
                 if (address != null) {
-                    wheelRepository.connect(address)
+                    wheelRepository.connect(address, name)
                 }
             }
             ACTION_DISCONNECT -> {

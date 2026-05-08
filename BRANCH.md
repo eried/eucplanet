@@ -10,6 +10,11 @@ state for any of them. Concretely shipped here:
   V12S / V13 / V13 Pro / V14 50GB / V14 50S / V9 / P6. The wheel reports
   its model ID on connect and the registry maps it to the right command
   variant (horn opcode, max-speed packet shape, etc.).
+- **P6 connect path.** The scan now lists `P6-XXXXXXXX` peripherals, and
+  the InMotion V2 adapter switches to the P6's extended-routing-only
+  command set when it sees that name. Voltage, discharge current, and a
+  rough battery estimate come through; richer telemetry parsing is the
+  remaining work tracked under `docs/BLE_CAPTURE_GUIDE.md`.
 - **Wheel simulator** in the connect screen. Two virtual wheels (V14 and
   P6) feed canned BLE responses through the real adapter pipeline, so the
   whole UI works without hardware. Useful for translation, layout, and
@@ -26,7 +31,12 @@ state for any of them. Concretely shipped here:
 - **V14 owners**: confirm that nothing changed for you. The banner stays
   hidden, the dashboard reads the same values, horn / light / lock /
   safety mode still work.
-- **Owners of any other InMotion wheel** (V11, V12, V13, V9, P6): try
+- **P6 owners**: connecting now works. Confirm the dashboard reports a
+  plausible pack voltage (around 230–240 V at full charge) and that
+  battery current swings positive when accelerating. Speed and the
+  remaining telemetry will read zero until the byte offsets are pinned —
+  the orange banner walks you through filing a labeled capture.
+- **Owners of any other InMotion wheel** (V11, V12, V13, V9): try
   connecting. Telemetry decoding outside the V14 family is unverified,
   so expect wrong values. If anything works or fails, tap the orange
   banner to fire off a wheel report.
@@ -36,11 +46,19 @@ state for any of them. Concretely shipped here:
 
 ## Known limits
 
-- **P6 telemetry on real hardware is not parsed yet.** The simulator
-  pretends the P6 speaks V14-shape framing so the dashboard renders, but
-  on a real P6 the wheel uses a different binary layout and most fields
-  will read zero. Fix is pending a labeled BLE capture from a real P6
-  owner, see `docs/BLE_CAPTURE_GUIDE.md`.
+- **P6 real-hardware support is preliminary.** Connecting to a real P6
+  now works (the BLE name `P6-XXXXXXXX` puts the adapter on the
+  extended-routing protocol the wheel actually speaks) and the dashboard
+  shows live voltage and discharge current plus a rough battery estimate
+  from the pack voltage. The remaining telemetry — speed, PWM, motor
+  temperature, trip distance, the per-pack battery split — is still
+  unmapped because the data block's byte layout differs from V14 and we
+  only have parked captures so far. Help us pin those offsets by recording
+  a labeled session (`docs/BLE_CAPTURE_GUIDE.md`) while riding.
+- **P6 settings, locking, and safety-mode max-speed control are
+  disabled** until the matching control packets are reverse-engineered.
+  The UI doesn't gate them yet, so tapping those buttons on a P6 is a
+  no-op — that should be obvious from the wheel not responding.
 - **KingSong, Veteran, Begode/Gotway, InMotion V1 family (V8 / V10)**:
   their adapters aren't built yet, so connecting won't work. They appear
   in the wheel-report dropdown for users to manually pick if they want

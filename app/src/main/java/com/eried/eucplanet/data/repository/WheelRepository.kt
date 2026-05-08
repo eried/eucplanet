@@ -54,6 +54,11 @@ class WheelRepository @Inject constructor(
         // Re-request settings every N realtime polls to pick up external changes
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
+
+        // Fallback slider ceiling when no wheel is connected or when the model
+        // ID isn't in our registry (mirrors WheelLog's default of 100; we use
+        // the historical 90 to match what the V14-only build always showed).
+        private const val DEFAULT_MAX_SPEED_KMH = 90f
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -77,9 +82,13 @@ class WheelRepository @Inject constructor(
     private val _firmwareVersion = MutableStateFlow<String?>(null)
     val firmwareVersion: StateFlow<String?> = _firmwareVersion.asStateFlow()
 
-    // Max speed the wheel supports - 90 km/h per official InMotion app (after 30km ridden)
-    // The wheel itself enforces the limit, not the app
-    private val _maxSpeedCap = MutableStateFlow(90f)
+    // Upper bound for the tiltback / alarm sliders in km/h. Updated to the
+    // model's [InMotionV2Model.maxSpeedKmh] when the wheel reports its
+    // identity (the V14 family stays at 120, the P6 jumps to 130, the
+    // older V11/V12HS/HT/PRO drop to 60–70). Default is the historical 90
+    // until detection lands; it also serves as the fallback when the wheel
+    // reports an InMotion model ID we don't yet recognize.
+    private val _maxSpeedCap = MutableStateFlow(DEFAULT_MAX_SPEED_KMH)
     val maxSpeedCap: StateFlow<Float> = _maxSpeedCap.asStateFlow()
 
     val connectionState: StateFlow<ConnectionState> = bleManager.connectionState
@@ -109,6 +118,15 @@ class WheelRepository @Inject constructor(
     // Used to reconcile stored speed limits with the wheel's actual values.
     @Volatile private var reconcileNextSettings = false
 
+    /**
+     * Tiltback the app most recently asked the wheel to set, in km/h. Used to
+     * disambiguate settings readback: if the wheel reports a tiltback below
+     * what we sent, the wheel's firmware capped our request, and the readback
+     * should not be treated as the authoritative current intent. Cleared on
+     * disconnect so a fresh connection can't be misled by stale state.
+     */
+    @Volatile private var lastSentTiltbackKmh: Float? = null
+
     init {
         // The adapter does its own framing + decoding; the connection manager
         // forwards already-decoded results from raw BLE notifications.
@@ -132,11 +150,13 @@ class WheelRepository @Inject constructor(
                         authKey = null
                         pendingAuthKeyDeferred = null
                         pendingAuthConfirmDeferred = null
+                        lastSentTiltbackKmh = null
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
                         _modelName.value = null
                         _firmwareVersion.value = null
+                        _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         _wheelData.value = _wheelData.value.copy(totalDistance = 0f)
                         // History is preserved across disconnects (cleared only on new wheel)
                     }
@@ -146,7 +166,7 @@ class WheelRepository @Inject constructor(
         }
     }
 
-    fun connect(address: String) {
+    fun connect(address: String, name: String? = null) {
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
             // Different wheel — clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
@@ -154,7 +174,7 @@ class WheelRepository @Inject constructor(
             _fullHistory.value = FullMetricHistory()
         }
         lastConnectedAddress = address
-        bleManager.connect(address)
+        bleManager.connect(address, name)
     }
 
     fun disconnect() {
@@ -265,12 +285,24 @@ class WheelRepository @Inject constructor(
     }
 
     fun setSpeed(tiltbackKmh: Float, beepKmh: Float) {
+        // Remember what we asked for so the settings handler can tell the
+        // difference between "wheel echoed our value" and "wheel clamped it".
+        // Without this, a firmware-capped V14 (e.g. 80 km/h max while we send
+        // 85) would echo back 80 — and if 80 happened to equal stored Legal
+        // tiltback, the readback-based detector would lock the toggle on.
+        lastSentTiltbackKmh = tiltbackKmh
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
     }
 
     suspend fun toggleSafetySpeed() {
         val wantActive = !_safetySpeedActive.value
         val settings = settingsRepository.get()
+
+        // Flip the flag to user intent immediately. The settings handler
+        // already trusts intent (lastSentTiltbackKmh) over a clamped readback,
+        // but the optimistic flip keeps the UI responsive while the wheel's
+        // confirmation is in flight — same pattern as toggleLock.
+        _safetySpeedActive.value = wantActive
 
         if (wantActive) {
             setSpeed(settings.safetyTiltbackKmh, settings.safetyAlarmKmh)
@@ -332,13 +364,17 @@ class WheelRepository @Inject constructor(
      * both a "normal" pair and a "legal" pair persistently. On reconnect we compare
      * what the wheel reports against both stored pairs:
      *
-     *  A) wheel tilt ≈ stored legal   → wheel is in legal mode; keep both stored pairs
-     *  B) wheel tilt ≈ stored normal  → wheel is in normal mode; keep both stored pairs
-     *  C) wheel tilt < stored legal   → user lowered legal externally → adopt as new legal
-     *  D) wheel tilt > legal, ≠ normal → user picked new normal externally → adopt as new normal
+     *  A) wheel tilt ≈ stored legal       → legal mode on; keep both stored pairs
+     *  B) wheel tilt ≈ stored normal      → normal mode; keep both stored pairs
+     *  C) wheel tilt < stored legal       → user lowered legal externally; adopt as new legal
+     *  D) wheel tilt > stored normal      → user raised normal externally; adopt as new normal
+     *  E) wheel tilt between legal+normal → ambiguous (firmware cap or external lower of normal);
+     *                                       leave stored values alone, mark normal mode active
      *
-     * In A/B we never overwrite stored values — so the other pair is preserved across
-     * reconnects even though the wheel forgets it.
+     * In A/B/E we never overwrite stored values — the other pair is preserved across
+     * reconnects even though the wheel forgets it. Case E is the conservative split that
+     * stops a firmware-capped readback (e.g. V14 80 km/h cap when stored normal is 85)
+     * from silently downgrading the user's stored preference.
      */
     private suspend fun reconcileSpeedLimits(ws: WheelSettings, appSettings: AppSettings) {
         val wTilt = ws.maxSpeedKmh
@@ -365,10 +401,18 @@ class WheelRepository @Inject constructor(
                 isLegalOn = true
                 appSettings.copy(safetyTiltbackKmh = wTilt, safetyAlarmKmh = wAlarm)
             }
-            else -> {
-                // Wheel above legal but != stored normal — adopt as new normal
+            wTilt > normalTilt + tolerance -> {
+                // Wheel above stored normal — user raised normal externally; adopt
                 isLegalOn = false
                 appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
+            }
+            else -> {
+                // wTilt is between legal and normal: could be a firmware cap clamp
+                // OR an external lower of normal. We can't tell apart here, and
+                // overwriting stored normal with a clamped value loses the user's
+                // preference forever. Keep stored values; treat as normal mode.
+                isLegalOn = false
+                appSettings
             }
         }
 
@@ -392,6 +436,11 @@ class WheelRepository @Inject constructor(
         when (result) {
             is DecodeResult.ModelName -> {
                 _modelName.value = result.name
+                // Resize the slider ceiling to whatever the detected model
+                // actually supports. WheelLog values for the V14 family etc;
+                // P6 gets 130 km/h since it isn't in WheelLog's table.
+                val model = result.model as? com.eried.eucplanet.ble.InMotionV2Model
+                _maxSpeedCap.value = model?.maxSpeedKmh?.toFloat() ?: DEFAULT_MAX_SPEED_KMH
             }
             is DecodeResult.Firmware -> {
                 _firmwareVersion.value = result.display
@@ -458,8 +507,17 @@ class WheelRepository @Inject constructor(
                     reconcileNextSettings = false
                     reconcileSpeedLimits(ws, appSettings)
                 } else {
-                    // Subsequent packet: simple state detection
-                    val isSafety = kotlin.math.abs(ws.maxSpeedKmh - appSettings.safetyTiltbackKmh) < 0.5f
+                    // Subsequent packet: detect Legal mode by user *intent* when
+                    // the wheel echoed back a value lower than we asked for.
+                    // The wheel's firmware-capped readback can collide with the
+                    // stored Legal tiltback (e.g. cap=80, stored Legal=80) and
+                    // freeze the toggle ON forever — using lastSentTiltbackKmh
+                    // when it differs from the readback breaks that loop.
+                    val sent = lastSentTiltbackKmh
+                    val effectiveTilt = if (sent != null &&
+                        kotlin.math.abs(ws.maxSpeedKmh - sent) > 0.5f
+                    ) sent else ws.maxSpeedKmh
+                    val isSafety = kotlin.math.abs(effectiveTilt - appSettings.safetyTiltbackKmh) < 0.5f
                     _safetySpeedActive.value = isSafety
                     if (isSafety != wasSafety && appSettings.announceSafetyMode) {
                         voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))

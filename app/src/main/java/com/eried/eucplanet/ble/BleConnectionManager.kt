@@ -63,6 +63,8 @@ class BleConnectionManager @Inject constructor(
     private var gatt: BluetoothGatt? = null
     private var rxCharacteristic: BluetoothGattCharacteristic? = null
     private var currentAddress: String? = null
+    /** BLE advertised name from the most recent connect call, kept across reconnects. */
+    private var currentName: String? = null
     private var shouldReconnect = true
 
     // Write serialization - only one BLE write at a time
@@ -80,7 +82,7 @@ class BleConnectionManager @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun connect(address: String) {
+    fun connect(address: String, name: String? = null) {
         // Demo / simulator mode: VIRTUAL:<id> bypasses GATT and connects to a fake wheel.
         val virtualId = VirtualWheelRegistry.parsePseudoAddress(address)
         if (virtualId != null) {
@@ -89,8 +91,16 @@ class BleConnectionManager @Inject constructor(
         }
 
         currentAddress = address
+        // Hold on to the name so the auto-reconnect path keeps the same hint —
+        // otherwise a P6 that briefly drops would come back as an unknown wheel.
+        currentName = name ?: currentName
         shouldReconnect = true
         _connectionState.value = ConnectionState.CONNECTING
+
+        // Adapter pre-selects model from the BLE name; needed for the InMotion
+        // P6 because its legacy carType query returns zeros and we'd otherwise
+        // never identify it before sending V14-shaped queries the wheel ignores.
+        wheelAdapter.notifyConnectingTo(currentName)
 
         val device: BluetoothDevice = bluetoothManager.adapter.getRemoteDevice(address)
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
@@ -136,6 +146,7 @@ class BleConnectionManager @Inject constructor(
     fun disconnect() {
         shouldReconnect = false
         currentAddress = null
+        currentName = null
         rxCharacteristic = null
         writeReady = false
 
