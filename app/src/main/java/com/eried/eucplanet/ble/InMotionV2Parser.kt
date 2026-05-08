@@ -198,6 +198,13 @@ object InMotionV2Parser {
         val voltage = ByteUtils.getUint16LE(data, 0) / 100f
         val current = ByteUtils.getInt16LE(data, 2) / 100f
 
+        // Speed at offset 8-9: int16 LE in 0.01 km/h. Hypothesis from the
+        // labelled InMotion-app capture diff — parked frames have this slot
+        // at zero, riding frames swing 0..2518 (= 25 km/h) for a slow ride.
+        // Same offset as V14, just unconfirmed against a precisely-aligned
+        // ground-truth speed yet.
+        val speed = if (data.size >= 10) ByteUtils.getInt16LE(data, 8) / 100f else 0f
+
         // Real per-pack battery percent at offsets 20-23 of the data block
         // (98.94 / 96.90 in the real-P6 capture, matched the on-screen 98%).
         // Falls back to a voltage estimate while frames are still partial.
@@ -216,6 +223,7 @@ object InMotionV2Parser {
         } else 0f
 
         return WheelData(
+            speed = speed,
             voltage = voltage,
             current = current,
             batteryPercent = batteryPercent,
