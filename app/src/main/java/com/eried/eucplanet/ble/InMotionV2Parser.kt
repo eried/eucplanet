@@ -222,16 +222,28 @@ object InMotionV2Parser {
         }
 
         // Total mileage as uint32 LE at offset 58, in 0.01 km units.
-        // (Matched on-screen 1773.2 mi / 2853.72 km.)
+        // Confirmed across three labelled riding moments (1776.8 / 1776.9 /
+        // 1777.0 mi displayed by the InMotion app, 285958 / 285970 / 285990
+        // in the bytes — within rounding of the displayed value).
         val tripDistanceKm = if (data.size >= 62) {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
+
+        // Park vs Drive: offset 68 holds 0x0f whenever the wheel is
+        // stationary (regardless of selected ride mode), and a different
+        // value (seen 0x95 / 0x96 / 0xfe) when the wheel is actively
+        // engaged in S/Comfort. Matches the V14's pcMode role: 0 = park,
+        // anything else = drive engaged. Distinguishing Sport vs Comfort
+        // sub-states would need a separate labelled capture; for now this
+        // gives the dashboard P-vs-D parity with V14.
+        val pcMode = if (data.size > 68 && (data[68].toInt() and 0xFF) != 0x0F) 1 else 0
 
         return WheelData(
             speed = speed,
             voltage = voltage,
             current = current,
             pwm = pwm,
+            pcMode = pcMode,
             batteryPercent = batteryPercent,
             battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
             battery2Percent = battery2.takeIf { it > 0f } ?: batteryPercent.toFloat(),

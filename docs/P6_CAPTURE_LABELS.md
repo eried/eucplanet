@@ -80,10 +80,11 @@ unless noted):
 | 2..3  | int16 LE  | / 100 | current (A, signed) | idle ~0 parked, swings during accel |
 | 8..9  | uint16 LE | / 100 | **speed (km/h)** | 2650 at labelled "16 mph" frame = 26.50 km/h = 16.5 mph |
 | 12..13 | int16 LE | / 100 | **PWM duty (%)** signed | -9584 (-95.84%) during hard regen brake, +7775 during 42 mph accel ramp |
-| 20..21 | uint16 LE | / 100 | battery 1 percent | matched on-screen 98% / 90% |
-| 22..23 | uint16 LE | / 100 | battery 2 percent | matched on-screen 96% / 89% |
+| 20..21 | uint16 LE | / 100 | battery 1 percent | 91.00 / 91.00 / 90.50% across three labelled frames matching on-screen 91 / 91 / 90% |
+| 22..23 | uint16 LE | / 100 | battery 2 percent | matches second pack of dual-BMS |
 | 36..37 | uint16 LE | (W) | lifetime max power | matched 1511 W / 10950 W on screen |
-| 58..61 | uint32 LE | / 100 km | total mileage | matched on-screen 1773.5 mi / 2853.7 km |
+| 58..61 | uint32 LE | / 100 km | **total mileage** | 285958 / 285970 / 285990 matches three labelled frames at 1776.8 / 1776.9 / 1777.0 mi displayed |
+| 68     | byte | flag | **drive mode** | 0x0f = stationary or in P; 0x95/0x96/0xfe = engaged in S/Comfort. P-vs-D distinction works; Sport vs Comfort sub-state needs another labelled capture. |
 
 ## Pending / still uncertain
 
