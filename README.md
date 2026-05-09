@@ -1,10 +1,20 @@
 # EUC Planet
 
-An open-source Android companion app for the **InMotion V14** electric unicycle.
+An open-source Android companion app for **InMotion electric unicycles**, with a Wear OS companion for Galaxy Watch Ultra and other Wear OS 5+ watches.
 
 Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, does the things I actually want while riding, and doesn't phone home.
 
-> **Scope note:** right now this supports the **InMotion V14 only** (V2 BLE protocol, `Adventure-*` devices). The architecture is protocol-agnostic, so other InMotion wheels, and eventually other brands, can be added later.
+> **Wheel support tiers:**
+>
+> | Tier | Wheels | What it means |
+> |---|---|---|
+> | **Verified** | V14 50GB / 50S | Author's daily wheel, all features tested |
+> | **Supported** | InMotion P6 | Telemetry + controls confirmed against labelled real-hardware captures |
+> | **Preliminary** | V12 HS / HT / Pro | Parser exists, not yet author-tested |
+> | **Experimental** | V11, V13, V9 | In the model registry; please file a wheel report if you try them |
+> | Not yet | KingSong, Veteran, Begode | Adapters not built |
+>
+> Want to help add your wheel? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record one labelled riding session and we can usually map it in a single pass.
 
 ---
 
@@ -50,14 +60,16 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 ### Integrations
 - **Flic 2 buttons**: pair up to two buttons.
 - **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
-- 
+- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
+
 ---
 
 ## Requirements
 
 - Android 10 (API 29) or newer.
-- InMotion V14 (firmware running the V2 BLE protocol, device advertises as `Adventure-…`).
+- A supported InMotion wheel (see the support-tier table at the top of this README). The V14 and P6 are the most thoroughly tested today.
 - Bluetooth + location permissions (location is required by Android for BLE scanning).
+- Wear OS companion (optional): Wear OS 5 or newer, paired through the Wear OS by Google app.
 
 ## Install
 
@@ -82,7 +94,7 @@ I got tired of:
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI, so adding a new wheel is mostly: write a new protocol encoder/decoder and a new parser, then wire it into `WheelRepository`. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+The BLE protocol layer is separate from the UI, so adding a new wheel is mostly: write a new protocol encoder/decoder and a new parser, then wire it into `WheelRepository`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record a single labelled riding session and we can usually map a new InMotion wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
 ## License
 
