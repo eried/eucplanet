@@ -38,6 +38,15 @@ class ScanViewModel @Inject constructor(
     private val _missingPermissions = MutableStateFlow<List<String>>(emptyList())
     val missingPermissions: StateFlow<List<String>> = _missingPermissions.asStateFlow()
 
+    /**
+     * When true the BLE scan emits every named peripheral, regardless of
+     * whether the name matches a known wheel prefix. Toggled from the scan
+     * screen; restarts the active scan so the UI reflects the new filter
+     * immediately.
+     */
+    private val _showAllDevices = MutableStateFlow(false)
+    val showAllDevices: StateFlow<Boolean> = _showAllDevices.asStateFlow()
+
     private var scanJob: Job? = null
 
     private fun requiredScanPermissions(): List<String> = buildList {
@@ -66,7 +75,7 @@ class ScanViewModel @Inject constructor(
         _devices.value = emptyList()
 
         scanJob = viewModelScope.launch {
-            bleScanner.scanForDevices()
+            bleScanner.scanForDevices(showAll = _showAllDevices.value)
                 .catch { _isScanning.value = false }
                 .collect { device ->
                     val current = _devices.value.toMutableList()
@@ -87,6 +96,19 @@ class ScanViewModel @Inject constructor(
         _isScanning.value = false
     }
 
+    /**
+     * Toggle the "show every BLE device" filter. Restarts the scan so the
+     * device list switches between filtered and unfiltered immediately.
+     */
+    fun setShowAllDevices(showAll: Boolean) {
+        if (_showAllDevices.value == showAll) return
+        _showAllDevices.value = showAll
+        if (_isScanning.value) {
+            stopScan()
+            startScan()
+        }
+    }
+
     fun selectDevice(device: BleDevice) {
         stopScan()
         viewModelScope.launch {
@@ -95,6 +117,7 @@ class ScanViewModel @Inject constructor(
             val intent = Intent(context, WheelService::class.java).apply {
                 action = WheelService.ACTION_CONNECT
                 putExtra(WheelService.EXTRA_ADDRESS, device.address)
+                putExtra(WheelService.EXTRA_NAME, device.name)
             }
             context.startForegroundService(intent)
         }

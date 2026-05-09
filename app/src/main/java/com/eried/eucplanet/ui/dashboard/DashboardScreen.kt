@@ -379,10 +379,21 @@ fun DashboardScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
+                .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Experimental-build banner — flush to the screen edges, above all other content.
+            com.eried.eucplanet.ui.common.ExperimentalBanner(
+                state = viewModel.experimentalBannerState,
+                detectedWheelName = modelName,
+                detectedFirmware = firmwareVersion
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
             val effectiveTiltback = if (safetyActive) safetyTiltbackSpeed else tiltbackSpeed
             val gaugeMax = ((effectiveTiltback / 10f).toInt() + 1) * 10f
             val pwm = wheelData.pwm.absoluteValue
@@ -845,6 +856,7 @@ fun DashboardScreen(
                     }
                 }
             }
+            }  // close inner Column (dashboard content)
         }
     }
 }
