@@ -461,6 +461,6 @@
     <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_thanks">Thanks</string>
-    <string name="about_thanks_body">Built because existing apps evolve too slowly, look dated, have draconian rules around new features, and live in communities that don\'t invite collaboration. This one tries to be the opposite.\n\nThanks to:\n• Gio (Wheel In Motion) — P6 captures and Wear OS testing.\n• Ilya Shkolnik and the WheelLog community — public protocol research the KingSong, Begode and Veteran adapters draw on.\n• InMotion — for the V14.\n• Everyone who files wheel reports.\n\nMissed you? Open an issue and I\'ll add you.</string>
+    <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.\n\nThanks to:\n• Gio (Wheel In Motion) — P6 captures and Wear OS testing.\n• Ilya Shkolnik and the WheelLog community — public protocol research the KingSong, Begode and Veteran adapters draw on.\n• InMotion — for making my awesome V14, the wheel that started this whole thing.</string>
     <string name="about_license">License</string>
 </resources>
