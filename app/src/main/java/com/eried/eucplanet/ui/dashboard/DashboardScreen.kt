@@ -785,19 +785,20 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
+                            Text(
+                                "eucplanet.ried.no",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .clickable { openUrl(context, "https://eucplanet.ried.no") }
+                            )
                             Spacer(Modifier.height(16.dp))
 
                             Text(
-                                "Custom control app for InMotion electric unicycles (V14, P6, V12 family): BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting, adaptive volume, and a Wear OS companion for Galaxy Watch Ultra and friends.",
+                                "A no-nonsense, open-source app for electric unicycles.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                text = "Made by Erwin Ried — eucplanet.ried.no",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable { openUrl(context, "https://eucplanet.ried.no") }
                             )
 
                             Spacer(Modifier.height(12.dp))
@@ -840,15 +841,39 @@ fun DashboardScreen(
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                         ) {
-                                            Text(
-                                                stringResource(R.string.about_thanks_body),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            Column(
                                                 modifier = Modifier
                                                     .fillMaxSize()
                                                     .verticalScroll(rememberScrollState())
                                                     .padding(10.dp)
-                                            )
+                                            ) {
+                                                Text(
+                                                    stringResource(R.string.about_thanks_body),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                                Spacer(Modifier.height(10.dp))
+                                                Row {
+                                                    Text(
+                                                        "Made by ",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                    Text(
+                                                        "Erwin Ried",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.clickable {
+                                                            openUrl(context, "https://ried.no")
+                                                        }
+                                                    )
+                                                    Text(
+                                                        " in Norway",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                     1 -> {
