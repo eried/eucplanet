@@ -810,11 +810,16 @@ fun DashboardScreen(
                                 Tab(
                                     selected = aboutTab == 0,
                                     onClick = { aboutTab = 0 },
-                                    text = { Text(stringResource(R.string.about_license)) }
+                                    text = { Text(stringResource(R.string.about_thanks)) }
                                 )
                                 Tab(
                                     selected = aboutTab == 1,
                                     onClick = { aboutTab = 1 },
+                                    text = { Text(stringResource(R.string.about_license)) }
+                                )
+                                Tab(
+                                    selected = aboutTab == 2,
+                                    onClick = { aboutTab = 2 },
                                     text = {
                                         Text(
                                             if (crashes.isEmpty())
@@ -836,7 +841,7 @@ fun DashboardScreen(
                                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                         ) {
                                             Text(
-                                                if (licenseText.isNotBlank()) licenseText else "—",
+                                                stringResource(R.string.about_thanks_body),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier
@@ -847,6 +852,24 @@ fun DashboardScreen(
                                         }
                                     }
                                     1 -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        ) {
+                                            Text(
+                                                if (licenseText.isNotBlank()) licenseText else "—",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .verticalScroll(rememberScrollState())
+                                                    .padding(10.dp)
+                                            )
+                                        }
+                                    }
+                                    2 -> {
                                         if (crashes.isEmpty()) {
                                             Row(
                                                 modifier = Modifier.fillMaxSize(),
