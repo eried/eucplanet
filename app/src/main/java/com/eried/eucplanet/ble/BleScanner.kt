@@ -98,6 +98,15 @@ class BleScanner @Inject constructor(
             while (i < name.length && name[i].isDigit()) i++
             if (i < name.length) return true
         }
+        // InMotion V1 legacy names: "IM<digits>" (R-series rebrands), "L6-",
+        // "Lively-", "Glide" / "Solowheel". V8 / V10 family already matched
+        // by the V<digits> regex above.
+        if (name.length >= 3 && (name[0] == 'I' || name[0] == 'i') &&
+            (name[1] == 'M' || name[1] == 'm') && name[2].isDigit()) return true
+        if (name.startsWith("L6-", ignoreCase = true)) return true
+        if (name.startsWith("Lively", ignoreCase = true)) return true
+        if (name.startsWith("Glide", ignoreCase = true) ||
+            name.startsWith("Solowheel", ignoreCase = true)) return true
         // KingSong
         if (name.startsWith("KS-") || name.startsWith("KS ") ||
             name.startsWith("KingSong", ignoreCase = true)) return true
@@ -119,6 +128,15 @@ class BleScanner @Inject constructor(
         val nl = name.lowercase()
         if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
             Regex("\\blynx\\b").containsMatchIn(nl)) return true
+        // Ninebot / Segway-Ninebot. Both protocol families (Z and legacy)
+        // start with the brand prefix; "ZN<serial>" is the bare-firmware
+        // form on some Z6 wheels; "MiniPlus<serial>" advertises Z protocol
+        // despite the legacy-style name.
+        if (name.startsWith("Ninebot", ignoreCase = true) ||
+            name.startsWith("Segway", ignoreCase = true)) return true
+        if (Regex("^ZN\\d", RegexOption.IGNORE_CASE).containsMatchIn(name)) return true
+        if (name.startsWith("MiniPLUS", ignoreCase = true) ||
+            name.startsWith("Mini Plus", ignoreCase = true)) return true
         return false
     }
 

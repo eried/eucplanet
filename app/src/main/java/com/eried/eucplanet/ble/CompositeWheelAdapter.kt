@@ -22,9 +22,11 @@ import javax.inject.Singleton
 @Singleton
 class CompositeWheelAdapter @Inject constructor(
     private val inmotion: InMotionV2Adapter,
+    private val inmotionV1: InMotionV1Adapter,
     private val kingsong: KingsongAdapter,
     private val begode: BegodeAdapter,
-    private val veteran: VeteranAdapter
+    private val veteran: VeteranAdapter,
+    private val ninebot: NinebotAdapter
 ) : WheelAdapter {
 
     @Volatile private var active: WheelAdapter = inmotion
@@ -74,6 +76,12 @@ class CompositeWheelAdapter @Inject constructor(
         if (deviceName.isNullOrBlank()) return inmotion
         val n = deviceName.lowercase()
         return when {
+            // InMotion V1: V5 / V8 / V10 / L6 / Glide / Lively / IM<digits>.
+            // V11/V12/V13/V14 are V2 family — route those to `inmotion`. The
+            // disambiguation is by the *digit value* after the leading V:
+            // 5/8/10 → V1, 11/12/13/14 → V2.
+            isV1WheelName(n) -> inmotionV1
+
             // KingSong: "KS-…", "S22 …", "S20 …", etc.
             n.startsWith("ks-") || n.startsWith("ks ") ||
                     n.startsWith("kingsong") ||
@@ -89,6 +97,17 @@ class CompositeWheelAdapter @Inject constructor(
             "sherman" in n || "patton" in n || "abrams" in n ||
                     Regex("\\blynx\\b").containsMatchIn(n) -> veteran
 
+            // Ninebot / Segway-Ninebot. Two protocol families live behind
+            // the same brand prefix; the Ninebot adapter resolves Z vs
+            // legacy from the same name string in its own
+            // `notifyConnectingTo`. Route generously — if a name shape
+            // overlaps with a KingSong "S2" prefix the KingSong branch
+            // above already wins (it's more specific), so this branch
+            // only sees real Ninebot names.
+            n.startsWith("ninebot") || n.startsWith("segway") ||
+                    Regex("^zn\\d").containsMatchIn(n) ||
+                    n.startsWith("miniplus") || n.startsWith("mini plus") -> ninebot
+
             // Begode/Gotway. "GotWay_*" / "Begode_*" / model-specific
             // prefixes ("RS_*", "Master_*", "EX_*", "MSP_*", etc.).
             n.startsWith("gotway") || n.startsWith("begode") ||
@@ -102,5 +121,30 @@ class CompositeWheelAdapter @Inject constructor(
             // every "InMotion*" / "V*" name handled inside that adapter).
             else -> inmotion
         }
+    }
+
+    /**
+     * Decide whether a name belongs to the V1 protocol family. V1 wheels are
+     * V5 / V8 / V10 / L6 / Glide / Lively / "IM<digits>"; V2 wheels (V11 /
+     * V12 / V13 / V14) share the same `V<digits>` shape. We disambiguate by
+     * parsing the digit run after the leading `V` and routing V5 / V8 / V10
+     * (and V10F / V10S etc.) to V1, leaving V11+ on V2.
+     */
+    private fun isV1WheelName(n: String): Boolean {
+        if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
+            n.startsWith("solowheel")) return true
+        if (n.startsWith("im")) {
+            // IM<digits> naming used by R-series + rebrands — V1 family.
+            return n.length > 2 && n[2].isDigit()
+        }
+        // "inmotion-v8", "inmotion-v10f", etc.
+        val stripped = if (n.startsWith("inmotion-")) n.substring("inmotion-".length) else n
+        if (stripped.length >= 2 && stripped[0] == 'v' && stripped[1].isDigit()) {
+            var i = 1
+            while (i < stripped.length && stripped[i].isDigit()) i++
+            val digits = stripped.substring(1, i).toIntOrNull() ?: return false
+            return digits == 5 || digits == 8 || digits == 10
+        }
+        return false
     }
 }
