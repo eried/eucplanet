@@ -1,91 +1,100 @@
-# wear-os-watch-ultra
+# p6-fixes
 
-## What this branch adds
+## What this branch fixes
 
-Companion app for Wear OS 5+ watches (built and tuned on the Galaxy Watch
-Ultra). The phone holds the BLE link to the wheel and pushes a compact
-telemetry snapshot to the watch over the Wearable Data Layer; the watch is a
-thin client and never talks to the wheel directly.
+Three concrete P6 bugs found by analysing a labelled real-hardware capture
+(`FINALP6/NEW CAPTURE/btsnoop_hci.log` + matching screen recording, with
+the InMotion app's "Detailed Data" page providing ground-truth values).
 
-This branch is built on top of `main` (V14 + V12 + P6 multi-wheel support
-verified through 0.3.1), so the watch dashboard inherits the corrected P6
-telemetry offsets (PWM, torque, MOS+motor temps, signed reverse speed).
+This branch is built directly on top of `main` 0.4.0-preview1, so V14 /
+V12 / Wear OS / multi-wheel preview adapters are all preserved unchanged.
+The only path it touches is the InMotion P6.
 
-Concretely shipped here:
+### 1. Temperatures were wrong
 
-- **Full-bleed speed dial** that wraps the entire watch face. Same arc
-  geometry as the phone dashboard (260° sweep, accent-tinted safe band,
-  orange/red danger wedges, ticks). Speed number, units, batteries and
-  buttons live inside the dial.
-- **Three batteries at a glance** above the speed number: wheel, phone, and
-  watch, each colour-graded by the same red/amber/green thresholds used on
-  the phone dashboard.
-- **Accent colour follows the phone.** The accent the user picked in app
-  settings travels through the wire format and tints the dial safe band,
-  the wheel-name header on page 2, and the horn / light buttons.
-- **Imperial units follow the phone.** When `imperialUnits` is on, the
-  watch shows mph, miles, and °F; flipping the setting takes effect within
-  one publish cycle (≤200 ms).
-- **Page 2 — at-a-glance details.** Wheel name in accent, live speed, then
-  a tabular column of voltage / current / power (V × A) / PWM / temp /
-  torque / trip. Values align vertically across rows so you can scan down a
-  column.
-- **Buttons follow the phone iconography.** Horn = `Icons.Filled.Campaign`,
-  Light = `Icons.Filled.FlashOn` — same glyphs as the phone dashboard.
-- **Disconnected state** shows a phone glyph and a two-line "Open EUC
-  Planet on your phone" message. No more red dot that read as an error.
-- **Resolution-clean.** All sizes derive from `BoxWithConstraints.maxWidth`
-  so the layout looks right on small round watches (~390 dp) and on Watch
-  Ultra (~454 dp) without separate code paths.
-- **Auto-start ping** on phone-app open and a manual "Play" button next to
-  the Auto-start setting so users can verify pairing without backgrounding
-  and relaunching the phone app.
+The previous parser read `data[28]/4` for MOS and `data[30]/4` for motor
+in the 0x87 realtime frame. Those bytes are not temperatures — they are
+the **speed-alarm field** (`uint16 LE` in 0.01 km/h, fixed at 13679 =
+85 mph for our wheel). Across 2,300+ frames in the long ride capture,
+`data[28]` was constant at 111. The /4 reading happened to land near a
+plausible Celsius value in the original short capture by coincidence.
 
-## Architecture
+The real **MOS sensor** is at `data[70]` as a raw Fahrenheit byte:
 
-- `WearBridge` (phone, `app/`) subscribes to `WheelRepository` flows and
-  `SettingsRepository.settings`, samples to 5 Hz, packs a `DataMap` and
-  publishes at `/euc/state`. Reads phone battery via `BatteryManager`.
-- `WatchBridgeService` (watch, `wear/`) decodes the DataMap into a
-  `WatchState` and updates a singleton `WatchStateRepository`.
-- `WatchApp` (Compose) collects from the repo and renders.
-- Control flow (horn / light) is the existing reverse channel: watch sends
-  short Messages on `/euc/control`, phone routes them through
-  `WheelRepository`.
+```kotlin
+val mosF = data[70].toInt() and 0xFF
+val mosC = (mosF - 32) * 5f / 9f
+```
 
-## Who should test this
+Verified against:
+- Parked wheel labelled MOS = 72 °F → `data[70]` reads 0x48 = 72 across
+  the entire NEW CAPTURE (181/181 frames).
+- 25-min ride OLD capture: `data[70]` drifts 67-80 °F (19-27 °C),
+  warming under load — physically correct thermistor signal.
 
-- **Watch Ultra owners** with a paired phone running the matching debug or
-  pre-release APK from the same branch: confirm the dial reads correctly,
-  battery percentages match Settings/Battery on each device, accent and
-  imperial follow the phone, and horn/light controls work.
-- **Other Wear OS 5+ watches** (round and rectangular): the layout should
-  scale; please report clipping or overlap. Square watches use the same
-  dial with the corners falling outside the arc — intentional.
-- **Anyone curious about the UI without hardware**: debug builds expose an
-  ADB demo broadcast. With the watch app open:
-  ```
-  adb shell am broadcast -p com.eried.eucplanet \
-    -a com.eried.eucplanet.wear.DEMO \
-    --ef speed 32 --ei battery 78 --ei phone 64 \
-    --es accent teal --ef maxSpeed 70 \
-    --ez imperial false --es name "InMotion V14"
-  ```
-  Speed/battery/accent/imperial extras are all optional.
+**Motor and driver-board temps do not appear in the realtime 0x87 stream
+on this firmware.** Every candidate offset is either a static config
+byte or a wrap-around counter. The InMotion app shows those as 79 °F
+on a parked wheel which is most likely a cached default rather than a
+live sensor read. They are therefore no longer reported on P6 until a
+different request unlocks them.
 
-## Known limits
+### 2. Lights / horn / max-speed were silently ignored until connect-auth
 
-- **Pairing must be done via the Wear OS by Google companion app** the
-  first time. Without pairing, the watch shows the disconnected
-  placeholder forever; this branch does not change that.
-- **Tile and complication** (carousel and watch-face quick-glance) are not
-  here yet. The companion launches as an app you open from the launcher.
-- **No standalone (watch-only) BLE.** The watch never connects to the
-  wheel directly; if the phone's app process is killed, telemetry stops.
-- **No on-watch settings.** Imperial / accent / max-speed cap are read
-  from the phone — change them there.
+Our `setP6Light` byte output is **byte-for-byte identical** to what the
+InMotion app sends — `aa aa 16 06 02 21 60 50 [v v 03]` — but the wheel
+silently drops control writes at the L2CAP layer until a password
+handshake has run once after connect. The InMotion app does this on
+every connect; we previously only did it on demand when locking.
+
+Added `requiresConnectAuth(): Boolean` to `WheelAdapter` (default
+false), set true in the P6 path of `InMotionV2Adapter`. The polling
+loop in `WheelRepository.runPollingLoop` now calls
+`runConnectAuthHandshake()` once between the init sequence and the
+first realtime poll for wheels that need it. V14 family wheels are
+unaffected.
+
+The handshake is a fixed echo (the wheel returns a 16-byte "encrypted"
+blob and accepts the same blob back), so adding it doesn't change the
+security posture — it just primes the wheel's control endpoint.
+
+### 3. Lock taps could clobber each other's pending auth
+
+`pendingAuthKeyDeferred` and `pendingAuthConfirmDeferred` were nullable
+singletons assigned by `authenticateAndLock`. Two near-simultaneous
+`toggleLock()` calls (rapid taps, or a connect-time auth racing a
+manual tap) both wrote the singletons; the first call's deferred got
+overwritten and timed out without ever reaching the `setLock` write —
+matching the symptom "lock looks like it took, then nothing happened".
+
+Wrapped `authenticateAndLock` body in `authMutex.withLock { … }` so
+concurrent taps queue up cleanly. Each handshake completes its full
+request → key → verify → confirm → lock cycle before the next runs.
+
+## Other deliverables
+
+- Added `setP6AutoHeadlight(on)` builder (`60 2f [v]`) for the
+  General Settings → Lighting → Auto Headlight switch. Verified on the
+  wire (5 toggles in the capture, frames `2f 01 7e` for ON and
+  `2f 00 7f` for OFF). UI wiring to follow.
+- New analysis tools under `tools/` (`p6_new_writes.py`,
+  `p6_new_realtime.py`, `p6_temp_search.py`) for replaying captures
+  during future protocol work.
+
+## What still needs verification
+
+- The auth-on-connect change should be tested on a real V14 to confirm
+  no regression. The default-false flag means V14 takes the same code
+  path as before, but worth a sanity test.
+- Whether the wheel re-locks the control endpoint after some idle
+  window. If so we'll need to repeat the handshake periodically; the
+  capture only spans 3 minutes which isn't enough to tell.
+- Motor and driver-board temperatures may live in a different request
+  family (e.g. an info-bundle or settings sub-cmd we don't poll). A
+  longer hot-wheel capture comparing post-ride values to telemetry
+  bytes could reveal a different field.
 
 ## Feedback
 
-File issues at https://github.com/eried/eucplanet/issues. Tag with the
-watch model and Wear OS version if you can.
+File issues at https://github.com/eried/eucplanet/issues. Please tag
+P6-specific issues with `wheel:p6` if you can.
