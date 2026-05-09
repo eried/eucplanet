@@ -740,7 +740,7 @@ fun DashboardScreen(
                             Spacer(Modifier.height(16.dp))
 
                             Text(
-                                "Custom control app for the InMotion V14 electric unicycle: BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting and adaptive volume.",
+                                "Custom control app for InMotion electric unicycles (V14, P6, V12 family): BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting, adaptive volume, and a Wear OS companion for Galaxy Watch Ultra and friends.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

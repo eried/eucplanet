@@ -43,7 +43,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Preliminary supported wheel. Tap to report issues.</string>
     <string name="experimental_dialog_title">Help improve EUC Planet</string>
-    <string name="experimental_dialog_body">The support for this wheel is not tested by the author (the author only has a V14). Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
+    <string name="experimental_dialog_body">Support for this wheel is preliminary — only the V14 family and the P6 are verified by the author. Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
     <string name="experimental_dialog_report">Report an issue</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->

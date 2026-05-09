@@ -169,12 +169,15 @@ private fun urlEncode(s: String): String =
     URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 
 /**
- * Returns true for wheels we treat as preliminary — anything that's connected
- * but not the V14 family. The V14 is the only wheel the author has actually
- * tested on real hardware, so V14 owners don't need the warning. Disconnected
- * (null name) → hidden too: nothing useful to report when no wheel is paired.
+ * Returns true for wheels we treat as preliminary — connected wheels that are
+ * not in the verified set. V14 (author's daily wheel) and P6 (telemetry +
+ * controls verified against labelled real-hardware captures) are verified;
+ * anything else trips the banner so the user knows to file a wheel report
+ * if values look off. Disconnected (null name) → hidden too.
  */
 private fun isPreliminaryWheel(name: String?): Boolean {
     if (name.isNullOrBlank()) return false
-    return !name.contains("V14")
+    if (name.contains("V14")) return false
+    if (name.contains("P6", ignoreCase = true)) return false
+    return true
 }
