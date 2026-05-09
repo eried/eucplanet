@@ -28,10 +28,19 @@ object WatchStateRepository {
     private val _state = MutableStateFlow(WatchState())
     val state: StateFlow<WatchState> = _state.asStateFlow()
 
+    /**
+     * Wall-clock time of the last [update] call, in millis. Used by the UI to
+     * tell apart the "phone hasn't said hi yet" placeholder from the
+     * "phone is here, just no wheel" one. Zero until the first push lands.
+     */
+    private val _lastPushAtMs = MutableStateFlow(0L)
+    val lastPushAtMs: StateFlow<Long> = _lastPushAtMs.asStateFlow()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     fun update(snapshot: WatchState) {
         _state.value = snapshot
+        _lastPushAtMs.value = System.currentTimeMillis()
     }
 
     /**

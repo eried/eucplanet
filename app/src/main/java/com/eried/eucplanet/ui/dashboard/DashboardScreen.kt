@@ -44,7 +44,7 @@ import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FiberManualRecord
-import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.GpsNotFixed
 import androidx.compose.material.icons.filled.GpsOff
@@ -411,7 +411,10 @@ fun DashboardScreen(
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
-                    safeBandColor = if (useAccent) primary else AccentBlue,
+                    // Safe band is always green so it reads as the safety
+                    // signal and not the user's accent. The speed indicator
+                    // arc (overrideColor above) still wears the accent.
+                    safeBandColor = AccentGreen,
                     modifier = Modifier
                         .fillMaxWidth(0.75f)
                         .aspectRatio(1.25f)
@@ -553,7 +556,7 @@ fun DashboardScreen(
                     modifier = Modifier.weight(1f))
                 ActionTile(
                     modifier = Modifier.weight(1f),
-                    icon = Icons.Default.FlashOn,
+                    icon = Icons.Default.FlashlightOn,
                     label = stringResource(R.string.action_light),
                     active = wheelData.lightOn,
                     enabled = connectionState == ConnectionState.CONNECTED,

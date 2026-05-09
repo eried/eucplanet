@@ -303,6 +303,7 @@ private fun AlarmRuleEditorDialog(
 
     var vibrateEnabled by remember { mutableStateOf(initial.vibrateEnabled) }
     var vibrateDurationMs by remember { mutableIntStateOf(initial.vibrateDurationMs) }
+    var vibrateTarget by remember { mutableStateOf(initial.vibrateTarget) }
 
     var cooldownSeconds by remember { mutableIntStateOf(initial.cooldownSeconds) }
     var repeatWhileActive by remember { mutableStateOf(initial.repeatWhileActive) }
@@ -500,6 +501,27 @@ private fun AlarmRuleEditorDialog(
                         valueRange = 100f..2000f,
                         steps = 18
                     )
+
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.alarm_vibrate_target_label),
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    val targetEntries = listOf(
+                        "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
+                        "WATCH" to stringResource(R.string.alarm_vibrate_target_watch),
+                        "BOTH" to stringResource(R.string.alarm_vibrate_target_both)
+                    )
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        targetEntries.forEachIndexed { index, (key, label) ->
+                            SegmentedButton(
+                                selected = key == vibrateTarget,
+                                onClick = { vibrateTarget = key },
+                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size)
+                            ) { Text(label) }
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -554,6 +576,7 @@ private fun AlarmRuleEditorDialog(
                                     voiceText = voiceText,
                                     vibrateEnabled = vibrateEnabled,
                                     vibrateDurationMs = vibrateDurationMs,
+                                    vibrateTarget = vibrateTarget,
                                     cooldownSeconds = cooldownSeconds,
                                     repeatWhileActive = repeatWhileActive
                                 )

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="watch_waiting_phone">Open EUC Planet on your phone</string>
-    <string name="watch_disconnected">Wheel disconnected</string>
+    <string name="watch_waiting_phone">Open EUC Planet\non your phone</string>
+    <string name="watch_waiting_wheel">Connect a wheel\nin EUC Planet</string>
+    <string name="watch_disconnected">Disconnected</string>
     <string name="watch_horn">Horn</string>
     <string name="watch_light">Light</string>
     <string name="watch_speed_unit">km/h</string>
@@ -10,8 +11,12 @@
     <string name="watch_voltage_label">Voltage</string>
     <string name="watch_current_label">Current</string>
     <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Power</string>
     <string name="watch_temp_label">Temp</string>
     <string name="watch_trip_label">Trip</string>
     <string name="watch_torque_label">Torque</string>
     <string name="watch_action_failed">Couldn\'t reach phone</string>
+    <string name="watch_gps_label">GPS speed</string>
+    <string name="watch_gps_permission">Tap to allow GPS</string>
+    <string name="watch_gps_waiting">Waiting for fix…</string>
 </resources>

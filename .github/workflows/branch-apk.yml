@@ -44,8 +44,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      - name: Build debug APKs
+        # Build the phone APK on every branch. Build the wear APK too when
+        # the branch has a wear/ module (currently only wear-os-watch-ultra),
+        # so testers can grab both halves from the same rolling release.
+        run: |
+          targets=":app:assembleDebug"
+          if [ -f wear/build.gradle.kts ]; then
+            targets="$targets :wear:assembleDebug"
+          fi
+          ./gradlew $targets --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
 
@@ -56,7 +64,8 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           SHORT_SHA="$(git rev-parse --short HEAD)"
           TAG="branch-${BRANCH}"
-          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}.apk"
+          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-phone.apk"
+          WEAR_APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-wear_os.apk"
 
           # Pull the per-branch description if BRANCH.md exists, otherwise
           # fall back to a generic notice. This becomes the release body header.
@@ -91,18 +100,32 @@ jobs:
           echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "wear_apk_name=${WEAR_APK_NAME}" >> "$GITHUB_OUTPUT"
 
-      - name: Rename APK for release
+      - name: Rename APKs for release
         if: github.event_name != 'pull_request'
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk \
              "/tmp/${{ steps.meta.outputs.apk_name }}"
+          # Wear APK only exists on branches that have a wear/ module.
+          if [ -f wear/build/outputs/apk/debug/wear-debug.apk ]; then
+            cp wear/build/outputs/apk/debug/wear-debug.apk \
+               "/tmp/${{ steps.meta.outputs.wear_apk_name }}"
+          fi
 
-      - name: Upload APK as workflow artifact
+      - name: Upload phone APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-${{ github.run_id }}
           path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 90
+
+      - name: Upload wear APK as workflow artifact
+        if: hashFiles('wear/build/outputs/apk/debug/wear-debug.apk') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: wear-debug-${{ github.run_id }}
+          path: wear/build/outputs/apk/debug/wear-debug.apk
           retention-days: 90
 
       - name: Strip prior APKs from rolling release
@@ -133,6 +156,7 @@ jobs:
           body_path: /tmp/release-body.md
           prerelease: true
           # Replace the existing tag/release on every push so testers can
-          # always find the latest at the same URL.
+          # always find the latest at the same URL. The glob picks up both
+          # the phone APK and (if the branch has wear/) the watch APK.
           make_latest: "false"
-          files: /tmp/${{ steps.meta.outputs.apk_name }}
+          files: /tmp/EUC-Planet-${{ steps.meta.outputs.branch }}-${{ steps.meta.outputs.short_sha }}*.apk

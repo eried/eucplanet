@@ -166,7 +166,44 @@ data class AppSettings(
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
     val syncFolderUri: String? = null,
-    val lastSettingsBackupAt: Long? = null
+    val lastSettingsBackupAt: Long? = null,
+
+    // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
+    @ColumnInfo(defaultValue = "1")
+    val watchKeepScreenOn: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchAutoStart: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWheelBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowPhoneBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWatchBattery: Boolean = true,
+    /** "BAR", "NUMBERS", or "BOTH". */
+    @ColumnInfo(defaultValue = "BOTH")
+    val watchPwmDisplay: String = "BOTH",
+    @ColumnInfo(defaultValue = "1")
+    val watchShowSpeedUnit: Boolean = true,
+    @ColumnInfo(defaultValue = "0")
+    val watchEnableGpsSpeed: Boolean = false,
+
+    /**
+     * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
+     * orange Action button as STEM_1 and the bottom side button as STEM_2;
+     * Pixel Watch only has one). Stored as the [FlicAction] enum name so the
+     * picker can reuse the same UI/string set as Flic and Volume keys. The
+     * Wear OS side reads these via the Data Layer publish, intercepts
+     * KEYCODE_STEM_* in MainActivity, and either fires a local control
+     * intent or routes to the phone over /euc/control.
+     */
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Hold: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Hold: String = "NONE"
 )
 
 enum class FlicAction(val labelRes: Int) {

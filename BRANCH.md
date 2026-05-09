@@ -1,78 +1,91 @@
-# multi-wheel-support
+# wear-os-watch-ultra
 
 ## What this branch adds
 
-Foundation work for supporting wheels beyond the V14. The protocol layer
-splits into per-family adapters and the dashboard learns to surface its
-state for any of them. Concretely shipped here:
+Companion app for Wear OS 5+ watches (built and tuned on the Galaxy Watch
+Ultra). The phone holds the BLE link to the wheel and pushes a compact
+telemetry snapshot to the watch over the Wearable Data Layer; the watch is a
+thin client and never talks to the wheel directly.
 
-- **InMotion V2 model registry** covering V11 / V11Y / V12 HS / HT / Pro /
-  V12S / V13 / V13 Pro / V14 50GB / V14 50S / V9 / P6. The wheel reports
-  its model ID on connect and the registry maps it to the right command
-  variant (horn opcode, max-speed packet shape, etc.).
-- **P6 connect path + parser pass.** The scan now lists `P6-XXXXXXXX`
-  peripherals; the adapter switches to the extended-routing-only command
-  set when it sees that name. Voltage, discharge current, real per-pack
-  battery percent, total mileage, and current tiltback all parse from
-  real-hardware captures. The control plane now uses the P6-specific
-  opcodes the InMotion app sends — light becomes a 3-byte mirrored
-  packet, horn drops the V14 sound id, setMaxSpeed sends a single
-  uint16 followed by a flash-commit. Speed, PWM, and per-sensor
-  temperatures still wait on a labelled riding capture
-  (`docs/BLE_CAPTURE_GUIDE.md`).
-- **Wheel simulator** in the connect screen. Two virtual wheels (V14 and
-  P6) feed canned BLE responses through the real adapter pipeline, so the
-  whole UI works without hardware. Useful for translation, layout, and
-  capability-gating work.
-- **Experimental banner** on the dashboard for any wheel that isn't a
-  verified V14. Tapping it opens a prefilled GitHub Issue (`Wheel report`
-  template) with the connected wheel and firmware already filled in.
-- **Wheel report template** at `.github/ISSUE_TEMPLATE/wheel_report.yml`
-  with structured fields for wheel model, firmware, status, what works,
-  details, and phone OS.
+This branch is built on top of `main` (V14 + V12 + P6 multi-wheel support
+verified through 0.3.1), so the watch dashboard inherits the corrected P6
+telemetry offsets (PWM, torque, MOS+motor temps, signed reverse speed).
+
+Concretely shipped here:
+
+- **Full-bleed speed dial** that wraps the entire watch face. Same arc
+  geometry as the phone dashboard (260° sweep, accent-tinted safe band,
+  orange/red danger wedges, ticks). Speed number, units, batteries and
+  buttons live inside the dial.
+- **Three batteries at a glance** above the speed number: wheel, phone, and
+  watch, each colour-graded by the same red/amber/green thresholds used on
+  the phone dashboard.
+- **Accent colour follows the phone.** The accent the user picked in app
+  settings travels through the wire format and tints the dial safe band,
+  the wheel-name header on page 2, and the horn / light buttons.
+- **Imperial units follow the phone.** When `imperialUnits` is on, the
+  watch shows mph, miles, and °F; flipping the setting takes effect within
+  one publish cycle (≤200 ms).
+- **Page 2 — at-a-glance details.** Wheel name in accent, live speed, then
+  a tabular column of voltage / current / power (V × A) / PWM / temp /
+  torque / trip. Values align vertically across rows so you can scan down a
+  column.
+- **Buttons follow the phone iconography.** Horn = `Icons.Filled.Campaign`,
+  Light = `Icons.Filled.FlashOn` — same glyphs as the phone dashboard.
+- **Disconnected state** shows a phone glyph and a two-line "Open EUC
+  Planet on your phone" message. No more red dot that read as an error.
+- **Resolution-clean.** All sizes derive from `BoxWithConstraints.maxWidth`
+  so the layout looks right on small round watches (~390 dp) and on Watch
+  Ultra (~454 dp) without separate code paths.
+- **Auto-start ping** on phone-app open and a manual "Play" button next to
+  the Auto-start setting so users can verify pairing without backgrounding
+  and relaunching the phone app.
+
+## Architecture
+
+- `WearBridge` (phone, `app/`) subscribes to `WheelRepository` flows and
+  `SettingsRepository.settings`, samples to 5 Hz, packs a `DataMap` and
+  publishes at `/euc/state`. Reads phone battery via `BatteryManager`.
+- `WatchBridgeService` (watch, `wear/`) decodes the DataMap into a
+  `WatchState` and updates a singleton `WatchStateRepository`.
+- `WatchApp` (Compose) collects from the repo and renders.
+- Control flow (horn / light) is the existing reverse channel: watch sends
+  short Messages on `/euc/control`, phone routes them through
+  `WheelRepository`.
 
 ## Who should test this
 
-- **V14 owners**: confirm that nothing changed for you. The banner stays
-  hidden, the dashboard reads the same values, horn / light / lock /
-  safety mode still work.
-- **P6 owners**: connecting now works and the control plane is wired up
-  properly. Verify horn beeps, light toggles on/off, and that adjusting
-  the tiltback slider actually changes the wheel's speed cap (the
-  flash-commit packet is meant to persist it past sleep). Voltage,
-  per-pack battery, and total mileage should match the InMotion app.
-  Speed, PWM, and temperatures still read zero — those need a labelled
-  riding capture to confirm offsets.
-- **Owners of any other InMotion wheel** (V11, V12, V13, V9): try
-  connecting. Telemetry decoding outside the V14 family is unverified,
-  so expect wrong values. If anything works or fails, tap the orange
-  banner to fire off a wheel report.
-- **No-wheel testers**: in the connect screen, scroll past the BLE list to
-  the "Simulate a wheel" section. Tap V14 or P6 to drive the dashboard
-  with synthetic telemetry.
+- **Watch Ultra owners** with a paired phone running the matching debug or
+  pre-release APK from the same branch: confirm the dial reads correctly,
+  battery percentages match Settings/Battery on each device, accent and
+  imperial follow the phone, and horn/light controls work.
+- **Other Wear OS 5+ watches** (round and rectangular): the layout should
+  scale; please report clipping or overlap. Square watches use the same
+  dial with the corners falling outside the arc — intentional.
+- **Anyone curious about the UI without hardware**: debug builds expose an
+  ADB demo broadcast. With the watch app open:
+  ```
+  adb shell am broadcast -p com.eried.eucplanet \
+    -a com.eried.eucplanet.wear.DEMO \
+    --ef speed 32 --ei battery 78 --ei phone 64 \
+    --es accent teal --ef maxSpeed 70 \
+    --ez imperial false --es name "InMotion V14"
+  ```
+  Speed/battery/accent/imperial extras are all optional.
 
 ## Known limits
 
-- **P6 real-hardware support is preliminary.** Connecting to a real P6
-  now works (the BLE name `P6-XXXXXXXX` puts the adapter on the
-  extended-routing protocol the wheel actually speaks) and the dashboard
-  shows live voltage and discharge current plus a rough battery estimate
-  from the pack voltage. The remaining telemetry — speed, PWM, motor
-  temperature, trip distance, the per-pack battery split — is still
-  unmapped because the data block's byte layout differs from V14 and we
-  only have parked captures so far. Help us pin those offsets by recording
-  a labeled session (`docs/BLE_CAPTURE_GUIDE.md`) while riding.
-- **P6 settings, locking, and safety-mode max-speed control are
-  disabled** until the matching control packets are reverse-engineered.
-  The UI doesn't gate them yet, so tapping those buttons on a P6 is a
-  no-op — that should be obvious from the wheel not responding.
-- **KingSong, Veteran, Begode/Gotway, InMotion V1 family (V8 / V10)**:
-  their adapters aren't built yet, so connecting won't work. They appear
-  in the wheel-report dropdown for users to manually pick if they want
-  to file feedback.
+- **Pairing must be done via the Wear OS by Google companion app** the
+  first time. Without pairing, the watch shows the disconnected
+  placeholder forever; this branch does not change that.
+- **Tile and complication** (carousel and watch-face quick-glance) are not
+  here yet. The companion launches as an app you open from the launcher.
+- **No standalone (watch-only) BLE.** The watch never connects to the
+  wheel directly; if the phone's app process is killed, telemetry stops.
+- **No on-watch settings.** Imperial / accent / max-speed cap are read
+  from the phone — change them there.
 
 ## Feedback
 
-Tap the orange banner on the dashboard for a prefilled GitHub issue, or
-open one manually at
-https://github.com/eried/eucplanet/issues/new?template=wheel_report.yml
+File issues at https://github.com/eried/eucplanet/issues. Tag with the
+watch model and Wear OS version if you can.

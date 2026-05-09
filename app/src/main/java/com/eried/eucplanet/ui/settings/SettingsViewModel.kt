@@ -32,8 +32,14 @@ class SettingsViewModel @Inject constructor(
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
-    private val automationManager: AutomationManager
+    private val automationManager: AutomationManager,
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge
 ) : ViewModel() {
+
+    /** Manual "wake the watch app" trigger — fires the same /euc/wake
+     *  message that MainActivity.onResume() sends. Lets the user verify
+     *  pairing without restarting the phone app. */
+    fun testWatchWake() = wearBridge.pingWatchToWake()
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
 
@@ -150,6 +156,20 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
 
     fun updateImperialUnits(v: Boolean) = update { copy(imperialUnits = v) }
+
+    // Wear OS companion
+    fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
+    fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
+    fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
+    fun updateWatchShowPhoneBattery(v: Boolean) = update { copy(watchShowPhoneBattery = v) }
+    fun updateWatchShowWatchBattery(v: Boolean) = update { copy(watchShowWatchBattery = v) }
+    fun updateWatchPwmDisplay(v: String) = update { copy(watchPwmDisplay = v) }
+    fun updateWatchShowSpeedUnit(v: Boolean) = update { copy(watchShowSpeedUnit = v) }
+    fun updateWatchEnableGpsSpeed(v: Boolean) = update { copy(watchEnableGpsSpeed = v) }
+    fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
+    fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
+    fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
