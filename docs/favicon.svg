@@ -16,7 +16,6 @@
       <stop offset="1.0" stop-color="#01579B"/>
     </radialGradient>
   </defs>
-  <rect width="108" height="108" fill="#0D0D0D" rx="16"/>
   <path d="M54,12 A42,42 0,1,1 53.99,12 Z M54,20 A34,34 0,1,0 54.01,20 Z" fill="url(#glow)" fill-rule="evenodd"/>
   <path d="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z" fill="url(#ring)" fill-rule="evenodd"/>
   <circle cx="54" cy="54" r="20" fill="url(#core)"/>
