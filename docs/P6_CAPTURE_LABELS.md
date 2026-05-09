@@ -78,12 +78,14 @@ unless noted):
 |-------:|:-----|:------|:------|:-------------|
 | 0..1  | uint16 LE | / 100 | voltage (V) | matched on-screen 230-228 V |
 | 2..3  | int16 LE  | / 100 | current (A, signed) | idle ~0 parked, swings during accel |
-| 8..9  | **int16 LE** | / 100 | **speed (km/h, signed)** | 2650 at labelled "16 mph" = 26.50 km/h. Reverse riding produces small negatives (-50..-100); previous unsigned read silently wrapped reverse to ~655 km/h forward (the user-reported "407 mph" artefact). |
-| 12..13 | int16 LE | / 100 | **PWM duty (%)** signed | -9584 (-95.84%) during hard regen brake, +7775 during 42 mph accel ramp |
-| 18..19 | int16 LE | / 100 | **torque (Nm)** signed | 0 at idle, +51.7 Nm at 31 A acceleration peak, -48.3 Nm during regen brake. Sign-aligned with current. |
+| 8..9  | **int16 LE** | / 100 | **speed (km/h, signed)** | -2.87 km/h at the labelled "v2:02 reverse 2 mph" frame. Forward stays positive; reverse wraps to small negatives. Unsigned read silently produced ~655 km/h forward (the "407 mph" artefact). |
+| 12..13 | **int16 LE** | / 100 | **torque (Nm, signed)** | +5.05 Nm at v1:50 idle (label "torque 4.59-5.05 Nm"). Goes negative during reverse motion (-6.97 Nm), positive when braking out of reverse (+12.33 Nm). Earlier reading at offset 18-19 was always zero. |
+| 14..15 | int16 LE | / 100 | **PWM duty (%)** | 175 at v1:35 (label "PWM 1.75%"), 176 at v1:07 (label "1.70-1.78%"). Earlier reading at offset 12-13 was wrong — that's torque. |
 | 20..21 | uint16 LE | / 100 | battery 1 percent | 91.00 / 91.00 / 90.50% across three labelled frames matching on-screen 91 / 91 / 90% |
 | 22..23 | uint16 LE | / 100 | battery 2 percent | matches second pack of dual-BMS |
-| 30, 31, 32 | byte | unknown encoding | **temperatures (3 sensors: motor / MOS / driver)** | All three drift up across the 5:22-6:57 ride window; b30 < b32 < b31 stratified post-ride. Encoding undecided — neither raw byte nor `byte-160` nor `byte/4` cleanly separates the three reference values (MOS 27.8 °C, driver 32.8 °C, motor 50.5 °C). Need a side-by-side capture with on-screen temps to lock the formula. |
+| 28    | byte | / 4 (= °C) | **MOS temperature** | 111 at v1:23 → 27.75 °C ≈ 82 °F label (delta -0.05). Encoding `byte / 4` confirmed by the matching motor-temp value at offset 30. |
+| 30    | byte | / 4 (= °C) | **motor temperature** | 204 at v1:23 → 51.0 °C ≈ 124 °F label (delta -0.10). Stays at 204 across all FINAL-video idle frames, consistent with a parked-and-warm motor. |
+| 32    | byte | unknown encoding | **driver-board temp candidate** | Drifts 208→210 across the labelled window but no clean linear formula fits the 91 °F / 32.8 °C reference. Held until a second labelled capture clarifies. |
 | 36..37 | uint16 LE | (W) | lifetime max power | matched 1511 W / 10950 W on screen |
 | 58..61 | uint32 LE | / 100 km | **total mileage** | 285958 / 285970 / 285990 matches three labelled frames at 1776.8 / 1776.9 / 1777.0 mi displayed |
 | 68     | byte | (NOT a mode flag) | **misleading: was assumed park=0x0f** | Re-analysis of the riding window shows byte 68 stays 0x0f across both parked-and-still AND active 60 km/h cruise. The earlier reading was a coincidence that fit a small subset of frames. Use offset 80 instead. |

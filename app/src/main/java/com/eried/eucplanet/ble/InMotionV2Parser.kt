@@ -207,11 +207,20 @@ object InMotionV2Parser {
         // frames into ~655 km/h forward, breaking the dashboard.
         val speed = if (data.size >= 10) ByteUtils.getInt16LE(data, 8) / 100f else 0f
 
-        // PWM at offset 12-13: int16 LE in 0.01% (signed for regen braking).
-        // Confirmed against the same capture — heavy acceleration in the
-        // 42 mph ramp shows 7775 = 77.75%, hard regen brake shows
-        // -9584 = -95.84% (the wheel pulling current back into the pack).
-        val pwm = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
+        // PWM at offset 14-15: int16 LE in 0.01%. Verified against the
+        // FINAL video labels at v1:35 = 1.75% (off 14 reads 175) and
+        // v1:07 = 1.70-1.78% (reads 176). Earlier calibration had this
+        // at offset 12-13 because the unsigned magnitude there happened
+        // to look PWM-shaped, but the labelled idle frame proved 12-13
+        // is torque, not PWM.
+        val pwm = if (data.size >= 16) ByteUtils.getInt16LE(data, 14) / 100f else 0f
+
+        // Torque at offset 12-13: int16 LE in 0.01 Nm (signed). Verified
+        // against v1:50 idle label of 4.59-5.05 Nm — frame reads 505 there.
+        // Goes negative on reverse motion (v2:02 reverse: -6.97 Nm), goes
+        // strongly positive when transitioning out of reverse (v2:16: +12.33).
+        // Earlier guess at 18-19 was zero across all idle frames.
+        val torque = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
 
         // Real per-pack battery percent at offsets 20-23 of the data block
         // (98.94 / 96.90 in the real-P6 capture, matched the on-screen 98%).
@@ -232,11 +241,17 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Torque at offset 18-19, int16 LE / 100 = Nm. Sign-aligned with
-        // current: zero when parked, +51.7 Nm at the 31 A acceleration
-        // peak, -48.3 Nm during the labelled regen brake. Linear with
-        // current magnitude across the labelled riding window.
-        val torque = if (data.size >= 20) ByteUtils.getInt16LE(data, 18) / 100f else 0f
+        // Per-sensor temperatures: byte / 4 = degrees Celsius.
+        // - Off 28: MOS temperature. Verified at v1:23 = 27.75 C ≈ 82 F label.
+        // - Off 30: motor temperature. Verified at v1:23 = 51.00 C ≈ 124 F label.
+        // Driver-board temp would land near 32-33 C (= 91 F label) but no
+        // single-byte offset in the labelled frame fits cleanly — leaving
+        // it un-parsed until a longer labelled capture lets us nail it.
+        val mosTempC = if (data.size > 28) data[28].toInt() and 0xFF else 0
+        val motorTempC = if (data.size > 30) data[30].toInt() and 0xFF else 0
+        val temps = mutableListOf<Float>()
+        if (mosTempC > 0) temps.add(mosTempC / 4f)
+        if (motorTempC > 0) temps.add(motorTempC / 4f)
 
         // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
         // (rider on, motor under load), 0x00 when lifted off / park-mode,
@@ -258,6 +273,8 @@ object InMotionV2Parser {
             battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
             battery2Percent = battery2.takeIf { it > 0f } ?: batteryPercent.toFloat(),
             tripDistance = tripDistanceKm,
+            temperatures = temps,
+            maxTemperature = temps.maxOrNull() ?: 0f,
             timestamp = System.currentTimeMillis()
         )
     }
