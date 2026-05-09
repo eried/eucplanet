@@ -198,11 +198,14 @@ object InMotionV2Parser {
         val voltage = ByteUtils.getUint16LE(data, 0) / 100f
         val current = ByteUtils.getInt16LE(data, 2) / 100f
 
-        // Speed at offset 8-9: uint16 LE in 0.01 km/h. Confirmed via the
-        // labelled riding capture — at video 6:15 = wall-clock 13:30:25,
-        // labelled "16 mph", offset 8-9 reads 2650 = 26.50 km/h = 16.5 mph.
-        // Stays at 0 across every parked frame.
-        val speed = if (data.size >= 10) ByteUtils.getUint16LE(data, 8) / 100f else 0f
+        // Speed at offset 8-9: int16 LE in 0.01 km/h. Forward riding lands
+        // in the positive range (2650 = 26.50 km/h = 16.5 mph at the labelled
+        // "16 mph" frame), and reverse riding produces small negative values
+        // (-50 .. -100 hundredths-km/h, i.e. ~0.5 km/h backward) — confirmed
+        // by walking the realtime stream through the user's reverse window.
+        // The previous unsigned read silently underflowed those reverse
+        // frames into ~655 km/h forward, breaking the dashboard.
+        val speed = if (data.size >= 10) ByteUtils.getInt16LE(data, 8) / 100f else 0f
 
         // PWM at offset 12-13: int16 LE in 0.01% (signed for regen braking).
         // Confirmed against the same capture — heavy acceleration in the
