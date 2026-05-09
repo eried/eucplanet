@@ -142,6 +142,23 @@ object InMotionV2Commands {
         )
 
     /**
+     * P6 Auto Headlight toggle (the "Auto Headlight" switch under General
+     * Settings → Lighting). Wire format: `aa aa 16 05 02 21 60 2f [v] [chk]`,
+     * single-byte payload (1 = ON, 0 = OFF). Verified against the FINAL P6
+     * capture — five toggles by the user produced exactly this frame each
+     * time, with `2f 01 7e` for ON and `2f 00 7f` for OFF.
+     *
+     * On a P6, manual Light (`60 50`) is independent of Auto Headlight: when
+     * Auto Headlight is on, the wheel decides based on ambient light; when
+     * it is off, the user controls the headlight directly via `60 50`.
+     */
+    fun setP6AutoHeadlight(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x2F, if (on) 0x01 else 0x00)
+        )
+
+    /**
      * Set the P6 **Speed Limit Alarm** (the threshold above which the wheel
      * beeps). Goes through `60 3e [v_lo v_hi 00 00]` — same opcode the
      * InMotion app uses for any commit-to-flash scalar setting. Confirmed

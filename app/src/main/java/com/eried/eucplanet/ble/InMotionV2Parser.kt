@@ -241,17 +241,30 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Per-sensor temperatures: byte / 4 = degrees Celsius.
-        // - Off 28: MOS temperature. Verified at v1:23 = 27.75 C ≈ 82 F label.
-        // - Off 30: motor temperature. Verified at v1:23 = 51.00 C ≈ 124 F label.
-        // Driver-board temp would land near 32-33 C (= 91 F label) but no
-        // single-byte offset in the labelled frame fits cleanly — leaving
-        // it un-parsed until a longer labelled capture lets us nail it.
-        val mosTempC = if (data.size > 28) data[28].toInt() and 0xFF else 0
-        val motorTempC = if (data.size > 30) data[30].toInt() and 0xFF else 0
+        // MOS temperature: byte at offset 70, raw degrees Fahrenheit.
+        // Verified against the FINAL P6 capture (NEW CAPTURE/btsnoop_hci.log):
+        // labelled MOS=72 °F at video t=120 s reads 0x48 = 72 across the
+        // entire capture, and the OLD ride capture's data[70] drifts
+        // 67-80 °F (19-27 °C) plausibly with riding heat.
+        //
+        // The previous offsets 28/30 with byte/4 were a numerical
+        // coincidence: data[28..29] is the speed-alarm pair (uint16 LE in
+        // 0.01 km/h, value 13679 = 85 mph for our wheel) and the low byte
+        // 0x6f /4 = 27.75 happened to land near a hot-wheel MOS reading in
+        // the old capture. Across 2300+ frames in the long ride capture,
+        // data[28] is constant at 111 — confirming it is not a sensor.
+        //
+        // Motor and driver-board temperatures do not appear in the realtime
+        // 0x87 stream on this firmware (every candidate offset is either
+        // a static config byte or a wrap-around counter). The InMotion app
+        // shows them as 79 °F on a parked wheel, which is most likely a
+        // cached default rather than a live sensor read. We therefore only
+        // expose MOS until a different request unlocks the other sensors.
         val temps = mutableListOf<Float>()
-        if (mosTempC > 0) temps.add(mosTempC / 4f)
-        if (motorTempC > 0) temps.add(motorTempC / 4f)
+        if (data.size > 70) {
+            val mosF = data[70].toInt() and 0xFF
+            if (mosF > 0) temps.add((mosF - 32) * 5f / 9f)
+        }
 
         // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
         // (rider on, motor under load), 0x00 when lifted off / park-mode,

@@ -157,6 +157,18 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         InMotionV2Commands.verifyAuth(encryptedKey)
 
     /**
+     * The InMotion P6 silently drops control commands (light, horn, auto
+     * headlight, max-speed) until the password auth handshake has run
+     * once after connect. The handshake is a fixed echo (the wheel returns
+     * a 16-byte "encrypted" blob and accepts the same blob back), so
+     * running it adds no security but unlocks the control endpoint.
+     *
+     * V14 family wheels do NOT need this — their light/horn writes work
+     * pre-auth; only lock requires the handshake on demand.
+     */
+    override fun requiresConnectAuth(): Boolean = useP6Protocol
+
+    /**
      * Walk the reassembly buffer for complete AA AA frames, parse each, decode,
      * and return the resulting DecodeResults. Mirrors the legacy reassembly that
      * used to live in BleConnectionManager — preserved byte-for-byte to keep V14

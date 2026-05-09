@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -109,6 +111,14 @@ class WheelRepository @Inject constructor(
     private var authKey: ByteArray? = null
     private var pendingAuthKeyDeferred: CompletableDeferred<ByteArray>? = null
     private var pendingAuthConfirmDeferred: CompletableDeferred<Boolean>? = null
+
+    // Serialise the lock auth handshake so rapid taps can't strand each
+    // other's deferreds. Without this, two concurrent toggleLock() calls
+    // both write the singleton `pendingAuthKeyDeferred`; the first call's
+    // deferred is overwritten and times out without ever reaching the
+    // setLock write — exactly the symptom seen on the P6 ("lock doesn't
+    // work" while WIM works because WIM serialises taps in its UI).
+    private val authMutex = Mutex()
 
     private var lastConnectedAddress: String? = null
     private var initState = 0
@@ -223,12 +233,12 @@ class WheelRepository @Inject constructor(
      * requestAuthKey → receive 16-byte key → verifyAuth → receive confirm → setLock
      * handshake; otherwise we just send setLock directly.
      */
-    private suspend fun authenticateAndLock(locked: Boolean): Boolean {
-        val lockPacket = wheelAdapter.setLock(locked) ?: return false
+    private suspend fun authenticateAndLock(locked: Boolean): Boolean = authMutex.withLock {
+        val lockPacket = wheelAdapter.setLock(locked) ?: return@withLock false
 
         if (!wheelAdapter.capabilities.needsAuthForLock) {
             bleManager.writeCommand(lockPacket)
-            return true
+            return@withLock true
         }
 
         val authReqPacket = wheelAdapter.requestAuthKey()
@@ -236,7 +246,7 @@ class WheelRepository @Inject constructor(
         if (authReqPacket == null) {
             // Capabilities say auth is required but adapter exposes no key request — bug.
             Log.e(TAG, "Lock: adapter requires auth but provides no requestAuthKey()")
-            return false
+            return@withLock false
         }
 
         // Step 1: Request auth key from wheel
@@ -250,7 +260,7 @@ class WheelRepository @Inject constructor(
 
         if (key == null) {
             Log.e(TAG, "Lock: auth key timeout")
-            return false
+            return@withLock false
         }
         authKey = key
         Log.i(TAG, "Lock: got auth key (${key.size} bytes): ${key.joinToString(" ") { "%02X".format(it) }}")
@@ -258,7 +268,7 @@ class WheelRepository @Inject constructor(
         // Step 2: Verify auth by echoing the key back
         val verifyPacket = verifyBuilder(key) ?: run {
             Log.e(TAG, "Lock: adapter returned null for verifyAuth")
-            return false
+            return@withLock false
         }
         val confirmDeferred = CompletableDeferred<Boolean>()
         pendingAuthConfirmDeferred = confirmDeferred
@@ -270,14 +280,14 @@ class WheelRepository @Inject constructor(
 
         if (!confirmed) {
             Log.e(TAG, "Lock: auth verify failed or timeout")
-            return false
+            return@withLock false
         }
         Log.i(TAG, "Lock: auth verified, sending lock=$locked")
 
         // Step 3: Send lock/unlock command
         Log.i(TAG, "Lock packet (${lockPacket.size} bytes): ${lockPacket.joinToString(" ") { "%02X".format(it) }}")
         bleManager.writeCommand(lockPacket)
-        return true
+        true
     }
 
     fun setDRL(on: Boolean) {
@@ -344,10 +354,21 @@ class WheelRepository @Inject constructor(
     private suspend fun runPollingLoop() {
         val initSequence = wheelAdapter.initSequence()
         var realtimeCycle = 0
+        var connectAuthDone = !wheelAdapter.requiresConnectAuth()
         while (pollingActive && bleManager.connectionState.value == ConnectionState.CONNECTED) {
             if (initState < initSequence.size) {
                 bleManager.writeCommand(initSequence[initState])
                 initState++
+            } else if (!connectAuthDone) {
+                // Wheels that silently drop control commands until the password
+                // auth handshake has run once (the P6 today). Run it inline
+                // before normal polling — once it completes, light/horn/max-speed
+                // writes start being honoured. We mark it done even on failure
+                // so we don't loop on an authentication that's never going to
+                // succeed; the user can still use telemetry and the lock path
+                // re-runs auth on demand.
+                runConnectAuthHandshake()
+                connectAuthDone = true
             } else {
                 // Normal polling - realtime data, interleaved with periodic settings refresh
                 // so externally-changed state (lock via InMotion app, etc.) is detected.
@@ -360,6 +381,35 @@ class WheelRepository @Inject constructor(
             }
             delay(POLL_INTERVAL_MS)
         }
+    }
+
+    /**
+     * Run the password handshake right after init completes for wheels that
+     * gate control writes on it (the P6). Mirrors [authenticateAndLock]'s
+     * auth steps but stops after the verify ACK — there is no lock packet
+     * to send. Failure is logged and ignored; the user keeps their telemetry.
+     */
+    private suspend fun runConnectAuthHandshake() {
+        val authReqPacket = wheelAdapter.requestAuthKey() ?: return
+        val keyDeferred = CompletableDeferred<ByteArray>()
+        pendingAuthKeyDeferred = keyDeferred
+        bleManager.writeCommand(authReqPacket)
+        Log.i(TAG, "Connect-auth: requesting auth key…")
+        val key = withTimeoutOrNull(4000L) { keyDeferred.await() }
+        pendingAuthKeyDeferred = null
+        if (key == null) {
+            Log.w(TAG, "Connect-auth: key timeout — control commands may not work until lock toggle")
+            return
+        }
+        authKey = key
+        val verifyPacket = wheelAdapter.verifyAuth(key) ?: return
+        val confirmDeferred = CompletableDeferred<Boolean>()
+        pendingAuthConfirmDeferred = confirmDeferred
+        bleManager.writeCommand(verifyPacket)
+        val ok = withTimeoutOrNull(4000L) { confirmDeferred.await() } ?: false
+        pendingAuthConfirmDeferred = null
+        if (ok) Log.i(TAG, "Connect-auth: verified, control endpoint primed")
+        else Log.w(TAG, "Connect-auth: verify failed — control commands may not work")
     }
 
     // --- Speed limits reconciliation on (re)connect ---

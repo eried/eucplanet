@@ -98,6 +98,22 @@ interface WheelAdapter {
     fun verifyAuth(encryptedKey: ByteArray): ByteArray?
 
     /**
+     * Whether the wheel needs the password auth handshake to be run once
+     * right after [initSequence] finishes, before any control writes. Set to
+     * true for wheels where the firmware silently drops control commands
+     * (light, horn, max-speed) until the connect-time handshake completes.
+     *
+     * Confirmed cases:
+     *  - InMotion P6: requires auth at connect, otherwise the dashboard
+     *    Light / Auto Headlight toggles look successful at the L2CAP layer
+     *    but the wheel never obeys.
+     *
+     * Default false (no extra writes); the lock path runs auth on demand
+     * via [requestAuthKey] / [verifyAuth] regardless of this flag.
+     */
+    fun requiresConnectAuth(): Boolean = false
+
+    /**
      * Process a raw BLE notification and return zero or more decoded results.
      *
      * Each protocol family handles its own framing here — InMotion V2 reassembles
