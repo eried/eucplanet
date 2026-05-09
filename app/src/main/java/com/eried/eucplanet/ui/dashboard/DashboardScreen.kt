@@ -803,12 +803,6 @@ fun DashboardScreen(
                                                     .verticalScroll(rememberScrollState())
                                                     .padding(10.dp)
                                             ) {
-                                                Text(
-                                                    stringResource(R.string.about_thanks_body),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                )
-                                                Spacer(Modifier.height(10.dp))
                                                 Row {
                                                     Text(
                                                         "Made by ",
@@ -829,6 +823,12 @@ fun DashboardScreen(
                                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                                     )
                                                 }
+                                                Spacer(Modifier.height(10.dp))
+                                                Text(
+                                                    stringResource(R.string.about_thanks_body),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
                                             }
                                         }
                                     }
