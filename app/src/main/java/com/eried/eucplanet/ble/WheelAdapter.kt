@@ -26,6 +26,19 @@ data class BleProfile(
             writeCharacteristic = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"),
             notifyCharacteristic = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
         )
+
+        /**
+         * HM-10 / JNHuaMao profile shared by KingSong, Begode/Gotway and
+         * Veteran wheels. Same service+characteristic UUIDs across all
+         * three brands; the wheel is identified post-connect by sniffing
+         * the first frame's magic bytes (`AA 55` = KingSong, `55 AA` =
+         * Begode, `DC 5A 5C` = Veteran).
+         */
+        val HM10 = BleProfile(
+            serviceUuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"),
+            writeCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb"),
+            notifyCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
+        )
     }
 }
 
@@ -171,6 +184,50 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = true
+        )
+
+        /** KingSong KS-* wheels — no software lock, no volume control. */
+        val KINGSONG = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = true,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Begode/Gotway — no software lock (dismount only), no native
+         * volume control. Light is a 3-state (off/dim/full); the adapter
+         * collapses dim to off for the on/off toggle.
+         */
+        val BEGODE = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = true,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Veteran — minimal control surface. Telemetry is rich (cells,
+         * BMS) but writes are limited to horn, light on/off and a few
+         * threshold setters.
+         */
+        val VETERAN = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = false,
+            hasAlarmSpeed = false,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
         )
     }
 }

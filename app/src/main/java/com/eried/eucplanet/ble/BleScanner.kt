@@ -75,27 +75,51 @@ class BleScanner @Inject constructor(
     /**
      * BLE-name allowlist for the default ("known wheels only") scan mode.
      *
-     * V14 advertises as `Adventure-<id>`, P6 as `P6-<id>`. The InMotion V2
-     * registry covers V8 through V13 — those wheels broadcast as
-     * `V<digits><letters?>-<id>` (V11-…, V11Y-…, V12HS-…, V13Pro-…) per
-     * community captures. We don't have one of each here to confirm, so
-     * the regex errs inclusive. The generic `InMotion` prefix catches
-     * anything that ships with the brand name in the advertised name.
+     * Recognises the InMotion V2 family (V14 `Adventure-…`, P6 `P6-…`, and
+     * the broader `V<digits>…` pattern that covers V11/V12/V13), KingSong
+     * (`KS-…`, `KingSong…`, `S22…` / `S20…` / `S18…`, `F22P` / `F18P`),
+     * Begode/Gotway (`Gotway_…`, `Begode_…`, plus model-specific prefixes
+     * `Master_…`, `RS_…`, `EX_…`, `MSP…`, `MSX…`, `Mten…`, `MCM5…`,
+     * `Hero…`, `T3…`, `T4…`) and Veteran (`Sherman…`, `Patton…`, `Lynx…`,
+     * `Abrams…`).
+     *
      * Users with an unusual name can flip the "show all" switch on the
      * scan screen.
      */
     private fun isLikelyWheel(name: String): Boolean {
+        // InMotion V2 family
         if (name.startsWith("Adventure-")) return true
         if (name.startsWith("P6-")) return true
         if (name.startsWith("InMotion")) return true
         // V8-…, V9-…, V10-…, V11-…, V11Y-…, V12HS-…, V13Pro-…: leading V
-        // followed by at least one digit and at least one more character
-        // (separator, model letter, or further digit). Rejects bare "V" /
-        // "V1" / "V12" beacons, accepts the InMotion V2 family.
-        if (name.length < 3 || name[0] != 'V' || !name[1].isDigit()) return false
-        var i = 2
-        while (i < name.length && name[i].isDigit()) i++
-        return i < name.length
+        // followed by at least one digit and at least one more character.
+        if (name.length >= 3 && name[0] == 'V' && name[1].isDigit()) {
+            var i = 2
+            while (i < name.length && name[i].isDigit()) i++
+            if (i < name.length) return true
+        }
+        // KingSong
+        if (name.startsWith("KS-") || name.startsWith("KS ") ||
+            name.startsWith("KingSong", ignoreCase = true)) return true
+        if (Regex("^S(?:1[6-9]|2[02])(?:\\b|[-_ ])").containsMatchIn(name)) return true
+        if (name.startsWith("F18P", ignoreCase = true) ||
+            name.startsWith("F22P", ignoreCase = true)) return true
+        // Begode/Gotway
+        if (name.startsWith("Gotway", ignoreCase = true) ||
+            name.startsWith("Begode", ignoreCase = true) ||
+            name.startsWith("Master_", ignoreCase = true) ||
+            name.startsWith("RS_", ignoreCase = true) || name.startsWith("RS-", ignoreCase = true) ||
+            name.startsWith("EX_", ignoreCase = true) || name.startsWith("EX.", ignoreCase = true) ||
+            name.startsWith("EX2", ignoreCase = true) ||
+            name.startsWith("MSP", ignoreCase = true) || name.startsWith("MSX", ignoreCase = true) ||
+            name.startsWith("Mten", ignoreCase = true) || name.startsWith("MCM5", ignoreCase = true) ||
+            name.startsWith("Hero", ignoreCase = true) ||
+            name.startsWith("T3", ignoreCase = true) || name.startsWith("T4", ignoreCase = true)) return true
+        // Veteran
+        val nl = name.lowercase()
+        if ("sherman" in nl || "patton" in nl || "abrams" in nl ||
+            Regex("\\blynx\\b").containsMatchIn(nl)) return true
+        return false
     }
 
     @SuppressLint("MissingPermission")
