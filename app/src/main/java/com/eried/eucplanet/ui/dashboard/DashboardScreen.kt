@@ -750,7 +750,11 @@ fun DashboardScreen(
                             Text(
                                 "A no-nonsense, open-source app for electric unicycles.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.CenterHorizontally)
                             )
 
                             Spacer(Modifier.height(12.dp))
