@@ -1,91 +1,91 @@
-# wear-os-watch-ultra
+# more-wheels-support
 
 ## What this branch adds
 
-Companion app for Wear OS 5+ watches (built and tuned on the Galaxy Watch
-Ultra). The phone holds the BLE link to the wheel and pushes a compact
-telemetry snapshot to the watch over the Wearable Data Layer; the watch is a
-thin client and never talks to the wheel directly.
+Five new BLE protocol families, taking the app from "InMotion + P6" to a
+multi-brand companion. Implementations are clean-room from public spec
+docs that live under `docs/protocols/` (one per family). Telemetry and
+controls compile and pass static audits; none of these have been ridden
+on real hardware yet — riders willing to test and file a wheel report
+are how these graduate from **Preview** to **Verified**.
 
-This branch is built on top of `main` (V14 + V12 + P6 multi-wheel support
-verified through 0.3.1), so the watch dashboard inherits the corrected P6
-telemetry offsets (PWM, torque, MOS+motor temps, signed reverse speed).
+This branch is built on top of `main` 0.3.1, which already ships the
+V14, V12, P6 and **Galaxy Watch Ultra / Wear OS 5+ companion**. All of
+that is included in this APK pair (`-phone.apk` + `-wear_os.apk`); the
+watch dial, three-battery row, accent + imperial follow-the-phone, and
+horn / light remote controls all keep working. Existing wheels are
+unchanged — this branch only adds new families.
 
 Concretely shipped here:
 
-- **Full-bleed speed dial** that wraps the entire watch face. Same arc
-  geometry as the phone dashboard (260° sweep, accent-tinted safe band,
-  orange/red danger wedges, ticks). Speed number, units, batteries and
-  buttons live inside the dial.
-- **Three batteries at a glance** above the speed number: wheel, phone, and
-  watch, each colour-graded by the same red/amber/green thresholds used on
-  the phone dashboard.
-- **Accent colour follows the phone.** The accent the user picked in app
-  settings travels through the wire format and tints the dial safe band,
-  the wheel-name header on page 2, and the horn / light buttons.
-- **Imperial units follow the phone.** When `imperialUnits` is on, the
-  watch shows mph, miles, and °F; flipping the setting takes effect within
-  one publish cycle (≤200 ms).
-- **Page 2 — at-a-glance details.** Wheel name in accent, live speed, then
-  a tabular column of voltage / current / power (V × A) / PWM / temp /
-  torque / trip. Values align vertically across rows so you can scan down a
-  column.
-- **Buttons follow the phone iconography.** Horn = `Icons.Filled.Campaign`,
-  Light = `Icons.Filled.FlashOn` — same glyphs as the phone dashboard.
-- **Disconnected state** shows a phone glyph and a two-line "Open EUC
-  Planet on your phone" message. No more red dot that read as an error.
-- **Resolution-clean.** All sizes derive from `BoxWithConstraints.maxWidth`
-  so the layout looks right on small round watches (~390 dp) and on Watch
-  Ultra (~454 dp) without separate code paths.
-- **Auto-start ping** on phone-app open and a manual "Play" button next to
-  the Auto-start setting so users can verify pairing without backgrounding
-  and relaunching the phone app.
+- **KingSong** (HM-10 0xFFE0/0xFFE1, 20-byte AA 55 fixed frames). Covers
+  S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P. Live telemetry
+  (speed, voltage, current, battery, temperatures, trip, total odometer,
+  PWM, ride mode), settings reads, horn / light / lock commands, and
+  BMS detail packets.
+- **Begode / Gotway** (HM-10, 24-byte BIG-ENDIAN 55 AA frames with
+  multi-tag dispatch and a 5A re-sync injection). Per-model voltage tier
+  scaler covers seven battery sizes (84 V → 134 V). Master, Master Pro,
+  T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, Mten4, Mten5, MCM5.
+- **Veteran** (HM-10, DC 5A 5C magic header, word-swapped u32 distance
+  quirk). Sherman / Sherman S / Sherman Max / Patton / Lynx / Abrams.
+  Optional CRC32-BE on long BMS frames.
+- **InMotion V1 family** (proprietary 0xFFE4/0xFFE9 with 0xA5 byte
+  stuffing and 32-bit CAN-IDs). V5, V8, V8F, V8S, V10, V10F, V10S, V10T,
+  V10FT, L6, Lively, Glide 3.
+- **Ninebot** — both the modern Z6 / Z10 (Nordic UART, 5A A5 framing,
+  16-byte XOR keystream `gamma[(i-3) % 16]` with a `GetKey 0x5B`
+  handshake) and the legacy One E / E+ / S2 / Mini family (HM-10, 55 AA
+  framing, plaintext, read-only).
 
 ## Architecture
 
-- `WearBridge` (phone, `app/`) subscribes to `WheelRepository` flows and
-  `SettingsRepository.settings`, samples to 5 Hz, packs a `DataMap` and
-  publishes at `/euc/state`. Reads phone battery via `BatteryManager`.
-- `WatchBridgeService` (watch, `wear/`) decodes the DataMap into a
-  `WatchState` and updates a singleton `WatchStateRepository`.
-- `WatchApp` (Compose) collects from the repo and renders.
-- Control flow (horn / light) is the existing reverse channel: watch sends
-  short Messages on `/euc/control`, phone routes them through
-  `WheelRepository`.
+- One `WheelAdapter` per family (`KingSongAdapter`, `BegodeAdapter`,
+  `VeteranAdapter`, `InMotionV1Adapter`, `NinebotAdapter`) plus the
+  existing `InMotionAdapter` for V14 / V12 / P6 — six total.
+- `CompositeWheelAdapter` routes connect-time by the BLE-advertised
+  name. The legacy InMotion V2 path stays the default; family-specific
+  prefixes (KS-, Master, Sherman, IM-, Z6, etc.) are matched first.
+- `BleScanner.isLikelyWheel` recognises advertising names from all six
+  families so the scan list shows a wheel instead of a generic device.
+- Each parser publishes through the same `WheelTelemetry` flow — the
+  rest of the app (dashboard, alarms, voice, recording, watch) is
+  unchanged.
+
+## Credits & attribution
+
+Public protocol research used to write the KingSong, Begode and Veteran
+adapters comes from **Ilya Shkolnik and the WheelLog community**. Their
+spec work made this possible; the code here is independently written
+against `docs/protocols/`. The Credits tab in the in-app About dialog
+attributes them, plus Gio (Wheel In Motion) for P6 and Wear OS testing,
+and InMotion for the V14.
 
 ## Who should test this
 
-- **Watch Ultra owners** with a paired phone running the matching debug or
-  pre-release APK from the same branch: confirm the dial reads correctly,
-  battery percentages match Settings/Battery on each device, accent and
-  imperial follow the phone, and horn/light controls work.
-- **Other Wear OS 5+ watches** (round and rectangular): the layout should
-  scale; please report clipping or overlap. Square watches use the same
-  dial with the corners falling outside the arc — intentional.
-- **Anyone curious about the UI without hardware**: debug builds expose an
-  ADB demo broadcast. With the watch app open:
-  ```
-  adb shell am broadcast -p com.eried.eucplanet \
-    -a com.eried.eucplanet.wear.DEMO \
-    --ef speed 32 --ei battery 78 --ei phone 64 \
-    --es accent teal --ef maxSpeed 70 \
-    --ez imperial false --es name "InMotion V14"
-  ```
-  Speed/battery/accent/imperial extras are all optional.
+- **KingSong, Begode, Veteran, InMotion V1, Ninebot owners.** Connect,
+  ride a known route, and file a wheel report through the orange
+  in-app banner (or open an issue with the same data). Verifying
+  battery %, speed, voltage and temperature against the wheel's own
+  display is enough for an initial pass.
+- **V14 / V12 / P6 owners**: a regression check is welcome too — the
+  composite-routing change and shared `BleScanner` code touch your
+  path. Existing telemetry should match `main` exactly.
 
 ## Known limits
 
-- **Pairing must be done via the Wear OS by Google companion app** the
-  first time. Without pairing, the watch shows the disconnected
-  placeholder forever; this branch does not change that.
-- **Tile and complication** (carousel and watch-face quick-glance) are not
-  here yet. The companion launches as an app you open from the launcher.
-- **No standalone (watch-only) BLE.** The watch never connects to the
-  wheel directly; if the phone's app process is killed, telemetry stops.
-- **No on-watch settings.** Imperial / accent / max-speed cap are read
-  from the phone — change them there.
+- **All five new families are in Preview.** Parser + commands compile
+  and pass static audits, but none have been validated against the
+  actual wheels.
+- **No real-hardware capture for Ninebot Z encryption yet.** The
+  keystream and `GetKey 0x5B` handshake are implemented from the spec
+  doc; the first paired Z6 / Z10 will tell us whether the handshake
+  needs adjustment.
+- **Legacy Ninebot is read-only on purpose.** Plaintext frames don't
+  carry write commands the modern app exposes.
 
 ## Feedback
 
-File issues at https://github.com/eried/eucplanet/issues. Tag with the
-watch model and Wear OS version if you can.
+File issues at https://github.com/eried/eucplanet/issues. Please tag
+with brand and model — that's the fastest way to upgrade your wheel's
+tier.
