@@ -46,7 +46,7 @@ enum class InMotionV2Model(
      * has the model already wired in. The flags here are placeholders that
      * keep the simulator on the V14 command path.
      */
-    P6(     21, "InMotion P6",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 130),
+    P6(     21, "InMotion P6",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 150),
     V11(    61, "InMotion V11",        maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 60),
     V11Y(   62, "InMotion V11y",       maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V12HS(  71, "InMotion V12 HS",     maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 70),

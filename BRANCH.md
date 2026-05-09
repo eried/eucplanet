@@ -58,7 +58,27 @@ The handshake is a fixed echo (the wheel returns a 16-byte "encrypted"
 blob and accepts the same blob back), so adding it doesn't change the
 security posture — it just primes the wheel's control endpoint.
 
-### 3. Lock taps could clobber each other's pending auth
+### 3. Speed-limit slider was clamped to 56 mph on P6
+
+`_maxSpeedCap` defaulted to 90 km/h (the V14-era fallback) and was only
+updated when the wheel sent a `DecodeResult.ModelName` event back. On
+P6 that fires when the info-bundle response (`02 86 …`) lands, which
+needs a full BLE round-trip after init. Until then the slider was
+capped at 90 km/h ≈ 56 mph, regardless of the wheel's real ceiling.
+
+The P6 model entry also had `maxSpeedKmh = 130` (≈ 81 mph) but the
+wheel's own InMotion app reports 93 mph (≈ 150 km/h) as its hardware
+max. Two fixes:
+
+- `notifyConnectingTo` now returns a `DecodeResult.ModelName` when the
+  BLE name alone is enough to identify the wheel (P6's `P6-XXXXXXXX`
+  pattern). `BleConnectionManager` emits it immediately so the slider
+  cap updates before any BLE traffic.
+- `InMotionV2Model.P6.maxSpeedKmh` bumped 130 → 150 km/h to match the
+  wheel's actual ceiling. The serial-bearing `ModelName` from the
+  info-bundle response still fires later as before.
+
+### 4. Lock taps could clobber each other's pending auth
 
 `pendingAuthKeyDeferred` and `pendingAuthConfirmDeferred` were nullable
 singletons assigned by `authenticateAndLock`. Two near-simultaneous

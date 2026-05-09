@@ -57,8 +57,13 @@ interface WheelAdapter {
      * and uses an extended-routing-only command set, so we pick the P6 code
      * path before the legacy carType query reaches the wheel and times out.
      * Default is a no-op.
+     *
+     * Returns a [DecodeResult.ModelName] when the name alone is enough to
+     * identify the wheel; the BLE layer emits it immediately so the slider
+     * cap and other model-keyed UI bits don't have to wait for the wheel's
+     * own info-bundle round-trip. Default returns null.
      */
-    fun notifyConnectingTo(deviceName: String?) {}
+    fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? = null
 
     /** Packets sent in order on first connect, before the realtime poll loop starts. */
     fun initSequence(): List<ByteArray>

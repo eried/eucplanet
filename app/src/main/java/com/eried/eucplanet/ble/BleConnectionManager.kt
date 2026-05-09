@@ -100,7 +100,12 @@ class BleConnectionManager @Inject constructor(
         // Adapter pre-selects model from the BLE name; needed for the InMotion
         // P6 because its legacy carType query returns zeros and we'd otherwise
         // never identify it before sending V14-shaped queries the wheel ignores.
-        wheelAdapter.notifyConnectingTo(currentName)
+        // If the adapter returned a ModelName from the name alone, surface it
+        // immediately so the speed-limit slider cap (and other model-keyed UI
+        // bits) reflect the wheel's real ceiling instead of the V14 fallback.
+        wheelAdapter.notifyConnectingTo(currentName)?.let {
+            _decodedResults.tryEmit(it)
+        }
 
         val device: BluetoothDevice = bluetoothManager.adapter.getRemoteDevice(address)
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)

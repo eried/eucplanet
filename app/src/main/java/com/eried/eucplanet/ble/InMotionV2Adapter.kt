@@ -57,11 +57,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * `P6-XXXXXXXX` is the cleanest pre-connect signal — we set the model now
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         if (deviceName != null && deviceName.startsWith("P6-")) {
             detectedModel = InMotionV2Model.P6
             useP6Protocol = true
+            // Surface the model right away so _maxSpeedCap and other
+            // model-keyed UI updates don't wait for the wheel's info-bundle
+            // round-trip. The serial fills in later when 0x06 lands.
+            return DecodeResult.ModelName("InMotion P6", InMotionV2Model.P6)
         }
+        return null
     }
 
     override fun initSequence(): List<ByteArray> {
