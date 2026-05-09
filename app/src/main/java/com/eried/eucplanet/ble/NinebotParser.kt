@@ -171,7 +171,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
     fun parseZTelemetry(data: ByteArray, model: NinebotModel?): WheelData? {
         if (data.size < 28) return null
 
-        val batteryPct = ByteUtils.getUint16LE(data, 8) and 0xFF
+        val batteryPct = ByteUtils.getUint16LE(data, 8).coerceIn(0, 100)
         val speed = ByteUtils.getUint16LE(data, 10) / 100f
         val totalDistanceMeters = ByteUtils.getUint32LE(data, 14)
         val tripDistanceMeters = ByteUtils.getUint16LE(data, 18) * 10L

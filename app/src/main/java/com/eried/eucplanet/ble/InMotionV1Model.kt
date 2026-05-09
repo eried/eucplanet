@@ -66,7 +66,15 @@ enum class InMotionV1Model(
          * Decode the wheel's model code from the two ASCII bytes returned at
          * offsets 104 and 107 of the slow-info reply. Per spec 5.1 the value
          * is `[byte107 if > 0][byte104]` parsed as a decimal integer; bytes
-         * are ASCII digits, so we mask to 0..9.
+         * are ASCII digits, so we mask to 0..9 and pack high*10 + low.
+         *
+         * NOTE: with two ASCII digits we can only express ids 0..99. The V10
+         * family (ids 100, 101, 140-143) is documented in spec 5.1 but
+         * unreachable here because the spec offsets only specify two bytes.
+         * V10/V10F/V10S/V10T/V10FT wheels are still identified at connect
+         * time via [fromReportedName] from the BLE-advertised name, so the
+         * dashboard does the right thing in practice. Lift this if a labelled
+         * capture clarifies whether a third digit lives at another offset.
          */
         fun fromCarType(low: Int, high: Int): InMotionV1Model? {
             val lo = low and 0x0F

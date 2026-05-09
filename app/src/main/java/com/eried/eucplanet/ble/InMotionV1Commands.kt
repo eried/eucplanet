@@ -71,12 +71,21 @@ object InMotionV1Commands {
 
     // --- Ride mode group (CAN 0x0F550115) ---
 
-    /** Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 LE in slot 4..5. */
+    /**
+     * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 with HIGH byte
+     * at slot 4 and LOW byte at slot 5 — opposite of the rest of the
+     * protocol's little-endian convention. Spec section 6.2 worked example
+     * is unambiguous: 30 km/h -> 30000 = 0x7530, wire = `75 30`. The spec's
+     * type annotation says `LE` but the worked example takes precedence
+     * here. Verify against a real BLE capture if behaviour looks wrong.
+     */
     fun setMaxSpeed(kmh: Float): ByteArray {
-        val v = ByteUtils.putUint16LE((kmh * 1000f).toInt())
+        val v = (kmh * 1000f).toInt() and 0xFFFF
+        val hi = ((v ushr 8) and 0xFF).toByte()
+        val lo = (v and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x01, 0, 0, 0, v[0], v[1], 0, 0)
+            byteArrayOf(0x01, 0, 0, 0, hi, lo, 0, 0)
         )
     }
 
@@ -87,13 +96,19 @@ object InMotionV1Commands {
             byteArrayOf(0x0A, 0, 0, 0, if (classic) 0x01 else 0x00, 0, 0, 0)
         )
 
-    /** Pedal sensitivity 0..255 — slot 4..5 stores `((s + 28) << 5)` u16 LE. */
+    /**
+     * Pedal sensitivity 0..255. Slot 4..5 stores `((s + 28) << 5)` with the
+     * same HIGH-then-LOW byte order as [setMaxSpeed] (spec section 6.3
+     * worked example).
+     */
     fun setPedalSensitivity(sensitivity: Int): ByteArray {
         val s = sensitivity.coerceIn(0, 255)
-        val v = ByteUtils.putUint16LE(((s + 28) shl 5) and 0xFFFF)
+        val v = ((s + 28) shl 5) and 0xFFFF
+        val hi = ((v ushr 8) and 0xFF).toByte()
+        val lo = (v and 0xFF).toByte()
         return InMotionV1Protocol.buildFrame(
             CanId.RIDE_MODE,
-            byteArrayOf(0x06, 0, 0, 0, v[0], v[1], 0, 0)
+            byteArrayOf(0x06, 0, 0, 0, hi, lo, 0, 0)
         )
     }
 

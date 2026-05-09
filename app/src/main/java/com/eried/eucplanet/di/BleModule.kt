@@ -10,8 +10,9 @@ import javax.inject.Singleton
 
 /**
  * Binds the active [WheelAdapter] implementation to [CompositeWheelAdapter],
- * which holds one sub-adapter per BLE-protocol family (InMotion V2, KingSong,
- * Begode/Gotway, Veteran) and routes by BLE-advertised name on connect.
+ * which holds one sub-adapter per BLE-protocol family (InMotion V2, InMotion
+ * V1, KingSong, Begode/Gotway, Veteran, Ninebot) and routes by BLE-advertised
+ * name on connect.
  */
 @Module
 @InstallIn(SingletonComponent::class)

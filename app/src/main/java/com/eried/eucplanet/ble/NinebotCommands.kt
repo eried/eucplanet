@@ -114,8 +114,8 @@ object NinebotCommands {
 
     /**
      * Get live telemetry (param 0xB0). Z polls; the wheel does not push.
-     * Data byte `0x10` requests "all live fields" — matches the byte the
-     * official app sends, gives the 28-byte payload the parser expects.
+     * Data byte `0x20` requests "all live fields" and produces the 28-byte
+     * payload the parser expects. The official app uses the same byte.
      */
     fun getLiveData(): ByteArray =
         frame(ADDR_APP, ADDR_CONTROLLER, Cmd.GET, Param.LIVE_DATA, byteArrayOf(0x20))

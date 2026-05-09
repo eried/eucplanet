@@ -4,9 +4,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Adapter dispatcher. Holds the four per-family adapters (InMotion V2,
- * KingSong, Begode/Gotway, Veteran) and routes every WheelAdapter call to
- * the one that matches the connected wheel's BLE-advertised name.
+ * Adapter dispatcher. Holds the six per-family adapters (InMotion V2, InMotion
+ * V1, KingSong, Begode/Gotway, Veteran, Ninebot) and routes every WheelAdapter
+ * call to the one that matches the connected wheel's BLE-advertised name.
  *
  * Selection happens on [notifyConnectingTo] — the BLE connection manager
  * already calls this hook before the first packet, so the rest of the
@@ -15,9 +15,7 @@ import javax.inject.Singleton
  *
  * If no name pattern matches we fall back to the InMotion V2 adapter (the
  * verified default). That keeps existing V14 / P6 setups working unchanged
- * — a wheel that isn't a KS / Begode / Veteran name pattern matches the
- * "Adventure-*", "P6-*", or generic "InMotion*" patterns the V2 adapter
- * already understands.
+ * when a wheel name doesn't match any other family pattern.
  */
 @Singleton
 class CompositeWheelAdapter @Inject constructor(
@@ -95,7 +93,7 @@ class CompositeWheelAdapter @Inject constructor(
             // the BLE-name pre-select we only route Veteran when the
             // model name is unambiguous.
             "sherman" in n || "patton" in n || "abrams" in n ||
-                    Regex("\\blynx\\b").containsMatchIn(n) -> veteran
+                    "lynx" in n -> veteran
 
             // Ninebot / Segway-Ninebot. Two protocol families live behind
             // the same brand prefix; the Ninebot adapter resolves Z vs
@@ -125,10 +123,10 @@ class CompositeWheelAdapter @Inject constructor(
 
     /**
      * Decide whether a name belongs to the V1 protocol family. V1 wheels are
-     * V5 / V8 / V10 / L6 / Glide / Lively / "IM<digits>"; V2 wheels (V11 /
-     * V12 / V13 / V14) share the same `V<digits>` shape. We disambiguate by
-     * parsing the digit run after the leading `V` and routing V5 / V8 / V10
-     * (and V10F / V10S etc.) to V1, leaving V11+ on V2.
+     * V3 / V5 / V8 / V10 / L6 / Glide / Lively / R-series / "IM<digits>"; V2
+     * wheels (V11 / V12 / V13 / V14) share the same `V<digits>` shape. We
+     * disambiguate by parsing the digit run after the leading `V` and routing
+     * V3 / V5 / V8 / V10 (with any letter suffix) to V1, leaving V11+ on V2.
      */
     private fun isV1WheelName(n: String): Boolean {
         if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
@@ -143,7 +141,7 @@ class CompositeWheelAdapter @Inject constructor(
             var i = 1
             while (i < stripped.length && stripped[i].isDigit()) i++
             val digits = stripped.substring(1, i).toIntOrNull() ?: return false
-            return digits == 5 || digits == 8 || digits == 10
+            return digits == 3 || digits == 5 || digits == 8 || digits == 10
         }
         return false
     }
