@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtual wheels</string>
-    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline.</string>
+    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -140,7 +140,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">New trips are saved to your folder automatically.</string>
+    <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
     <string name="cloud_retry_now">Synchronize all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
