@@ -1,6 +1,6 @@
 # EUC Planet
 
-An open-source Android companion app for **InMotion electric unicycles**, with a Wear OS companion for Galaxy Watch Ultra and other Wear OS 5+ watches.
+An open-source Android companion app for **electric unicycles**, with a Wear OS companion for Galaxy Watch Ultra and other Wear OS 5+ watches.
 
 Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, does the things I actually want while riding, and doesn't phone home.
 
@@ -8,13 +8,19 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 >
 > | Tier | Wheels | What it means |
 > |---|---|---|
-> | **Verified** | V14 50GB / 50S | Author's daily wheel, all features tested |
-> | **Supported** | InMotion P6 | Telemetry + controls confirmed against labelled real-hardware captures |
-> | **Preliminary** | V12 HS / HT / Pro | Parser exists, not yet author-tested |
-> | **Experimental** | V11, V13, V9 | In the model registry; please file a wheel report if you try them |
-> | Not yet | KingSong, Veteran, Begode | Adapters not built |
+> | **Verified** | InMotion V14 50GB / 50S, P6 | Author's daily wheel + telemetry/controls confirmed against labelled real-hardware captures |
+> | **Preliminary** | InMotion V12 HS / HT / Pro | Parser exists, not yet author-tested |
+> | **Preview** | KingSong S22 / S20 / S19 / S18 / S16 / KS-14/16/18 / F18P / F22P | Telemetry + commands implemented from the public protocol; needs a real-hardware tester |
+> | **Preview** | Begode/Gotway Master / Master Pro / T3 / T4 / RS / RS-HT / EX / EX.N / EX2 / MSP / MSX / Hero / Mten4 / Mten5 / MCM5 | same |
+> | **Preview** | Veteran Sherman / Sherman S / Sherman Max / Patton / Lynx / Abrams | same |
+> | **Preview** | InMotion V1 family: V5 / V8 / V8F / V8S / V10 / V10F / V10S / V10T / V10FT / L6 / Lively / Glide 3 | same |
+> | **Preview** | Ninebot Z6 / Z10, plus legacy One E / E+ / S2 / Mini (read-only) | same; Ninebot Z uses the documented XOR keystream encryption |
+> | **Experimental** | InMotion V11, V13, V9 | In the model registry; please file a wheel report if you try them |
+> | Not yet | Onewheel and other non-EUC vehicles | Different protocol family, out of scope |
 >
-> Want to help add your wheel? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record one labelled riding session and we can usually map it in a single pass.
+> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner — telemetry verification is the fastest path to upgrading the tier.
+>
+> Want to help add a wheel that's not on the list? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record one labelled riding session and we can usually map it in a single pass.
 
 ---
 
@@ -67,7 +73,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 ## Requirements
 
 - Android 10 (API 29) or newer.
-- A supported InMotion wheel (see the support-tier table at the top of this README). The V14 and P6 are the most thoroughly tested today.
+- A supported wheel (see the support-tier table at the top of this README). The V14 and P6 are the most thoroughly tested today; KingSong / Begode / Veteran / InMotion V1 / Ninebot wheels work in preview and need community testing to graduate to "verified".
 - Bluetooth + location permissions (location is required by Android for BLE scanning).
 - Wear OS companion (optional): Wear OS 5 or newer, paired through the Wear OS by Google app.
 
@@ -94,7 +100,7 @@ I got tired of:
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI, so adding a new wheel is mostly: write a new protocol encoder/decoder and a new parser, then wire it into `WheelRepository`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record a single labelled riding session and we can usually map a new InMotion wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` implementation in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes connect-time by the BLE-advertised name. Spec docs for each family live under [`docs/protocols/`](docs/protocols/). To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record a single labelled riding session and we can usually map a new wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
 ## License
 
