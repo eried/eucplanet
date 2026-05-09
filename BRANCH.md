@@ -7,6 +7,10 @@ Ultra). The phone holds the BLE link to the wheel and pushes a compact
 telemetry snapshot to the watch over the Wearable Data Layer; the watch is a
 thin client and never talks to the wheel directly.
 
+This branch is built on top of `main` (V14 + V12 + P6 multi-wheel support
+verified through 0.3.1), so the watch dashboard inherits the corrected P6
+telemetry offsets (PWM, torque, MOS+motor temps, signed reverse speed).
+
 Concretely shipped here:
 
 - **Full-bleed speed dial** that wraps the entire watch face. Same arc
@@ -33,6 +37,9 @@ Concretely shipped here:
 - **Resolution-clean.** All sizes derive from `BoxWithConstraints.maxWidth`
   so the layout looks right on small round watches (~390 dp) and on Watch
   Ultra (~454 dp) without separate code paths.
+- **Auto-start ping** on phone-app open and a manual "Play" button next to
+  the Auto-start setting so users can verify pairing without backgrounding
+  and relaunching the phone app.
 
 ## Architecture
 

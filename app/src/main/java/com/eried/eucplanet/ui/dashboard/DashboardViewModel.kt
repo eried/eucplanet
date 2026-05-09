@@ -51,6 +51,7 @@ class DashboardViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
     private val syncManager: SyncManager,
+    val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -268,6 +269,7 @@ class DashboardViewModel @Inject constructor(
             val intent = Intent(context, WheelService::class.java).apply {
                 action = WheelService.ACTION_CONNECT
                 putExtra(WheelService.EXTRA_ADDRESS, address)
+                putExtra(WheelService.EXTRA_NAME, settings.lastDeviceName)
             }
             context.startForegroundService(intent)
         }

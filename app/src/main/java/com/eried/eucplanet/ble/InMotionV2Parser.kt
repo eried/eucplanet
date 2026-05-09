@@ -132,16 +132,9 @@ object InMotionV2Parser {
         val series = data[1].toInt() and 0xFF
         val type = data[2].toInt() and 0xFF
         val modelId = series * 10 + type
-        val modelName = when (modelId) {
-            91 -> "V14 50GB"
-            92 -> "V14 50S"
-            81 -> "V13"
-            72 -> "V12 HT"
-            71 -> "V12 HS"
-            61 -> "V11"
-            else -> "InMotion ($modelId)"
-        }
-        return CarInfo(series = series, type = type, modelId = modelId, modelName = modelName)
+        val model = InMotionV2Model.fromId(modelId)
+        val modelName = model?.displayName ?: "InMotion ($modelId)"
+        return CarInfo(series = series, type = type, modelId = modelId, modelName = modelName, model = model)
     }
 
     /**
@@ -185,6 +178,150 @@ object InMotionV2Parser {
     }
 
     /**
+     * Parse P6 realtime telemetry from the data block of a `21 02 87 01 00 …`
+     * response. The data passed in here is the part *after* the `21 02 87 01 00`
+     * routing prefix — exactly the bytes the wheel reports for each sample.
+     *
+     * What we trust today: voltage and current at offsets 0/2 match the InMotion
+     * app's reported values across all captures (Voltage 230 V, Current ≈ 0 A
+     * while parked). Battery percent is derived linearly from voltage on the
+     * 56s pack curve (3.0–4.2 V per cell → 165–235 V end-to-end), which is
+     * rough but lets the dashboard ring fill in.
+     *
+     * Everything else (speed, PWM, temperatures, trip distance, etc.) sits at
+     * different offsets than V14 and we don't have labelled riding captures yet.
+     * Those fields stay at defaults — the dashboard reads blank for them, which
+     * is honest about what we can't yet decode.
+     */
+    fun parseP6Telemetry(data: ByteArray): WheelData? {
+        if (data.size < 4) return null
+        val voltage = ByteUtils.getUint16LE(data, 0) / 100f
+        val current = ByteUtils.getInt16LE(data, 2) / 100f
+
+        // Speed at offset 8-9: int16 LE in 0.01 km/h. Forward riding lands
+        // in the positive range (2650 = 26.50 km/h = 16.5 mph at the labelled
+        // "16 mph" frame), and reverse riding produces small negative values
+        // (-50 .. -100 hundredths-km/h, i.e. ~0.5 km/h backward) — confirmed
+        // by walking the realtime stream through the user's reverse window.
+        // The previous unsigned read silently underflowed those reverse
+        // frames into ~655 km/h forward, breaking the dashboard.
+        val speed = if (data.size >= 10) ByteUtils.getInt16LE(data, 8) / 100f else 0f
+
+        // PWM at offset 14-15: int16 LE in 0.01%. Verified against the
+        // FINAL video labels at v1:35 = 1.75% (off 14 reads 175) and
+        // v1:07 = 1.70-1.78% (reads 176). Earlier calibration had this
+        // at offset 12-13 because the unsigned magnitude there happened
+        // to look PWM-shaped, but the labelled idle frame proved 12-13
+        // is torque, not PWM.
+        val pwm = if (data.size >= 16) ByteUtils.getInt16LE(data, 14) / 100f else 0f
+
+        // Torque at offset 12-13: int16 LE in 0.01 Nm (signed). Verified
+        // against v1:50 idle label of 4.59-5.05 Nm — frame reads 505 there.
+        // Goes negative on reverse motion (v2:02 reverse: -6.97 Nm), goes
+        // strongly positive when transitioning out of reverse (v2:16: +12.33).
+        // Earlier guess at 18-19 was zero across all idle frames.
+        val torque = if (data.size >= 14) ByteUtils.getInt16LE(data, 12) / 100f else 0f
+
+        // Real per-pack battery percent at offsets 20-23 of the data block
+        // (98.94 / 96.90 in the real-P6 capture, matched the on-screen 98%).
+        // Falls back to a voltage estimate while frames are still partial.
+        val battery1 = if (data.size >= 22) ByteUtils.getUint16LE(data, 20) / 100f else 0f
+        val battery2 = if (data.size >= 24) ByteUtils.getUint16LE(data, 22) / 100f else 0f
+        val batteryPercent = if (battery1 > 0f || battery2 > 0f) {
+            ((battery1 + battery2) / 2f).toInt().coerceIn(0, 100)
+        } else {
+            ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
+        }
+
+        // Total mileage as uint32 LE at offset 58, in 0.01 km units.
+        // Confirmed across three labelled riding moments (1776.8 / 1776.9 /
+        // 1777.0 mi displayed by the InMotion app, 285958 / 285970 / 285990
+        // in the bytes — within rounding of the displayed value).
+        val tripDistanceKm = if (data.size >= 62) {
+            ByteUtils.getUint32LE(data, 58) / 100f
+        } else 0f
+
+        // Per-sensor temperatures: byte / 4 = degrees Celsius.
+        // - Off 28: MOS temperature. Verified at v1:23 = 27.75 C ≈ 82 F label.
+        // - Off 30: motor temperature. Verified at v1:23 = 51.00 C ≈ 124 F label.
+        // Driver-board temp would land near 32-33 C (= 91 F label) but no
+        // single-byte offset in the labelled frame fits cleanly — leaving
+        // it un-parsed until a longer labelled capture lets us nail it.
+        val mosTempC = if (data.size > 28) data[28].toInt() and 0xFF else 0
+        val motorTempC = if (data.size > 30) data[30].toInt() and 0xFF else 0
+        val temps = mutableListOf<Float>()
+        if (mosTempC > 0) temps.add(mosTempC / 4f)
+        if (motorTempC > 0) temps.add(motorTempC / 4f)
+
+        // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
+        // (rider on, motor under load), 0x00 when lifted off / park-mode,
+        // 0xfd/0xfe before the auth handshake. The previous reading at
+        // offset 68 looked right against a small subset of frames but
+        // misfires under riding — byte 68 stays 0x0f across both parked
+        // and 60 km/h cruise. Offset 80 tracks the labelled park/sport
+        // toggle window cleanly.
+        val pcMode = if (data.size > 80 && (data[80].toInt() and 0xFF) == 0x49) 1 else 0
+
+        return WheelData(
+            speed = speed,
+            voltage = voltage,
+            current = current,
+            pwm = pwm,
+            torque = torque,
+            pcMode = pcMode,
+            batteryPercent = batteryPercent,
+            battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
+            battery2Percent = battery2.takeIf { it > 0f } ?: batteryPercent.toFloat(),
+            tripDistance = tripDistanceKm,
+            temperatures = temps,
+            maxTemperature = temps.maxOrNull() ?: 0f,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Parse the P6 settings response (sub 0x20 with arg 0x20). Layout
+     * confirmed against a labelled InMotion-app capture (see
+     * docs/P6_CAPTURE_LABELS.md). The 51-byte body, after stripping the
+     * leading 0x20 sub-cmd echo:
+     *
+     *   d[8..9]   tiltback set speed     uint16 LE / 100 = km/h
+     *   d[10..11] speed limit alarm      uint16 LE / 100 = km/h
+     *   d[14..15] PWM tilt-back limit    uint16 LE / 100 = %
+     *   d[16..17] PWM level 1 alarm      uint16 LE / 100 = %
+     *   d[18..19] PWM level 2 alarm      uint16 LE / 100 = %
+     *
+     * Earlier builds read tiltback at d[12..13] which only worked when
+     * the user's tiltback equalled their alarm (the value at d[8..9]
+     * happened to look like a "mirror" of d[10..11] in that test set).
+     */
+    fun parseP6Settings(data: ByteArray): WheelSettings? {
+        if (data.size < 21) return null
+        // First byte echoes the sub-cmd (0x20). Skip it.
+        val d = if (data[0] == 0x20.toByte()) data.copyOfRange(1, data.size) else data
+        if (d.size < 20) return null
+        val tiltback = ByteUtils.getUint16LE(d, 8) / 100f
+        val alarm = ByteUtils.getUint16LE(d, 10) / 100f
+        return WheelSettings(
+            maxSpeedKmh = tiltback,
+            alarmSpeedKmh = alarm
+        )
+    }
+
+    /**
+     * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
+     * bundle response. Returns null if the layout doesn't match what we've seen.
+     */
+    fun parseP6Serial(data: ByteArray): String? {
+        if (data.size < 17 || data[0] != 0x01.toByte()) return null
+        val serialBytes = data.copyOfRange(1, 17)
+        // Trim trailing nulls and spaces so we don't render junk in the UI.
+        return String(serialBytes, Charsets.US_ASCII)
+            .trimEnd { it == ' ' || it.code == 0 }
+            .ifBlank { null }
+    }
+
+    /**
      * Parse TotalStats response (command 0x11).
      */
     fun parseTotalStats(data: ByteArray): TotalStats? {
@@ -201,7 +338,9 @@ data class CarInfo(
     val series: Int,
     val type: Int,
     val modelId: Int,
-    val modelName: String
+    val modelName: String,
+    /** Resolved model from the WheelLog registry, or null if the wheel reports an unknown ID. */
+    val model: InMotionV2Model? = null
 )
 
 data class FirmwareInfo(

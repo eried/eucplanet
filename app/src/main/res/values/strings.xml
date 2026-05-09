@@ -40,6 +40,16 @@
     <string name="recording_location_permission_needed">Location needed</string>
     <string name="recording_location_permission_body">Trip recording saves GPS points so you can see your route on a map. Grant location access to continue</string>
 
+    <!-- Experimental banner -->
+    <string name="experimental_banner">Preliminary supported wheel. Tap to report issues.</string>
+    <string name="experimental_dialog_title">Help improve EUC Planet</string>
+    <string name="experimental_dialog_body">The support for this wheel is not tested by the author (the author only has a V14). Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
+    <string name="experimental_dialog_report">Report an issue</string>
+
+    <!-- Scan: virtual wheel section (debug builds only) -->
+    <string name="scan_simulate_title">Virtual wheels</string>
+    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline.</string>
+
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
     <string name="connection_connecting">Searching\u2026</string>
@@ -336,6 +346,8 @@
     <string name="scan_title">Connect to wheel</string>
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
+    <string name="scan_show_all_title">Show all devices</string>
+    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
