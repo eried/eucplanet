@@ -232,20 +232,27 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Park vs Drive: offset 68 holds 0x0f whenever the wheel is
-        // stationary (regardless of selected ride mode), and a different
-        // value (seen 0x95 / 0x96 / 0xfe) when the wheel is actively
-        // engaged in S/Comfort. Matches the V14's pcMode role: 0 = park,
-        // anything else = drive engaged. Distinguishing Sport vs Comfort
-        // sub-states would need a separate labelled capture; for now this
-        // gives the dashboard P-vs-D parity with V14.
-        val pcMode = if (data.size > 68 && (data[68].toInt() and 0xFF) != 0x0F) 1 else 0
+        // Torque at offset 18-19, int16 LE / 100 = Nm. Sign-aligned with
+        // current: zero when parked, +51.7 Nm at the 31 A acceleration
+        // peak, -48.3 Nm during the labelled regen brake. Linear with
+        // current magnitude across the labelled riding window.
+        val torque = if (data.size >= 20) ByteUtils.getInt16LE(data, 18) / 100f else 0f
+
+        // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
+        // (rider on, motor under load), 0x00 when lifted off / park-mode,
+        // 0xfd/0xfe before the auth handshake. The previous reading at
+        // offset 68 looked right against a small subset of frames but
+        // misfires under riding — byte 68 stays 0x0f across both parked
+        // and 60 km/h cruise. Offset 80 tracks the labelled park/sport
+        // toggle window cleanly.
+        val pcMode = if (data.size > 80 && (data[80].toInt() and 0xFF) == 0x49) 1 else 0
 
         return WheelData(
             speed = speed,
             voltage = voltage,
             current = current,
             pwm = pwm,
+            torque = torque,
             pcMode = pcMode,
             batteryPercent = batteryPercent,
             battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
