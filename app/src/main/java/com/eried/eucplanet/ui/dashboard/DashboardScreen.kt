@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -91,6 +93,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -102,6 +105,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -398,6 +402,10 @@ fun DashboardScreen(
             val gaugeMax = ((effectiveTiltback / 10f).toInt() + 1) * 10f
             val pwm = wheelData.pwm.absoluteValue
 
+            // Foldables / tablets: cap the speedo and use a 3-column stat grid so
+            // the whole dashboard fits without the footer falling off-screen.
+            val wideStats = LocalConfiguration.current.screenWidthDp >= 600
+
             // Speed gauge — wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
@@ -416,8 +424,9 @@ fun DashboardScreen(
                     // arc (overrideColor above) still wears the accent.
                     safeBandColor = AccentGreen,
                     modifier = Modifier
-                        .fillMaxWidth(0.75f)
-                        .aspectRatio(1.25f)
+                        .fillMaxWidth(if (wideStats) 0.55f else 0.85f)
+                        .widthIn(max = if (wideStats) 360.dp else Dp.Unspecified)
+                        .aspectRatio(if (wideStats) 1.25f else 1.05f)
                         .align(Alignment.TopCenter)
                         .clickable { onNavigateToMetric("SPEED") }
                 )
@@ -474,42 +483,39 @@ fun DashboardScreen(
 
             val placeholder = "—"
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
+            val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+            val showWatts = currentMode == "WATTS"
+            val ampsLabel = stringResource(R.string.stat_amps)
+            val wattsLabel = stringResource(R.string.stat_watts)
+            val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
+            val currentText = when {
+                !live -> placeholder
+                showWatts -> "%.0fW".format(currentValue)
+                else -> "%.1fA".format(currentValue)
+            }
+            val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
+            val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+
+            val batteryCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_battery),
                     if (live) "${wheelData.batteryPercent}%" else placeholder,
                     battColor, history.battery, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("BATTERY") })
-                val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
-                val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+            }
+            val tempCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_temp),
                     if (live) "%.0f%s".format(tempValue, tempUnit) else placeholder,
                     tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val voltageCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_voltage),
                     if (live) "%.1fV".format(wheelData.voltage) else placeholder,
                     primary, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
-
-                val showWatts = currentMode == "WATTS"
-                val ampsLabel = stringResource(R.string.stat_amps)
-                val wattsLabel = stringResource(R.string.stat_watts)
-                val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
-                val currentText = when {
-                    !live -> placeholder
-                    showWatts -> "%.0fW".format(currentValue)
-                    else -> "%.1fA".format(currentValue)
-                }
+            }
+            val currentCard: @Composable RowScope.() -> Unit = {
                 StatCard(
                     if (showWatts) wattsLabel else ampsLabel,
                     currentText,
@@ -520,19 +526,13 @@ fun DashboardScreen(
                     onLongClick = { viewModel.toggleCurrentDisplayMode() }
                 )
             }
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val loadCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_load),
                     if (live) "%.0f%%".format(pwm) else placeholder,
                     loadColor, history.load, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("LOAD") })
-                val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
-                val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+            }
+            val tripCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_trip),
                     if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
                     primary, emptyList(), Modifier.weight(1f),
@@ -543,9 +543,51 @@ fun DashboardScreen(
                     })
             }
 
+            // Foldables / tablets: 3 columns × 2 rows. Phones: 2 columns × 3 rows.
+            if (wideStats) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    batteryCard(); tempCard(); voltageCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    currentCard(); loadCard(); tripCard()
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    batteryCard(); tempCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    voltageCard(); currentCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    loadCard(); tripCard()
+                }
+            }
+
             Spacer(Modifier.height(14.dp))
 
-            // Action buttons — pill-shaped, 2 rows of 3
+            // Action buttons — fixed height on both phone and wide layouts so the
+            // bottom rows always fit even with the taller speedometer and stat cards.
+            val actionAspect: Float? = null
+            val actionHeight: Int? = if (wideStats) 88 else 104
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -553,7 +595,8 @@ fun DashboardScreen(
                 ActionButton(Icons.Default.Campaign, stringResource(R.string.action_horn),
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onHornPress() },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f),
+                    aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.FlashlightOn,
@@ -561,6 +604,7 @@ fun DashboardScreen(
                     active = wheelData.lightOn,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLightToggle() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.menu_auto_lights)) },
@@ -574,6 +618,7 @@ fun DashboardScreen(
                     icon = Icons.Default.RecordVoiceOver,
                     label = stringResource(R.string.action_voice),
                     onClick = { viewModel.onVoiceAnnounce() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.tab_voice)) },
@@ -613,6 +658,7 @@ fun DashboardScreen(
                     activeColor = if (useAccent) primary else AccentOrange,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onSafetySpeedToggle() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.section_legal_mode_speed)) },
@@ -626,7 +672,8 @@ fun DashboardScreen(
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onLockToggle() },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f),
+                    aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.FiberManualRecord,
@@ -635,6 +682,7 @@ fun DashboardScreen(
                     active = recording,
                     activeColor = if (useAccent) primary else AccentRed,
                     onClick = { onNavigateToRecording() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         val targetTripId = currentTripId ?: latestTripId
                         DropdownMenuItem(
@@ -1093,9 +1141,11 @@ private fun StatCard(
     }
     Box(
         modifier = modifier
+            .heightIn(min = 61.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(clickModifier)
+            .then(clickModifier),
+        contentAlignment = Alignment.Center
     ) {
         // Sparkline background
         if (sparkData.size >= 2) {
@@ -1129,7 +1179,7 @@ private fun StatCard(
             }
         }
 
-        // Text content on top
+        // Text content centered
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1262,7 +1312,9 @@ private fun ActionButton(
     activeColor: Color = AccentBlue,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    aspectRatio: Float? = 1f,
+    heightDp: Int? = null
 ) {
     val disabledAlpha = 0.35f
     val container = when {
@@ -1277,7 +1329,8 @@ private fun ActionButton(
     }
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .let { if (aspectRatio != null) it.aspectRatio(aspectRatio) else it }
+            .let { if (heightDp != null) it.height(heightDp.dp) else it }
             .clip(RoundedCornerShape(12.dp))
             .background(container)
             .combinedClickable(
@@ -1308,7 +1361,9 @@ private fun ActionTile(
     menu: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
     active: Boolean = false,
     activeColor: Color = AccentBlue,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    aspectRatio: Float? = 1f,
+    heightDp: Int? = null
 ) {
     Box(modifier = modifier) {
         var menuOpen by remember { mutableStateOf(false) }
@@ -1320,7 +1375,9 @@ private fun ActionTile(
             enabled = enabled,
             onClick = onClick,
             onLongClick = { menuOpen = true },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            aspectRatio = aspectRatio,
+            heightDp = heightDp
         )
         DropdownMenu(
             expanded = menuOpen,
