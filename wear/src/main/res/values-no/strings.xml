@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Åpne EUC Planet\npå telefonen</string>
+    <string name="watch_waiting_wheel">Koble til et hjul\ni EUC Planet</string>
+    <string name="watch_disconnected">Frakoblet</string>
+    <string name="watch_horn">Horn</string>
+    <string name="watch_light">Lys</string>
+    <string name="watch_speed_unit">km/t</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Batteri</string>
+    <string name="watch_voltage_label">Spenning</string>
+    <string name="watch_current_label">Strøm</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Effekt</string>
+    <string name="watch_temp_label">Temp</string>
+    <string name="watch_trip_label">Tur</string>
+    <string name="watch_torque_label">Moment</string>
+    <string name="watch_action_failed">Når ikke telefonen</string>
+    <string name="watch_gps_label">GPS-fart</string>
+    <string name="watch_gps_permission">Trykk for å tillate GPS</string>
+    <string name="watch_gps_waiting">Venter på fix…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">Horn</string>
+    <string name="watch_action_light">Lys</string>
+    <string name="watch_action_lock">Lås hjul</string>
+    <string name="watch_action_safety">Lovlig modus</string>
+    <string name="watch_action_safety_on">Lovlig modus på</string>
+    <string name="watch_action_safety_off">Lovlig modus av</string>
+    <string name="watch_action_voice">Stemmerapport</string>
+    <string name="watch_action_record">Opptak</string>
+    <string name="watch_action_record_start">Opptak startet</string>
+    <string name="watch_action_record_stop">Opptak stoppet</string>
+    <string name="watch_action_media_play">Spill / pause</string>
+    <string name="watch_action_media_next">Neste låt</string>
+    <string name="watch_action_media_prev">Forrige låt</string>
+    <string name="watch_action_long_press_hint">Hold inne for %1$s</string>
+</resources>

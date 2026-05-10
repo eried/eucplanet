@@ -35,4 +35,5 @@
     <string name="watch_action_media_play">Play / pause</string>
     <string name="watch_action_media_next">Next track</string>
     <string name="watch_action_media_prev">Previous track</string>
+    <string name="watch_action_long_press_hint">Long press for %1$s</string>
 </resources>

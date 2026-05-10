@@ -521,7 +521,19 @@ private fun ConfigurableActionButton(
                 indication = null,
                 enabled = live,
                 onClick = {
-                    fireAction(context, state, clickAction, showToast = false)
+                    if (clickAction == "NONE" && holdAction != "NONE") {
+                        // Tap on a hold-only button: hint the user that the
+                        // bound action needs a long press, instead of doing
+                        // nothing (which looks broken).
+                        val label = labelForAction(context, holdAction) ?: holdAction
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.watch_action_long_press_hint, label),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        fireAction(context, state, clickAction, showToast = false)
+                    }
                 },
                 onLongClick = if (holdAction != "NONE") {
                     {
