@@ -18,8 +18,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -134,6 +137,21 @@ class WheelRepository @Inject constructor(
     // True only for the first 0x20 settings packet after each (re)connect.
     // Used to reconcile stored speed limits with the wheel's actual values.
     @Volatile private var reconcileNextSettings = false
+
+    /** Wall-clock of the most recent app-side speed write. Used to ignore
+     *  the wheel's echo (which arrives in the next settings packet ~1-2 s
+     *  later) when deciding whether a wheel-reported change came from the
+     *  user pressing buttons on the wheel's own screen. */
+    @Volatile private var lastSetSpeedAtMs = 0L
+    private val WHEEL_SCREEN_DEBOUNCE_MS = 3000L
+
+    /** Transient one-shot event for the UI: wheel-side change auto-applied
+     *  to the user's stored settings. Consumed by the dashboard / settings
+     *  screen to surface a toast/snackbar so the change isn't silent. */
+    private val _externalSpeedChange = MutableSharedFlow<ExternalSpeedChange>(
+        replay = 0, extraBufferCapacity = 4
+    )
+    val externalSpeedChange: SharedFlow<ExternalSpeedChange> = _externalSpeedChange.asSharedFlow()
 
     /**
      * Tiltback the app most recently asked the wheel to set, in km/h. Used to
@@ -311,6 +329,9 @@ class WheelRepository @Inject constructor(
         // 85) would echo back 80 — and if 80 happened to equal stored Legal
         // tiltback, the readback-based detector would lock the toggle on.
         lastSentTiltbackKmh = tiltbackKmh
+        // Timestamp the write so the auto-sync handler doesn't mistake the
+        // wheel's echo of our own write for an external change.
+        lastSetSpeedAtMs = System.currentTimeMillis()
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
         // P6 needs two flash-commit packets after the live drag write — one
         // for the tiltback, one for the alarm threshold. V14 returns null
@@ -589,9 +610,71 @@ class WheelRepository @Inject constructor(
                     if (isSafety != wasSafety && appSettings.announceSafetyMode) {
                         voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
                     }
+
+                    // Auto-sync wheel-side changes (P6/V12 let the user adjust
+                    // tiltback / alarm directly on the wheel's own screen). Wait
+                    // out the debounce so we don't mistake the wheel's echo of
+                    // our own write for an external change. Only trust upward
+                    // moves (or moves above stored Legal) to avoid silently
+                    // adopting a firmware-clamped value as the user's preferred
+                    // ceiling.
+                    val sinceWrite = System.currentTimeMillis() - lastSetSpeedAtMs
+                    if (sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
+                        val activeTilt = if (isSafety) appSettings.safetyTiltbackKmh
+                                         else appSettings.tiltbackSpeedKmh
+                        val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh
+                                          else appSettings.alarmSpeedKmh
+                        val tiltDiff = ws.maxSpeedKmh - activeTilt
+                        val alarmDiff = ws.alarmSpeedKmh - activeAlarm
+                        // Threshold: 1 km/h. Wider than the 0.5 reconcile
+                        // tolerance so floating-point noise on the round-trip
+                        // doesn't trigger a sync. Direction gate: only adopt
+                        // upward moves; downward could be a clamp.
+                        val tiltUp = tiltDiff > 1f
+                        val alarmUp = alarmDiff > 1f
+                        if (tiltUp || alarmUp) {
+                            val newTilt = if (tiltUp) ws.maxSpeedKmh else activeTilt
+                            val newAlarm = if (alarmUp) ws.alarmSpeedKmh else activeAlarm
+                            val updated = if (isSafety) appSettings.copy(
+                                safetyTiltbackKmh = newTilt,
+                                safetyAlarmKmh = newAlarm
+                            ) else appSettings.copy(
+                                tiltbackSpeedKmh = newTilt,
+                                alarmSpeedKmh = newAlarm
+                            )
+                            settingsRepository.update(updated)
+                            _externalSpeedChange.tryEmit(
+                                ExternalSpeedChange(newTilt, newAlarm, isSafety)
+                            )
+                            // Surface a system Toast so the silent adoption is
+                            // visible no matter which screen the user is on.
+                            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                val unitMsg = context.getString(
+                                    R.string.toast_external_speed_change,
+                                    newTilt.toInt(), newAlarm.toInt()
+                                )
+                                android.widget.Toast.makeText(
+                                    context, unitMsg, android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                                "Wheel-side speed change adopted: tiltback=$newTilt alarm=$newAlarm legal=$isSafety"
+                            )
+                            Log.i(TAG, "External speed change adopted: tilt=$newTilt alarm=$newAlarm legal=$isSafety")
+                        }
+                    }
                 }
             }
             DecodeResult.Unknown -> { /* skip */ }
         }
     }
 }
+
+/** Emitted whenever the wheel reports a tiltback / alarm value the user
+ *  applied directly on the wheel's own screen (no app-side write). The UI
+ *  shows a transient toast/snackbar so the silent adoption is visible. */
+data class ExternalSpeedChange(
+    val tiltbackKmh: Float,
+    val alarmKmh: Float,
+    val legalMode: Boolean
+)

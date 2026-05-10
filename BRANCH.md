@@ -1,4 +1,29 @@
-# p6-fixes (v0.3.2-p6preview6)
+# p6-fixes (v0.3.2-p6preview7)
+
+## Auto-sync wheel-side speed changes (preview7)
+
+P6 and V12 firmware lets the user adjust tiltback / alarm directly on
+the wheel's own screen. Up to now the app didn't know — the slider
+kept showing the stored value while the wheel quietly used a different
+one until the next reconnect.
+
+The settings handler now watches subsequent `0x20` packets after the
+initial reconcile. If the wheel-reported tiltback or alarm exceeds
+the stored value by more than 1 km/h, **and** at least 3 s have
+elapsed since the last app-side write (the debounce that hides the
+wheel's echo of our own writes), the change is adopted into the
+stored settings — both Legal-mode and normal-mode are tracked
+independently. The user gets a one-shot Toast: "Speed updated from
+wheel: 79 km/h tiltback, 85 km/h alarm".
+
+Direction gate: only **upward** moves are auto-adopted, since a
+downward move could be a firmware clamp echo (V14 family caps a
+just-sent 85 km/h to 80 and reports 80 back). For genuine downward
+moves on the wheel, the user can still drag the slider down once.
+
+The change is also written to the diagnostics log so a Service Mode
+capture preserves the "wheel side touched" event.
+
 
 ## Service Mode (preview6)
 
