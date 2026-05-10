@@ -369,7 +369,7 @@
     <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
     <string name="about_thanks">致谢</string>
-    <string name="about_thanks_body">我厌倦了那些更新缓慢、界面陈旧、对新功能管控严苛、把社区当客户、忘记了 EUC 骑友互相帮助才最棒的应用。这一款想做相反的事。\n\n感谢:\n• Gio (Wheel In Motion)。宣传、建议以及 P6 测试。头皮缝合过,热情依旧。\n• Ilya Shkolnik 与 WheelLog 社区。公开的协议研究,KingSong、Begode 与 Veteran 适配器都从中受益。\n• InMotion。感谢做出了我心爱的 V14。</string>
+    <string name="about_thanks_body">我厌倦了那些更新缓慢、界面陈旧、对新功能管控严苛、把社区当客户、忘记了 EUC 骑友互相帮助才最棒的应用。这一款想做相反的事。</string>
     <string name="action_reorder">拖动以重新排序</string>
     <string name="alarm_delete_body">%1$s 将被移除,此操作无法撤销。</string>
     <string name="alarm_delete_title">删除此报警?</string>

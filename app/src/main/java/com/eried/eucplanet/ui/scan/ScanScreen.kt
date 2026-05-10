@@ -219,6 +219,12 @@ fun ScanScreen(
 
             Spacer(Modifier.height(16.dp))
 
+            // Hoisted out of the LazyColumn so the @Composable collectAsState
+            // call sits in a real composable scope. Used to gate the
+            // virtual-wheel picker below.
+            val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
+            val showVirtualPicker = BuildConfig.DEBUG || diagEnabled
+
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(devices) { device ->
                     Card(
@@ -269,7 +275,9 @@ fun ScanScreen(
                 // when no real hardware is around — bypasses BLE, exercises the rest
                 // of the stack (parser, repo, UI, alarms, recording). Collapsed by
                 // default so the scan screen stays focused on real wheels.
-                if (BuildConfig.DEBUG) {
+                // Show virtual-wheel picker in debug builds always, AND in
+                // any build when the user has Service Mode active.
+                if (showVirtualPicker) {
                     item {
                         Spacer(Modifier.height(16.dp))
                         Card(

@@ -200,7 +200,6 @@ fun WheelDiagnosticsDialog(
 
     if (stopConfirm) {
         AlertDialog(
-            shape = RoundedCornerShape(0.dp),
             onDismissRequest = { stopConfirm = false },
             title = { Text("Exit Service Mode") },
             text = {
@@ -354,7 +353,6 @@ private fun AttachDataDialog(
         }
     }
     AlertDialog(
-        shape = RoundedCornerShape(0.dp),
         onDismissRequest = onDismiss,
         title = { Text("Attach data to log") },
         text = {

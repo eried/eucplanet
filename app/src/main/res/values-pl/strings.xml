@@ -460,7 +460,7 @@
     <string name="about_crash_logs_empty">Brak zarejestrowanych awarii</string>
     <string name="about_share_crash">Udostępnij log awarii</string>
     <string name="about_thanks">Podziękowania</string>
-    <string name="about_thanks_body">Zmęczyły mnie aplikacje do EUC, które rozwijają się zbyt wolno, wyglądają archaicznie, mają drakońskie zasady wokół nowych funkcji, traktują swoje społeczności jak klientów i zapominają, że riderzy EUC są najlepsi, gdy sobie nawzajem pomagają. Ta próbuje być przeciwieństwem.\n\nPodziękowania dla:\n• Gio (Wheel In Motion). Promocja, sugestie i testy P6. Pozszywany skalp, nienaruszony entuzjazm.\n• Ilya Shkolnik i społeczność WheelLog. Publiczne badania protokołów, na których bazują adaptery KingSong, Begode i Veteran.\n• InMotion. Za zrobienie mojego niesamowitego V14.</string>
+    <string name="about_thanks_body">Zmęczyły mnie aplikacje do EUC, które rozwijają się zbyt wolno, wyglądają archaicznie, mają drakońskie zasady wokół nowych funkcji, traktują swoje społeczności jak klientów i zapominają, że riderzy EUC są najlepsi, gdy sobie nawzajem pomagają. Ta próbuje być przeciwieństwem.</string>
     <string name="toast_external_speed_change">Prędkość zaktualizowana z koła: tiltback %1$d km/h, alarm %2$d km/h</string>
     <string name="flic_action_record_start">Rozpocznij nagrywanie trasy</string>
     <string name="flic_action_record_stop">Zatrzymaj nagrywanie trasy</string>

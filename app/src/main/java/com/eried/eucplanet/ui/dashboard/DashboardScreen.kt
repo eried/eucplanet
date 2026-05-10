@@ -1003,6 +1003,45 @@ fun DashboardScreen(
                                                     style = MaterialTheme.typography.bodySmall,
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
+                                                Spacer(Modifier.height(12.dp))
+                                                Text(
+                                                    "Thanks to:",
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Spacer(Modifier.height(4.dp))
+                                                // Credits table. Two columns — name on the left,
+                                                // why on the right — no headers since the format
+                                                // is self-evident. Hardcoded English because the
+                                                // entries are proper nouns + short context.
+                                                val credits = listOf(
+                                                    "Gio (Wheel In Motion)" to "Promotion, suggestions and P6 testing. Stitched scalp, intact enthusiasm.",
+                                                    "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
+                                                    "InMotion" to "For making my awesome V14."
+                                                )
+                                                credits.forEach { (name, why) ->
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(vertical = 3.dp)
+                                                    ) {
+                                                        Text(
+                                                            name,
+                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                                fontWeight = FontWeight.SemiBold
+                                                            ),
+                                                            modifier = Modifier.weight(0.42f),
+                                                            color = MaterialTheme.colorScheme.onSurface
+                                                        )
+                                                        Spacer(Modifier.width(8.dp))
+                                                        Text(
+                                                            why,
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            modifier = Modifier.weight(0.58f),
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }
                                     }

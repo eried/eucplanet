@@ -369,7 +369,7 @@
     <string name="about_crash_logs_empty">Ingen nedbrud registreret</string>
     <string name="about_share_crash">Del nedbrudslog</string>
     <string name="about_thanks">Tak til</string>
-    <string name="about_thanks_body">Jeg blev træt af EUC-apps, der udvikler sig for langsomt, ser forældede ud, har strenge regler omkring nye funktioner, behandler deres fællesskaber som kunder og glemmer, at EUC-ryttere er bedst, når de hjælper hinanden. Denne her forsøger at være det modsatte.\n\nTak til:\n• Gio (Wheel In Motion). Promovering, forslag og P6-test. Syet hovedbund, intakt entusiasme.\n• Ilya Shkolnik og WheelLog-fællesskabet, offentlig protokolforskning, som KingSong-, Begode- og Veteran-adapterne bygger på.\n• InMotion, for at lave min fede V14.</string>
+    <string name="about_thanks_body">Jeg blev træt af EUC-apps, der udvikler sig for langsomt, ser forældede ud, har strenge regler omkring nye funktioner, behandler deres fællesskaber som kunder og glemmer, at EUC-ryttere er bedst, når de hjælper hinanden. Denne her forsøger at være det modsatte.</string>
     <string name="action_reorder">Træk for at ændre rækkefølge</string>
     <string name="alarm_delete_body">%1$s fjernes. Dette kan ikke fortrydes.</string>
     <string name="alarm_delete_title">Slet denne alarm?</string>

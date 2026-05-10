@@ -369,7 +369,7 @@
     <string name="about_crash_logs_empty">Aucun plantage enregistré</string>
     <string name="about_share_crash">Partager le journal</string>
     <string name="about_thanks">Remerciements</string>
-    <string name="about_thanks_body">J\'en avais marre des applis EUC qui évoluent trop lentement, ont l\'air datées, imposent des règles draconiennes pour les nouvelles fonctionnalités, traitent leur communauté comme des clients, et oublient que les riders d\'EUC sont à leur meilleur quand ils s\'entraident. Celle-ci essaie d\'être l\'inverse.\n\nMerci à :\n• Gio (Wheel In Motion). Promotion, suggestions et tests P6. Cuir chevelu recousu, enthousiasme intact.\n• Ilya Shkolnik et la communauté WheelLog. Recherches publiques sur le protocole dont s\'inspirent les adaptateurs KingSong, Begode et Veteran.\n• InMotion, pour avoir conçu mon génial V14.</string>
+    <string name="about_thanks_body">J\'en avais marre des applis EUC qui évoluent trop lentement, ont l\'air datées, imposent des règles draconiennes pour les nouvelles fonctionnalités, traitent leur communauté comme des clients, et oublient que les riders d\'EUC sont à leur meilleur quand ils s\'entraident. Celle-ci essaie d\'être l\'inverse.</string>
     <string name="action_reorder">Glisser pour réorganiser</string>
     <string name="alarm_delete_body">%1$s sera supprimée. Action irréversible.</string>
     <string name="alarm_delete_title">Supprimer cette alarme ?</string>

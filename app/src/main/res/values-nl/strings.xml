@@ -460,7 +460,7 @@
     <string name="about_crash_logs_empty">Geen crashes geregistreerd</string>
     <string name="about_share_crash">Crashlog delen</string>
     <string name="about_thanks">Met dank aan</string>
-    <string name="about_thanks_body">Ik werd moe van EUC-apps die te traag evolueren, er gedateerd uitzien, draconische regels hanteren rond nieuwe functies, hun communities als klanten behandelen, en vergeten dat EUC-rijders op hun best zijn als ze elkaar helpen. Deze probeert het tegenovergestelde te zijn.\n\nMet dank aan:\n• Gio (Wheel In Motion). Promotie, suggesties en P6-tests. Genaaide hoofdhuid, intact enthousiasme.\n• Ilya Shkolnik en de WheelLog-community. Publiek protocolonderzoek waar de KingSong-, Begode- en Veteran-adapters op leunen.\n• InMotion. Voor het maken van mijn geweldige V14.</string>
+    <string name="about_thanks_body">Ik werd moe van EUC-apps die te traag evolueren, er gedateerd uitzien, draconische regels hanteren rond nieuwe functies, hun communities als klanten behandelen, en vergeten dat EUC-rijders op hun best zijn als ze elkaar helpen. Deze probeert het tegenovergestelde te zijn.</string>
     <string name="toast_external_speed_change">Snelheid bijgewerkt vanaf wiel: %1$d km/u tiltback, %2$d km/u alarm</string>
     <string name="flic_action_record_start">Ritopname starten</string>
     <string name="flic_action_record_stop">Ritopname stoppen</string>

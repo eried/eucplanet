@@ -384,7 +384,7 @@
     <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_thanks">Danksagungen</string>
-    <string name="about_thanks_body">Ich hatte EUC-Apps satt, die sich zu langsam entwickeln, veraltet aussehen, drakonische Regeln für neue Funktionen haben, ihre Communitys wie Kunden behandeln und vergessen, dass EUC-Fahrer am besten sind, wenn sie sich gegenseitig helfen. Diese hier versucht das Gegenteil zu sein.\n\nDanke an:\n• Gio (Wheel In Motion). Werbung, Vorschläge und P6-Tests. Genähte Kopfhaut, Begeisterung intakt.\n• Ilya Shkolnik und die WheelLog-Community, deren öffentliche Protokollforschung den Adaptern für KingSong, Begode und Veteran zugrunde liegt.\n• InMotion, dafür dass sie mein großartiges V14 gebaut haben.</string>
+    <string name="about_thanks_body">Ich hatte EUC-Apps satt, die sich zu langsam entwickeln, veraltet aussehen, drakonische Regeln für neue Funktionen haben, ihre Communitys wie Kunden behandeln und vergessen, dass EUC-Fahrer am besten sind, wenn sie sich gegenseitig helfen. Diese hier versucht das Gegenteil zu sein.</string>
     <string name="action_reorder">Zum Umsortieren ziehen</string>
     <string name="alarm_delete_body">%1$s wird entfernt. Das kann nicht rückgängig gemacht werden.</string>
     <string name="alarm_delete_title">Diesen Alarm löschen?</string>

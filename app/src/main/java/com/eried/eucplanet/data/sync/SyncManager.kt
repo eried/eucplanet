@@ -509,6 +509,25 @@ class SyncManager @Inject constructor(
         put("gaugeRedThresholdPct", s.gaugeRedThresholdPct)
         put("hapticFeedback", s.hapticFeedback)
         put("currentDisplayMode", s.currentDisplayMode)
+        // Wear OS companion settings round-trip too so a watch user moving
+        // to a new phone gets their on-screen-button + display picks back.
+        put("watchKeepScreenOn", s.watchKeepScreenOn)
+        put("watchAutoStart", s.watchAutoStart)
+        put("watchShowWheelBattery", s.watchShowWheelBattery)
+        put("watchShowPhoneBattery", s.watchShowPhoneBattery)
+        put("watchShowWatchBattery", s.watchShowWatchBattery)
+        put("watchPwmDisplay", s.watchPwmDisplay)
+        put("watchShowSpeedUnit", s.watchShowSpeedUnit)
+        put("watchEnableGpsSpeed", s.watchEnableGpsSpeed)
+        put("watchStem1Click", s.watchStem1Click)
+        put("watchStem1Hold", s.watchStem1Hold)
+        put("watchStem2Click", s.watchStem2Click)
+        put("watchStem2Hold", s.watchStem2Hold)
+        put("watchScreen1Click", s.watchScreen1Click)
+        put("watchScreen1Hold", s.watchScreen1Hold)
+        put("watchScreen2Click", s.watchScreen2Click)
+        put("watchScreen2Hold", s.watchScreen2Hold)
+        put("watchHapticOnAction", s.watchHapticOnAction)
     }
 
     private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
@@ -588,6 +607,26 @@ class SyncManager @Inject constructor(
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
         gaugeRedThresholdPct = j.optInt("gaugeRedThresholdPct", base.gaugeRedThresholdPct),
         hapticFeedback = j.optBoolean("hapticFeedback", base.hapticFeedback),
-        currentDisplayMode = j.optString("currentDisplayMode", base.currentDisplayMode)
+        currentDisplayMode = j.optString("currentDisplayMode", base.currentDisplayMode),
+        // Wear OS companion settings — restored if present, defaulted to
+        // the current value (or the AppSettings default for a fresh install)
+        // if not present so older backups still apply cleanly.
+        watchKeepScreenOn = j.optBoolean("watchKeepScreenOn", base.watchKeepScreenOn),
+        watchAutoStart = j.optBoolean("watchAutoStart", base.watchAutoStart),
+        watchShowWheelBattery = j.optBoolean("watchShowWheelBattery", base.watchShowWheelBattery),
+        watchShowPhoneBattery = j.optBoolean("watchShowPhoneBattery", base.watchShowPhoneBattery),
+        watchShowWatchBattery = j.optBoolean("watchShowWatchBattery", base.watchShowWatchBattery),
+        watchPwmDisplay = j.optString("watchPwmDisplay", base.watchPwmDisplay),
+        watchShowSpeedUnit = j.optBoolean("watchShowSpeedUnit", base.watchShowSpeedUnit),
+        watchEnableGpsSpeed = j.optBoolean("watchEnableGpsSpeed", base.watchEnableGpsSpeed),
+        watchStem1Click = j.optString("watchStem1Click", base.watchStem1Click),
+        watchStem1Hold = j.optString("watchStem1Hold", base.watchStem1Hold),
+        watchStem2Click = j.optString("watchStem2Click", base.watchStem2Click),
+        watchStem2Hold = j.optString("watchStem2Hold", base.watchStem2Hold),
+        watchScreen1Click = j.optString("watchScreen1Click", base.watchScreen1Click),
+        watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
+        watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
+        watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
+        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction)
     )
 }

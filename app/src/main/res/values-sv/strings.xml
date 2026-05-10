@@ -369,7 +369,7 @@
     <string name="about_crash_logs_empty">Inga krascher registrerade</string>
     <string name="about_share_crash">Dela kraschlogg</string>
     <string name="about_thanks">Tack till</string>
-    <string name="about_thanks_body">Jag tröttnade på EUC-appar som utvecklas för långsamt, ser föråldrade ut, har strikta regler kring nya funktioner, behandlar sina communityn som kunder och glömmer att EUC-åkare är som bäst när de hjälper varandra. Den här försöker vara motsatsen.\n\nTack till:\n• Gio (Wheel In Motion). Marknadsföring, förslag och P6-tester. Sydd skalp, intakt entusiasm.\n• Ilya Shkolnik och WheelLog-communityn. Öppen protokollforskning som adaptrarna för KingSong, Begode och Veteran bygger på.\n• InMotion. För att de byggde min fantastiska V14.</string>
+    <string name="about_thanks_body">Jag tröttnade på EUC-appar som utvecklas för långsamt, ser föråldrade ut, har strikta regler kring nya funktioner, behandlar sina communityn som kunder och glömmer att EUC-åkare är som bäst när de hjälper varandra. Den här försöker vara motsatsen.</string>
     <string name="action_reorder">Dra för att ändra ordning</string>
     <string name="alarm_delete_body">%1$s tas bort. Detta kan inte ångras.</string>
     <string name="alarm_delete_title">Radera detta larm?</string>

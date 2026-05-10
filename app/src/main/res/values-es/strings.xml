@@ -385,7 +385,7 @@
     <string name="about_share_crash">Compartir registro de fallo</string>
     <!-- Newly translated strings -->
     <string name="about_thanks">Créditos</string>
-    <string name="about_thanks_body">Me cansé de las apps de EUC que evolucionan demasiado lento, lucen anticuadas, tienen reglas draconianas para añadir funciones, tratan a sus comunidades como clientes y olvidan que los riders de EUC dan lo mejor de sí cuando se ayudan entre ellos. Esta intenta ser lo opuesto.\n\nGracias a:\n• Gio (Wheel In Motion). Promoción, sugerencias y pruebas del P6. Cuero cabelludo cosido, entusiasmo intacto.\n• Ilya Shkolnik y la comunidad de WheelLog. Investigación pública del protocolo en la que se basan los adaptadores de KingSong, Begode y Veteran.\n• InMotion, por hacer mi increíble V14.</string>
+    <string name="about_thanks_body">Me cansé de las apps de EUC que evolucionan demasiado lento, lucen anticuadas, tienen reglas draconianas para añadir funciones, tratan a sus comunidades como clientes y olvidan que los riders de EUC dan lo mejor de sí cuando se ayudan entre ellos. Esta intenta ser lo opuesto.</string>
     <string name="action_reorder">Arrastra para reordenar</string>
     <string name="alarm_delete_body">%1$s será eliminada. Esta acción no se puede deshacer.</string>
     <string name="alarm_delete_title">¿Eliminar esta alarma?</string>
