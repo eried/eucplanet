@@ -147,6 +147,8 @@ fun DashboardScreen(
     SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
+    val lockBusy by viewModel.lockBusy.collectAsState()
+    val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
@@ -609,7 +611,7 @@ fun DashboardScreen(
                     icon = Icons.Default.FlashlightOn,
                     label = stringResource(R.string.action_light),
                     active = wheelData.lightOn,
-                    enabled = connectionState == ConnectionState.CONNECTED,
+                    enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                     onClick = { viewModel.onLightToggle() },
                     aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
@@ -677,7 +679,7 @@ fun DashboardScreen(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED,
+                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
                     onClick = { viewModel.onLockToggle() },
                     modifier = Modifier.weight(1f),
                     aspectRatio = actionAspect, heightDp = actionHeight)

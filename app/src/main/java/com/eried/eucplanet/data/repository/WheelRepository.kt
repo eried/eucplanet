@@ -159,6 +159,30 @@ class WheelRepository @Inject constructor(
     )
     val externalSpeedChange: SharedFlow<ExternalSpeedChange> = _externalSpeedChange.asSharedFlow()
 
+    // --- Action cooldowns ---
+    // Lock and Light each get a brief cooldown after the user taps them so a
+    // stale settings frame can't repaint the optimistic state and so spam
+    // taps don't queue up multiple auth handshakes. The button observes
+    // *Busy and shows itself disabled until the cooldown elapses.
+    private val _lockBusy = MutableStateFlow(false)
+    val lockBusy: StateFlow<Boolean> = _lockBusy.asStateFlow()
+    private val _lightBusy = MutableStateFlow(false)
+    val lightBusy: StateFlow<Boolean> = _lightBusy.asStateFlow()
+    @Volatile private var lockCooldownUntilMs = 0L
+    @Volatile private var lightCooldownUntilMs = 0L
+    private val LOCK_COOLDOWN_MS = 3000L
+    private val LIGHT_COOLDOWN_MS = 1500L
+
+    private fun startCooldown(busyFlag: MutableStateFlow<Boolean>, durationMs: Long, setUntil: (Long) -> Unit) {
+        val now = System.currentTimeMillis()
+        setUntil(now + durationMs)
+        busyFlag.value = true
+        scope.launch {
+            delay(durationMs)
+            busyFlag.value = false
+        }
+    }
+
     /**
      * Tiltback the app most recently asked the wheel to set, in km/h. Used to
      * disambiguate settings readback: if the wheel reports a tiltback below
@@ -230,36 +254,41 @@ class WheelRepository @Inject constructor(
     }
 
     fun toggleLight() {
-        // Optimistic local state. The P6 doesn't expose live headlight state
-        // in any byte we've identified, so reading from telemetry would
-        // freeze the toggle in the "always send ON" case. Track the last
-        // requested state and flip it on each tap; the user tells us if the
-        // physical wheel went out of sync.
+        if (_lightBusy.value) return  // cooldown active, ignore the spam tap
         val current = _wheelData.value.lightOn
         val next = !current
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "toggleLight: lightOn was=$current, sending $next"
         )
         wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
-        // Reflect the requested state locally so the next tap inverts it.
         _wheelData.value = _wheelData.value.copy(lightOn = next)
+        startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
 
     fun toggleLock() {
+        if (_lockBusy.value) return  // cooldown active, ignore the spam tap
         val targetState = !_locked.value
-        // Optimistic flip: the button reflects the requested state immediately so the user
-        // doesn't mash it again. Telemetry (0x20 settings) is the final source of truth —
-        // if the wheel reports back a different state, _locked is corrected then.
         _locked.value = targetState
+        startCooldown(_lockBusy, LOCK_COOLDOWN_MS) { lockCooldownUntilMs = it }
         scope.launch {
             val success = authenticateAndLock(targetState)
-            // Re-read settings so the wheel can confirm (or override) the optimistic UI.
+            // Re-read settings so the wheel can confirm. During the cooldown
+            // the settings handler will skip overwriting _locked from a stale
+            // frame, so the UI stays at the requested state until the wheel
+            // catches up; if the wheel still disagrees after the cooldown
+            // ends, the next settings poll wins (final source of truth).
             delay(800)
             bleManager.writeCommand(wheelAdapter.pollSettings())
             if (success) {
+                // Wait for the cooldown to elapse so the announcement
+                // reflects the settled state, not the optimistic flip.
+                delay(LOCK_COOLDOWN_MS)
                 val s = settingsRepository.get()
                 if (s.announceWheelLock) {
-                    voiceService.announceEvent(context.getString(if (targetState) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked))
+                    val finalLocked = _locked.value
+                    voiceService.announceEvent(context.getString(
+                        if (finalLocked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked
+                    ))
                 }
             } else {
                 Log.e(TAG, "Lock command failed: auth unsuccessful — awaiting wheel telemetry resync")
@@ -608,14 +637,24 @@ class WheelRepository @Inject constructor(
                 val wasSafety = _safetySpeedActive.value
                 val wasLocked = _locked.value
                 val isLocked = ws.lockState != 0
-                _locked.value = isLocked
-                if (isLocked != wasLocked && appSettings.announceWheelLock) {
-                    voiceService.announceEvent(
-                        context.getString(
-                            if (isLocked) R.string.voice_wheel_locked
-                            else R.string.voice_wheel_unlocked
+                // Skip the lock-state overwrite while the user's tap cooldown
+                // is active. Without this, a stale settings frame from before
+                // the wheel processed the lock command repaints the button as
+                // unlocked for ~1 s, causing the "I locked it then it shows
+                // unlocked" symptom on V14. toggleLock's own announcement
+                // fires after the cooldown so the voice still matches the
+                // settled state.
+                val cooldownActive = System.currentTimeMillis() < lockCooldownUntilMs
+                if (!cooldownActive) {
+                    _locked.value = isLocked
+                    if (isLocked != wasLocked && appSettings.announceWheelLock) {
+                        voiceService.announceEvent(
+                            context.getString(
+                                if (isLocked) R.string.voice_wheel_locked
+                                else R.string.voice_wheel_unlocked
+                            )
                         )
-                    )
+                    }
                 }
 
                 if (reconcileNextSettings) {
