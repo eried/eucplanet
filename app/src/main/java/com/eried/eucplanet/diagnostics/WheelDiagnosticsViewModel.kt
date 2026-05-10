@@ -250,11 +250,14 @@ class WheelDiagnosticsViewModel @Inject constructor(
         DiagnosticsLogger.clear()
     }
 
-    /** Build a share intent backed by a temp .txt under the app's cache dir. */
+    /** Build a share intent backed by a temp .txt under the app's cache dir.
+     *  The FileProvider entry for `cache-path name="diagnostics"` must exist
+     *  in res/xml/file_paths.xml or getUriForFile throws and we end up with
+     *  a silently dead Share button. */
     fun buildShareIntent(): Intent? {
-        val cacheDir = File(context.cacheDir, "diagnostics").apply { mkdirs() }
+        val dir = File(context.cacheDir, "diagnostics").apply { mkdirs() }
         val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-        val file = File(cacheDir, "diagnostics-$stamp.txt")
+        val file = File(dir, "diagnostics-$stamp.txt")
         return try {
             file.writeText(DiagnosticsLogger.render())
             val uri = FileProvider.getUriForFile(
@@ -266,7 +269,11 @@ class WheelDiagnosticsViewModel @Inject constructor(
                 putExtra(Intent.EXTRA_SUBJECT, "EUC Planet diagnostics ${file.name}")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            // Don't swallow silently — surface in logcat so a future
+            // misconfiguration is obvious instead of a dead button.
+            android.util.Log.e("WheelDiagnostics", "Share failed", e)
+            DiagnosticsLogger.note("share failed: ${e.javaClass.simpleName}: ${e.message}")
             null
         }
     }

@@ -229,8 +229,15 @@ private fun Header(onClose: () -> Unit, onStop: () -> Unit, onShare: () -> Unit)
 private fun LogPanel(modifier: Modifier = Modifier) {
     val entries by DiagnosticsLogger.entries.collectAsState()
     val listState = rememberLazyListState()
+    // Auto-scroll to the bottom whenever a new entry lands. Yield once so
+    // the LazyColumn has actually laid out the new item before we ask the
+    // state to scroll to it — otherwise animateScrollToItem races the layout
+    // and the request gets dropped, especially right after a comment send.
     LaunchedEffect(entries.size) {
-        if (entries.isNotEmpty()) listState.animateScrollToItem(entries.size - 1)
+        if (entries.isNotEmpty()) {
+            kotlinx.coroutines.yield()
+            listState.scrollToItem(entries.size - 1)
+        }
     }
     LazyColumn(
         state = listState,
@@ -259,6 +266,9 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Single-line + fixed height: keeps the row from growing as the user
+        // types, which would otherwise shrink the log panel mid-input and
+        // throw off the auto-scroll-to-bottom heuristic.
         OutlinedTextField(
             value = comment,
             onValueChange = { comment = it },
@@ -266,8 +276,7 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
             label = { Text("Add comment to log") },
             placeholder = { Text("e.g. wheel display says 77F") },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            singleLine = false,
-            maxLines = 2
+            singleLine = true
         )
         IconButton(onClick = {
             vm.addComment(comment)
@@ -314,16 +323,19 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     val ts = remember(e.timestampMs) {
         TIME_FMT.format(Date(e.timestampMs))
     }
-    val color = when (e.kind) {
-        DiagnosticsLogger.Kind.RX -> Color(0xFF7AC6F0)
-        DiagnosticsLogger.Kind.TX -> Color(0xFFF0B97A)
-        DiagnosticsLogger.Kind.NOTE -> MaterialTheme.colorScheme.onSurfaceVariant
-        DiagnosticsLogger.Kind.CMD -> Color(0xFFB87AF0)
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF7AF0A0)
-        DiagnosticsLogger.Kind.INFO -> MaterialTheme.colorScheme.primary
+    // High-saturation hues so RX (incoming) and TX (outgoing) are obviously
+    // different at the small log font, plus a < / > arrow prefix as a second
+    // channel for the colour-blind / dim-screen case.
+    val (color, arrow) = when (e.kind) {
+        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF) to "<"   // bright sky blue
+        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40) to ">"   // amber
+        DiagnosticsLogger.Kind.NOTE -> MaterialTheme.colorScheme.onSurfaceVariant to " "
+        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB) to ">"   // magenta — also outgoing
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF69F0AE) to " "  // mint green
+        DiagnosticsLogger.Kind.INFO -> MaterialTheme.colorScheme.primary to " "
     }
     Text(
-        "$ts ${e.kind.name.padEnd(7)} ${e.text}",
+        "$ts $arrow ${e.kind.name.padEnd(7)} ${e.text}",
         style = MaterialTheme.typography.labelSmall.copy(
             fontFamily = FontFamily.Monospace,
             fontSize = 10.sp,
@@ -554,11 +566,12 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             OutlinedTextField(
                 value = raw,
                 onValueChange = { setRaw(it) },
-                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
+                modifier = Modifier.weight(1f),
                 label = { Text("Input") },
                 placeholder = { Text("60 50 01 01") },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                isError = !preview.ok && raw.isNotBlank()
+                isError = !preview.ok && raw.isNotBlank(),
+                singleLine = true
             )
             Spacer(Modifier.width(6.dp))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -609,11 +622,12 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 value = preview.display,
                 onValueChange = {},
                 readOnly = true,
-                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
+                modifier = Modifier.weight(1f),
                 label = { Text("Bytes to send") },
                 placeholder = { Text("—") },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                 isError = preview.error != null,
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = readOnlyContainer,
                     unfocusedContainerColor = readOnlyContainer,
