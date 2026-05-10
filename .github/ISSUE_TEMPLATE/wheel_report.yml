@@ -1,5 +1,5 @@
 name: Wheel report
-description: Report behavior on your wheel: works, broken, or partially working
+description: "Report behavior on your wheel: works, broken, or partially working"
 title: "[Wheel report] "
 labels: ["wheel-report"]
 body:

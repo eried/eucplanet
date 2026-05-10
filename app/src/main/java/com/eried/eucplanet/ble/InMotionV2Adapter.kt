@@ -327,7 +327,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     private fun decode(command: Byte, data: ByteArray): DecodeResult {
         return when (command.toInt() and 0x7F) {
             0x02 -> decodeMainInfoOrAuth(data)
-            0x04 -> parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            0x04 -> {
+                // Log the realtime body so the Service Mode Inspect tab can
+                // surface it for V14-family models the same way it does the
+                // P6 extended-routing 0x07 path. Same `<type> len=N body=...`
+                // format both sides parse.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "V14 realtime len=${data.size} body=${data.joinToString(" ") { "%02x".format(it) }}"
+                )
+                parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            }
             0x11 -> InMotionV2Parser.parseTotalStats(data)?.let { DecodeResult.TotalDistance(it.totalDistanceKm) } ?: DecodeResult.Unknown
             0x20 -> parseSettingsForModel(data)?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             0x21 -> decodeP6Extended(data)

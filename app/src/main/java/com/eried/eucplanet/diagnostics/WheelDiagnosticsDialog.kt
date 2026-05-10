@@ -42,6 +42,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -53,6 +54,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -72,6 +74,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -162,13 +165,16 @@ fun WheelDiagnosticsDialog(
                     Tab(selected = tab == 0, onClick = { tab = 0 },
                         text = { Text("Commands") })
                     Tab(selected = tab == 1, onClick = { tab = 1 },
+                        text = { Text("Inspect") })
+                    Tab(selected = tab == 2, onClick = { tab = 2 },
                         text = { Text("Raw") })
                 }
 
                 Box(modifier = Modifier.weight(2f, fill = true)) {
                     when (tab) {
                         0 -> CommandsTab(vm)
-                        1 -> RawTab(vm)
+                        1 -> InspectTab(vm)
+                        2 -> RawTab(vm)
                     }
                 }
             }
@@ -264,6 +270,7 @@ private fun LogPanel(modifier: Modifier = Modifier) {
 @Composable
 private fun CommentRow(vm: WheelDiagnosticsViewModel) {
     var comment by remember { mutableStateOf("") }
+    var showAttachDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -290,8 +297,78 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
             keyboardActions = KeyboardActions(onSend = { send() }),
             singleLine = true
         )
+        IconButton(onClick = { showAttachDialog = true }) {
+            Icon(Icons.Default.AttachFile, contentDescription = "Attach data")
+        }
         IconButton(onClick = { send() }) { Icon(Icons.Default.Send, contentDescription = "Add") }
     }
+    if (showAttachDialog) {
+        AttachDataDialog(
+            onDismiss = { showAttachDialog = false },
+            onSubmit = { selected ->
+                vm.attach(selected)
+                showAttachDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * Opt-in attach picker. Each box maps to a [WheelDiagnosticsViewModel.AttachCategory];
+ * confirming dumps the selected categories into the live log as NOTE entries.
+ * Nothing leaves the device until the user shares the log themselves.
+ */
+@Composable
+private fun AttachDataDialog(
+    onDismiss: () -> Unit,
+    onSubmit: (Set<WheelDiagnosticsViewModel.AttachCategory>) -> Unit
+) {
+    val selected = remember {
+        mutableStateMapOf<WheelDiagnosticsViewModel.AttachCategory, Boolean>().apply {
+            WheelDiagnosticsViewModel.AttachCategory.entries.forEach { put(it, false) }
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Attach data to log") },
+        text = {
+            Column {
+                Text(
+                    "Picks below are dumped into THIS log only. Nothing is sent until you share the log yourself.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                WheelDiagnosticsViewModel.AttachCategory.entries.forEach { cat ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selected[cat] = !(selected[cat] ?: false) }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selected[cat] ?: false,
+                            onCheckedChange = { selected[cat] = it }
+                        )
+                        Text(cat.label, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            val any = selected.values.any { it }
+            TextButton(
+                enabled = any,
+                onClick = {
+                    onSubmit(selected.filterValues { it }.keys)
+                }
+            ) { Text("Attach") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
 
 @Composable
@@ -420,6 +497,129 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
                 }
             }
         }
+    }
+}
+
+/**
+ * Live byte interpreter. Picks the most recent NOTE entry whose text starts
+ * with the selected message type prefix and renders every byte as a small
+ * tappable cell showing offset, hex, and decimal. Tapping a cell drops a
+ * structured COMMENT into the log so the user can correlate the byte they
+ * just clicked with whatever value the wheel's own UI is showing — useful
+ * for finding unknown offsets like motor temp.
+ */
+@Composable
+private fun InspectTab(vm: WheelDiagnosticsViewModel) {
+    val entries by vm.entries.collectAsState()
+    val types = vm.inspectMessageTypes
+    var selected by remember { mutableStateOf(types.first()) }
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    val latestBytes: List<Int> = remember(entries, selected) {
+        val match = entries.lastOrNull {
+            it.kind == DiagnosticsLogger.Kind.NOTE && it.text.startsWith("$selected len=")
+        } ?: return@remember emptyList()
+        match.text.substringAfter("body=", "").trim()
+            .split(' ')
+            .mapNotNull { runCatching { it.toInt(16) }.getOrNull() }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        // Type picker. Just one or two options today, so a tiny dropdown is
+        // sufficient — no need for the heavier SimpleDropdown helper.
+        Box {
+            OutlinedButton(onClick = { menuExpanded = true }) {
+                Text(selected)
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            androidx.compose.material3.DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                types.forEach { t ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text(t) },
+                        onClick = { selected = t; menuExpanded = false }
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+        Text(
+            "Tap a byte to log a comment with its offset and value.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(8.dp))
+
+        if (latestBytes.isEmpty()) {
+            Text(
+                "No \"$selected\" frames in the log yet. Connect the wheel and wait for one to arrive.",
+                style = MaterialTheme.typography.bodySmall
+            )
+            return@Column
+        }
+
+        // 6-column grid of byte cells. Lazy so 96-byte bodies don't slow
+        // down recomposition when the underlying frame stream is at 5 Hz.
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(6),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(latestBytes.size) { off ->
+                val v = latestBytes[off]
+                ByteInspectCell(off, v) {
+                    vm.logByteInspection(selected, off, v)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ByteInspectCell(offset: Int, value: Int, onTap: () -> Unit) {
+    val hex = remember(value) { "%02x".format(value) }
+    Column(
+        modifier = Modifier
+            .padding(2.dp)
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                RoundedCornerShape(4.dp)
+            )
+            .clickable(onClick = onTap)
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "[$offset]",
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontFamily = FontFamily.Monospace,
+                fontSize = 9.sp
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            hex,
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontFamily = FontFamily.Monospace,
+                fontSize = 12.sp
+            ),
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            "$value",
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontFamily = FontFamily.Monospace,
+                fontSize = 9.sp
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

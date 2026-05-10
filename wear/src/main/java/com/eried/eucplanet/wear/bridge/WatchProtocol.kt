@@ -18,6 +18,10 @@ object WatchPaths {
     /** Phone-to-watch ping that wakes the watch app when the user opens the
      *  phone app. Watch listener launches MainActivity when it sees this. */
     const val WAKE = "/euc/wake"
+    /** One-shot watch -> phone message sent on watch app launch carrying
+     *  Build / BuildConfig info as a UTF-8 pipe-separated string so the
+     *  Service Mode log on the phone can include both sides of the pair. */
+    const val WATCH_INFO = "/euc/watch_info"
 }
 
 object WatchKeys {

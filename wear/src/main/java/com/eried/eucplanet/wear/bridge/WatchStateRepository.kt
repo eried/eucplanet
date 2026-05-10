@@ -70,4 +70,53 @@ object WatchStateRepository {
             }
         }
     }
+
+    /**
+     * One-shot announce that runs on watch app launch: ships Build /
+     * BuildConfig info to the phone so its Service Mode log captures both
+     * sides of the pair. Best-effort; failures are logged at DEBUG and
+     * don't propagate. Idempotent at the message level — Wearable's
+     * MessageClient handles re-delivery if the phone is asleep.
+     */
+    private var infoSent = false
+    fun sendWatchInfo(context: Context) {
+        if (infoSent) return
+        infoSent = true
+        scope.launch {
+            try {
+                val info = buildString {
+                    append("model=")
+                    append(android.os.Build.MODEL)
+                    append("|mfr=")
+                    append(android.os.Build.MANUFACTURER)
+                    append("|os=")
+                    append(android.os.Build.VERSION.RELEASE)
+                    append("|sdk=")
+                    append(android.os.Build.VERSION.SDK_INT)
+                    append("|app=")
+                    append(com.eried.eucplanet.wear.BuildConfig.VERSION_NAME)
+                    append(" (")
+                    append(com.eried.eucplanet.wear.BuildConfig.VERSION_CODE)
+                    append(')')
+                }
+                val nodeClient = Wearable.getNodeClient(context)
+                val nodes = Tasks.await(nodeClient.connectedNodes)
+                if (nodes.isEmpty()) {
+                    Log.d(TAG, "No connected phone for watch_info")
+                    infoSent = false
+                    return@launch
+                }
+                val message = Wearable.getMessageClient(context)
+                for (node in nodes) {
+                    Tasks.await(
+                        message.sendMessage(node.id, WatchPaths.WATCH_INFO, info.toByteArray())
+                    )
+                }
+                Log.i(TAG, "watch_info sent: $info")
+            } catch (e: Exception) {
+                Log.d(TAG, "sendWatchInfo failed", e)
+                infoSent = false
+            }
+        }
+    }
 }

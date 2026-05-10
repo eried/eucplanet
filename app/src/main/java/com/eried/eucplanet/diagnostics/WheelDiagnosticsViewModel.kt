@@ -19,7 +19,10 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.WheelAdapter
+import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import kotlinx.coroutines.flow.first
 import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,7 +49,9 @@ class WheelDiagnosticsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val bleManager: BleConnectionManager,
     private val wheelAdapter: WheelAdapter,
-    private val wheelRepository: WheelRepository
+    private val wheelRepository: WheelRepository,
+    private val settingsRepository: SettingsRepository,
+    private val tripRepository: TripRepository
 ) : ViewModel() {
 
     val entries: StateFlow<List<DiagnosticsLogger.Entry>> = DiagnosticsLogger.entries
@@ -243,6 +248,127 @@ class WheelDiagnosticsViewModel @Inject constructor(
     fun addComment(text: String) {
         if (text.isBlank()) return
         DiagnosticsLogger.comment(text.trim())
+    }
+
+    /**
+     * Drop a structured COMMENT into the log noting that the user picked a
+     * specific byte from the live Inspect view. Used for protocol research:
+     * tap the byte that matches the wheel UI value, the comment lands in
+     * the log alongside the source frame so the offset can be tied to a
+     * labelled value at export time.
+     */
+    fun logByteInspection(messageType: String, offset: Int, value: Int) {
+        val hex = "%02x".format(value)
+        DiagnosticsLogger.comment("inspect: $messageType[$offset] = 0x$hex ($value)")
+    }
+
+    /** Message-type prefixes the Inspect tab can subscribe to. The strings
+     *  must match the prefix the adapter writes via DiagnosticsLogger.note. */
+    val inspectMessageTypes: List<String> = listOf("V14 realtime", "P6 realtime", "P6 detailed")
+
+    /**
+     * Categories the user can opt into when attaching extra context to the
+     * Service Mode log. Each entry is rendered as one or more NOTE lines so
+     * the rest of the log keeps its byte-stream feel.
+     */
+    enum class AttachCategory(val label: String) {
+        APP_CONFIG("App config"),
+        WHEEL_STATE("Wheel state snapshot"),
+        TRIPS_SUMMARY("Trip history summary"),
+        INSTALLED_APPS("Installed apps"),
+        CRASHES("Recent crashes")
+    }
+
+    /**
+     * Dump the selected categories into the live log as NOTE entries. Each
+     * call is async so a slow PackageManager iteration doesn't block the UI.
+     * Nothing leaves the device — these land in the same in-memory buffer
+     * as everything else in Service Mode and only travel when the user
+     * shares the log themselves.
+     */
+    fun attach(categories: Set<AttachCategory>) {
+        if (categories.isEmpty()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            for (cat in categories) {
+                runCatching {
+                    when (cat) {
+                        AttachCategory.APP_CONFIG -> attachAppConfig()
+                        AttachCategory.WHEEL_STATE -> attachWheelState()
+                        AttachCategory.TRIPS_SUMMARY -> attachTripsSummary()
+                        AttachCategory.INSTALLED_APPS -> attachInstalledApps()
+                        AttachCategory.CRASHES -> attachCrashes()
+                    }
+                }.onFailure {
+                    DiagnosticsLogger.note("attach ${cat.name} failed: ${it.message}")
+                }
+            }
+        }
+    }
+
+    private suspend fun attachAppConfig() {
+        val s = settingsRepository.get()
+        DiagnosticsLogger.note("--- BEGIN app config ---")
+        // toString on the data class gives every field=value in one line; we
+        // hard-wrap to roughly 200 chars so the log entries stay readable
+        // and don't blow the per-line ellipsis the on-screen view uses.
+        s.toString().chunked(200).forEach { DiagnosticsLogger.note(it) }
+        DiagnosticsLogger.note("--- END app config ---")
+    }
+
+    private suspend fun attachWheelState() {
+        val data = wheelRepository.wheelData.value
+        val name = wheelRepository.modelName.value ?: "?"
+        val fw = wheelRepository.firmwareVersion.value ?: "?"
+        val state = wheelRepository.connectionState.value
+        DiagnosticsLogger.note("--- BEGIN wheel state ---")
+        DiagnosticsLogger.note("model=$name fw=$fw connection=$state")
+        DiagnosticsLogger.note(data.toString())
+        DiagnosticsLogger.note("--- END wheel state ---")
+    }
+
+    private suspend fun attachTripsSummary() {
+        val all = tripRepository.allTrips.first()
+        val totalKm = all.sumOf { it.distanceKm.toDouble() }
+        DiagnosticsLogger.note("--- BEGIN trips summary ---")
+        DiagnosticsLogger.note("trips=${all.size}  total=${"%.2f".format(totalKm)} km")
+        // Only the most recent 20 — older trips are rarely interesting for
+        // a fresh bug report and would crowd the log.
+        all.sortedByDescending { it.startTime }.take(20).forEach { t ->
+            val started = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(t.startTime))
+            val durMin = ((t.endTime ?: t.startTime) - t.startTime) / 60_000
+            DiagnosticsLogger.note("trip ${t.id}: $started  ${"%.2f".format(t.distanceKm)} km  ${durMin} min  upl=${t.uploadStatus}")
+        }
+        DiagnosticsLogger.note("--- END trips summary ---")
+    }
+
+    private suspend fun attachInstalledApps() {
+        val pm = context.packageManager
+        val apps = try {
+            pm.getInstalledApplications(0)
+                .map { it.packageName }
+                .sorted()
+        } catch (e: Exception) {
+            DiagnosticsLogger.note("attach installed apps failed: ${e.message}")
+            return
+        }
+        DiagnosticsLogger.note("--- BEGIN installed apps (${apps.size}) ---")
+        // Pack 6 packages per line to keep the log scannable. Long line wrap
+        // is fine; the dialog renders single-line and exports preserve full text.
+        apps.chunked(6).forEach { DiagnosticsLogger.note(it.joinToString("  ")) }
+        DiagnosticsLogger.note("--- END installed apps ---")
+    }
+
+    private fun attachCrashes() {
+        val crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+        DiagnosticsLogger.note("--- BEGIN recent crashes (${crashes.size}) ---")
+        if (crashes.isEmpty()) {
+            DiagnosticsLogger.note("(none)")
+        } else {
+            crashes.take(5).forEach { f ->
+                DiagnosticsLogger.note("crash ${f.name}  ${f.length()} bytes")
+            }
+        }
+        DiagnosticsLogger.note("--- END recent crashes ---")
     }
 
     fun stopDiagnostics() {
