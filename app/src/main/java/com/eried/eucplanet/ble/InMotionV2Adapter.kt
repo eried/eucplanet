@@ -21,7 +21,11 @@ import javax.inject.Singleton
 class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
+    override val familyDisplayName: String = "InMotion V14 / V12 / P6"
     override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
+
+    override fun inspectMessageTypes(): List<String> =
+        listOf("V14 realtime", "P6 realtime", "P6 detailed")
 
     /**
      * Detected model from the wheel's MainInfo response. Set the first time

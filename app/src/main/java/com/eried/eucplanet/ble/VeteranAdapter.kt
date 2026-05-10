@@ -29,6 +29,7 @@ import javax.inject.Singleton
 @Singleton
 class VeteranAdapter @Inject constructor() : WheelAdapter {
     override val familyId = "veteran"
+    override val familyDisplayName = "Veteran"
     override val capabilities = WheelCapabilities.VETERAN
 
     @Volatile private var detectedModel: VeteranModel? = null

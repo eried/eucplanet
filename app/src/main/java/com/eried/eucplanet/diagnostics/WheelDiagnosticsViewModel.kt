@@ -159,6 +159,35 @@ class WheelDiagnosticsViewModel @Inject constructor(
 
     fun diagnosticCommands(): List<DiagnosticCommand> = wheelAdapter.getDiagnosticCommands()
 
+    /**
+     * Service Mode is research-grade: a user with a V14 in front of them
+     * still benefits from being able to browse the KingSong or Veteran
+     * command catalogue. We expose every family's catalogue keyed by its
+     * display name so the picker UI can show them all, regardless of what's
+     * actually connected.
+     */
+    data class WheelFamily(
+        val displayName: String,
+        val commands: List<DiagnosticCommand>,
+        val inspectPrefixes: List<String>
+    )
+
+    fun allWheelFamilies(): List<WheelFamily> {
+        val composite = wheelAdapter as? com.eried.eucplanet.ble.CompositeWheelAdapter
+            ?: return listOf(WheelFamily(
+                displayName = wheelAdapter.familyDisplayName,
+                commands = wheelAdapter.getDiagnosticCommands(),
+                inspectPrefixes = wheelAdapter.inspectMessageTypes()
+            ))
+        return composite.allFamilies.map {
+            WheelFamily(
+                displayName = it.familyDisplayName,
+                commands = it.getDiagnosticCommands(),
+                inspectPrefixes = it.inspectMessageTypes()
+            )
+        }
+    }
+
     fun fireCommand(cmd: DiagnosticCommand) {
         DiagnosticsLogger.cmd(cmd.label, cmd.bytes)
         bleManager.writeCommand(cmd.bytes)
@@ -264,7 +293,13 @@ class WheelDiagnosticsViewModel @Inject constructor(
 
     /** Message-type prefixes the Inspect tab can subscribe to. The strings
      *  must match the prefix the adapter writes via DiagnosticsLogger.note. */
-    val inspectMessageTypes: List<String> = listOf("V14 realtime", "P6 realtime", "P6 detailed")
+    /**
+     * Flat list of inspect prefixes across all wheel families. Kept for
+     * back-compat with the existing single-list dropdown until the UI
+     * fully migrates to the per-family picker via [allWheelFamilies].
+     */
+    val inspectMessageTypes: List<String>
+        get() = allWheelFamilies().flatMap { it.inspectPrefixes }
 
     /**
      * Categories the user can opt into when attaching extra context to the

@@ -29,6 +29,16 @@ class CompositeWheelAdapter @Inject constructor(
 
     @Volatile private var active: WheelAdapter = inmotion
 
+    /**
+     * Every wheel-family adapter the Composite knows about, in the order
+     * they should appear in the Service Mode wheel-family picker. Exposed
+     * here so the diagnostics ViewModel can browse every family's command
+     * catalogue / inspect prefixes without owning its own wiring.
+     */
+    val allFamilies: List<WheelAdapter> = listOf(
+        inmotion, kingsong, veteran, begode, ninebot, inmotionV1
+    )
+
     override val familyId: String get() = active.familyId
     override val capabilities: WheelCapabilities get() = active.capabilities
 

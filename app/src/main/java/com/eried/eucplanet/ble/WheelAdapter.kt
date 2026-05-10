@@ -183,6 +183,21 @@ interface WheelAdapter {
      * the dialog; adapters override when they have hypotheses to test.
      */
     fun getDiagnosticCommands(): List<com.eried.eucplanet.diagnostics.DiagnosticCommand> = emptyList()
+
+    /**
+     * Friendly name for the wheel family. Used in Service Mode's wheel-family
+     * pickers so the user can browse any family's catalogue regardless of
+     * what's actually connected. Defaults to [familyId].
+     */
+    val familyDisplayName: String get() = familyId
+
+    /**
+     * Service Mode "Inspect" tab subscribes to NOTE entries whose text starts
+     * with one of these prefixes. Adapters that log realtime / detail bodies
+     * via DiagnosticsLogger.note() should list those prefixes here so the
+     * picker offers them. Default empty.
+     */
+    fun inspectMessageTypes(): List<String> = emptyList()
 }
 
 /**

@@ -23,6 +23,7 @@ import javax.inject.Singleton
 class InMotionV1Adapter @Inject constructor() : WheelAdapter {
 
     override val familyId = "inmotion_v1"
+    override val familyDisplayName = "InMotion V1 / V3 / V5 / V8"
     override val capabilities = WheelCapabilities.INMOTION_V1
 
     @Volatile private var detectedModel: InMotionV1Model? = null

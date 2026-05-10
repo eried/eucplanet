@@ -436,61 +436,101 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
 
 @Composable
 private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
-    // Re-fetch when the wheel reports its model — without this re-key, opening
-    // Service Mode before connecting freezes the list at empty even after the
-    // P6 identifies itself.
+    // Wheel-family picker at the top so the catalogue is browsable
+    // regardless of what's actually connected — useful when the user wants
+    // to research a different family than the one they're paired with.
     val model by vm.modelName.collectAsState()
-    val cmds = remember(model) { vm.diagnosticCommands() }
-    if (cmds.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                if (model == null)
-                    "Connect to a wheel to see its diagnostic commands.\nMeanwhile use the Raw tab to send arbitrary bytes."
-                else
-                    "No diagnostic commands defined for ${model}.\nUse the Raw tab to send arbitrary bytes.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        return
-    }
+    val families = remember(model) { vm.allWheelFamilies() }
+    var selectedFamily by remember(families) { mutableStateOf(families.firstOrNull()) }
+    var familyMenuExpanded by remember { mutableStateOf(false) }
+    val cmds = selectedFamily?.commands ?: emptyList()
 
-    val grouped = remember(cmds) { cmds.groupBy { it.category } }
-
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
-        grouped.forEach { (category, list) ->
-            item {
-                Text(
-                    category.name,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.padding(top = 8.dp, start = 4.dp)) {
+            OutlinedButton(onClick = { familyMenuExpanded = true }) {
+                Text(selectedFamily?.displayName ?: "(no families)")
+                Spacer(Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
                 )
             }
-            item {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(110.dp),
-                    contentPadding = PaddingValues(2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = (((list.size + 2) / 3) * 64 + 16).dp)
-                ) {
-                    items(list) { cmd ->
-                        OutlinedButton(
-                            onClick = { vm.fireCommand(cmd) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column {
-                                Text(cmd.label, style = MaterialTheme.typography.labelLarge)
-                                Text(
-                                    cmd.description,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
+            androidx.compose.material3.DropdownMenu(
+                expanded = familyMenuExpanded,
+                onDismissRequest = { familyMenuExpanded = false }
+            ) {
+                families.forEach { f ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(f.displayName)
+                                if (f.commands.isEmpty()) {
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        "(empty)",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        },
+                        onClick = { selectedFamily = f; familyMenuExpanded = false }
+                    )
+                }
+            }
+        }
+
+        if (cmds.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "No diagnostic commands defined for ${selectedFamily?.displayName ?: "this family"} yet.\nUse the Raw tab to send arbitrary bytes.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            return@Column
+        }
+
+        val grouped = remember(cmds) { cmds.groupBy { it.category } }
+
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+            grouped.forEach { (category, list) ->
+                item {
+                    Text(
+                        category.name,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                    )
+                }
+                item {
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(110.dp),
+                        contentPadding = PaddingValues(2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = (((list.size + 2) / 3) * 64 + 16).dp)
+                    ) {
+                        items(list) { cmd ->
+                            OutlinedButton(
+                                onClick = { vm.fireCommand(cmd) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column {
+                                    Text(cmd.label, style = MaterialTheme.typography.labelLarge)
+                                    Text(
+                                        cmd.description,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
                     }
@@ -511,9 +551,25 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 @Composable
 private fun InspectTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
-    val types = vm.inspectMessageTypes
-    var selected by remember { mutableStateOf(types.first()) }
+    // Folderized: pick a wheel family first, then a message type within it.
+    // Families with no inspect prefixes are filtered out so the picker only
+    // shows actionable rows.
+    val families = remember { vm.allWheelFamilies().filter { it.inspectPrefixes.isNotEmpty() } }
+    var selectedFamily by remember { mutableStateOf(families.firstOrNull()) }
+    val types = selectedFamily?.inspectPrefixes ?: emptyList()
+    var selected by remember(selectedFamily) {
+        mutableStateOf(types.firstOrNull() ?: "")
+    }
+    var familyMenuExpanded by remember { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    if (selectedFamily == null) {
+        Text(
+            "No wheel families publish realtime traces yet.",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(16.dp)
+        )
+        return
+    }
 
     val latestBytes: List<Int> = remember(entries, selected) {
         val match = entries.lastOrNull {
@@ -525,26 +581,51 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-        // Type picker. Just one or two options today, so a tiny dropdown is
-        // sufficient — no need for the heavier SimpleDropdown helper.
-        Box {
-            OutlinedButton(onClick = { menuExpanded = true }) {
-                Text(selected)
-                Spacer(Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = null
-                )
-            }
-            androidx.compose.material3.DropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = { menuExpanded = false }
-            ) {
-                types.forEach { t ->
-                    androidx.compose.material3.DropdownMenuItem(
-                        text = { Text(t) },
-                        onClick = { selected = t; menuExpanded = false }
+        // Two dropdowns side-by-side: pick a wheel family, then pick a
+        // message type within it. Families with multiple prefixes show all
+        // their options; families with one prefix auto-pick it.
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box {
+                OutlinedButton(onClick = { familyMenuExpanded = true }) {
+                    Text(selectedFamily?.displayName ?: "")
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = null
                     )
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = familyMenuExpanded,
+                    onDismissRequest = { familyMenuExpanded = false }
+                ) {
+                    families.forEach { f ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(f.displayName) },
+                            onClick = { selectedFamily = f; familyMenuExpanded = false }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            Box {
+                OutlinedButton(onClick = { menuExpanded = true }) {
+                    Text(selected.ifEmpty { "(message)" })
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = null
+                    )
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    types.forEach { t ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(t) },
+                            onClick = { selected = t; menuExpanded = false }
+                        )
+                    }
                 }
             }
         }

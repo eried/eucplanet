@@ -68,6 +68,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var settingsCursor: Int = 0
 
     override val familyId = "ninebot"
+    override val familyDisplayName = "Ninebot"
     override val capabilities: WheelCapabilities
         get() = if (activeProtocol == NinebotProtocol.Z)
             WheelCapabilities.NINEBOT_Z
