@@ -7,6 +7,7 @@
     <string name="watch_horn">Horn</string>
     <string name="watch_light">Light</string>
     <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
     <string name="watch_battery_label">Battery</string>
     <string name="watch_voltage_label">Voltage</string>
     <string name="watch_current_label">Current</string>
@@ -19,4 +20,20 @@
     <string name="watch_gps_label">GPS speed</string>
     <string name="watch_gps_permission">Tap to allow GPS</string>
     <string name="watch_gps_waiting">Waiting for fix…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">Horn</string>
+    <string name="watch_action_light">Light</string>
+    <string name="watch_action_lock">Lock wheel</string>
+    <string name="watch_action_safety">Legal mode</string>
+    <string name="watch_action_safety_on">Legal mode on</string>
+    <string name="watch_action_safety_off">Legal mode off</string>
+    <string name="watch_action_voice">Voice report</string>
+    <string name="watch_action_record">Recording</string>
+    <string name="watch_action_record_start">Recording started</string>
+    <string name="watch_action_record_stop">Recording stopped</string>
+    <string name="watch_action_media_play">Play / pause</string>
+    <string name="watch_action_media_next">Next track</string>
+    <string name="watch_action_media_prev">Previous track</string>
+    <string name="watch_action_long_press_hint">Long press for %1$s</string>
 </resources>

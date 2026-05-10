@@ -61,7 +61,12 @@ class WatchBridgeService : WearableListenerService() {
                         stem1Click = map.getString(WatchKeys.STEM1_CLICK, "NONE") ?: "NONE",
                         stem1Hold = map.getString(WatchKeys.STEM1_HOLD, "NONE") ?: "NONE",
                         stem2Click = map.getString(WatchKeys.STEM2_CLICK, "NONE") ?: "NONE",
-                        stem2Hold = map.getString(WatchKeys.STEM2_HOLD, "NONE") ?: "NONE"
+                        stem2Hold = map.getString(WatchKeys.STEM2_HOLD, "NONE") ?: "NONE",
+                        screen1Click = map.getString(WatchKeys.SCREEN1_CLICK, "HORN") ?: "HORN",
+                        screen1Hold = map.getString(WatchKeys.SCREEN1_HOLD, "NONE") ?: "NONE",
+                        screen2Click = map.getString(WatchKeys.SCREEN2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
+                        screen2Hold = map.getString(WatchKeys.SCREEN2_HOLD, "NONE") ?: "NONE",
+                        hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false)
                     )
                 )
             }

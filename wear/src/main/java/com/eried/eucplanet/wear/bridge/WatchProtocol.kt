@@ -18,6 +18,10 @@ object WatchPaths {
     /** Phone-to-watch ping that wakes the watch app when the user opens the
      *  phone app. Watch listener launches MainActivity when it sees this. */
     const val WAKE = "/euc/wake"
+    /** One-shot watch -> phone message sent on watch app launch carrying
+     *  Build / BuildConfig info as a UTF-8 pipe-separated string so the
+     *  Service Mode log on the phone can include both sides of the pair. */
+    const val WATCH_INFO = "/euc/watch_info"
 }
 
 object WatchKeys {
@@ -63,6 +67,16 @@ object WatchKeys {
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
+
+    // --- On-screen watch button bindings. Same FlicAction.name vocabulary;
+    //     defaults are HORN / LIGHT_TOGGLE on the phone side. ---
+    const val SCREEN1_CLICK = "b1c"
+    const val SCREEN1_HOLD = "b1h"
+    const val SCREEN2_CLICK = "b2c"
+    const val SCREEN2_HOLD = "b2h"
+
+    /** Global toggle: vibrate the watch briefly when an action fires. */
+    const val HAPTIC_ON_ACTION = "hap"
 }
 
 object WatchControl {
@@ -133,5 +147,10 @@ data class WatchState(
     val stem1Click: String = "NONE",
     val stem1Hold: String = "NONE",
     val stem2Click: String = "NONE",
-    val stem2Hold: String = "NONE"
+    val stem2Hold: String = "NONE",
+    val screen1Click: String = "HORN",
+    val screen1Hold: String = "NONE",
+    val screen2Click: String = "LIGHT_TOGGLE",
+    val screen2Hold: String = "NONE",
+    val hapticOnAction: Boolean = false
 )

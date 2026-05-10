@@ -87,6 +87,12 @@ class MainActivity : ComponentActivity() {
                 }
         }
 
+        // One-shot announce: ship Build / BuildConfig info to the phone so
+        // its Service Mode log captures both sides of the pair. Idempotent
+        // (gated by a flag inside WatchStateRepository), best-effort, no-op
+        // if no phone is paired right now.
+        WatchStateRepository.sendWatchInfo(applicationContext)
+
         setContent { WatchApp() }
     }
 

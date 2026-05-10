@@ -100,7 +100,7 @@ fun MetricDetailScreen(
 
     val unitLabel = when (metricType) {
         MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(imperial)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(imperial)
+        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
         else -> metricType.unit
     }
 

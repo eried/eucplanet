@@ -24,6 +24,7 @@ class PhoneWearListenerService : WearableListenerService() {
     companion object {
         private const val TAG = "PhoneWear"
         private const val PATH_CONTROL = "/euc/control"
+        private const val PATH_WATCH_INFO = "/euc/watch_info"
 
         private const val CMD_HORN = "horn"
         private const val CMD_LIGHT_ON = "light_on"
@@ -35,8 +36,21 @@ class PhoneWearListenerService : WearableListenerService() {
     @Inject lateinit var flicManager: FlicManager
 
     override fun onMessageReceived(event: MessageEvent) {
-        if (event.path != PATH_CONTROL) return
-        val command = String(event.data)
+        when (event.path) {
+            PATH_CONTROL -> handleControl(String(event.data))
+            PATH_WATCH_INFO -> {
+                // Watch sends this once per launch with its own Build /
+                // BuildConfig info so the Service Mode log captures both
+                // sides of a paired session. Only logged when the diagnostic
+                // logger is enabled — no-op otherwise.
+                val info = String(event.data)
+                Log.i(TAG, "watch info: $info")
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("watch: $info")
+            }
+        }
+    }
+
+    private fun handleControl(command: String) {
         Log.i(TAG, "control from watch: $command")
         when {
             command == CMD_HORN -> wheelRepository.sendHorn()

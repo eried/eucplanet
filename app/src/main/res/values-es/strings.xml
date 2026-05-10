@@ -66,7 +66,7 @@
     <string name="tab_alarms">Reglas de alarma</string>
     <string name="tab_auto">Automatizaciones</string>
     <string name="tab_integration">Integración</string>
-    <string name="tab_cloud">Respaldo de viajes y ajustes</string>
+    <string name="tab_cloud">Respaldo de ajustes y viajes</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
@@ -165,8 +165,8 @@
     <string name="voice_speech_speed">Velocidad del habla</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Mientras habla</string>
-    <string name="voice_audio_focus_duck">Bajar otros sonidos</string>
-    <string name="voice_audio_focus_pause">Pausar otros sonidos</string>
+    <string name="voice_audio_focus_duck">Bajar otros</string>
+    <string name="voice_audio_focus_pause">Pausar otros</string>
     <string name="voice_audio_focus_off">No hacer nada</string>
     <string name="col_periodic">Periódico</string>
     <string name="col_trigger">Evento</string>
@@ -287,8 +287,8 @@
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luces</string>
     <string name="auto_lights_desc">Enciende o apaga las luces según el amanecer y atardecer</string>
-    <string name="auto_lights_on_before_sunset">Luces ENCENDIDAS antes del atardecer</string>
-    <string name="auto_lights_off_after_sunrise">Luces APAGADAS tras el amanecer</string>
+    <string name="auto_lights_on_before_sunset">Encender antes del atardecer</string>
+    <string name="auto_lights_off_after_sunrise">Apagar después del amanecer</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Esperando ubicación GPS\u2026</string>
     <string name="auto_volume_title">Volumen</string>
@@ -380,9 +380,75 @@
     <string name="flic_status_scan_failed_fmt">Búsqueda fallida (código %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Registros de fallos</string>
     <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador</string>
     <string name="about_crash_logs_empty">Sin fallos registrados</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
-    <string name="about_license">Licencia</string>
+    <!-- Newly translated strings -->
+    <string name="about_thanks">Créditos</string>
+    <string name="about_thanks_body">Me cansé de las apps de EUC que evolucionan demasiado lento, lucen anticuadas, tienen reglas draconianas para añadir funciones, tratan a sus comunidades como clientes y olvidan que los riders de EUC dan lo mejor de sí cuando se ayudan entre ellos. Esta intenta ser lo opuesto.\n\nGracias a:\n• Gio (Wheel In Motion). Promoción, sugerencias y pruebas del P6. Cuero cabelludo cosido, entusiasmo intacto.\n• Ilya Shkolnik y la comunidad de WheelLog. Investigación pública del protocolo en la que se basan los adaptadores de KingSong, Begode y Veteran.\n• InMotion, por hacer mi increíble V14.</string>
+    <string name="action_reorder">Arrastra para reordenar</string>
+    <string name="alarm_delete_body">%1$s será eliminada. Esta acción no se puede deshacer.</string>
+    <string name="alarm_delete_title">¿Eliminar esta alarma?</string>
+    <string name="alarm_vibrate_target_both">Ambos</string>
+    <string name="alarm_vibrate_target_label">Vibrar en</string>
+    <string name="alarm_vibrate_target_phone">Teléfono</string>
+    <string name="alarm_vibrate_target_watch">Reloj</string>
+    <string name="auto_connect_caption">Reconecta a la última rueda emparejada. La primera vez debes conectar manualmente</string>
+    <string name="discard_trip_pending_label">El viaje se respaldará en breve</string>
+    <string name="experimental_banner">Soporte preliminar para esta rueda. Toca para reportar problemas.</string>
+    <string name="experimental_dialog_body">El soporte para esta rueda es preliminar. Solo la familia V14 y el P6 están verificados por el autor. Úsalo con precaución.\n\nAl tocar este aviso reportarás un problema, para que el autor pueda arreglar lo que no funciona.</string>
+    <string name="experimental_dialog_report">Reportar un problema</string>
+    <string name="experimental_dialog_title">Ayuda a mejorar EUC Planet</string>
+    <string name="flic_button">Botón Flic</string>
+    <string name="flic_forget_body">%1$s se desemparejará y sus acciones se borrarán. Puedes volver a emparejarlo cuando quieras.</string>
+    <string name="flic_forget_title">¿Olvidar este botón?</string>
+    <string name="flic_no_buttons">No hay botones Flic emparejados</string>
+    <string name="menu_auto_lights">Ajustes de luces automáticas</string>
+    <string name="menu_start_recording">Iniciar grabación</string>
+    <string name="menu_stop_recording">Detener grabación</string>
+    <string name="menu_view_current_trip">Ver viaje actual</string>
+    <string name="menu_view_last_trip">Ver último viaje</string>
+    <string name="menu_voice_periodic_off">Desactivar anuncios periódicos</string>
+    <string name="menu_voice_periodic_on">Activar anuncios periódicos</string>
+    <string name="report_time">Hora</string>
+    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece</string>
+    <string name="scan_show_all_title">Mostrar todos los dispositivos</string>
+    <string name="scan_simulate_subtitle">Para desarrollo sin hardware. Omite BLE y envía respuestas predefinidas a través del adaptador</string>
+    <string name="scan_simulate_title">Ruedas virtuales</string>
+    <string name="section_watch_buttons">Botones físicos</string>
+    <string name="section_watch_display">Pantalla</string>
+    <string name="section_watch_general">General</string>
+    <string name="show_gauge_color_band">Banda de color del indicador de velocidad</string>
+    <string name="stat_watts">VATIOS</string>
+    <string name="tab_watch">Reloj</string>
+    <string name="toast_external_speed_change">Velocidad actualizada desde la rueda: tiltback %1$d km/h, alarma %2$d km/h</string>
+    <string name="voice_output_channel_alarm">Alarma</string>
+    <string name="voice_output_channel_label">Salida de voz</string>
+    <string name="voice_output_channel_media">Multimedia</string>
+    <string name="voice_output_channel_notification">Notificación</string>
+    <string name="voice_time_fmt">hora %1$s</string>
+    <string name="watch_auto_start">Iniciar el reloj automáticamente</string>
+    <string name="watch_auto_start_desc">Abre la app del reloj automáticamente cuando abras la app del teléfono</string>
+    <string name="watch_button_1">Botón 1</string>
+    <string name="watch_button_2">Botón 2</string>
+    <string name="watch_button_click_label">Clic</string>
+    <string name="watch_button_hold_label">Pulsación larga</string>
+    <string name="watch_keep_on">Mantener pantalla encendida</string>
+    <string name="watch_keep_on_desc">Evita que el reloj se duerma mientras la app de EUC Planet esté abierta</string>
+    <string name="watch_pwm_bar">Barra</string>
+    <string name="watch_pwm_both">Ambos</string>
+    <string name="watch_pwm_display">Indicador de carga (PWM)</string>
+    <string name="watch_pwm_numbers">Texto</string>
+    <string name="watch_show_phone_battery">Mostrar batería del teléfono</string>
+    <string name="watch_show_speed_unit">Etiqueta de unidad de velocidad</string>
+    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad</string>
+    <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
+    <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
+    <string name="flic_action_record_start">Iniciar grabación de viaje</string>
+    <string name="flic_action_record_stop">Detener grabación de viaje</string>
+    <string name="section_watch_screen_buttons">Botones</string>
+    <string name="watch_screen_button_1">Botón 1</string>
+    <string name="watch_screen_button_2">Botón 2</string>
+    <string name="watch_haptic_on_action">Vibrar al activar</string>
+    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
 </resources>

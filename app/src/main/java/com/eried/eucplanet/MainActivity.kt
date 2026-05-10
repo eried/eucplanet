@@ -99,7 +99,14 @@ class MainActivity : AppCompatActivity() {
                 val first = _settings.value == null
                 _settings.value = it
                 if (first) {
-                    val want = if (it.language.isBlank()) "en" else it.language
+                    val want = if (it.language.isBlank()) {
+                        // First launch ever: pick a supported locale that matches
+                        // the phone's system language and persist the choice. After
+                        // this, the user's pick wins (even if they pick English).
+                        val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
+                        settingsRepository.update(it.copy(language = detected))
+                        detected
+                    } else it.language
                     if (com.eried.eucplanet.util.LocaleHelper.current() != want) {
                         com.eried.eucplanet.util.LocaleHelper.apply(want)
                     }

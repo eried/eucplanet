@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ble
 
 import android.util.Log
+import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,7 +21,11 @@ import javax.inject.Singleton
 class InMotionV2Adapter @Inject constructor() : WheelAdapter {
 
     override val familyId: String = "inmotion_v2"
+    override val familyDisplayName: String = "InMotion V14 / V12 / P6"
     override val capabilities: WheelCapabilities = WheelCapabilities.INMOTION_V2
+
+    override fun inspectMessageTypes(): List<String> =
+        listOf("V14 realtime", "P6 realtime", "P6 detailed")
 
     /**
      * Detected model from the wheel's MainInfo response. Set the first time
@@ -57,11 +62,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * `P6-XXXXXXXX` is the cleanest pre-connect signal — we set the model now
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         if (deviceName != null && deviceName.startsWith("P6-")) {
             detectedModel = InMotionV2Model.P6
             useP6Protocol = true
+            // Surface the model right away so _maxSpeedCap and other
+            // model-keyed UI updates don't wait for the wheel's info-bundle
+            // round-trip. The serial fills in later when 0x06 lands.
+            return DecodeResult.ModelName("InMotion P6", InMotionV2Model.P6)
         }
+        return null
     }
 
     override fun initSequence(): List<ByteArray> {
@@ -94,6 +104,20 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override fun pollSettings(): ByteArray =
         if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
+
+    /** P6 totalStats / extended status query — the response carries motor and
+     *  driver-board temps that aren't in the realtime 0x87 stream. V14 family
+     *  doesn't need a separate poll (its `0x04` realtime already includes the
+     *  full sensor block) so returns null there.
+     *
+     *  P6 update: the realtime 0x87 stream already carries motor / MOS /
+     *  driver-board at body[31/30/32] (verified against a labelled capture),
+     *  so we no longer need to poll the rich 0x84 detailed-data response —
+     *  it adds BLE traffic and its variable layout was the source of the
+     *  earlier "blinking 0 / value" temperature bug. Returns null for both
+     *  V14 and P6 now; re-enable later only if a field comes up that the
+     *  realtime stream doesn't already expose. */
+    override fun pollStats(): ByteArray? = null
 
     /**
      * Horn dispatch. V14 family models (V14g/V14s/V13/V13PRO/V11Y) use the
@@ -135,15 +159,21 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     }
 
     /**
-     * P6 needs three writes after a max-speed change to land both the
-     * tiltback and the alarm — matches what the InMotion app does (see
-     * docs/P6_CAPTURE_LABELS.md). The first one (`60 21 [tilt]`) is
-     * already sent by [setMaxSpeed]; this returns the flash-commit for
-     * the tiltback; [setAlarmSpeedCommit] returns the alarm commit.
-     * V14 returns null and uses its single-packet path unchanged.
+     * No flash-commit needed for P6 max-speed. Earlier builds sent a
+     * `60 3e [tilt 00 00]` write here, believing it was a "commit max-speed
+     * to flash" packet — re-analysis of the labelled max-speed-drag capture
+     * (`docs/P6_CAPTURE_LABELS.md`) showed that opcode is the **alarm-speed**
+     * setter; the InMotion app fires it with the new max-speed value only
+     * to clamp `alarm ≤ max` after a downward drag. `60 21 [tilt]` alone
+     * is sufficient and persists across reboots — multiple mid-drag `60 21`
+     * writes without a `60 3e` follow-up were honoured by the wheel and
+     * stayed put after power-cycle.
+     *
+     * Sending the redundant `60 3e [tilt]` was overwriting alarm with
+     * tiltback transiently before the proper alarm write landed, which on
+     * the user's hardware presented as "wheel bugs out when changing speed".
      */
-    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =
-        if (useP6Protocol) InMotionV2Commands.commitP6MaxSpeed(tiltbackKmh) else null
+    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? =
         if (useP6Protocol) InMotionV2Commands.setP6AlarmSpeed(alarmKmh) else null
@@ -155,6 +185,18 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     override fun requestAuthKey(): ByteArray = InMotionV2Commands.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray =
         InMotionV2Commands.verifyAuth(encryptedKey)
+
+    /**
+     * The InMotion P6 silently drops control commands (light, horn, auto
+     * headlight, max-speed) until the password auth handshake has run
+     * once after connect. The handshake is a fixed echo (the wheel returns
+     * a 16-byte "encrypted" blob and accepts the same blob back), so
+     * running it adds no security but unlocks the control endpoint.
+     *
+     * V14 family wheels do NOT need this — their light/horn writes work
+     * pre-auth; only lock requires the handshake on demand.
+     */
+    override fun requiresConnectAuth(): Boolean = useP6Protocol
 
     /**
      * Walk the reassembly buffer for complete AA AA frames, parse each, decode,
@@ -207,11 +249,102 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         useP6Protocol = false
     }
 
+    /**
+     * Per-wheel guesses for the Wheel Diagnostics dialog. Most are P6 light
+     * candidates because that's the open question right now: the canonical
+     * `60 50 00 00` from the labelled InMotion-app capture isn't taking on
+     * the user's hardware. Each entry is short-named with the bytes it
+     * encodes so the user can report "T6050_FFFF turned the light off" and
+     * we know exactly which packet that was.
+     */
+    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
+        // Service Mode is research-grade — show the catalogue regardless of
+        // whether the connected wheel is actually a P6. The wrap (extended
+        // routing) is only sent when fired manually, so it doesn't affect
+        // V14 / V12 telemetry. The user picks "InMotion V14 / V12 / P6" in
+        // the family dropdown and gets the full P6 query / control set.
+        val LIGHT = DiagnosticCommand.Category.LIGHT
+        val MODE = DiagnosticCommand.Category.MODE
+        val QUERY = DiagnosticCommand.Category.QUERY
+        val HORN = DiagnosticCommand.Category.HORN
+
+        fun ext(label: String, desc: String, cat: DiagnosticCommand.Category, vararg bytes: Int) =
+            DiagnosticCommand(label, desc, InMotionV2Protocol.buildExtendedPacket(
+                InMotionV2Protocol.Command.CONTROL,
+                ByteArray(bytes.size) { bytes[it].toByte() }
+            ), cat)
+
+        fun query(label: String, desc: String, cat: DiagnosticCommand.Category, cmd: Byte, vararg data: Int) =
+            DiagnosticCommand(label, desc, InMotionV2Protocol.buildExtendedPacket(
+                cmd,
+                ByteArray(data.size) { data[it].toByte() }
+            ), cat)
+
+        return listOf(
+            // --- Light: the byte combinations we want to probe ---
+            ext("T6050_0000", "Light OFF (current canonical)", LIGHT, 0x50, 0x00, 0x00),
+            ext("T6050_0101", "Light ON (current canonical)", LIGHT, 0x50, 0x01, 0x01),
+            ext("T6050_00", "Light, 1-byte 00", LIGHT, 0x50, 0x00),
+            ext("T6050_01", "Light, 1-byte 01", LIGHT, 0x50, 0x01),
+            ext("T6050_02", "Light, 1-byte 02", LIGHT, 0x50, 0x02),
+            ext("T6050_FF", "Light, 1-byte FF", LIGHT, 0x50, 0xFF),
+            ext("T6050_FFFF", "Light, FF FF", LIGHT, 0x50, 0xFF, 0xFF),
+            ext("T6050_0102", "Light, mismatched 01 02", LIGHT, 0x50, 0x01, 0x02),
+            ext("T6050_0201", "Light, mismatched 02 01", LIGHT, 0x50, 0x02, 0x01),
+            ext("T6050_03", "Light, value 03", LIGHT, 0x50, 0x03),
+            // V14-style legacy light path (not extended routing)
+            DiagnosticCommand("T024B_00", "V14 legacy light OFF",
+                InMotionV2Protocol.buildPacket(
+                    InMotionV2Protocol.Flags.DEFAULT,
+                    InMotionV2Protocol.Command.CONTROL,
+                    byteArrayOf(InMotionV2Protocol.ControlSubCmd.SET_LIGHT, 0x00)
+                ), LIGHT),
+            DiagnosticCommand("T024B_01", "V14 legacy light ON",
+                InMotionV2Protocol.buildPacket(
+                    InMotionV2Protocol.Flags.DEFAULT,
+                    InMotionV2Protocol.Command.CONTROL,
+                    byteArrayOf(InMotionV2Protocol.ControlSubCmd.SET_LIGHT, 0x01)
+                ), LIGHT),
+            // Auto-headlight may be hijacking the visible state
+            ext("T602F_00", "Auto-headlight OFF", MODE, 0x2F, 0x00),
+            ext("T602F_01", "Auto-headlight ON", MODE, 0x2F, 0x01),
+            // DRL guess
+            ext("T604E_00", "DRL? OFF", MODE, 0x4E, 0x00),
+            ext("T604E_01", "DRL? ON", MODE, 0x4E, 0x01),
+
+            // --- Horn (verify control endpoint is alive) ---
+            ext("T6051_1801", "Horn (canonical)", HORN, 0x51, 0x18, 0x01),
+
+            // --- Read-only queries: tap to inspect what the wheel returns ---
+            query("Q0286", "Info bundle (serial, firmware)", QUERY,
+                InMotionV2Protocol.Command.MAIN_INFO, 0x06),
+            query("Q0287", "Realtime telemetry", QUERY,
+                InMotionV2Protocol.Command.MAIN_INFO, 0x07),
+            query("Q0220", "Settings page A", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x20),
+            query("Q0221", "Settings page B (untried)", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x21),
+            query("Q0222", "Settings page C (untried)", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x22),
+            query("Q0211", "Total stats", QUERY,
+                InMotionV2Protocol.Command.TOTAL_STATS),
+        )
+    }
+
     /** Internal decode of an unwrapped V2 packet. Called from [onRawNotification]. */
     private fun decode(command: Byte, data: ByteArray): DecodeResult {
         return when (command.toInt() and 0x7F) {
             0x02 -> decodeMainInfoOrAuth(data)
-            0x04 -> parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            0x04 -> {
+                // Log the realtime body so the Service Mode Inspect tab can
+                // surface it for V14-family models the same way it does the
+                // P6 extended-routing 0x07 path. Same `<type> len=N body=...`
+                // format both sides parse.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "V14 realtime len=${data.size} body=${data.joinToString(" ") { "%02x".format(it) }}"
+                )
+                parseTelemetryForModel(data)?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            }
             0x11 -> InMotionV2Parser.parseTotalStats(data)?.let { DecodeResult.TotalDistance(it.totalDistanceKm) } ?: DecodeResult.Unknown
             0x20 -> parseSettingsForModel(data)?.let { DecodeResult.Settings(it) } ?: DecodeResult.Unknown
             0x21 -> decodeP6Extended(data)
@@ -232,8 +365,27 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             0x07 -> {
                 // realtime: skip the `02 87 01 00` prefix to land on the data block
                 if (data.size < 4) return DecodeResult.Unknown
-                val telem = InMotionV2Parser.parseP6Telemetry(data.copyOfRange(4, data.size))
+                val body = data.copyOfRange(4, data.size)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                )
+                val telem = InMotionV2Parser.parseP6Telemetry(body)
                 telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
+            }
+            0x04 -> {
+                // detailed-data: response to `02 21 04`. 86-byte body carries
+                // motor / MOS / driver-board temperatures. Skip the
+                // `02 84` routing pair so offset 0 lines up with the labelled
+                // capture's analysis.
+                if (data.size < 2) return DecodeResult.Unknown
+                val body = data.copyOfRange(2, data.size)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                )
+                val temps = InMotionV2Parser.parseP6DetailedData(body)
+                temps?.let {
+                    DecodeResult.P6Temperatures(it.mosC, it.motorC, it.driverBoardC)
+                } ?: DecodeResult.Unknown
             }
             0x06 -> {
                 // info bundle: skip `02 86 01 00`, then ASCII serial follows the

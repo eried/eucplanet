@@ -1,91 +1,44 @@
-# wear-os-watch-ultra
+# p6-multiwheel (v0.4.0-preview2)
 
-## What this branch adds
+Combines two preview branches into one APK pair:
 
-Companion app for Wear OS 5+ watches (built and tuned on the Galaxy Watch
-Ultra). The phone holds the BLE link to the wheel and pushes a compact
-telemetry snapshot to the watch over the Wearable Data Layer; the watch is a
-thin client and never talks to the wheel directly.
+- **`p6-fixes`** — InMotion P6 protocol research (telemetry, settings, motor
+  temp, lock cooldown), watch on-screen buttons with click + hold actions
+  + haptic + toast, Service Mode upgrades (Inspect tab, Attach picker,
+  `/euc/watch_info` from the watch), big localization push (13+ locales,
+  km/t and friends, system-locale auto-pick), gesture / dial / Spanish-copy
+  fixes, and the Wheel report issue template fix.
 
-This branch is built on top of `main` (V14 + V12 + P6 multi-wheel support
-verified through 0.3.1), so the watch dashboard inherits the corrected P6
-telemetry offsets (PWM, torque, MOS+motor temps, signed reverse speed).
+- **`more-wheels-support`** — five new BLE families: KingSong, Veteran,
+  Begode / Gotway, Ninebot, and the original InMotion V1. Clean-room from
+  public docs under `docs/protocols/` (one per family). Telemetry and
+  controls compile and pass static audits; **none have been ridden on real
+  hardware yet** — they graduate from Preview to Verified through wheel
+  reports.
 
-Concretely shipped here:
+The merge auto-resolved everything except the version bump (now
+0.4.0-preview2, code 28) and a credits-line / branch-doc text overlap.
 
-- **Full-bleed speed dial** that wraps the entire watch face. Same arc
-  geometry as the phone dashboard (260° sweep, accent-tinted safe band,
-  orange/red danger wedges, ticks). Speed number, units, batteries and
-  buttons live inside the dial.
-- **Three batteries at a glance** above the speed number: wheel, phone, and
-  watch, each colour-graded by the same red/amber/green thresholds used on
-  the phone dashboard.
-- **Accent colour follows the phone.** The accent the user picked in app
-  settings travels through the wire format and tints the dial safe band,
-  the wheel-name header on page 2, and the horn / light buttons.
-- **Imperial units follow the phone.** When `imperialUnits` is on, the
-  watch shows mph, miles, and °F; flipping the setting takes effect within
-  one publish cycle (≤200 ms).
-- **Page 2 — at-a-glance details.** Wheel name in accent, live speed, then
-  a tabular column of voltage / current / power (V × A) / PWM / temp /
-  torque / trip. Values align vertically across rows so you can scan down a
-  column.
-- **Buttons follow the phone iconography.** Horn = `Icons.Filled.Campaign`,
-  Light = `Icons.Filled.FlashOn` — same glyphs as the phone dashboard.
-- **Disconnected state** shows a phone glyph and a two-line "Open EUC
-  Planet on your phone" message. No more red dot that read as an error.
-- **Resolution-clean.** All sizes derive from `BoxWithConstraints.maxWidth`
-  so the layout looks right on small round watches (~390 dp) and on Watch
-  Ultra (~454 dp) without separate code paths.
-- **Auto-start ping** on phone-app open and a manual "Play" button next to
-  the Auto-start setting so users can verify pairing without backgrounding
-  and relaunching the phone app.
+## Service Mode now spans every wheel family
 
-## Architecture
+Service Mode used to be P6-only in practice — Commands tab listed P6
+queries, the Inspect tab knew only `P6 realtime` / `P6 detailed`. On
+this branch it works for V14, P6, KingSong, Veteran, Begode, Ninebot,
+and V1, regardless of what's connected. Per-family presets are picked
+from a dropdown so a user with a V14 in front of them can still poke at
+the KingSong command catalogue for research.
 
-- `WearBridge` (phone, `app/`) subscribes to `WheelRepository` flows and
-  `SettingsRepository.settings`, samples to 5 Hz, packs a `DataMap` and
-  publishes at `/euc/state`. Reads phone battery via `BatteryManager`.
-- `WatchBridgeService` (watch, `wear/`) decodes the DataMap into a
-  `WatchState` and updates a singleton `WatchStateRepository`.
-- `WatchApp` (Compose) collects from the repo and renders.
-- Control flow (horn / light) is the existing reverse channel: watch sends
-  short Messages on `/euc/control`, phone routes them through
-  `WheelRepository`.
+## What's verified
 
-## Who should test this
+- V14, V12 family, P6: all production paths still work; preview18 of the
+  P6 work has been bench-tested end to end.
+- Watch app: on-screen buttons configurable, hold-toast + optional
+  haptic, no crashes on the Wear emulator after the VIBRATE permission
+  fix.
 
-- **Watch Ultra owners** with a paired phone running the matching debug or
-  pre-release APK from the same branch: confirm the dial reads correctly,
-  battery percentages match Settings/Battery on each device, accent and
-  imperial follow the phone, and horn/light controls work.
-- **Other Wear OS 5+ watches** (round and rectangular): the layout should
-  scale; please report clipping or overlap. Square watches use the same
-  dial with the corners falling outside the arc — intentional.
-- **Anyone curious about the UI without hardware**: debug builds expose an
-  ADB demo broadcast. With the watch app open:
-  ```
-  adb shell am broadcast -p com.eried.eucplanet \
-    -a com.eried.eucplanet.wear.DEMO \
-    --ef speed 32 --ei battery 78 --ei phone 64 \
-    --es accent teal --ef maxSpeed 70 \
-    --ez imperial false --es name "InMotion V14"
-  ```
-  Speed/battery/accent/imperial extras are all optional.
+## What needs riding
 
-## Known limits
-
-- **Pairing must be done via the Wear OS by Google companion app** the
-  first time. Without pairing, the watch shows the disconnected
-  placeholder forever; this branch does not change that.
-- **Tile and complication** (carousel and watch-face quick-glance) are not
-  here yet. The companion launches as an app you open from the launcher.
-- **No standalone (watch-only) BLE.** The watch never connects to the
-  wheel directly; if the phone's app process is killed, telemetry stops.
-- **No on-watch settings.** Imperial / accent / max-speed cap are read
-  from the phone — change them there.
-
-## Feedback
-
-File issues at https://github.com/eried/eucplanet/issues. Tag with the
-watch model and Wear OS version if you can.
+The five new wheel families. If you're on a KingSong S22 / S20 / S18,
+Veteran Sherman / Patton / Lynx, Begode / Gotway, Ninebot Z / E /
+ONE, or InMotion V1 / V3 / V5 / V8, please pair, ride a careful first
+loop, and file a Wheel report (`/issues/new/choose`).

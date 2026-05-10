@@ -96,6 +96,8 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -117,10 +119,16 @@ private val languageOptions = listOf(
     "da" to "Dansk",
     "de" to "Deutsch",
     "es" to "Español",
+    "es-419" to "Español (Latinoamérica)",
     "fr" to "Français",
+    "it" to "Italiano",
+    "nl" to "Nederlands",
     "no" to "Norsk",
+    "pl" to "Polski",
+    "pt-BR" to "Português (Brasil)",
     "ru" to "Русский",
     "sv" to "Svenska",
+    "uk" to "Українська",
     "zh" to "中文"
 )
 
@@ -172,17 +180,28 @@ fun SettingsScreen(
         val langName = when (lang) {
             "en" -> stringResource(R.string.lang_name_en)
             "es" -> stringResource(R.string.lang_name_es)
+            "es-419" -> stringResource(R.string.lang_name_es_419)
             "ru" -> stringResource(R.string.lang_name_ru)
+            "uk" -> stringResource(R.string.lang_name_uk)
             "no" -> stringResource(R.string.lang_name_no)
             "de" -> stringResource(R.string.lang_name_de)
             "fr" -> stringResource(R.string.lang_name_fr)
+            "it" -> stringResource(R.string.lang_name_it)
+            "nl" -> stringResource(R.string.lang_name_nl)
+            "pl" -> stringResource(R.string.lang_name_pl)
+            "pt-BR" -> stringResource(R.string.lang_name_pt)
             "da" -> stringResource(R.string.lang_name_da)
             "sv" -> stringResource(R.string.lang_name_sv)
             "zh" -> stringResource(R.string.lang_name_zh)
             else -> lang
         }
+        // The dialog renders in the user's CURRENT language because the
+        // locale switch is deferred until they confirm. Three choices:
+        //  - Yes: switch language AND TTS voice
+        //  - No: switch language only, keep current TTS voice
+        //  - Cancel: don't switch at all
         AlertDialog(
-            onDismissRequest = { viewModel.dismissTtsSwitch() },
+            onDismissRequest = { viewModel.cancelLanguageSwitch() },
             title = { Text(stringResource(R.string.tts_switch_title, langName)) },
             text = { Text(stringResource(R.string.tts_switch_body, langName)) },
             confirmButton = {
@@ -191,8 +210,13 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = { viewModel.dismissTtsSwitch() }) {
-                    Text(stringResource(R.string.tts_switch_no))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    Button(onClick = { viewModel.dismissTtsSwitch() }) {
+                        Text(stringResource(R.string.tts_switch_no))
+                    }
                 }
             }
         )
@@ -995,28 +1019,20 @@ private fun FlicTab(
         val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    HintText(stringResource(R.string.flic_scan_hint))
-                    Spacer(Modifier.height(12.dp))
-                    if (scanning) {
-                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                        Spacer(Modifier.height(8.dp))
-                        Button(
-                            onClick = { viewModel.stopScan() },
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                        ) { Text(stringResource(R.string.flic_stop_scan)) }
-                    } else {
-                        Button(onClick = { viewModel.startScan() }) {
-                            Text(stringResource(R.string.flic_start_scan))
-                        }
-                    }
+            HintText(stringResource(R.string.flic_scan_hint))
+            Spacer(Modifier.height(12.dp))
+            if (scanning) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = { viewModel.stopScan() },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    ) { Text(stringResource(R.string.flic_stop_scan)) }
+                    Spacer(Modifier.width(12.dp))
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                }
+            } else {
+                Button(onClick = { viewModel.startScan() }) {
+                    Text(stringResource(R.string.flic_start_scan))
                 }
             }
         }
@@ -1115,7 +1131,14 @@ private fun WatchTab(
                     selected = key == settings.watchPwmDisplay,
                     onClick = { viewModel.updateWatchPwmDisplay(key) },
                     shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
-                ) { Text(label) }
+                ) {
+                    Text(
+                        label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
 
@@ -1131,6 +1154,37 @@ private fun WatchTab(
         // third-party apps. Keeping the AppSettings columns and dispatch
         // plumbing in place so the section can come back when we test on a
         // watch that actually surfaces stem keys.
+
+        // On-screen button bindings (replaces the hardcoded Horn / Light
+        // buttons that used to live on the watch dial). These DO work on
+        // every Wear OS watch since they're regular touch targets.
+        SectionHeader(stringResource(R.string.section_watch_screen_buttons))
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+            currentKey = settings.watchScreen1Click,
+            onSelect = { viewModel.updateWatchScreen1Click(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+            currentKey = settings.watchScreen1Hold,
+            onSelect = { viewModel.updateWatchScreen1Hold(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+            currentKey = settings.watchScreen2Click,
+            onSelect = { viewModel.updateWatchScreen2Click(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+            currentKey = settings.watchScreen2Hold,
+            onSelect = { viewModel.updateWatchScreen2Hold(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_haptic_on_action),
+            description = stringResource(R.string.watch_haptic_on_action_desc),
+            checked = settings.watchHapticOnAction,
+            onCheckedChange = { viewModel.updateWatchHapticOnAction(it) }
+        )
     }
 }
 
@@ -1522,7 +1576,7 @@ private fun SpeedSliderSetting(
         label = label,
         value = displayValue,
         range = displayStart..displayEnd,
-        unit = Units.speedUnit(imperial),
+        unit = Units.speedUnit(LocalContext.current, imperial),
         enabled = enabled,
         onValueChange = { displayed ->
             val kmh = if (imperial) displayed / 0.621371f else displayed
@@ -1939,7 +1993,15 @@ private fun SegmentedChoice(
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                     icon = {},
-                    label = { Text(optLabel, style = MaterialTheme.typography.labelMedium) }
+                    label = {
+                        Text(
+                            optLabel,
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 )
             }
         }

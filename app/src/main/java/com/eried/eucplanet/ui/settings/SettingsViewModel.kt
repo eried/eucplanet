@@ -170,24 +170,45 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
     fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
     fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
+    fun updateWatchScreen1Click(action: String) = update { copy(watchScreen1Click = action) }
+    fun updateWatchScreen1Hold(action: String) = update { copy(watchScreen1Hold = action) }
+    fun updateWatchScreen2Click(action: String) = update { copy(watchScreen2Click = action) }
+    fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
+    fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
 
     // Appearance
     fun updateLanguage(v: String) {
-        update { copy(language = v) }
-        com.eried.eucplanet.util.LocaleHelper.apply(v)
         val appLang = if (v.isBlank()) "en" else v
+        // Pull just the primary language subtag (e.g. "es" from "es-419", "pt" from "pt-BR")
+        // so es-419 / pt-BR don't confuse the equality check below.
+        val appLangPrimary = appLang.substringBefore('-').lowercase()
         val ttsLang = voiceService.currentVoiceLanguage().lowercase()
-        if (ttsLang != appLang.lowercase()) {
-            _ttsSwitchPrompt.value = appLang
+        if (ttsLang != appLangPrimary) {
+            // Defer the locale switch until the user confirms in the dialog —
+            // showing the prompt FIRST means the dialog renders in the user's
+            // current language, so they can read it (and Cancel) even if the
+            // requested language is one they don't actually speak.
+            _ttsSwitchPrompt.value = v
+        } else {
+            // TTS already matches — apply the language switch immediately.
+            update { copy(language = v) }
+            com.eried.eucplanet.util.LocaleHelper.apply(v)
         }
     }
 
+    /**
+     * User accepted: switch the app language and ALSO switch the TTS voice
+     * to match the new language.
+     */
     fun acceptTtsSwitch() {
-        val lang = _ttsSwitchPrompt.value ?: return
-        val tag = voiceService.pickVoiceForLanguage(lang)
+        val v = _ttsSwitchPrompt.value ?: return
+        update { copy(language = v) }
+        com.eried.eucplanet.util.LocaleHelper.apply(v)
+        val appLang = if (v.isBlank()) "en" else v
+        val tag = voiceService.pickVoiceForLanguage(appLang)
         if (tag != null) {
             update { copy(voiceLocale = tag) }
             voiceService.setVoiceLocale(tag)
@@ -195,7 +216,21 @@ class SettingsViewModel @Inject constructor(
         _ttsSwitchPrompt.value = null
     }
 
-    fun dismissTtsSwitch() { _ttsSwitchPrompt.value = null }
+    /**
+     * User chose to switch language but keep the existing TTS voice.
+     */
+    fun dismissTtsSwitch() {
+        val v = _ttsSwitchPrompt.value ?: return
+        update { copy(language = v) }
+        com.eried.eucplanet.util.LocaleHelper.apply(v)
+        _ttsSwitchPrompt.value = null
+    }
+
+    /**
+     * User cancelled the language switch entirely (e.g. picked the wrong
+     * language by mistake).
+     */
+    fun cancelLanguageSwitch() { _ttsSwitchPrompt.value = null }
 
     fun updateThemeMode(v: String) = update { copy(themeMode = v) }
     fun updateAccentColor(v: String) = update { copy(accentColor = v) }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Apri EUC Planet\nsul telefono</string>
+    <string name="watch_waiting_wheel">Collega una ruota\nin EUC Planet</string>
+    <string name="watch_disconnected">Disconnessa</string>
+    <string name="watch_horn">Clacson</string>
+    <string name="watch_light">Luce</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Batteria</string>
+    <string name="watch_voltage_label">Tensione</string>
+    <string name="watch_current_label">Corrente</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Potenza</string>
+    <string name="watch_temp_label">Temp</string>
+    <string name="watch_trip_label">Viaggio</string>
+    <string name="watch_torque_label">Coppia</string>
+    <string name="watch_action_failed">Telefono non raggiungibile</string>
+    <string name="watch_gps_label">Velocità GPS</string>
+    <string name="watch_gps_permission">Tocca per attivare il GPS</string>
+    <string name="watch_gps_waiting">In attesa del fix…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">Clacson</string>
+    <string name="watch_action_light">Luce</string>
+    <string name="watch_action_lock">Blocca ruota</string>
+    <string name="watch_action_safety">Modalità legale</string>
+    <string name="watch_action_safety_on">Modalità legale attiva</string>
+    <string name="watch_action_safety_off">Modalità legale spenta</string>
+    <string name="watch_action_voice">Rapporto vocale</string>
+    <string name="watch_action_record">Registrazione</string>
+    <string name="watch_action_record_start">Registrazione avviata</string>
+    <string name="watch_action_record_stop">Registrazione fermata</string>
+    <string name="watch_action_media_play">Play / pausa</string>
+    <string name="watch_action_media_next">Brano successivo</string>
+    <string name="watch_action_media_prev">Brano precedente</string>
+    <string name="watch_action_long_press_hint">Tieni premuto per %1$s</string>
+</resources>

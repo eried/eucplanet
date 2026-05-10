@@ -71,6 +71,8 @@ class DashboardViewModel @Inject constructor(
     val safetySpeedActive: StateFlow<Boolean> = wheelRepository.safetySpeedActive
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
+    val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    val lightBusy: StateFlow<Boolean> = wheelRepository.lightBusy
 
     val recording: StateFlow<Boolean> = tripRepository.recording
 

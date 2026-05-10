@@ -36,7 +36,14 @@ object WatchUnits {
     fun speed(kmh: Float, imperial: Boolean): Float = if (imperial) kmh * 0.621371f else kmh
     fun distance(km: Float, imperial: Boolean): Float = if (imperial) km * 0.621371f else km
     fun temperature(c: Float, imperial: Boolean): Float = if (imperial) c * 9f / 5f + 32f else c
-    fun speedUnit(imperial: Boolean): String = if (imperial) "mph" else "km/h"
+    /**
+     * Localized speed unit. Norwegian Bokmål uses "km/t", Dutch "km/u",
+     * Russian "км/ч" etc., so we route through string resources rather than
+     * hardcoding "km/h".
+     */
+    fun speedUnit(context: android.content.Context, imperial: Boolean): String =
+        if (imperial) context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_mph)
+        else context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit)
     fun distanceUnit(imperial: Boolean): String = if (imperial) "mi" else "km"
     fun tempUnit(imperial: Boolean): String = if (imperial) "°F" else "°C"
 }

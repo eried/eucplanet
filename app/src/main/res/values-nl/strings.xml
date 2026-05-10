@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="notification_channel_name">Wielverbinding</string>
+    <string name="notification_channel_description">Toont verbindingsstatus en telemetrie van het wiel</string>
+
+    <!-- Common -->
+    <string name="action_back">Terug</string>
+    <string name="action_cancel">Annuleren</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Opslaan</string>
+    <string name="action_delete">Verwijderen</string>
+    <string name="action_edit">Bewerken</string>
+    <string name="action_test">Testen</string>
+    <string name="action_move_up">Omhoog verplaatsen</string>
+    <string name="action_move_down">Omlaag verplaatsen</string>
+    <string name="action_reorder">Sleep om te ordenen</string>
+    <string name="show_gauge_color_band">Kleurband op snelheidsmeter</string>
+    <string name="stat_watts">WATT</string>
+    <string name="flic_button">Flic-knop</string>
+    <string name="menu_auto_lights">Automatische verlichting</string>
+    <string name="menu_voice_periodic_on">Periodieke meldingen aanzetten</string>
+    <string name="menu_voice_periodic_off">Periodieke meldingen uitzetten</string>
+    <string name="menu_view_last_trip">Bekijk laatste rit</string>
+    <string name="menu_view_current_trip">Bekijk huidige rit</string>
+    <string name="menu_start_recording">Opname starten</string>
+    <string name="menu_stop_recording">Opname stoppen</string>
+    <string name="discard_trip_pending_label">Rit wordt zo geback-upt</string>
+    <string name="no_trips_title">Nog geen ritten</string>
+    <string name="no_trips_body">Start een opname of importeer ritten. Deze snelkoppeling opent de meest recente.</string>
+    <string name="no_trips_action_recorder">Ritrecorder</string>
+    <string name="voice_volume_low_toast">Volume staat laag, de stem is misschien niet hoorbaar</string>
+    <string name="action_grant_permission">Toestemming geven</string>
+    <string name="action_open_settings">Instellingen openen</string>
+
+    <!-- Permissions -->
+    <string name="scan_permission_needed">Toestemming nodig</string>
+    <string name="scan_permission_body">Om je wiel te vinden heeft de app toegang tot Bluetooth en locatie nodig</string>
+    <string name="scan_permission_body_settings">Toestemming geweigerd. Open de systeeminstellingen om Bluetooth en locatietoegang toe te staan</string>
+    <string name="recording_location_permission_needed">Locatie nodig</string>
+    <string name="recording_location_permission_body">De ritopname slaat GPS-punten op zodat je je route op een kaart kunt zien. Geef locatietoegang om door te gaan</string>
+
+    <!-- Experimental banner -->
+    <string name="experimental_banner">Voorlopig ondersteund wiel. Tik om problemen te melden.</string>
+    <string name="experimental_dialog_title">Help EUC Planet verbeteren</string>
+    <string name="experimental_dialog_body">Ondersteuning voor dit wiel is voorlopig. Alleen de V14-familie en de P6 zijn door de auteur geverifieerd. Gebruik met voorzichtigheid.\n\nDoor op deze banner te tikken kun je een probleem melden, zodat de auteur kan repareren wat niet werkt.</string>
+    <string name="experimental_dialog_report">Probleem melden</string>
+
+    <!-- Scan: virtual wheel section (debug builds only) -->
+    <string name="scan_simulate_title">Virtuele wielen</string>
+    <string name="scan_simulate_subtitle">Voor ontwikkeling zonder hardware. Omzeilt BLE en voert vooraf opgenomen reacties door de adapterpijplijn</string>
+
+    <!-- Dashboard -->
+    <string name="connection_connected">Verbonden</string>
+    <string name="connection_connecting">Zoeken…</string>
+    <string name="connection_initializing">Initialiseren…</string>
+    <string name="connection_scanning">Scannen…</string>
+    <string name="connection_disconnected">Niet verbonden</string>
+    <string name="connection">Verbinding</string>
+    <string name="settings">Instellingen</string>
+    <string name="disconnect">Verbinding verbreken</string>
+    <string name="disconnect_from">Verbinding verbreken met %1$s?</string>
+    <string name="wheel_generic">wiel</string>
+    <string name="exit_title">EUC Planet afsluiten</string>
+    <string name="exit_body">De achtergrondservice laten draaien, of alles stoppen?</string>
+    <string name="exit_stop_all">Alles stoppen</string>
+    <string name="exit_background">Achtergrond</string>
+
+    <string name="stat_battery">ACCU</string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_voltage">SPANNING</string>
+    <string name="stat_amps">AMPÈRE</string>
+    <string name="stat_load">BELASTING (PWM)</string>
+    <string name="stat_trip">RIT</string>
+    <string name="stat_odo">TOTAAL </string>
+
+    <string name="action_horn">Toeter</string>
+    <string name="action_light">Licht</string>
+    <string name="action_voice">Stem</string>
+    <string name="action_legal_mode">Legal Mode</string>
+    <string name="action_legal_on">Legal AAN</string>
+    <string name="action_lock_wheel">Wiel vergrendelen</string>
+    <string name="action_locked">Vergrendeld</string>
+    <string name="action_recorder">Recorder</string>
+    <string name="action_recorder_trips">Recorder\n(%1$d ritten)</string>
+
+    <!-- Settings tabs -->
+    <string name="search_settings">Zoek in instellingen</string>
+    <string name="tab_general">Algemeen</string>
+    <string name="tab_speed">Snelheidslimieten van wiel</string>
+    <string name="tab_display">Weergave &amp; uiterlijk</string>
+    <string name="tab_voice">Stem &amp; meldingen</string>
+    <string name="tab_alarms">Alarmregels</string>
+    <string name="tab_auto">Automatiseringen</string>
+    <string name="tab_integration">Integratie</string>
+    <string name="tab_watch">Horloge</string>
+    <string name="tab_cloud">Back-up van instellingen &amp; ritten</string>
+
+    <!-- Wear OS companion settings -->
+    <string name="section_watch_general">Algemeen</string>
+    <string name="section_watch_display">Weergave</string>
+    <string name="watch_keep_on">Scherm aan houden</string>
+    <string name="watch_keep_on_desc">Voorkom dat het horloge in slaap valt terwijl de EUC Planet-app open is</string>
+    <string name="watch_auto_start">Automatisch starten op horloge</string>
+    <string name="watch_auto_start_desc">Open de horloge-app automatisch wanneer je de telefoon-app opent</string>
+    <string name="watch_show_wheel_battery">Accu van wiel tonen</string>
+    <string name="watch_show_phone_battery">Accu van telefoon tonen</string>
+    <string name="watch_show_watch_battery">Accu van horloge tonen</string>
+    <string name="watch_pwm_display">Belastingsindicator (PWM)</string>
+    <string name="watch_pwm_bar">Balk</string>
+    <string name="watch_pwm_numbers">Tekst</string>
+    <string name="watch_pwm_both">Beide</string>
+    <string name="watch_show_speed_unit">Snelheidseenheid</string>
+    <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal</string>
+
+    <!-- Watch hardware buttons -->
+    <string name="section_watch_buttons">Hardwareknoppen</string>
+    <string name="watch_button_1">Knop 1</string>
+    <string name="watch_button_2">Knop 2</string>
+    <string name="watch_button_click_label">Klik</string>
+    <string name="watch_button_hold_label">Lang indrukken</string>
+
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Back-upmap</string>
+    <string name="cloud_caption">Kies een map op deze telefoon waarin rit-CSV\'s en een back-up van je instellingen worden opgeslagen</string>
+    <string name="cloud_help_title">Hoe je een back-up maakt naar OneDrive, Drive of Dropbox</string>
+    <string name="cloud_help_body">Het mapselectievenster van Android laat OneDrive, Google Drive of Dropbox meestal niet zien. Die apps stellen geen schrijfbare map beschikbaar voor andere apps, dus we slaan lokaal op en laten een synchronisatie-app de upload doen.\n\nInstellen:\n1. Installeer Autosync (voor OneDrive, Drive of Dropbox) of FolderSync uit de Play Store.\n2. Log in die app in en maak een sync-paar: jouw gekozen lokale map naar een cloudmap.\n3. Stel het in op \"Alleen uploaden\" met directe of bij-wijziging-synchronisatie.\n4. Kom hier terug en kies dezelfde lokale map.\n\nNieuwe ritten komen in die map terecht zodra een opname eindigt. De sync-app uploadt ze op de achtergrond.</string>
+    <string name="cloud_choose_folder">Map kiezen</string>
+    <string name="cloud_change_folder">Map wijzigen</string>
+    <string name="cloud_remove_folder">Ontkoppelen</string>
+    <string name="cloud_no_folder">Geen map gekozen</string>
+    <string name="cloud_folder_label">Map: %1$s</string>
+    <string name="section_cloud_settings">Back-up van instellingen</string>
+    <string name="cloud_backup_now">Back-up</string>
+    <string name="cloud_restore">Terugzetten</string>
+    <string name="cloud_last_backup">Laatste back-up: %1$s</string>
+    <string name="cloud_last_backup_never">Nog geen back-up</string>
+    <string name="cloud_backup_success">Instellingen geback-upt</string>
+    <string name="cloud_backup_failed">Back-up mislukt. Controleer maptoegang.</string>
+    <string name="cloud_restore_success">Instellingen teruggezet</string>
+    <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
+    <string name="section_cloud_trips">Back-up van ritten</string>
+    <string name="cloud_trips_caption">Nieuwe ritten worden automatisch in je map opgeslagen</string>
+    <string name="cloud_retry_now">Alles synchroniseren</string>
+    <string name="cloud_retry_enqueued">Upload ingepland</string>
+    <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
+    <string name="sync_no_folder">Kies eerst een back-upmap</string>
+    <string name="sync_finished">%1$d ritten gesynchroniseerd</string>
+    <string name="sync_conflict_title">Synchronisatieconflict</string>
+    <string name="sync_conflict_body">%1$d ritten staan aan beide kanten.</string>
+    <string name="sync_conflict_app">App naar back-up kopiëren</string>
+    <string name="sync_conflict_folder">Back-up naar app kopiëren</string>
+    <string name="sync_conflict_ignore">Alle conflicten overslaan</string>
+    <string name="cloud_uploaded_on">Geback-upt op %1$s</string>
+    <string name="cloud_not_uploaded">Nog geen back-up</string>
+    <string name="cloud_upload_failed">Laatste upload mislukt</string>
+    <string name="cloud_restore_confirm_title">Instellingen terugzetten</string>
+    <string name="cloud_restore_confirm_body_p1">Je huidige instellingen worden vervangen door de instellingen uit de back-up.</string>
+    <string name="cloud_restore_confirm_body_p2">Flic-gebaren worden teruggezet, maar de knoppen en het wiel moeten opnieuw gekoppeld worden op deze telefoon. Hun Bluetooth-koppelingen leven in Android, niet in de app.</string>
+    <string name="sync_checking">Back-upmap controleren…</string>
+    <string name="action_restore">Terugzetten</string>
+
+    <!-- Settings: General -->
+    <string name="section_recording">Opname</string>
+    <string name="section_connection">Verbinding</string>
+    <string name="section_display">Weergave</string>
+    <string name="auto_record_on_start">Automatisch opnemen bij starten</string>
+    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is</string>
+    <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
+    <string name="auto_record_start_in_motion_caption">Wacht op beweging om de opname te starten, stopt automatisch na de inactieve tijd, en herstart bij de volgende rit</string>
+    <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
+    <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
+    <string name="auto_connect_caption">Maakt opnieuw verbinding met het laatst gekoppelde wiel. De eerste keer moet je handmatig verbinden</string>
+    <string name="last_device">Laatste apparaat: %1$s</string>
+    <string name="imperial_units">Imperiale eenheden</string>
+    <string name="language">Taal</string>
+    <string name="theme">Thema</string>
+    <string name="theme_black">Diep zwart</string>
+    <string name="theme_dark">Donker</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_system">Volg systeem</string>
+    <string name="accent_color">Accentkleur</string>
+    <string name="accent_blue">Blauw</string>
+    <string name="accent_green">Groen</string>
+    <string name="accent_orange">Oranje</string>
+    <string name="accent_purple">Paars</string>
+    <string name="accent_teal">Turquoise</string>
+    <string name="accent_pink">Roze</string>
+    <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
+    <string name="tts_switch_body">De huidige tekst-naar-spraakstem komt niet overeen met de gekozen taal. Overschakelen naar een %1$s stem voor meldingen?</string>
+    <string name="tts_switch_yes">Stem wisselen</string>
+    <string name="tts_switch_no">Huidige behouden</string>
+
+    <!-- Settings: Speed -->
+    <string name="section_speed_limits">Snelheidslimieten</string>
+    <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>
+    <string name="legal_mode_caption">Wordt toegepast als Legal Mode AAN staat. Moet lager zijn dan de normale tiltback</string>
+    <string name="speed_limits_disconnected">Verbind je wiel om snelheidslimieten te bewerken</string>
+    <string name="speed_tiltback">Tiltback-snelheid</string>
+    <string name="speed_alarm">Alarmsnelheid</string>
+    <string name="speed_legal_tiltback">Legal Tiltback</string>
+    <string name="speed_legal_alarm">Legal alarm</string>
+    <string name="unit_kmh">km/u</string>
+
+    <!-- Settings: Voice -->
+    <string name="section_announcements">Meldingen</string>
+    <string name="section_speech">Spraak</string>
+    <string name="section_report_status">Statusrapport</string>
+    <string name="voice_enabled">Periodiek status melden</string>
+    <string name="voice_only_when_connected">Alleen wanneer wiel verbonden is</string>
+    <string name="voice_interval">Interval</string>
+    <string name="unit_sec">sec</string>
+    <string name="announce_wheel_lock">Wiel vergrendelen / ontgrendelen</string>
+    <string name="announce_lights">Licht aan / uit</string>
+    <string name="announce_recording">Ritopname</string>
+    <string name="announce_connection">Wiel verbonden / niet verbonden</string>
+    <string name="announce_gps">GPS-signaal verloren / teruggevonden</string>
+    <string name="announce_legal_mode">Legal mode aan / uit</string>
+    <string name="announce_welcome">Welkomstbericht bij opstarten van de app</string>
+    <string name="voice_selector_label">Stem</string>
+    <string name="voice_speech_speed">Spraaksnelheid</string>
+    <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Tijdens spreken</string>
+    <string name="voice_audio_focus_duck">Andere zachter</string>
+    <string name="voice_audio_focus_pause">Andere pauzeren</string>
+    <string name="voice_audio_focus_off">Niets doen</string>
+    <string name="voice_output_channel_label">Stemuitvoer</string>
+    <string name="voice_output_channel_media">Media</string>
+    <string name="voice_output_channel_notification">Melding</string>
+    <string name="voice_output_channel_alarm">Alarm</string>
+    <string name="col_periodic">Periodiek</string>
+    <string name="col_trigger">Trigger</string>
+    <string name="report_speed">Snelheid</string>
+    <string name="report_battery">Accu</string>
+    <string name="report_temp">Temp</string>
+    <string name="report_pwm">PWM</string>
+    <string name="report_distance">Afstand</string>
+    <string name="report_recording">Opname</string>
+    <string name="report_time">Tijd</string>
+
+    <!-- Settings: Integration -->
+    <string name="section_flic_buttons">Flic 2-knoppen</string>
+    <string name="flic_scan_hint">Houd je Flic 2-knop 6 seconden ingedrukt om hem in koppelmodus te zetten, tik dan op Scannen</string>
+    <string name="flic_stop_scan">Stop</string>
+    <string name="flic_start_scan">Scannen op knop</string>
+    <string name="flic_no_buttons">Geen Flic-knoppen gekoppeld</string>
+    <string name="flic_forget">Vergeten</string>
+    <string name="flic_forget_title">Deze knop vergeten?</string>
+    <string name="flic_forget_body">%1$s wordt ontkoppeld en de acties worden gewist. Je kunt hem altijd opnieuw koppelen.</string>
+    <string name="flic_rename">Naam wijzigen</string>
+    <string name="flic_click">Klik</string>
+    <string name="flic_double_click">Dubbelklik</string>
+    <string name="flic_hold">Vasthouden</string>
+    <string name="section_volume_keys">Volumeknoppen</string>
+    <string name="volume_keys_caption">Gebruik de volumeknoppen van je telefoon als snelkoppelingen. Werkt alleen als de app zichtbaar op het scherm is</string>
+    <string name="volume_keys_enable">Acties van volumeknoppen aanzetten</string>
+    <string name="volume_up">Volume omhoog</string>
+    <string name="volume_down">Volume omlaag</string>
+
+    <!-- Voice (spoken) templates -->
+    <string name="voice_speed_fmt">snelheid %1$s</string>
+    <string name="voice_battery_fmt">accu %1$d procent</string>
+    <string name="voice_temp_fmt">temperatuur %1$s graden</string>
+    <string name="voice_load_fmt">belasting %1$s procent</string>
+    <string name="voice_trip_fmt">rit %1$s kilometer</string>
+    <string name="voice_trip_miles_fmt">rit %1$s mijl</string>
+    <string name="voice_time_fmt">tijd %1$s</string>
+    <string name="voice_recording_on">opnemen</string>
+    <string name="voice_recording_off">niet opnemen</string>
+    <string name="voice_wheel_locked">Wiel vergrendeld</string>
+    <string name="voice_wheel_unlocked">Wiel ontgrendeld</string>
+    <string name="voice_lights_on">Licht aan</string>
+    <string name="voice_lights_off">Licht uit</string>
+    <string name="voice_recording_started">Opname gestart</string>
+    <string name="voice_recording_finished">Opname gestopt</string>
+    <string name="voice_wheel_connected">Wiel verbonden</string>
+    <string name="voice_wheel_disconnected">Wiel niet verbonden</string>
+    <string name="voice_gps_acquired">GPS-signaal gevonden</string>
+    <string name="voice_gps_lost">GPS-signaal verloren</string>
+    <string name="voice_legal_on">Legal mode aan</string>
+    <string name="voice_legal_off">Legal mode uit</string>
+    <string name="voice_welcome">Welkom terug bij EUC Planet</string>
+
+    <!-- Language display names (shown for TTS mismatch prompt) -->
+    <string name="lang_name_en">Engels</string>
+    <string name="lang_name_es">Spaans</string>
+    <string name="lang_name_ru">Russisch</string>
+    <string name="lang_name_no">Noors</string>
+    <string name="lang_name_de">Duits</string>
+    <string name="lang_name_fr">Frans</string>
+    <string name="lang_name_da">Deens</string>
+    <string name="lang_name_sv">Zweeds</string>
+    <string name="lang_name_zh">Chinees</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Snelheid</string>
+    <string name="alarm_metric_battery">Accu</string>
+    <string name="alarm_metric_temperature">Temperatuur</string>
+    <string name="alarm_metric_pwm">Belasting (PWM)</string>
+    <string name="alarm_metric_voltage">Spanning</string>
+    <string name="alarm_metric_current">Stroom</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_lt">Kleiner dan</string>
+    <string name="alarm_cmp_ge">Groter of gelijk</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Geen</string>
+    <string name="flic_action_horn">Toeter</string>
+    <string name="flic_action_light">Licht aan/uit</string>
+    <string name="flic_action_lock">Wiel vergrendelen</string>
+    <string name="flic_action_legal_toggle">Legal Mode aan/uit</string>
+    <string name="flic_action_legal_on">Legal Mode AAN</string>
+    <string name="flic_action_legal_off">Legal Mode UIT</string>
+    <string name="flic_action_voice">Statusrapport</string>
+    <string name="flic_action_record">Opname aan/uit</string>
+    <string name="flic_action_media_play">Muziek afspelen / pauzeren</string>
+    <string name="flic_action_media_next">Volgend nummer</string>
+    <string name="flic_action_media_prev">Vorig nummer</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Voorbeeld %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Piep %1$dHz×%2$d</string>
+    <string name="alarm_summary_voice">Stem</string>
+    <string name="alarm_summary_vibrate">Trillen</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Rit delen</string>
+    <string name="export_trips_chooser">Ritten exporteren</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Alarmtest</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Scannen…</string>
+    <string name="flic_status_found_paired">Gekoppelde knop gevonden</string>
+    <string name="flic_status_found_connecting">Knop gevonden, verbinden…</string>
+    <string name="flic_status_connected_pairing">Verbonden, koppelen…</string>
+    <string name="flic_status_accept_pairing">Accepteer koppeling op telefoon…</string>
+    <string name="flic_status_paired_fmt">Gekoppeld: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Scan mislukt (code %1$d)</string>
+
+    <!-- Scan screen -->
+    <string name="scan_title">Verbind met wiel</string>
+    <string name="scan_scanning">Zoeken…</string>
+    <string name="scan_start">Start scan</string>
+    <string name="scan_show_all_title">Alle apparaten tonen</string>
+    <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt</string>
+
+    <!-- Metric detail -->
+    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_no_data">Geen gegevens</string>
+    <string name="metric_min">MIN</string>
+    <string name="metric_avg">GEM</string>
+    <string name="metric_max">MAX</string>
+    <string name="metric_time">TIJD</string>
+    <string name="metric_battery">Accu</string>
+    <string name="metric_temperature">Temperatuur</string>
+    <string name="metric_voltage">Spanning</string>
+    <string name="metric_current">Stroom</string>
+    <string name="metric_load">Belasting</string>
+    <string name="metric_speed">Snelheid</string>
+
+    <!-- Recording screen -->
+    <string name="action_delete_all">Alles verwijderen</string>
+    <string name="action_import">Eén bestand importeren</string>
+    <string name="action_trip_backup_options">Back-upopties voor ritten</string>
+    <string name="action_export_all">Alles exporteren</string>
+    <string name="action_share">Delen</string>
+    <string name="action_manage">Beheren</string>
+    <string name="action_view">Bekijken</string>
+    <string name="action_record">Opnemen</string>
+    <string name="action_stop">Stop</string>
+    <string name="recording_title">Ritrecorder</string>
+    <string name="recording_clear_all_title">Alle ritten wissen</string>
+    <string name="recording_clear_all_body">Hiermee worden alle opgenomen ritten en hun gegevensbestanden permanent verwijderd. Dit kan niet ongedaan gemaakt worden.</string>
+    <string name="recording_delete_trip_title">Rit verwijderen</string>
+    <string name="recording_delete_trip_body">Deze rit en het gegevensbestand verwijderen?</string>
+    <string name="recording_clear_all_menu">Alles wissen</string>
+    <string name="recording_auto_record_tip">Tip: zet automatisch opnemen aan in Instellingen om automatisch te starten bij verbinden</string>
+    <string name="recording_empty">Geen gegevens om te tonen. Importeer of neem een nieuwe rit op</string>
+    <string name="recording_will_auto_stop">Opname stopt automatisch na %1$ds inactiviteit</string>
+    <string name="recording_stat_trips">Ritten</string>
+    <string name="recording_stat_distance">Afstand</string>
+    <string name="recording_stat_time">Tijd</string>
+    <string name="recording_gps_locked">GPS vergrendeld</string>
+    <string name="recording_gps_waiting">Wachten op GPS…</string>
+
+    <!-- Trip detail screen -->
+    <string name="recording_detail_title">Ritdetails</string>
+    <string name="recording_no_data">Geen gegevens opgenomen in deze rit</string>
+    <string name="recording_route">Route</string>
+    <string name="recording_summary_distance">Afstand</string>
+    <string name="recording_summary_duration">Duur</string>
+    <string name="recording_summary_points">Punten</string>
+    <string name="recording_summary_top_speed">Topsnelheid</string>
+    <string name="recording_summary_avg_speed">Gem. snelheid</string>
+    <string name="recording_summary_min_battery">Min. accu</string>
+    <string name="recording_summary_max_temp">Max. temp</string>
+    <string name="recording_chart_speed">Snelheid (%1$s)</string>
+    <string name="recording_chart_battery">Accu (%%)</string>
+    <string name="recording_chart_temp">Temperatuur (%1$s)</string>
+    <string name="recording_chart_voltage">Spanning (V)</string>
+
+    <!-- Automations / Auto tab -->
+    <string name="auto_lights_title">Licht</string>
+    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang</string>
+    <string name="auto_lights_on_before_sunset">Licht AAN voor zonsondergang</string>
+    <string name="auto_lights_off_after_sunrise">Licht UIT na zonsopkomst</string>
+    <string name="auto_minutes_fmt">%1$d min</string>
+    <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
+    <string name="auto_volume_title">Volume</string>
+    <string name="auto_volume_desc">Verhoog het muziekvolume op basis van snelheid</string>
+    <string name="auto_sunrise_sunset">Zonsopkomst en zonsondergang</string>
+    <string name="auto_midnight_sun_title">Middernachtzon</string>
+    <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT</string>
+    <string name="auto_polar_night_title">Poolnacht</string>
+    <string name="auto_polar_night_body">De zon komt vandaag op deze breedtegraad niet op, het licht blijft AAN</string>
+    <string name="auto_lights_suspended">Onderbroken doordat je het licht zelf hebt aan- of uitgezet voor deze sessie. Verbind het wiel opnieuw of herstart de app om door te gaan</string>
+
+    <!-- Alarms tab -->
+    <string name="alarm_help">Regels worden per metriek van boven naar beneden gecontroleerd. De eerste passende regel per metriek vuurt</string>
+    <string name="alarm_empty">Nog geen alarmregels</string>
+    <string name="alarm_add">Alarmregel toevoegen</string>
+    <string name="alarm_new">Nieuw alarm</string>
+    <string name="alarm_edit">Alarm bewerken</string>
+    <string name="alarm_delete_title">Dit alarm verwijderen?</string>
+    <string name="alarm_delete_body">%1$s wordt verwijderd. Dit kan niet ongedaan gemaakt worden.</string>
+    <string name="alarm_name">Naam (optioneel)</string>
+    <string name="alarm_section_condition">Voorwaarde</string>
+    <string name="alarm_metric_label">Metriek</string>
+    <string name="alarm_comparator_label">Voorwaarde</string>
+    <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
+    <string name="alarm_section_beep">Piep</string>
+    <string name="alarm_enable_beep">Piep aanzetten</string>
+    <string name="alarm_beep_freq_fmt">Frequentie: %1$dHz</string>
+    <string name="alarm_beep_duration_fmt">Duur: %1$dms</string>
+    <string name="alarm_beep_repeats_fmt">Herhalingen: %1$d</string>
+    <string name="alarm_section_voice">Stem</string>
+    <string name="alarm_enable_voice">Stem aanzetten</string>
+    <string name="alarm_voice_template">Tekstsjabloon</string>
+    <string name="alarm_voice_template_help">Variabelen: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_section_vibrate">Trillen</string>
+    <string name="alarm_enable_vibrate">Trillen aanzetten</string>
+    <string name="alarm_vibrate_duration_fmt">Duur: %1$dms</string>
+    <string name="alarm_vibrate_target_label">Trillen op</string>
+    <string name="alarm_vibrate_target_phone">Telefoon</string>
+    <string name="alarm_vibrate_target_watch">Horloge</string>
+    <string name="alarm_vibrate_target_both">Beide</string>
+    <string name="alarm_section_timing">Timing</string>
+    <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
+    <string name="alarm_cooldown_help">Minimale tijd tussen vuringen voor deze regel, ook als de voorwaarde blijft passen</string>
+    <string name="alarm_repeat">Herhalen zolang actief</string>
+    <string name="alarm_repeat_help">AAN: vuurt elke cooldown opnieuw zolang de voorwaarde geldt.\nUIT: vuurt één keer en blijft stil tot de voorwaarde verdwijnt</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs_hint">Tik op een bestand om het met de ontwikkelaar te delen</string>
+    <string name="about_crash_logs_empty">Geen crashes geregistreerd</string>
+    <string name="about_share_crash">Crashlog delen</string>
+    <string name="about_thanks">Met dank aan</string>
+    <string name="about_thanks_body">Ik werd moe van EUC-apps die te traag evolueren, er gedateerd uitzien, draconische regels hanteren rond nieuwe functies, hun communities als klanten behandelen, en vergeten dat EUC-rijders op hun best zijn als ze elkaar helpen. Deze probeert het tegenovergestelde te zijn.\n\nMet dank aan:\n• Gio (Wheel In Motion). Promotie, suggesties en P6-tests. Genaaide hoofdhuid, intact enthousiasme.\n• Ilya Shkolnik en de WheelLog-community. Publiek protocolonderzoek waar de KingSong-, Begode- en Veteran-adapters op leunen.\n• InMotion. Voor het maken van mijn geweldige V14.</string>
+    <string name="toast_external_speed_change">Snelheid bijgewerkt vanaf wiel: %1$d km/u tiltback, %2$d km/u alarm</string>
+    <string name="flic_action_record_start">Ritopname starten</string>
+    <string name="flic_action_record_stop">Ritopname stoppen</string>
+    <string name="section_watch_screen_buttons">Knoppen</string>
+    <string name="watch_screen_button_1">Knop 1</string>
+    <string name="watch_screen_button_2">Knop 2</string>
+    <string name="watch_haptic_on_action">Trillen bij actie</string>
+    <string name="watch_haptic_on_action_desc">Korte trilling van het horloge wanneer een knop-actie wordt geactiveerd</string>
+</resources>

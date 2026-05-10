@@ -143,8 +143,10 @@ data class AppSettings(
     val volumeDownHold: String = "SAFETY_TOGGLE",
 
     // Appearance
-    // language: BCP-47 tag. "en", "es", "ru", "no", "de". Stored now, wired in Stage B.
-    val language: String = "en",
+    // language: BCP-47 tag (e.g. "en", "es", "es-419", "no", "pt-BR"). Empty string
+    // means "not set yet" — MainActivity picks a default from the system locale on
+    // first launch and persists the choice.
+    val language: String = "",
     // themeMode: "black", "dark", "light", "system"
     val themeMode: String = "black",
     // accentColor: key into the accent palette
@@ -203,7 +205,30 @@ data class AppSettings(
     @ColumnInfo(defaultValue = "NONE")
     val watchStem2Click: String = "NONE",
     @ColumnInfo(defaultValue = "NONE")
-    val watchStem2Hold: String = "NONE"
+    val watchStem2Hold: String = "NONE",
+
+    /**
+     * On-screen watch button bindings. Two configurable buttons; tap fires the
+     * "click" action, long-press fires the "hold" action. Same FlicAction
+     * vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
+     * most-used controls (Horn, Light) so out-of-the-box behavior matches
+     * the previous hardcoded buttons.
+     */
+    @ColumnInfo(defaultValue = "HORN")
+    val watchScreen1Click: String = "HORN",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchScreen1Hold: String = "NONE",
+    @ColumnInfo(defaultValue = "LIGHT_TOGGLE")
+    val watchScreen2Click: String = "LIGHT_TOGGLE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchScreen2Hold: String = "NONE",
+
+    /**
+     * If true, the watch vibrates briefly whenever a button-bound action
+     * fires (tap or hold) so the user gets tactile confirmation.
+     */
+    @ColumnInfo(defaultValue = "1")
+    val watchHapticOnAction: Boolean = true
 )
 
 enum class FlicAction(val labelRes: Int) {
@@ -216,6 +241,8 @@ enum class FlicAction(val labelRes: Int) {
     SAFETY_OFF(R.string.flic_action_legal_off),
     VOICE_ANNOUNCE(R.string.flic_action_voice),
     RECORD_TOGGLE(R.string.flic_action_record),
+    RECORD_START(R.string.flic_action_record_start),
+    RECORD_STOP(R.string.flic_action_record_stop),
     MEDIA_PLAY_PAUSE(R.string.flic_action_media_play),
     MEDIA_NEXT(R.string.flic_action_media_next),
     MEDIA_PREVIOUS(R.string.flic_action_media_prev)

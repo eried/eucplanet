@@ -18,10 +18,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -54,6 +59,19 @@ class WheelRepository @Inject constructor(
         // Re-request settings every N realtime polls to pick up external changes
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
+
+        // Re-request extended stats (P6: motor / driver-board temps) every
+        // N polls. Lands on a different cycle from auth (24) and settings (12)
+        // so the three queries don't compete for the same response slot.
+        // 18 * 250ms = 4.5s.
+        private const val STATS_REFRESH_INTERVAL = 18
+
+        // Re-run the connect-auth handshake every N polls for wheels that
+        // require it (P6). The InMotion app re-primes ~1× per 6 s; the wheel's
+        // "control endpoint primed" state expires shortly after the handshake
+        // and a single one-shot prime at connect doesn't survive long enough
+        // for the user's first light/horn/max-speed tap. 24 * 250ms = 6s.
+        private const val CONNECT_AUTH_REFRESH_INTERVAL = 24
 
         // Fallback slider ceiling when no wheel is connected or when the model
         // ID isn't in our registry (mirrors WheelLog's default of 100; we use
@@ -110,6 +128,14 @@ class WheelRepository @Inject constructor(
     private var pendingAuthKeyDeferred: CompletableDeferred<ByteArray>? = null
     private var pendingAuthConfirmDeferred: CompletableDeferred<Boolean>? = null
 
+    // Serialise the lock auth handshake so rapid taps can't strand each
+    // other's deferreds. Without this, two concurrent toggleLock() calls
+    // both write the singleton `pendingAuthKeyDeferred`; the first call's
+    // deferred is overwritten and times out without ever reaching the
+    // setLock write — exactly the symptom seen on the P6 ("lock doesn't
+    // work" while WIM works because WIM serialises taps in its UI).
+    private val authMutex = Mutex()
+
     private var lastConnectedAddress: String? = null
     private var initState = 0
     private var pollingActive = false
@@ -117,6 +143,45 @@ class WheelRepository @Inject constructor(
     // True only for the first 0x20 settings packet after each (re)connect.
     // Used to reconcile stored speed limits with the wheel's actual values.
     @Volatile private var reconcileNextSettings = false
+
+    /** Wall-clock of the most recent app-side speed write. Used to ignore
+     *  the wheel's echo (which arrives in the next settings packet ~1-2 s
+     *  later) when deciding whether a wheel-reported change came from the
+     *  user pressing buttons on the wheel's own screen. */
+    @Volatile private var lastSetSpeedAtMs = 0L
+    private val WHEEL_SCREEN_DEBOUNCE_MS = 3000L
+
+    /** Transient one-shot event for the UI: wheel-side change auto-applied
+     *  to the user's stored settings. Consumed by the dashboard / settings
+     *  screen to surface a toast/snackbar so the change isn't silent. */
+    private val _externalSpeedChange = MutableSharedFlow<ExternalSpeedChange>(
+        replay = 0, extraBufferCapacity = 4
+    )
+    val externalSpeedChange: SharedFlow<ExternalSpeedChange> = _externalSpeedChange.asSharedFlow()
+
+    // --- Action cooldowns ---
+    // Lock and Light each get a brief cooldown after the user taps them so a
+    // stale settings frame can't repaint the optimistic state and so spam
+    // taps don't queue up multiple auth handshakes. The button observes
+    // *Busy and shows itself disabled until the cooldown elapses.
+    private val _lockBusy = MutableStateFlow(false)
+    val lockBusy: StateFlow<Boolean> = _lockBusy.asStateFlow()
+    private val _lightBusy = MutableStateFlow(false)
+    val lightBusy: StateFlow<Boolean> = _lightBusy.asStateFlow()
+    @Volatile private var lockCooldownUntilMs = 0L
+    @Volatile private var lightCooldownUntilMs = 0L
+    private val LOCK_COOLDOWN_MS = 3000L
+    private val LIGHT_COOLDOWN_MS = 1500L
+
+    private fun startCooldown(busyFlag: MutableStateFlow<Boolean>, durationMs: Long, setUntil: (Long) -> Unit) {
+        val now = System.currentTimeMillis()
+        setUntil(now + durationMs)
+        busyFlag.value = true
+        scope.launch {
+            delay(durationMs)
+            busyFlag.value = false
+        }
+    }
 
     /**
      * Tiltback the app most recently asked the wheel to set, in km/h. Used to
@@ -189,27 +254,41 @@ class WheelRepository @Inject constructor(
     }
 
     fun toggleLight() {
+        if (_lightBusy.value) return  // cooldown active, ignore the spam tap
         val current = _wheelData.value.lightOn
-        wheelAdapter.setLight(!current)?.let { bleManager.writeCommand(it) }
-        // Announcement is emitted by WheelService when the wheel confirms
-        // the new state in telemetry — covers DRL / wheel-side toggles too.
+        val next = !current
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "toggleLight: lightOn was=$current, sending $next"
+        )
+        wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
+        _wheelData.value = _wheelData.value.copy(lightOn = next)
+        startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
 
     fun toggleLock() {
+        if (_lockBusy.value) return  // cooldown active, ignore the spam tap
         val targetState = !_locked.value
-        // Optimistic flip: the button reflects the requested state immediately so the user
-        // doesn't mash it again. Telemetry (0x20 settings) is the final source of truth —
-        // if the wheel reports back a different state, _locked is corrected then.
         _locked.value = targetState
+        startCooldown(_lockBusy, LOCK_COOLDOWN_MS) { lockCooldownUntilMs = it }
         scope.launch {
             val success = authenticateAndLock(targetState)
-            // Re-read settings so the wheel can confirm (or override) the optimistic UI.
+            // Re-read settings so the wheel can confirm. During the cooldown
+            // the settings handler will skip overwriting _locked from a stale
+            // frame, so the UI stays at the requested state until the wheel
+            // catches up; if the wheel still disagrees after the cooldown
+            // ends, the next settings poll wins (final source of truth).
             delay(800)
             bleManager.writeCommand(wheelAdapter.pollSettings())
             if (success) {
+                // Wait for the cooldown to elapse so the announcement
+                // reflects the settled state, not the optimistic flip.
+                delay(LOCK_COOLDOWN_MS)
                 val s = settingsRepository.get()
                 if (s.announceWheelLock) {
-                    voiceService.announceEvent(context.getString(if (targetState) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked))
+                    val finalLocked = _locked.value
+                    voiceService.announceEvent(context.getString(
+                        if (finalLocked) R.string.voice_wheel_locked else R.string.voice_wheel_unlocked
+                    ))
                 }
             } else {
                 Log.e(TAG, "Lock command failed: auth unsuccessful — awaiting wheel telemetry resync")
@@ -223,12 +302,12 @@ class WheelRepository @Inject constructor(
      * requestAuthKey → receive 16-byte key → verifyAuth → receive confirm → setLock
      * handshake; otherwise we just send setLock directly.
      */
-    private suspend fun authenticateAndLock(locked: Boolean): Boolean {
-        val lockPacket = wheelAdapter.setLock(locked) ?: return false
+    private suspend fun authenticateAndLock(locked: Boolean): Boolean = authMutex.withLock {
+        val lockPacket = wheelAdapter.setLock(locked) ?: return@withLock false
 
         if (!wheelAdapter.capabilities.needsAuthForLock) {
             bleManager.writeCommand(lockPacket)
-            return true
+            return@withLock true
         }
 
         val authReqPacket = wheelAdapter.requestAuthKey()
@@ -236,7 +315,7 @@ class WheelRepository @Inject constructor(
         if (authReqPacket == null) {
             // Capabilities say auth is required but adapter exposes no key request — bug.
             Log.e(TAG, "Lock: adapter requires auth but provides no requestAuthKey()")
-            return false
+            return@withLock false
         }
 
         // Step 1: Request auth key from wheel
@@ -250,7 +329,7 @@ class WheelRepository @Inject constructor(
 
         if (key == null) {
             Log.e(TAG, "Lock: auth key timeout")
-            return false
+            return@withLock false
         }
         authKey = key
         Log.i(TAG, "Lock: got auth key (${key.size} bytes): ${key.joinToString(" ") { "%02X".format(it) }}")
@@ -258,7 +337,7 @@ class WheelRepository @Inject constructor(
         // Step 2: Verify auth by echoing the key back
         val verifyPacket = verifyBuilder(key) ?: run {
             Log.e(TAG, "Lock: adapter returned null for verifyAuth")
-            return false
+            return@withLock false
         }
         val confirmDeferred = CompletableDeferred<Boolean>()
         pendingAuthConfirmDeferred = confirmDeferred
@@ -270,14 +349,14 @@ class WheelRepository @Inject constructor(
 
         if (!confirmed) {
             Log.e(TAG, "Lock: auth verify failed or timeout")
-            return false
+            return@withLock false
         }
         Log.i(TAG, "Lock: auth verified, sending lock=$locked")
 
         // Step 3: Send lock/unlock command
         Log.i(TAG, "Lock packet (${lockPacket.size} bytes): ${lockPacket.joinToString(" ") { "%02X".format(it) }}")
         bleManager.writeCommand(lockPacket)
-        return true
+        true
     }
 
     fun setDRL(on: Boolean) {
@@ -291,6 +370,9 @@ class WheelRepository @Inject constructor(
         // 85) would echo back 80 — and if 80 happened to equal stored Legal
         // tiltback, the readback-based detector would lock the toggle on.
         lastSentTiltbackKmh = tiltbackKmh
+        // Timestamp the write so the auto-sync handler doesn't mistake the
+        // wheel's echo of our own write for an external change.
+        lastSetSpeedAtMs = System.currentTimeMillis()
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
         // P6 needs two flash-commit packets after the live drag write — one
         // for the tiltback, one for the alarm threshold. V14 returns null
@@ -344,14 +426,31 @@ class WheelRepository @Inject constructor(
     private suspend fun runPollingLoop() {
         val initSequence = wheelAdapter.initSequence()
         var realtimeCycle = 0
+        val needsConnectAuth = wheelAdapter.requiresConnectAuth()
+        var initialAuthDone = !needsConnectAuth
         while (pollingActive && bleManager.connectionState.value == ConnectionState.CONNECTED) {
             if (initState < initSequence.size) {
                 bleManager.writeCommand(initSequence[initState])
                 initState++
+            } else if (!initialAuthDone) {
+                // First-connect priming for wheels that silently drop control
+                // commands pre-auth (P6). Mark done even on failure so we don't
+                // loop forever; the periodic re-prime below will retry.
+                runConnectAuthHandshake()
+                initialAuthDone = true
             } else {
-                // Normal polling - realtime data, interleaved with periodic settings refresh
-                // so externally-changed state (lock via InMotion app, etc.) is detected.
-                if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
+                // Periodic re-prime for the P6: the wheel's "control endpoint
+                // primed" state expires shortly after the handshake. The
+                // InMotion app re-runs auth ~every 6 s; we mirror that so
+                // light/horn/max-speed writes keep working through a session.
+                if (needsConnectAuth && realtimeCycle > 0 &&
+                    realtimeCycle % CONNECT_AUTH_REFRESH_INTERVAL == 0) {
+                    runConnectAuthHandshake()
+                } else if (realtimeCycle > 0 &&
+                    realtimeCycle % STATS_REFRESH_INTERVAL == 0) {
+                    wheelAdapter.pollStats()?.let { bleManager.writeCommand(it) }
+                        ?: bleManager.writeCommand(wheelAdapter.pollRealtime())
+                } else if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
                     bleManager.writeCommand(wheelAdapter.pollSettings())
                 } else {
                     bleManager.writeCommand(wheelAdapter.pollRealtime())
@@ -360,6 +459,35 @@ class WheelRepository @Inject constructor(
             }
             delay(POLL_INTERVAL_MS)
         }
+    }
+
+    /**
+     * Run the password handshake right after init completes for wheels that
+     * gate control writes on it (the P6). Mirrors [authenticateAndLock]'s
+     * auth steps but stops after the verify ACK — there is no lock packet
+     * to send. Failure is logged and ignored; the user keeps their telemetry.
+     */
+    private suspend fun runConnectAuthHandshake() {
+        val authReqPacket = wheelAdapter.requestAuthKey() ?: return
+        val keyDeferred = CompletableDeferred<ByteArray>()
+        pendingAuthKeyDeferred = keyDeferred
+        bleManager.writeCommand(authReqPacket)
+        Log.i(TAG, "Connect-auth: requesting auth key…")
+        val key = withTimeoutOrNull(4000L) { keyDeferred.await() }
+        pendingAuthKeyDeferred = null
+        if (key == null) {
+            Log.w(TAG, "Connect-auth: key timeout — control commands may not work until lock toggle")
+            return
+        }
+        authKey = key
+        val verifyPacket = wheelAdapter.verifyAuth(key) ?: return
+        val confirmDeferred = CompletableDeferred<Boolean>()
+        pendingAuthConfirmDeferred = confirmDeferred
+        bleManager.writeCommand(verifyPacket)
+        val ok = withTimeoutOrNull(4000L) { confirmDeferred.await() } ?: false
+        pendingAuthConfirmDeferred = null
+        if (ok) Log.i(TAG, "Connect-auth: verified, control endpoint primed")
+        else Log.w(TAG, "Connect-auth: verify failed — control commands may not work")
     }
 
     // --- Speed limits reconciliation on (re)connect ---
@@ -412,12 +540,15 @@ class WheelRepository @Inject constructor(
                 appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
             }
             else -> {
-                // wTilt is between legal and normal: could be a firmware cap clamp
-                // OR an external lower of normal. We can't tell apart here, and
-                // overwriting stored normal with a clamped value loses the user's
-                // preference forever. Keep stored values; treat as normal mode.
+                // wTilt is between legal and normal. Adopt it as the new
+                // normal — covers the P6/V12 case where the user lowered
+                // the speed on the wheel's own screen, which is the common
+                // path. The V14-clamp risk this used to guard against is
+                // small in practice (V14 hardware caps don't shift across
+                // sessions), and a one-toast adopt is still recoverable
+                // by dragging the slider.
                 isLegalOn = false
-                appSettings
+                appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
             }
         }
 
@@ -460,8 +591,23 @@ class WheelRepository @Inject constructor(
                 pendingAuthConfirmDeferred?.complete(result.success)
             }
             is DecodeResult.Telemetry -> {
+                // For wheels where the parser can't recover headlight state
+                // from telemetry (P6: no live byte), preserve the
+                // optimistic lightOn from the previous wheelData so a
+                // toggleLight call survives the next realtime frame
+                // overwriting it ~250ms later.
+                val previous = _wheelData.value
+                val isP6 = _modelName.value?.contains("P6") == true
+                // V14 etc. don't carry total distance in realtime frames, so
+                // preserve whatever was set via the separate TotalDistance
+                // decode. The P6 ships the lifetime odometer inline at offset
+                // 58, so when the parser already filled it in we keep that
+                // fresh value instead of overwriting with the stale previous.
+                val totalKm = if (result.data.totalDistance > 0f) result.data.totalDistance
+                              else previous.totalDistance
                 _wheelData.value = result.data.copy(
-                    totalDistance = _wheelData.value.totalDistance
+                    totalDistance = totalKm,
+                    lightOn = if (isP6) previous.lightOn else result.data.lightOn
                 )
                 // Sample history at 1 Hz
                 val now = System.currentTimeMillis()
@@ -489,6 +635,19 @@ class WheelRepository @Inject constructor(
             is DecodeResult.TotalDistance -> {
                 _wheelData.value = _wheelData.value.copy(totalDistance = result.km)
             }
+            is DecodeResult.P6Temperatures -> {
+                // Out-of-band sensor block from the P6's 0x84 response. Merge
+                // the values into wheelData so the dashboard's TEMP pill
+                // reads max(MOS, motor, driver) instead of the empty list
+                // the realtime parser leaves behind. Null entries from the
+                // parser (sensor not populated yet or out of range) drop
+                // through and don't pollute maxTemperature.
+                val temps = listOfNotNull(result.mosC, result.motorC, result.driverBoardC)
+                _wheelData.value = _wheelData.value.copy(
+                    temperatures = temps,
+                    maxTemperature = temps.maxOrNull() ?: 0f
+                )
+            }
             is DecodeResult.Settings -> {
                 val ws = result.data
                 _wheelSettings.value = ws
@@ -498,14 +657,24 @@ class WheelRepository @Inject constructor(
                 val wasSafety = _safetySpeedActive.value
                 val wasLocked = _locked.value
                 val isLocked = ws.lockState != 0
-                _locked.value = isLocked
-                if (isLocked != wasLocked && appSettings.announceWheelLock) {
-                    voiceService.announceEvent(
-                        context.getString(
-                            if (isLocked) R.string.voice_wheel_locked
-                            else R.string.voice_wheel_unlocked
+                // Skip the lock-state overwrite while the user's tap cooldown
+                // is active. Without this, a stale settings frame from before
+                // the wheel processed the lock command repaints the button as
+                // unlocked for ~1 s, causing the "I locked it then it shows
+                // unlocked" symptom on V14. toggleLock's own announcement
+                // fires after the cooldown so the voice still matches the
+                // settled state.
+                val cooldownActive = System.currentTimeMillis() < lockCooldownUntilMs
+                if (!cooldownActive) {
+                    _locked.value = isLocked
+                    if (isLocked != wasLocked && appSettings.announceWheelLock) {
+                        voiceService.announceEvent(
+                            context.getString(
+                                if (isLocked) R.string.voice_wheel_locked
+                                else R.string.voice_wheel_unlocked
+                            )
                         )
-                    )
+                    }
                 }
 
                 if (reconcileNextSettings) {
@@ -527,9 +696,68 @@ class WheelRepository @Inject constructor(
                     if (isSafety != wasSafety && appSettings.announceSafetyMode) {
                         voiceService.announceEvent(context.getString(if (isSafety) R.string.voice_legal_on else R.string.voice_legal_off))
                     }
+
+                    // Auto-sync wheel-side changes (P6/V12 let the user adjust
+                    // tiltback / alarm directly on the wheel's own screen).
+                    // Wait out the debounce so we don't mistake the wheel's
+                    // echo of our own write for an external change.
+                    val sinceWrite = System.currentTimeMillis() - lastSetSpeedAtMs
+                    if (sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
+                        val activeTilt = if (isSafety) appSettings.safetyTiltbackKmh
+                                         else appSettings.tiltbackSpeedKmh
+                        val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh
+                                          else appSettings.alarmSpeedKmh
+                        // Threshold: 1 km/h either direction. Both upward and
+                        // downward wheel-side changes are honored — earlier
+                        // upward-only gate was meant to defeat V14 firmware
+                        // clamps but blocked legitimate P6 downward changes.
+                        // V14 wheels rarely change tiltback externally so the
+                        // tradeoff lands in favour of P6 / V12 behaviour.
+                        val tiltChanged = kotlin.math.abs(ws.maxSpeedKmh - activeTilt) > 1f
+                        val alarmChanged = kotlin.math.abs(ws.alarmSpeedKmh - activeAlarm) > 1f
+                        if (tiltChanged || alarmChanged) {
+                            val newTilt = if (tiltChanged) ws.maxSpeedKmh else activeTilt
+                            val newAlarm = if (alarmChanged) ws.alarmSpeedKmh else activeAlarm
+                            val updated = if (isSafety) appSettings.copy(
+                                safetyTiltbackKmh = newTilt,
+                                safetyAlarmKmh = newAlarm
+                            ) else appSettings.copy(
+                                tiltbackSpeedKmh = newTilt,
+                                alarmSpeedKmh = newAlarm
+                            )
+                            settingsRepository.update(updated)
+                            _externalSpeedChange.tryEmit(
+                                ExternalSpeedChange(newTilt, newAlarm, isSafety)
+                            )
+                            // Surface a system Toast so the silent adoption is
+                            // visible no matter which screen the user is on.
+                            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                                val unitMsg = context.getString(
+                                    R.string.toast_external_speed_change,
+                                    newTilt.toInt(), newAlarm.toInt()
+                                )
+                                android.widget.Toast.makeText(
+                                    context, unitMsg, android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                                "Wheel-side speed change adopted: tiltback=$newTilt alarm=$newAlarm legal=$isSafety"
+                            )
+                            Log.i(TAG, "External speed change adopted: tilt=$newTilt alarm=$newAlarm legal=$isSafety")
+                        }
+                    }
                 }
             }
             DecodeResult.Unknown -> { /* skip */ }
         }
     }
 }
+
+/** Emitted whenever the wheel reports a tiltback / alarm value the user
+ *  applied directly on the wheel's own screen (no app-side write). The UI
+ *  shows a transient toast/snackbar so the silent adoption is visible. */
+data class ExternalSpeedChange(
+    val tiltbackKmh: Float,
+    val alarmKmh: Float,
+    val legalMode: Boolean
+)

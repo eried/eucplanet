@@ -1,10 +1,18 @@
 package com.eried.eucplanet.wear.ui
 
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -55,6 +63,9 @@ import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
 import com.eried.eucplanet.wear.R
 import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
@@ -166,7 +177,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 if (state.showSpeedUnit) {
                     // Invisible mirror keeps the speed glyph centred.
                     Text(
-                        text = WatchUnits.speedUnit(state.imperialUnits),
+                        text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
                         fontSize = unitSp,
                         color = Color.Transparent,
                         modifier = Modifier.padding(bottom = (sw * 0.05f).coerceIn(12f, 18f).dp)
@@ -188,7 +199,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 if (state.showSpeedUnit) {
                     Spacer(Modifier.width(3.dp))
                     Text(
-                        text = WatchUnits.speedUnit(state.imperialUnits),
+                        text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
                         fontSize = unitSp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF9AA0A6),
@@ -418,66 +429,176 @@ private fun batteryTint(percent: Int): Color = when {
 private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize: Dp) {
     val context = LocalContext.current
     val live = state.connected
-    // Custom dim palette for the disconnected state — the Wear Button's own
-    // `enabled = false` styling fades the whole button to ~12% alpha which
-    // makes the icon nearly invisible. Keeping the button "enabled" with our
-    // own muted colors and guarding the onClick keeps it visually present
-    // while still being non-interactive.
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        ConfigurableActionButton(
+            context = context,
+            state = state,
+            accent = accent,
+            buttonSize = buttonSize,
+            iconSize = iconSize,
+            clickAction = state.screen1Click,
+            holdAction = state.screen1Hold,
+            // Button 1 keeps the primary (accent) styling that the Horn button
+            // had, so the default Horn binding still POPs visually.
+            stylePrimary = true,
+            live = live
+        )
+        ConfigurableActionButton(
+            context = context,
+            state = state,
+            accent = accent,
+            buttonSize = buttonSize,
+            iconSize = iconSize,
+            clickAction = state.screen2Click,
+            holdAction = state.screen2Hold,
+            stylePrimary = false,
+            live = live
+        )
+    }
+}
+
+/**
+ * Renders one of the two on-screen watch buttons keyed off the user's chosen
+ * click + hold actions. Tap fires the click action, long-press fires the hold
+ * action with a brief toast confirming what triggered (so a buried hold
+ * gesture isn't ambiguous). Optional haptic vibrate is gated by the user's
+ * `watchHapticOnAction` setting.
+ *
+ * If both click and hold are NONE, the button isn't drawn — the row collapses
+ * so the user can hide a button entirely if they want a single-button layout.
+ */
+@Composable
+private fun ConfigurableActionButton(
+    context: Context,
+    state: WatchState,
+    accent: Color,
+    buttonSize: Dp,
+    iconSize: Dp,
+    clickAction: String,
+    holdAction: String,
+    stylePrimary: Boolean,
+    live: Boolean
+) {
+    if (clickAction == "NONE" && holdAction == "NONE") return
+    val icon = iconForAction(clickAction)
+        ?: iconForAction(holdAction)
+        ?: return
+
+    // Stateful tinting for actions whose UI usually reflects on/off — light,
+    // lock, recording. Other actions render with the neutral palette.
+    val isLightOn = clickAction == "LIGHT_TOGGLE" && state.lightOn
     val disabledBg = Color(0xFF1A1A1A)
     val disabledFg = Color(0xFF555555)
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        if (state.hasHorn) {
-            Button(
-                onClick = {
-                    if (live) WatchStateRepository.sendControl(context, WatchControl.HORN)
-                },
-                colors = ButtonDefaults.primaryButtonColors(
-                    backgroundColor = if (live) accent else disabledBg,
-                    contentColor = if (live) Color.Black else disabledFg
-                ),
-                modifier = Modifier.size(buttonSize)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Campaign,
-                    contentDescription = stringResource(R.string.watch_horn),
-                    tint = if (live) Color.Black else disabledFg,
-                    modifier = Modifier.size(iconSize)
-                )
-            }
-        }
-        if (state.hasLight) {
-            Button(
-                onClick = {
-                    if (!live) return@Button
-                    val intent = if (state.lightOn) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
-                    WatchStateRepository.sendControl(context, intent)
-                },
-                colors = ButtonDefaults.secondaryButtonColors(
-                    backgroundColor = when {
-                        !live -> disabledBg
-                        state.lightOn -> accent.copy(alpha = 0.30f)
-                        else -> Color(0xFF2A2A2A)
+    val backgroundColor = when {
+        !live -> disabledBg
+        stylePrimary -> accent
+        isLightOn -> accent.copy(alpha = 0.30f)
+        else -> Color(0xFF2A2A2A)
+    }
+    val contentColor = when {
+        !live -> disabledFg
+        stylePrimary -> Color.Black
+        isLightOn -> accent
+        else -> Color(0xFFB0B0B0)
+    }
+    val tintColor = when {
+        !live -> disabledFg
+        stylePrimary -> Color.Black
+        clickAction == "LIGHT_TOGGLE" && state.lightOn -> Color(0xFFFFC107)
+        clickAction == "LIGHT_TOGGLE" -> Color(0xFF606060)
+        else -> contentColor
+    }
+
+    // pointerInput + detectTapGestures is the battle-tested combo for tap +
+    // long-press on Compose. The earlier `combinedClickable` setup crashed on
+    // Wear emulator (likely interactionSource/indication mismatch in the
+    // current Compose foundation version on Wear).
+    Box(
+        modifier = Modifier
+            .size(buttonSize)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .pointerInput(clickAction, holdAction, state.lightOn) {
+                // Fire regardless of `live`: media keys, trip recording, and
+                // voice announce all work without a connected wheel. The
+                // wheel-dependent actions (Horn/Light/Lock/Legal) silently
+                // no-op on the phone side when there's nothing to talk to,
+                // so blocking the click here just makes the watch feel
+                // unresponsive.
+                detectTapGestures(
+                    onTap = {
+                        if (clickAction == "NONE" && holdAction != "NONE") {
+                            val label = labelForAction(context, holdAction) ?: holdAction
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.watch_action_long_press_hint, label),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            fireAction(context, state, clickAction, showToast = false)
+                        }
                     },
-                    contentColor = when {
-                        !live -> disabledFg
-                        state.lightOn -> accent
-                        else -> Color(0xFFB0B0B0)
-                    }
-                ),
-                modifier = Modifier.size(buttonSize)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.FlashlightOn,
-                    contentDescription = stringResource(R.string.watch_light),
-                    tint = when {
-                        !live -> disabledFg
-                        state.lightOn -> Color(0xFFFFC107)
-                        else -> Color(0xFF606060)
-                    },
-                    modifier = Modifier.size(iconSize)
+                    onLongPress = if (holdAction != "NONE") {
+                        {
+                            fireAction(context, state, holdAction, showToast = true)
+                        }
+                    } else null
                 )
-            }
-        }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = labelForAction(context, clickAction)
+                ?: labelForAction(context, holdAction)
+                ?: "",
+            tint = tintColor,
+            modifier = Modifier.size(iconSize)
+        )
+    }
+}
+
+/**
+ * Dispatches a button-bound action to the phone via `/euc/control`. Horn and
+ * light keep their dedicated control strings (back-compat with prior watch
+ * builds and the phone's PhoneWearListenerService quick path). Everything else
+ * uses the `action:<FlicAction>` prefix that the phone routes through
+ * FlicManager.dispatchActionByName.
+ */
+private fun fireAction(
+    context: Context,
+    state: WatchState,
+    action: String,
+    showToast: Boolean
+) {
+    if (action == "NONE") return
+    val payload = when (action) {
+        "HORN" -> WatchControl.HORN
+        "LIGHT_TOGGLE" -> if (state.lightOn) WatchControl.LIGHT_OFF else WatchControl.LIGHT_ON
+        else -> WatchControl.ACTION_PREFIX + action
+    }
+    com.eried.eucplanet.wear.bridge.WatchStateRepository.sendControl(context, payload)
+    if (state.hapticOnAction) vibrate(context, 50L)
+    if (showToast) {
+        val label = labelForAction(context, action) ?: action
+        Toast.makeText(context, label, Toast.LENGTH_SHORT).show()
+    }
+}
+
+private fun vibrate(context: Context, ms: Long) {
+    val vibrator: Vibrator? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)
+            ?.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+    if (vibrator?.hasVibrator() != true) return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        vibrator.vibrate(ms)
     }
 }
 
@@ -504,7 +625,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val imperial = state.imperialUnits
         val distUnit = WatchUnits.distanceUnit(imperial)
         val tempUnit = WatchUnits.tempUnit(imperial)
-        val speedUnit = WatchUnits.speedUnit(imperial)
+        val speedUnit = WatchUnits.speedUnit(LocalContext.current, imperial)
         val tripDisplay = WatchUnits.distance(state.tripKm, imperial)
         val tempDisplay = WatchUnits.temperature(state.temperatureC, imperial)
         val speedDisplay = WatchUnits.speed(state.speedKmh, imperial)

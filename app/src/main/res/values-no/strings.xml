@@ -66,7 +66,7 @@
     <string name="tab_alarms">Alarmregler</string>
     <string name="tab_auto">Automatiseringer</string>
     <string name="tab_integration">Integrasjon</string>
-    <string name="tab_cloud">Sikkerhetskopi av turer og innstillinger</string>
+    <string name="tab_cloud">Backup av innstillinger og turer</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
@@ -165,8 +165,8 @@
     <string name="voice_speech_speed">Talehastighet</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Under tale</string>
-    <string name="voice_audio_focus_duck">Demp andre lyder</string>
-    <string name="voice_audio_focus_pause">Pause andre lyder</string>
+    <string name="voice_audio_focus_duck">Demp andre</string>
+    <string name="voice_audio_focus_pause">Pause andre</string>
     <string name="voice_audio_focus_off">Ikke gjør noe</string>
     <string name="col_periodic">Jevnlig</string>
     <string name="col_trigger">Hendelse</string>
@@ -380,9 +380,75 @@
     <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Krasjlogger</string>
     <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren</string>
     <string name="about_crash_logs_empty">Ingen krasj</string>
     <string name="about_share_crash">Del krasjlogg</string>
-    <string name="about_license">Lisens</string>
+    <!-- Translations added -->
+    <string name="about_thanks">Takk</string>
+    <string name="about_thanks_body">Jeg ble lei av EUC-apper som utvikler seg for sakte, ser utdaterte ut, har strenge regler rundt nye funksjoner, behandler fellesskapet sitt som kunder og glemmer at EUC-førere er på sitt beste når de hjelper hverandre. Denne prøver å være det motsatte.\n\nTakk til:\n• Gio (Wheel In Motion). Promotering, forslag og P6-testing. Sydd hodebunn, intakt entusiasme.\n• Ilya Shkolnik og WheelLog-fellesskapet. Offentlig protokollforskning som KingSong-, Begode- og Veteran-adapterne bygger på.\n• InMotion, for at de lagde min fantastiske V14.</string>
+    <string name="action_reorder">Dra for å endre rekkefølge</string>
+    <string name="alarm_delete_body">%1$s blir fjernet. Dette kan ikke angres.</string>
+    <string name="alarm_delete_title">Slette denne alarmen?</string>
+    <string name="alarm_vibrate_target_both">Begge</string>
+    <string name="alarm_vibrate_target_label">Vibrer på</string>
+    <string name="alarm_vibrate_target_phone">Telefon</string>
+    <string name="alarm_vibrate_target_watch">Klokke</string>
+    <string name="auto_connect_caption">Kobler seg til hjulet du sist paret. Du må koble til manuelt første gang</string>
+    <string name="discard_trip_pending_label">Turen blir sikkerhetskopiert snart</string>
+    <string name="experimental_banner">Foreløpig støttet hjul. Trykk for å rapportere problemer.</string>
+    <string name="experimental_dialog_body">Støtten for dette hjulet er foreløpig. Bare V14-familien og P6 er verifisert av forfatteren. Bruk det med forsiktighet.\n\nÅ trykke på dette banneret rapporterer en sak, slik at forfatteren kan fikse det som ikke fungerer.</string>
+    <string name="experimental_dialog_report">Rapporter et problem</string>
+    <string name="experimental_dialog_title">Hjelp med å forbedre EUC Planet</string>
+    <string name="flic_button">Flic-knapp</string>
+    <string name="flic_forget_body">%1$s blir avparet og handlingene tømt. Du kan pare den igjen når som helst.</string>
+    <string name="flic_forget_title">Glemme denne knappen?</string>
+    <string name="flic_no_buttons">Ingen Flic-knapper paret</string>
+    <string name="menu_auto_lights">Innstillinger for auto-lys</string>
+    <string name="menu_start_recording">Start opptak</string>
+    <string name="menu_stop_recording">Stopp opptak</string>
+    <string name="menu_view_current_trip">Vis nåværende tur</string>
+    <string name="menu_view_last_trip">Vis siste tur</string>
+    <string name="menu_voice_periodic_off">Slå av jevnlige kunngjøringer</string>
+    <string name="menu_voice_periodic_on">Slå på jevnlige kunngjøringer</string>
+    <string name="report_time">Tid</string>
+    <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises</string>
+    <string name="scan_show_all_title">Vis alle enheter</string>
+    <string name="scan_simulate_subtitle">For utvikling uten maskinvare. Hopper over BLE og mater ferdiglagde svar gjennom adapter-rørledningen</string>
+    <string name="scan_simulate_title">Virtuelle hjul</string>
+    <string name="section_watch_buttons">Maskinvareknapper</string>
+    <string name="section_watch_display">Skjerm</string>
+    <string name="section_watch_general">Generelt</string>
+    <string name="show_gauge_color_band">Fargebånd på fartsmåler</string>
+    <string name="stat_watts">WATT</string>
+    <string name="tab_watch">Klokke</string>
+    <string name="toast_external_speed_change">Fart oppdatert fra hjulet: %1$d km/t tiltback, %2$d km/t alarm</string>
+    <string name="voice_output_channel_alarm">Alarm</string>
+    <string name="voice_output_channel_label">Lydutgang</string>
+    <string name="voice_output_channel_media">Media</string>
+    <string name="voice_output_channel_notification">Varsel</string>
+    <string name="voice_time_fmt">klokken %1$s</string>
+    <string name="watch_auto_start">Auto-start på klokke</string>
+    <string name="watch_auto_start_desc">Åpne klokke-appen automatisk når du åpner telefon-appen</string>
+    <string name="watch_button_1">Knapp 1</string>
+    <string name="watch_button_2">Knapp 2</string>
+    <string name="watch_button_click_label">Klikk</string>
+    <string name="watch_button_hold_label">Langt trykk</string>
+    <string name="watch_keep_on">Hold skjermen på</string>
+    <string name="watch_keep_on_desc">Hindre klokka i å sove mens EUC Planet-appen er åpen</string>
+    <string name="watch_pwm_bar">Stolpe</string>
+    <string name="watch_pwm_both">Begge</string>
+    <string name="watch_pwm_display">Last-indikator (PWM)</string>
+    <string name="watch_pwm_numbers">Tekst</string>
+    <string name="watch_show_phone_battery">Vis telefonens batteri</string>
+    <string name="watch_show_speed_unit">Etikett for fartsenhet</string>
+    <string name="watch_show_speed_unit_desc">Vis enhetsetiketten ved siden av det store fartstallet</string>
+    <string name="watch_show_watch_battery">Vis klokkens batteri</string>
+    <string name="watch_show_wheel_battery">Vis hjulets batteri</string>
+    <string name="flic_action_record_start">Start turopptak</string>
+    <string name="flic_action_record_stop">Stopp turopptak</string>
+    <string name="section_watch_screen_buttons">Knapper</string>
+    <string name="watch_screen_button_1">Knapp 1</string>
+    <string name="watch_screen_button_2">Knapp 2</string>
+    <string name="watch_haptic_on_action">Vibrer ved handling</string>
+    <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses</string>
 </resources>

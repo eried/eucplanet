@@ -11,7 +11,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -22,10 +29,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +45,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -91,17 +101,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -136,6 +154,8 @@ fun DashboardScreen(
     SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
+    val lockBusy by viewModel.lockBusy.collectAsState()
+    val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
@@ -398,11 +418,29 @@ fun DashboardScreen(
             val gaugeMax = ((effectiveTiltback / 10f).toInt() + 1) * 10f
             val pwm = wheelData.pwm.absoluteValue
 
+            // Foldables / tablets: cap the speedo and use a 3-column stat grid so
+            // the whole dashboard fits without the footer falling off-screen.
+            val wideStats = LocalConfiguration.current.screenWidthDp >= 600
+
             // Speed gauge — wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
             val safeColor = if (useAccent) primary else AccentGreen
-            Box(modifier = Modifier.fillMaxWidth()) {
+            // BoxWithConstraints with weight(1f, fill=true): the dial Box
+            // absorbs ALL leftover vertical space so the ODO footer stays
+            // pinned just below the action buttons. On phones the dial is a
+            // near-square at ratio 1.05; on tablets it becomes a wide-arc
+            // car-dash style speedo (ratio 2.0) so the extra horizontal real
+            // estate is actually used. Width is capped on phones at 0.85 of
+            // screen, on tablets at 0.95 to leave a small margin.
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().weight(1f, fill = true)
+            ) {
+                val widthFraction = if (wideStats) 0.95f else 0.85f
+                val ratio = if (wideStats) 2.0f else 1.05f
+                val candidateW = maxWidth * widthFraction
+                val maxByHeight = maxHeight * ratio
+                val dialW = minOf(candidateW, maxByHeight)
                 SpeedGauge(
                     speed = wheelData.speed.absoluteValue,
                     maxSpeed = gaugeMax,
@@ -416,9 +454,9 @@ fun DashboardScreen(
                     // arc (overrideColor above) still wears the accent.
                     safeBandColor = AccentGreen,
                     modifier = Modifier
-                        .fillMaxWidth(0.75f)
-                        .aspectRatio(1.25f)
-                        .align(Alignment.TopCenter)
+                        .width(dialW)
+                        .aspectRatio(ratio)
+                        .align(Alignment.Center)
                         .clickable { onNavigateToMetric("SPEED") }
                 )
                 // Car-dashboard status cluster, top-left: P (park) / D (drive).
@@ -461,9 +499,22 @@ fun DashboardScreen(
                 live && wheelData.batteryPercent < 40 -> AccentOrange
                 else -> safeColor
             }
+            // EUC motor temperature tiers. The stored value is always °C, so
+            // the thresholds are unit-independent — the display layer converts
+            // to °F for imperial users but the color rule reads the same number.
+            // Riders routinely push EUC motors past 90 °C on climbs without
+            // damage; most wheels don't alarm until 100 °C+. Tuned for the
+            // upper half of "warm but safe" to read as yellow, orange for
+            // "hot, ease off", red for "motor stress".
+            //   below 70 °C   safe   (160 °F)
+            //   70-90 °C      yellow (160-194 °F)
+            //   90-105 °C     orange (194-221 °F)
+            //   above 105 °C  red    (≥ 221 °F, motor stress / damage risk)
             val tempColor = when {
-                live && wheelData.maxTemperature > 60 -> AccentRed
-                live && wheelData.maxTemperature > 45 -> AccentOrange
+                !live || wheelData.maxTemperature <= 0f -> safeColor
+                wheelData.maxTemperature > 105 -> AccentRed
+                wheelData.maxTemperature > 90 -> AccentOrange
+                wheelData.maxTemperature > 70 -> AccentYellow
                 else -> safeColor
             }
             val loadColor = when {
@@ -472,44 +523,55 @@ fun DashboardScreen(
                 else -> safeColor
             }
 
-            val placeholder = "—"
+            // ASCII hyphen — the user dislikes the em-dash glyph; this is
+            // also visually clearer at the small stat-card font size.
+            val placeholder = "-"
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
+            val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+            val showWatts = currentMode == "WATTS"
+            val ampsLabel = stringResource(R.string.stat_amps)
+            val wattsLabel = stringResource(R.string.stat_watts)
+            val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
+            val currentText = when {
+                !live -> placeholder
+                showWatts -> "%.0fW".format(currentValue)
+                else -> "%.1fA".format(currentValue)
+            }
+            val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
+            val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+
+            // A connected wheel that hasn't sent telemetry yet leaves these
+            // fields at the WheelData defaults (0). Showing "0%" or "0.0V"
+            // looks like a real reading; the placeholder makes it obvious
+            // we're waiting for the wheel to talk.
+            val batteryCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_battery),
-                    if (live) "${wheelData.batteryPercent}%" else placeholder,
+                    if (live && wheelData.batteryPercent > 0)
+                        "${wheelData.batteryPercent}%" else placeholder,
                     battColor, history.battery, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("BATTERY") })
-                val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
-                val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+            }
+            val tempCard: @Composable RowScope.() -> Unit = {
+                // Show the placeholder when the parser couldn't decode a
+                // motor reading (maxTemperature stays at 0). Without this,
+                // imperial users see "32°F" — the °F equivalent of 0°C —
+                // which looks like a real reading and "sticks" until the
+                // next valid frame.
+                val tempUnknown = wheelData.maxTemperature <= 0f
                 StatCard(stringResource(R.string.stat_temp),
-                    if (live) "%.0f%s".format(tempValue, tempUnit) else placeholder,
+                    if (live && !tempUnknown) "%.0f%s".format(tempValue, tempUnit) else placeholder,
                     tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val voltageCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_voltage),
-                    if (live) "%.1fV".format(wheelData.voltage) else placeholder,
+                    if (live && wheelData.voltage > 0f)
+                        "%.1fV".format(wheelData.voltage) else placeholder,
                     primary, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
-
-                val showWatts = currentMode == "WATTS"
-                val ampsLabel = stringResource(R.string.stat_amps)
-                val wattsLabel = stringResource(R.string.stat_watts)
-                val currentValue = if (showWatts) wheelData.voltage * wheelData.current else wheelData.current
-                val currentText = when {
-                    !live -> placeholder
-                    showWatts -> "%.0fW".format(currentValue)
-                    else -> "%.1fA".format(currentValue)
-                }
+            }
+            val currentCard: @Composable RowScope.() -> Unit = {
                 StatCard(
                     if (showWatts) wattsLabel else ampsLabel,
                     currentText,
@@ -520,19 +582,13 @@ fun DashboardScreen(
                     onLongClick = { viewModel.toggleCurrentDisplayMode() }
                 )
             }
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            val loadCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_load),
                     if (live) "%.0f%%".format(pwm) else placeholder,
                     loadColor, history.load, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("LOAD") })
-                val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
-                val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+            }
+            val tripCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_trip),
                     if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
                     primary, emptyList(), Modifier.weight(1f),
@@ -543,9 +599,51 @@ fun DashboardScreen(
                     })
             }
 
+            // Foldables / tablets: 3 columns × 2 rows. Phones: 2 columns × 3 rows.
+            if (wideStats) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    batteryCard(); tempCard(); voltageCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    currentCard(); loadCard(); tripCard()
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    batteryCard(); tempCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    voltageCard(); currentCard()
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    loadCard(); tripCard()
+                }
+            }
+
             Spacer(Modifier.height(14.dp))
 
-            // Action buttons — pill-shaped, 2 rows of 3
+            // Action buttons — fixed height on both phone and wide layouts so the
+            // bottom rows always fit even with the taller speedometer and stat cards.
+            val actionAspect: Float? = null
+            val actionHeight: Int? = if (wideStats) 88 else 104
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -553,14 +651,16 @@ fun DashboardScreen(
                 ActionButton(Icons.Default.Campaign, stringResource(R.string.action_horn),
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onHornPress() },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f),
+                    aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.FlashlightOn,
                     label = stringResource(R.string.action_light),
                     active = wheelData.lightOn,
-                    enabled = connectionState == ConnectionState.CONNECTED,
+                    enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                     onClick = { viewModel.onLightToggle() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.menu_auto_lights)) },
@@ -574,6 +674,7 @@ fun DashboardScreen(
                     icon = Icons.Default.RecordVoiceOver,
                     label = stringResource(R.string.action_voice),
                     onClick = { viewModel.onVoiceAnnounce() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.tab_voice)) },
@@ -613,6 +714,7 @@ fun DashboardScreen(
                     activeColor = if (useAccent) primary else AccentOrange,
                     enabled = connectionState == ConnectionState.CONNECTED,
                     onClick = { viewModel.onSafetySpeedToggle() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.section_legal_mode_speed)) },
@@ -624,9 +726,10 @@ fun DashboardScreen(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED,
+                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
                     onClick = { viewModel.onLockToggle() },
-                    modifier = Modifier.weight(1f))
+                    modifier = Modifier.weight(1f),
+                    aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Default.FiberManualRecord,
@@ -635,6 +738,7 @@ fun DashboardScreen(
                     active = recording,
                     activeColor = if (useAccent) primary else AccentRed,
                     onClick = { onNavigateToRecording() },
+                    aspectRatio = actionAspect, heightDp = actionHeight,
                     menu = { dismiss ->
                         val targetTripId = currentTripId ?: latestTripId
                         DropdownMenuItem(
@@ -673,24 +777,36 @@ fun DashboardScreen(
                 )
             }
 
-            Spacer(Modifier.weight(1f, fill = true))
+            Spacer(Modifier.height(12.dp))
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             var showAboutDialog by remember { mutableStateOf(false) }
+            var showDiagnosticsDialog by remember { mutableStateOf(false) }
             val context = LocalContext.current
             val versionName = remember {
                 try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
                 } catch (_: Exception) { "?" }
             }
+            val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
                 versionName = versionName,
-                onVersionClick = { showAboutDialog = true }
+                diagnosticsActive = diagEnabled,
+                onVersionClick = {
+                    if (diagEnabled) showDiagnosticsDialog = true
+                    else showAboutDialog = true
+                }
             )
+
+            if (showDiagnosticsDialog) {
+                com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
+                    onDismiss = { showDiagnosticsDialog = false }
+                )
+            }
 
             if (showAboutDialog) {
                 val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
@@ -700,6 +816,13 @@ fun DashboardScreen(
                             .bufferedReader().use { it.readText() }
                     } catch (_: Exception) { "" }
                 }
+                var showDiagnosticsConfirm by remember { mutableStateOf(false) }
+                var logoPressed by remember { mutableStateOf(false) }
+                val logoAlpha by animateFloatAsState(
+                    targetValue = if (logoPressed) 0.55f else 1f,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "logoHoldAlpha"
+                )
                 Dialog(
                     onDismissRequest = { showAboutDialog = false },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -718,6 +841,55 @@ fun DashboardScreen(
                                     .clip(CircleShape)
                                     .background(colorResource(R.color.ic_launcher_background))
                                     .align(Alignment.CenterHorizontally)
+                                    .alpha(logoAlpha)
+                                    .pointerInput(Unit) {
+                                        awaitEachGesture {
+                                            val firstDown = awaitFirstDown(requireUnconsumed = false)
+                                            logoPressed = true
+                                            val pointerId = firstDown.id
+                                            val deadline = System.currentTimeMillis() + 5000L
+                                            // Poll pointer events while bounding each wait by the
+                                            // remaining time. Three exit conditions:
+                                            //  - 5s elapses with the finger still down inside the
+                                            //    logo bounds  -> trigger Service Mode
+                                            //  - user lifts the finger early                 -> abort
+                                            //  - user drags the finger off the logo          -> abort
+                                            var triggered = false
+                                            while (true) {
+                                                val remaining = deadline - System.currentTimeMillis()
+                                                if (remaining <= 0L) {
+                                                    triggered = true
+                                                    break
+                                                }
+                                                val event = withTimeoutOrNull(remaining) {
+                                                    awaitPointerEvent()
+                                                }
+                                                if (event == null) {
+                                                    // No further event in the remaining window:
+                                                    // the user is still pressing, so this is a
+                                                    // successful hold.
+                                                    triggered = true
+                                                    break
+                                                }
+                                                val change = event.changes.firstOrNull { it.id == pointerId }
+                                                if (change == null || !change.pressed) {
+                                                    // Lifted (or another pointer took over).
+                                                    break
+                                                }
+                                                val pos = change.position
+                                                if (pos.x !in 0f..size.width.toFloat() ||
+                                                    pos.y !in 0f..size.height.toFloat()
+                                                ) {
+                                                    // Dragged outside the logo circle.
+                                                    break
+                                                }
+                                            }
+                                            logoPressed = false
+                                            if (triggered) {
+                                                showDiagnosticsConfirm = true
+                                            }
+                                        }
+                                    }
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_launcher_foreground),
@@ -737,19 +909,24 @@ fun DashboardScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
+                            Text(
+                                "eucplanet.ried.no",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .clickable { openUrl(context, "https://eucplanet.ried.no") }
+                            )
                             Spacer(Modifier.height(16.dp))
 
                             Text(
-                                "Custom control app for InMotion electric unicycles (V14, P6, V12 family): BLE dashboard, voice announcements, trip recording with GPS, configurable alarms, Flic 2 buttons, volume-key shortcuts, auto-lighting, adaptive volume, and a Wear OS companion for Galaxy Watch Ultra and friends.",
+                                "A no-nonsense, open-source app for electric unicycles.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(6.dp))
-                            Text(
-                                text = "Made by Erwin Ried — eucplanet.ried.no",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.clickable { openUrl(context, "https://eucplanet.ried.no") }
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.CenterHorizontally)
                             )
 
                             Spacer(Modifier.height(12.dp))
@@ -762,11 +939,16 @@ fun DashboardScreen(
                                 Tab(
                                     selected = aboutTab == 0,
                                     onClick = { aboutTab = 0 },
-                                    text = { Text(stringResource(R.string.about_license)) }
+                                    text = { Text(stringResource(R.string.about_thanks)) }
                                 )
                                 Tab(
                                     selected = aboutTab == 1,
                                     onClick = { aboutTab = 1 },
+                                    text = { Text(stringResource(R.string.about_license)) }
+                                )
+                                Tab(
+                                    selected = aboutTab == 2,
+                                    onClick = { aboutTab = 2 },
                                     text = {
                                         Text(
                                             if (crashes.isEmpty())
@@ -787,6 +969,48 @@ fun DashboardScreen(
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                         ) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .verticalScroll(rememberScrollState())
+                                                    .padding(10.dp)
+                                            ) {
+                                                Row {
+                                                    Text(
+                                                        "Made by ",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                    Text(
+                                                        "Erwin Ried",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.clickable {
+                                                            openUrl(context, "https://ried.no")
+                                                        }
+                                                    )
+                                                    Text(
+                                                        " in Norway",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                }
+                                                Spacer(Modifier.height(10.dp))
+                                                Text(
+                                                    stringResource(R.string.about_thanks_body),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
+                                        }
+                                    }
+                                    1 -> {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        ) {
                                             Text(
                                                 if (licenseText.isNotBlank()) licenseText else "—",
                                                 style = MaterialTheme.typography.bodySmall,
@@ -798,7 +1022,7 @@ fun DashboardScreen(
                                             )
                                         }
                                     }
-                                    1 -> {
+                                    2 -> {
                                         if (crashes.isEmpty()) {
                                             Row(
                                                 modifier = Modifier.fillMaxSize(),
@@ -858,6 +1082,73 @@ fun DashboardScreen(
                         }
                     }
                 }
+                if (showDiagnosticsConfirm) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { showDiagnosticsConfirm = false },
+                        title = { Text(stringResource(R.string.service_mode_title)) },
+                        text = {
+                            Column {
+                                Text(
+                                    stringResource(R.string.service_mode_caution),
+                                    color = Color(0xFFE53935),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    stringResource(R.string.service_mode_purpose),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    stringResource(R.string.service_mode_recording),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                val linkText = stringResource(R.string.service_mode_link)
+                                val urlPart = "eucplanet.ried.no/service"
+                                val linkColor = MaterialTheme.colorScheme.primary
+                                val annotated = buildAnnotatedString {
+                                    val idx = linkText.indexOf(urlPart)
+                                    if (idx >= 0) {
+                                        append(linkText.substring(0, idx))
+                                        withLink(
+                                            LinkAnnotation.Url(
+                                                url = "https://$urlPart",
+                                                styles = TextLinkStyles(
+                                                    style = SpanStyle(
+                                                        color = linkColor,
+                                                        textDecoration = TextDecoration.Underline
+                                                    )
+                                                )
+                                            )
+                                        ) { append(urlPart) }
+                                        append(linkText.substring(idx + urlPart.length))
+                                    } else {
+                                        append(linkText)
+                                    }
+                                }
+                                Text(
+                                    annotated,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showDiagnosticsConfirm = false
+                                com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
+                                showAboutDialog = false
+                                showDiagnosticsDialog = true
+                            }) { Text(stringResource(R.string.service_mode_enter)) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDiagnosticsConfirm = false }) {
+                                Text(stringResource(R.string.action_cancel))
+                            }
+                        }
+                    )
+                }
             }
             }  // close inner Column (dashboard content)
         }
@@ -893,7 +1184,7 @@ private fun SpeedGauge(
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(imperial)
+    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
 
     Canvas(modifier = modifier) {
         val dim = size.minDimension
@@ -1093,9 +1384,11 @@ private fun StatCard(
     }
     Box(
         modifier = modifier
+            .heightIn(min = 61.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .then(clickModifier)
+            .then(clickModifier),
+        contentAlignment = Alignment.Center
     ) {
         // Sparkline background
         if (sparkData.size >= 2) {
@@ -1129,7 +1422,7 @@ private fun StatCard(
             }
         }
 
-        // Text content on top
+        // Text content centered
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1159,6 +1452,7 @@ private fun WheelInfoBox(
     modelName: String?,
     firmwareVersion: String?,
     versionName: String,
+    diagnosticsActive: Boolean,
     onVersionClick: () -> Unit
 ) {
     Box(
@@ -1192,11 +1486,29 @@ private fun WheelInfoBox(
             )
         }
 
-        // Right: app version
+        // Right: app version (eased red glow when Service Mode is recording)
+        val versionColor = if (diagnosticsActive) {
+            val infinite = androidx.compose.animation.core.rememberInfiniteTransition(label = "diagGlow")
+            val alpha by infinite.animateFloat(
+                initialValue = 1f,
+                targetValue = 0.3f,
+                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                    animation = androidx.compose.animation.core.tween(
+                        durationMillis = 1000,
+                        easing = androidx.compose.animation.core.FastOutSlowInEasing
+                    ),
+                    repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                ),
+                label = "diagGlowAlpha"
+            )
+            Color.Red.copy(alpha = alpha)
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        }
         Text(
             text = "v$versionName",
             fontSize = 10.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            color = versionColor,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .clickable(onClick = onVersionClick)
@@ -1262,7 +1574,9 @@ private fun ActionButton(
     activeColor: Color = AccentBlue,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    aspectRatio: Float? = 1f,
+    heightDp: Int? = null
 ) {
     val disabledAlpha = 0.35f
     val container = when {
@@ -1277,7 +1591,8 @@ private fun ActionButton(
     }
     Box(
         modifier = modifier
-            .aspectRatio(1f)
+            .let { if (aspectRatio != null) it.aspectRatio(aspectRatio) else it }
+            .let { if (heightDp != null) it.height(heightDp.dp) else it }
             .clip(RoundedCornerShape(12.dp))
             .background(container)
             .combinedClickable(
@@ -1308,7 +1623,9 @@ private fun ActionTile(
     menu: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
     active: Boolean = false,
     activeColor: Color = AccentBlue,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    aspectRatio: Float? = 1f,
+    heightDp: Int? = null
 ) {
     Box(modifier = modifier) {
         var menuOpen by remember { mutableStateOf(false) }
@@ -1320,7 +1637,9 @@ private fun ActionTile(
             enabled = enabled,
             onClick = onClick,
             onLongClick = { menuOpen = true },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            aspectRatio = aspectRatio,
+            heightDp = heightDp
         )
         DropdownMenu(
             expanded = menuOpen,

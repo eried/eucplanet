@@ -87,33 +87,28 @@ object InMotionV2Commands {
     fun getP6Settings(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
 
+    /** P6 detailed-data query (`02 21 04`). Response comes back as
+     *  `21 02 84 [86-byte body]`. The InMotion app fires this without an arg
+     *  — earlier preview tried `02 21 04 32` and the wheel ignored it.
+     *  Body offset 58 = MOS temperature with formula `°F = byte − 126`,
+     *  verified at 72 °F = byte 0xC6 in the labelled capture. */
+    fun getP6Stats(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
+
     /**
      * Set the P6 tiltback / max speed.
      *
      * P6 takes a 2-byte uint16 LE value in 0.01 km/h units, NOT the V14's
-     * 4-byte (tilt + alarm) packet. From a real-hardware capture, the
-     * InMotion app pairs each `60 21 [val]` write with a `60 3e [val 00 00]`
-     * commit-to-flash write a few hundred milliseconds later. We mimic that
-     * pairing — the caller writes both packets back to back.
+     * 4-byte (tilt + alarm) packet. `60 21 [v_lo v_hi]` alone is sufficient
+     * and persists across reboots — multiple mid-drag writes without any
+     * follow-up commit are honoured by the wheel and stay put. Pair it with
+     * [setP6AlarmSpeed] only if you also want to change the alarm threshold.
      */
     fun setP6MaxSpeed(tiltbackKmh: Float): ByteArray {
         val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
         return InMotionV2Protocol.buildExtendedPacket(
             Command.CONTROL,
             byteArrayOf(ControlSubCmd.SET_MAX_SPEED, v[0], v[1])
-        )
-    }
-
-    /**
-     * Persist-to-flash companion to [setP6MaxSpeed]. The InMotion app sends
-     * this immediately after the `60 21` write; without it the change is
-     * volatile and gets lost when the wheel sleeps.
-     */
-    fun commitP6MaxSpeed(tiltbackKmh: Float): ByteArray {
-        val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
-        return InMotionV2Protocol.buildExtendedPacket(
-            Command.CONTROL,
-            byteArrayOf(0x3E, v[0], v[1], 0x00, 0x00)
         )
     }
 
@@ -139,6 +134,23 @@ object InMotionV2Commands {
         InMotionV2Protocol.buildExtendedPacket(
             Command.CONTROL,
             byteArrayOf(ControlSubCmd.PLAY_SOUND, 0x18, 0x01)
+        )
+
+    /**
+     * P6 Auto Headlight toggle (the "Auto Headlight" switch under General
+     * Settings → Lighting). Wire format: `aa aa 16 05 02 21 60 2f [v] [chk]`,
+     * single-byte payload (1 = ON, 0 = OFF). Verified against the FINAL P6
+     * capture — five toggles by the user produced exactly this frame each
+     * time, with `2f 01 7e` for ON and `2f 00 7f` for OFF.
+     *
+     * On a P6, manual Light (`60 50`) is independent of Auto Headlight: when
+     * Auto Headlight is on, the wheel decides based on ambient light; when
+     * it is off, the user controls the headlight directly via `60 50`.
+     */
+    fun setP6AutoHeadlight(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x2F, if (on) 0x01 else 0x00)
         )
 
     /**
