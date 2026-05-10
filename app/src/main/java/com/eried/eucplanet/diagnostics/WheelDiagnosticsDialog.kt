@@ -77,6 +77,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -566,6 +567,30 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 }
 
 /**
+ * Strip the family-display-name prefix from an inspect message-type string
+ * so the dropdown label reads tightly. The family is already named in the
+ * picker to the left, so "KingSong realtime" becomes "Realtime",
+ * "InMotion V1 slow-info" becomes "Slow-info", and so on. Multi-prefix
+ * families that don't share a common stem (InMotion V2: "V14 realtime",
+ * "P6 realtime", "P6 detailed") fall through and render unchanged.
+ */
+private fun shortInspectLabel(prefix: String, familyDisplayName: String): String {
+    val candidates = listOf(
+        familyDisplayName,
+        familyDisplayName.split(" / ").first(),
+        familyDisplayName.split(" ").take(2).joinToString(" "),
+        familyDisplayName.split(" ").first()
+    ).filter { it.isNotBlank() }.distinct()
+    for (c in candidates) {
+        val trimmed = prefix.removePrefix(c).trimStart()
+        if (trimmed != prefix && trimmed.isNotEmpty()) {
+            return trimmed.replaceFirstChar { it.uppercase() }
+        }
+    }
+    return prefix.replaceFirstChar { it.uppercase() }
+}
+
+/**
  * Live byte interpreter. Picks the most recent NOTE entry whose text starts
  * with the selected message type prefix and renders every byte as a small
  * tappable cell showing offset, hex, and decimal. Tapping a cell drops a
@@ -632,38 +657,36 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
                 }
             }
             Spacer(Modifier.width(8.dp))
-            // Single-prefix families (KingSong, Veteran, Begode, Ninebot, V1)
-            // just say "Realtime" — they only have one stream so the second
-            // dropdown would be a single-item menu. Multi-prefix families
-            // (InMotion V2: V14 / P6 realtime / P6 detailed) keep the picker.
-            if (types.size > 1) {
-                Box {
-                    OutlinedButton(onClick = { menuExpanded = true }) {
-                        Text(selected.ifEmpty { "(message)" })
-                        Spacer(Modifier.width(6.dp))
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null
+            // Always show the message-type dropdown; disable it when there's
+            // only one option so the UI is consistent across families. The
+            // label strips the family-name prefix (e.g. "KingSong realtime"
+            // displays as "Realtime", "InMotion V1 slow-info" as "Slow-info")
+            // since the family is already named in the picker to the left.
+            val familyName = selectedFamily?.displayName ?: ""
+            val singleOption = types.size <= 1
+            Box {
+                OutlinedButton(
+                    onClick = { if (!singleOption) menuExpanded = true },
+                    enabled = !singleOption
+                ) {
+                    Text(shortInspectLabel(selected, familyName).ifEmpty { "(message)" })
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = null
+                    )
+                }
+                androidx.compose.material3.DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    types.forEach { t ->
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(shortInspectLabel(t, familyName)) },
+                            onClick = { selected = t; menuExpanded = false }
                         )
                     }
-                    androidx.compose.material3.DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
-                    ) {
-                        types.forEach { t ->
-                            androidx.compose.material3.DropdownMenuItem(
-                                text = { Text(t) },
-                                onClick = { selected = t; menuExpanded = false }
-                            )
-                        }
-                    }
                 }
-            } else if (types.size == 1) {
-                Text(
-                    "Realtime",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
 
@@ -788,46 +811,66 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(top = 4.dp)
     ) {
+        // Per-family preset library. Each family's chips draw from the
+        // same DiagnosticCommand catalogue the Commands tab uses, so the
+        // single source of truth holds and authoring a new family's
+        // commands lights both tabs up at once. Tap a chip to seed the
+        // input box (vs the Commands tab which fires immediately).
+        val presetFamilies = remember { vm.allWheelFamilies().filter { it.commands.isNotEmpty() } }
+        var presetFamilyIdx by rememberSaveable { mutableStateOf(0) }
+        var presetMenuOpen by remember { mutableStateOf(false) }
+        val activePresetFamily = presetFamilies.getOrNull(presetFamilyIdx)
         CollapsibleSection(title = "Insert preset", defaultExpanded = false) {
-            Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(top = 4.dp)) {
-                val chips = listOf(
-                    "60 50 00 00" to "Light off",
-                    "60 50 01 01" to "Light on",
-                    "60 51 18 01" to "Horn",
-                    "60 2f 00" to "Auto-headlight off",
-                    "60 2f 01" to "Auto-headlight on",
-                    "60 4e 00" to "DRL? off",
-                    "60 4e 01" to "DRL? on",
-                    "60 24 00" to "25 km/h clamp off",
-                    "60 24 01" to "25 km/h clamp on",
-                    "60 31 01" to "Lock",
-                    "60 31 00" to "Unlock",
-                    "02 06" to "Info bundle",
-                    "02 07" to "Realtime",
-                    "20 20" to "Settings page A",
-                    "20 21" to "Settings B (untried)",
-                    "20 22" to "Settings C (untried)",
-                    "11" to "Total stats"
+            if (activePresetFamily == null) {
+                Text(
+                    "No families publish presets yet.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                chips.forEach { (bytes, desc) ->
-                    AssistChip(
-                        onClick = { appendBytes(bytes) },
-                        label = {
-                            Column {
-                                Text(
-                                    bytes,
-                                    style = MaterialTheme.typography.labelMedium
-                                        .copy(fontFamily = FontFamily.Monospace)
-                                )
-                                Text(
-                                    desc,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        },
-                        modifier = Modifier.padding(end = 6.dp).height(56.dp)
-                    )
+            } else {
+                Box(modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)) {
+                    OutlinedButton(onClick = { presetMenuOpen = true }) {
+                        Text(activePresetFamily.displayName)
+                        Spacer(Modifier.width(6.dp))
+                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                    }
+                    androidx.compose.material3.DropdownMenu(
+                        expanded = presetMenuOpen,
+                        onDismissRequest = { presetMenuOpen = false }
+                    ) {
+                        presetFamilies.forEachIndexed { idx, fam ->
+                            androidx.compose.material3.DropdownMenuItem(
+                                text = { Text(fam.displayName) },
+                                onClick = { presetFamilyIdx = idx; presetMenuOpen = false }
+                            )
+                        }
+                    }
+                }
+                Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+                    activePresetFamily.commands.forEach { cmd ->
+                        val hex = remember(cmd.bytes) {
+                            cmd.bytes.joinToString(" ") { "%02x".format(it) }
+                        }
+                        AssistChip(
+                            onClick = { appendBytes(hex) },
+                            label = {
+                                Column {
+                                    Text(
+                                        cmd.label,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Text(
+                                        cmd.description,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            },
+                            modifier = Modifier.padding(end = 6.dp).height(56.dp)
+                        )
+                    }
                 }
             }
         }

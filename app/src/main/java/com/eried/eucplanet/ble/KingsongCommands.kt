@@ -35,6 +35,25 @@ object KingsongCommands {
     }
 
     /**
+     * Public wrap entry point for Service Mode's Raw tab. The user types
+     * `<type-hex> <up-to-14 bytes of payload>`; we emit the 20-byte frame
+     * with the standard header / trailer. Payload longer than 14 bytes is
+     * truncated to fit (the wheel only ever cares about the first ~14
+     * bytes anyway).
+     */
+    fun wrapArbitrary(typeAndPayload: ByteArray): ByteArray {
+        if (typeAndPayload.isEmpty()) return ByteArray(0)
+        val type = typeAndPayload[0]
+        val payload = if (typeAndPayload.size > 1) typeAndPayload.copyOfRange(1, typeAndPayload.size) else byteArrayOf()
+        return frame(type) { f ->
+            val n = minOf(payload.size, 14) // bytes 2..15 are payload (14 slots)
+            for (i in 0 until n) {
+                f[2 + i] = payload[i]
+            }
+        }
+    }
+
+    /**
      * Build a 20-byte frame with the given type byte. Payload bytes default
      * to zero; callers fill in the type-specific slots before sending.
      */

@@ -193,7 +193,20 @@ class WheelDiagnosticsViewModel @Inject constructor(
         bleManager.writeCommand(cmd.bytes)
     }
 
-    enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT }
+    /**
+     * Frame format the Raw tab wraps the user's bytes in before sending.
+     *
+     *  - LITERAL: bytes go on the wire as typed (Begode / Veteran / V1
+     *    research path; also any protocol where the user wants full control).
+     *  - WRAP_EXTENDED: InMotion V2 extended-routing
+     *    `aa aa 16 LL 02 21 [user...] [xor]`. First user byte is the cmd.
+     *  - WRAP_V14_SHORT: InMotion V14 short-form
+     *    `aa aa 16 LL [flags] [cmd] [data...] [xor]`. First user byte is cmd.
+     *  - WRAP_KINGSONG: KingSong 20-byte
+     *    `aa 55 [00*14] [type] 14 5a 5a` with user bytes filling the 14
+     *    payload slots and the LAST user byte going into [type].
+     */
+    enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT, WRAP_KINGSONG }
 
     /** Result of attempting to wrap user-typed hex into bytes. The dialog
      *  shows [bytes] in the read-only "Bytes to send" box on success and
@@ -265,6 +278,10 @@ class WheelDiagnosticsViewModel @Inject constructor(
                     bytes[0],
                     if (bytes.size > 1) bytes.copyOfRange(1, bytes.size) else byteArrayOf()
                 )
+            }
+            WrapMode.WRAP_KINGSONG -> {
+                if (bytes.isEmpty()) return WrapResult(null, "Need at least 1 byte (type)")
+                com.eried.eucplanet.ble.KingsongCommands.wrapArbitrary(bytes)
             }
         }
         return WrapResult(wrapped, null)
