@@ -81,6 +81,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -706,6 +707,55 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
             return@Column
         }
 
+        // Range filter: hide bytes outside [min..max]. Empty input on either
+        // side means "no bound on that side". Hidden cells render dimly so
+        // the byte offsets stay aligned in the grid (otherwise tapping the
+        // wrong cell to log would be too easy).
+        var minFilterText by rememberSaveable { mutableStateOf("") }
+        var maxFilterText by rememberSaveable { mutableStateOf("") }
+        val minFilter = minFilterText.toIntOrNull()
+        val maxFilter = maxFilterText.toIntOrNull()
+        fun outOfRange(v: Int): Boolean =
+            (minFilter != null && v < minFilter) || (maxFilter != null && v > maxFilter)
+        val hiddenCount = latestBytes.count { outOfRange(it) }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
+        ) {
+            androidx.compose.material3.OutlinedTextField(
+                value = minFilterText,
+                onValueChange = { v -> minFilterText = v.filter { it.isDigit() } },
+                label = { Text("min", style = MaterialTheme.typography.labelSmall) },
+                singleLine = true,
+                modifier = Modifier.width(80.dp),
+                textStyle = MaterialTheme.typography.bodySmall
+            )
+            Spacer(Modifier.width(6.dp))
+            androidx.compose.material3.OutlinedTextField(
+                value = maxFilterText,
+                onValueChange = { v -> maxFilterText = v.filter { it.isDigit() } },
+                label = { Text("max", style = MaterialTheme.typography.labelSmall) },
+                singleLine = true,
+                modifier = Modifier.width(80.dp),
+                textStyle = MaterialTheme.typography.bodySmall
+            )
+            Spacer(Modifier.width(8.dp))
+            if (hiddenCount > 0) {
+                Text(
+                    "($hiddenCount hidden)",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.weight(1f))
+            if (minFilter != null || maxFilter != null) {
+                IconButton(onClick = { minFilterText = ""; maxFilterText = "" }) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear filter")
+                }
+            }
+        }
+
         // 6-column grid of byte cells. weight(1f) claims the leftover Column
         // height so the bottom row isn't clipped — the earlier fillMaxSize
         // approach was reading "as much as you want" rather than "exactly
@@ -717,7 +767,7 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
         ) {
             items(latestBytes.size) { off ->
                 val v = latestBytes[off]
-                ByteInspectCell(off, v) {
+                ByteInspectCell(off, v, dimmed = outOfRange(v)) {
                     vm.logByteInspection(selected, off, v)
                 }
             }
@@ -726,11 +776,18 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
 }
 
 @Composable
-private fun ByteInspectCell(offset: Int, value: Int, onTap: () -> Unit) {
+private fun ByteInspectCell(
+    offset: Int,
+    value: Int,
+    dimmed: Boolean = false,
+    onTap: () -> Unit
+) {
     val hex = remember(value) { "%02x".format(value) }
+    val cellAlpha = if (dimmed) 0.18f else 1f
     Column(
         modifier = Modifier
             .padding(2.dp)
+            .alpha(cellAlpha)
             .border(
                 1.dp,
                 MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
