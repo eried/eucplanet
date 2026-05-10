@@ -126,6 +126,20 @@ fun WheelDiagnosticsDialog(
             decorFitsSystemWindows = false
         )
     ) {
+        // Force a light + rectangular theme regardless of the user's app
+        // theme so Service Mode reads as a different surface — clearly
+        // "you are in research mode" the moment the dialog opens. All
+        // child components inherit these via MaterialTheme.
+        androidx.compose.material3.MaterialTheme(
+            colorScheme = androidx.compose.material3.lightColorScheme(),
+            shapes = androidx.compose.material3.Shapes(
+                extraSmall = RoundedCornerShape(0.dp),
+                small = RoundedCornerShape(0.dp),
+                medium = RoundedCornerShape(0.dp),
+                large = RoundedCornerShape(0.dp),
+                extraLarge = RoundedCornerShape(0.dp)
+            )
+        ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -179,6 +193,7 @@ fun WheelDiagnosticsDialog(
                 }
             }
         }
+        }  // close MaterialTheme override
     }
 
     if (stopConfirm) {
@@ -247,11 +262,16 @@ private fun LogPanel(modifier: Modifier = Modifier) {
             listState.scrollToItem(entries.size - 1)
         }
     }
+    // Matrix-terminal aesthetic: black background, default green text, but
+    // RX / TX / CMD / COMMENT keep their per-kind colours so kinds are
+    // still visually distinct. Keeps the rest of Service Mode in the
+    // forced-light theme.
     LazyColumn(
         state = listState,
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+            .background(Color.Black)
+            .border(1.dp, Color(0xFF00FF41).copy(alpha = 0.3f))
             .padding(6.dp)
     ) {
         items(entries) { e -> LogRow(e) }
@@ -259,8 +279,10 @@ private fun LogPanel(modifier: Modifier = Modifier) {
             item {
                 Text(
                     "No traffic yet. Connect to a wheel or fire a test command.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = FontFamily.Monospace
+                    ),
+                    color = Color(0xFF00FF41).copy(alpha = 0.6f)
                 )
             }
         }
@@ -412,13 +434,16 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     // High-saturation hues so RX (incoming) and TX (outgoing) are obviously
     // different at the small log font, plus a < / > arrow prefix as a second
     // channel for the colour-blind / dim-screen case.
+    // Matrix-terminal palette: NOTE / INFO read as the default green the
+    // log panel uses; RX / TX / CMD / COMMENT keep their distinct hues so
+    // kinds stay visually scannable on the black background.
     val (color, arrow) = when (e.kind) {
-        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF) to "<"   // bright sky blue
-        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40) to ">"   // amber
-        DiagnosticsLogger.Kind.NOTE -> MaterialTheme.colorScheme.onSurfaceVariant to " "
-        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB) to ">"   // magenta — also outgoing
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF69F0AE) to " "  // mint green
-        DiagnosticsLogger.Kind.INFO -> MaterialTheme.colorScheme.primary to " "
+        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF) to "<"          // bright sky blue
+        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40) to ">"          // amber
+        DiagnosticsLogger.Kind.NOTE -> Color(0xFF00FF41) to " "         // matrix green
+        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB) to ">"          // magenta
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF69F0AE) to " "      // mint green
+        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41) to " "         // matrix green
     }
     Text(
         "$ts $arrow ${e.kind.name.padEnd(7)} ${e.text}",
@@ -607,26 +632,38 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
                 }
             }
             Spacer(Modifier.width(8.dp))
-            Box {
-                OutlinedButton(onClick = { menuExpanded = true }) {
-                    Text(selected.ifEmpty { "(message)" })
-                    Spacer(Modifier.width(6.dp))
-                    Icon(
-                        imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = null
-                    )
-                }
-                androidx.compose.material3.DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    types.forEach { t ->
-                        androidx.compose.material3.DropdownMenuItem(
-                            text = { Text(t) },
-                            onClick = { selected = t; menuExpanded = false }
+            // Single-prefix families (KingSong, Veteran, Begode, Ninebot, V1)
+            // just say "Realtime" — they only have one stream so the second
+            // dropdown would be a single-item menu. Multi-prefix families
+            // (InMotion V2: V14 / P6 realtime / P6 detailed) keep the picker.
+            if (types.size > 1) {
+                Box {
+                    OutlinedButton(onClick = { menuExpanded = true }) {
+                        Text(selected.ifEmpty { "(message)" })
+                        Spacer(Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = null
                         )
                     }
+                    androidx.compose.material3.DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        types.forEach { t ->
+                            androidx.compose.material3.DropdownMenuItem(
+                                text = { Text(t) },
+                                onClick = { selected = t; menuExpanded = false }
+                            )
+                        }
+                    }
                 }
+            } else if (types.size == 1) {
+                Text(
+                    "Realtime",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 
