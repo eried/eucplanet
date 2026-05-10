@@ -41,9 +41,15 @@ object DiagnosticsLogger {
     private val _entries = MutableStateFlow<List<Entry>>(emptyList())
     val entries: StateFlow<List<Entry>> = _entries.asStateFlow()
 
+    /** Tracks whether the verbose session-info dump has already been written
+     *  for the current enable cycle. Prevents reopening the dialog from
+     *  duplicating the phone / Wear / wheel info every time. */
+    @Volatile private var sessionInfoCaptured = false
+
     fun enable() {
         if (_enabled.value) return
         _enabled.value = true
+        sessionInfoCaptured = false
         info("=== service mode enabled ${SESSION_FMT.format(Date())} ===")
     }
 
@@ -53,6 +59,14 @@ object DiagnosticsLogger {
 
     fun clear() {
         _entries.value = emptyList()
+    }
+
+    /** Called by the dialog's session-info hook before dumping the phone /
+     *  Wear / wheel snapshot. Returns true exactly once per enable cycle. */
+    fun shouldCaptureSessionInfo(): Boolean {
+        if (sessionInfoCaptured) return false
+        sessionInfoCaptured = true
+        return true
     }
 
     fun rx(bytes: ByteArray) = append(Kind.RX, "${bytes.size}  ${hex(bytes)}")

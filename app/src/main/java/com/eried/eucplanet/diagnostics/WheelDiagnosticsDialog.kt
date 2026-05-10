@@ -102,7 +102,11 @@ fun WheelDiagnosticsDialog(
     onDismiss: () -> Unit,
     vm: WheelDiagnosticsViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) { vm.captureSessionInfo() }
+    // Session-info dump is one-shot per enable cycle so reopening the dialog
+    // doesn't duplicate the phone / wheel / Wear block in the log.
+    LaunchedEffect(Unit) {
+        if (DiagnosticsLogger.shouldCaptureSessionInfo()) vm.captureSessionInfo()
+    }
 
     var stopConfirm by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -134,6 +138,17 @@ fun WheelDiagnosticsDialog(
                     }
                 )
 
+                // Log + comment input live at the top so the BLE traffic the
+                // user is testing is the first thing they see. ~30% of the
+                // total vertical space; the active tab takes the rest below.
+                LogPanel(modifier = Modifier.weight(1f, fill = true))
+
+                Spacer(Modifier.height(4.dp))
+
+                CommentRow(vm)
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
                 var tab by remember { mutableStateOf(0) }
                 TabRow(
                     selectedTabIndex = tab,
@@ -145,23 +160,12 @@ fun WheelDiagnosticsDialog(
                         text = { Text("Raw") })
                 }
 
-                // ~70% of vertical space goes to the active tab; ~30% to the
-                // always-visible log so the user sees the wheel's RX response
-                // to whatever they tap regardless of which tab they're on.
                 Box(modifier = Modifier.weight(2f, fill = true)) {
                     when (tab) {
                         0 -> CommandsTab(vm)
                         1 -> RawTab(vm)
                     }
                 }
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
-
-                LogPanel(modifier = Modifier.weight(1f, fill = true))
-
-                Spacer(Modifier.height(6.dp))
-
-                CommentRow(vm)
             }
         }
     }
@@ -455,40 +459,6 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             }
         }
 
-        Spacer(Modifier.height(6.dp))
-
-        // Hex input row: text field on the left, Format / cls (with confirm)
-        // stacked on the right so they don't crowd the field.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = raw,
-                onValueChange = { setRaw(it) },
-                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
-                label = { Text("Hex input") },
-                placeholder = { Text("60 50 01 01") },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                isError = !preview.ok && raw.isNotBlank()
-            )
-            Spacer(Modifier.width(6.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                OutlinedButton(
-                    onClick = { setRaw(vm.formatHex(raw)) },
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                ) { Text("fmt") }
-                OutlinedButton(
-                    onClick = {
-                        if (raw.isNotEmpty()) clearConfirm = true
-                    },
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-                ) { Text("cls") }
-            }
-        }
-
-        Spacer(Modifier.height(6.dp))
-
         CollapsibleSection(title = "Hex pad", defaultExpanded = false) {
             val hexChars = listOf('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F')
             Column(modifier = Modifier.padding(top = 4.dp)) {
@@ -530,6 +500,35 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                         contentPadding = PaddingValues(0.dp)
                     ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
                 }
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        // Hex input row: text field on the left, fmt / cls stacked on the right.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = raw,
+                onValueChange = { setRaw(it) },
+                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
+                label = { Text("Hex input") },
+                placeholder = { Text("60 50 01 01") },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                isError = !preview.ok && raw.isNotBlank()
+            )
+            Spacer(Modifier.width(6.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                OutlinedButton(
+                    onClick = { setRaw(vm.formatHex(raw)) },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) { Text("fmt") }
+                OutlinedButton(
+                    onClick = { if (raw.isNotEmpty()) clearConfirm = true },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) { Text("cls") }
             }
         }
 
@@ -575,16 +574,14 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 isError = preview.error != null
             )
             Spacer(Modifier.width(6.dp))
-            Button(
+            // Match fmt/cls in the hex-input row: same OutlinedButton, same
+            // compact padding so the dialog doesn't have one giant CTA when
+            // the rest of the right column is small chips.
+            OutlinedButton(
                 onClick = { vm.fireRawHex(raw, mode) },
                 enabled = canSend,
-                modifier = Modifier.height(80.dp)
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Text("SEND", style = MaterialTheme.typography.labelMedium)
-                }
-            }
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            ) { Text("send") }
         }
 
         Spacer(Modifier.height(12.dp))
