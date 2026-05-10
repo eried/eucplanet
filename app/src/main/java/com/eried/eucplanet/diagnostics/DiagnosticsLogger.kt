@@ -50,7 +50,7 @@ object DiagnosticsLogger {
         if (_enabled.value) return
         _enabled.value = true
         sessionInfoCaptured = false
-        info("=== service mode enabled ${SESSION_FMT.format(Date())} ===")
+        info("entered service mode")
     }
 
     fun disable() {

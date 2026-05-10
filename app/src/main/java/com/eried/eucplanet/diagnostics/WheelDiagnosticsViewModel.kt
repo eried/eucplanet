@@ -1,11 +1,17 @@
 package com.eried.eucplanet.diagnostics
 
+import android.app.ActivityManager
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.BatteryManager
 import android.os.Build
+import android.os.StatFs
 import android.util.DisplayMetrics
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
@@ -46,6 +52,11 @@ class WheelDiagnosticsViewModel @Inject constructor(
     val entries: StateFlow<List<DiagnosticsLogger.Entry>> = DiagnosticsLogger.entries
     val enabled: StateFlow<Boolean> = DiagnosticsLogger.enabled
 
+    /** Surface the wheel's reported model so the Commands tab can re-key its
+     *  command list when the wheel finally identifies itself — otherwise a
+     *  user who opens Service Mode before connecting sees an empty grid. */
+    val modelName: StateFlow<String?> = wheelRepository.modelName
+
     /** Drop NOTEs with phone, app, BLE, and watch identity context so the
      *  shared log carries everything we'd ask for in a bug report. */
     fun captureSessionInfo() {
@@ -61,6 +72,49 @@ class WheelDiagnosticsViewModel @Inject constructor(
         val nightMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
         DiagnosticsLogger.info("display ${dm.widthPixels}x${dm.heightPixels} @ ${dm.densityDpi}dpi (${if (nightMode) "dark" else "light"} theme)")
+
+        // RAM
+        try {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            val mem = ActivityManager.MemoryInfo()
+            am.getMemoryInfo(mem)
+            val totalMb = mem.totalMem / (1024L * 1024L)
+            val availMb = mem.availMem / (1024L * 1024L)
+            DiagnosticsLogger.info("memory: ${availMb} / ${totalMb} MB free (lowMem=${mem.lowMemory})")
+        } catch (_: Exception) {}
+
+        // Storage on the data partition
+        try {
+            val statFs = StatFs(context.filesDir.absolutePath)
+            val totalGb = statFs.totalBytes / (1024.0 * 1024.0 * 1024.0)
+            val freeGb = statFs.availableBytes / (1024.0 * 1024.0 * 1024.0)
+            DiagnosticsLogger.info("storage: %.1f / %.1f GB free".format(freeGb, totalGb))
+        } catch (_: Exception) {}
+
+        // Phone battery — useful when a connection drop coincides with low pwr
+        try {
+            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+            val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+            val plugged = (intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0) != 0
+            val pct = if (level >= 0 && scale > 0) level * 100 / scale else -1
+            DiagnosticsLogger.info("phone battery: ${pct}%${if (plugged) " (charging)" else ""}")
+        } catch (_: Exception) {}
+
+        // Network type — explains failed cloud sync / play-store update issues
+        try {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val net = cm.activeNetwork
+            val caps = net?.let { cm.getNetworkCapabilities(it) }
+            val type = when {
+                caps == null -> "none"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "wifi"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "cellular"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "ethernet"
+                else -> "other"
+            }
+            DiagnosticsLogger.info("network: $type")
+        } catch (_: Exception) {}
 
         // BLE adapter state — names/MACs require runtime permission so we
         // only log what's safe without one

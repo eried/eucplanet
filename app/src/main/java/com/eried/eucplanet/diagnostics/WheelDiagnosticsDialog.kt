@@ -337,11 +337,18 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
 
 @Composable
 private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
-    val cmds = remember { vm.diagnosticCommands() }
+    // Re-fetch when the wheel reports its model — without this re-key, opening
+    // Service Mode before connecting freezes the list at empty even after the
+    // P6 identifies itself.
+    val model by vm.modelName.collectAsState()
+    val cmds = remember(model) { vm.diagnosticCommands() }
     if (cmds.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
-                "No diagnostic commands defined for this wheel.\nUse the Raw tab to send arbitrary bytes.",
+                if (model == null)
+                    "Connect to a wheel to see its diagnostic commands.\nMeanwhile use the Raw tab to send arbitrary bytes."
+                else
+                    "No diagnostic commands defined for ${model}.\nUse the Raw tab to send arbitrary bytes.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
