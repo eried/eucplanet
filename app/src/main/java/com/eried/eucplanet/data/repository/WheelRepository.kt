@@ -495,12 +495,15 @@ class WheelRepository @Inject constructor(
                 appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
             }
             else -> {
-                // wTilt is between legal and normal: could be a firmware cap clamp
-                // OR an external lower of normal. We can't tell apart here, and
-                // overwriting stored normal with a clamped value loses the user's
-                // preference forever. Keep stored values; treat as normal mode.
+                // wTilt is between legal and normal. Adopt it as the new
+                // normal — covers the P6/V12 case where the user lowered
+                // the speed on the wheel's own screen, which is the common
+                // path. The V14-clamp risk this used to guard against is
+                // small in practice (V14 hardware caps don't shift across
+                // sessions), and a one-toast adopt is still recoverable
+                // by dragging the slider.
                 isLegalOn = false
-                appSettings
+                appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
             }
         }
 
@@ -612,29 +615,26 @@ class WheelRepository @Inject constructor(
                     }
 
                     // Auto-sync wheel-side changes (P6/V12 let the user adjust
-                    // tiltback / alarm directly on the wheel's own screen). Wait
-                    // out the debounce so we don't mistake the wheel's echo of
-                    // our own write for an external change. Only trust upward
-                    // moves (or moves above stored Legal) to avoid silently
-                    // adopting a firmware-clamped value as the user's preferred
-                    // ceiling.
+                    // tiltback / alarm directly on the wheel's own screen).
+                    // Wait out the debounce so we don't mistake the wheel's
+                    // echo of our own write for an external change.
                     val sinceWrite = System.currentTimeMillis() - lastSetSpeedAtMs
                     if (sinceWrite > WHEEL_SCREEN_DEBOUNCE_MS) {
                         val activeTilt = if (isSafety) appSettings.safetyTiltbackKmh
                                          else appSettings.tiltbackSpeedKmh
                         val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh
                                           else appSettings.alarmSpeedKmh
-                        val tiltDiff = ws.maxSpeedKmh - activeTilt
-                        val alarmDiff = ws.alarmSpeedKmh - activeAlarm
-                        // Threshold: 1 km/h. Wider than the 0.5 reconcile
-                        // tolerance so floating-point noise on the round-trip
-                        // doesn't trigger a sync. Direction gate: only adopt
-                        // upward moves; downward could be a clamp.
-                        val tiltUp = tiltDiff > 1f
-                        val alarmUp = alarmDiff > 1f
-                        if (tiltUp || alarmUp) {
-                            val newTilt = if (tiltUp) ws.maxSpeedKmh else activeTilt
-                            val newAlarm = if (alarmUp) ws.alarmSpeedKmh else activeAlarm
+                        // Threshold: 1 km/h either direction. Both upward and
+                        // downward wheel-side changes are honored — earlier
+                        // upward-only gate was meant to defeat V14 firmware
+                        // clamps but blocked legitimate P6 downward changes.
+                        // V14 wheels rarely change tiltback externally so the
+                        // tradeoff lands in favour of P6 / V12 behaviour.
+                        val tiltChanged = kotlin.math.abs(ws.maxSpeedKmh - activeTilt) > 1f
+                        val alarmChanged = kotlin.math.abs(ws.alarmSpeedKmh - activeAlarm) > 1f
+                        if (tiltChanged || alarmChanged) {
+                            val newTilt = if (tiltChanged) ws.maxSpeedKmh else activeTilt
+                            val newAlarm = if (alarmChanged) ws.alarmSpeedKmh else activeAlarm
                             val updated = if (isSafety) appSettings.copy(
                                 safetyTiltbackKmh = newTilt,
                                 safetyAlarmKmh = newAlarm
