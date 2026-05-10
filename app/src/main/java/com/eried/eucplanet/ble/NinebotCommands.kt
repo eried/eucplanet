@@ -239,5 +239,62 @@ object NinebotCommands {
     // them have a parameter ID. Settings changes on One E / E+ / S2 / Mini /
     // Mini Pro require the official Ninebot app over a side channel we don't
     // cover. The legacy adapter therefore returns null from every control
-    // method; no command builders live here for legacy.
+    // method; production legacy support is read-only telemetry.
+    //
+    // The read builders below exist for the Service Mode diagnostic
+    // catalogue — they let a user with a legacy wheel fire a single manual
+    // poll from the dialog and watch the reply land in the log, even though
+    // the normal pollRealtime path stays unsolicited.
+
+    /** Legacy controller MCU address (spec section 14). Same across variants. */
+    const val LEGACY_ADDR_CONTROLLER: Int = 0x01
+    /** Legacy "App" source address for the default (One E / E+) variant.
+     *  S2 uses 0x11 and Mini uses 0x0A; we send under the default address
+     *  since the diagnostic catalogue is fired manually and the wheel still
+     *  replies — variant-specific addressing is a fine-tuning concern. */
+    const val LEGACY_ADDR_APP_DEFAULT: Int = 0x09
+
+    /**
+     * Assemble a plaintext legacy frame. Wire layout (spec section 13):
+     *   `55 AA <len> <src> <dst> <param> <data...> <crc_lo> <crc_hi>`
+     * No `cmd` byte, no encryption. CRC algorithm matches Z (section 13
+     * final paragraph): ones-complement of the 16-bit running sum over
+     * the length byte through the last data byte, stored little-endian.
+     */
+    fun legacyFrame(src: Int, dst: Int, param: Int, data: ByteArray): ByteArray {
+        val len = data.size
+        val out = ByteArray(len + 8)
+        out[0] = 0x55
+        out[1] = 0xAA.toByte()
+        out[2] = (len and 0xFF).toByte()
+        out[3] = (src and 0xFF).toByte()
+        out[4] = (dst and 0xFF).toByte()
+        out[5] = (param and 0xFF).toByte()
+        System.arraycopy(data, 0, out, 6, len)
+
+        var sum = 0
+        for (i in 2 until 6 + len) sum = (sum + (out[i].toInt() and 0xFF)) and 0xFFFF
+        val crc = sum xor 0xFFFF
+        out[6 + len] = (crc and 0xFF).toByte()
+        out[7 + len] = ((crc ushr 8) and 0xFF).toByte()
+        return out
+    }
+
+    /** Legacy: read the BleVersion ASCII tag. Reply identifies the variant
+     *  ("S2", "Mini", or empty for One E / E+). */
+    fun getLegacyBleVersion(): ByteArray = legacyFrame(
+        LEGACY_ADDR_APP_DEFAULT, LEGACY_ADDR_CONTROLLER, Param.BLE_VERSION, byteArrayOf(0x02)
+    )
+
+    /** Legacy: read the controller serial number (ASCII). */
+    fun getLegacySerialNumber(): ByteArray = legacyFrame(
+        LEGACY_ADDR_APP_DEFAULT, LEGACY_ADDR_CONTROLLER, Param.SERIAL_NUMBER, byteArrayOf(0x0E)
+    )
+
+    /** Legacy: request a one-shot live-data payload. The legacy stack
+     *  normally streams unsolicited, but the wheel still replies to an
+     *  explicit read of `0xB0`. */
+    fun getLegacyLiveData(): ByteArray = legacyFrame(
+        LEGACY_ADDR_APP_DEFAULT, LEGACY_ADDR_CONTROLLER, Param.LIVE_DATA, byteArrayOf(0x20)
+    )
 }

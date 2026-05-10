@@ -67,6 +67,31 @@ object BegodeCommands {
     }
 
     /**
+     * Diagnostic variant of [setMaxSpeed] that concatenates the entire
+     * `W Y H L b` sequence into a single 5-byte write. Spec 6.2 says the
+     * wheel expects ~100-200 ms of spacing between the four logical steps;
+     * this single-write form is for Service Mode probing only, so the user
+     * can see whether the connected firmware tolerates an unspaced sequence
+     * (newer Begode FW does; older units may silently ignore the request).
+     * The next 0x04 Live B frame's max-speed field at offset 10-11 is the
+     * authoritative ack.
+     *
+     * Speed clamped to 0..99 km/h since the wire format is two ASCII digits.
+     */
+    fun setMaxSpeedSingleWrite(kmh: Int): ByteArray {
+        val clamped = kmh.coerceIn(0, 99)
+        val high = ((clamped / 10) + 0x30).toByte()
+        val low = ((clamped % 10) + 0x30).toByte()
+        return byteArrayOf(
+            'W'.code.toByte(),
+            'Y'.code.toByte(),
+            high,
+            low,
+            'b'.code.toByte()
+        )
+    }
+
+    /**
      * Set beeper volume 1..9 via the W-prefix sub-menu. Spec 6.2.
      * Returns null for out-of-range values so the caller can no-op cleanly.
      */

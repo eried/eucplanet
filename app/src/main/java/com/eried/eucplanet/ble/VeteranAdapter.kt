@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.diagnostics.DiagnosticCommand
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -73,6 +75,62 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
 
     /**
+     * Service Mode Inspect tab subscribes to NOTE entries that start with
+     * this prefix. The adapter logs every reassembled short frame body under
+     * "Veteran realtime" so the user can pick it from the type dropdown and
+     * watch raw telemetry land in real time.
+     */
+    override fun inspectMessageTypes(): List<String> =
+        listOf("Veteran realtime")
+
+    /**
+     * Per-wheel diagnostic commands surfaced in the Wheel Diagnostics dialog.
+     * Veteran's command surface is unusually small (see docs/protocols/veteran.md
+     * section 6): only horn, light, pedals stiffness and trip-reset have
+     * publicly documented wire formats. There is no documented max-speed,
+     * alarm-speed, lock or volume write, so those buttons are deliberately
+     * absent — the spec calls out section 9 "Open questions" for capturing
+     * the official app and decoding them. Adding speculative bytes here
+     * would risk faulting the wheel.
+     *
+     * Both horn variants are exposed so a user with a pre-2020 Sherman can
+     * verify which one their firmware obeys; the runtime [horn] default is
+     * the v3 blob.
+     */
+    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
+        val LIGHT = DiagnosticCommand.Category.LIGHT
+        val HORN = DiagnosticCommand.Category.HORN
+        val MODE = DiagnosticCommand.Category.MODE
+        val OTHER = DiagnosticCommand.Category.OTHER
+
+        return listOf(
+            // --- Light: ASCII writes, no readback ---
+            DiagnosticCommand("LightON", "Turn the headlight on",
+                VeteranCommands.setLight(true), LIGHT),
+            DiagnosticCommand("LightOFF", "Turn the headlight off",
+                VeteranCommands.setLight(false), LIGHT),
+
+            // --- Horn: model-conditional. v3 is the default; legacy is a probe. ---
+            DiagnosticCommand("HornV3", "Sound the horn on Sherman S and newer",
+                VeteranCommands.horn(), HORN),
+            DiagnosticCommand("HornLegacy_b", "Sound the horn on pre-2020 Sherman",
+                VeteranCommands.hornLegacy(), HORN),
+
+            // --- Pedals stiffness: writes echo at offset 30 of next frame ---
+            DiagnosticCommand("SETh", "Set pedals to hard",
+                VeteranCommands.setPedalsHard(), MODE),
+            DiagnosticCommand("SETm", "Set pedals to medium",
+                VeteranCommands.setPedalsMedium(), MODE),
+            DiagnosticCommand("SETs", "Set pedals to soft",
+                VeteranCommands.setPedalsSoft(), MODE),
+
+            // --- Trip reset: zeroes offset 8..11 on the next frame ---
+            DiagnosticCommand("CLEARMETER", "Reset the trip meter to zero",
+                VeteranCommands.resetTrip(), OTHER),
+        )
+    }
+
+    /**
      * Reassemble the byte stream into Veteran frames and dispatch each to
      * the right parser. Short frames produce a [DecodeResult.Telemetry];
      * long (smart-BMS) frames are parsed for cell/temp data but currently
@@ -91,6 +149,12 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                 // pipeline; result is discarded until the UI is ready for it.
                 VeteranParser.parseLongFrame(f.bytes)
             } else {
+                // Surface the reassembled short frame to the Service Mode
+                // Inspect tab. Mirrors the V14/P6 path in InMotionV2Adapter so
+                // the picker can offer per-family realtime body inspection.
+                DiagnosticsLogger.note(
+                    "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
+                )
                 val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
                 if (telem != null) out += DecodeResult.Telemetry(telem)
             }

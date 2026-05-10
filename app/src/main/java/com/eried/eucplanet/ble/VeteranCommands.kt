@@ -36,6 +36,17 @@ object VeteranCommands {
     /** 14-byte horn blob. See [HORN_BLOB_V3] for the model-coverage caveat. */
     fun horn(): ByteArray = HORN_BLOB_V3.copyOf()
 
+    /**
+     * Legacy single-byte horn `b` (0x62) for `model < 3` firmwares (original
+     * Sherman, Sherman Max on pre-2020 builds). Sherman S and newer ignore
+     * this byte and only respond to [horn]; the safe default at connect-time
+     * is the v3 blob, but Service Mode exposes both so a user with an older
+     * Sherman can verify which one their hardware obeys.
+     *
+     * Spec: docs/protocols/veteran.md section 6, "Beep (firmware model < 3)".
+     */
+    fun hornLegacy(): ByteArray = byteArrayOf(0x62)
+
     /** Light on / off. ASCII strings the wheel matches verbatim. */
     fun setLight(on: Boolean): ByteArray =
         if (on) "SetLightON".toByteArray(Charsets.US_ASCII)

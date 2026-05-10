@@ -27,6 +27,32 @@ object InMotionV1Commands {
     fun getSlowInfo(): ByteArray =
         InMotionV1Protocol.buildFrame(CanId.SLOW_INFO, ALL_FF, remote = true)
 
+    /**
+     * Battery cell-level query: same CAN ID as slow-info, but the data slot
+     * picks the cells page instead of the full settings dump. Remote-frame
+     * request per spec section 6. Response shape is firmware-dependent and
+     * not parsed by the adapter today; surfaced from Service Mode so the
+     * raw reply can be inspected in the live log.
+     */
+    fun getBatteryCells(): ByteArray =
+        InMotionV1Protocol.buildFrame(
+            CanId.SLOW_INFO,
+            byteArrayOf(0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x00),
+            remote = true
+        )
+
+    /**
+     * Firmware version query: same CAN ID as slow-info, data slot `20...` per
+     * spec section 6. Returns a trimmed firmware-only reply on firmwares that
+     * support it; older builds return the full slow-info anyway.
+     */
+    fun getFirmwareVersion(): ByteArray =
+        InMotionV1Protocol.buildFrame(
+            CanId.SLOW_INFO,
+            byteArrayOf(0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00),
+            remote = true
+        )
+
     // --- Lighting ---
 
     fun setLight(on: Boolean): ByteArray =

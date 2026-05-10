@@ -109,7 +109,16 @@ class BegodeParser {
     }
 
     private fun decodeFrame(frame: ByteArray, model: BegodeModel?): DecodeResult? {
-        return when (val tag = frame[18].toInt() and 0xFF) {
+        val tag = frame[18].toInt() and 0xFF
+        // Surface every 24-byte frame to the Service Mode Inspect tab. The tag
+        // byte is what differentiates Live A / Live B / extras / BMS pages, so
+        // we include it in the prefix-stamped line; the body covers all 24
+        // bytes (header through terminator) so an investigator can sanity-
+        // check framing as well as payload.
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "Begode realtime tag=0x${"%02x".format(tag)} len=${frame.size} body=${frame.joinToString(" ") { "%02x".format(it) }}"
+        )
+        return when (tag) {
             0x00 -> parseLiveA(frame, model)?.let { DecodeResult.Telemetry(it) }
             0x01 -> parseBmsSummary(frame, model)?.let { DecodeResult.Telemetry(it) }
             0x02, 0x03 -> null // BMS cell pages: cell-level UI not exposed yet, skip cleanly.

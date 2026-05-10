@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -101,5 +102,69 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
         parser.reset()
         detectedModel = null
         lightOn = false
+    }
+
+    /**
+     * Begode streams telemetry unsolicited at ~10 Hz; the parser logs every
+     * 24-byte frame via DiagnosticsLogger.note with the `Begode realtime`
+     * prefix so the Service Mode Inspect tab can scope to it. There is no
+     * separate detail / extra channel — BMS, Live A, Live B and extras all
+     * share the same envelope, distinguished by the tag byte at offset 18.
+     */
+    override fun inspectMessageTypes(): List<String> = listOf("Begode realtime")
+
+    /**
+     * Service Mode catalogue for the Begode / Gotway family. The protocol is
+     * fire-and-forget ASCII (spec 6.1): commands write WRITE_NO_RESPONSE,
+     * with no ack channel. The wheel only confirms via the next Live B
+     * (0x04) frame or audibly. Every entry below is a control write — the
+     * "queries" V and N do trigger ASCII banner replies but those land on
+     * the same notify pipe as raw bytes, not framed packets.
+     *
+     * Each label encodes the byte sequence so a user report ("WY45b changed
+     * the tiltback") maps unambiguously to a command. Max-speed writes use
+     * the [BegodeCommands.setMaxSpeedSingleWrite] form: a single concatenated
+     * 5-byte W-prefix sequence. Spec 6.2 expects pacing between the four
+     * logical steps, so the Service Mode result also tells us whether this
+     * firmware tolerates unspaced W-prefix sequences.
+     */
+    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
+        val HORN = DiagnosticCommand.Category.HORN
+        val LIGHT = DiagnosticCommand.Category.LIGHT
+        val MODE = DiagnosticCommand.Category.MODE
+        val QUERY = DiagnosticCommand.Category.QUERY
+
+        return listOf(
+            // Control endpoint check: a beep means the wheel is reading writes.
+            DiagnosticCommand("Tb_horn", "Beep horn, confirms writes land",
+                BegodeCommands.horn(), HORN),
+
+            // 3-state light (spec 6.5). Light state echoes in next 0x04 frame.
+            DiagnosticCommand("TE_light_off", "Turn light off (E)",
+                BegodeCommands.lightOff(), LIGHT),
+            DiagnosticCommand("TQ_light_on", "Turn light on (Q)",
+                BegodeCommands.lightOn(), LIGHT),
+            DiagnosticCommand("TT_light_strobe", "Set light to strobe (T)",
+                BegodeCommands.lightStrobe(), LIGHT),
+
+            // Max-speed writes. Single-write W-prefix; pacing may be required.
+            DiagnosticCommand("TWY25b", "Set max speed 25 km/h (unspaced)",
+                BegodeCommands.setMaxSpeedSingleWrite(25), MODE),
+            DiagnosticCommand("TWY35b", "Set max speed 35 km/h (unspaced)",
+                BegodeCommands.setMaxSpeedSingleWrite(35), MODE),
+            DiagnosticCommand("TWY45b", "Set max speed 45 km/h (unspaced)",
+                BegodeCommands.setMaxSpeedSingleWrite(45), MODE),
+            DiagnosticCommand("TWY80b", "Set max speed 80 km/h (unspaced)",
+                BegodeCommands.setMaxSpeedSingleWrite(80), MODE),
+            DiagnosticCommand("Tdq_no_max", "Disable max-speed cap (control)",
+                BegodeCommands.disableMaxSpeed(), MODE),
+
+            // ASCII banner queries. Responses arrive as raw text on notify,
+            // not as framed packets, so they show up in the Inspect raw view.
+            DiagnosticCommand("QV_fw", "Request firmware banner (V)",
+                BegodeCommands.queryFirmware(), QUERY),
+            DiagnosticCommand("QN_name", "Request model name banner (N)",
+                BegodeCommands.queryModelName(), QUERY),
+        )
     }
 }

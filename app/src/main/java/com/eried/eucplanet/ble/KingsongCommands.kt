@@ -31,6 +31,7 @@ object KingsongCommands {
         const val WHEEL_PARAM: Byte = 0x8A.toByte()
         const val QUERY_LIMITS: Byte = 0x98.toByte()
         const val NAME_REQ: Byte = 0x9B.toByte()
+        const val BMS1_SERIAL_REQ: Byte = 0xE1.toByte()
     }
 
     /**
@@ -144,5 +145,20 @@ object KingsongCommands {
         val v = ByteUtils.putUint16LE(raw)
         f[4] = v[0]
         f[5] = v[1]
+    }
+
+    /**
+     * BMS query frame. Per spec section 6, BMS request frames use a zeroed
+     * trailer (`data[17..19] = 0x00`) instead of the standard `0x14 0x5A 0x5A`.
+     * The wheel replies on the matching reply type (e.g. send `0xE1`, reply
+     * on type `0xE1` for the serial frame).
+     */
+    fun bmsQuery(type: Byte): ByteArray {
+        val out = ByteArray(20)
+        out[0] = HEADER0
+        out[1] = HEADER1
+        out[16] = type
+        // Trailer slots intentionally left as 0x00.
+        return out
     }
 }

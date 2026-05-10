@@ -258,7 +258,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * we know exactly which packet that was.
      */
     override fun getDiagnosticCommands(): List<DiagnosticCommand> {
-        if (!useP6Protocol) return emptyList()
+        // Service Mode is research-grade — show the catalogue regardless of
+        // whether the connected wheel is actually a P6. The wrap (extended
+        // routing) is only sent when fired manually, so it doesn't affect
+        // V14 / V12 telemetry. The user picks "InMotion V14 / V12 / P6" in
+        // the family dropdown and gets the full P6 query / control set.
         val LIGHT = DiagnosticCommand.Category.LIGHT
         val MODE = DiagnosticCommand.Category.MODE
         val QUERY = DiagnosticCommand.Category.QUERY

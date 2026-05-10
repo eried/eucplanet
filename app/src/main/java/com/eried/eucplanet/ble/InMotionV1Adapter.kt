@@ -1,5 +1,7 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.diagnostics.DiagnosticCommand
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -148,6 +150,59 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         detectedModel = null
     }
 
+    override fun inspectMessageTypes(): List<String> =
+        listOf("InMotion V1 realtime", "InMotion V1 slow-info")
+
+    /**
+     * Service Mode catalogue for the InMotion V1 family. Each entry is a
+     * single-shot CAN frame the user can fire from the Wheel Diagnostics
+     * dialog to probe the wheel and watch the live log. The label is
+     * bytes-derived so reports map back to one packet without ambiguity.
+     */
+    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
+        val QUERY = DiagnosticCommand.Category.QUERY
+        val LIGHT = DiagnosticCommand.Category.LIGHT
+        val HORN = DiagnosticCommand.Category.HORN
+        val MODE = DiagnosticCommand.Category.MODE
+        val OTHER = DiagnosticCommand.Category.OTHER
+
+        return listOf(
+            // --- Read-only queries ---
+            DiagnosticCommand("Q0113", "Poll realtime fast-info reply",
+                InMotionV1Commands.getFastInfo(), QUERY),
+            DiagnosticCommand("Q0114", "Dump settings via slow-info",
+                InMotionV1Commands.getSlowInfo(), QUERY),
+            DiagnosticCommand("Q0114_CELLS", "Read battery cell levels",
+                InMotionV1Commands.getBatteryCells(), QUERY),
+            DiagnosticCommand("Q0114_FW", "Read firmware version block",
+                InMotionV1Commands.getFirmwareVersion(), QUERY),
+
+            // --- Lighting ---
+            DiagnosticCommand("LIGHT_OFF", "Turn the headlight off",
+                InMotionV1Commands.setLight(false), LIGHT),
+            DiagnosticCommand("LIGHT_ON", "Turn the headlight on",
+                InMotionV1Commands.setLight(true), LIGHT),
+
+            // --- Horn ---
+            DiagnosticCommand("HORN_DED", "Beep via dedicated V8F/V10 opcode",
+                InMotionV1Commands.hornDedicated(), HORN),
+            DiagnosticCommand("HORN_SND4", "Beep via legacy playSound 4",
+                InMotionV1Commands.hornLegacy(), HORN),
+
+            // --- Max speed writes ---
+            DiagnosticCommand("MAXSPD_20", "Set tiltback to 20 km/h",
+                InMotionV1Commands.setMaxSpeed(20f), MODE),
+            DiagnosticCommand("MAXSPD_30", "Set tiltback to 30 km/h",
+                InMotionV1Commands.setMaxSpeed(30f), MODE),
+
+            // --- PIN auth probe ---
+            // Wheels without a PIN configured ignore this, so it is safe to
+            // fire; replies confirm the auth endpoint is alive.
+            DiagnosticCommand("PIN_000000", "Send 000000 placeholder PIN",
+                InMotionV1Commands.sendPin("000000"), OTHER)
+        )
+    }
+
     /**
      * Walk the buffer for the `55 55` trailer, skipping escape sequences so
      * an escaped `0xA5 0x55` byte inside the body isn't mistaken for the
@@ -175,11 +230,17 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
         return when (canId) {
             InMotionV1Protocol.CanId.FAST_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
+                DiagnosticsLogger.note(
+                    "InMotion V1 realtime len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
+                )
                 val telem = InMotionV1Parser.parseFastInfo(payload, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
             InMotionV1Protocol.CanId.SLOW_INFO -> {
                 val payload = InMotionV1Parser.extPayload(unwrapped)
+                DiagnosticsLogger.note(
+                    "InMotion V1 slow-info len=${payload.size} body=${payload.joinToString(" ") { "%02x".format(it) }}"
+                )
                 val info = InMotionV1Parser.parseSlowInfo(payload) ?: return emptyList()
                 if (info.model != null) detectedModel = info.model
                 val out = mutableListOf<DecodeResult>()

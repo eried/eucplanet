@@ -262,6 +262,13 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
 
         return when (frame.param) {
             NinebotCommands.Param.LIVE_DATA -> {
+                // Surface the decrypted live-data body so the Service Mode
+                // Inspect tab can rummage through offsets the parser doesn't
+                // yet touch (status word, alarms, BMS hand-off bytes). Format
+                // matches the V14 / P6 NOTE entries the same picker reads.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Ninebot realtime (Z) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
+                )
                 val telem = parser.parseZTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
@@ -316,6 +323,12 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     private fun onLegacyFrame(frame: NinebotParser.Frame): List<DecodeResult> {
         return when (frame.param) {
             NinebotCommands.Param.LIVE_DATA -> {
+                // Same NOTE prefix as the Z path so the Inspect tab can
+                // subscribe to a single "Ninebot realtime" filter regardless
+                // of which sub-protocol the connected wheel speaks.
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "Ninebot realtime (Legacy) len=${frame.data.size} body=${frame.data.joinToString(" ") { "%02x".format(it) }}"
+                )
                 val telem = parser.parseLegacyTelemetry(frame.data, detectedModel)
                 if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
             }
@@ -352,6 +365,69 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
         parser = NinebotParser(NinebotProtocol.Z)
         settingsSnapshot = WheelSettings()
         settingsCursor = 0
+    }
+
+    /**
+     * Service Mode hooks the Inspect tab onto NOTE entries whose text starts
+     * with this prefix. Both sub-protocols use the same prefix so the picker
+     * shows a single "Ninebot realtime" filter no matter which family the
+     * connected wheel speaks; the body line itself tags `(Z)` or `(Legacy)`
+     * so the user still knows which path it came from.
+     */
+    override fun inspectMessageTypes(): List<String> =
+        listOf("Ninebot realtime")
+
+    /**
+     * Per-wheel diagnostic test commands shown in the Service Mode dialog.
+     * Bytes are baked at app start, so any Z entry fires PLAINTEXT — fine
+     * for the GetKey bootstrap and for any session where the user hasn't
+     * yet completed the handshake. Once the keystream is installed, the
+     * wheel expects encrypted frames and a plaintext diagnostic write will
+     * fail CRC on the wheel side. The catalogue is research-grade: the
+     * value comes from being able to inspect the reply traffic, not from
+     * driving the wheel mid-session.
+     *
+     * Each entry annotates `(Z)` or `(Legacy)` in its description so the
+     * user knows which sub-protocol it belongs to. Most entries are Z —
+     * legacy exposes only reads on its BLE stack (spec section 16).
+     */
+    override fun getDiagnosticCommands(): List<com.eried.eucplanet.diagnostics.DiagnosticCommand> {
+        val QUERY = com.eried.eucplanet.diagnostics.DiagnosticCommand.Category.QUERY
+        val LIGHT = com.eried.eucplanet.diagnostics.DiagnosticCommand.Category.LIGHT
+        val MODE  = com.eried.eucplanet.diagnostics.DiagnosticCommand.Category.MODE
+        val OTHER = com.eried.eucplanet.diagnostics.DiagnosticCommand.Category.OTHER
+
+        fun entry(
+            label: String,
+            desc: String,
+            cat: com.eried.eucplanet.diagnostics.DiagnosticCommand.Category,
+            bytes: ByteArray
+        ) = com.eried.eucplanet.diagnostics.DiagnosticCommand(label, desc, bytes, cat)
+
+        return listOf(
+            // --- Z handshake + identity reads (plaintext on the wire) ---
+            entry("Z_GETKEY",  "Run the GetKey handshake (Z)",                OTHER, NinebotCommands.getKey()),
+            entry("Q_SERIAL",  "Read the ASCII serial number (Z)",            QUERY, NinebotCommands.getSerialNumber()),
+            entry("Q_FW",      "Read the firmware version word (Z)",          QUERY, NinebotCommands.getFirmware()),
+
+            // --- Z telemetry + settings reads ---
+            entry("Q_LIVE",    "Poll one live-data frame (Z)",                QUERY, NinebotCommands.getLiveData()),
+            entry("Q_LOCK",    "Read the lock state (Z)",                     QUERY, NinebotCommands.readLockState()),
+            entry("Q_SPEED",   "Read the speed limit value (Z)",              QUERY, NinebotCommands.readSpeedLimit()),
+            entry("Q_ALARMS",  "Read the armed-alarm bitfield (Z)",           QUERY, NinebotCommands.readAlarms()),
+            entry("Q_DRIVE",   "Read the drive-flags bitfield (Z)",           QUERY, NinebotCommands.readDriveFlags()),
+
+            // --- Z writes: light, lock, max-speed enable + value ---
+            entry("W_LED_OFF", "Turn the LED off, mode 0 (Z)",                LIGHT, NinebotCommands.setLedMode(0)),
+            entry("W_LED_ON",  "Turn the LED on, mode 1 (Z)",                 LIGHT, NinebotCommands.setLedMode(1)),
+            entry("W_LOCK",    "Lock the wheel via param 0x70 (Z)",           MODE,  NinebotCommands.setLock(true)),
+            entry("W_UNLOCK",  "Unlock the wheel via param 0x70 (Z)",         MODE,  NinebotCommands.setLock(false)),
+            entry("W_MAX25",   "Set max speed to 25 km/h (Z)",                MODE,  NinebotCommands.setSpeedLimit(25f)),
+
+            // --- Legacy reads (plaintext 55 AA framing, no sub-protocol) ---
+            entry("L_BLEVER",  "Read the BleVersion variant tag (Legacy)",    QUERY, NinebotCommands.getLegacyBleVersion()),
+            entry("L_LIVE",    "Poll one live-data frame (Legacy)",           QUERY, NinebotCommands.getLegacyLiveData())
+        )
     }
 
     companion object {
