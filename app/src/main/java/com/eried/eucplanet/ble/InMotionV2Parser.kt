@@ -243,30 +243,45 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: three sensor bytes at body offsets 30/31/32, decoded
-        // as `°F = byte − 126`. Labelled-capture cross-check (rider noted
-        // motor reading on the wheel UI vs the bytes flowing in):
-        //   wheel motor 29°C  -> body[30]=27.8  body[31]=26.1  body[32]=31.7
-        //   wheel motor 34°C  -> body[30]=28.9  body[31]=28.9  body[32]=33.3
-        //   wheel motor 33°C  -> body[30]=28.9  body[31]=28.9  body[32]=32.8
-        // body[32] tracks motor within ~0.2-0.7°C in the warm samples; the
-        // other two are nearly identical and noticeably cooler — almost
-        // certainly the two battery packs' MOS sensors. We surface body[32]
-        // as motor and keep the others in `temperatures` for future UI.
-        fun decodeTempC(off: Int): Float? {
-            if (off >= data.size) return null
-            val v = data[off].toInt() and 0xFF
-            val f = v - 126
-            // Filter implausible values (the byte is 0 before the wheel
-            // has finished its boot handshake and would otherwise read as
-            // -126 °F).
-            if (f !in 32..248) return null
-            return (f - 32) * 5f / 9f
-        }
-        val motorC = decodeTempC(32)
-        val mosAC = decodeTempC(30)
-        val mosBC = decodeTempC(31)
-        val temps = listOfNotNull(motorC, mosAC, mosBC)
+        // Temperatures: confirmed encodings from a labelled capture where the
+        // rider read MOS / IMU / Motor off the wheel UI at five moments
+        // while the wheel cooled from a 63 -> 61 °C motor reading.
+        //
+        //   Motor  = (body[31] − 145) / 1.5  °C
+        //     Within 0.3 °C of every labelled value across 9 samples in two
+        //     separate logs. Range 0..73 °C maps to bytes 145..255 (saturates
+        //     at 73 °C — fine for normal use; pwm-event spikes that briefly
+        //     exceed that just clip).
+        //
+        //   MOS    = body[28] (direct °C)
+        //     Exact match every time — three labels at 36 °C, byte = 36.
+        //
+        //   IMU    = 62 − body[78]  °C  (lower confidence; 3 data points,
+        //     inverted-scale fit is unusual but matches: 42/42/43 °C ↔ bytes
+        //     20/20/19.)
+        //
+        // The earlier `°F = byte − 126` fit on body[32] was tracking the
+        // controller-MOS sensor, NOT the motor — that's why the rider's
+        // wheel UI motor reading (29-34 °C) only loosely lined up.
+        fun byteOrNull(off: Int): Int? =
+            if (off < data.size) data[off].toInt() and 0xFF else null
+
+        val motorByte = byteOrNull(31)
+        val motorC: Float? = motorByte
+            ?.takeIf { it >= 145 }  // below 145 means uninitialized / pre-boot
+            ?.let { (it - 145).toFloat() / 1.5f }
+
+        val mosByte = byteOrNull(28)
+        val mosC: Float? = mosByte
+            ?.takeIf { it in 5..120 }  // plausible ambient..hot range
+            ?.toFloat()
+
+        val imuByte = byteOrNull(78)
+        val imuC: Float? = imuByte
+            ?.takeIf { it in 5..62 }  // the formula's valid input window
+            ?.let { (62 - it).toFloat() }
+
+        val temps = listOfNotNull(motorC, mosC, imuC)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
