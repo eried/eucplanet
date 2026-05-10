@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
@@ -59,6 +60,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -79,6 +81,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -321,7 +324,11 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     }
     Text(
         "$ts ${e.kind.name.padEnd(7)} ${e.text}",
-        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        style = MaterialTheme.typography.labelSmall.copy(
+            fontFamily = FontFamily.Monospace,
+            fontSize = 10.sp,
+            lineHeight = 12.sp
+        ),
         color = color,
         maxLines = 4,
         overflow = TextOverflow.Ellipsis
@@ -390,15 +397,34 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 @Composable
 private fun RawTab(vm: WheelDiagnosticsViewModel) {
     var raw by remember { mutableStateOf("") }
-    // Single-step undo: holds the previous text the moment a change happens,
-    // so the undo button can pull the user back from an accidental edit.
-    var prev by remember { mutableStateOf<String?>(null) }
-    var clearConfirm by remember { mutableStateOf(false) }
+    // Multi-step undo / redo. Each user-initiated change pushes the prior
+    // text onto the undo stack and clears the redo stack; undo pops from
+    // undo into redo, redo pops from redo back into undo.
+    val undoStack = remember { mutableListOf<String>() }
+    val redoStack = remember { mutableListOf<String>() }
+    // Triggers recomposition when the stacks change so the buttons enable
+    // / disable in step.
+    var stackVersion by remember { mutableStateOf(0) }
     var mode by remember { mutableStateOf(WheelDiagnosticsViewModel.WrapMode.LITERAL) }
 
     fun setRaw(new: String) {
-        if (new != raw) prev = raw
+        if (new == raw) return
+        undoStack.add(raw)
+        redoStack.clear()
+        stackVersion++
         raw = new
+    }
+    fun undo() {
+        if (undoStack.isEmpty()) return
+        redoStack.add(raw)
+        raw = undoStack.removeAt(undoStack.size - 1)
+        stackVersion++
+    }
+    fun redo() {
+        if (redoStack.isEmpty()) return
+        undoStack.add(raw)
+        raw = redoStack.removeAt(redoStack.size - 1)
+        stackVersion++
     }
     fun appendBytes(s: String) {
         val joined = if (raw.isBlank() || raw.endsWith(' ')) raw + s else "$raw $s"
@@ -493,12 +519,20 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) { Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(18.dp)) }
+                    // stackVersion read here so recomposition fires on push/pop
+                    @Suppress("UNUSED_VARIABLE") val v = stackVersion
                     OutlinedButton(
-                        onClick = { prev?.let { raw = it; prev = null } },
-                        enabled = prev != null,
+                        onClick = { undo() },
+                        enabled = undoStack.isNotEmpty(),
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
+                    OutlinedButton(
+                        onClick = { redo() },
+                        enabled = redoStack.isNotEmpty(),
+                        modifier = Modifier.weight(1f).height(40.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) { Icon(Icons.AutoMirrored.Filled.Redo, contentDescription = "Redo", modifier = Modifier.size(18.dp)) }
                 }
             }
         }
@@ -514,7 +548,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 value = raw,
                 onValueChange = { setRaw(it) },
                 modifier = Modifier.weight(1f).heightIn(min = 80.dp),
-                label = { Text("Hex input") },
+                label = { Text("Input") },
                 placeholder = { Text("60 50 01 01") },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                 isError = !preview.ok && raw.isNotBlank()
@@ -526,7 +560,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) { Text("fmt") }
                 OutlinedButton(
-                    onClick = { if (raw.isNotEmpty()) clearConfirm = true },
+                    onClick = { if (raw.isNotEmpty()) setRaw("") },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) { Text("cls") }
             }
@@ -534,35 +568,36 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
 
         Spacer(Modifier.height(8.dp))
 
-        Text(
-            "Wrap mode",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(4.dp))
-
-        val modes = listOf(
-            WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal",
-            WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "Wrap V2",
-            WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14"
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            modes.forEachIndexed { index, (m, label) ->
-                SegmentedButton(
-                    selected = mode == m,
-                    onClick = { mode = m },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size)
-                ) { Text(label) }
+        CollapsibleSection(
+            title = "Wrap mode: ${mode.name.lowercase().replace('_', ' ')}",
+            defaultExpanded = false
+        ) {
+            val modes = listOf(
+                WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "Wrap V2",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14"
+            )
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+                modes.forEachIndexed { index, (m, label) ->
+                    SegmentedButton(
+                        selected = mode == m,
+                        onClick = { mode = m },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size)
+                    ) { Text(label) }
+                }
             }
         }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
         // Bytes-to-send row: read-only field on the left, big SEND on the right.
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Read-only output field. Filled background + dimmed border so it
+            // visually contrasts with the editable Input field above.
+            val readOnlyContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
             OutlinedTextField(
                 value = preview.display,
                 onValueChange = {},
@@ -571,7 +606,16 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 label = { Text("Bytes to send") },
                 placeholder = { Text("—") },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-                isError = preview.error != null
+                isError = preview.error != null,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = readOnlyContainer,
+                    unfocusedContainerColor = readOnlyContainer,
+                    errorContainerColor = readOnlyContainer,
+                    focusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                    focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
             Spacer(Modifier.width(6.dp))
             // Match fmt/cls in the hex-input row: same OutlinedButton, same
@@ -587,22 +631,6 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
         Spacer(Modifier.height(12.dp))
     }
 
-    if (clearConfirm) {
-        AlertDialog(
-            onDismissRequest = { clearConfirm = false },
-            title = { Text("Clear hex input?") },
-            text = { Text("The current bytes will be discarded. You can press Undo afterwards if it was a mistake.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    clearConfirm = false
-                    setRaw("")
-                }) { Text("Clear") }
-            },
-            dismissButton = {
-                TextButton(onClick = { clearConfirm = false }) { Text("Cancel") }
-            }
-        )
-    }
 }
 
 
