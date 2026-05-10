@@ -36,13 +36,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -136,20 +140,28 @@ fun WheelDiagnosticsDialog(
                     containerColor = MaterialTheme.colorScheme.background
                 ) {
                     Tab(selected = tab == 0, onClick = { tab = 0 },
-                        text = { Text("Log") })
-                    Tab(selected = tab == 1, onClick = { tab = 1 },
                         text = { Text("Commands") })
-                    Tab(selected = tab == 2, onClick = { tab = 2 },
+                    Tab(selected = tab == 1, onClick = { tab = 1 },
                         text = { Text("Raw") })
                 }
 
-                Box(modifier = Modifier.weight(1f, fill = true)) {
+                // ~70% of vertical space goes to the active tab; ~30% to the
+                // always-visible log so the user sees the wheel's RX response
+                // to whatever they tap regardless of which tab they're on.
+                Box(modifier = Modifier.weight(2f, fill = true)) {
                     when (tab) {
-                        0 -> LogTab(vm)
-                        1 -> CommandsTab(vm)
-                        2 -> RawTab(vm)
+                        0 -> CommandsTab(vm)
+                        1 -> RawTab(vm)
                     }
                 }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
+
+                LogPanel(modifier = Modifier.weight(1f, fill = true))
+
+                Spacer(Modifier.height(6.dp))
+
+                CommentRow(vm)
             }
         }
     }
@@ -207,55 +219,85 @@ private fun Header(onClose: () -> Unit, onStop: () -> Unit, onShare: () -> Unit)
 }
 
 @Composable
-private fun LogTab(vm: WheelDiagnosticsViewModel) {
-    val entries by vm.entries.collectAsState()
+private fun LogPanel(modifier: Modifier = Modifier) {
+    val entries by DiagnosticsLogger.entries.collectAsState()
     val listState = rememberLazyListState()
     LaunchedEffect(entries.size) {
         if (entries.isNotEmpty()) listState.animateScrollToItem(entries.size - 1)
     }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
-                .padding(6.dp)
-        ) {
-            items(entries) { e -> LogRow(e) }
-            if (entries.isEmpty()) {
-                item {
-                    Text(
-                        "No traffic yet. Connect to a wheel or fire a test command.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+    LazyColumn(
+        state = listState,
+        modifier = modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+            .padding(6.dp)
+    ) {
+        items(entries) { e -> LogRow(e) }
+        if (entries.isEmpty()) {
+            item {
+                Text(
+                    "No traffic yet. Connect to a wheel or fire a test command.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
+    }
+}
 
-        Spacer(Modifier.height(6.dp))
+@Composable
+private fun CommentRow(vm: WheelDiagnosticsViewModel) {
+    var comment by remember { mutableStateOf("") }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = comment,
+            onValueChange = { comment = it },
+            modifier = Modifier.weight(1f),
+            label = { Text("Add comment to log") },
+            placeholder = { Text("e.g. wheel display says 77F") },
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            singleLine = false,
+            maxLines = 2
+        )
+        IconButton(onClick = {
+            vm.addComment(comment)
+            comment = ""
+        }) { Icon(Icons.Default.Send, contentDescription = "Add") }
+    }
+}
 
-        var comment by remember { mutableStateOf("") }
+@Composable
+private fun CollapsibleSection(
+    title: String,
+    defaultExpanded: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    var expanded by remember { mutableStateOf(defaultExpanded) }
+    Column {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
-                value = comment,
-                onValueChange = { comment = it },
-                modifier = Modifier.weight(1f),
-                label = { Text("Add comment to log") },
-                placeholder = { Text("e.g. wheel display says 77F") },
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                singleLine = false,
-                maxLines = 3
+            Icon(
+                imageVector = if (expanded) Icons.Default.KeyboardArrowDown
+                              else Icons.Default.KeyboardArrowRight,
+                contentDescription = if (expanded) "Collapse" else "Expand",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            IconButton(onClick = {
-                vm.addComment(comment)
-                comment = ""
-            }) { Icon(Icons.Default.Send, contentDescription = "Add") }
+            Text(
+                title,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        AnimatedVisibility(visible = expanded) {
+            Column { content() }
         }
     }
 }
@@ -367,72 +409,53 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(top = 8.dp)
+            .padding(top = 4.dp)
     ) {
-        // Tiny live log preview so the user sees BLE traffic without
-        // switching tabs. Pulls from the same state flow the Log tab uses,
-        // so no extra subscription cost — Compose recomposes once per emit.
-        MiniLogPreview()
-
-        Spacer(Modifier.height(10.dp))
-
-        Text(
-            "Type sub-command bytes (e.g. 60 50 00 00 for light off). The mode below decides if the app wraps them in an AA-AA frame with XOR checksum.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            "Insert preset",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(4.dp))
-        Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-            val chips = listOf(
-                "60 50 00 00" to "Light off",
-                "60 50 01 01" to "Light on",
-                "60 51 18 01" to "Horn",
-                "60 2f 00" to "Auto-headlight off",
-                "60 2f 01" to "Auto-headlight on",
-                "60 4e 00" to "DRL? off",
-                "60 4e 01" to "DRL? on",
-                "60 24 00" to "25 km/h clamp off",
-                "60 24 01" to "25 km/h clamp on",
-                "60 31 01" to "Lock",
-                "60 31 00" to "Unlock",
-                "02 06" to "Info bundle",
-                "02 07" to "Realtime",
-                "20 20" to "Settings page A",
-                "20 21" to "Settings B (untried)",
-                "20 22" to "Settings C (untried)",
-                "11" to "Total stats"
-            )
-            chips.forEach { (bytes, desc) ->
-                AssistChip(
-                    onClick = { appendBytes(bytes) },
-                    label = {
-                        Column {
-                            Text(
-                                bytes,
-                                style = MaterialTheme.typography.labelMedium
-                                    .copy(fontFamily = FontFamily.Monospace)
-                            )
-                            Text(
-                                desc,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    modifier = Modifier.padding(end = 6.dp).height(56.dp)
+        CollapsibleSection(title = "Insert preset", defaultExpanded = false) {
+            Row(modifier = Modifier.horizontalScroll(rememberScrollState()).padding(top = 4.dp)) {
+                val chips = listOf(
+                    "60 50 00 00" to "Light off",
+                    "60 50 01 01" to "Light on",
+                    "60 51 18 01" to "Horn",
+                    "60 2f 00" to "Auto-headlight off",
+                    "60 2f 01" to "Auto-headlight on",
+                    "60 4e 00" to "DRL? off",
+                    "60 4e 01" to "DRL? on",
+                    "60 24 00" to "25 km/h clamp off",
+                    "60 24 01" to "25 km/h clamp on",
+                    "60 31 01" to "Lock",
+                    "60 31 00" to "Unlock",
+                    "02 06" to "Info bundle",
+                    "02 07" to "Realtime",
+                    "20 20" to "Settings page A",
+                    "20 21" to "Settings B (untried)",
+                    "20 22" to "Settings C (untried)",
+                    "11" to "Total stats"
                 )
+                chips.forEach { (bytes, desc) ->
+                    AssistChip(
+                        onClick = { appendBytes(bytes) },
+                        label = {
+                            Column {
+                                Text(
+                                    bytes,
+                                    style = MaterialTheme.typography.labelMedium
+                                        .copy(fontFamily = FontFamily.Monospace)
+                                )
+                                Text(
+                                    desc,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        modifier = Modifier.padding(end = 6.dp).height(56.dp)
+                    )
+                }
             }
         }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(6.dp))
 
         // Hex input row: text field on the left, Format / cls (with confirm)
         // stacked on the right so they don't crowd the field.
@@ -464,56 +487,53 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
 
-        // Hex pad — two rows of 0..F + a thinner control row.
-        val hexChars = listOf('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F')
-        Column {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                hexChars.subList(0, 8).forEach { c ->
+        CollapsibleSection(title = "Hex pad", defaultExpanded = false) {
+            val hexChars = listOf('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F')
+            Column(modifier = Modifier.padding(top = 4.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    hexChars.subList(0, 8).forEach { c ->
+                        OutlinedButton(
+                            onClick = { appendChar(c) },
+                            modifier = Modifier.weight(1f).height(40.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
+                    }
+                }
+                Spacer(Modifier.height(2.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    hexChars.subList(8, 16).forEach { c ->
+                        OutlinedButton(
+                            onClick = { appendChar(c) },
+                            modifier = Modifier.weight(1f).height(40.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
+                    }
+                }
+                Spacer(Modifier.height(2.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     OutlinedButton(
-                        onClick = { appendChar(c) },
+                        onClick = { appendChar(' ') },
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
-                    ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
-                }
-            }
-            Spacer(Modifier.height(2.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                hexChars.subList(8, 16).forEach { c ->
+                    ) { Text("space", style = MaterialTheme.typography.labelSmall) }
                     OutlinedButton(
-                        onClick = { appendChar(c) },
+                        onClick = { if (raw.isNotEmpty()) setRaw(raw.dropLast(1)) },
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
-                    ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
+                    ) { Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(18.dp)) }
+                    OutlinedButton(
+                        onClick = { prev?.let { raw = it; prev = null } },
+                        enabled = prev != null,
+                        modifier = Modifier.weight(1f).height(40.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
                 }
-            }
-            Spacer(Modifier.height(2.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                OutlinedButton(
-                    onClick = { appendChar(' ') },
-                    modifier = Modifier.weight(1f).height(40.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) { Text("space", style = MaterialTheme.typography.labelSmall) }
-                OutlinedButton(
-                    onClick = {
-                        if (raw.isNotEmpty()) setRaw(raw.dropLast(1))
-                    },
-                    modifier = Modifier.weight(1f).height(40.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) { Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(18.dp)) }
-                OutlinedButton(
-                    onClick = {
-                        prev?.let { raw = it; prev = null }
-                    },
-                    enabled = prev != null,
-                    modifier = Modifier.weight(1f).height(40.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
             }
         }
 
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
 
         Text(
             "Wrap mode",
@@ -588,34 +608,5 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
     }
 }
 
-@Composable
-private fun MiniLogPreview() {
-    val entries by DiagnosticsLogger.entries.collectAsState()
-    val tail = remember(entries) { entries.takeLast(6) }
-    val listState = rememberLazyListState()
-    LaunchedEffect(tail.size) {
-        if (tail.isNotEmpty()) listState.animateScrollToItem(tail.size - 1)
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(110.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
-    ) {
-        if (tail.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    "log will appear here",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(4.dp)) {
-                items(tail) { e -> LogRow(e) }
-            }
-        }
-    }
-}
 
 private val TIME_FMT = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
