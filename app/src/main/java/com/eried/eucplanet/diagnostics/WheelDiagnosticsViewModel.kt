@@ -57,11 +57,47 @@ class WheelDiagnosticsViewModel @Inject constructor(
         bleManager.writeCommand(cmd.bytes)
     }
 
-    fun fireRawHex(hexInput: String): Boolean {
-        val bytes = parseHex(hexInput) ?: return false
-        DiagnosticsLogger.cmd("RAW", bytes)
+    enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT }
+
+    fun fireRawHex(hexInput: String, mode: WrapMode = WrapMode.LITERAL): Boolean {
+        val bytes = wrap(hexInput, mode) ?: return false
+        DiagnosticsLogger.cmd("RAW(${mode.name})", bytes)
         bleManager.writeCommand(bytes)
         return true
+    }
+
+    /** Render the bytes that would actually go on the wire, given the wrap mode. */
+    fun previewHex(hexInput: String, mode: WrapMode): String {
+        val bytes = wrap(hexInput, mode) ?: return ""
+        return bytes.joinToString(" ") { "%02x".format(it) }
+    }
+
+    /** Re-emit the user input with consistent spacing every two hex chars. */
+    fun formatHex(hexInput: String): String {
+        val bytes = parseHex(hexInput) ?: return hexInput
+        return bytes.joinToString(" ") { "%02x".format(it) }
+    }
+
+    private fun wrap(input: String, mode: WrapMode): ByteArray? {
+        val bytes = parseHex(input) ?: return null
+        return when (mode) {
+            WrapMode.LITERAL -> bytes
+            WrapMode.WRAP_EXTENDED -> {
+                if (bytes.isEmpty()) return null
+                com.eried.eucplanet.ble.InMotionV2Protocol.buildExtendedPacket(
+                    bytes[0],
+                    if (bytes.size > 1) bytes.copyOfRange(1, bytes.size) else byteArrayOf()
+                )
+            }
+            WrapMode.WRAP_V14_SHORT -> {
+                if (bytes.isEmpty()) return null
+                com.eried.eucplanet.ble.InMotionV2Protocol.buildPacket(
+                    com.eried.eucplanet.ble.InMotionV2Protocol.Flags.DEFAULT,
+                    bytes[0],
+                    if (bytes.size > 1) bytes.copyOfRange(1, bytes.size) else byteArrayOf()
+                )
+            }
+        }
     }
 
     fun addComment(text: String) {

@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -24,6 +28,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,6 +38,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,19 +92,35 @@ fun WheelDiagnosticsDialog(
     LaunchedEffect(Unit) { vm.captureSessionInfo() }
 
     var stopConfirm by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(8.dp)
+            ) {
                 Header(
                     onClose = onDismiss,
-                    onStop = { stopConfirm = true }
+                    onStop = { stopConfirm = true },
+                    onShare = {
+                        vm.buildShareIntent()?.let {
+                            context.startActivity(Intent.createChooser(it, "Share log"))
+                        }
+                    }
                 )
 
                 var tab by remember { mutableStateOf(0) }
@@ -143,7 +167,7 @@ fun WheelDiagnosticsDialog(
 }
 
 @Composable
-private fun Header(onClose: () -> Unit, onStop: () -> Unit) {
+private fun Header(onClose: () -> Unit, onStop: () -> Unit, onShare: () -> Unit) {
     val entries = DiagnosticsLogger.entries.collectAsState().value
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -157,12 +181,15 @@ private fun Header(onClose: () -> Unit, onStop: () -> Unit) {
         )
         Spacer(Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text("Wheel Diagnostics", style = MaterialTheme.typography.titleMedium)
+            Text("Service Mode", style = MaterialTheme.typography.titleMedium)
             Text(
                 "${entries.size} entries · recording",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+        IconButton(onClick = onShare) {
+            Icon(Icons.Default.Share, contentDescription = "Share")
         }
         IconButton(onClick = onStop) {
             Icon(Icons.Default.Stop, contentDescription = "Stop")
@@ -173,7 +200,6 @@ private fun Header(onClose: () -> Unit, onStop: () -> Unit) {
 @Composable
 private fun LogTab(vm: WheelDiagnosticsViewModel) {
     val entries by vm.entries.collectAsState()
-    val context = LocalContext.current
     val listState = rememberLazyListState()
     LaunchedEffect(entries.size) {
         if (entries.isNotEmpty()) listState.animateScrollToItem(entries.size - 1)
@@ -221,21 +247,6 @@ private fun LogTab(vm: WheelDiagnosticsViewModel) {
                 vm.addComment(comment)
                 comment = ""
             }) { Icon(Icons.Default.Send, contentDescription = "Add") }
-        }
-
-        Spacer(Modifier.height(6.dp))
-
-        OutlinedButton(
-            onClick = {
-                vm.buildShareIntent()?.let {
-                    context.startActivity(Intent.createChooser(it, "Share diagnostics"))
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("Share log as .txt")
         }
     }
 }
@@ -325,28 +336,122 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 private fun RawTab(vm: WheelDiagnosticsViewModel) {
     var raw by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
-    Column(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+    var preview by remember { mutableStateOf("") }
+
+    fun recomputePreview(mode: WheelDiagnosticsViewModel.WrapMode) {
+        preview = vm.previewHex(raw, mode)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(top = 8.dp)
+    ) {
         Text(
-            "Send raw bytes directly. Format: \"AA AA 16 06 02 21 60 50 01 01 …\" or \"aaaa1606022160500101…\".",
+            "Type hex bytes (spaces and dashes optional). \"Send literal\" sends them as-is. \"Wrap V2\" prepends `aa aa 16 LL 02 21` and appends a XOR checksum — use for P6 / V12 / V14 control writes you only know the inner sub-cmd of.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(8.dp))
+
+        // Quick-insert chips: paste useful prefixes / known sequences
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            val chips = listOf(
+                "60 " to "control",
+                "60 50 00 00" to "light off",
+                "60 50 01 01" to "light on",
+                "60 51 18 01" to "horn",
+                "60 21 " to "max-speed (+kmh*100 LE)",
+                "60 3e " to "alarm (+kmh*100 LE 00 00)",
+                "02 06" to "info bundle",
+                "02 07" to "realtime",
+                "20 20" to "settings A",
+                "aa aa 16 06 02 21 " to "frame prefix"
+            )
+            chips.forEach { (chip, desc) ->
+                AssistChip(
+                    onClick = {
+                        raw = if (raw.isBlank() || raw.endsWith(' ')) raw + chip else "$raw $chip"
+                        error = null
+                    },
+                    label = { Text(chip.trim(), style = MaterialTheme.typography.labelSmall) },
+                    colors = AssistChipDefaults.assistChipColors(),
+                    modifier = Modifier.padding(end = 6.dp)
+                )
+                Spacer(Modifier.width(0.dp)) // padding via chip itself
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
         OutlinedTextField(
             value = raw,
             onValueChange = { raw = it; error = null },
             modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
             label = { Text("Hex bytes") },
+            placeholder = { Text("60 50 01 01") },
             isError = error != null,
             supportingText = error?.let { { Text(it) } }
         )
+
+        Spacer(Modifier.height(6.dp))
+
+        // Format and clear helpers
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = {
+                raw = vm.formatHex(raw)
+                error = null
+            }) { Text("Format") }
+            Spacer(Modifier.width(4.dp))
+            TextButton(onClick = {
+                raw = ""
+                preview = ""
+                error = null
+            }) { Text("Clear") }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            "Will send (after wrapping): ${if (preview.isBlank()) "—" else preview}",
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
+
         Spacer(Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = {
-                if (!vm.fireRawHex(raw)) error = "Could not parse hex"
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) { Text("Send raw") }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            OutlinedButton(
+                onClick = {
+                    val mode = WheelDiagnosticsViewModel.WrapMode.LITERAL
+                    recomputePreview(mode)
+                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
+                },
+                modifier = Modifier.weight(1f)
+            ) { Text("Send literal") }
+            OutlinedButton(
+                onClick = {
+                    val mode = WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED
+                    recomputePreview(mode)
+                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
+                },
+                modifier = Modifier.weight(1f)
+            ) { Text("Wrap V2") }
+            OutlinedButton(
+                onClick = {
+                    val mode = WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT
+                    recomputePreview(mode)
+                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
+                },
+                modifier = Modifier.weight(1f)
+            ) { Text("Wrap V14") }
+        }
     }
 }
 

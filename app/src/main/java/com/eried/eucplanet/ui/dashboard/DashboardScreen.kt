@@ -999,13 +999,13 @@ fun DashboardScreen(
                                 Spacer(Modifier.height(12.dp))
                                 Text(
                                     "While active, the app records every BLE byte sent to and received from the wheel plus any test commands you fire. The log lives in memory until the app is closed.",
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
                                     "Visit eucplanet.ried.no for more information.",
-                                    style = MaterialTheme.typography.bodySmall,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable {
                                         openUrl(context, "https://eucplanet.ried.no")
