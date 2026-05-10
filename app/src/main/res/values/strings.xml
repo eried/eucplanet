@@ -461,7 +461,7 @@
     <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_thanks">Credits</string>
-    <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.\n\nThanks to:\n• Gio (Wheel In Motion) — P6 captures and Wear OS testing.\n• Ilya Shkolnik and the WheelLog community — public protocol research the KingSong, Begode and Veteran adapters draw on.\n• InMotion — for making my awesome V14.</string>
+    <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.\n\nThanks to:\n• Gio (Wheel In Motion). Promotion, suggestions and P6 testing. Stitched scalp, intact enthusiasm.\n• Ilya Shkolnik and the WheelLog community — public protocol research the KingSong, Begode and Veteran adapters draw on.\n• InMotion — for making my awesome V14.</string>
     <string name="about_license">License</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
 </resources>

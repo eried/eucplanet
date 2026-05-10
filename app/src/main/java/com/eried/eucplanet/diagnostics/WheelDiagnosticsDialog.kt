@@ -35,7 +35,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
@@ -269,19 +271,26 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
         // Single-line + fixed height: keeps the row from growing as the user
         // types, which would otherwise shrink the log panel mid-input and
         // throw off the auto-scroll-to-bottom heuristic.
+        val send = {
+            if (comment.isNotBlank()) {
+                vm.addComment(comment)
+                comment = ""
+            }
+        }
         OutlinedTextField(
             value = comment,
             onValueChange = { comment = it },
             modifier = Modifier.weight(1f),
             label = { Text("Add comment to log") },
             placeholder = { Text("e.g. wheel display says 77F") },
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Send
+            ),
+            keyboardActions = KeyboardActions(onSend = { send() }),
             singleLine = true
         )
-        IconButton(onClick = {
-            vm.addComment(comment)
-            comment = ""
-        }) { Icon(Icons.Default.Send, contentDescription = "Add") }
+        IconButton(onClick = { send() }) { Icon(Icons.Default.Send, contentDescription = "Add") }
     }
 }
 
@@ -342,8 +351,9 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
             lineHeight = 12.sp
         ),
         color = color,
-        maxLines = 4,
-        overflow = TextOverflow.Ellipsis
+        softWrap = false,
+        maxLines = 1,
+        overflow = TextOverflow.Clip
     )
 }
 
