@@ -207,6 +207,9 @@ class WheelRepository @Inject constructor(
 
     fun toggleLight() {
         val current = _wheelData.value.lightOn
+        com.eried.eucplanet.ble.P6DebugLogger.note(
+            "toggleLight: lightOn was=$current, sending ${!current}"
+        )
         wheelAdapter.setLight(!current)?.let { bleManager.writeCommand(it) }
         // Announcement is emitted by WheelService when the wheel confirms
         // the new state in telemetry — covers DRL / wheel-side toggles too.

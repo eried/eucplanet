@@ -241,33 +241,17 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: MOS at offset 28, motor at offset 30, both as
-        // `byte / 4 = °C`. Verified directly against the InMotion app's
-        // on-screen "Detailed Data" page in the labelled capture:
-        //   v1:23 displayed MOS = 82 °F → data[28] = 111 → 27.75 °C
-        //         (= 81.95 °F, delta -0.05).
-        //   v1:23 displayed motor = 124 °F → data[30] = 204 → 51.0 °C
-        //         (= 123.8 °F, delta -0.10).
-        // See docs/P6_CAPTURE_LABELS.md for the full timeline.
+        // Temperature: the real motor-temp byte hasn't been identified on
+        // this firmware yet. preview3's data[71] read was a static config
+        // byte (app froze while the wheel updated). preview4's data[28]/
+        // data[30] (per docs/P6_CAPTURE_LABELS.md) read 121 °F on a cold
+        // wheel, so they aren't motor either — likely a fixed calibration
+        // value or a different sensor.
         //
-        // The previous build read data[71] as MOS, mistaking it for a
-        // thermistor because in one short capture it walked 67 → 70.
-        // On real hardware data[71] is a static config byte that doesn't
-        // track the live sensor — symptom: app froze at 75 °F while the
-        // wheel's own display moved 75 → 81 °F under load.
-        //
-        // Sanity gate: byte must decode into 0..120 °C. Anything outside
-        // that band is from a multiplexed/split-frame reassembly artefact
-        // and gets dropped to avoid polluting the dashboard.
-        val temps = mutableListOf<Float>()
-        if (data.size > 28) {
-            val mosC = (data[28].toInt() and 0xFF) / 4f
-            if (mosC in 0f..120f) temps.add(mosC)
-        }
-        if (data.size > 30) {
-            val motorC = (data[30].toInt() and 0xFF) / 4f
-            if (motorC in 0f..120f) temps.add(motorC)
-        }
+        // Until preview5's debug log narrows the right offset, don't show
+        // anything. Empty temps → maxTemperature = 0 → dashboard pill
+        // displays the unit baseline rather than a misleading 121 °F.
+        val temps = emptyList<Float>()
 
         // Headlight state: bit 1 of byte 84. Across the labelled capture's
         // four `60 50` toggles, byte 84 reads 0x02 in every frame inside an

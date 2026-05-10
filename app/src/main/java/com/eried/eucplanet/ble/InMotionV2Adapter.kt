@@ -255,7 +255,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             0x07 -> {
                 // realtime: skip the `02 87 01 00` prefix to land on the data block
                 if (data.size < 4) return DecodeResult.Unknown
-                val telem = InMotionV2Parser.parseP6Telemetry(data.copyOfRange(4, data.size))
+                val body = data.copyOfRange(4, data.size)
+                P6DebugLogger.note(
+                    "RT len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                )
+                val telem = InMotionV2Parser.parseP6Telemetry(body)
                 telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
             }
             0x06 -> {

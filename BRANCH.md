@@ -1,4 +1,53 @@
-# p6-fixes (v0.3.2-p6preview4)
+# p6-fixes (v0.3.2-p6preview5)
+
+## Diagnostic build (preview5)
+
+preview4's temperature read was still wrong — the dashboard showed
+121 °F on a cold wheel where the InMotion app reported ~73 °F. The
+labelled capture's offset 30 turned out to be a fixed value, not a
+live sensor. The light toggle also still only fired ON.
+
+This build is **not a fix**. It's an instrumented preview that dumps
+every BLE notification and write to a file so we can identify the
+right motor-temp byte and verify what the wheel reports right after a
+light-off attempt. Strip the logger in the next preview once the
+offsets are confirmed.
+
+### Where the dump lives
+
+`/sdcard/Android/data/com.eried.eucplanet/files/p6_debug.log`
+
+(or via `adb logcat -s P6DEBUG` while the app is running)
+
+### What's in it
+
+- `RX <len>  <hex>` — every raw BLE notification chunk from the wheel.
+- `TX <len>  <hex>` — every BLE write the app sends.
+- `NOTE RT len=N body=…` — each reassembled `0x87` realtime data block,
+  so we don't have to redo BLE reassembly offline.
+- `NOTE toggleLight: lightOn was=X, sending Y` — every Light tap.
+
+The file rotates at 4 MB; a five-minute ride generates well under 1 MB.
+
+### What we need from a capture
+
+1. Boot the wheel cold. Open the app, connect.
+2. Read the InMotion app's motor-temp value off the wheel's screen
+   (or the InMotion phone app's Detailed Data) and note it down.
+3. Ride for five minutes so the motor warms.
+4. Read the new motor-temp value from the InMotion app and note it.
+5. Tap the Light button **off → on → off** in our app, with a couple
+   of seconds between taps.
+6. Pull `p6_debug.log` and share. With the cold-vs-warm motor values
+   plus the byte traces around each tap, the right offsets fall out.
+
+### What's hidden in this build
+
+The "TEMP" pill shows the unit baseline (32 °F / 0 °C) instead of the
+wrong 121 °F preview4 used to display. The temp value will be wrong
+until the real motor-temp byte is identified — better blank than
+misleading.
+
 
 ## Round 3 fixes (preview4)
 

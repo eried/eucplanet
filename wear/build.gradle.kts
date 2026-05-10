@@ -22,8 +22,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 30
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.3.2-p6preview4"
+        versionCode = 14
+        versionName = "0.3.2-p6preview5"
     }
 
     signingConfigs {

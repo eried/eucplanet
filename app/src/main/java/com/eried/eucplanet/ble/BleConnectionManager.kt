@@ -78,6 +78,7 @@ class BleConnectionManager @Inject constructor(
     @Volatile private var virtualWheel: VirtualWheel? = null
 
     init {
+        P6DebugLogger.init(context)
         scope.launch { processWriteQueue() }
     }
 
@@ -190,6 +191,7 @@ class BleConnectionManager @Inject constructor(
 
     fun writeCommand(data: ByteArray) {
         Log.d(TAG, "Queuing write: ${data.joinToString(" ") { "%02x".format(it) }}")
+        P6DebugLogger.tx(data)
         writeChannel.trySend(data)
     }
 
@@ -349,6 +351,7 @@ class BleConnectionManager @Inject constructor(
      * adapter — each protocol family has its own.
      */
     private fun processIncomingData(data: ByteArray) {
+        P6DebugLogger.rx(data)
         for (result in wheelAdapter.onRawNotification(data)) {
             _decodedResults.tryEmit(result)
         }
