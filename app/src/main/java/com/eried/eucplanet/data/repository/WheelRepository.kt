@@ -562,8 +562,16 @@ class WheelRepository @Inject constructor(
                 pendingAuthConfirmDeferred?.complete(result.success)
             }
             is DecodeResult.Telemetry -> {
+                // For wheels where the parser can't recover headlight state
+                // from telemetry (P6: no live byte), preserve the
+                // optimistic lightOn from the previous wheelData so a
+                // toggleLight call survives the next realtime frame
+                // overwriting it ~250ms later.
+                val previous = _wheelData.value
+                val isP6 = _modelName.value?.contains("P6") == true
                 _wheelData.value = result.data.copy(
-                    totalDistance = _wheelData.value.totalDistance
+                    totalDistance = previous.totalDistance,
+                    lightOn = if (isP6) previous.lightOn else result.data.lightOn
                 )
                 // Sample history at 1 Hz
                 val now = System.currentTimeMillis()
