@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -419,7 +420,21 @@ fun DashboardScreen(
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
             val safeColor = if (useAccent) primary else AccentGreen
-            Box(modifier = Modifier.fillMaxWidth()) {
+            // BoxWithConstraints with weight(1f, fill=true): the dial Box
+            // absorbs ALL leftover vertical space so the ODO footer stays
+            // pinned just below the action buttons. On phones the dial is a
+            // near-square at ratio 1.05; on tablets it becomes a wide-arc
+            // car-dash style speedo (ratio 2.0) so the extra horizontal real
+            // estate is actually used. Width is capped on phones at 0.85 of
+            // screen, on tablets at 0.95 to leave a small margin.
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().weight(1f, fill = true)
+            ) {
+                val widthFraction = if (wideStats) 0.95f else 0.85f
+                val ratio = if (wideStats) 2.0f else 1.05f
+                val candidateW = maxWidth * widthFraction
+                val maxByHeight = maxHeight * ratio
+                val dialW = minOf(candidateW, maxByHeight)
                 SpeedGauge(
                     speed = wheelData.speed.absoluteValue,
                     maxSpeed = gaugeMax,
@@ -433,10 +448,9 @@ fun DashboardScreen(
                     // arc (overrideColor above) still wears the accent.
                     safeBandColor = AccentGreen,
                     modifier = Modifier
-                        .fillMaxWidth(if (wideStats) 0.55f else 0.85f)
-                        .widthIn(max = if (wideStats) 360.dp else Dp.Unspecified)
-                        .aspectRatio(if (wideStats) 1.25f else 1.05f)
-                        .align(Alignment.TopCenter)
+                        .width(dialW)
+                        .aspectRatio(ratio)
+                        .align(Alignment.Center)
                         .clickable { onNavigateToMetric("SPEED") }
                 )
                 // Car-dashboard status cluster, top-left: P (park) / D (drive).
@@ -730,7 +744,7 @@ fun DashboardScreen(
                 )
             }
 
-            Spacer(Modifier.weight(1f, fill = true))
+            Spacer(Modifier.height(12.dp))
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             var showAboutDialog by remember { mutableStateOf(false) }
