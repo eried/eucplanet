@@ -16,11 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,6 +43,10 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -108,9 +115,7 @@ fun WheelDiagnosticsDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .imePadding()
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
                     .padding(8.dp)
             ) {
                 Header(
@@ -150,14 +155,16 @@ fun WheelDiagnosticsDialog(
     if (stopConfirm) {
         AlertDialog(
             onDismissRequest = { stopConfirm = false },
-            title = { Text("Stop diagnostics?") },
-            text = { Text("This clears the in-memory log and exits Service Mode. Share the log first if you need it.") },
+            title = { Text("Exit Service Mode") },
+            text = {
+                Text("This clears the in-memory log and exits Service Mode.\n\nShare the log first if you need it.")
+            },
             confirmButton = {
                 TextButton(onClick = {
                     stopConfirm = false
                     vm.stopDiagnostics()
                     onDismiss()
-                }) { Text("Stop & clear") }
+                }) { Text("Exit") }
             },
             dismissButton = {
                 TextButton(onClick = { stopConfirm = false }) { Text("Cancel") }
@@ -336,10 +343,19 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 private fun RawTab(vm: WheelDiagnosticsViewModel) {
     var raw by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
-    var preview by remember { mutableStateOf("") }
+    var mode by remember { mutableStateOf(WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED) }
 
-    fun recomputePreview(mode: WheelDiagnosticsViewModel.WrapMode) {
-        preview = vm.previewHex(raw, mode)
+    val preview = remember(raw, mode) { vm.previewHex(raw, mode) }
+    val canSend = preview.isNotBlank()
+
+    fun appendBytes(s: String) {
+        raw = if (raw.isBlank() || raw.endsWith(' ')) raw + s else "$raw $s"
+        error = null
+    }
+
+    fun appendChar(c: Char) {
+        raw += c
+        error = null
     }
 
     Column(
@@ -349,109 +365,180 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             .padding(top = 8.dp)
     ) {
         Text(
-            "Type hex bytes (spaces and dashes optional). \"Send literal\" sends them as-is. \"Wrap V2\" prepends `aa aa 16 LL 02 21` and appends a XOR checksum — use for P6 / V12 / V14 control writes you only know the inner sub-cmd of.",
+            "Type sub-command bytes (e.g. 60 50 00 00 for light off). The selected mode below decides if the app wraps them in an AA-AA frame with XOR checksum.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
         Spacer(Modifier.height(8.dp))
 
-        // Quick-insert chips: paste useful prefixes / known sequences
+        Text(
+            "Insert preset (tap to append)",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
         Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
             val chips = listOf(
-                "60 " to "control",
-                "60 50 00 00" to "light off",
-                "60 50 01 01" to "light on",
-                "60 51 18 01" to "horn",
-                "60 21 " to "max-speed (+kmh*100 LE)",
-                "60 3e " to "alarm (+kmh*100 LE 00 00)",
-                "02 06" to "info bundle",
-                "02 07" to "realtime",
-                "20 20" to "settings A",
-                "aa aa 16 06 02 21 " to "frame prefix"
+                "60 50 00 00" to "Light off",
+                "60 50 01 01" to "Light on",
+                "60 51 18 01" to "Horn",
+                "60 2f 00" to "Auto-headlight off",
+                "60 2f 01" to "Auto-headlight on",
+                "60 4e 00" to "DRL? off",
+                "60 4e 01" to "DRL? on",
+                "60 24 00" to "25 km/h clamp off",
+                "60 24 01" to "25 km/h clamp on",
+                "60 31 01" to "Lock",
+                "60 31 00" to "Unlock",
+                "02 06" to "Info bundle",
+                "02 07" to "Realtime",
+                "20 20" to "Settings page A",
+                "20 21" to "Settings B (untried)",
+                "20 22" to "Settings C (untried)",
+                "11" to "Total stats"
             )
-            chips.forEach { (chip, desc) ->
+            chips.forEach { (bytes, desc) ->
                 AssistChip(
-                    onClick = {
-                        raw = if (raw.isBlank() || raw.endsWith(' ')) raw + chip else "$raw $chip"
-                        error = null
+                    onClick = { appendBytes(bytes) },
+                    label = {
+                        Column {
+                            Text(
+                                bytes,
+                                style = MaterialTheme.typography.labelMedium
+                                    .copy(fontFamily = FontFamily.Monospace)
+                            )
+                            Text(
+                                desc,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     },
-                    label = { Text(chip.trim(), style = MaterialTheme.typography.labelSmall) },
-                    colors = AssistChipDefaults.assistChipColors(),
-                    modifier = Modifier.padding(end = 6.dp)
+                    modifier = Modifier.padding(end = 6.dp).height(56.dp)
                 )
-                Spacer(Modifier.width(0.dp)) // padding via chip itself
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(10.dp))
 
         OutlinedTextField(
             value = raw,
             onValueChange = { raw = it; error = null },
             modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
-            label = { Text("Hex bytes") },
+            label = { Text("Hex input") },
             placeholder = { Text("60 50 01 01") },
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             isError = error != null,
             supportingText = error?.let { { Text(it) } }
         )
 
         Spacer(Modifier.height(6.dp))
 
-        // Format and clear helpers
-        Row(modifier = Modifier.fillMaxWidth()) {
-            TextButton(onClick = {
-                raw = vm.formatHex(raw)
-                error = null
-            }) { Text("Format") }
-            Spacer(Modifier.width(4.dp))
-            TextButton(onClick = {
-                raw = ""
-                preview = ""
-                error = null
-            }) { Text("Clear") }
+        // Hex pad: 0..F. Useful when the soft keyboard is on a different layout
+        // and you want to bash a byte in directly. Two rows of 8 fits any width.
+        Text(
+            "Hex pad",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
+        val hexChars = listOf('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F')
+        Column {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                hexChars.subList(0, 8).forEach { c ->
+                    OutlinedButton(
+                        onClick = { appendChar(c) },
+                        modifier = Modifier.weight(1f).height(40.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
+                }
+            }
+            Spacer(Modifier.height(2.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                hexChars.subList(8, 16).forEach { c ->
+                    OutlinedButton(
+                        onClick = { appendChar(c) },
+                        modifier = Modifier.weight(1f).height(40.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) { Text(c.toString(), fontFamily = FontFamily.Monospace) }
+                }
+            }
+            Spacer(Modifier.height(2.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                OutlinedButton(
+                    onClick = { appendChar(' ') },
+                    modifier = Modifier.weight(2f).height(40.dp)
+                ) { Text("space") }
+                OutlinedButton(
+                    onClick = {
+                        if (raw.isNotEmpty()) raw = raw.dropLast(1)
+                        error = null
+                    },
+                    modifier = Modifier.weight(1f).height(40.dp)
+                ) { Text("⌫") }
+                OutlinedButton(
+                    onClick = { raw = vm.formatHex(raw); error = null },
+                    modifier = Modifier.weight(1f).height(40.dp)
+                ) { Text("Format") }
+                OutlinedButton(
+                    onClick = { raw = ""; error = null },
+                    modifier = Modifier.weight(1f).height(40.dp)
+                ) { Text("Clear") }
+            }
         }
 
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(10.dp))
 
         Text(
-            "Will send (after wrapping): ${if (preview.isBlank()) "—" else preview}",
-            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
+            "Wrap mode",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(4.dp))
+
+        val modes = listOf(
+            WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "Wrap V2",
+            WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14",
+            WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal"
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            modes.forEachIndexed { index, (m, label) ->
+                SegmentedButton(
+                    selected = mode == m,
+                    onClick = { mode = m },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size)
+                ) { Text(label) }
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = preview,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Bytes on the wire") },
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+            placeholder = { Text("—") }
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        Button(
+            onClick = {
+                if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
+            },
+            enabled = canSend,
+            modifier = Modifier.fillMaxWidth().height(56.dp)
         ) {
-            OutlinedButton(
-                onClick = {
-                    val mode = WheelDiagnosticsViewModel.WrapMode.LITERAL
-                    recomputePreview(mode)
-                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("Send literal") }
-            OutlinedButton(
-                onClick = {
-                    val mode = WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED
-                    recomputePreview(mode)
-                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("Wrap V2") }
-            OutlinedButton(
-                onClick = {
-                    val mode = WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT
-                    recomputePreview(mode)
-                    if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("Wrap V14") }
+            Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("SEND", style = MaterialTheme.typography.titleMedium)
         }
+
+        Spacer(Modifier.height(8.dp))
     }
 }
 

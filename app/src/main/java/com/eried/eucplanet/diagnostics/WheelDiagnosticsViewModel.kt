@@ -1,20 +1,32 @@
 package com.eried.eucplanet.diagnostics
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.os.Build
+import android.util.DisplayMetrics
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.WheelAdapter
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wearable.Wearable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import javax.inject.Inject
 
 /**
@@ -34,20 +46,56 @@ class WheelDiagnosticsViewModel @Inject constructor(
     val entries: StateFlow<List<DiagnosticsLogger.Entry>> = DiagnosticsLogger.entries
     val enabled: StateFlow<Boolean> = DiagnosticsLogger.enabled
 
-    /** Drop a NOTE with what's connected so the share log carries identity context. */
+    /** Drop NOTEs with phone, app, BLE, and watch identity context so the
+     *  shared log carries everything we'd ask for in a bug report. */
     fun captureSessionInfo() {
-        val data = wheelRepository.wheelData.value
-        val state = bleManager.connectionState.value
+        // App + build
         DiagnosticsLogger.info("app v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) build ${BuildConfig.BUILD_STAMP}")
-        DiagnosticsLogger.info("connection state: $state")
+        DiagnosticsLogger.info("package ${context.packageName}")
+
+        // Phone hardware + Android OS
+        DiagnosticsLogger.info("phone ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
+        DiagnosticsLogger.info("android ${Build.VERSION.RELEASE} (sdk ${Build.VERSION.SDK_INT})  abi=${Build.SUPPORTED_ABIS.firstOrNull() ?: "?"}")
+        DiagnosticsLogger.info("locale ${Locale.getDefault()}  tz=${TimeZone.getDefault().id}")
+        val dm: DisplayMetrics = context.resources.displayMetrics
+        val nightMode = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        DiagnosticsLogger.info("display ${dm.widthPixels}x${dm.heightPixels} @ ${dm.densityDpi}dpi (${if (nightMode) "dark" else "light"} theme)")
+
+        // BLE adapter state — names/MACs require runtime permission so we
+        // only log what's safe without one
+        try {
+            val mgr = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
+            val adapter: BluetoothAdapter? = mgr?.adapter
+            val on = adapter?.isEnabled == true
+            DiagnosticsLogger.info("ble adapter ${if (on) "ON" else "OFF/missing"}")
+        } catch (_: Exception) {}
+
+        // Connection + wheel
+        DiagnosticsLogger.info("connection state: ${bleManager.connectionState.value}")
         DiagnosticsLogger.info("wheel adapter: ${wheelAdapter.familyId}")
-        wheelRepository.modelName.value?.let {
-            DiagnosticsLogger.info("model: $it")
-        }
-        wheelRepository.firmwareVersion.value?.let {
-            DiagnosticsLogger.info("firmware: $it")
-        }
+        wheelRepository.modelName.value?.let { DiagnosticsLogger.info("model: $it") }
+        wheelRepository.firmwareVersion.value?.let { DiagnosticsLogger.info("firmware: $it") }
+        val data = wheelRepository.wheelData.value
         DiagnosticsLogger.info("battery=${data.batteryPercent}%  voltage=${data.voltage}V  speed=${data.speed} km/h  lightOn=${data.lightOn}")
+
+        // Wear OS — list connected nodes so we know if a watch is paired
+        viewModelScope.launch {
+            try {
+                val nodes = withContext(Dispatchers.IO) {
+                    Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+                }
+                if (nodes.isEmpty()) {
+                    DiagnosticsLogger.info("wear: no paired nodes")
+                } else {
+                    nodes.forEach { n ->
+                        DiagnosticsLogger.info("wear node: ${n.displayName} (${n.id}) nearby=${n.isNearby}")
+                    }
+                }
+            } catch (e: Exception) {
+                DiagnosticsLogger.info("wear: query failed (${e.javaClass.simpleName})")
+            }
+        }
     }
 
     fun diagnosticCommands(): List<DiagnosticCommand> = wheelAdapter.getDiagnosticCommands()

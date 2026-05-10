@@ -12,7 +12,13 @@ import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -761,8 +767,13 @@ fun DashboardScreen(
                             .bufferedReader().use { it.readText() }
                     } catch (_: Exception) { "" }
                 }
-                var logoTaps by remember { mutableStateOf(0) }
                 var showDiagnosticsConfirm by remember { mutableStateOf(false) }
+                var logoPressed by remember { mutableStateOf(false) }
+                val logoAlpha by animateFloatAsState(
+                    targetValue = if (logoPressed) 0.55f else 1f,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "logoHoldAlpha"
+                )
                 Dialog(
                     onDismissRequest = { showAboutDialog = false },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -781,11 +792,18 @@ fun DashboardScreen(
                                     .clip(CircleShape)
                                     .background(colorResource(R.color.ic_launcher_background))
                                     .align(Alignment.CenterHorizontally)
-                                    .clickable {
-                                        logoTaps++
-                                        if (logoTaps >= 7) {
-                                            logoTaps = 0
-                                            showDiagnosticsConfirm = true
+                                    .alpha(logoAlpha)
+                                    .pointerInput(Unit) {
+                                        awaitEachGesture {
+                                            awaitFirstDown(requireUnconsumed = false)
+                                            logoPressed = true
+                                            val released = withTimeoutOrNull(5000L) {
+                                                waitForUpOrCancellation()
+                                            }
+                                            logoPressed = false
+                                            if (released == null) {
+                                                showDiagnosticsConfirm = true
+                                            }
                                         }
                                     }
                             ) {
