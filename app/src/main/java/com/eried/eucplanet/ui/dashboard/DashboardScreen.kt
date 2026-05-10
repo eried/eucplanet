@@ -983,11 +983,35 @@ fun DashboardScreen(
                 if (showDiagnosticsConfirm) {
                     androidx.compose.material3.AlertDialog(
                         onDismissRequest = { showDiagnosticsConfirm = false },
-                        title = { Text("Enter Diagnostics Mode?") },
+                        title = { Text("Service Mode") },
                         text = {
-                            Text(
-                                "Service Mode logs every BLE byte sent to and received from the wheel, plus any test commands you fire. Use it only when reporting an issue. The log lives in memory until the app is closed and stays recording in the background once started — the version number on the dashboard will blink red while active."
-                            )
+                            Column {
+                                Text(
+                                    "CAUTION — Improper use of Service Mode could result in loss of wheel functionality, serious injury, or death.",
+                                    color = Color(0xFFE53935),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    "Service Mode is intended for qualified EUC professionals to conduct diagnostics, repairs, calibrations, and protocol research.",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    "While active, the app records every BLE byte sent to and received from the wheel plus any test commands you fire. The log lives in memory until the app is closed.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                Text(
+                                    "Visit eucplanet.ried.no for more information.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable {
+                                        openUrl(context, "https://eucplanet.ried.no")
+                                    }
+                                )
+                            }
                         },
                         confirmButton = {
                             TextButton(onClick = {
@@ -1349,7 +1373,7 @@ private fun WheelInfoBox(
                 targetValue = 0.3f,
                 animationSpec = androidx.compose.animation.core.infiniteRepeatable(
                     animation = androidx.compose.animation.core.tween(
-                        durationMillis = 100,
+                        durationMillis = 1000,
                         easing = androidx.compose.animation.core.FastOutSlowInEasing
                     ),
                     repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
