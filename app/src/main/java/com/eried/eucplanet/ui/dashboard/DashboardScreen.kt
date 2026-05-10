@@ -523,9 +523,11 @@ fun DashboardScreen(
                 else -> safeColor
             }
 
-            // ASCII hyphen — the user dislikes the em-dash glyph; this is
-            // also visually clearer at the small stat-card font size.
-            val placeholder = "-"
+            // Em-dash reads as a substantial "no data" symbol in the stat
+            // card; a plain hyphen looked too small for the card layout.
+            // (The no-em-dashes rule applies to sentence punctuation, not
+            // to a single decorative placeholder glyph.)
+            val placeholder = "—"
 
             val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
             val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
