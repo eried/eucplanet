@@ -243,13 +243,16 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperatures: MOS / motor / driver-board sit at body offsets 30/31/32
-        // in the realtime block. Decoded as `°F = byte − 126` (verified against
-        // a labelled capture where displayed 72/79/79 °F mapped to bytes 0xc6
-        // /0xcd/0xcd, then again across a warming-up ride where the values
-        // climbed in lockstep frame-by-frame). The dashboard's TEMP pill
-        // tracks the MOTOR specifically, so we surface it as the only entry
-        // and let `maxTemperature` follow it.
+        // Temperatures: three sensor bytes at body offsets 30/31/32, decoded
+        // as `°F = byte − 126`. Labelled-capture cross-check (rider noted
+        // motor reading on the wheel UI vs the bytes flowing in):
+        //   wheel motor 29°C  -> body[30]=27.8  body[31]=26.1  body[32]=31.7
+        //   wheel motor 34°C  -> body[30]=28.9  body[31]=28.9  body[32]=33.3
+        //   wheel motor 33°C  -> body[30]=28.9  body[31]=28.9  body[32]=32.8
+        // body[32] tracks motor within ~0.2-0.7°C in the warm samples; the
+        // other two are nearly identical and noticeably cooler — almost
+        // certainly the two battery packs' MOS sensors. We surface body[32]
+        // as motor and keep the others in `temperatures` for future UI.
         fun decodeTempC(off: Int): Float? {
             if (off >= data.size) return null
             val v = data[off].toInt() and 0xFF
@@ -260,14 +263,10 @@ object InMotionV2Parser {
             if (f !in 32..248) return null
             return (f - 32) * 5f / 9f
         }
-        val motorC = decodeTempC(31)
-        // We still keep MOS and driver-board accessible in `temperatures`
-        // for the metric detail screen / future UI, but `maxTemperature`
-        // tracks motor only so the dashboard pill matches the InMotion
-        // app's headline reading.
-        val mosC = decodeTempC(30)
-        val driverC = decodeTempC(32)
-        val temps = listOfNotNull(motorC, mosC, driverC)
+        val motorC = decodeTempC(32)
+        val mosAC = decodeTempC(30)
+        val mosBC = decodeTempC(31)
+        val temps = listOfNotNull(motorC, mosAC, mosBC)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in

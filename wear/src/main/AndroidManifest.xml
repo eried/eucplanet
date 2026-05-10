@@ -3,6 +3,11 @@
 
     <uses-feature android:name="android.hardware.type.watch" />
 
+    <!-- Briefly vibrate the watch on a button-bound action firing, when the
+         user enables `watchHapticOnAction`. Also used by the `/euc/vibrate`
+         hint path so phone-side alarm rules can vibrate the watch. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"

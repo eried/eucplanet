@@ -11,9 +11,8 @@ import android.os.VibratorManager
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -468,7 +467,6 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
  * If both click and hold are NONE, the button isn't drawn — the row collapses
  * so the user can hide a button entirely if they want a single-button layout.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ConfigurableActionButton(
     context: Context,
@@ -511,36 +509,42 @@ private fun ConfigurableActionButton(
         else -> contentColor
     }
 
+    // pointerInput + detectTapGestures is the battle-tested combo for tap +
+    // long-press on Compose. The earlier `combinedClickable` setup crashed on
+    // Wear emulator (likely interactionSource/indication mismatch in the
+    // current Compose foundation version on Wear).
     Box(
         modifier = Modifier
             .size(buttonSize)
             .clip(CircleShape)
             .background(backgroundColor)
-            .combinedClickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                enabled = live,
-                onClick = {
-                    if (clickAction == "NONE" && holdAction != "NONE") {
-                        // Tap on a hold-only button: hint the user that the
-                        // bound action needs a long press, instead of doing
-                        // nothing (which looks broken).
-                        val label = labelForAction(context, holdAction) ?: holdAction
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.watch_action_long_press_hint, label),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        fireAction(context, state, clickAction, showToast = false)
-                    }
-                },
-                onLongClick = if (holdAction != "NONE") {
-                    {
-                        fireAction(context, state, holdAction, showToast = true)
-                    }
-                } else null
-            ),
+            .pointerInput(clickAction, holdAction, state.lightOn) {
+                // Fire regardless of `live`: media keys, trip recording, and
+                // voice announce all work without a connected wheel. The
+                // wheel-dependent actions (Horn/Light/Lock/Legal) silently
+                // no-op on the phone side when there's nothing to talk to,
+                // so blocking the click here just makes the watch feel
+                // unresponsive.
+                detectTapGestures(
+                    onTap = {
+                        if (clickAction == "NONE" && holdAction != "NONE") {
+                            val label = labelForAction(context, holdAction) ?: holdAction
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.watch_action_long_press_hint, label),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            fireAction(context, state, clickAction, showToast = false)
+                        }
+                    },
+                    onLongPress = if (holdAction != "NONE") {
+                        {
+                            fireAction(context, state, holdAction, showToast = true)
+                        }
+                    } else null
+                )
+            },
         contentAlignment = Alignment.Center
     ) {
         Icon(
