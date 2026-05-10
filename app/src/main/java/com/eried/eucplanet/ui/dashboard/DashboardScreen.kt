@@ -501,20 +501,16 @@ fun DashboardScreen(
             }
             // EUC motor temperature tiers. The stored value is always °C, so
             // the thresholds are unit-independent — the display layer converts
-            // to °F for imperial users but the color rule reads the same number.
-            // Riders routinely push EUC motors past 90 °C on climbs without
-            // damage; most wheels don't alarm until 100 °C+. Tuned for the
-            // upper half of "warm but safe" to read as yellow, orange for
-            // "hot, ease off", red for "motor stress".
-            //   below 70 °C   safe   (160 °F)
-            //   70-90 °C      yellow (160-194 °F)
-            //   90-105 °C     orange (194-221 °F)
-            //   above 105 °C  red    (≥ 221 °F, motor stress / damage risk)
+            // to °F for imperial users but the color rule reads the same °C
+            // value. Riders pushed back: 90 °C / 195 °F is normal under load,
+            // 220 °F is the natural "ease off" mark, 300 °F is true danger.
+            //   below 105 °C (≈ 221 °F)             green
+            //   105–149 °C (≈ 221–300 °F)           yellow
+            //   ≥ 150 °C (≈ 302 °F)                 red
             val tempColor = when {
                 !live || wheelData.maxTemperature <= 0f -> safeColor
-                wheelData.maxTemperature > 105 -> AccentRed
-                wheelData.maxTemperature > 90 -> AccentOrange
-                wheelData.maxTemperature > 70 -> AccentYellow
+                wheelData.maxTemperature >= 150f -> AccentRed
+                wheelData.maxTemperature >= 105f -> AccentYellow
                 else -> safeColor
             }
             val loadColor = when {
