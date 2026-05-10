@@ -87,6 +87,15 @@ object InMotionV2Commands {
     fun getP6Settings(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
 
+    /** P6 totalStats / extended status query (`02 21 04 32`). Returns a body
+     *  the InMotion app uses to populate the Detailed Data screen — motor /
+     *  driver-board temperatures live here on this firmware, not in the
+     *  realtime 0x87 stream. We don't parse the response yet (offsets still
+     *  being reverse-engineered against labelled captures), but adding the
+     *  poll lets the next diagnostic log carry the data. */
+    fun getP6Stats(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf(0x32))
+
     /**
      * Set the P6 tiltback / max speed.
      *

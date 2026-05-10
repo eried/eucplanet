@@ -74,6 +74,12 @@ interface WheelAdapter {
     /** Sent occasionally during the polling loop to refresh wheel-side settings. */
     fun pollSettings(): ByteArray
 
+    /** Sent occasionally during the polling loop to refresh extended stats
+     *  (P6: the totalStats / Detailed Data response that carries motor and
+     *  driver-board temperatures). Return null if the wheel doesn't have
+     *  this query. */
+    fun pollStats(): ByteArray? = null
+
     // --- Control commands. Return null if the wheel doesn't support the action. ---
     fun horn(): ByteArray?
     fun setLight(on: Boolean): ByteArray?

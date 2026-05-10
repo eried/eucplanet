@@ -101,6 +101,13 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
 
+    /** P6 totalStats / extended status query — the response carries motor and
+     *  driver-board temps that aren't in the realtime 0x87 stream. V14 family
+     *  doesn't need a separate poll (its `0x04` realtime already includes the
+     *  full sensor block) so returns null there. */
+    override fun pollStats(): ByteArray? =
+        if (useP6Protocol) InMotionV2Commands.getP6Stats() else null
+
     /**
      * Horn dispatch. V14 family models (V14g/V14s/V13/V13PRO/V11Y) use the
      * verified [InMotionV2Commands.horn] (playBeep variant). Older models

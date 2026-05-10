@@ -60,6 +60,12 @@ class WheelRepository @Inject constructor(
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
 
+        // Re-request extended stats (P6: motor / driver-board temps) every
+        // N polls. Lands on a different cycle from auth (24) and settings (12)
+        // so the three queries don't compete for the same response slot.
+        // 18 * 250ms = 4.5s.
+        private const val STATS_REFRESH_INTERVAL = 18
+
         // Re-run the connect-auth handshake every N polls for wheels that
         // require it (P6). The InMotion app re-primes ~1× per 6 s; the wheel's
         // "control endpoint primed" state expires shortly after the handshake
@@ -405,6 +411,10 @@ class WheelRepository @Inject constructor(
                 if (needsConnectAuth && realtimeCycle > 0 &&
                     realtimeCycle % CONNECT_AUTH_REFRESH_INTERVAL == 0) {
                     runConnectAuthHandshake()
+                } else if (realtimeCycle > 0 &&
+                    realtimeCycle % STATS_REFRESH_INTERVAL == 0) {
+                    wheelAdapter.pollStats()?.let { bleManager.writeCommand(it) }
+                        ?: bleManager.writeCommand(wheelAdapter.pollRealtime())
                 } else if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
                     bleManager.writeCommand(wheelAdapter.pollSettings())
                 } else {
