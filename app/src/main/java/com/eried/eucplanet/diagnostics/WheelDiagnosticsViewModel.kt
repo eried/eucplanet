@@ -107,18 +107,26 @@ class WheelDiagnosticsViewModel @Inject constructor(
 
     enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT }
 
+    /** Result of attempting to wrap user-typed hex into bytes. The dialog
+     *  shows [bytes] in the read-only "Bytes to send" box on success and
+     *  [error] there on failure, so the user always sees why SEND is or
+     *  isn't enabled. */
+    data class WrapResult(val bytes: ByteArray?, val error: String?) {
+        val ok: Boolean get() = bytes != null
+        val display: String
+            get() = bytes?.joinToString(" ") { "%02x".format(it) } ?: (error ?: "")
+    }
+
     fun fireRawHex(hexInput: String, mode: WrapMode = WrapMode.LITERAL): Boolean {
-        val bytes = wrap(hexInput, mode) ?: return false
+        val res = wrap(hexInput, mode)
+        val bytes = res.bytes ?: return false
         DiagnosticsLogger.cmd("RAW(${mode.name})", bytes)
         bleManager.writeCommand(bytes)
         return true
     }
 
-    /** Render the bytes that would actually go on the wire, given the wrap mode. */
-    fun previewHex(hexInput: String, mode: WrapMode): String {
-        val bytes = wrap(hexInput, mode) ?: return ""
-        return bytes.joinToString(" ") { "%02x".format(it) }
-    }
+    /** Render bytes that would actually go on the wire, with reason on error. */
+    fun previewHex(hexInput: String, mode: WrapMode): WrapResult = wrap(hexInput, mode)
 
     /** Re-emit the user input with consistent spacing every two hex chars. */
     fun formatHex(hexInput: String): String {
@@ -126,19 +134,44 @@ class WheelDiagnosticsViewModel @Inject constructor(
         return bytes.joinToString(" ") { "%02x".format(it) }
     }
 
-    private fun wrap(input: String, mode: WrapMode): ByteArray? {
-        val bytes = parseHex(input) ?: return null
-        return when (mode) {
+    private fun wrap(input: String, mode: WrapMode): WrapResult {
+        if (input.isBlank()) return WrapResult(null, null)
+        val cleaned = input.replace("0x", "", ignoreCase = true)
+            .replace(",", " ")
+            .replace("-", " ")
+            .trim()
+        val tokens = cleaned.split(Regex("\\s+")).filter { it.isNotBlank() }
+        val joined = if (tokens.size == 1) tokens[0] else tokens.joinToString("")
+        if (joined.length % 2 != 0) {
+            return WrapResult(null, "Incomplete hex (odd character count)")
+        }
+        val invalid = joined.firstOrNull { c ->
+            !((c in '0'..'9') || (c in 'a'..'f') || (c in 'A'..'F'))
+        }
+        if (invalid != null) {
+            return WrapResult(null, "Non-hex character: '$invalid'")
+        }
+        val bytes = try {
+            ByteArray(joined.length / 2) { i ->
+                joined.substring(i * 2, i * 2 + 2).toInt(16).toByte()
+            }
+        } catch (_: Exception) {
+            return WrapResult(null, "Could not parse hex")
+        }
+        if (bytes.size > MAX_RAW_BYTES) {
+            return WrapResult(null, "Too long (max $MAX_RAW_BYTES bytes)")
+        }
+        val wrapped = when (mode) {
             WrapMode.LITERAL -> bytes
             WrapMode.WRAP_EXTENDED -> {
-                if (bytes.isEmpty()) return null
+                if (bytes.isEmpty()) return WrapResult(null, "Need at least 1 byte")
                 com.eried.eucplanet.ble.InMotionV2Protocol.buildExtendedPacket(
                     bytes[0],
                     if (bytes.size > 1) bytes.copyOfRange(1, bytes.size) else byteArrayOf()
                 )
             }
             WrapMode.WRAP_V14_SHORT -> {
-                if (bytes.isEmpty()) return null
+                if (bytes.isEmpty()) return WrapResult(null, "Need at least 1 byte")
                 com.eried.eucplanet.ble.InMotionV2Protocol.buildPacket(
                     com.eried.eucplanet.ble.InMotionV2Protocol.Flags.DEFAULT,
                     bytes[0],
@@ -146,6 +179,11 @@ class WheelDiagnosticsViewModel @Inject constructor(
                 )
             }
         }
+        return WrapResult(wrapped, null)
+    }
+
+    companion object {
+        const val MAX_RAW_BYTES = 64
     }
 
     fun addComment(text: String) {

@@ -37,6 +37,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
@@ -342,21 +344,24 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 @Composable
 private fun RawTab(vm: WheelDiagnosticsViewModel) {
     var raw by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf<String?>(null) }
-    var mode by remember { mutableStateOf(WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED) }
+    // Single-step undo: holds the previous text the moment a change happens,
+    // so the undo button can pull the user back from an accidental edit.
+    var prev by remember { mutableStateOf<String?>(null) }
+    var clearConfirm by remember { mutableStateOf(false) }
+    var mode by remember { mutableStateOf(WheelDiagnosticsViewModel.WrapMode.LITERAL) }
+
+    fun setRaw(new: String) {
+        if (new != raw) prev = raw
+        raw = new
+    }
+    fun appendBytes(s: String) {
+        val joined = if (raw.isBlank() || raw.endsWith(' ')) raw + s else "$raw $s"
+        setRaw(joined)
+    }
+    fun appendChar(c: Char) = setRaw(raw + c)
 
     val preview = remember(raw, mode) { vm.previewHex(raw, mode) }
-    val canSend = preview.isNotBlank()
-
-    fun appendBytes(s: String) {
-        raw = if (raw.isBlank() || raw.endsWith(' ')) raw + s else "$raw $s"
-        error = null
-    }
-
-    fun appendChar(c: Char) {
-        raw += c
-        error = null
-    }
+    val canSend = preview.ok
 
     Column(
         modifier = Modifier
@@ -364,8 +369,15 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(top = 8.dp)
     ) {
+        // Tiny live log preview so the user sees BLE traffic without
+        // switching tabs. Pulls from the same state flow the Log tab uses,
+        // so no extra subscription cost — Compose recomposes once per emit.
+        MiniLogPreview()
+
+        Spacer(Modifier.height(10.dp))
+
         Text(
-            "Type sub-command bytes (e.g. 60 50 00 00 for light off). The selected mode below decides if the app wraps them in an AA-AA frame with XOR checksum.",
+            "Type sub-command bytes (e.g. 60 50 00 00 for light off). The mode below decides if the app wraps them in an AA-AA frame with XOR checksum.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -373,7 +385,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
         Spacer(Modifier.height(8.dp))
 
         Text(
-            "Insert preset (tap to append)",
+            "Insert preset",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -422,27 +434,39 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
 
         Spacer(Modifier.height(10.dp))
 
-        OutlinedTextField(
-            value = raw,
-            onValueChange = { raw = it; error = null },
-            modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
-            label = { Text("Hex input") },
-            placeholder = { Text("60 50 01 01") },
-            textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-            isError = error != null,
-            supportingText = error?.let { { Text(it) } }
-        )
+        // Hex input row: text field on the left, Format / cls (with confirm)
+        // stacked on the right so they don't crowd the field.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = raw,
+                onValueChange = { setRaw(it) },
+                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
+                label = { Text("Hex input") },
+                placeholder = { Text("60 50 01 01") },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                isError = !preview.ok && raw.isNotBlank()
+            )
+            Spacer(Modifier.width(6.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                OutlinedButton(
+                    onClick = { setRaw(vm.formatHex(raw)) },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) { Text("fmt") }
+                OutlinedButton(
+                    onClick = {
+                        if (raw.isNotEmpty()) clearConfirm = true
+                    },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) { Text("cls") }
+            }
+        }
 
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(8.dp))
 
-        // Hex pad: 0..F. Useful when the soft keyboard is on a different layout
-        // and you want to bash a byte in directly. Two rows of 8 fits any width.
-        Text(
-            "Hex pad",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(4.dp))
+        // Hex pad — two rows of 0..F + a thinner control row.
         val hexChars = listOf('0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F')
         Column {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -468,23 +492,24 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 OutlinedButton(
                     onClick = { appendChar(' ') },
-                    modifier = Modifier.weight(2f).height(40.dp)
-                ) { Text("space") }
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) { Text("space", style = MaterialTheme.typography.labelSmall) }
                 OutlinedButton(
                     onClick = {
-                        if (raw.isNotEmpty()) raw = raw.dropLast(1)
-                        error = null
+                        if (raw.isNotEmpty()) setRaw(raw.dropLast(1))
                     },
-                    modifier = Modifier.weight(1f).height(40.dp)
-                ) { Text("⌫") }
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) { Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(18.dp)) }
                 OutlinedButton(
-                    onClick = { raw = vm.formatHex(raw); error = null },
-                    modifier = Modifier.weight(1f).height(40.dp)
-                ) { Text("Format") }
-                OutlinedButton(
-                    onClick = { raw = ""; error = null },
-                    modifier = Modifier.weight(1f).height(40.dp)
-                ) { Text("Clear") }
+                    onClick = {
+                        prev?.let { raw = it; prev = null }
+                    },
+                    enabled = prev != null,
+                    modifier = Modifier.weight(1f).height(40.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
             }
         }
 
@@ -498,9 +523,9 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
         Spacer(Modifier.height(4.dp))
 
         val modes = listOf(
+            WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal",
             WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "Wrap V2",
-            WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14",
-            WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal"
+            WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14"
         )
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             modes.forEachIndexed { index, (m, label) ->
@@ -514,31 +539,82 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
 
         Spacer(Modifier.height(10.dp))
 
-        OutlinedTextField(
-            value = preview,
-            onValueChange = {},
-            readOnly = true,
+        // Bytes-to-send row: read-only field on the left, big SEND on the right.
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Bytes on the wire") },
-            textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
-            placeholder = { Text("—") }
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Button(
-            onClick = {
-                if (!vm.fireRawHex(raw, mode)) error = "Could not parse hex"
-            },
-            enabled = canSend,
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("SEND", style = MaterialTheme.typography.titleMedium)
+            OutlinedTextField(
+                value = preview.display,
+                onValueChange = {},
+                readOnly = true,
+                modifier = Modifier.weight(1f).heightIn(min = 80.dp),
+                label = { Text("Bytes to send") },
+                placeholder = { Text("—") },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
+                isError = preview.error != null
+            )
+            Spacer(Modifier.width(6.dp))
+            Button(
+                onClick = { vm.fireRawHex(raw, mode) },
+                enabled = canSend,
+                modifier = Modifier.height(80.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text("SEND", style = MaterialTheme.typography.labelMedium)
+                }
+            }
         }
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(12.dp))
+    }
+
+    if (clearConfirm) {
+        AlertDialog(
+            onDismissRequest = { clearConfirm = false },
+            title = { Text("Clear hex input?") },
+            text = { Text("The current bytes will be discarded. You can press Undo afterwards if it was a mistake.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    clearConfirm = false
+                    setRaw("")
+                }) { Text("Clear") }
+            },
+            dismissButton = {
+                TextButton(onClick = { clearConfirm = false }) { Text("Cancel") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun MiniLogPreview() {
+    val entries by DiagnosticsLogger.entries.collectAsState()
+    val tail = remember(entries) { entries.takeLast(6) }
+    val listState = rememberLazyListState()
+    LaunchedEffect(tail.size) {
+        if (tail.isNotEmpty()) listState.animateScrollToItem(tail.size - 1)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.25f), RoundedCornerShape(6.dp))
+    ) {
+        if (tail.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    "log will appear here",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize().padding(4.dp)) {
+                items(tail) { e -> LogRow(e) }
+            }
+        }
     }
 }
 
