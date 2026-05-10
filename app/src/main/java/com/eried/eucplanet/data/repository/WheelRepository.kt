@@ -230,13 +230,19 @@ class WheelRepository @Inject constructor(
     }
 
     fun toggleLight() {
+        // Optimistic local state. The P6 doesn't expose live headlight state
+        // in any byte we've identified, so reading from telemetry would
+        // freeze the toggle in the "always send ON" case. Track the last
+        // requested state and flip it on each tap; the user tells us if the
+        // physical wheel went out of sync.
         val current = _wheelData.value.lightOn
+        val next = !current
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-            "toggleLight: lightOn was=$current, sending ${!current}"
+            "toggleLight: lightOn was=$current, sending $next"
         )
-        wheelAdapter.setLight(!current)?.let { bleManager.writeCommand(it) }
-        // Announcement is emitted by WheelService when the wheel confirms
-        // the new state in telemetry — covers DRL / wheel-side toggles too.
+        wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
+        // Reflect the requested state locally so the next tap inverts it.
+        _wheelData.value = _wheelData.value.copy(lightOn = next)
     }
 
     fun toggleLock() {

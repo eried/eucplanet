@@ -253,14 +253,14 @@ object InMotionV2Parser {
         // baseline reading rather than a misleading 121 °F.
         val temps = emptyList<Float>()
 
-        // Headlight state: bit 1 of byte 84. Across the labelled capture's
-        // four `60 50` toggles, byte 84 reads 0x02 in every frame inside an
-        // ON window and 0x00 in every frame inside an OFF window (248×0x00
-        // vs 3×0x02 across the full 251-frame log, the 3 lining up exactly
-        // with the two ON windows). Without this read the toggleLight()
-        // call had no idea whether the wheel was already on, so it kept
-        // re-sending "ON" and the OFF tap looked broken.
-        val lightOn = data.size > 84 && (data[84].toInt() and 0x02) != 0
+        // Headlight state isn't reliably reported in the realtime stream on
+        // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
+        // a single labelled capture but the value is sticky on production
+        // wheels, so toggleLight ended up reading false and resending ON.
+        // We keep lightOn off here and let the repository track the user's
+        // intent locally (optimistic toggle) until a stream-side state
+        // byte is found.
+        val lightOn = false
 
         // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
         // (rider on, motor under load), 0x00 when lifted off / park-mode,
