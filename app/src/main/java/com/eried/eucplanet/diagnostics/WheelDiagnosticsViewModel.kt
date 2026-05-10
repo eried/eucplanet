@@ -206,7 +206,27 @@ class WheelDiagnosticsViewModel @Inject constructor(
      *    `aa 55 [00*14] [type] 14 5a 5a` with user bytes filling the 14
      *    payload slots and the LAST user byte going into [type].
      */
-    enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT, WRAP_KINGSONG }
+    /**
+     * Frame format the Raw tab wraps the user's bytes in before sending.
+     *
+     *  - LITERAL: bytes go on the wire as typed. Covers any protocol whose
+     *    commands are fixed opcodes / ASCII strings already in their full
+     *    wire format (Veteran, Begode), and any custom probe.
+     *  - WRAP_EXTENDED: InMotion V2 extended-routing
+     *    `aa aa 16 LL 02 21 [user...] [xor]`. First user byte = cmd.
+     *  - WRAP_V14_SHORT: InMotion V14 short-form
+     *    `aa aa 16 LL [flags] [cmd] [data...] [xor]`. First user byte = cmd.
+     *  - WRAP_KINGSONG: KingSong 20-byte
+     *    `aa 55 [00 .. payload .. 00] [type] 14 5a 5a` — first byte = type,
+     *    rest fills the 14 payload slots (truncated past 14).
+     *  - WRAP_NINEBOT_LEGACY: Ninebot legacy unencrypted
+     *    `55 aa <len> <src> <dst> <cmd> <param> <data...> <crc_lo> <crc_hi>`.
+     *    User bytes = `<src> <dst> <cmd> <param> <data...>` (≥4 bytes).
+     *  - WRAP_INMOTION_V1: InMotion V1 BLE-frame wrap of an inner CAN-style
+     *    frame. User bytes = the inner frame; we apply the V1 escape +
+     *    delimiter wrap.
+     */
+    enum class WrapMode { LITERAL, WRAP_EXTENDED, WRAP_V14_SHORT, WRAP_KINGSONG, WRAP_NINEBOT_LEGACY, WRAP_INMOTION_V1 }
 
     /** Result of attempting to wrap user-typed hex into bytes. The dialog
      *  shows [bytes] in the read-only "Bytes to send" box on success and
@@ -282,6 +302,20 @@ class WheelDiagnosticsViewModel @Inject constructor(
             WrapMode.WRAP_KINGSONG -> {
                 if (bytes.isEmpty()) return WrapResult(null, "Need at least 1 byte (type)")
                 com.eried.eucplanet.ble.KingsongCommands.wrapArbitrary(bytes)
+            }
+            WrapMode.WRAP_NINEBOT_LEGACY -> {
+                // Layout: src dst cmd param [data...]
+                if (bytes.size < 4) return WrapResult(null, "Need ≥4 bytes (src dst cmd param)")
+                val src = bytes[0].toInt() and 0xFF
+                val dst = bytes[1].toInt() and 0xFF
+                val cmd = bytes[2].toInt() and 0xFF
+                val param = bytes[3].toInt() and 0xFF
+                val data = if (bytes.size > 4) bytes.copyOfRange(4, bytes.size) else byteArrayOf()
+                com.eried.eucplanet.ble.NinebotCommands.frame(src, dst, cmd, param, data)
+            }
+            WrapMode.WRAP_INMOTION_V1 -> {
+                if (bytes.isEmpty()) return WrapResult(null, "Need at least 1 byte (frame)")
+                com.eried.eucplanet.ble.InMotionV1Protocol.wrap(bytes)
             }
         }
         return WrapResult(wrapped, null)

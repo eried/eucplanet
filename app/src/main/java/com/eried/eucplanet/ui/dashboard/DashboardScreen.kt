@@ -499,9 +499,22 @@ fun DashboardScreen(
                 live && wheelData.batteryPercent < 40 -> AccentOrange
                 else -> safeColor
             }
+            // EUC motor temperature tiers. The stored value is always °C, so
+            // the thresholds are unit-independent — the display layer converts
+            // to °F for imperial users but the color rule reads the same number.
+            // Riders routinely push EUC motors past 90 °C on climbs without
+            // damage; most wheels don't alarm until 100 °C+. Tuned for the
+            // upper half of "warm but safe" to read as yellow, orange for
+            // "hot, ease off", red for "motor stress".
+            //   below 70 °C   safe   (160 °F)
+            //   70-90 °C      yellow (160-194 °F)
+            //   90-105 °C     orange (194-221 °F)
+            //   above 105 °C  red    (≥ 221 °F, motor stress / damage risk)
             val tempColor = when {
-                live && wheelData.maxTemperature > 60 -> AccentRed
-                live && wheelData.maxTemperature > 45 -> AccentOrange
+                !live || wheelData.maxTemperature <= 0f -> safeColor
+                wheelData.maxTemperature > 105 -> AccentRed
+                wheelData.maxTemperature > 90 -> AccentOrange
+                wheelData.maxTemperature > 70 -> AccentYellow
                 else -> safeColor
             }
             val loadColor = when {
@@ -510,7 +523,9 @@ fun DashboardScreen(
                 else -> safeColor
             }
 
-            val placeholder = "—"
+            // ASCII hyphen — the user dislikes the em-dash glyph; this is
+            // also visually clearer at the small stat-card font size.
+            val placeholder = "-"
 
             val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
             val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
@@ -526,21 +541,33 @@ fun DashboardScreen(
             val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
             val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
 
+            // A connected wheel that hasn't sent telemetry yet leaves these
+            // fields at the WheelData defaults (0). Showing "0%" or "0.0V"
+            // looks like a real reading; the placeholder makes it obvious
+            // we're waiting for the wheel to talk.
             val batteryCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_battery),
-                    if (live) "${wheelData.batteryPercent}%" else placeholder,
+                    if (live && wheelData.batteryPercent > 0)
+                        "${wheelData.batteryPercent}%" else placeholder,
                     battColor, history.battery, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("BATTERY") })
             }
             val tempCard: @Composable RowScope.() -> Unit = {
+                // Show the placeholder when the parser couldn't decode a
+                // motor reading (maxTemperature stays at 0). Without this,
+                // imperial users see "32°F" — the °F equivalent of 0°C —
+                // which looks like a real reading and "sticks" until the
+                // next valid frame.
+                val tempUnknown = wheelData.maxTemperature <= 0f
                 StatCard(stringResource(R.string.stat_temp),
-                    if (live) "%.0f%s".format(tempValue, tempUnit) else placeholder,
+                    if (live && !tempUnknown) "%.0f%s".format(tempValue, tempUnit) else placeholder,
                     tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
             val voltageCard: @Composable RowScope.() -> Unit = {
                 StatCard(stringResource(R.string.stat_voltage),
-                    if (live) "%.1fV".format(wheelData.voltage) else placeholder,
+                    if (live && wheelData.voltage > 0f)
+                        "%.1fV".format(wheelData.voltage) else placeholder,
                     primary, history.voltage, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("VOLTAGE") })
             }

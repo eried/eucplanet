@@ -200,20 +200,21 @@ fun WheelDiagnosticsDialog(
 
     if (stopConfirm) {
         AlertDialog(
+            shape = RoundedCornerShape(0.dp),
             onDismissRequest = { stopConfirm = false },
             title = { Text("Exit Service Mode") },
             text = {
                 Text("This clears the in-memory log and exits Service Mode.\n\nShare the log first if you need it.")
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(shape = RoundedCornerShape(0.dp), onClick = {
                     stopConfirm = false
                     vm.stopDiagnostics()
                     onDismiss()
                 }) { Text("Exit") }
             },
             dismissButton = {
-                TextButton(onClick = { stopConfirm = false }) { Text("Cancel") }
+                TextButton(shape = RoundedCornerShape(0.dp), onClick = { stopConfirm = false }) { Text("Cancel") }
             }
         )
     }
@@ -308,7 +309,7 @@ private fun CommentRow(vm: WheelDiagnosticsViewModel) {
                 comment = ""
             }
         }
-        OutlinedTextField(
+        OutlinedTextField(shape = RoundedCornerShape(0.dp), 
             value = comment,
             onValueChange = { comment = it },
             modifier = Modifier.weight(1f),
@@ -353,6 +354,7 @@ private fun AttachDataDialog(
         }
     }
     AlertDialog(
+        shape = RoundedCornerShape(0.dp),
         onDismissRequest = onDismiss,
         title = { Text("Attach data to log") },
         text = {
@@ -382,7 +384,7 @@ private fun AttachDataDialog(
         },
         confirmButton = {
             val any = selected.values.any { it }
-            TextButton(
+            TextButton(shape = RoundedCornerShape(0.dp), 
                 enabled = any,
                 onClick = {
                     onSubmit(selected.filterValues { it }.keys)
@@ -390,7 +392,7 @@ private fun AttachDataDialog(
             ) { Text("Attach") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(shape = RoundedCornerShape(0.dp), onClick = onDismiss) { Text("Cancel") }
         }
     )
 }
@@ -474,7 +476,7 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.padding(top = 8.dp, start = 4.dp)) {
-            OutlinedButton(onClick = { familyMenuExpanded = true }) {
+            OutlinedButton(shape = RoundedCornerShape(0.dp), onClick = { familyMenuExpanded = true }) {
                 Text(selectedFamily?.displayName ?: "(no families)")
                 Spacer(Modifier.width(6.dp))
                 Icon(
@@ -523,7 +525,17 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
 
         val grouped = remember(cmds) { cmds.groupBy { it.category } }
 
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+        // Each command button has a fixed height that fits the label + a
+        // 2-line description; this keeps the grid uniform regardless of
+        // description length and lets the heightIn() calculation below land
+        // exactly on the row's true size (so the last row can't bleed
+        // outside its slot and get clipped). Bottom contentPadding gives
+        // the final category breathing room from the dialog edge.
+        val commandButtonHeight = 80.dp
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(top = 8.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
             grouped.forEach { (category, list) ->
                 item {
                     Text(
@@ -534,6 +546,7 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
                     )
                 }
                 item {
+                    val rows = (list.size + 2) / 3
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(110.dp),
                         contentPadding = PaddingValues(2.dp),
@@ -541,15 +554,26 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = (((list.size + 2) / 3) * 64 + 16).dp)
+                            // Each row = button height (80) + vertical spacing (6).
+                            // Plus the contentPadding's 2*2dp.
+                            .heightIn(max = (rows * 80 + (rows - 1).coerceAtLeast(0) * 6 + 4).dp)
                     ) {
                         items(list) { cmd ->
                             OutlinedButton(
+                                shape = RoundedCornerShape(0.dp),
                                 onClick = { vm.fireCommand(cmd) },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(commandButtonHeight),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Column {
-                                    Text(cmd.label, style = MaterialTheme.typography.labelLarge)
+                                    Text(
+                                        cmd.label,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                     Text(
                                         cmd.description,
                                         style = MaterialTheme.typography.labelSmall,
@@ -637,7 +661,7 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
         // their options; families with one prefix auto-pick it.
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box {
-                OutlinedButton(onClick = { familyMenuExpanded = true }) {
+                OutlinedButton(shape = RoundedCornerShape(0.dp), onClick = { familyMenuExpanded = true }) {
                     Text(selectedFamily?.displayName ?: "")
                     Spacer(Modifier.width(6.dp))
                     Icon(
@@ -666,7 +690,7 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
             val familyName = selectedFamily?.displayName ?: ""
             val singleOption = types.size <= 1
             Box {
-                OutlinedButton(
+                OutlinedButton(shape = RoundedCornerShape(0.dp), 
                     onClick = { if (!singleOption) menuExpanded = true },
                     enabled = !singleOption
                 ) {
@@ -723,7 +747,7 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)
         ) {
-            androidx.compose.material3.OutlinedTextField(
+            androidx.compose.material3.OutlinedTextField(shape = RoundedCornerShape(0.dp), 
                 value = minFilterText,
                 onValueChange = { v -> minFilterText = v.filter { it.isDigit() } },
                 label = { Text("min", style = MaterialTheme.typography.labelSmall) },
@@ -732,7 +756,7 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
                 textStyle = MaterialTheme.typography.bodySmall
             )
             Spacer(Modifier.width(6.dp))
-            androidx.compose.material3.OutlinedTextField(
+            androidx.compose.material3.OutlinedTextField(shape = RoundedCornerShape(0.dp), 
                 value = maxFilterText,
                 onValueChange = { v -> maxFilterText = v.filter { it.isDigit() } },
                 label = { Text("max", style = MaterialTheme.typography.labelSmall) },
@@ -757,13 +781,12 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
         }
 
         // 6-column grid of byte cells. weight(1f) claims the leftover Column
-        // height so the bottom row isn't clipped — the earlier fillMaxSize
-        // approach was reading "as much as you want" rather than "exactly
-        // the leftover after headers", which let the grid request more than
-        // the column had and the last row was cropped.
+        // height so the bottom row isn't clipped, plus a bottom contentPadding
+        // so the last row doesn't kiss the dialog edge.
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.weight(1f).fillMaxWidth()
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(latestBytes.size) { off ->
                 val v = latestBytes[off]
@@ -791,7 +814,7 @@ private fun ByteInspectCell(
             .border(
                 1.dp,
                 MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                RoundedCornerShape(4.dp)
+                RoundedCornerShape(0.dp)
             )
             .clickable(onClick = onTap)
             .padding(4.dp),
@@ -889,7 +912,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 )
             } else {
                 Box(modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)) {
-                    OutlinedButton(onClick = { presetMenuOpen = true }) {
+                    OutlinedButton(shape = RoundedCornerShape(0.dp), onClick = { presetMenuOpen = true }) {
                         Text(activePresetFamily.displayName)
                         Spacer(Modifier.width(6.dp))
                         Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
@@ -911,7 +934,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                         val hex = remember(cmd.bytes) {
                             cmd.bytes.joinToString(" ") { "%02x".format(it) }
                         }
-                        AssistChip(
+                        AssistChip(shape = RoundedCornerShape(0.dp), 
                             onClick = { appendBytes(hex) },
                             label = {
                                 Column {
@@ -940,7 +963,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             Column(modifier = Modifier.padding(top = 4.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     hexChars.subList(0, 8).forEach { c ->
-                        OutlinedButton(
+                        OutlinedButton(shape = RoundedCornerShape(0.dp), 
                             onClick = { appendChar(c) },
                             modifier = Modifier.weight(1f).height(40.dp),
                             contentPadding = PaddingValues(0.dp)
@@ -950,7 +973,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 Spacer(Modifier.height(2.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     hexChars.subList(8, 16).forEach { c ->
-                        OutlinedButton(
+                        OutlinedButton(shape = RoundedCornerShape(0.dp), 
                             onClick = { appendChar(c) },
                             modifier = Modifier.weight(1f).height(40.dp),
                             contentPadding = PaddingValues(0.dp)
@@ -959,25 +982,25 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 }
                 Spacer(Modifier.height(2.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    OutlinedButton(
+                    OutlinedButton(shape = RoundedCornerShape(0.dp), 
                         onClick = { appendChar(' ') },
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) { Text("space", style = MaterialTheme.typography.labelSmall) }
-                    OutlinedButton(
+                    OutlinedButton(shape = RoundedCornerShape(0.dp), 
                         onClick = { if (raw.isNotEmpty()) setRaw(raw.dropLast(1)) },
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) { Icon(Icons.Default.Backspace, contentDescription = "Backspace", modifier = Modifier.size(18.dp)) }
                     // stackVersion read here so recomposition fires on push/pop
                     @Suppress("UNUSED_VARIABLE") val v = stackVersion
-                    OutlinedButton(
+                    OutlinedButton(shape = RoundedCornerShape(0.dp), 
                         onClick = { undo() },
                         enabled = undoStack.isNotEmpty(),
                         modifier = Modifier.weight(1f).height(40.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Undo", modifier = Modifier.size(18.dp)) }
-                    OutlinedButton(
+                    OutlinedButton(shape = RoundedCornerShape(0.dp), 
                         onClick = { redo() },
                         enabled = redoStack.isNotEmpty(),
                         modifier = Modifier.weight(1f).height(40.dp),
@@ -994,7 +1017,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedTextField(
+            OutlinedTextField(shape = RoundedCornerShape(0.dp), 
                 value = raw,
                 onValueChange = { setRaw(it) },
                 modifier = Modifier.weight(1f),
@@ -1006,11 +1029,11 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             )
             Spacer(Modifier.width(6.dp))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                OutlinedButton(
+                OutlinedButton(shape = RoundedCornerShape(0.dp), 
                     onClick = { setRaw(vm.formatHex(raw)) },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) { Text("fmt") }
-                OutlinedButton(
+                OutlinedButton(shape = RoundedCornerShape(0.dp), 
                     onClick = { if (raw.isNotEmpty()) setRaw("") },
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) { Text("cls") }
@@ -1023,17 +1046,28 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             title = "Wrap mode: ${mode.name.lowercase().replace('_', ' ')}",
             defaultExpanded = false
         ) {
+            // Veteran and Begode commands are literal (fixed opcodes / ASCII
+            // strings already including their full wire format), so LITERAL
+            // covers them — no separate WRAP_VETERAN / WRAP_BEGODE entries.
+            // The segmented row stays scrollable so newer protocols can
+            // join without redesigning the layout.
             val modes = listOf(
                 WheelDiagnosticsViewModel.WrapMode.LITERAL to "Literal",
-                WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "Wrap V2",
-                WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "Wrap V14"
+                WheelDiagnosticsViewModel.WrapMode.WRAP_EXTENDED to "V2 ext",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_V14_SHORT to "V14",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_KINGSONG to "KS",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_NINEBOT_LEGACY to "9bot",
+                WheelDiagnosticsViewModel.WrapMode.WRAP_INMOTION_V1 to "V1"
             )
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
                 modes.forEachIndexed { index, (m, label) ->
                     SegmentedButton(
                         selected = mode == m,
                         onClick = { mode = m },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size)
+                        // Force square corners on the segmented row to match
+                        // the rest of Service Mode (the default itemShape
+                        // gives rounded ends that bypassed the theme).
+                        shape = RoundedCornerShape(0.dp)
                     ) { Text(label) }
                 }
             }
@@ -1049,7 +1083,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             // Read-only output field. Filled background + dimmed border so it
             // visually contrasts with the editable Input field above.
             val readOnlyContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-            OutlinedTextField(
+            OutlinedTextField(shape = RoundedCornerShape(0.dp), 
                 value = preview.display,
                 onValueChange = {},
                 readOnly = true,
@@ -1073,7 +1107,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             // Match fmt/cls in the hex-input row: same OutlinedButton, same
             // compact padding so the dialog doesn't have one giant CTA when
             // the rest of the right column is small chips.
-            OutlinedButton(
+            OutlinedButton(shape = RoundedCornerShape(0.dp), 
                 onClick = { vm.fireRawHex(raw, mode) },
                 enabled = canSend,
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
