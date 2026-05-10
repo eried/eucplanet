@@ -87,7 +87,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
      * the name signals legacy explicitly we flip the protocol BEFORE the
      * connection manager reads [bleProfile].
      */
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         val resolved = deviceName?.let { NinebotModel.fromReportedName(it) }
         detectedModel = resolved
         activeProtocol = resolved?.protocol ?: NinebotProtocol.Z
@@ -95,6 +95,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
         crypto.clearKey()
         settingsSnapshot = WheelSettings()
         settingsCursor = 0
+        return null
     }
 
     /**

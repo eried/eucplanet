@@ -45,8 +45,9 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
 
     override fun bleProfile(): BleProfile = BleProfile.INMOTION_V1
 
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { InMotionV1Model.fromReportedName(it) }
+        return null
     }
 
     /**

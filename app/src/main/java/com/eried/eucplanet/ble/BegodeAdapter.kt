@@ -41,8 +41,9 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
 
     override fun bleProfile(): BleProfile = BleProfile.HM10
 
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         detectedModel = deviceName?.let { BegodeModel.fromReportedName(it) }
+        return null
     }
 
     // Begode wheels stream telemetry unsolicited — no init handshake, no poll

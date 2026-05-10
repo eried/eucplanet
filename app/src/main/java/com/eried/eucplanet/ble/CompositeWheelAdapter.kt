@@ -34,9 +34,9 @@ class CompositeWheelAdapter @Inject constructor(
 
     override fun bleProfile(): BleProfile = active.bleProfile()
 
-    override fun notifyConnectingTo(deviceName: String?) {
+    override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         active = pickAdapter(deviceName)
-        active.notifyConnectingTo(deviceName)
+        return active.notifyConnectingTo(deviceName)
     }
 
     override fun initSequence(): List<ByteArray> = active.initSequence()
