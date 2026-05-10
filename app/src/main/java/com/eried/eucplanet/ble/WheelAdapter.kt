@@ -26,6 +26,33 @@ data class BleProfile(
             writeCharacteristic = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"),
             notifyCharacteristic = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
         )
+
+        /**
+         * HM-10 / JNHuaMao profile shared by KingSong, Begode/Gotway and
+         * Veteran wheels. Same service+characteristic UUIDs across all
+         * three brands; the wheel is identified post-connect by sniffing
+         * the first frame's magic bytes (`AA 55` = KingSong, `55 AA` =
+         * Begode, `DC 5A 5C` = Veteran).
+         */
+        val HM10 = BleProfile(
+            serviceUuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"),
+            writeCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb"),
+            notifyCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
+        )
+
+        /**
+         * InMotion V1 (V5 / V8 / V10 / L6 / R-series / V3) — proprietary
+         * 0xFFEx profile split across two services. Notify characteristic
+         * 0xFFE4 lives under service 0xFFE0; write characteristic 0xFFE9
+         * lives under service 0xFFE5. Distinct from KingSong / Begode /
+         * Veteran (all single-service 0xFFE0 / 0xFFE1) and from V2 (Nordic
+         * UART). See docs/protocols/inmotion_v1.md section 1.
+         */
+        val INMOTION_V1 = BleProfile(
+            serviceUuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"),
+            writeCharacteristic = UUID.fromString("0000ffe9-0000-1000-8000-00805f9b34fb"),
+            notifyCharacteristic = UUID.fromString("0000ffe4-0000-1000-8000-00805f9b34fb")
+        )
     }
 }
 
@@ -217,6 +244,107 @@ data class WheelCapabilities(
             hasVolume = true,
             hasDRL = true,
             needsAuthForLock = true
+        )
+
+        /**
+         * InMotion V1 family (V5 / V8 / V10 / L6 / Glide 3 / R-series).
+         * Horn and headlight are universal. Volume + DRL are firmware-
+         * dependent (V8F / V8S / V10 family / Glide 3 only); the adapter
+         * narrows them per detected model. No remote lock command — lock
+         * state is observable in work mode but not commandable. Alarm
+         * speed is not user-configurable on V1; alarms are firmware
+         * tilt-back triggers reported via the async alert frame.
+         */
+        val INMOTION_V1 = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = false,
+            hasVolume = true,
+            hasDRL = true,
+            needsAuthForLock = false
+        )
+
+        /** KingSong KS-* wheels — no software lock, no volume control. */
+        val KINGSONG = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = true,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Begode/Gotway — no software lock (dismount only), no native
+         * volume control. Light is a 3-state (off/dim/full); the adapter
+         * collapses dim to off for the on/off toggle.
+         */
+        val BEGODE = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = true,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Veteran — minimal control surface. Telemetry is rich (cells,
+         * BMS) but writes are limited to horn, light on/off and a few
+         * threshold setters.
+         */
+        val VETERAN = WheelCapabilities(
+            hasHorn = true,
+            hasLight = true,
+            hasLock = false,
+            hasMaxSpeed = false,
+            hasAlarmSpeed = false,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Ninebot Z (Z6 / Z10 / new-stack E+ / Mini Plus) — full settings
+         * surface. No documented horn opcode but lock, speed limit, three
+         * alarm slots, LED, volume, and DRL via DriveFlags bit 0 are all
+         * writable. The wheel does NOT enforce a PIN for lock; the
+         * encrypted handshake is the security gate, so [needsAuthForLock]
+         * stays false here. Spec section 19.
+         */
+        val NINEBOT_Z = WheelCapabilities(
+            hasHorn = false,
+            hasLight = true,
+            hasLock = true,
+            hasMaxSpeed = true,
+            hasAlarmSpeed = true,
+            hasVolume = true,
+            hasDRL = true,
+            needsAuthForLock = false
+        )
+
+        /**
+         * Ninebot legacy (One E / E+ / S2 / Mini / Mini Pro) — read-only
+         * telemetry over BLE. The legacy stack does not expose lock,
+         * alarms, lights, volume, or LED through any documented parameter
+         * (spec section 16). Settings changes require the official Ninebot
+         * app over a side channel we don't cover.
+         */
+        val NINEBOT_LEGACY = WheelCapabilities(
+            hasHorn = false,
+            hasLight = false,
+            hasLock = false,
+            hasMaxSpeed = false,
+            hasAlarmSpeed = false,
+            hasVolume = false,
+            hasDRL = false,
+            needsAuthForLock = false
         )
     }
 }
