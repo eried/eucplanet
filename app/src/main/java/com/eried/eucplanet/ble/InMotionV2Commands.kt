@@ -91,29 +91,16 @@ object InMotionV2Commands {
      * Set the P6 tiltback / max speed.
      *
      * P6 takes a 2-byte uint16 LE value in 0.01 km/h units, NOT the V14's
-     * 4-byte (tilt + alarm) packet. From a real-hardware capture, the
-     * InMotion app pairs each `60 21 [val]` write with a `60 3e [val 00 00]`
-     * commit-to-flash write a few hundred milliseconds later. We mimic that
-     * pairing — the caller writes both packets back to back.
+     * 4-byte (tilt + alarm) packet. `60 21 [v_lo v_hi]` alone is sufficient
+     * and persists across reboots — multiple mid-drag writes without any
+     * follow-up commit are honoured by the wheel and stay put. Pair it with
+     * [setP6AlarmSpeed] only if you also want to change the alarm threshold.
      */
     fun setP6MaxSpeed(tiltbackKmh: Float): ByteArray {
         val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
         return InMotionV2Protocol.buildExtendedPacket(
             Command.CONTROL,
             byteArrayOf(ControlSubCmd.SET_MAX_SPEED, v[0], v[1])
-        )
-    }
-
-    /**
-     * Persist-to-flash companion to [setP6MaxSpeed]. The InMotion app sends
-     * this immediately after the `60 21` write; without it the change is
-     * volatile and gets lost when the wheel sleeps.
-     */
-    fun commitP6MaxSpeed(tiltbackKmh: Float): ByteArray {
-        val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
-        return InMotionV2Protocol.buildExtendedPacket(
-            Command.CONTROL,
-            byteArrayOf(0x3E, v[0], v[1], 0x00, 0x00)
         )
     }
 

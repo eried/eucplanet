@@ -1,4 +1,58 @@
-# p6-fixes
+# p6-fixes (v0.3.2-p6preview3)
+
+## Round 2 fixes (preview3)
+
+Real-hardware testing of preview2 surfaced three more bugs, traced to
+deeper analysis of the labelled capture (`docs/P6_CAPTURE_LABELS.md`).
+
+### A. Light still didn't toggle — auth handshake expires
+
+The connect-auth bytes are 100% correct (verified bit-identical to the
+InMotion app), but the app re-runs the handshake ~1× per 6 s during a
+session. Our one-shot prime at connect expired before the user's first
+control tap, so writes were silently dropped at the wheel.
+
+Fix: `runPollingLoop` now re-runs the handshake every 24 polls (~6 s)
+for adapters where `requiresConnectAuth()` is true. Same byte payload,
+just re-fired periodically to keep the control endpoint primed.
+
+### B. Temperature read at the wrong byte (data[70] is a counter)
+
+Earlier `data[70]` analysis matched 72°F by coincidence — the parked
+NEW CAPTURE had the counter parked at 78 / mid-cycle near 72. In a long
+ride, `data[70]` cycles 0..255 once per second of motion, producing
+the user-reported 225°F bogus reading.
+
+The real MOS sensor lives at `data[71]`: 72°F across 181/182 frames in
+the parked capture, monotonic 67→68→69→70 walk over a 25-min ride —
+the smooth thermistor curve a real sensor produces.
+
+Fix: read `data[71]` instead. Sanity-gate to 50..140°F so reassembly
+artefacts from multiplexed BLE frames don't pollute the dashboard.
+Motor and driver-board temperatures are not in the realtime stream
+on this firmware; we expose only the MOS reading until the others
+are located.
+
+### C. Speed change "bugged out the wheel"
+
+`60 3e [val 00 00]` is **not** a "commit max-speed to flash" packet —
+it's the alarm-speed setter. Our 3-write sequence
+(`60 21 [tilt]`, `60 3e [tilt]`, `60 3e [alarm]`) was overwriting the
+alarm with the tiltback value transiently before the proper alarm
+write landed. Three back-to-back writes also tripped firmware
+debounce.
+
+The InMotion app sends only `60 21 [tilt]` followed by `60 3e [alarm]`
+(when both change), or `60 21 [tilt]` alone (max-speed only), or
+`60 3e [alarm]` alone (alarm only). Multiple mid-drag `60 21` writes
+with no commit were honoured by the wheel and persisted across
+reboots — `60 21` alone is sufficient.
+
+Fix: `setMaxSpeedCommit` now returns null on P6 (was sending the
+redundant `60 3e [tilt]`). The `setMaxSpeed` + `setAlarmSpeedCommit`
+pair matches what the InMotion app sends.
+
+
 
 ## What this branch fixes
 

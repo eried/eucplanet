@@ -57,6 +57,13 @@ class WheelRepository @Inject constructor(
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
 
+        // Re-run the connect-auth handshake every N polls for wheels that
+        // require it (P6). The InMotion app re-primes ~1× per 6 s; the wheel's
+        // "control endpoint primed" state expires shortly after the handshake
+        // and a single one-shot prime at connect doesn't survive long enough
+        // for the user's first light/horn/max-speed tap. 24 * 250ms = 6s.
+        private const val CONNECT_AUTH_REFRESH_INTERVAL = 24
+
         // Fallback slider ceiling when no wheel is connected or when the model
         // ID isn't in our registry (mirrors WheelLog's default of 100; we use
         // the historical 90 to match what the V14-only build always showed).
@@ -354,25 +361,27 @@ class WheelRepository @Inject constructor(
     private suspend fun runPollingLoop() {
         val initSequence = wheelAdapter.initSequence()
         var realtimeCycle = 0
-        var connectAuthDone = !wheelAdapter.requiresConnectAuth()
+        val needsConnectAuth = wheelAdapter.requiresConnectAuth()
+        var initialAuthDone = !needsConnectAuth
         while (pollingActive && bleManager.connectionState.value == ConnectionState.CONNECTED) {
             if (initState < initSequence.size) {
                 bleManager.writeCommand(initSequence[initState])
                 initState++
-            } else if (!connectAuthDone) {
-                // Wheels that silently drop control commands until the password
-                // auth handshake has run once (the P6 today). Run it inline
-                // before normal polling — once it completes, light/horn/max-speed
-                // writes start being honoured. We mark it done even on failure
-                // so we don't loop on an authentication that's never going to
-                // succeed; the user can still use telemetry and the lock path
-                // re-runs auth on demand.
+            } else if (!initialAuthDone) {
+                // First-connect priming for wheels that silently drop control
+                // commands pre-auth (P6). Mark done even on failure so we don't
+                // loop forever; the periodic re-prime below will retry.
                 runConnectAuthHandshake()
-                connectAuthDone = true
+                initialAuthDone = true
             } else {
-                // Normal polling - realtime data, interleaved with periodic settings refresh
-                // so externally-changed state (lock via InMotion app, etc.) is detected.
-                if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
+                // Periodic re-prime for the P6: the wheel's "control endpoint
+                // primed" state expires shortly after the handshake. The
+                // InMotion app re-runs auth ~every 6 s; we mirror that so
+                // light/horn/max-speed writes keep working through a session.
+                if (needsConnectAuth && realtimeCycle > 0 &&
+                    realtimeCycle % CONNECT_AUTH_REFRESH_INTERVAL == 0) {
+                    runConnectAuthHandshake()
+                } else if (realtimeCycle % SETTINGS_REFRESH_INTERVAL == 0) {
                     bleManager.writeCommand(wheelAdapter.pollSettings())
                 } else {
                     bleManager.writeCommand(wheelAdapter.pollRealtime())

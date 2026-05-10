@@ -241,29 +241,37 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // MOS temperature: byte at offset 70, raw degrees Fahrenheit.
-        // Verified against the FINAL P6 capture (NEW CAPTURE/btsnoop_hci.log):
-        // labelled MOS=72 °F at video t=120 s reads 0x48 = 72 across the
-        // entire capture, and the OLD ride capture's data[70] drifts
-        // 67-80 °F (19-27 °C) plausibly with riding heat.
+        // MOS temperature: byte at offset 71, raw degrees Fahrenheit.
+        // Verified against two captures:
+        //   - NEW CAPTURE (parked, labelled MOS=72°F): data[71] = 72 in
+        //     181/182 frames (one outlier from a multiplexed reassembly
+        //     artefact).
+        //   - OLD long ride (~25 min): data[71] walks 67 → 68 → 69 → 70
+        //     monotonically with riding heat — the smooth thermistor curve
+        //     a real sensor produces.
         //
-        // The previous offsets 28/30 with byte/4 were a numerical
-        // coincidence: data[28..29] is the speed-alarm pair (uint16 LE in
-        // 0.01 km/h, value 13679 = 85 mph for our wheel) and the low byte
-        // 0x6f /4 = 27.75 happened to land near a hot-wheel MOS reading in
-        // the old capture. Across 2300+ frames in the long ride capture,
-        // data[28] is constant at 111 — confirming it is not a sensor.
+        // Earlier builds read data[70] as MOS — that was a coincidence.
+        // data[70] is actually a moving-time counter (low byte): increments
+        // ~1×/sec when the wheel moves, frozen at idle, wraps 0..255. In
+        // the parked NEW CAPTURE it happened to be parked at 78, then near
+        // 72 mid-cycle of a brief poke — looking exactly like a temperature.
+        // In the long ride it cycles wildly (median 189, range 0..255),
+        // producing the user-reported "225°F" bogus reading.
         //
         // Motor and driver-board temperatures do not appear in the realtime
-        // 0x87 stream on this firmware (every candidate offset is either
-        // a static config byte or a wrap-around counter). The InMotion app
-        // shows them as 79 °F on a parked wheel, which is most likely a
-        // cached default rather than a live sensor read. We therefore only
-        // expose MOS until a different request unlocks the other sensors.
+        // 0x87 stream on this firmware. The InMotion app shows them as 79°F
+        // on a parked wheel — likely a cached default or via a different
+        // sub-command we don't poll yet. We expose only the MOS sensor
+        // (which the dashboard renders as "TEMP") until the others are
+        // located.
+        //
+        // Sanity gate: 50..140 °F (10..60 °C). Anything outside that band
+        // is from a multiplexed/split-frame reassembly artefact and gets
+        // dropped to avoid polluting the dashboard with phantom spikes.
         val temps = mutableListOf<Float>()
-        if (data.size > 70) {
-            val mosF = data[70].toInt() and 0xFF
-            if (mosF > 0) temps.add((mosF - 32) * 5f / 9f)
+        if (data.size > 71) {
+            val mosF = data[71].toInt() and 0xFF
+            if (mosF in 50..140) temps.add((mosF - 32) * 5f / 9f)
         }
 
         // Park vs Drive: offset 80 = 0x49 when the wheel is engaged

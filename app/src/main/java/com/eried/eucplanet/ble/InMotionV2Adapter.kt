@@ -140,15 +140,21 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     }
 
     /**
-     * P6 needs three writes after a max-speed change to land both the
-     * tiltback and the alarm — matches what the InMotion app does (see
-     * docs/P6_CAPTURE_LABELS.md). The first one (`60 21 [tilt]`) is
-     * already sent by [setMaxSpeed]; this returns the flash-commit for
-     * the tiltback; [setAlarmSpeedCommit] returns the alarm commit.
-     * V14 returns null and uses its single-packet path unchanged.
+     * No flash-commit needed for P6 max-speed. Earlier builds sent a
+     * `60 3e [tilt 00 00]` write here, believing it was a "commit max-speed
+     * to flash" packet — re-analysis of the labelled max-speed-drag capture
+     * (`docs/P6_CAPTURE_LABELS.md`) showed that opcode is the **alarm-speed**
+     * setter; the InMotion app fires it with the new max-speed value only
+     * to clamp `alarm ≤ max` after a downward drag. `60 21 [tilt]` alone
+     * is sufficient and persists across reboots — multiple mid-drag `60 21`
+     * writes without a `60 3e` follow-up were honoured by the wheel and
+     * stayed put after power-cycle.
+     *
+     * Sending the redundant `60 3e [tilt]` was overwriting alarm with
+     * tiltback transiently before the proper alarm write landed, which on
+     * the user's hardware presented as "wheel bugs out when changing speed".
      */
-    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =
-        if (useP6Protocol) InMotionV2Commands.commitP6MaxSpeed(tiltbackKmh) else null
+    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
     override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? =
         if (useP6Protocol) InMotionV2Commands.setP6AlarmSpeed(alarmKmh) else null
