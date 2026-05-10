@@ -87,14 +87,13 @@ object InMotionV2Commands {
     fun getP6Settings(): ByteArray =
         InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
 
-    /** P6 totalStats / extended status query (`02 21 04 32`). Returns a body
-     *  the InMotion app uses to populate the Detailed Data screen — motor /
-     *  driver-board temperatures live here on this firmware, not in the
-     *  realtime 0x87 stream. We don't parse the response yet (offsets still
-     *  being reverse-engineered against labelled captures), but adding the
-     *  poll lets the next diagnostic log carry the data. */
+    /** P6 detailed-data query (`02 21 04`). Response comes back as
+     *  `21 02 84 [86-byte body]`. The InMotion app fires this without an arg
+     *  — earlier preview tried `02 21 04 32` and the wheel ignored it.
+     *  Body offset 58 = MOS temperature with formula `°F = byte − 126`,
+     *  verified at 72 °F = byte 0xC6 in the labelled capture. */
     fun getP6Stats(): ByteArray =
-        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf(0x32))
+        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
 
     /**
      * Set the P6 tiltback / max speed.

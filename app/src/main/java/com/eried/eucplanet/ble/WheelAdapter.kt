@@ -180,6 +180,13 @@ sealed class DecodeResult {
         override fun hashCode(): Int = encryptedKey.contentHashCode()
     }
     data class AuthConfirm(val success: Boolean) : DecodeResult()
+    /** Out-of-band sensor block from the P6's `0x84` detailed-data response.
+     *  Carries MOS / motor / driver-board temperatures in °C. */
+    data class P6Temperatures(
+        val mosC: Float?,
+        val motorC: Float?,
+        val driverBoardC: Float?
+    ) : DecodeResult()
     data object Unknown : DecodeResult()
 }
 

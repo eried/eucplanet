@@ -628,6 +628,19 @@ class WheelRepository @Inject constructor(
             is DecodeResult.TotalDistance -> {
                 _wheelData.value = _wheelData.value.copy(totalDistance = result.km)
             }
+            is DecodeResult.P6Temperatures -> {
+                // Out-of-band sensor block from the P6's 0x84 response. Merge
+                // the values into wheelData so the dashboard's TEMP pill
+                // reads max(MOS, motor, driver) instead of the empty list
+                // the realtime parser leaves behind. Null entries from the
+                // parser (sensor not populated yet or out of range) drop
+                // through and don't pollute maxTemperature.
+                val temps = listOfNotNull(result.mosC, result.motorC, result.driverBoardC)
+                _wheelData.value = _wheelData.value.copy(
+                    temperatures = temps,
+                    maxTemperature = temps.maxOrNull() ?: 0f
+                )
+            }
             is DecodeResult.Settings -> {
                 val ws = result.data
                 _wheelSettings.value = ws

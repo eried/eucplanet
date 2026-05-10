@@ -348,6 +348,21 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 val telem = InMotionV2Parser.parseP6Telemetry(body)
                 telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
             }
+            0x04 -> {
+                // detailed-data: response to `02 21 04`. 86-byte body carries
+                // motor / MOS / driver-board temperatures. Skip the
+                // `02 84` routing pair so offset 0 lines up with the labelled
+                // capture's analysis.
+                if (data.size < 2) return DecodeResult.Unknown
+                val body = data.copyOfRange(2, data.size)
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "P6 detailed len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                )
+                val temps = InMotionV2Parser.parseP6DetailedData(body)
+                temps?.let {
+                    DecodeResult.P6Temperatures(it.mosC, it.motorC, it.driverBoardC)
+                } ?: DecodeResult.Unknown
+            }
             0x06 -> {
                 // info bundle: skip `02 86 01 00`, then ASCII serial follows the
                 // 0x01 record marker. We surface the serial as the model name so

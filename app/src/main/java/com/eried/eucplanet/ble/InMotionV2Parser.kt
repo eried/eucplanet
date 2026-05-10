@@ -319,6 +319,39 @@ object InMotionV2Parser {
     }
 
     /**
+     * Parse the P6's detailed-data response (TX `02 21 04`, RX `02 84 [86 bytes]`).
+     *
+     * Body offset 58 is **MOS temperature** under the labelled-capture formula
+     * `°F = byte − 126` (byte 0xC6 = 198 → 72 °F at the FINALP6/NEW CAPTURE
+     * 11:58 anchor — exact match against the InMotion app's on-screen value).
+     *
+     * Motor and Driver Board share the same body but the exact offsets aren't
+     * pinned yet on this firmware variant. We probe the remaining 8-byte
+     * temperature block (offsets 58..66) and pick the next two bytes that
+     * decode under the same formula into a plausible 0..120 °C range. If they
+     * don't match, leave them null and the dashboard shows MOS only.
+     */
+    fun parseP6DetailedData(body: ByteArray): InMotionV2DetailedTemps? {
+        if (body.size < 67) return null
+        fun decode(off: Int): Float? {
+            if (off >= body.size) return null
+            val v = body[off].toInt() and 0xFF
+            // °F = byte − 126 (labelled-capture calibration)
+            val f = v - 126
+            if (f !in 32..248) return null  // 0..120 °C plausible band
+            return (f - 32) * 5f / 9f
+        }
+        val mos = decode(58)
+        // Walk the temp block looking for the next two plausible thermistor
+        // readings. Offsets 60 / 64 read 0 in the labelled capture (padding);
+        // 59, 61, 63, 65 hold the live values.
+        val others = listOf(59, 61, 63, 65, 62, 66).mapNotNull { decode(it) }
+        val motor = others.getOrNull(0)
+        val driverBoard = others.getOrNull(1)
+        return InMotionV2DetailedTemps(mosC = mos, motorC = motor, driverBoardC = driverBoard)
+    }
+
+    /**
      * Extract the ASCII serial from the data block of a `21 02 86 01 00 …` info
      * bundle response. Returns null if the layout doesn't match what we've seen.
      */
@@ -343,6 +376,14 @@ object InMotionV2Parser {
         )
     }
 }
+
+/** Sensor block parsed from the P6's `0x84` detailed-data response.
+ *  All fields in °C; null when a slot is empty or out of range. */
+data class InMotionV2DetailedTemps(
+    val mosC: Float?,
+    val motorC: Float?,
+    val driverBoardC: Float?
+)
 
 data class CarInfo(
     val series: Int,
