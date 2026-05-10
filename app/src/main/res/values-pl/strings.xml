@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="notification_channel_name">Połączenie z kołem</string>
+    <string name="notification_channel_description">Pokazuje stan połączenia z kołem i telemetrię</string>
+
+    <!-- Common -->
+    <string name="action_back">Wstecz</string>
+    <string name="action_cancel">Anuluj</string>
+    <string name="action_ok">OK</string>
+    <string name="action_save">Zapisz</string>
+    <string name="action_delete">Usuń</string>
+    <string name="action_edit">Edytuj</string>
+    <string name="action_test">Testuj</string>
+    <string name="action_move_up">Przenieś w górę</string>
+    <string name="action_move_down">Przenieś w dół</string>
+    <string name="action_reorder">Przeciągnij, aby zmienić kolejność</string>
+    <string name="show_gauge_color_band">Kolorowy pasek prędkościomierza</string>
+    <string name="stat_watts">WATY</string>
+    <string name="flic_button">Przycisk Flic</string>
+    <string name="menu_auto_lights">Ustawienia automatycznych świateł</string>
+    <string name="menu_voice_periodic_on">Włącz cykliczne komunikaty głosowe</string>
+    <string name="menu_voice_periodic_off">Wyłącz cykliczne komunikaty głosowe</string>
+    <string name="menu_view_last_trip">Pokaż ostatnią trasę</string>
+    <string name="menu_view_current_trip">Pokaż bieżącą trasę</string>
+    <string name="menu_start_recording">Rozpocznij nagrywanie</string>
+    <string name="menu_stop_recording">Zatrzymaj nagrywanie</string>
+    <string name="discard_trip_pending_label">Trasa zostanie wkrótce zarchiwizowana</string>
+    <string name="no_trips_title">Brak tras</string>
+    <string name="no_trips_body">Zacznij nagrywać lub zaimportuj trasy. Ten skrót otwiera ostatnią z nich.</string>
+    <string name="no_trips_action_recorder">Rejestrator tras</string>
+    <string name="voice_volume_low_toast">Głośność jest niska, komunikaty mogą być niesłyszalne</string>
+    <string name="action_grant_permission">Przyznaj uprawnienia</string>
+    <string name="action_open_settings">Otwórz ustawienia</string>
+
+    <!-- Permissions -->
+    <string name="scan_permission_needed">Wymagane uprawnienia</string>
+    <string name="scan_permission_body">Aby znaleźć Twoje koło, aplikacja potrzebuje dostępu do Bluetooth i lokalizacji</string>
+    <string name="scan_permission_body_settings">Uprawnienia zostały odrzucone. Otwórz ustawienia systemowe, aby zezwolić na dostęp do Bluetooth i lokalizacji</string>
+    <string name="recording_location_permission_needed">Wymagana lokalizacja</string>
+    <string name="recording_location_permission_body">Nagrywanie trasy zapisuje punkty GPS, abyś mógł zobaczyć swoją trasę na mapie. Przyznaj dostęp do lokalizacji, aby kontynuować</string>
+
+    <!-- Experimental banner -->
+    <string name="experimental_banner">Wstępne wsparcie tego koła. Stuknij, aby zgłosić problem.</string>
+    <string name="experimental_dialog_title">Pomóż ulepszyć EUC Planet</string>
+    <string name="experimental_dialog_body">Wsparcie dla tego koła jest wstępne. Tylko rodzina V14 i P6 są zweryfikowane przez autora. Używaj ostrożnie.\n\nStuknięcie tego baneru zgłosi problem, dzięki czemu autor będzie mógł naprawić to, co nie działa.</string>
+    <string name="experimental_dialog_report">Zgłoś problem</string>
+
+    <!-- Scan: virtual wheel section (debug builds only) -->
+    <string name="scan_simulate_title">Wirtualne koła</string>
+    <string name="scan_simulate_subtitle">Do prac deweloperskich bez sprzętu. Pomija BLE i podaje gotowe odpowiedzi przez warstwę adaptera</string>
+
+    <!-- Dashboard -->
+    <string name="connection_connected">Połączono</string>
+    <string name="connection_connecting">Wyszukiwanie…</string>
+    <string name="connection_initializing">Inicjowanie…</string>
+    <string name="connection_scanning">Skanowanie…</string>
+    <string name="connection_disconnected">Rozłączono</string>
+    <string name="connection">Połączenie</string>
+    <string name="settings">Ustawienia</string>
+    <string name="disconnect">Rozłącz</string>
+    <string name="disconnect_from">Rozłączyć z %1$s?</string>
+    <string name="wheel_generic">koło</string>
+    <string name="exit_title">Zamknij EUC Planet</string>
+    <string name="exit_body">Zostawić usługę działającą w tle, czy zatrzymać wszystko?</string>
+    <string name="exit_stop_all">Zatrzymaj wszystko</string>
+    <string name="exit_background">W tle</string>
+
+    <string name="stat_battery">BATERIA</string>
+    <string name="stat_temp">TEMP</string>
+    <string name="stat_voltage">NAPIĘCIE</string>
+    <string name="stat_amps">AMPERY</string>
+    <string name="stat_load">OBCIĄŻENIE (PWM)</string>
+    <string name="stat_trip">TRASA</string>
+    <string name="stat_odo">PRZEBIEG </string>
+
+    <string name="action_horn">Klakson</string>
+    <string name="action_light">Światło</string>
+    <string name="action_voice">Głos</string>
+    <string name="action_legal_mode">Tryb legalny</string>
+    <string name="action_legal_on">Legalny WŁ.</string>
+    <string name="action_lock_wheel">Zablokuj koło</string>
+    <string name="action_locked">Zablokowane</string>
+    <string name="action_recorder">Rejestrator</string>
+    <string name="action_recorder_trips">Rejestrator\n(%1$d tras)</string>
+
+    <!-- Settings tabs -->
+    <string name="search_settings">Szukaj w ustawieniach</string>
+    <string name="tab_general">Ogólne</string>
+    <string name="tab_speed">Limity prędkości koła</string>
+    <string name="tab_display">Ekran i wygląd</string>
+    <string name="tab_voice">Głos i komunikaty</string>
+    <string name="tab_alarms">Reguły alarmów</string>
+    <string name="tab_auto">Automatyzacje</string>
+    <string name="tab_integration">Integracja</string>
+    <string name="tab_watch">Zegarek</string>
+    <string name="tab_cloud">Kopia zapasowa ustawień i tras</string>
+
+    <!-- Wear OS companion settings -->
+    <string name="section_watch_general">Ogólne</string>
+    <string name="section_watch_display">Ekran</string>
+    <string name="watch_keep_on">Nie wygaszaj ekranu</string>
+    <string name="watch_keep_on_desc">Nie pozwól zegarkowi zasnąć, gdy aplikacja EUC Planet jest otwarta</string>
+    <string name="watch_auto_start">Auto-start na zegarku</string>
+    <string name="watch_auto_start_desc">Automatycznie otwiera aplikację na zegarku, gdy otworzysz ją na telefonie</string>
+    <string name="watch_show_wheel_battery">Pokaż baterię koła</string>
+    <string name="watch_show_phone_battery">Pokaż baterię telefonu</string>
+    <string name="watch_show_watch_battery">Pokaż baterię zegarka</string>
+    <string name="watch_pwm_display">Wskaźnik obciążenia (PWM)</string>
+    <string name="watch_pwm_bar">Pasek</string>
+    <string name="watch_pwm_numbers">Tekst</string>
+    <string name="watch_pwm_both">Oba</string>
+    <string name="watch_show_speed_unit">Etykieta jednostki prędkości</string>
+    <string name="watch_show_speed_unit_desc">Pokazuje jednostkę obok dużej liczby z prędkością</string>
+
+    <!-- Watch hardware buttons -->
+    <string name="section_watch_buttons">Przyciski sprzętowe</string>
+    <string name="watch_button_1">Przycisk 1</string>
+    <string name="watch_button_2">Przycisk 2</string>
+    <string name="watch_button_click_label">Kliknięcie</string>
+    <string name="watch_button_hold_label">Długie naciśnięcie</string>
+
+    <!-- Settings: Backup -->
+    <string name="section_cloud_folder">Folder kopii zapasowej</string>
+    <string name="cloud_caption">Wybierz folder na tym telefonie, w którym będą zapisywane CSV tras i kopia ustawień</string>
+    <string name="cloud_help_title">Jak robić kopie zapasowe na OneDrive, Drive lub Dropboxie</string>
+    <string name="cloud_help_body">Wybierak folderów Androida zazwyczaj nie pokazuje OneDrive, Google Drive ani Dropboksa. Te aplikacje nie udostępniają zapisywalnego folderu innym aplikacjom, więc zapisujemy lokalnie i pozwalamy aplikacji synchronizującej zająć się przesyłaniem.\n\nKonfiguracja:\n1. Zainstaluj Autosync (dla OneDrive, Drive lub Dropboksa) albo FolderSync ze Sklepu Play.\n2. W tej aplikacji zaloguj się i utwórz parę synchronizacji: wybrany folder lokalny do folderu w chmurze.\n3. Ustaw na \"Tylko wysyłanie\" z synchronizacją natychmiastową lub przy zmianie.\n4. Wróć tutaj i wybierz ten sam folder lokalny.\n\nNowe trasy lądują w tym folderze, gdy nagrywanie się kończy. Aplikacja synchronizująca wysyła je w tle.</string>
+    <string name="cloud_choose_folder">Wybierz folder</string>
+    <string name="cloud_change_folder">Zmień folder</string>
+    <string name="cloud_remove_folder">Odłącz</string>
+    <string name="cloud_no_folder">Nie wybrano folderu</string>
+    <string name="cloud_folder_label">Folder: %1$s</string>
+    <string name="section_cloud_settings">Kopia zapasowa ustawień</string>
+    <string name="cloud_backup_now">Wykonaj kopię</string>
+    <string name="cloud_restore">Przywróć</string>
+    <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
+    <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
+    <string name="cloud_backup_success">Ustawienia zapisane w kopii</string>
+    <string name="cloud_backup_failed">Tworzenie kopii nie powiodło się. Sprawdź dostęp do folderu.</string>
+    <string name="cloud_restore_success">Ustawienia przywrócone</string>
+    <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
+    <string name="section_cloud_trips">Kopia zapasowa tras</string>
+    <string name="cloud_trips_caption">Nowe trasy są zapisywane w Twoim folderze automatycznie</string>
+    <string name="cloud_retry_now">Synchronizuj wszystko</string>
+    <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
+    <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
+    <string name="sync_no_folder">Najpierw wybierz folder kopii</string>
+    <string name="sync_finished">Zsynchronizowano %1$d tras</string>
+    <string name="sync_conflict_title">Konflikt synchronizacji</string>
+    <string name="sync_conflict_body">%1$d tras znajduje się po obu stronach.</string>
+    <string name="sync_conflict_app">Skopiuj z aplikacji do kopii</string>
+    <string name="sync_conflict_folder">Skopiuj z kopii do aplikacji</string>
+    <string name="sync_conflict_ignore">Pomiń wszystkie konflikty</string>
+    <string name="cloud_uploaded_on">Kopia z %1$s</string>
+    <string name="cloud_not_uploaded">Brak kopii zapasowej</string>
+    <string name="cloud_upload_failed">Ostatnia wysyłka nie powiodła się</string>
+    <string name="cloud_restore_confirm_title">Przywróć ustawienia</string>
+    <string name="cloud_restore_confirm_body_p1">Twoje obecne ustawienia zostaną zastąpione ustawieniami z kopii.</string>
+    <string name="cloud_restore_confirm_body_p2">Gesty Flic są przywracane, ale przyciski i koło trzeba ponownie sparować na tym telefonie. Ich powiązania Bluetooth żyją w Androidzie, a nie w aplikacji.</string>
+    <string name="sync_checking">Sprawdzanie folderu kopii…</string>
+    <string name="action_restore">Przywróć</string>
+
+    <!-- Settings: General -->
+    <string name="section_recording">Nagrywanie</string>
+    <string name="section_connection">Połączenie</string>
+    <string name="section_display">Ekran</string>
+    <string name="auto_record_on_start">Automatyczne nagrywanie po starcie</string>
+    <string name="auto_record_caption">Nagrywa trasę, gdy koło jest podłączone</string>
+    <string name="auto_record_start_in_motion">Zacznij nagrywać przy ruchu</string>
+    <string name="auto_record_start_in_motion_caption">Czeka na ruch, aby zacząć nagrywanie, sam zatrzymuje się po czasie bezczynności i wznawia przy następnej jeździe</string>
+    <string name="auto_record_stop_idle_seconds">Zatrzymaj po bezczynności</string>
+    <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
+    <string name="auto_connect_caption">Łączy ponownie z ostatnim sparowanym kołem. Pierwszy raz musisz połączyć się ręcznie</string>
+    <string name="last_device">Ostatnie urządzenie: %1$s</string>
+    <string name="imperial_units">Jednostki imperialne</string>
+    <string name="language">Język</string>
+    <string name="theme">Motyw</string>
+    <string name="theme_black">Czysta czerń</string>
+    <string name="theme_dark">Ciemny</string>
+    <string name="theme_light">Jasny</string>
+    <string name="theme_system">Zgodny z systemem</string>
+    <string name="accent_color">Kolor akcentu</string>
+    <string name="accent_blue">Niebieski</string>
+    <string name="accent_green">Zielony</string>
+    <string name="accent_orange">Pomarańczowy</string>
+    <string name="accent_purple">Fioletowy</string>
+    <string name="accent_teal">Morski</string>
+    <string name="accent_pink">Różowy</string>
+    <string name="tts_switch_title">Przełączyć głos na %1$s?</string>
+    <string name="tts_switch_body">Bieżący głos syntezatora mowy nie pasuje do wybranego języka. Przełączyć na głos %1$s do komunikatów?</string>
+    <string name="tts_switch_yes">Przełącz głos</string>
+    <string name="tts_switch_no">Zostaw bieżący</string>
+
+    <!-- Settings: Speed -->
+    <string name="section_speed_limits">Limity prędkości</string>
+    <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>
+    <string name="legal_mode_caption">Stosowana, gdy tryb legalny jest WŁ. Musi być niższa niż normalny tiltback</string>
+    <string name="speed_limits_disconnected">Połącz koło, aby edytować limity prędkości</string>
+    <string name="speed_tiltback">Prędkość tiltbacka</string>
+    <string name="speed_alarm">Prędkość alarmu</string>
+    <string name="speed_legal_tiltback">Tiltback legalny</string>
+    <string name="speed_legal_alarm">Alarm legalny</string>
+    <string name="unit_kmh">km/h</string>
+
+    <!-- Settings: Voice -->
+    <string name="section_announcements">Komunikaty</string>
+    <string name="section_speech">Mowa</string>
+    <string name="section_report_status">Raport statusu</string>
+    <string name="voice_enabled">Cyklicznie raportuj status</string>
+    <string name="voice_only_when_connected">Tylko gdy koło jest połączone</string>
+    <string name="voice_interval">Interwał</string>
+    <string name="unit_sec">s</string>
+    <string name="announce_wheel_lock">Blokada / odblokowanie koła</string>
+    <string name="announce_lights">Światła wł. / wył.</string>
+    <string name="announce_recording">Nagrywanie trasy</string>
+    <string name="announce_connection">Koło połączone / rozłączone</string>
+    <string name="announce_gps">Sygnał GPS utracony / odzyskany</string>
+    <string name="announce_legal_mode">Tryb legalny wł. / wył.</string>
+    <string name="announce_welcome">Powitanie przy uruchomieniu aplikacji</string>
+    <string name="voice_selector_label">Głos</string>
+    <string name="voice_speech_speed">Tempo mowy</string>
+    <string name="unit_x">x</string>
+    <string name="voice_audio_focus_label">Podczas mówienia</string>
+    <string name="voice_audio_focus_duck">Ścisz inne</string>
+    <string name="voice_audio_focus_pause">Wstrzymaj inne</string>
+    <string name="voice_audio_focus_off">Nic nie rób</string>
+    <string name="voice_output_channel_label">Kanał głosu</string>
+    <string name="voice_output_channel_media">Multimedia</string>
+    <string name="voice_output_channel_notification">Powiadomienia</string>
+    <string name="voice_output_channel_alarm">Alarm</string>
+    <string name="col_periodic">Cyklicznie</string>
+    <string name="col_trigger">Wyzwalacz</string>
+    <string name="report_speed">Prędkość</string>
+    <string name="report_battery">Bateria</string>
+    <string name="report_temp">Temp.</string>
+    <string name="report_pwm">PWM</string>
+    <string name="report_distance">Dystans</string>
+    <string name="report_recording">Nagrywanie</string>
+    <string name="report_time">Czas</string>
+
+    <!-- Settings: Integration -->
+    <string name="section_flic_buttons">Przyciski Flic 2</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby przejść w tryb parowania, potem stuknij Skanuj</string>
+    <string name="flic_stop_scan">Stop</string>
+    <string name="flic_start_scan">Skanuj w poszukiwaniu przycisku</string>
+    <string name="flic_no_buttons">Brak sparowanych przycisków Flic</string>
+    <string name="flic_forget">Zapomnij</string>
+    <string name="flic_forget_title">Zapomnieć ten przycisk?</string>
+    <string name="flic_forget_body">%1$s zostanie odparowany, a jego akcje wyczyszczone. Możesz go sparować ponownie w każdej chwili.</string>
+    <string name="flic_rename">Zmień nazwę</string>
+    <string name="flic_click">Kliknięcie</string>
+    <string name="flic_double_click">Podwójne kliknięcie</string>
+    <string name="flic_hold">Przytrzymanie</string>
+    <string name="section_volume_keys">Klawisze głośności</string>
+    <string name="volume_keys_caption">Używaj przycisków głośności telefonu jako skrótów. Działa tylko gdy aplikacja jest widoczna na ekranie</string>
+    <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
+    <string name="volume_up">Głośność w górę</string>
+    <string name="volume_down">Głośność w dół</string>
+
+    <!-- Voice (spoken) templates -->
+    <string name="voice_speed_fmt">prędkość %1$s</string>
+    <string name="voice_battery_fmt">bateria %1$d procent</string>
+    <string name="voice_temp_fmt">temperatura %1$s stopni</string>
+    <string name="voice_load_fmt">obciążenie %1$s procent</string>
+    <string name="voice_trip_fmt">trasa %1$s kilometrów</string>
+    <string name="voice_trip_miles_fmt">trasa %1$s mil</string>
+    <string name="voice_time_fmt">czas %1$s</string>
+    <string name="voice_recording_on">nagrywanie</string>
+    <string name="voice_recording_off">brak nagrywania</string>
+    <string name="voice_wheel_locked">Koło zablokowane</string>
+    <string name="voice_wheel_unlocked">Koło odblokowane</string>
+    <string name="voice_lights_on">Światła włączone</string>
+    <string name="voice_lights_off">Światła wyłączone</string>
+    <string name="voice_recording_started">Nagrywanie rozpoczęte</string>
+    <string name="voice_recording_finished">Nagrywanie zakończone</string>
+    <string name="voice_wheel_connected">Koło połączone</string>
+    <string name="voice_wheel_disconnected">Koło rozłączone</string>
+    <string name="voice_gps_acquired">Sygnał GPS pozyskany</string>
+    <string name="voice_gps_lost">Sygnał GPS utracony</string>
+    <string name="voice_legal_on">Tryb legalny włączony</string>
+    <string name="voice_legal_off">Tryb legalny wyłączony</string>
+    <string name="voice_welcome">Witaj ponownie w EUC Planet</string>
+
+    <!-- Language display names (shown for TTS mismatch prompt) -->
+    <string name="lang_name_en">angielski</string>
+    <string name="lang_name_es">hiszpański</string>
+    <string name="lang_name_ru">rosyjski</string>
+    <string name="lang_name_no">norweski</string>
+    <string name="lang_name_de">niemiecki</string>
+    <string name="lang_name_fr">francuski</string>
+    <string name="lang_name_da">duński</string>
+    <string name="lang_name_sv">szwedzki</string>
+    <string name="lang_name_zh">chiński</string>
+
+    <!-- Alarm metrics -->
+    <string name="alarm_metric_speed">Prędkość</string>
+    <string name="alarm_metric_battery">Bateria</string>
+    <string name="alarm_metric_temperature">Temperatura</string>
+    <string name="alarm_metric_pwm">Obciążenie (PWM)</string>
+    <string name="alarm_metric_voltage">Napięcie</string>
+    <string name="alarm_metric_current">Prąd</string>
+
+    <!-- Alarm comparators -->
+    <string name="alarm_cmp_lt">Mniej niż</string>
+    <string name="alarm_cmp_ge">Większe lub równe</string>
+
+    <!-- Flic actions -->
+    <string name="flic_action_none">Brak</string>
+    <string name="flic_action_horn">Klakson</string>
+    <string name="flic_action_light">Przełącz światło</string>
+    <string name="flic_action_lock">Zablokuj koło</string>
+    <string name="flic_action_legal_toggle">Przełącz tryb legalny</string>
+    <string name="flic_action_legal_on">Tryb legalny WŁ.</string>
+    <string name="flic_action_legal_off">Tryb legalny WYŁ.</string>
+    <string name="flic_action_voice">Raport głosowy</string>
+    <string name="flic_action_record">Przełącz nagrywanie</string>
+    <string name="flic_action_media_play">Odtwórz / Wstrzymaj muzykę</string>
+    <string name="flic_action_media_next">Następny utwór</string>
+    <string name="flic_action_media_prev">Poprzedni utwór</string>
+
+    <!-- Alarm editor misc -->
+    <string name="alarm_preview_fmt">Podgląd %1$s</string>
+
+    <!-- Alarm rule card action summary -->
+    <string name="alarm_summary_beep_fmt">Sygnał %1$dHz×%2$d</string>
+    <string name="alarm_summary_voice">Głos</string>
+    <string name="alarm_summary_vibrate">Wibracja</string>
+
+    <!-- Share / export chooser titles -->
+    <string name="share_trip_chooser">Udostępnij trasę</string>
+    <string name="export_trips_chooser">Eksportuj trasy</string>
+
+    <!-- Alarm preview default text -->
+    <string name="alarm_test_default">Test alarmu</string>
+
+    <!-- Flic scan status -->
+    <string name="flic_status_scanning">Skanowanie…</string>
+    <string name="flic_status_found_paired">Znaleziono sparowany przycisk</string>
+    <string name="flic_status_found_connecting">Znaleziono przycisk, łączenie…</string>
+    <string name="flic_status_connected_pairing">Połączono, parowanie…</string>
+    <string name="flic_status_accept_pairing">Zaakceptuj parowanie na telefonie…</string>
+    <string name="flic_status_paired_fmt">Sparowano: %1$s</string>
+    <string name="flic_status_scan_failed_fmt">Skanowanie nie powiodło się (kod %1$d)</string>
+
+    <!-- Scan screen -->
+    <string name="scan_title">Połącz z kołem</string>
+    <string name="scan_scanning">Wyszukiwanie…</string>
+    <string name="scan_start">Rozpocznij skanowanie</string>
+    <string name="scan_show_all_title">Pokaż wszystkie urządzenia</string>
+    <string name="scan_show_all_subtitle">Włącz, jeśli Twoje koło się nie pojawia</string>
+
+    <!-- Metric detail -->
+    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_no_data">Brak danych</string>
+    <string name="metric_min">MIN</string>
+    <string name="metric_avg">ŚR</string>
+    <string name="metric_max">MAKS</string>
+    <string name="metric_time">CZAS</string>
+    <string name="metric_battery">Bateria</string>
+    <string name="metric_temperature">Temperatura</string>
+    <string name="metric_voltage">Napięcie</string>
+    <string name="metric_current">Prąd</string>
+    <string name="metric_load">Obciążenie</string>
+    <string name="metric_speed">Prędkość</string>
+
+    <!-- Recording screen -->
+    <string name="action_delete_all">Usuń wszystko</string>
+    <string name="action_import">Importuj pojedynczy plik</string>
+    <string name="action_trip_backup_options">Opcje kopii tras</string>
+    <string name="action_export_all">Eksportuj wszystko</string>
+    <string name="action_share">Udostępnij</string>
+    <string name="action_manage">Zarządzaj</string>
+    <string name="action_view">Pokaż</string>
+    <string name="action_record">Nagrywaj</string>
+    <string name="action_stop">Stop</string>
+    <string name="recording_title">Rejestrator tras</string>
+    <string name="recording_clear_all_title">Wyczyść wszystkie trasy</string>
+    <string name="recording_clear_all_body">Operacja trwale usunie wszystkie nagrane trasy oraz ich pliki danych. Tej operacji nie można cofnąć.</string>
+    <string name="recording_delete_trip_title">Usuń trasę</string>
+    <string name="recording_delete_trip_body">Usunąć tę trasę i jej plik danych?</string>
+    <string name="recording_clear_all_menu">Wyczyść wszystko</string>
+    <string name="recording_auto_record_tip">Wskazówka: włącz auto-nagrywanie w Ustawieniach, aby nagrywanie startowało automatycznie po połączeniu</string>
+    <string name="recording_empty">Brak danych do wyświetlenia. Zaimportuj lub nagraj nową trasę</string>
+    <string name="recording_will_auto_stop">Nagrywanie zatrzyma się automatycznie po %1$ds bezczynności</string>
+    <string name="recording_stat_trips">Trasy</string>
+    <string name="recording_stat_distance">Dystans</string>
+    <string name="recording_stat_time">Czas</string>
+    <string name="recording_gps_locked">GPS gotowy</string>
+    <string name="recording_gps_waiting">Czekam na GPS…</string>
+
+    <!-- Trip detail screen -->
+    <string name="recording_detail_title">Szczegóły trasy</string>
+    <string name="recording_no_data">Brak danych w tej trasie</string>
+    <string name="recording_route">Trasa</string>
+    <string name="recording_summary_distance">Dystans</string>
+    <string name="recording_summary_duration">Czas trwania</string>
+    <string name="recording_summary_points">Punkty</string>
+    <string name="recording_summary_top_speed">Maks. prędkość</string>
+    <string name="recording_summary_avg_speed">Śr. prędkość</string>
+    <string name="recording_summary_min_battery">Min. bateria</string>
+    <string name="recording_summary_max_temp">Maks. temp.</string>
+    <string name="recording_chart_speed">Prędkość (%1$s)</string>
+    <string name="recording_chart_battery">Bateria (%%)</string>
+    <string name="recording_chart_temp">Temperatura (%1$s)</string>
+    <string name="recording_chart_voltage">Napięcie (V)</string>
+
+    <!-- Automations / Auto tab -->
+    <string name="auto_lights_title">Światła</string>
+    <string name="auto_lights_desc">Włącza lub wyłącza światła w zależności od zachodu i wschodu słońca</string>
+    <string name="auto_lights_on_before_sunset">Światła WŁ. przed zachodem</string>
+    <string name="auto_lights_off_after_sunrise">Światła WYŁ. po wschodzie</string>
+    <string name="auto_minutes_fmt">%1$d min</string>
+    <string name="auto_waiting_gps">Czekam na lokalizację GPS…</string>
+    <string name="auto_volume_title">Głośność</string>
+    <string name="auto_volume_desc">Zwiększa głośność muzyki w zależności od prędkości</string>
+    <string name="auto_sunrise_sunset">Wschód i zachód słońca</string>
+    <string name="auto_midnight_sun_title">Słońce o północy</string>
+    <string name="auto_midnight_sun_body">Słońce dziś nie zachodzi na tej szerokości geograficznej, światła pozostaną WYŁ.</string>
+    <string name="auto_polar_night_title">Noc polarna</string>
+    <string name="auto_polar_night_body">Słońce dziś nie wschodzi na tej szerokości geograficznej, światła pozostaną WŁ.</string>
+    <string name="auto_lights_suspended">Wstrzymane z powodu ręcznego przełączenia świateł w tej sesji. Połącz koło ponownie lub uruchom aplikację, aby wznowić</string>
+
+    <!-- Alarms tab -->
+    <string name="alarm_help">Reguły są sprawdzane od góry do dołu dla każdej metryki. Pierwsza pasująca reguła dla metryki uruchamia alarm</string>
+    <string name="alarm_empty">Brak reguł alarmów</string>
+    <string name="alarm_add">Dodaj regułę alarmu</string>
+    <string name="alarm_new">Nowy alarm</string>
+    <string name="alarm_edit">Edytuj alarm</string>
+    <string name="alarm_delete_title">Usunąć ten alarm?</string>
+    <string name="alarm_delete_body">%1$s zostanie usunięty. Tej operacji nie można cofnąć.</string>
+    <string name="alarm_name">Nazwa (opcjonalna)</string>
+    <string name="alarm_section_condition">Warunek</string>
+    <string name="alarm_metric_label">Metryka</string>
+    <string name="alarm_comparator_label">Warunek</string>
+    <string name="alarm_threshold_fmt">Próg: %1$s %2$s</string>
+    <string name="alarm_section_beep">Sygnał</string>
+    <string name="alarm_enable_beep">Włącz sygnał</string>
+    <string name="alarm_beep_freq_fmt">Częstotliwość: %1$dHz</string>
+    <string name="alarm_beep_duration_fmt">Czas trwania: %1$dms</string>
+    <string name="alarm_beep_repeats_fmt">Powtórzenia: %1$d</string>
+    <string name="alarm_section_voice">Głos</string>
+    <string name="alarm_enable_voice">Włącz głos</string>
+    <string name="alarm_voice_template">Szablon tekstu</string>
+    <string name="alarm_voice_template_help">Zmienne: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_section_vibrate">Wibracja</string>
+    <string name="alarm_enable_vibrate">Włącz wibracje</string>
+    <string name="alarm_vibrate_duration_fmt">Czas trwania: %1$dms</string>
+    <string name="alarm_vibrate_target_label">Wibruj na</string>
+    <string name="alarm_vibrate_target_phone">Telefonie</string>
+    <string name="alarm_vibrate_target_watch">Zegarku</string>
+    <string name="alarm_vibrate_target_both">Obu</string>
+    <string name="alarm_section_timing">Czasy</string>
+    <string name="alarm_cooldown_fmt">Odstęp: %1$ds</string>
+    <string name="alarm_cooldown_help">Minimalny czas między uruchomieniami tej reguły, nawet jeśli warunek wciąż jest spełniony</string>
+    <string name="alarm_repeat">Powtarzaj, gdy aktywny</string>
+    <string name="alarm_repeat_help">WŁ.: uruchamia się ponownie co odstęp, dopóki warunek jest spełniony.\nWYŁ.: uruchamia się raz i milczy, dopóki warunek nie ustąpi</string>
+
+    <!-- About / crash logs -->
+    <string name="about_crash_logs_hint">Stuknij plik, aby udostępnić go deweloperowi</string>
+    <string name="about_crash_logs_empty">Brak zarejestrowanych awarii</string>
+    <string name="about_share_crash">Udostępnij log awarii</string>
+    <string name="about_thanks">Podziękowania</string>
+    <string name="about_thanks_body">Zmęczyły mnie aplikacje do EUC, które rozwijają się zbyt wolno, wyglądają archaicznie, mają drakońskie zasady wokół nowych funkcji, traktują swoje społeczności jak klientów i zapominają, że riderzy EUC są najlepsi, gdy sobie nawzajem pomagają. Ta próbuje być przeciwieństwem.\n\nPodziękowania dla:\n• Gio (Wheel In Motion). Promocja, sugestie i testy P6. Pozszywany skalp, nienaruszony entuzjazm.\n• Ilya Shkolnik i społeczność WheelLog. Publiczne badania protokołów, na których bazują adaptery KingSong, Begode i Veteran.\n• InMotion. Za zrobienie mojego niesamowitego V14.</string>
+    <string name="toast_external_speed_change">Prędkość zaktualizowana z koła: tiltback %1$d km/h, alarm %2$d km/h</string>
+    <string name="flic_action_record_start">Rozpocznij nagrywanie trasy</string>
+    <string name="flic_action_record_stop">Zatrzymaj nagrywanie trasy</string>
+    <string name="section_watch_screen_buttons">Przyciski</string>
+    <string name="watch_screen_button_1">Przycisk 1</string>
+    <string name="watch_screen_button_2">Przycisk 2</string>
+    <string name="watch_haptic_on_action">Wibracja przy akcji</string>
+    <string name="watch_haptic_on_action_desc">Krótka wibracja zegarka za każdym razem, gdy uruchomi się akcja przypisana do przycisku</string>
+</resources>

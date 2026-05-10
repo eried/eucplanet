@@ -104,9 +104,16 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     /** P6 totalStats / extended status query — the response carries motor and
      *  driver-board temps that aren't in the realtime 0x87 stream. V14 family
      *  doesn't need a separate poll (its `0x04` realtime already includes the
-     *  full sensor block) so returns null there. */
-    override fun pollStats(): ByteArray? =
-        if (useP6Protocol) InMotionV2Commands.getP6Stats() else null
+     *  full sensor block) so returns null there.
+     *
+     *  P6 update: the realtime 0x87 stream already carries motor / MOS /
+     *  driver-board at body[31/30/32] (verified against a labelled capture),
+     *  so we no longer need to poll the rich 0x84 detailed-data response —
+     *  it adds BLE traffic and its variable layout was the source of the
+     *  earlier "blinking 0 / value" temperature bug. Returns null for both
+     *  V14 and P6 now; re-enable later only if a field comes up that the
+     *  realtime stream doesn't already expose. */
+    override fun pollStats(): ByteArray? = null
 
     /**
      * Horn dispatch. V14 family models (V14g/V14s/V13/V13PRO/V11Y) use the

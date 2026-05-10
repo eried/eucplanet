@@ -66,7 +66,7 @@
     <string name="tab_alarms">Правила сигналов</string>
     <string name="tab_auto">Автоматизации</string>
     <string name="tab_integration">Интеграции</string>
-    <string name="tab_cloud">Резервная копия поездок и настроек</string>
+    <string name="tab_cloud">Резервная копия настроек и поездок</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
@@ -165,8 +165,8 @@
     <string name="voice_speech_speed">Скорость речи</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Во время речи</string>
-    <string name="voice_audio_focus_duck">Приглушить другие звуки</string>
-    <string name="voice_audio_focus_pause">Остановить другие звуки</string>
+    <string name="voice_audio_focus_duck">Приглушить</string>
+    <string name="voice_audio_focus_pause">Поставить на паузу</string>
     <string name="voice_audio_focus_off">Ничего не делать</string>
     <string name="col_periodic">Регулярно</string>
     <string name="col_trigger">По кнопке</string>
@@ -380,9 +380,110 @@
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Журналы сбоев</string>
     <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику</string>
     <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
-    <string name="about_license">Лицензия</string>
+    <!-- Credits -->
+    <string name="about_thanks">Благодарности</string>
+    <string name="about_thanks_body">Мне надоели приложения для моноколёс, которые развиваются слишком медленно, выглядят устаревшими, имеют драконовские правила для новых функций, относятся к сообществу как к клиентам и забывают, что райдеры на моноколёсах сильнее всего, когда помогают друг другу. Это приложение пытается быть противоположностью.\n\nСпасибо:\n• Gio (Wheel In Motion). Продвижение, идеи и тестирование P6. Зашитый скальп, целый энтузиазм.\n• Илье Школьнику и сообществу WheelLog. Открытые исследования протоколов, на которые опираются адаптеры KingSong, Begode и Veteran.\n• InMotion за то, что сделали мой потрясающий V14.</string>
+
+    <!-- Reorder -->
+    <string name="action_reorder">Перетащите для изменения порядка</string>
+
+    <!-- Alarm delete + vibrate target -->
+    <string name="alarm_delete_body">%1$s будет удалено. Это действие нельзя отменить.</string>
+    <string name="alarm_delete_title">Удалить это правило?</string>
+    <string name="alarm_vibrate_target_both">Оба</string>
+    <string name="alarm_vibrate_target_label">Вибрировать на</string>
+    <string name="alarm_vibrate_target_phone">Телефон</string>
+    <string name="alarm_vibrate_target_watch">Часы</string>
+
+    <!-- Auto-connect caption -->
+    <string name="auto_connect_caption">Переподключается к последнему сопряжённому колесу. В первый раз нужно подключиться вручную</string>
+
+    <!-- Trip pending backup -->
+    <string name="discard_trip_pending_label">Поездка скоро будет сохранена в копию</string>
+
+    <!-- Experimental wheel banner / dialog -->
+    <string name="experimental_banner">Поддержка колеса предварительная. Нажмите, чтобы сообщить о проблеме.</string>
+    <string name="experimental_dialog_body">Поддержка этого колеса предварительная. Автор проверял только семейство V14 и P6. Используйте с осторожностью.\n\nНажатие на этот баннер откроет форму отчёта о проблеме, чтобы автор мог починить то, что не работает.</string>
+    <string name="experimental_dialog_report">Сообщить о проблеме</string>
+    <string name="experimental_dialog_title">Помогите улучшить EUC Planet</string>
+
+    <!-- Flic button extras -->
+    <string name="flic_button">Кнопка Flic</string>
+    <string name="flic_forget_body">%1$s будет отвязана и её действия очищены. Можно снова спарить в любой момент.</string>
+    <string name="flic_forget_title">Забыть эту кнопку?</string>
+    <string name="flic_no_buttons">Кнопок Flic не привязано</string>
+
+    <!-- Menu items -->
+    <string name="menu_auto_lights">Настройки автосвета</string>
+    <string name="menu_start_recording">Начать запись</string>
+    <string name="menu_stop_recording">Остановить запись</string>
+    <string name="menu_view_current_trip">Открыть текущую поездку</string>
+    <string name="menu_view_last_trip">Открыть последнюю поездку</string>
+    <string name="menu_voice_periodic_off">Выключить регулярные оповещения</string>
+    <string name="menu_voice_periodic_on">Включить регулярные оповещения</string>
+
+    <!-- Report -->
+    <string name="report_time">Время</string>
+
+    <!-- Scan extras -->
+    <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
+    <string name="scan_show_all_title">Показать все устройства</string>
+    <string name="scan_simulate_subtitle">Для разработки без железа. Обходит BLE и подаёт заранее подготовленные ответы через адаптер</string>
+    <string name="scan_simulate_title">Виртуальные колёса</string>
+
+    <!-- Watch sections -->
+    <string name="section_watch_buttons">Аппаратные кнопки</string>
+    <string name="section_watch_display">Экран</string>
+    <string name="section_watch_general">Общие</string>
+
+    <!-- Service mode -->
+    <!-- Speed gauge color band -->
+    <string name="show_gauge_color_band">Цветная шкала спидометра</string>
+
+    <!-- Watts stat -->
+    <string name="stat_watts">ВАТТЫ</string>
+
+    <!-- Watch tab -->
+    <string name="tab_watch">Часы</string>
+
+    <!-- External speed change toast -->
+    <string name="toast_external_speed_change">Скорость обновлена с колеса: tiltback %1$d км/ч, предупреждение %2$d км/ч</string>
+
+    <!-- Voice output channels -->
+    <string name="voice_output_channel_alarm">Сигнал тревоги</string>
+    <string name="voice_output_channel_label">Канал озвучки</string>
+    <string name="voice_output_channel_media">Медиа</string>
+    <string name="voice_output_channel_notification">Уведомления</string>
+
+    <!-- Voice time -->
+    <string name="voice_time_fmt">время %1$s</string>
+
+    <!-- Watch settings -->
+    <string name="watch_auto_start">Автозапуск на часах</string>
+    <string name="watch_auto_start_desc">Открывать приложение на часах автоматически, когда вы открываете приложение на телефоне</string>
+    <string name="watch_button_1">Кнопка 1</string>
+    <string name="watch_button_2">Кнопка 2</string>
+    <string name="watch_button_click_label">Нажатие</string>
+    <string name="watch_button_hold_label">Долгое нажатие</string>
+    <string name="watch_keep_on">Не гасить экран</string>
+    <string name="watch_keep_on_desc">Не давать часам уходить в сон, пока открыто приложение EUC Planet</string>
+    <string name="watch_pwm_bar">Полоса</string>
+    <string name="watch_pwm_both">Оба</string>
+    <string name="watch_pwm_display">Индикатор нагрузки (PWM)</string>
+    <string name="watch_pwm_numbers">Текст</string>
+    <string name="watch_show_phone_battery">Показывать заряд телефона</string>
+    <string name="watch_show_speed_unit">Подпись единиц скорости</string>
+    <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости</string>
+    <string name="watch_show_watch_battery">Показывать заряд часов</string>
+    <string name="watch_show_wheel_battery">Показывать заряд колеса</string>
+    <string name="flic_action_record_start">Начать запись поездки</string>
+    <string name="flic_action_record_stop">Остановить запись поездки</string>
+    <string name="section_watch_screen_buttons">Кнопки</string>
+    <string name="watch_screen_button_1">Кнопка 1</string>
+    <string name="watch_screen_button_2">Кнопка 2</string>
+    <string name="watch_haptic_on_action">Вибрация при действии</string>
+    <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки</string>
 </resources>

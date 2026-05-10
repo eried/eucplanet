@@ -83,9 +83,10 @@ private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, imperi
         else -> valueDisplayed
     }
 
+@androidx.compose.runtime.Composable
 private fun displayUnit(metric: AlarmMetric, imperial: Boolean): String =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedUnit(imperial)
+        AlarmMetric.SPEED -> Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
         AlarmMetric.TEMPERATURE -> Units.tempUnit(imperial)
         else -> metric.unit
     }

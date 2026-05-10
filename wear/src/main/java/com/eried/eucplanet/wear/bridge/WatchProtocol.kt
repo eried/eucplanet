@@ -63,6 +63,16 @@ object WatchKeys {
     const val STEM1_HOLD = "s1h"
     const val STEM2_CLICK = "s2c"
     const val STEM2_HOLD = "s2h"
+
+    // --- On-screen watch button bindings. Same FlicAction.name vocabulary;
+    //     defaults are HORN / LIGHT_TOGGLE on the phone side. ---
+    const val SCREEN1_CLICK = "b1c"
+    const val SCREEN1_HOLD = "b1h"
+    const val SCREEN2_CLICK = "b2c"
+    const val SCREEN2_HOLD = "b2h"
+
+    /** Global toggle: vibrate the watch briefly when an action fires. */
+    const val HAPTIC_ON_ACTION = "hap"
 }
 
 object WatchControl {
@@ -133,5 +143,10 @@ data class WatchState(
     val stem1Click: String = "NONE",
     val stem1Hold: String = "NONE",
     val stem2Click: String = "NONE",
-    val stem2Hold: String = "NONE"
+    val stem2Hold: String = "NONE",
+    val screen1Click: String = "HORN",
+    val screen1Hold: String = "NONE",
+    val screen2Click: String = "LIGHT_TOGGLE",
+    val screen2Hold: String = "NONE",
+    val hapticOnAction: Boolean = false
 )

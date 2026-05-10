@@ -188,6 +188,20 @@ class VoiceService @Inject constructor(
         if (isReady) speakWelcomeIfEnabled() else welcomePending = true
     }
 
+    /**
+     * Speak the welcome message right now, ignoring the once-per-process gate.
+     * Used after a manual voice-language switch to give the user audible
+     * confirmation that the new voice works.
+     */
+    fun speakWelcomeNow() {
+        scope.launch {
+            val s = settingsRepository.get()
+            val welcome = context.getString(R.string.voice_welcome)
+            speakInternal(welcome, isTrigger = false,
+                rate = s.voiceSpeechRate, localeTag = s.voiceLocale)
+        }
+    }
+
     private fun speakWelcomeIfEnabled() {
         scope.launch {
             val s = settingsRepository.get()
@@ -259,10 +273,18 @@ class VoiceService @Inject constructor(
 
     fun pickVoiceForLanguage(langCode: String): String? {
         val engine = tts ?: return null
-        val target = langCode.lowercase()
+        // Strip region (e.g. "es-419" -> "es", "pt-BR" -> "pt") since we match
+        // by primary language. TTS engines don't always carry the region.
+        val primary = langCode.substringBefore('-').lowercase()
+        // Norwegian on Android TTS is exposed as Bokmål (nb) or Nynorsk (nn);
+        // the macro-language code "no" is rarely a direct match. Accept either.
+        val acceptable = when (primary) {
+            "no" -> setOf("no", "nb", "nn")
+            else -> setOf(primary)
+        }
         return try {
             val locales = engine.availableLanguages ?: return null
-            val match = locales.firstOrNull { it.language.equals(target, ignoreCase = true) }
+            val match = locales.firstOrNull { it.language.lowercase() in acceptable }
             match?.toLanguageTag()
         } catch (e: Exception) {
             Log.w(TAG, "pickVoiceForLanguage failed", e)

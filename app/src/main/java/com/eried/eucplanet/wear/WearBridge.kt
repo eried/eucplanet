@@ -83,6 +83,11 @@ class WearBridge @Inject constructor(
         private const val K_STEM1_HOLD = "s1h"
         private const val K_STEM2_CLICK = "s2c"
         private const val K_STEM2_HOLD = "s2h"
+        private const val K_SCREEN1_CLICK = "b1c"
+        private const val K_SCREEN1_HOLD = "b1h"
+        private const val K_SCREEN2_CLICK = "b2c"
+        private const val K_SCREEN2_HOLD = "b2h"
+        private const val K_HAPTIC_ON_ACTION = "hap"
 
         private const val PATH_WAKE = "/euc/wake"
     }
@@ -198,6 +203,11 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_STEM1_HOLD, settings.watchStem1Hold)
                 dataMap.putString(K_STEM2_CLICK, settings.watchStem2Click)
                 dataMap.putString(K_STEM2_HOLD, settings.watchStem2Hold)
+                dataMap.putString(K_SCREEN1_CLICK, settings.watchScreen1Click)
+                dataMap.putString(K_SCREEN1_HOLD, settings.watchScreen1Hold)
+                dataMap.putString(K_SCREEN2_CLICK, settings.watchScreen2Click)
+                dataMap.putString(K_SCREEN2_HOLD, settings.watchScreen2Hold)
+                dataMap.putBoolean(K_HAPTIC_ON_ACTION, settings.watchHapticOnAction)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).

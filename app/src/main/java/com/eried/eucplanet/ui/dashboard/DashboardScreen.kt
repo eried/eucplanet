@@ -108,11 +108,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -811,13 +817,48 @@ fun DashboardScreen(
                                     .alpha(logoAlpha)
                                     .pointerInput(Unit) {
                                         awaitEachGesture {
-                                            awaitFirstDown(requireUnconsumed = false)
+                                            val firstDown = awaitFirstDown(requireUnconsumed = false)
                                             logoPressed = true
-                                            val released = withTimeoutOrNull(5000L) {
-                                                waitForUpOrCancellation()
+                                            val pointerId = firstDown.id
+                                            val deadline = System.currentTimeMillis() + 5000L
+                                            // Poll pointer events while bounding each wait by the
+                                            // remaining time. Three exit conditions:
+                                            //  - 5s elapses with the finger still down inside the
+                                            //    logo bounds  -> trigger Service Mode
+                                            //  - user lifts the finger early                 -> abort
+                                            //  - user drags the finger off the logo          -> abort
+                                            var triggered = false
+                                            while (true) {
+                                                val remaining = deadline - System.currentTimeMillis()
+                                                if (remaining <= 0L) {
+                                                    triggered = true
+                                                    break
+                                                }
+                                                val event = withTimeoutOrNull(remaining) {
+                                                    awaitPointerEvent()
+                                                }
+                                                if (event == null) {
+                                                    // No further event in the remaining window:
+                                                    // the user is still pressing, so this is a
+                                                    // successful hold.
+                                                    triggered = true
+                                                    break
+                                                }
+                                                val change = event.changes.firstOrNull { it.id == pointerId }
+                                                if (change == null || !change.pressed) {
+                                                    // Lifted (or another pointer took over).
+                                                    break
+                                                }
+                                                val pos = change.position
+                                                if (pos.x !in 0f..size.width.toFloat() ||
+                                                    pos.y !in 0f..size.height.toFloat()
+                                                ) {
+                                                    // Dragged outside the logo circle.
+                                                    break
+                                                }
                                             }
                                             logoPressed = false
-                                            if (released == null) {
+                                            if (triggered) {
                                                 showDiagnosticsConfirm = true
                                             }
                                         }
@@ -1017,33 +1058,52 @@ fun DashboardScreen(
                 if (showDiagnosticsConfirm) {
                     androidx.compose.material3.AlertDialog(
                         onDismissRequest = { showDiagnosticsConfirm = false },
-                        title = { Text("Service Mode") },
+                        title = { Text(stringResource(R.string.service_mode_title)) },
                         text = {
                             Column {
                                 Text(
-                                    "CAUTION — Improper use of Service Mode could result in loss of wheel functionality, serious injury, or death.",
+                                    stringResource(R.string.service_mode_caution),
                                     color = Color(0xFFE53935),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    "Service Mode is intended for qualified EUC professionals to conduct diagnostics, repairs, calibrations, and protocol research.",
+                                    stringResource(R.string.service_mode_purpose),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    "While active, the app records every BLE byte sent to and received from the wheel plus any test commands you fire. The log lives in memory until the app is closed.",
+                                    stringResource(R.string.service_mode_recording),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Spacer(Modifier.height(12.dp))
-                                Text(
-                                    "Read more at eucplanet.ried.no/service",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.clickable {
-                                        openUrl(context, "https://eucplanet.ried.no/service")
+                                val linkText = stringResource(R.string.service_mode_link)
+                                val urlPart = "eucplanet.ried.no/service"
+                                val linkColor = MaterialTheme.colorScheme.primary
+                                val annotated = buildAnnotatedString {
+                                    val idx = linkText.indexOf(urlPart)
+                                    if (idx >= 0) {
+                                        append(linkText.substring(0, idx))
+                                        withLink(
+                                            LinkAnnotation.Url(
+                                                url = "https://$urlPart",
+                                                styles = TextLinkStyles(
+                                                    style = SpanStyle(
+                                                        color = linkColor,
+                                                        textDecoration = TextDecoration.Underline
+                                                    )
+                                                )
+                                            )
+                                        ) { append(urlPart) }
+                                        append(linkText.substring(idx + urlPart.length))
+                                    } else {
+                                        append(linkText)
                                     }
+                                }
+                                Text(
+                                    annotated,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         },
@@ -1053,11 +1113,11 @@ fun DashboardScreen(
                                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
                                 showAboutDialog = false
                                 showDiagnosticsDialog = true
-                            }) { Text("Enter") }
+                            }) { Text(stringResource(R.string.service_mode_enter)) }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDiagnosticsConfirm = false }) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.action_cancel))
                             }
                         }
                     )
@@ -1097,7 +1157,7 @@ private fun SpeedGauge(
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(imperial)
+    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
 
     Canvas(modifier = modifier) {
         val dim = size.minDimension

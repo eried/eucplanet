@@ -94,7 +94,7 @@
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Watch</string>
-    <string name="tab_cloud">Backup trips &amp; settings</string>
+    <string name="tab_cloud">Backup settings &amp; trips</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
@@ -119,6 +119,15 @@
     <string name="watch_button_2">Button 2</string>
     <string name="watch_button_click_label">Click</string>
     <string name="watch_button_hold_label">Long press</string>
+
+    <!-- Watch on-screen buttons (shown on the dial), separate from the
+         hardware stem buttons because most Galaxy Wear OS watches do not
+         deliver KEYCODE_STEM_* to third-party apps. -->
+    <string name="section_watch_screen_buttons">Buttons</string>
+    <string name="watch_screen_button_1">Button 1</string>
+    <string name="watch_screen_button_2">Button 2</string>
+    <string name="watch_haptic_on_action">Vibrate on action</string>
+    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
@@ -201,6 +210,7 @@
     <string name="speed_legal_tiltback">Legal Tiltback</string>
     <string name="speed_legal_alarm">Legal Alarm</string>
     <string name="unit_kmh">km/h</string>
+    <string name="unit_mph">mph</string>
 
     <!-- Settings: Voice -->
     <string name="section_announcements">Announcements</string>
@@ -284,10 +294,16 @@
     <!-- Language display names (shown for TTS mismatch prompt) -->
     <string name="lang_name_en">English</string>
     <string name="lang_name_es">Spanish</string>
+    <string name="lang_name_es_419">Spanish (Latin America)</string>
     <string name="lang_name_ru">Russian</string>
+    <string name="lang_name_uk">Ukrainian</string>
     <string name="lang_name_no">Norwegian</string>
     <string name="lang_name_de">German</string>
     <string name="lang_name_fr">French</string>
+    <string name="lang_name_it">Italian</string>
+    <string name="lang_name_nl">Dutch</string>
+    <string name="lang_name_pl">Polish</string>
+    <string name="lang_name_pt">Portuguese</string>
     <string name="lang_name_da">Danish</string>
     <string name="lang_name_sv">Swedish</string>
     <string name="lang_name_zh">Chinese</string>
@@ -314,6 +330,8 @@
     <string name="flic_action_legal_off">Legal Mode OFF</string>
     <string name="flic_action_voice">Voice Report</string>
     <string name="flic_action_record">Toggle Recording</string>
+    <string name="flic_action_record_start">Start Trip Recording</string>
+    <string name="flic_action_record_stop">Stop Trip Recording</string>
     <string name="flic_action_media_play">Play / Pause Music</string>
     <string name="flic_action_media_next">Next Song</string>
     <string name="flic_action_media_prev">Previous Song</string>
@@ -463,5 +481,11 @@
     <string name="about_thanks">Credits</string>
     <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.\n\nThanks to:\n• Gio (Wheel In Motion). Promotion, suggestions and P6 testing. Stitched scalp, intact enthusiasm.\n• Ilya Shkolnik and the WheelLog community — public protocol research the KingSong, Begode and Veteran adapters draw on.\n• InMotion — for making my awesome V14.</string>
     <string name="about_license">License</string>
+    <string name="service_mode_title">Service Mode</string>
+    <string name="service_mode_caution">CAUTION: Improper use of Service Mode could result in loss of wheel functionality, serious injury, or death.</string>
+    <string name="service_mode_purpose">Service Mode is intended for qualified EUC professionals to conduct diagnostics, repairs, calibrations, and protocol research.</string>
+    <string name="service_mode_recording">While active, the app records every BLE byte sent to and received from the wheel plus any test commands you fire. The log lives in memory until the app is closed.</string>
+    <string name="service_mode_link">Visit eucplanet.ried.no/service for more information.</string>
+    <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
 </resources>

@@ -598,8 +598,15 @@ class WheelRepository @Inject constructor(
                 // overwriting it ~250ms later.
                 val previous = _wheelData.value
                 val isP6 = _modelName.value?.contains("P6") == true
+                // V14 etc. don't carry total distance in realtime frames, so
+                // preserve whatever was set via the separate TotalDistance
+                // decode. The P6 ships the lifetime odometer inline at offset
+                // 58, so when the parser already filled it in we keep that
+                // fresh value instead of overwriting with the stale previous.
+                val totalKm = if (result.data.totalDistance > 0f) result.data.totalDistance
+                              else previous.totalDistance
                 _wheelData.value = result.data.copy(
-                    totalDistance = previous.totalDistance,
+                    totalDistance = totalKm,
                     lightOn = if (isP6) previous.lightOn else result.data.lightOn
                 )
                 // Sample history at 1 Hz

@@ -3,6 +3,7 @@ package com.eried.eucplanet.wear.ui
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -59,7 +60,7 @@ fun SpeedGauge(
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = WatchUnits.speedUnit(imperial)
+    val unitLabel = WatchUnits.speedUnit(LocalContext.current, imperial)
 
     Canvas(modifier = modifier) {
         val dim = size.minDimension

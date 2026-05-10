@@ -233,25 +233,41 @@ object InMotionV2Parser {
             ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
         }
 
-        // Total mileage as uint32 LE at offset 58, in 0.01 km units.
+        // Lifetime odometer as uint32 LE at offset 58, in 0.01 km units.
         // Confirmed across three labelled riding moments (1776.8 / 1776.9 /
         // 1777.0 mi displayed by the InMotion app, 285958 / 285970 / 285990
         // in the bytes — within rounding of the displayed value).
-        val tripDistanceKm = if (data.size >= 62) {
+        // This is total mileage, NOT a per-session trip — the trip field
+        // stays 0 here and the recording feature tracks per-session distance.
+        val totalDistanceKm = if (data.size >= 62) {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // Temperature: the real motor-temp byte hasn't been identified on
-        // this firmware yet. preview3's data[71] read was a static config
-        // byte (app froze while the wheel updated). preview4's data[28]/
-        // data[30] (per docs/P6_CAPTURE_LABELS.md) read 121 °F on a cold
-        // wheel, so they aren't motor either.
-        //
-        // Service Mode (preview6) dumps every realtime frame to the log so
-        // a cold-vs-warm ride pinpoints the right byte. Until then leave
-        // the dashboard pill blank — empty temps → maxTemperature = 0 →
-        // baseline reading rather than a misleading 121 °F.
-        val temps = emptyList<Float>()
+        // Temperatures: MOS / motor / driver-board sit at body offsets 30/31/32
+        // in the realtime block. Decoded as `°F = byte − 126` (verified against
+        // a labelled capture where displayed 72/79/79 °F mapped to bytes 0xc6
+        // /0xcd/0xcd, then again across a warming-up ride where the values
+        // climbed in lockstep frame-by-frame). The dashboard's TEMP pill
+        // tracks the MOTOR specifically, so we surface it as the only entry
+        // and let `maxTemperature` follow it.
+        fun decodeTempC(off: Int): Float? {
+            if (off >= data.size) return null
+            val v = data[off].toInt() and 0xFF
+            val f = v - 126
+            // Filter implausible values (the byte is 0 before the wheel
+            // has finished its boot handshake and would otherwise read as
+            // -126 °F).
+            if (f !in 32..248) return null
+            return (f - 32) * 5f / 9f
+        }
+        val motorC = decodeTempC(31)
+        // We still keep MOS and driver-board accessible in `temperatures`
+        // for the metric detail screen / future UI, but `maxTemperature`
+        // tracks motor only so the dashboard pill matches the InMotion
+        // app's headline reading.
+        val mosC = decodeTempC(30)
+        val driverC = decodeTempC(32)
+        val temps = listOfNotNull(motorC, mosC, driverC)
 
         // Headlight state isn't reliably reported in the realtime stream on
         // user-facing firmware. preview4's "byte[84] bit 1" rule worked in
@@ -281,9 +297,13 @@ object InMotionV2Parser {
             batteryPercent = batteryPercent,
             battery1Percent = battery1.takeIf { it > 0f } ?: batteryPercent.toFloat(),
             battery2Percent = battery2.takeIf { it > 0f } ?: batteryPercent.toFloat(),
-            tripDistance = tripDistanceKm,
+            tripDistance = 0f,
+            totalDistance = totalDistanceKm,
             temperatures = temps,
-            maxTemperature = temps.maxOrNull() ?: 0f,
+            // Motor specifically (not max of all sensors) — the user wants
+            // the dashboard pill to read the same number the wheel and the
+            // InMotion app show as the motor temperature.
+            maxTemperature = motorC ?: 0f,
             lightOn = lightOn,
             timestamp = System.currentTimeMillis()
         )
