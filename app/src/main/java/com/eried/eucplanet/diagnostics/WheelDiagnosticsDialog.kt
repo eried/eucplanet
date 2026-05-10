@@ -706,11 +706,14 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
             return@Column
         }
 
-        // 6-column grid of byte cells. Lazy so 96-byte bodies don't slow
-        // down recomposition when the underlying frame stream is at 5 Hz.
+        // 6-column grid of byte cells. weight(1f) claims the leftover Column
+        // height so the bottom row isn't clipped — the earlier fillMaxSize
+        // approach was reading "as much as you want" rather than "exactly
+        // the leftover after headers", which let the grid request more than
+        // the column had and the last row was cropped.
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
             items(latestBytes.size) { off ->
                 val v = latestBytes[off]
