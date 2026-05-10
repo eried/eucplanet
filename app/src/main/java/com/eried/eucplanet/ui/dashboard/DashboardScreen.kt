@@ -1022,11 +1022,11 @@ fun DashboardScreen(
                                 )
                                 Spacer(Modifier.height(12.dp))
                                 Text(
-                                    "Visit eucplanet.ried.no for more information.",
+                                    "Read more at eucplanet.ried.no/service",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable {
-                                        openUrl(context, "https://eucplanet.ried.no")
+                                        openUrl(context, "https://eucplanet.ried.no/service")
                                     }
                                 )
                             }
