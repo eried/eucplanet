@@ -1,4 +1,44 @@
-# p6-fixes (v0.3.2-p6preview3)
+# p6-fixes (v0.3.2-p6preview4)
+
+## Round 3 fixes (preview4)
+
+Real-hardware testing of preview3 confirmed speed-limit changes work
+cleanly, but two issues remained: the temperature was wrong and frozen,
+and the light only toggled ON. Both root-caused to wrong byte offsets.
+
+### A. Temperature was reading a static config byte
+
+preview3's `data[71]` MOS read was wrong. The labelled InMotion-app
+capture (`docs/P6_CAPTURE_LABELS.md`) had ground-truth values right
+there: MOS at offset 28 and **motor** at offset 30, both as `byte / 4`
+in °C. Verified at v1:23: displayed MOS = 82 °F → data[28] = 111 →
+27.75 °C; displayed motor = 124 °F → data[30] = 204 → 51.0 °C.
+
+The earlier "data[71] walks 67 → 70 over a ride" observation came from
+a short capture that happened to drift across that byte's natural
+range. On the user's wheel, data[71] is a static config byte: the app
+froze at 75 °F while the wheel's own display moved 75 → 81 under load.
+
+Fix: read both MOS (offset 28) and motor (offset 30) at `byte / 4 = °C`.
+The dashboard's "TEMP" pill shows `max(MOS, motor)`, which during a ride
+is the motor — the value the user actually cares about.
+
+### B. Light toggle only sent ON, never OFF
+
+`toggleLight()` reads `_wheelData.value.lightOn` to decide whether to
+send the ON or OFF write. Our P6 telemetry parser never populated
+`lightOn`, so the UI thought the light was always off and the next
+tap kept resending `60 50 01 01`.
+
+Analysis of the four labelled `60 50` toggles in the capture
+(13:25:27.085 ON, 29.885 OFF, 32.623 ON, 35.252 OFF) found the state
+in **bit 1 of byte 84**: 0x02 across every frame inside an ON window,
+0x00 across every frame inside an OFF window (248×0x00 vs 3×0x02
+across the full 251-frame log, matching exactly).
+
+Fix: parse `(data[84] & 0x02) != 0` as `lightOn`. The toggle now
+correctly inverts the current state on each tap.
+
 
 ## Round 2 fixes (preview3)
 

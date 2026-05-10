@@ -241,38 +241,42 @@ object InMotionV2Parser {
             ByteUtils.getUint32LE(data, 58) / 100f
         } else 0f
 
-        // MOS temperature: byte at offset 71, raw degrees Fahrenheit.
-        // Verified against two captures:
-        //   - NEW CAPTURE (parked, labelled MOS=72°F): data[71] = 72 in
-        //     181/182 frames (one outlier from a multiplexed reassembly
-        //     artefact).
-        //   - OLD long ride (~25 min): data[71] walks 67 → 68 → 69 → 70
-        //     monotonically with riding heat — the smooth thermistor curve
-        //     a real sensor produces.
+        // Temperatures: MOS at offset 28, motor at offset 30, both as
+        // `byte / 4 = °C`. Verified directly against the InMotion app's
+        // on-screen "Detailed Data" page in the labelled capture:
+        //   v1:23 displayed MOS = 82 °F → data[28] = 111 → 27.75 °C
+        //         (= 81.95 °F, delta -0.05).
+        //   v1:23 displayed motor = 124 °F → data[30] = 204 → 51.0 °C
+        //         (= 123.8 °F, delta -0.10).
+        // See docs/P6_CAPTURE_LABELS.md for the full timeline.
         //
-        // Earlier builds read data[70] as MOS — that was a coincidence.
-        // data[70] is actually a moving-time counter (low byte): increments
-        // ~1×/sec when the wheel moves, frozen at idle, wraps 0..255. In
-        // the parked NEW CAPTURE it happened to be parked at 78, then near
-        // 72 mid-cycle of a brief poke — looking exactly like a temperature.
-        // In the long ride it cycles wildly (median 189, range 0..255),
-        // producing the user-reported "225°F" bogus reading.
+        // The previous build read data[71] as MOS, mistaking it for a
+        // thermistor because in one short capture it walked 67 → 70.
+        // On real hardware data[71] is a static config byte that doesn't
+        // track the live sensor — symptom: app froze at 75 °F while the
+        // wheel's own display moved 75 → 81 °F under load.
         //
-        // Motor and driver-board temperatures do not appear in the realtime
-        // 0x87 stream on this firmware. The InMotion app shows them as 79°F
-        // on a parked wheel — likely a cached default or via a different
-        // sub-command we don't poll yet. We expose only the MOS sensor
-        // (which the dashboard renders as "TEMP") until the others are
-        // located.
-        //
-        // Sanity gate: 50..140 °F (10..60 °C). Anything outside that band
-        // is from a multiplexed/split-frame reassembly artefact and gets
-        // dropped to avoid polluting the dashboard with phantom spikes.
+        // Sanity gate: byte must decode into 0..120 °C. Anything outside
+        // that band is from a multiplexed/split-frame reassembly artefact
+        // and gets dropped to avoid polluting the dashboard.
         val temps = mutableListOf<Float>()
-        if (data.size > 71) {
-            val mosF = data[71].toInt() and 0xFF
-            if (mosF in 50..140) temps.add((mosF - 32) * 5f / 9f)
+        if (data.size > 28) {
+            val mosC = (data[28].toInt() and 0xFF) / 4f
+            if (mosC in 0f..120f) temps.add(mosC)
         }
+        if (data.size > 30) {
+            val motorC = (data[30].toInt() and 0xFF) / 4f
+            if (motorC in 0f..120f) temps.add(motorC)
+        }
+
+        // Headlight state: bit 1 of byte 84. Across the labelled capture's
+        // four `60 50` toggles, byte 84 reads 0x02 in every frame inside an
+        // ON window and 0x00 in every frame inside an OFF window (248×0x00
+        // vs 3×0x02 across the full 251-frame log, the 3 lining up exactly
+        // with the two ON windows). Without this read the toggleLight()
+        // call had no idea whether the wheel was already on, so it kept
+        // re-sending "ON" and the OFF tap looked broken.
+        val lightOn = data.size > 84 && (data[84].toInt() and 0x02) != 0
 
         // Park vs Drive: offset 80 = 0x49 when the wheel is engaged
         // (rider on, motor under load), 0x00 when lifted off / park-mode,
@@ -296,6 +300,7 @@ object InMotionV2Parser {
             tripDistance = tripDistanceKm,
             temperatures = temps,
             maxTemperature = temps.maxOrNull() ?: 0f,
+            lightOn = lightOn,
             timestamp = System.currentTimeMillis()
         )
     }
