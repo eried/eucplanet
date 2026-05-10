@@ -138,6 +138,18 @@ interface WheelAdapter {
      * is a no-op for stateless adapters.
      */
     fun onDisconnect() {}
+
+    /**
+     * Per-wheel diagnostic test commands shown in the Wheel Diagnostics dialog
+     * (Service Mode). Each entry becomes a tappable button — the user taps to
+     * fire the bytes and watches the live log to see what the wheel does. This
+     * is how we narrow down opcodes the wheel actually obeys vs. ones that
+     * look right on paper but get silently dropped.
+     *
+     * The default empty list keeps wheels with no diagnostic guesses out of
+     * the dialog; adapters override when they have hypotheses to test.
+     */
+    fun getDiagnosticCommands(): List<com.eried.eucplanet.diagnostics.DiagnosticCommand> = emptyList()
 }
 
 /**

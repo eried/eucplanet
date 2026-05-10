@@ -245,12 +245,12 @@ object InMotionV2Parser {
         // this firmware yet. preview3's data[71] read was a static config
         // byte (app froze while the wheel updated). preview4's data[28]/
         // data[30] (per docs/P6_CAPTURE_LABELS.md) read 121 °F on a cold
-        // wheel, so they aren't motor either — likely a fixed calibration
-        // value or a different sensor.
+        // wheel, so they aren't motor either.
         //
-        // Until preview5's debug log narrows the right offset, don't show
-        // anything. Empty temps → maxTemperature = 0 → dashboard pill
-        // displays the unit baseline rather than a misleading 121 °F.
+        // Service Mode (preview6) dumps every realtime frame to the log so
+        // a cold-vs-warm ride pinpoints the right byte. Until then leave
+        // the dashboard pill blank — empty temps → maxTemperature = 0 →
+        // baseline reading rather than a misleading 121 °F.
         val temps = emptyList<Float>()
 
         // Headlight state: bit 1 of byte 84. Across the labelled capture's

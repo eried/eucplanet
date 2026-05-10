@@ -207,7 +207,7 @@ class WheelRepository @Inject constructor(
 
     fun toggleLight() {
         val current = _wheelData.value.lightOn
-        com.eried.eucplanet.ble.P6DebugLogger.note(
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "toggleLight: lightOn was=$current, sending ${!current}"
         )
         wheelAdapter.setLight(!current)?.let { bleManager.writeCommand(it) }

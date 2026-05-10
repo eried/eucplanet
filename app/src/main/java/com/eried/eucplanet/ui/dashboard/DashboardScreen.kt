@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -725,20 +726,32 @@ fun DashboardScreen(
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
             var showAboutDialog by remember { mutableStateOf(false) }
+            var showDiagnosticsDialog by remember { mutableStateOf(false) }
             val context = LocalContext.current
             val versionName = remember {
                 try {
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
                 } catch (_: Exception) { "?" }
             }
+            val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
                 versionName = versionName,
-                onVersionClick = { showAboutDialog = true }
+                diagnosticsActive = diagEnabled,
+                onVersionClick = {
+                    if (diagEnabled) showDiagnosticsDialog = true
+                    else showAboutDialog = true
+                }
             )
+
+            if (showDiagnosticsDialog) {
+                com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
+                    onDismiss = { showDiagnosticsDialog = false }
+                )
+            }
 
             if (showAboutDialog) {
                 val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
@@ -748,6 +761,8 @@ fun DashboardScreen(
                             .bufferedReader().use { it.readText() }
                     } catch (_: Exception) { "" }
                 }
+                var logoTaps by remember { mutableStateOf(0) }
+                var showDiagnosticsConfirm by remember { mutableStateOf(false) }
                 Dialog(
                     onDismissRequest = { showAboutDialog = false },
                     properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -766,6 +781,13 @@ fun DashboardScreen(
                                     .clip(CircleShape)
                                     .background(colorResource(R.color.ic_launcher_background))
                                     .align(Alignment.CenterHorizontally)
+                                    .clickable {
+                                        logoTaps++
+                                        if (logoTaps >= 7) {
+                                            logoTaps = 0
+                                            showDiagnosticsConfirm = true
+                                        }
+                                    }
                             ) {
                                 Image(
                                     painter = painterResource(R.drawable.ic_launcher_foreground),
@@ -957,6 +979,30 @@ fun DashboardScreen(
                             }
                         }
                     }
+                }
+                if (showDiagnosticsConfirm) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { showDiagnosticsConfirm = false },
+                        title = { Text("Enter Diagnostics Mode?") },
+                        text = {
+                            Text(
+                                "Service Mode logs every BLE byte sent to and received from the wheel, plus any test commands you fire. Use it only when reporting an issue. The log lives in memory until the app is closed and stays recording in the background once started — the version number on the dashboard will blink red while active."
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showDiagnosticsConfirm = false
+                                com.eried.eucplanet.diagnostics.DiagnosticsLogger.enable()
+                                showAboutDialog = false
+                                showDiagnosticsDialog = true
+                            }) { Text("Enter") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDiagnosticsConfirm = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
             }
             }  // close inner Column (dashboard content)
@@ -1261,6 +1307,7 @@ private fun WheelInfoBox(
     modelName: String?,
     firmwareVersion: String?,
     versionName: String,
+    diagnosticsActive: Boolean,
     onVersionClick: () -> Unit
 ) {
     Box(
@@ -1294,11 +1341,29 @@ private fun WheelInfoBox(
             )
         }
 
-        // Right: app version
+        // Right: app version (eased red glow when Service Mode is recording)
+        val versionColor = if (diagnosticsActive) {
+            val infinite = androidx.compose.animation.core.rememberInfiniteTransition(label = "diagGlow")
+            val alpha by infinite.animateFloat(
+                initialValue = 1f,
+                targetValue = 0.3f,
+                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                    animation = androidx.compose.animation.core.tween(
+                        durationMillis = 100,
+                        easing = androidx.compose.animation.core.FastOutSlowInEasing
+                    ),
+                    repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                ),
+                label = "diagGlowAlpha"
+            )
+            Color.Red.copy(alpha = alpha)
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        }
         Text(
             text = "v$versionName",
             fontSize = 10.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            color = versionColor,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .clickable(onClick = onVersionClick)

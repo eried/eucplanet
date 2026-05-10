@@ -1,4 +1,60 @@
-# p6-fixes (v0.3.2-p6preview5)
+# p6-fixes (v0.3.2-p6preview6)
+
+## Service Mode (preview6)
+
+The throwaway file logger from preview5 turned into a proper Service
+Mode dialog so we can iterate on protocol guesses without shipping a
+new build for every byte we want to try.
+
+### Activation
+
+1. Tap the app version number on the dashboard to open the About
+   dialog.
+2. Tap the round app logo seven times. A confirmation appears: "Enter
+   Diagnostics Mode?".
+3. **Enter** dismisses About, starts the in-memory log recorder, and
+   opens Wheel Diagnostics. **Cancel** goes back to About.
+
+While the recorder is running, the dashboard's version number blinks
+red once per second. Tapping it from then on opens Wheel Diagnostics
+directly (the About dialog is bypassed). Stopping diagnostics from the
+header clears the buffer and reverts the version text to grey.
+
+The log persists across closes of the dialog within the same app
+session, so the user can interact with normal app controls (light,
+horn, max-speed, lock) and watch the BLE traffic those produce. It is
+cleared only when the app process exits or via the explicit Stop
+button.
+
+### What's in the dialog
+
+- **Log tab.** Live BLE feed: every RX chunk and TX write, plus our
+  own NOTE markers (e.g. "P6 realtime body=…", "toggleLight: lightOn
+  was=true, sending false"). Below the feed is a comment field that
+  drops free-form lines into the log between BLE events ("wheel
+  display says 77 °F"), and a Share button that exports the log as a
+  .txt attachment via FileProvider.
+- **Commands tab.** Per-wheel test command grid. For the P6 the grid
+  carries a dozen light variants (`T6050_0000`, `T6050_FFFF`,
+  `T024B_01` legacy, etc.), the auto-headlight toggle, the DRL guess,
+  the canonical horn (to verify the control endpoint is alive), plus
+  read-only queries (`Q0286` info bundle, `Q0287` realtime, `Q0220`
+  settings page, `Q0221` / `Q0222` untried settings pages,
+  `Q0211` total stats). Each button label encodes the bytes it
+  sends, so a user reporting "T6050_FFFF turned the light off"
+  uniquely identifies the packet.
+- **Raw tab.** Free-form hex sender for one-off probes —
+  `aa aa 16 06 02 21 60 50 01 01 …` or `aaaa1606022160500101`.
+
+### Why preview5's file logger went away
+
+preview5 wrote to `/sdcard/Android/data/.../files/p6_debug.log` for
+every user, all the time, regardless of whether they cared. Service
+Mode is opt-in via the seven-tap gesture, runs only when explicitly
+enabled, and exports the log via a normal share sheet so it lands in
+Telegram / Gmail / Drive without the user having to navigate the
+private external files directory.
+
 
 ## Diagnostic build (preview5)
 

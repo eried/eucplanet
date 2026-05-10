@@ -1,0 +1,353 @@
+package com.eried.eucplanet.diagnostics
+
+import android.content.Intent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+/**
+ * Full-screen Service-Mode dialog. Three tabs:
+ *  - Log: live BLE-traffic view, comment box, share button.
+ *  - Commands: per-wheel test command grid (e.g. P6 light variants).
+ *  - Raw: free-form hex sender for one-off probes.
+ *
+ * The header bar carries the recording dot, a Stop-recording button (which
+ * disables the logger and clears the buffer), and a Close arrow that just
+ * dismisses the dialog (logger keeps recording in the background, version
+ * text in the dashboard keeps blinking).
+ */
+@Composable
+fun WheelDiagnosticsDialog(
+    onDismiss: () -> Unit,
+    vm: WheelDiagnosticsViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) { vm.captureSessionInfo() }
+
+    var stopConfirm by remember { mutableStateOf(false) }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                Header(
+                    onClose = onDismiss,
+                    onStop = { stopConfirm = true }
+                )
+
+                var tab by remember { mutableStateOf(0) }
+                TabRow(
+                    selectedTabIndex = tab,
+                    containerColor = MaterialTheme.colorScheme.background
+                ) {
+                    Tab(selected = tab == 0, onClick = { tab = 0 },
+                        text = { Text("Log") })
+                    Tab(selected = tab == 1, onClick = { tab = 1 },
+                        text = { Text("Commands") })
+                    Tab(selected = tab == 2, onClick = { tab = 2 },
+                        text = { Text("Raw") })
+                }
+
+                Box(modifier = Modifier.weight(1f, fill = true)) {
+                    when (tab) {
+                        0 -> LogTab(vm)
+                        1 -> CommandsTab(vm)
+                        2 -> RawTab(vm)
+                    }
+                }
+            }
+        }
+    }
+
+    if (stopConfirm) {
+        AlertDialog(
+            onDismissRequest = { stopConfirm = false },
+            title = { Text("Stop diagnostics?") },
+            text = { Text("This clears the in-memory log and exits Service Mode. Share the log first if you need it.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    stopConfirm = false
+                    vm.stopDiagnostics()
+                    onDismiss()
+                }) { Text("Stop & clear") }
+            },
+            dismissButton = {
+                TextButton(onClick = { stopConfirm = false }) { Text("Cancel") }
+            }
+        )
+    }
+}
+
+@Composable
+private fun Header(onClose: () -> Unit, onStop: () -> Unit) {
+    val entries = DiagnosticsLogger.entries.collectAsState().value
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onClose) {
+            Icon(Icons.Default.Close, contentDescription = "Close")
+        }
+        Box(
+            modifier = Modifier.size(10.dp).background(Color.Red, CircleShape)
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text("Wheel Diagnostics", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "${entries.size} entries · recording",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        IconButton(onClick = onStop) {
+            Icon(Icons.Default.Stop, contentDescription = "Stop")
+        }
+    }
+}
+
+@Composable
+private fun LogTab(vm: WheelDiagnosticsViewModel) {
+    val entries by vm.entries.collectAsState()
+    val context = LocalContext.current
+    val listState = rememberLazyListState()
+    LaunchedEffect(entries.size) {
+        if (entries.isNotEmpty()) listState.animateScrollToItem(entries.size - 1)
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                .padding(6.dp)
+        ) {
+            items(entries) { e -> LogRow(e) }
+            if (entries.isEmpty()) {
+                item {
+                    Text(
+                        "No traffic yet. Connect to a wheel or fire a test command.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        var comment by remember { mutableStateOf("") }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = comment,
+                onValueChange = { comment = it },
+                modifier = Modifier.weight(1f),
+                label = { Text("Add comment to log") },
+                placeholder = { Text("e.g. wheel display says 77F") },
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                singleLine = false,
+                maxLines = 3
+            )
+            IconButton(onClick = {
+                vm.addComment(comment)
+                comment = ""
+            }) { Icon(Icons.Default.Send, contentDescription = "Add") }
+        }
+
+        Spacer(Modifier.height(6.dp))
+
+        OutlinedButton(
+            onClick = {
+                vm.buildShareIntent()?.let {
+                    context.startActivity(Intent.createChooser(it, "Share diagnostics"))
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Share log as .txt")
+        }
+    }
+}
+
+@Composable
+private fun LogRow(e: DiagnosticsLogger.Entry) {
+    val ts = remember(e.timestampMs) {
+        TIME_FMT.format(Date(e.timestampMs))
+    }
+    val color = when (e.kind) {
+        DiagnosticsLogger.Kind.RX -> Color(0xFF7AC6F0)
+        DiagnosticsLogger.Kind.TX -> Color(0xFFF0B97A)
+        DiagnosticsLogger.Kind.NOTE -> MaterialTheme.colorScheme.onSurfaceVariant
+        DiagnosticsLogger.Kind.CMD -> Color(0xFFB87AF0)
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF7AF0A0)
+        DiagnosticsLogger.Kind.INFO -> MaterialTheme.colorScheme.primary
+    }
+    Text(
+        "$ts ${e.kind.name.padEnd(7)} ${e.text}",
+        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        color = color,
+        maxLines = 4,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+@Composable
+private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
+    val cmds = remember { vm.diagnosticCommands() }
+    if (cmds.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                "No diagnostic commands defined for this wheel.\nUse the Raw tab to send arbitrary bytes.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        return
+    }
+
+    val grouped = remember(cmds) { cmds.groupBy { it.category } }
+
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+        grouped.forEach { (category, list) ->
+            item {
+                Text(
+                    category.name,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                )
+            }
+            item {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(110.dp),
+                    contentPadding = PaddingValues(2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = (((list.size + 2) / 3) * 64 + 16).dp)
+                ) {
+                    items(list) { cmd ->
+                        OutlinedButton(
+                            onClick = { vm.fireCommand(cmd) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column {
+                                Text(cmd.label, style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    cmd.description,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RawTab(vm: WheelDiagnosticsViewModel) {
+    var raw by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+    Column(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+        Text(
+            "Send raw bytes directly. Format: \"AA AA 16 06 02 21 60 50 01 01 …\" or \"aaaa1606022160500101…\".",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = raw,
+            onValueChange = { raw = it; error = null },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp),
+            label = { Text("Hex bytes") },
+            isError = error != null,
+            supportingText = error?.let { { Text(it) } }
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = {
+                if (!vm.fireRawHex(raw)) error = "Could not parse hex"
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("Send raw") }
+    }
+}
+
+private val TIME_FMT = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)

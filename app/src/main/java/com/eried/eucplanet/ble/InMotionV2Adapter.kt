@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ble
 
 import android.util.Log
+import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -230,6 +231,84 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         useP6Protocol = false
     }
 
+    /**
+     * Per-wheel guesses for the Wheel Diagnostics dialog. Most are P6 light
+     * candidates because that's the open question right now: the canonical
+     * `60 50 00 00` from the labelled InMotion-app capture isn't taking on
+     * the user's hardware. Each entry is short-named with the bytes it
+     * encodes so the user can report "T6050_FFFF turned the light off" and
+     * we know exactly which packet that was.
+     */
+    override fun getDiagnosticCommands(): List<DiagnosticCommand> {
+        if (!useP6Protocol) return emptyList()
+        val LIGHT = DiagnosticCommand.Category.LIGHT
+        val MODE = DiagnosticCommand.Category.MODE
+        val QUERY = DiagnosticCommand.Category.QUERY
+        val HORN = DiagnosticCommand.Category.HORN
+
+        fun ext(label: String, desc: String, cat: DiagnosticCommand.Category, vararg bytes: Int) =
+            DiagnosticCommand(label, desc, InMotionV2Protocol.buildExtendedPacket(
+                InMotionV2Protocol.Command.CONTROL,
+                ByteArray(bytes.size) { bytes[it].toByte() }
+            ), cat)
+
+        fun query(label: String, desc: String, cat: DiagnosticCommand.Category, cmd: Byte, vararg data: Int) =
+            DiagnosticCommand(label, desc, InMotionV2Protocol.buildExtendedPacket(
+                cmd,
+                ByteArray(data.size) { data[it].toByte() }
+            ), cat)
+
+        return listOf(
+            // --- Light: the byte combinations we want to probe ---
+            ext("T6050_0000", "Light OFF (current canonical)", LIGHT, 0x50, 0x00, 0x00),
+            ext("T6050_0101", "Light ON (current canonical)", LIGHT, 0x50, 0x01, 0x01),
+            ext("T6050_00", "Light, 1-byte 00", LIGHT, 0x50, 0x00),
+            ext("T6050_01", "Light, 1-byte 01", LIGHT, 0x50, 0x01),
+            ext("T6050_02", "Light, 1-byte 02", LIGHT, 0x50, 0x02),
+            ext("T6050_FF", "Light, 1-byte FF", LIGHT, 0x50, 0xFF),
+            ext("T6050_FFFF", "Light, FF FF", LIGHT, 0x50, 0xFF, 0xFF),
+            ext("T6050_0102", "Light, mismatched 01 02", LIGHT, 0x50, 0x01, 0x02),
+            ext("T6050_0201", "Light, mismatched 02 01", LIGHT, 0x50, 0x02, 0x01),
+            ext("T6050_03", "Light, value 03", LIGHT, 0x50, 0x03),
+            // V14-style legacy light path (not extended routing)
+            DiagnosticCommand("T024B_00", "V14 legacy light OFF",
+                InMotionV2Protocol.buildPacket(
+                    InMotionV2Protocol.Flags.DEFAULT,
+                    InMotionV2Protocol.Command.CONTROL,
+                    byteArrayOf(InMotionV2Protocol.ControlSubCmd.SET_LIGHT, 0x00)
+                ), LIGHT),
+            DiagnosticCommand("T024B_01", "V14 legacy light ON",
+                InMotionV2Protocol.buildPacket(
+                    InMotionV2Protocol.Flags.DEFAULT,
+                    InMotionV2Protocol.Command.CONTROL,
+                    byteArrayOf(InMotionV2Protocol.ControlSubCmd.SET_LIGHT, 0x01)
+                ), LIGHT),
+            // Auto-headlight may be hijacking the visible state
+            ext("T602F_00", "Auto-headlight OFF", MODE, 0x2F, 0x00),
+            ext("T602F_01", "Auto-headlight ON", MODE, 0x2F, 0x01),
+            // DRL guess
+            ext("T604E_00", "DRL? OFF", MODE, 0x4E, 0x00),
+            ext("T604E_01", "DRL? ON", MODE, 0x4E, 0x01),
+
+            // --- Horn (verify control endpoint is alive) ---
+            ext("T6051_1801", "Horn (canonical)", HORN, 0x51, 0x18, 0x01),
+
+            // --- Read-only queries: tap to inspect what the wheel returns ---
+            query("Q0286", "Info bundle (serial, firmware)", QUERY,
+                InMotionV2Protocol.Command.MAIN_INFO, 0x06),
+            query("Q0287", "Realtime telemetry", QUERY,
+                InMotionV2Protocol.Command.MAIN_INFO, 0x07),
+            query("Q0220", "Settings page A", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x20),
+            query("Q0221", "Settings page B (untried)", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x21),
+            query("Q0222", "Settings page C (untried)", QUERY,
+                InMotionV2Protocol.Command.SETTINGS, 0x22),
+            query("Q0211", "Total stats", QUERY,
+                InMotionV2Protocol.Command.TOTAL_STATS),
+        )
+    }
+
     /** Internal decode of an unwrapped V2 packet. Called from [onRawNotification]. */
     private fun decode(command: Byte, data: ByteArray): DecodeResult {
         return when (command.toInt() and 0x7F) {
@@ -256,8 +335,8 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 // realtime: skip the `02 87 01 00` prefix to land on the data block
                 if (data.size < 4) return DecodeResult.Unknown
                 val body = data.copyOfRange(4, data.size)
-                P6DebugLogger.note(
-                    "RT len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
+                com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                    "P6 realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = InMotionV2Parser.parseP6Telemetry(body)
                 telem?.let { DecodeResult.Telemetry(it) } ?: DecodeResult.Unknown
