@@ -163,13 +163,15 @@ fun WheelDiagnosticsDialog(
                     }
                 )
 
-                // Cap the log at a fixed slice of the screen so the active
-                // tab below always has enough room to scroll all the way to
-                // its bottom (e.g. the Send button under the Raw tab's hex
-                // pad + wrap mode + bytes-to-send rows).
+                // Cap the log at a small fixed slice of the screen so the
+                // active tab below always has enough room to scroll all the
+                // way to its bottom (e.g. the Send button under the Raw
+                // tab's hex pad + wrap mode + bytes-to-send rows). Smaller
+                // floor than the full screen means the log can collapse to
+                // almost nothing on short screens with the keyboard up.
                 LogPanel(modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 120.dp, max = 220.dp))
+                    .heightIn(min = 80.dp, max = 180.dp))
 
                 Spacer(Modifier.height(4.dp))
 
@@ -536,7 +538,10 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
         val commandButtonHeight = 80.dp
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(top = 8.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
+            // Generous bottom padding so the last command in the final
+            // category isn't pressed against the dialog edge and stays
+            // comfortably reachable after scrolling.
+            contentPadding = PaddingValues(bottom = 72.dp)
         ) {
             grouped.forEach { (category, list) ->
                 item {
@@ -1116,7 +1121,10 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             ) { Text("send") }
         }
 
-        Spacer(Modifier.height(12.dp))
+        // Generous bottom padding so the Send row is fully visible even
+        // after scrolling to the absolute bottom — the OutlinedButton has
+        // its own padding/ripple and benefits from breathing room below.
+        Spacer(Modifier.height(72.dp))
     }
 
 }
