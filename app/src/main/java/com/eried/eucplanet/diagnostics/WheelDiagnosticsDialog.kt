@@ -187,7 +187,7 @@ fun WheelDiagnosticsDialog(
                     Tab(selected = tab == 0, onClick = { tab = 0 },
                         text = { Text("Commands") })
                     Tab(selected = tab == 1, onClick = { tab = 1 },
-                        text = { Text("Inspect") })
+                        text = { Text("Inspector") })
                     Tab(selected = tab == 2, onClick = { tab = 2 },
                         text = { Text("Raw") })
                 }
@@ -788,12 +788,13 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
         }
 
         // 6-column grid of byte cells. weight(1f) claims the leftover Column
-        // height so the bottom row isn't clipped, plus a bottom contentPadding
-        // so the last row doesn't kiss the dialog edge.
+        // height so the bottom row isn't clipped, plus generous bottom
+        // contentPadding so the last row stays comfortably reachable after
+        // scrolling.
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(bottom = 72.dp)
         ) {
             items(latestBytes.size) { off ->
                 val v = latestBytes[off]
