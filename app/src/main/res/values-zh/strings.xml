@@ -213,17 +213,6 @@
     <string name="voice_legal_on">合规模式 开</string>
     <string name="voice_legal_off">合规模式 关</string>
     <string name="voice_welcome">欢迎回到 EUC Planet</string>
-
-    <string name="lang_name_en">英语</string>
-    <string name="lang_name_es">西班牙语</string>
-    <string name="lang_name_ru">俄语</string>
-    <string name="lang_name_no">挪威语</string>
-    <string name="lang_name_de">德语</string>
-    <string name="lang_name_fr">法语</string>
-    <string name="lang_name_da">丹麦语</string>
-    <string name="lang_name_sv">瑞典语</string>
-    <string name="lang_name_zh">中文</string>
-
     <string name="alarm_metric_speed">速度</string>
     <string name="alarm_metric_battery">电量</string>
     <string name="alarm_metric_temperature">温度</string>

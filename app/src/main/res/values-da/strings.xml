@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Lovlig tilstand til</string>
     <string name="voice_legal_off">Lovlig tilstand fra</string>
     <string name="voice_welcome">Velkommen tilbage til EUC Planet</string>
-
-    <string name="lang_name_en">engelsk</string>
-    <string name="lang_name_es">spansk</string>
-    <string name="lang_name_ru">russisk</string>
-    <string name="lang_name_no">norsk</string>
-    <string name="lang_name_de">tysk</string>
-    <string name="lang_name_fr">fransk</string>
-    <string name="lang_name_da">dansk</string>
-    <string name="lang_name_sv">svensk</string>
-    <string name="lang_name_zh">kinesisk</string>
-
     <string name="alarm_metric_speed">Hastighed</string>
     <string name="alarm_metric_battery">Batteri</string>
     <string name="alarm_metric_temperature">Temperatur</string>

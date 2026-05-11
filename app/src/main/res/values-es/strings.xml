@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Modo legal activado</string>
     <string name="voice_legal_off">Modo legal desactivado</string>
     <string name="voice_welcome">Bienvenido de vuelta a EUC Planet</string>
-
-    <string name="lang_name_en">inglés</string>
-    <string name="lang_name_es">español</string>
-    <string name="lang_name_ru">ruso</string>
-    <string name="lang_name_no">noruego</string>
-    <string name="lang_name_de">alemán</string>
-    <string name="lang_name_fr">francés</string>
-    <string name="lang_name_da">danés</string>
-    <string name="lang_name_sv">sueco</string>
-    <string name="lang_name_zh">chino</string>
-
     <!-- Scan screen -->
     <string name="scan_title">Conectar al monociclo</string>
     <string name="scan_scanning">Buscando\u2026</string>

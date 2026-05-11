@@ -16,6 +16,9 @@ interface AlarmDao {
     @Query("SELECT * FROM alarm_rules WHERE enabled = 1 ORDER BY sortOrder ASC, id ASC")
     suspend fun getEnabled(): List<AlarmRule>
 
+    @Query("SELECT * FROM alarm_rules ORDER BY sortOrder ASC, id ASC")
+    suspend fun getAll(): List<AlarmRule>
+
     @Insert
     suspend fun insert(rule: AlarmRule): Long
 
@@ -24,6 +27,9 @@ interface AlarmDao {
 
     @Delete
     suspend fun delete(rule: AlarmRule)
+
+    @Query("DELETE FROM alarm_rules")
+    suspend fun deleteAll()
 
     @Query("SELECT COALESCE(MAX(sortOrder), 0) + 1 FROM alarm_rules")
     suspend fun nextSortOrder(): Int

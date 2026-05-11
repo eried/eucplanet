@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Mode légal activé</string>
     <string name="voice_legal_off">Mode légal désactivé</string>
     <string name="voice_welcome">Bon retour sur EUC Planet</string>
-
-    <string name="lang_name_en">anglais</string>
-    <string name="lang_name_es">espagnol</string>
-    <string name="lang_name_ru">russe</string>
-    <string name="lang_name_no">norvégien</string>
-    <string name="lang_name_de">allemand</string>
-    <string name="lang_name_fr">français</string>
-    <string name="lang_name_da">danois</string>
-    <string name="lang_name_sv">suédois</string>
-    <string name="lang_name_zh">chinois</string>
-
     <string name="alarm_metric_speed">Vitesse</string>
     <string name="alarm_metric_battery">Batterie</string>
     <string name="alarm_metric_temperature">Température</string>

@@ -293,20 +293,20 @@
 
     <!-- Language display names (shown for TTS mismatch prompt) -->
     <string name="lang_name_en">English</string>
-    <string name="lang_name_es">Spanish</string>
-    <string name="lang_name_es_419">Spanish (Latin America)</string>
-    <string name="lang_name_ru">Russian</string>
-    <string name="lang_name_uk">Ukrainian</string>
-    <string name="lang_name_no">Norwegian</string>
-    <string name="lang_name_de">German</string>
-    <string name="lang_name_fr">French</string>
-    <string name="lang_name_it">Italian</string>
-    <string name="lang_name_nl">Dutch</string>
-    <string name="lang_name_pl">Polish</string>
-    <string name="lang_name_pt">Portuguese</string>
-    <string name="lang_name_da">Danish</string>
-    <string name="lang_name_sv">Swedish</string>
-    <string name="lang_name_zh">Chinese</string>
+    <string name="lang_name_es">Español</string>
+    <string name="lang_name_es_419">Español (Latinoamérica)</string>
+    <string name="lang_name_ru">Русский</string>
+    <string name="lang_name_uk">Українська</string>
+    <string name="lang_name_no">Norsk</string>
+    <string name="lang_name_de">Deutsch</string>
+    <string name="lang_name_fr">Français</string>
+    <string name="lang_name_it">Italiano</string>
+    <string name="lang_name_nl">Nederlands</string>
+    <string name="lang_name_pl">Polski</string>
+    <string name="lang_name_pt">Português (Brasil)</string>
+    <string name="lang_name_da">Dansk</string>
+    <string name="lang_name_sv">Svenska</string>
+    <string name="lang_name_zh">中文</string>
 
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Speed</string>

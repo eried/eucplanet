@@ -41,76 +41,72 @@
   </header>
 
   <div class="warn">
-    Improper use can change wheel settings unexpectedly. Use only when you understand what you are sending.
+    Sends real bytes to your wheel. You can change settings unexpectedly. Use it if you know what you are doing.
   </div>
 
-  <p>Service Mode is a hidden screen that records every BLE byte the app exchanges with the wheel and lets you fire test commands by hand. It is meant for users helping to track down a bug, and for protocol research on wheels we don't fully support yet.</p>
+  <p>Hidden dialog that captures every BLE byte to/from the wheel, lets you fire test commands by hand, and exports a <code>.txt</code> log. For bug reports and protocol research.</p>
 
-  <h2>Entering and exiting</h2>
-  <ol>
-    <li>Tap the version number at the bottom right of the dashboard.</li>
-    <li>In the About dialog, press and hold the round app logo for 5 seconds.</li>
-    <li>Confirm the warning. Recording starts and the dashboard's version number pulses red.</li>
-    <li>To exit, tap the Stop icon in the Service Mode header. The log clears.</li>
-  </ol>
-  <p>While recording, you can close the Service Mode dialog and use the app normally. The log keeps capturing in the background. Tap the red version number to reopen Service Mode at any time.</p>
+  <h2>Enter / exit</h2>
+  <p>Dashboard version number → About → tap-and-hold the logo (drag off to abort). Confirm the warning. Version pulses red. Tap it again any time to reopen. Stop icon exits and clears the log.</p>
+  <p>The log keeps capturing in the background while you use the app normally.</p>
 
-  <h2>What is recorded</h2>
-  <p>Each entry has a timestamp and a kind:</p>
+  <h2>What gets logged</h2>
   <ul>
-    <li><code>RX</code> raw bytes received from the wheel (one BLE notification chunk per line)</li>
-    <li><code>TX</code> raw bytes the app wrote to the wheel</li>
-    <li><code>CMD</code> a test command fired from the Commands or Raw tab, with its label</li>
-    <li><code>NOTE</code> internal app events (light toggle requests, reassembled realtime frames, auto-sync events)</li>
-    <li><code>COMMENT</code> free text the user typed into the comment field</li>
-    <li><code>INFO</code> session metadata at startup (phone model, Android, RAM, storage, BLE adapter, connected Wear node, wheel firmware)</li>
+    <li><code>RX</code> / <code>TX</code> raw bytes (one BLE chunk per line)</li>
+    <li><code>CMD</code> test command + label</li>
+    <li><code>NOTE</code> reassembled frames + internal events</li>
+    <li><code>COMMENT</code> your free-text notes (or attached snapshots — see below)</li>
+    <li><code>INFO</code> session metadata: phone, Android, RAM/storage, BLE adapter, paired Wear node, wheel firmware</li>
   </ul>
-  <p>Nothing is uploaded. The log lives only in memory until you tap Share, which exports it as a <code>.txt</code> via the Android share sheet.</p>
+  <p>Nothing leaves the device until you tap Share.</p>
 
   <h2>Commands tab</h2>
-  <p>Each connected wheel exposes a list of preset test commands. The label encodes the bytes the app sends, so when you report a result you can say "T6050_FFFF turned the headlight off" and the developer knows the exact packet that worked.</p>
-  <p>Tap a command, watch the log for the wheel's response, type a comment describing what physically happened, then move on. The dashboard's normal Light, Horn, Lock buttons still work too while Service Mode is open.</p>
+  <p>Per-wheel-family preset list. Pick a family in the dropdown (single-family adapters show it disabled), fire a command, watch the log, comment what changed physically. The dashboard's Light/Horn/Lock keep working in parallel.</p>
+
+  <h2>Inspect tab</h2>
+  <p>Live byte-grid of the incoming stream. Pick family + message type. Tap a byte cell to log <code>byte N = X</code>. The min/max range filter hides cells outside the range and shows a hidden-count badge. Use it to find which offset carries which value.</p>
 
   <h2>Raw tab</h2>
-  <p>Type any sequence of hex bytes and the app sends it. Use this for opcodes the Commands grid doesn't cover yet.</p>
-  <p>Spaces and dashes are optional. <code>60 50 01 01</code>, <code>6050-0101</code>, and <code>60500101</code> all parse to the same four bytes. The cap is 64 bytes per send. The Bytes-to-send field below the input is read-only and shows what will actually go on the wire under the current wrap mode.</p>
+  <p>Type hex, send it. <code>60 50 01 01</code>, <code>6050-0101</code>, <code>60500101</code> all parse to the same four bytes. 64-byte cap. The read-only Bytes-to-send line shows the final on-wire frame after wrapping.</p>
 
   <h3>Wrap mode</h3>
-  <p>The wheel families this app supports use different framing. The wrap mode picker decides what the app does with your typed bytes before sending them.</p>
   <ul>
-    <li><strong>Literal</strong> sends the bytes exactly as typed. Use this when you have a complete frame including the <code>aa aa</code> header and XOR checksum already.</li>
-    <li><strong>Wrap V2</strong> treats your bytes as <code>[command] [data...]</code> for the InMotion V2 extended framing. The app prepends <code>aa aa 16 LL 02 21</code> and appends a XOR checksum. Use this for P6, V12, and V14 control writes when you only know the inner sub-command.</li>
-    <li><strong>Wrap V14</strong> uses the shorter V14 framing with flags <code>14</code>. Used by some legacy InMotion control writes.</li>
+    <li><strong>Literal</strong> — exactly as typed (full frame, your own checksum).</li>
+    <li><strong>V2 extended</strong> — InMotion V12 / V14 / P6: prepends <code>aa aa 16 LL 02 21</code>, appends XOR checksum.</li>
+    <li><strong>V14 short</strong> — legacy InMotion control flags.</li>
+    <li><strong>KingSong</strong> / <strong>Ninebot legacy</strong> / <strong>InMotion V1</strong> — their respective framing.</li>
   </ul>
-  <p>Example. The InMotion P6 light-on command's inner bytes are <code>60 50 01 01</code>. With Wrap V2 the app expands that to:</p>
+  <p>Example. V2 extended around <code>60 50 01 01</code> (P6 headlight on):</p>
   <pre><code>aa aa 16 06 02 21 60 50 01 01 [xor]</code></pre>
-  <p>You only type <code>60 50 01 01</code>. The framing and checksum are added automatically.</p>
 
-  <h3>Preset chips</h3>
-  <p>The Insert preset section drops common sub-commands into the input field. Examples for the InMotion V2 family:</p>
+  <h3>Presets</h3>
+  <p>Common V2-ext sub-commands available as chips:</p>
   <ul>
-    <li><code>60 50 00 00</code> headlight off (canonical)</li>
-    <li><code>60 50 01 01</code> headlight on</li>
-    <li><code>60 51 18 01</code> horn beep</li>
-    <li><code>60 2f 00</code> / <code>60 2f 01</code> auto-headlight off / on</li>
-    <li><code>60 24 00</code> / <code>60 24 01</code> 25 km/h speed clamp off / on</li>
-    <li><code>02 06</code> info bundle query</li>
-    <li><code>02 07</code> realtime telemetry query</li>
-    <li><code>20 20</code> settings page A query</li>
+    <li><code>60 50 00 00</code> / <code>60 50 01 01</code> — headlight off / on</li>
+    <li><code>60 51 18 01</code> — horn beep</li>
+    <li><code>60 2f 00 / 01</code> — auto-headlight off / on</li>
+    <li><code>60 24 00 / 01</code> — 25 km/h clamp off / on</li>
+    <li><code>02 06</code> — info bundle</li>
+    <li><code>02 07</code> — realtime telemetry</li>
+    <li><code>20 20</code> — settings page A</li>
   </ul>
-  <p>Combine a preset with the Wrap V2 mode and you can fire any control write the wheel will accept.</p>
 
-  <h2>Hex pad and undo</h2>
-  <p>The hex pad is collapsible and offers buttons for 0-F plus space, backspace, undo, and redo. Useful when the keyboard layout doesn't have an easy hex input. Undo and redo are multi-step and survive cls.</p>
-
-  <h2>Adding context to the log</h2>
-  <p>The comment field at the top of Service Mode writes free text into the log between the BLE events. Use it to describe what you observe physically: <em>motor cold = 73F</em>, <em>headlight visibly went off</em>, <em>wheel beeped twice</em>. When the developer reads the shared log, your comments line up with the surrounding RX and TX entries.</p>
+  <h2>Attach data to a comment</h2>
+  <p>The comment row has an Attach picker. Drops a structured snapshot into the log as a COMMENT:</p>
+  <ul>
+    <li>App config</li>
+    <li>Wheel state</li>
+    <li>Trips summary</li>
+    <li>Installed apps</li>
+    <li>Crashes</li>
+  </ul>
+  <p>The Wear OS companion also announces its build info on each launch as a NOTE entry, so the watch firmware shows up alongside the phone's INFO line.</p>
 
   <h2>Sharing</h2>
-  <p>Tap the Share icon in the Service Mode header. The log goes to a temp <code>.txt</code> file under the app's cache directory and opens the Android share sheet. Send it through any chat app, email, or cloud upload.</p>
+  <p>Share icon in the header → <code>.txt</code> via the Android share sheet.</p>
 
-  <h2>For developers extending Service Mode</h2>
-  <p>Each wheel adapter contributes its own preset list via <code>WheelAdapter.getDiagnosticCommands()</code>. To add a new wrap mode, add it to <code>WheelDiagnosticsViewModel.WrapMode</code>, extend the <code>wrap()</code> function with the framing logic, and add a segment in the dialog's wrap-mode row. The list of preset chips is just a hard-coded list at the top of <code>RawTab</code> so it's easy to grow.</p>
+  <h2>For developers</h2>
+  <p>Per-wheel presets live in <code>WheelAdapter.getDiagnosticCommands()</code>. Inspect message types come from <code>WheelAdapter.inspectMessageTypes()</code>. Add a wrap mode in <code>WheelDiagnosticsViewModel.WrapMode</code> + <code>wrap()</code>.</p>
 
   <footer>
     <a href="index.html">Back to EUC Planet</a>

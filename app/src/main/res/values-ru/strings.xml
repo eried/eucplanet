@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Легальный режим включён</string>
     <string name="voice_legal_off">Легальный режим выключен</string>
     <string name="voice_welcome">С возвращением в EUC Planet</string>
-
-    <string name="lang_name_en">Английский</string>
-    <string name="lang_name_es">Испанский</string>
-    <string name="lang_name_ru">Русский</string>
-    <string name="lang_name_no">Норвежский</string>
-    <string name="lang_name_de">Немецкий</string>
-    <string name="lang_name_fr">Французский</string>
-    <string name="lang_name_da">Датский</string>
-    <string name="lang_name_sv">Шведский</string>
-    <string name="lang_name_zh">Китайский</string>
-
     <!-- Scan screen -->
     <string name="scan_title">Подключить к моноколесу</string>
     <string name="scan_scanning">Поиск\u2026</string>

@@ -282,16 +282,6 @@
     <string name="voice_welcome">Bem-vindo de volta ao EUC Planet</string>
 
     <!-- Language display names (shown for TTS mismatch prompt) -->
-    <string name="lang_name_en">inglês</string>
-    <string name="lang_name_es">espanhol</string>
-    <string name="lang_name_ru">russo</string>
-    <string name="lang_name_no">norueguês</string>
-    <string name="lang_name_de">alemão</string>
-    <string name="lang_name_fr">francês</string>
-    <string name="lang_name_da">dinamarquês</string>
-    <string name="lang_name_sv">sueco</string>
-    <string name="lang_name_zh">chinês</string>
-
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Velocidade</string>
     <string name="alarm_metric_battery">Bateria</string>

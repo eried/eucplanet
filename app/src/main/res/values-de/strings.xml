@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Legal-Modus an</string>
     <string name="voice_legal_off">Legal-Modus aus</string>
     <string name="voice_welcome">Willkommen zurück bei EUC Planet</string>
-
-    <string name="lang_name_en">Englisch</string>
-    <string name="lang_name_es">Spanisch</string>
-    <string name="lang_name_ru">Russisch</string>
-    <string name="lang_name_no">Norwegisch</string>
-    <string name="lang_name_de">Deutsch</string>
-    <string name="lang_name_fr">Französisch</string>
-    <string name="lang_name_da">Dänisch</string>
-    <string name="lang_name_sv">Schwedisch</string>
-    <string name="lang_name_zh">Chinesisch</string>
-
     <!-- Scan screen -->
     <string name="scan_title">Mit Rad verbinden</string>
     <string name="scan_scanning">Suche\u2026</string>
