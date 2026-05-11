@@ -247,7 +247,16 @@ class VoiceService @Inject constructor(
         val engine = tts ?: return
         val voices = try {
             engine.availableLanguages?.map { locale ->
-                VoiceOption(locale, "${locale.displayLanguage} (${locale.displayCountry})")
+                // displayCountry can be empty for locales that aren't bound to
+                // a region (e.g. plain "ar" Arabic). Skip the parens in that
+                // case so we don't render "Arabic ()".
+                val country = locale.displayCountry
+                val label = if (country.isNullOrBlank()) {
+                    locale.displayLanguage
+                } else {
+                    "${locale.displayLanguage} ($country)"
+                }
+                VoiceOption(locale, label)
             }?.sortedBy { it.displayName } ?: emptyList()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to load voices", e)
