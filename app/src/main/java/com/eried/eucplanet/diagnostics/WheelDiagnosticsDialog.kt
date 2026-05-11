@@ -270,10 +270,8 @@ private fun LogPanel(modifier: Modifier = Modifier) {
             listState.scrollToItem(entries.size - 1)
         }
     }
-    // Matrix-terminal aesthetic: black background, default green text, but
-    // RX / TX / CMD / COMMENT keep their per-kind colours so kinds are
-    // still visually distinct. Keeps the rest of Service Mode in the
-    // forced-light theme.
+    // Matrix-terminal aesthetic stays isolated from the rest of Service
+    // Mode's forced-light theme. Per-kind hues are picked in LogRow.
     LazyColumn(
         state = listState,
         modifier = modifier
@@ -439,16 +437,13 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     val ts = remember(e.timestampMs) {
         TIME_FMT.format(Date(e.timestampMs))
     }
-    // Each kind gets a distinct hue on the black matrix background so the
-    // log stays scannable at the small log font. The padded kind name
-    // itself is enough of a label — no glyph prefix.
     val color = when (e.kind) {
-        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF)              // bright sky blue
-        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40)              // amber
-        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB)             // magenta
-        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)            // soft teal
-        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)            // matrix green
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B)         // bright yellow
+        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF)
+        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40)
+        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB)
+        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)
+        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B)
     }
     Text(
         "$ts ${e.kind.name.padEnd(7)} ${e.text}",
@@ -535,10 +530,7 @@ private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
         val commandButtonHeight = 80.dp
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(top = 8.dp),
-            // Generous bottom padding so the last command in the final
-            // category isn't pressed against the dialog edge and stays
-            // comfortably reachable after scrolling.
-            contentPadding = PaddingValues(bottom = 72.dp)
+            contentPadding = PaddingValues(bottom = ScrollTailPadding)
         ) {
             grouped.forEach { (category, list) ->
                 item {
@@ -785,13 +777,11 @@ private fun InspectTab(vm: WheelDiagnosticsViewModel) {
         }
 
         // 6-column grid of byte cells. weight(1f) claims the leftover Column
-        // height so the bottom row isn't clipped, plus generous bottom
-        // contentPadding so the last row stays comfortably reachable after
-        // scrolling.
+        // height so the bottom row isn't clipped.
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             modifier = Modifier.weight(1f).fillMaxWidth(),
-            contentPadding = PaddingValues(bottom = 72.dp)
+            contentPadding = PaddingValues(bottom = ScrollTailPadding)
         ) {
             items(latestBytes.size) { off ->
                 val v = latestBytes[off]
@@ -1119,13 +1109,15 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
             ) { Text("send") }
         }
 
-        // Generous bottom padding so the Send row is fully visible even
-        // after scrolling to the absolute bottom — the OutlinedButton has
-        // its own padding/ripple and benefits from breathing room below.
-        Spacer(Modifier.height(72.dp))
+        Spacer(Modifier.height(ScrollTailPadding))
     }
 
 }
 
 
 private val TIME_FMT = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+
+// Clearance below the last row of each scrollable tab so the final element
+// (Send button, last command, last byte row) stays comfortably reachable
+// after scrolling, even with the IME open.
+private val ScrollTailPadding = 72.dp
