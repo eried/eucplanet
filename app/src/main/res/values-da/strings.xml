@@ -44,7 +44,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">SPÆNDING</string>
     <string name="stat_amps">AMPERE</string>
-    <string name="stat_load">BELASTNING</string>
+    <string name="stat_load">BELASTNING (PWM)</string>
     <string name="stat_trip">TUR</string>
     <string name="stat_odo">ODO </string>
 

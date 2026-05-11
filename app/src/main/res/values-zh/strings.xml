@@ -44,7 +44,7 @@
     <string name="stat_temp">温度</string>
     <string name="stat_voltage">电压</string>
     <string name="stat_amps">电流</string>
-    <string name="stat_load">负载</string>
+    <string name="stat_load">负载 (PWM)</string>
     <string name="stat_trip">行程</string>
     <string name="stat_odo">里程 </string>
 

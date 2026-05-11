@@ -44,7 +44,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">TENSION</string>
     <string name="stat_amps">AMPS</string>
-    <string name="stat_load">CHARGE</string>
+    <string name="stat_load">CHARGE (PWM)</string>
     <string name="stat_trip">TRAJET</string>
     <string name="stat_odo">ODO </string>
 

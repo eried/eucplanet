@@ -44,7 +44,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">SPANNUNG</string>
     <string name="stat_amps">AMPERE</string>
-    <string name="stat_load">LAST</string>
+    <string name="stat_load">LAST (PWM)</string>
     <string name="stat_trip">FAHRT</string>
     <string name="stat_odo">ODO </string>
 
