@@ -22,7 +22,10 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 30
         targetSdk = 35
-        versionCode = 35
+        // Wear OS variant rides on the same package as the phone, so we offset
+        // its versionCode by 100000 to keep them distinct in Play Console while
+        // preserving the phone-side numbering (35 -> 100035).
+        versionCode = 100035
         versionName = "0.4.3"
     }
 
