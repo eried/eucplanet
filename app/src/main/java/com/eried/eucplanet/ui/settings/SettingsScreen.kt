@@ -615,15 +615,13 @@ private fun DisplayTab(
         ) { viewModel.updateShowGaugeColorBand(it) }
 
         if (settings.showGaugeColorBand) {
-            val safeColor = if (com.eried.eucplanet.ui.theme.isDefaultAccent(settings.accentColor)) {
-                AccentBlue
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
+            // Safe band reads as the universal "ok" colour on the real dial
+            // (phone + watch), so the settings preview matches that: always
+            // green, never tinted by the user's accent.
             GaugeThresholdSlider(
                 orangePct = settings.gaugeOrangeThresholdPct,
                 redPct = settings.gaugeRedThresholdPct,
-                safeColor = safeColor,
+                safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
                 onChange = { o, r -> viewModel.updateGaugeThresholds(o, r) }
             )
         }
