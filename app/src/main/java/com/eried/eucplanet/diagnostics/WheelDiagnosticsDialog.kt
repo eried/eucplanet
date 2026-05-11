@@ -440,21 +440,18 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
         TIME_FMT.format(Date(e.timestampMs))
     }
     // Each kind gets a distinct hue on the black matrix background so the
-    // log stays scannable at the small log font. Arrow prefix is a second
-    // channel for the colour-blind / dim-screen case. Yellow COMMENT and
-    // teal NOTE were intentionally pulled away from each other (and from
-    // the green matrix "ambient" tone) so user-typed notes and internal
-    // events don't blur together.
-    val (color, arrow) = when (e.kind) {
-        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF) to "<"          // bright sky blue
-        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40) to ">"          // amber
-        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB) to ">"          // magenta
-        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1) to "·"         // soft teal
-        DiagnosticsLogger.Kind.INFO -> Color(0xFFB388FF) to "i"         // light purple
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B) to "✎"      // bright yellow
+    // log stays scannable at the small log font. The padded kind name
+    // itself is enough of a label — no glyph prefix.
+    val color = when (e.kind) {
+        DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF)              // bright sky blue
+        DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40)              // amber
+        DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB)             // magenta
+        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1)            // soft teal
+        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41)            // matrix green
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B)         // bright yellow
     }
     Text(
-        "$ts $arrow ${e.kind.name.padEnd(7)} ${e.text}",
+        "$ts ${e.kind.name.padEnd(7)} ${e.text}",
         style = MaterialTheme.typography.labelSmall.copy(
             fontFamily = FontFamily.Monospace,
             fontSize = 10.sp,
