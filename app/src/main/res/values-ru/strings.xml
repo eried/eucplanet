@@ -53,9 +53,9 @@
     <string name="action_voice">Озвучить</string>
     <string name="action_legal_mode">Лег. режим</string>
     <string name="action_legal_on">Лег. вкл.</string>
-    <string name="action_lock_wheel">Закрыть</string>
+    <string name="action_lock_wheel">Заблокировать</string>
     <string name="action_locked">Закрыто</string>
-    <string name="action_recorder">Поездки</string>
+    <string name="action_recorder">Запись</string>
     <string name="action_recorder_trips">Поездки\n(%1$d)</string>
 
     <string name="search_settings">Поиск настроек</string>

@@ -55,7 +55,7 @@
     <string name="action_legal_on">Legal ON</string>
     <string name="action_lock_wheel">Bloquear</string>
     <string name="action_locked">Bloqueada</string>
-    <string name="action_recorder">Grabación</string>
+    <string name="action_recorder">Grabador</string>
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
 
     <string name="search_settings">Buscar ajustes</string>

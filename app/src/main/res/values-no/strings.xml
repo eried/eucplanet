@@ -55,7 +55,7 @@
     <string name="action_legal_on">Lovlig PÅ</string>
     <string name="action_lock_wheel">Lås hjul</string>
     <string name="action_locked">Låst</string>
-    <string name="action_recorder">Opptak</string>
+    <string name="action_recorder">Opptaker</string>
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
 
     <string name="search_settings">Søk i innstillinger</string>
