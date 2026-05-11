@@ -24,9 +24,9 @@ android {
         targetSdk = 35
         // Wear OS variant rides on the same package as the phone, so we offset
         // its versionCode by 100000 to keep them distinct in Play Console while
-        // preserving the phone-side numbering (36 -> 100036).
-        versionCode = 100036
-        versionName = "0.4.4"
+        // preserving the phone-side numbering (37 -> 100037).
+        versionCode = 100037
+        versionName = "0.4.5"
     }
 
     signingConfigs {
