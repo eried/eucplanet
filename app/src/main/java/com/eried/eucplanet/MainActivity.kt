@@ -109,6 +109,20 @@ class MainActivity : AppCompatActivity() {
                         val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
                         settingsRepository.update(it.copy(language = detected))
                         com.eried.eucplanet.util.LocaleHelper.apply(detected)
+                    } else {
+                        // Settings.language and the OS-level per-app locale can
+                        // drift (e.g. user changes language via Android System
+                        // Settings → Languages, bypassing our in-app picker).
+                        // Reconcile to whatever AppCompatDelegate actually has
+                        // applied so the in-app language picker shows the
+                        // truth, not a stale column.
+                        val applied = com.eried.eucplanet.util.LocaleHelper.current()
+                        if (applied.isNotBlank()) {
+                            val normalized = com.eried.eucplanet.util.LocaleHelper.normalizeToSupportedTag(applied)
+                            if (normalized != it.language) {
+                                settingsRepository.update(it.copy(language = normalized))
+                            }
+                        }
                     }
                     // Gated on permission because Android 14+ crashes startForeground
                     // with location/connectedDevice types if neither perm is granted.

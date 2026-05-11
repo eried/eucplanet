@@ -247,15 +247,16 @@ class VoiceService @Inject constructor(
         val engine = tts ?: return
         val voices = try {
             engine.availableLanguages?.map { locale ->
-                // displayCountry can be empty for locales that aren't bound to
-                // a region (e.g. plain "ar" Arabic). Skip the parens in that
-                // case so we don't render "Arabic ()".
-                val country = locale.displayCountry
-                val label = if (country.isNullOrBlank()) {
-                    locale.displayLanguage
-                } else {
-                    "${locale.displayLanguage} ($country)"
-                }
+                // Render each voice in its own language (e.g. "Español
+                // (España)") rather than translating into the current UI
+                // locale. Stable across app-language changes and matches
+                // the same native-script policy as the language picker.
+                // displayCountry can be empty for locales that aren't bound
+                // to a region (e.g. plain "ar" Arabic) — skip the parens so
+                // we don't render "العربية ()".
+                val lang = locale.getDisplayLanguage(locale)
+                val country = locale.getDisplayCountry(locale)
+                val label = if (country.isNullOrBlank()) lang else "$lang ($country)"
                 VoiceOption(locale, label)
             }?.sortedBy { it.displayName } ?: emptyList()
         } catch (e: Exception) {
