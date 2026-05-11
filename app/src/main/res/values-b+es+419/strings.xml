@@ -81,7 +81,7 @@
     <string name="action_legal_on">Legal ON</string>
     <string name="action_lock_wheel">Bloquear</string>
     <string name="action_locked">Bloqueada</string>
-    <string name="action_recorder">Grabación</string>
+    <string name="action_recorder">Bitácora</string>
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
 
     <!-- Settings tabs -->
@@ -363,7 +363,7 @@
     <string name="action_view">Ver</string>
     <string name="action_record">Grabar</string>
     <string name="action_stop">Detener</string>
-    <string name="recording_title">Grabador de viajes</string>
+    <string name="recording_title">Bitácora de viajes</string>
     <string name="recording_clear_all_title">Borrar todos los viajes</string>
     <string name="recording_clear_all_body">Esto eliminará permanentemente todos los viajes grabados y sus archivos de datos. No se puede deshacer.</string>
     <string name="recording_delete_trip_title">Eliminar viaje</string>
