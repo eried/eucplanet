@@ -439,19 +439,19 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
     val ts = remember(e.timestampMs) {
         TIME_FMT.format(Date(e.timestampMs))
     }
-    // High-saturation hues so RX (incoming) and TX (outgoing) are obviously
-    // different at the small log font, plus a < / > arrow prefix as a second
-    // channel for the colour-blind / dim-screen case.
-    // Matrix-terminal palette: NOTE / INFO read as the default green the
-    // log panel uses; RX / TX / CMD / COMMENT keep their distinct hues so
-    // kinds stay visually scannable on the black background.
+    // Each kind gets a distinct hue on the black matrix background so the
+    // log stays scannable at the small log font. Arrow prefix is a second
+    // channel for the colour-blind / dim-screen case. Yellow COMMENT and
+    // teal NOTE were intentionally pulled away from each other (and from
+    // the green matrix "ambient" tone) so user-typed notes and internal
+    // events don't blur together.
     val (color, arrow) = when (e.kind) {
         DiagnosticsLogger.Kind.RX -> Color(0xFF40C4FF) to "<"          // bright sky blue
         DiagnosticsLogger.Kind.TX -> Color(0xFFFFAB40) to ">"          // amber
-        DiagnosticsLogger.Kind.NOTE -> Color(0xFF00FF41) to " "         // matrix green
         DiagnosticsLogger.Kind.CMD -> Color(0xFFE040FB) to ">"          // magenta
-        DiagnosticsLogger.Kind.COMMENT -> Color(0xFF69F0AE) to " "      // mint green
-        DiagnosticsLogger.Kind.INFO -> Color(0xFF00FF41) to " "         // matrix green
+        DiagnosticsLogger.Kind.NOTE -> Color(0xFF4DD0E1) to "·"         // soft teal
+        DiagnosticsLogger.Kind.INFO -> Color(0xFFB388FF) to "i"         // light purple
+        DiagnosticsLogger.Kind.COMMENT -> Color(0xFFFFEB3B) to "✎"      // bright yellow
     }
     Text(
         "$ts $arrow ${e.kind.name.padEnd(7)} ${e.text}",
