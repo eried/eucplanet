@@ -177,24 +177,9 @@ fun SettingsScreen(
     val settings = settingsState ?: return
 
     ttsSwitchPrompt?.let { lang ->
-        val langName = when (lang) {
-            "en" -> stringResource(R.string.lang_name_en)
-            "es" -> stringResource(R.string.lang_name_es)
-            "es-419" -> stringResource(R.string.lang_name_es_419)
-            "ru" -> stringResource(R.string.lang_name_ru)
-            "uk" -> stringResource(R.string.lang_name_uk)
-            "no" -> stringResource(R.string.lang_name_no)
-            "de" -> stringResource(R.string.lang_name_de)
-            "fr" -> stringResource(R.string.lang_name_fr)
-            "it" -> stringResource(R.string.lang_name_it)
-            "nl" -> stringResource(R.string.lang_name_nl)
-            "pl" -> stringResource(R.string.lang_name_pl)
-            "pt-BR" -> stringResource(R.string.lang_name_pt)
-            "da" -> stringResource(R.string.lang_name_da)
-            "sv" -> stringResource(R.string.lang_name_sv)
-            "zh" -> stringResource(R.string.lang_name_zh)
-            else -> lang
-        }
+        // Single source of truth: the same `languageOptions` list the
+        // dropdown uses. No parallel strings.xml entries to drift from it.
+        val langName = languageOptions.firstOrNull { it.first == lang }?.second ?: lang
         // The dialog renders in the user's CURRENT language because the
         // locale switch is deferred until they confirm. Three choices:
         //  - Yes: switch language AND TTS voice

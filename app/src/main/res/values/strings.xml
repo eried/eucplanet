@@ -290,24 +290,6 @@
     <string name="voice_legal_on">Legal mode on</string>
     <string name="voice_legal_off">Legal mode off</string>
     <string name="voice_welcome">Welcome back to EUC Planet</string>
-
-    <!-- Language display names (shown for TTS mismatch prompt) -->
-    <string name="lang_name_en">English</string>
-    <string name="lang_name_es">Español</string>
-    <string name="lang_name_es_419">Español (Latinoamérica)</string>
-    <string name="lang_name_ru">Русский</string>
-    <string name="lang_name_uk">Українська</string>
-    <string name="lang_name_no">Norsk</string>
-    <string name="lang_name_de">Deutsch</string>
-    <string name="lang_name_fr">Français</string>
-    <string name="lang_name_it">Italiano</string>
-    <string name="lang_name_nl">Nederlands</string>
-    <string name="lang_name_pl">Polski</string>
-    <string name="lang_name_pt">Português (Brasil)</string>
-    <string name="lang_name_da">Dansk</string>
-    <string name="lang_name_sv">Svenska</string>
-    <string name="lang_name_zh">中文</string>
-
     <!-- Alarm metrics -->
     <string name="alarm_metric_speed">Speed</string>
     <string name="alarm_metric_battery">Battery</string>
