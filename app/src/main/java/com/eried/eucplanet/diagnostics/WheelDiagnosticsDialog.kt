@@ -150,6 +150,7 @@ fun WheelDiagnosticsDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .imePadding()
                     .padding(8.dp)
             ) {
                 Header(
@@ -162,10 +163,13 @@ fun WheelDiagnosticsDialog(
                     }
                 )
 
-                // Log + comment input live at the top so the BLE traffic the
-                // user is testing is the first thing they see. ~30% of the
-                // total vertical space; the active tab takes the rest below.
-                LogPanel(modifier = Modifier.weight(1f, fill = true))
+                // Cap the log at a fixed slice of the screen so the active
+                // tab below always has enough room to scroll all the way to
+                // its bottom (e.g. the Send button under the Raw tab's hex
+                // pad + wrap mode + bytes-to-send rows).
+                LogPanel(modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 120.dp, max = 220.dp))
 
                 Spacer(Modifier.height(4.dp))
 
@@ -186,7 +190,7 @@ fun WheelDiagnosticsDialog(
                         text = { Text("Raw") })
                 }
 
-                Box(modifier = Modifier.weight(2f, fill = true)) {
+                Box(modifier = Modifier.weight(1f, fill = true)) {
                     when (tab) {
                         0 -> CommandsTab(vm)
                         1 -> InspectTab(vm)

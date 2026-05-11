@@ -99,16 +99,16 @@ class MainActivity : AppCompatActivity() {
                 val first = _settings.value == null
                 _settings.value = it
                 if (first) {
-                    val want = if (it.language.isBlank()) {
+                    if (it.language.isBlank()) {
                         // First launch ever: pick a supported locale that matches
-                        // the phone's system language and persist the choice. After
-                        // this, the user's pick wins (even if they pick English).
+                        // the phone's system language and persist the choice.
+                        // AppCompatDelegate persists the applied locale across
+                        // launches, so we don't re-apply on every cold start —
+                        // the user's pick in Settings (which calls
+                        // LocaleHelper.apply directly) is the only other path.
                         val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
                         settingsRepository.update(it.copy(language = detected))
-                        detected
-                    } else it.language
-                    if (com.eried.eucplanet.util.LocaleHelper.current() != want) {
-                        com.eried.eucplanet.util.LocaleHelper.apply(want)
+                        com.eried.eucplanet.util.LocaleHelper.apply(detected)
                     }
                     // Gated on permission because Android 14+ crashes startForeground
                     // with location/connectedDevice types if neither perm is granted.

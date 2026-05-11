@@ -226,60 +226,12 @@ fun ScanScreen(
             val showVirtualPicker = BuildConfig.DEBUG || diagEnabled
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(devices) { device ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selecting = true
-                                viewModel.selectDevice(device)
-                                onDeviceSelected()
-                            },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Bluetooth,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = device.name,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                                Text(
-                                    text = device.address,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = "${device.rssi} dBm",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-
-                // Debug-only simulator section. Pretends to be a wheel for development
-                // when no real hardware is around — bypasses BLE, exercises the rest
-                // of the stack (parser, repo, UI, alarms, recording). Collapsed by
-                // default so the scan screen stays focused on real wheels.
-                // Show virtual-wheel picker in debug builds always, AND in
-                // any build when the user has Service Mode active.
+                // Virtual-wheel picker. Sits at the top so a phone with a
+                // long list of real BLE devices in range doesn't bury it
+                // below the fold. Shown in debug builds always, and in any
+                // build when the user has Service Mode active.
                 if (showVirtualPicker) {
                     item {
-                        Spacer(Modifier.height(16.dp))
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -371,6 +323,51 @@ fun ScanScreen(
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+
+                items(devices) { device ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selecting = true
+                                viewModel.selectDevice(device)
+                                onDeviceSelected()
+                            },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Bluetooth,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = device.name,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Text(
+                                    text = device.address,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = "${device.rssi} dBm",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
