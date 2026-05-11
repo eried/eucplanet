@@ -295,7 +295,10 @@ class VoiceService @Inject constructor(
         return try {
             val locales = engine.availableLanguages ?: return null
             val match = locales.firstOrNull { it.language.lowercase() in acceptable }
-            match?.toLanguageTag()
+            // Return Locale.toString() form ("nb_NO") not toLanguageTag()
+            // ("nb-NO") so the saved voiceLocale matches what the voice
+            // picker compares against (`it.locale.toString()`).
+            match?.toString()
         } catch (e: Exception) {
             Log.w(TAG, "pickVoiceForLanguage failed", e)
             null
