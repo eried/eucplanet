@@ -1885,7 +1885,10 @@ private fun VoiceSelector(
     onVoiceSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentVoice = voices.find { it.locale.toString() == currentLocale }
+    // Tolerant of either tag form: Locale.toString() ("nb_NO") or
+    // toLanguageTag() ("nb-NO"). Older stored values may use either.
+    val normalized = currentLocale.replace('-', '_')
+    val currentVoice = voices.find { it.locale.toString().replace('-', '_') == normalized }
     val displayText = currentVoice?.displayName ?: currentLocale
 
     ExposedDropdownMenuBox(
