@@ -1038,6 +1038,44 @@ fun DashboardScreen(
                                                         )
                                                     }
                                                 }
+                                                Spacer(Modifier.height(14.dp))
+                                                Text(
+                                                    "Resources & libraries:",
+                                                    style = MaterialTheme.typography.titleSmall,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Spacer(Modifier.height(4.dp))
+                                                val resources = listOf(
+                                                    "BigSoundBank — engine samples" to "Joseph SARDIN. CC0 / public domain. V8 Cobra, V-twin Ducati, diesel truck, motorcycle and city car recordings used in the Motor sound generator.",
+                                                    "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
+                                                    "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
+                                                    "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
+                                                    "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
+                                                    "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer."
+                                                )
+                                                resources.forEach { (name, why) ->
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(vertical = 3.dp)
+                                                    ) {
+                                                        Text(
+                                                            name,
+                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                                fontWeight = FontWeight.SemiBold
+                                                            ),
+                                                            modifier = Modifier.weight(0.42f),
+                                                            color = MaterialTheme.colorScheme.onSurface
+                                                        )
+                                                        Spacer(Modifier.width(8.dp))
+                                                        Text(
+                                                            why,
+                                                            style = MaterialTheme.typography.bodySmall,
+                                                            modifier = Modifier.weight(0.58f),
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }
                                     }
