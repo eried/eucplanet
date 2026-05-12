@@ -133,6 +133,8 @@ class SettingsViewModel @Inject constructor(
     fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
     fun updateEngineType(v: String) = update { copy(engineType = v) }
     fun updateEngineVolume(v: Float) = update { copy(engineVolume = v.coerceIn(0f, 1f)) }
+    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineVolumeAutoEnabled = v) }
+    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineVolumeAutoCurve = curve) }
     fun updateEngineMuffler(v: String) = update { copy(engineMuffler = v) }
     fun updateEngineGearbox(v: String) = update { copy(engineGearbox = v) }
     fun updateEngineIdleBehavior(v: String) = update { copy(engineIdleBehavior = v) }

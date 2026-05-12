@@ -252,6 +252,8 @@
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
+    <string name="engine_volume_auto_label">Adjust by speed</string>
+    <string name="engine_volume_auto_hint">Louder at slow speeds, quieter at speed so pedestrians notice you near zero km/h.</string>
     <string name="engine_muffler_label">Muffler</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>

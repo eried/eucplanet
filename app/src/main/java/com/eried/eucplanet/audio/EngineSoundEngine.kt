@@ -63,6 +63,11 @@ class EngineSoundEngine @Inject constructor(
     // --- Main-thread state used to derive params from raw telemetry ---
     private var profile: EngineProfile = EngineProfile.byKey("FOUR_STROKE_SINGLE")
     private var masterVolume: Float = 0.6f
+    private var volumeAutoEnabled: Boolean = false
+    /** Parsed 4-point curve cached from AppSettings. Re-evaluated each pushTelemetry. */
+    private var volumeAutoCurve: List<Pair<Float, Float>> = emptyList()
+    /** Smoothed speed-based multiplier so abrupt speed changes don't click the gain. */
+    @Volatile private var smoothedSpeedMult: Float = 1f
     private var mufflerKey: String = "HALF"
     private var gearboxKey: String = "FOUR"
     private var idleBehavior: String = "FADE"
@@ -99,6 +104,8 @@ class EngineSoundEngine @Inject constructor(
         val previousEnabled = lastAppliedEnabled
         profile = EngineProfile.byKey(s.engineType)
         masterVolume = s.engineVolume.coerceIn(0f, 1f)
+        volumeAutoEnabled = s.engineVolumeAutoEnabled
+        volumeAutoCurve = com.eried.eucplanet.service.parseVolumeCurve(s.engineVolumeAutoCurve)
         mufflerKey = s.engineMuffler
         gearboxKey = s.engineGearbox
         idleBehavior = s.engineIdleBehavior
@@ -354,6 +361,18 @@ class EngineSoundEngine @Inject constructor(
         val brakeAlpha = (dt * if (targetBrake > brakeEnvelope) 1.4f else 3f).coerceAtMost(1f)
         brakeEnvelope += brakeAlpha * (targetBrake - brakeEnvelope)
 
+        // Speed-based auto volume — multiplier from the 4-point curve at the current
+        // speed, then smoothed so a sudden speed change doesn't pop the gain.
+        if (volumeAutoEnabled && volumeAutoCurve.isNotEmpty()) {
+            val target = com.eried.eucplanet.service.pchipInterpolate(volumeAutoCurve, abs(speedKmh))
+                .coerceIn(0f, 1f)
+            smoothedSpeedMult += (target - smoothedSpeedMult) * (dt * 4f).coerceAtMost(1f)
+        } else {
+            // Snap back to 1.0 when the feature is off so disabling mid-ride doesn't
+            // leave a residual scale factor in place.
+            smoothedSpeedMult += (1f - smoothedSpeedMult) * (dt * 4f).coerceAtMost(1f)
+        }
+
         // Idle envelope
         val moving = abs(speedKmh) > 0.3f
         if (moving) lastMovingAtMs = now
@@ -425,7 +444,7 @@ class EngineSoundEngine @Inject constructor(
             "MUFFLED" -> 0.15f
             else -> 0.55f                                // HALF
         }
-        val gain = masterVolume * voiceDuckGain
+        val gain = masterVolume * voiceDuckGain * smoothedSpeedMult
         paramsSnapshot = EngineParams(
             rpm = smoothedRpm,
             load = smoothedLoad,

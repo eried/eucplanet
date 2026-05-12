@@ -50,8 +50,21 @@ import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import com.eried.eucplanet.ui.theme.AccentOrange
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
@@ -1498,14 +1511,21 @@ private fun CloudHelpCard() {
 // --- Shared components ---
 
 @Composable
-private fun PlayButton(onClick: () -> Unit) {
+private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.size(20.dp)
     ) {
-        Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.action_test),
+        // Greyed out when disabled so the affordance stays visible — the rider can see
+        // "preview exists, just not while moving" instead of the button vanishing.
+        val baseTint = MaterialTheme.colorScheme.onSurfaceVariant
+        Icon(
+            Icons.Default.PlayArrow,
+            contentDescription = stringResource(R.string.action_test),
             modifier = Modifier.size(14.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            tint = if (enabled) baseTint.copy(alpha = 0.6f) else baseTint.copy(alpha = 0.25f)
+        )
     }
 }
 
@@ -1936,7 +1956,8 @@ private fun EngineSoundSection(
         EngineTypePicker(
             currentKey = settings.engineType,
             onSelect = { viewModel.updateEngineType(it) },
-            onPreview = if (parked) { { viewModel.previewEngine(it) } } else null
+            onPreview = { viewModel.previewEngine(it) },
+            previewEnabled = parked
         )
 
         // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
@@ -1956,6 +1977,34 @@ private fun EngineSoundSection(
             onValueChange = { viewModel.updateEngineVolume(it / 100f) }
         )
 
+        // Speed-based auto volume — multiplies the engine volume slider by a 4-point
+        // curve evaluated at the current speed. Defaults to a DECREASING shape so the
+        // engine is loud at low speed (pedestrian awareness) and quieter at speed.
+        // Unlike the voice auto-volume curve (always-increasing for wind noise), this
+        // one has no monotonic constraint.
+        SwitchSetting(
+            label = stringResource(R.string.engine_volume_auto_label),
+            checked = settings.engineVolumeAutoEnabled
+        ) { viewModel.updateEngineVolumeAutoEnabled(it) }
+        Text(
+            stringResource(R.string.engine_volume_auto_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (settings.engineVolumeAutoEnabled) {
+            var points by remember(settings.engineVolumeAutoCurve) {
+                mutableStateOf(com.eried.eucplanet.service.parseVolumeCurve(settings.engineVolumeAutoCurve))
+            }
+            EngineSpeedVolumeCurveEditor(
+                points = points,
+                useImperial = settings.imperialUnits,
+                onPointsChanged = { newPoints ->
+                    points = newPoints
+                    viewModel.updateEngineVolumeAutoCurve(com.eried.eucplanet.service.encodeVolumeCurve(newPoints))
+                }
+            )
+        }
+
         if (currentProfile.supportsMuffler) {
             SegmentedChoice(
                 label = stringResource(R.string.engine_muffler_label),
@@ -1966,7 +2015,8 @@ private fun EngineSoundSection(
                 ),
                 current = settings.engineMuffler,
                 onChange = { viewModel.updateEngineMuffler(it) },
-                onPreview = if (parked) { { viewModel.previewEngineSection("DEFAULT") } } else null
+                onPreview = { viewModel.previewEngineSection("DEFAULT") },
+                previewEnabled = parked
             )
         }
 
@@ -1979,7 +2029,8 @@ private fun EngineSoundSection(
             ),
             current = settings.engineGearbox,
             onChange = { viewModel.updateEngineGearbox(it) },
-            onPreview = if (parked) { { viewModel.previewEngineSection("GEARBOX") } } else null
+            onPreview = { viewModel.previewEngineSection("GEARBOX") },
+            previewEnabled = parked
         )
 
         SegmentedChoice(
@@ -2003,7 +2054,8 @@ private fun EngineSoundSection(
                 ),
                 current = settings.engineDecelChar,
                 onChange = { viewModel.updateEngineDecelChar(it) },
-                onPreview = if (parked) { { viewModel.previewEngineSection("DECEL") } } else null
+                onPreview = { viewModel.previewEngineSection("DECEL") },
+                previewEnabled = parked
             )
         }
 
@@ -2017,7 +2069,8 @@ private fun EngineSoundSection(
                 ),
                 current = settings.engineBrake,
                 onChange = { viewModel.updateEngineBrake(it) },
-                onPreview = if (parked) { { viewModel.previewEngineSection("BRAKE") } } else null
+                onPreview = { viewModel.previewEngineSection("BRAKE") },
+                previewEnabled = parked
             )
         }
 
@@ -2067,7 +2120,8 @@ private fun EngineSoundSection(
 private fun EngineTypePicker(
     currentKey: String,
     onSelect: (String) -> Unit,
-    onPreview: ((String) -> Unit)? = null
+    onPreview: ((String) -> Unit)? = null,
+    previewEnabled: Boolean = true
 ) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val res = ctx.resources
@@ -2100,7 +2154,7 @@ private fun EngineTypePicker(
             )
             if (onPreview != null) {
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = { onPreview(currentKey) })
+                PlayButton(onClick = { onPreview(currentKey) }, enabled = previewEnabled)
             }
         }
         Spacer(Modifier.height(6.dp))
@@ -2282,7 +2336,8 @@ private fun SegmentedChoice(
     options: List<Pair<String, String>>,
     current: String,
     onChange: (String) -> Unit,
-    onPreview: (() -> Unit)? = null
+    onPreview: (() -> Unit)? = null,
+    previewEnabled: Boolean = true
 ) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -2293,7 +2348,7 @@ private fun SegmentedChoice(
             )
             if (onPreview != null) {
                 Spacer(Modifier.width(4.dp))
-                PlayButton(onClick = onPreview)
+                PlayButton(onClick = onPreview, enabled = previewEnabled)
             }
         }
         Spacer(Modifier.height(6.dp))
@@ -2364,6 +2419,132 @@ private fun ActionDropdown(
                         expanded = false
                     }
                 )
+            }
+        }
+    }
+}
+
+/**
+ * 4-point curve editor for the engine speed-based auto-volume feature.
+ *
+ * Differences vs the voice [SplineCurveEditor]:
+ *  - Range is 0..1 (a multiplier, not a 1..2× boost — voice ramps UP to overcome wind noise,
+ *    engine ramps DOWN so it's loud for pedestrian awareness at slow speeds).
+ *  - No monotonic constraint — the user can freely shape the curve in any direction.
+ *  - All 4 control points are draggable, including the 0 km/h anchor.
+ */
+@Composable
+private fun EngineSpeedVolumeCurveEditor(
+    points: List<Pair<Float, Float>>,
+    useImperial: Boolean,
+    onPointsChanged: (List<Pair<Float, Float>>) -> Unit
+) {
+    val maxSpeed = 75f
+    val speedUnitLabel = if (useImperial) "mph" else "km/h"
+    val minMult = 0f
+    val maxMult = 1f
+    val gridColor = MaterialTheme.colorScheme.surfaceVariant
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val lineColor = AccentBlue
+    val pointColor = AccentOrange
+    val textMeasurer = rememberTextMeasurer()
+
+    // Always render exactly 4 normalized points at the canonical speeds.
+    val normalized = remember(points) {
+        val p = points.toMutableList()
+        listOf(
+            0f to (p.getOrNull(0)?.second ?: 1.0f),
+            25f to (p.getOrNull(1)?.second ?: 0.7f),
+            50f to (p.getOrNull(2)?.second ?: 0.4f),
+            75f to (p.getOrNull(3)?.second ?: 0.2f),
+        )
+    }
+    var dragIndex by remember { mutableStateOf(-1) }
+    val pointsRef = remember { mutableStateOf(normalized) }
+    pointsRef.value = normalized
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.7f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 36.dp, bottom = 24.dp, top = 10.dp, end = 10.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            val w = size.width.toFloat()
+                            val h = size.height.toFloat()
+                            val pts = pointsRef.value
+                            val nearest = pts
+                                .mapIndexed { idx, (s, v) ->
+                                    val px = s / maxSpeed * w
+                                    val py = h - (v - minMult) / (maxMult - minMult) * h
+                                    idx to (offset - Offset(px, py)).getDistance()
+                                }
+                                .filter { it.second < 100f }
+                                .minByOrNull { it.second }
+                            dragIndex = nearest?.first ?: -1
+                        },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            val h = size.height.toFloat()
+                            if (dragIndex in pointsRef.value.indices) {
+                                val newM = (minMult + (h - change.position.y) / h * (maxMult - minMult))
+                                    .coerceIn(minMult, maxMult)
+                                val (oldS, _) = pointsRef.value[dragIndex]
+                                val mutable = pointsRef.value.toMutableList()
+                                mutable[dragIndex] = oldS to newM
+                                onPointsChanged(mutable)
+                            }
+                        },
+                        onDragEnd = { dragIndex = -1 },
+                        onDragCancel = { dragIndex = -1 }
+                    )
+                }
+        ) {
+            val w = size.width
+            val h = size.height
+            val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
+
+            // X axis ticks at 0/25/50/75 km/h.
+            for (i in 0..3) {
+                val x = w * i / 3f
+                drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
+                val speedKmh = maxSpeed * i / 3
+                val displaySpeed = Units.speed(speedKmh, useImperial)
+                val label = "${displaySpeed.roundToInt()}"
+                val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
+                drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
+            }
+            // Y axis ticks at 0%, 50%, 100%.
+            for (i in 0..2) {
+                val mult = i * 0.5f
+                val y = h - (mult - minMult) / (maxMult - minMult) * h
+                drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
+                val label = "${(mult * 100).toInt()}%"
+                val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
+                drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
+            }
+            val unitMeasured = textMeasurer.measure(speedUnitLabel, TextStyle(fontSize = 10.sp, color = labelColor))
+            drawText(unitMeasured, topLeft = Offset(w * 0.45f - unitMeasured.size.width / 2f, h + 16f))
+
+            // Draw the line between points + dots.
+            val path = Path()
+            normalized.forEachIndexed { idx, (s, v) ->
+                val px = s / maxSpeed * w
+                val py = h - (v - minMult) / (maxMult - minMult) * h
+                if (idx == 0) path.moveTo(px, py) else path.lineTo(px, py)
+            }
+            drawPath(path, lineColor, style = Stroke(width = 3f))
+            normalized.forEach { (s, v) ->
+                val px = s / maxSpeed * w
+                val py = h - (v - minMult) / (maxMult - minMult) * h
+                drawCircle(pointColor, radius = 8f, center = Offset(px, py))
             }
         }
     }

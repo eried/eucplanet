@@ -133,6 +133,10 @@ dependencies {
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
 
+    // ExoPlayer — gapless looping for the multi-section engine sound composition
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.common)
+
     // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
     implementation(libs.play.services.wearable)
 }

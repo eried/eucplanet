@@ -16,6 +16,7 @@ hiltWork = "1.2.0"
 reorderable = "2.4.3"
 wearCompose = "1.4.0"
 playServicesWearable = "18.2.0"
+media3 = "1.4.1"
 
 [libraries]
 # Compose
@@ -75,6 +76,10 @@ hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.
 
 # Drag-to-reorder
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
+
+# Media3 / ExoPlayer (used by CompositionEnginePlayer for gapless section looping)
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
 
 # Wear OS (Compose for Wear, Data Layer)
 wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }

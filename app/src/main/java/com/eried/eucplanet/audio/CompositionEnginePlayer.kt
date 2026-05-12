@@ -1,35 +1,41 @@
 package com.eried.eucplanet.audio
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.media.PlaybackParams
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.RawResourceDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ClippingMediaSource
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import kotlin.math.abs
 
 /**
- * Multi-section playback for sampled engines. The procedural [SampledEnginePlayer]
- * plays a single OGG looped — this player composes the engine sound from named
- * sections inside one or more raw resources (the user picks them in deletelater.html).
+ * Multi-section playback for sampled engines. Procedural [EngineSynth] plays a
+ * single buffer it owns; this player composes the engine sound from named
+ * sections inside one or more raw resources (picked in deletelater.html).
  *
- * Sections used:
+ * Section types:
  *  - "idle_loop" — sustained low-RPM loop (required)
  *  - "rev_loop"  — sustained high-RPM loop (optional — without it, idle pitch-shifts up)
  *  - "startup"   — one-shot transient played on engine start (optional)
  *  - "decel"     — one-shot transient played when throttle closes sharply (optional)
  *  - "shutdown"  — one-shot transient played on engine stop (optional)
  *
- * The two looping players (idle, rev) play simultaneously with crossfaded gains.
- * One-shot players are spawned on demand for startup/decel/shutdown.
- *
- * Each section is clipped from its host file via `seekTo(startMs)` + a 50 ms position
- * poll that seeks back to startMs when the player crosses endMs. There's a ~50 ms
- * audible seam at the loop point — acceptable for v1; ExoPlayer ClippingMediaSource
- * would give us seamless looping when we upgrade.
+ * Looping sections use [ExoPlayer] with [ClippingMediaSource] + REPEAT_MODE_ONE so
+ * the decoder seamlessly stitches the startMs..endMs window back to its start —
+ * no audible click at the seam. The two loops (idle, rev) play simultaneously and
+ * are crossfaded by RPM. One-shots are spawned on demand for startup/decel/shutdown.
  */
+@OptIn(UnstableApi::class)
 class CompositionEnginePlayer(private val context: Context) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -44,16 +50,14 @@ class CompositionEnginePlayer(private val context: Context) {
     @Volatile private var lastIdleVol: Float = -1f
     @Volatile private var lastRevVol: Float = -1f
     @Volatile private var lastSpeed: Float = -1f
-    // Smoothed actual volumes — drives both the engine-start fade-in (each starts
-    // at 0 and ramps toward target) and the idle↔rev crossfade. Alpha 0.15 gives
-    // a ~85 ms time constant at ~100 Hz telemetry, comfortable but not sluggish.
+    // Smoothed actual volumes — drives engine-start fade-in plus the idle ↔ rev
+    // crossfade. Alpha 0.15 ≈ ~85 ms time constant at ~100 Hz telemetry.
     @Volatile private var smoothedIdleVol: Float = 0f
     @Volatile private var smoothedRevVol: Float = 0f
     private val volSmoothingAlpha = 0.15f
 
     fun isPlaying(): Boolean = idle != null
 
-    /** Starts both loops at zero volume. The next [update] call sets real gains by RPM. */
     fun start(profile: EngineProfile) {
         if (this.profile?.key == profile.key && idle != null) return
         stop()
@@ -62,31 +66,49 @@ class CompositionEnginePlayer(private val context: Context) {
 
         sections["idle_loop"]?.let { sec ->
             idle = SectionPlayer(context, sec, looping = true).also {
-                if (it.prepare()) it.play() else { Log.w(TAG, "idle_loop failed to prepare"); idle = null }
+                if (!it.prepare()) { it.release(); idle = null; Log.w(TAG, "idle_loop failed") }
+                else { it.setVolume(0f); it.play() }
             }
         }
         sections["rev_loop"]?.let { sec ->
             rev = SectionPlayer(context, sec, looping = true).also {
-                if (it.prepare()) it.play() else { Log.w(TAG, "rev_loop failed to prepare"); rev = null }
+                if (!it.prepare()) { it.release(); rev = null; Log.w(TAG, "rev_loop failed") }
+                else { it.setVolume(0f); it.play() }
             }
         }
-        // Engine start transient (fire and forget).
         sections["startup"]?.let { fireOneShot(it, gain = 1f) }
     }
 
     fun stop() {
-        // Engine-off transient before we tear down.
-        profile?.sampleSections?.get("shutdown")?.let { fireOneShot(it, gain = lastVolume) }
+        val shutdown = profile?.sampleSections?.get("shutdown")
+        val fadeDurMs = shutdown?.durationMs?.coerceIn(200, 2500) ?: 300
+        shutdown?.let { fireOneShot(it, gain = lastVolume) }
 
-        idle?.release()
-        rev?.release()
+        val idleSnap = idle
+        val revSnap = rev
+        val startIdle = smoothedIdleVol
+        val startRev = smoothedRevVol
         idle = null
         rev = null
-        synchronized(oneShots) {
-            oneShots.forEach { it.release() }
-            oneShots.clear()
-        }
         profile = null
+        val steps = 24
+        val stepMs = (fadeDurMs / steps).coerceAtLeast(8)
+        for (i in 1..steps) {
+            val gain = 1f - (i.toFloat() / steps)
+            mainHandler.postDelayed({
+                idleSnap?.setVolume(startIdle * gain)
+                revSnap?.setVolume(startRev * gain)
+            }, (i * stepMs).toLong())
+        }
+        mainHandler.postDelayed({
+            idleSnap?.release()
+            revSnap?.release()
+            synchronized(oneShots) {
+                oneShots.forEach { it.release() }
+                oneShots.clear()
+            }
+        }, (fadeDurMs + 100).toLong())
+
         lastIdleVol = -1f
         lastRevVol = -1f
         lastSpeed = -1f
@@ -94,28 +116,15 @@ class CompositionEnginePlayer(private val context: Context) {
         smoothedRevVol = 0f
     }
 
-    /**
-     * Called from [EngineSoundEngine.emit] every telemetry tick.
-     * Cross-fades idle ↔ rev by [rpmNorm] (0..1) and scales overall gain by [volume].
-     */
-    @SuppressLint("NewApi")
     fun update(rpmNorm: Float, volume: Float) {
         lastRpmNorm = rpmNorm.coerceIn(0f, 1f)
         lastVolume = volume.coerceIn(0f, 1f)
 
-        // Equal-power crossfade: idle dominates at low RPM, rev at high RPM.
-        // At rpm=0.5 both contribute ~0.71×, summing close to 1 in perceived loudness.
-        val curve = lastRpmNorm
-        val idleGain = (1f - curve).let { kotlin.math.sqrt(it) } * lastVolume
-        val revGain  = curve.let { kotlin.math.sqrt(it) } * lastVolume
-        // If we don't have a rev loop, idle alone handles everything.
-        val targetIdle = if (rev == null) lastVolume else idleGain
-        val targetRev  = if (rev == null) 0f else revGain
+        // Equal-power crossfade between idle and rev. At rpm=0.5 each contributes
+        // sqrt(0.5)≈0.71, summing close to 1 in perceived loudness.
+        val targetIdle = if (rev == null) lastVolume else kotlin.math.sqrt(1f - lastRpmNorm) * lastVolume
+        val targetRev  = if (rev == null) 0f else kotlin.math.sqrt(lastRpmNorm) * lastVolume
 
-        // Move smoothed values toward target. This gives engine-start fade-in
-        // (starts at 0, climbs over ~5-8 ticks ≈ ~300 ms) and naturally smooths
-        // every rapid rpm-driven crossfade so we never write a clicky jump to
-        // MediaPlayer.setVolume.
         smoothedIdleVol += (targetIdle - smoothedIdleVol) * volSmoothingAlpha
         smoothedRevVol  += (targetRev  - smoothedRevVol)  * volSmoothingAlpha
 
@@ -126,22 +135,16 @@ class CompositionEnginePlayer(private val context: Context) {
             rev?.setVolume(smoothedRevVol); lastRevVol = smoothedRevVol
         }
 
-        // Mild speed modulation within each loop so the same 1.5 s clip doesn't sound
-        // perfectly static across a 0-50 km/h sweep. Range chosen narrow so we don't
-        // ruin the timbre of the underlying recording.
+        // Mild playback-speed modulation within each loop so 1-2 s clips don't sound
+        // perfectly static across a 0-50 km/h sweep. Range narrow so the timbre survives.
         val speed = 0.9f + 0.20f * lastRpmNorm   // 0.90 .. 1.10
         if (abs(speed - lastSpeed) > 0.02f) {
-            try {
-                idle?.setSpeed(speed)
-                rev?.setSpeed(speed)
-                lastSpeed = speed
-            } catch (e: Throwable) {
-                Log.w(TAG, "setSpeed failed", e)
-            }
+            idle?.setSpeed(speed)
+            rev?.setSpeed(speed)
+            lastSpeed = speed
         }
     }
 
-    /** Called by [EngineSoundEngine] when it sees a sharp throttle drop. */
     fun fireDecel() {
         profile?.sampleSections?.get("decel")?.let { fireOneShot(it, gain = lastVolume) }
     }
@@ -152,11 +155,10 @@ class CompositionEnginePlayer(private val context: Context) {
         sp.setVolume(gain.coerceIn(0f, 1f))
         sp.play()
         synchronized(oneShots) { oneShots.add(sp) }
-        // Auto-cleanup after the section's natural duration plus 50 ms grace.
         mainHandler.postDelayed({
             synchronized(oneShots) { oneShots.remove(sp) }
             sp.release()
-        }, section.durationMs + 50L)
+        }, section.durationMs + 200L)   // grace beyond the natural duration
     }
 
     companion object {
@@ -165,22 +167,36 @@ class CompositionEnginePlayer(private val context: Context) {
 }
 
 /**
- * Plays a [SampleSection] from a res/raw resource. Loops the window between
- * [SampleSection.startMs] and [SampleSection.endMs] when [looping] is true, or
- * plays once and stops at endMs otherwise.
- *
- * Section looping is approximate: a 50 ms position poll seeks back to startMs
- * when the player crosses endMs, leaving a small audible seam. Acceptable for v1.
+ * Plays a [SampleSection] from a res/raw resource via [ExoPlayer]. When
+ * [looping] is true, ExoPlayer's [ClippingMediaSource] reports a duration
+ * matching the section window and REPEAT_MODE_ONE handles a gapless restart —
+ * no perceptible seam.
  */
+@OptIn(UnstableApi::class)
 private class SectionPlayer(
     private val context: Context,
     private val section: SampleSection,
     private val looping: Boolean,
 ) {
-    private val mp = MediaPlayer()
-    private val handler = Handler(Looper.getMainLooper())
-    private var pollRunnable: Runnable? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val player: ExoPlayer = ExoPlayer.Builder(context)
+        // Bind to the main looper so callers from any thread can talk to us safely
+        // through [postToMain] — all actual mutations happen there.
+        .setLooper(Looper.getMainLooper())
+        .setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                .build(),
+            /* handleAudioFocus = */ false
+        )
+        .build()
     @Volatile private var released = false
+
+    private inline fun postToMain(crossinline block: () -> Unit) {
+        if (Looper.myLooper() == Looper.getMainLooper()) block()
+        else mainHandler.post { block() }
+    }
 
     fun prepare(): Boolean {
         val resId = context.resources.getIdentifier(section.rawAsset, "raw", context.packageName)
@@ -189,17 +205,25 @@ private class SectionPlayer(
             return false
         }
         return try {
-            mp.setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
-            val afd = context.resources.openRawResourceFd(resId) ?: return false
-            afd.use { mp.setDataSource(it.fileDescriptor, it.startOffset, it.length) }
-            mp.setVolume(0f, 0f)
-            mp.prepare()
-            mp.seekTo(section.startMs)
+            postToMain {
+                if (released) return@postToMain
+                val uri = RawResourceDataSource.buildRawResourceUri(resId)
+                val dataSourceFactory = DataSource.Factory { RawResourceDataSource(context) }
+                val mediaItem = MediaItem.fromUri(uri)
+                val source = ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(mediaItem)
+                // ClippingMediaSource takes microseconds, and REPEAT_MODE_ONE then
+                // gaplessly stitches the [startMs..endMs] window into a continuous loop.
+                val clipped = ClippingMediaSource(
+                    source,
+                    section.startMs * 1000L,
+                    section.endMs * 1000L
+                )
+                player.setMediaSource(clipped)
+                player.repeatMode = if (looping) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
+                player.volume = 0f
+                player.prepare()
+            }
             true
         } catch (e: Throwable) {
             Log.e("SectionPlayer", "prepare failed for ${section.rawAsset}", e)
@@ -207,46 +231,23 @@ private class SectionPlayer(
         }
     }
 
-    fun play() {
-        if (released) return
-        try { mp.start() } catch (e: Throwable) { Log.w("SectionPlayer", "start failed", e); return }
-        // Poll position every 50 ms to enforce the section endMs boundary.
-        val poll = object : Runnable {
-            override fun run() {
-                if (released) return
-                try {
-                    if (mp.isPlaying && mp.currentPosition >= section.endMs) {
-                        if (looping) {
-                            mp.seekTo(section.startMs)
-                        } else {
-                            mp.pause()
-                            return
-                        }
-                    }
-                } catch (_: Throwable) { /* released between checks */ }
-                handler.postDelayed(this, 50L)
-            }
-        }
-        pollRunnable = poll
-        handler.postDelayed(poll, 50L)
+    fun play() = postToMain { if (!released) player.play() }
+
+    fun setVolume(v: Float) = postToMain {
+        if (released) return@postToMain
+        try { player.volume = v.coerceIn(0f, 1f) } catch (_: Throwable) {}
     }
 
-    fun setVolume(v: Float) {
-        if (released) return
-        try { mp.setVolume(v, v) } catch (_: Throwable) {}
-    }
-
-    @SuppressLint("NewApi")
-    fun setSpeed(s: Float) {
-        if (released) return
-        mp.playbackParams = (mp.playbackParams ?: PlaybackParams()).setSpeed(s)
+    fun setSpeed(s: Float) = postToMain {
+        if (released) return@postToMain
+        try { player.setPlaybackSpeed(s.coerceIn(0.5f, 2.0f)) } catch (_: Throwable) {}
     }
 
     fun release() {
         released = true
-        pollRunnable?.let { handler.removeCallbacks(it) }
-        pollRunnable = null
-        try { mp.stop() } catch (_: Throwable) {}
-        try { mp.release() } catch (_: Throwable) {}
+        postToMain {
+            try { player.stop() } catch (_: Throwable) {}
+            try { player.release() } catch (_: Throwable) {}
+        }
     }
 }

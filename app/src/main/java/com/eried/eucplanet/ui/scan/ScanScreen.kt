@@ -223,7 +223,10 @@ fun ScanScreen(
             // call sits in a real composable scope. Used to gate the
             // virtual-wheel picker below.
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
-            val showVirtualPicker = BuildConfig.DEBUG || diagEnabled
+            // Virtual wheel picker is a Service-Mode-only affordance. Previously it
+            // also showed in debug builds, but that leaks "fake wheel" entries into
+            // the riders' scan list during dogfooding — gate purely on service mode.
+            val showVirtualPicker = diagEnabled
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(devices) { device ->
