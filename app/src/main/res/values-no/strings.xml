@@ -112,7 +112,7 @@
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
-    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet</string>
+    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet.</string>
     <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
     <string name="auto_record_start_in_motion_caption">Starter ved bevegelse, stopper etter inaktivitet, starter igjen ved neste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Fartsgrenser</string>
     <string name="section_legal_mode_speed">Lovlig modus, fart</string>
-    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback</string>
+    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback.</string>
     <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Opptak</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann.</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Søk etter knapp</string>
     <string name="flic_forget">Glem</string>
@@ -275,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lys</string>
-    <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang</string>
+    <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang.</string>
     <string name="auto_lights_on_before_sunset">Lys PÅ før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Lys AV etter soloppgang</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volum</string>
-    <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
+    <string name="auto_volume_desc">Adaptivt systemvolum basert på fart.</string>
     <string name="auto_sunrise_sunset">Soloppgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag, lysene forblir AV</string>
@@ -369,7 +369,7 @@
     <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren</string>
+    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren.</string>
     <string name="about_crash_logs_empty">Ingen krasj</string>
     <string name="about_share_crash">Del krasjlogg</string>
     <!-- Translations added -->
@@ -400,7 +400,7 @@
     <string name="menu_voice_periodic_off">Slå av jevnlige kunngjøringer</string>
     <string name="menu_voice_periodic_on">Slå på jevnlige kunngjøringer</string>
     <string name="report_time">Tid</string>
-    <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises</string>
+    <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises.</string>
     <string name="scan_show_all_title">Vis alle enheter</string>
     <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
@@ -430,7 +430,7 @@
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_show_phone_battery">Vis telefonens batteri</string>
     <string name="watch_show_speed_unit">Etikett for fartsenhet</string>
-    <string name="watch_show_speed_unit_desc">Vis enhetsetiketten ved siden av det store fartstallet</string>
+    <string name="watch_show_speed_unit_desc">Vis enhetsetiketten ved siden av det store fartstallet.</string>
     <string name="watch_show_watch_battery">Vis klokkens batteri</string>
     <string name="watch_show_wheel_battery">Vis hjulets batteri</string>
     <string name="flic_action_record_start">Start turopptak</string>
@@ -439,7 +439,7 @@
     <string name="watch_screen_button_1">Knapp 1</string>
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrer ved handling</string>
-    <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses</string>
+    <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorlyd</string>

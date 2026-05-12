@@ -111,7 +111,7 @@
     <string name="section_connection">Anslutning</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
-    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet</string>
+    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet.</string>
     <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
     <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar efter inaktivitet, startar igen vid nästa tur.</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Hastighetsgränser</string>
     <string name="section_legal_mode_speed">Hastighet i lagligt läge</string>
-    <string name="legal_mode_caption">Används när lagligt läge är på. Måste vara lägre än normal tiltback</string>
+    <string name="legal_mode_caption">Används när lagligt läge är på. Måste vara lägre än normal tiltback.</string>
     <string name="speed_limits_disconnected">Anslut hjulet för att ändra hastighetsgränser</string>
     <string name="speed_tiltback">Tiltback-hastighet</string>
     <string name="speed_alarm">Larmhastighet</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Inspelning</string>
 
     <string name="section_flic_buttons">Flic 2-knappar</string>
-    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök</string>
+    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök.</string>
     <string name="flic_stop_scan">Stoppa</string>
     <string name="flic_start_scan">Sök efter knapp</string>
     <string name="flic_forget">Glöm</string>
@@ -312,13 +312,13 @@
     <string name="recording_chart_voltage">Spänning (V)</string>
 
     <string name="auto_lights_title">Ljus</string>
-    <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång</string>
+    <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång.</string>
     <string name="auto_lights_on_before_sunset">Tänd ljus före solnedgång</string>
     <string name="auto_lights_off_after_sunrise">Släck ljus efter soluppgång</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Väntar på GPS-position\u2026</string>
     <string name="auto_volume_title">Volym</string>
-    <string name="auto_volume_desc">Volymen justeras efter hastigheten</string>
+    <string name="auto_volume_desc">Volymen justeras efter hastigheten.</string>
     <string name="auto_sunrise_sunset">Soluppgång och solnedgång</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt</string>
@@ -354,7 +354,7 @@
     <string name="alarm_repeat">Upprepa medan aktivt</string>
     <string name="alarm_repeat_help">PÅ: utlöser igen efter varje paus så länge villkoret gäller.\nAV: utlöser en gång och är tyst tills villkoret upphör</string>
 
-    <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren</string>
+    <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren.</string>
     <string name="about_crash_logs_empty">Inga krascher registrerade</string>
     <string name="about_share_crash">Dela kraschlogg</string>
     <string name="about_thanks">Tack till</string>
@@ -383,7 +383,7 @@
     <string name="menu_voice_periodic_off">Stäng av löpande röstmeddelanden</string>
     <string name="menu_voice_periodic_on">Slå på löpande röstmeddelanden</string>
     <string name="report_time">Tid</string>
-    <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns</string>
+    <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns.</string>
     <string name="scan_show_all_title">Visa alla enheter</string>
     <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i utvecklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuella hjul</string>
@@ -413,7 +413,7 @@
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Visa telefonens batteri</string>
     <string name="watch_show_speed_unit">Etikett för hastighetsenhet</string>
-    <string name="watch_show_speed_unit_desc">Visa enhetens etikett bredvid den stora hastighetssiffran</string>
+    <string name="watch_show_speed_unit_desc">Visa enhetens etikett bredvid den stora hastighetssiffran.</string>
     <string name="watch_show_watch_battery">Visa klockans batteri</string>
     <string name="watch_show_wheel_battery">Visa hjulets batteri</string>
     <string name="flic_action_record_start">Starta turinspelning</string>
@@ -422,7 +422,7 @@
     <string name="watch_screen_button_1">Knapp 1</string>
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrera vid åtgärd</string>
-    <string name="watch_haptic_on_action_desc">Kort vibration på klockan varje gång en knappåtgärd utlöses</string>
+    <string name="watch_haptic_on_action_desc">Kort vibration på klockan varje gång en knappåtgärd utlöses.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorljud</string>

@@ -112,7 +112,7 @@
     <string name="section_connection">Conexión</string>
     <string name="section_display">Visualización</string>
     <string name="auto_record_on_start">Grabar automáticamente al inicio</string>
-    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada</string>
+    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada.</string>
     <string name="auto_record_start_in_motion">Empezar a grabar al moverte</string>
     <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en el siguiente viaje.</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Límites de velocidad</string>
     <string name="section_legal_mode_speed">Modo Legal - Velocidad</string>
-    <string name="legal_mode_caption">Aplicado cuando el Modo Legal está ACTIVO. Debe ser menor al tiltback normal</string>
+    <string name="legal_mode_caption">Aplicado cuando el Modo Legal está ACTIVO. Debe ser menor al tiltback normal.</string>
     <string name="speed_limits_disconnected">Conecta la rueda para editar los límites de velocidad</string>
     <string name="speed_tiltback">Velocidad de Tiltback</string>
     <string name="speed_alarm">Velocidad de alarma</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Grabación</string>
 
     <string name="section_flic_buttons">Botones Flic 2</string>
-    <string name="flic_scan_hint">Mantén pulsado tu botón Flic 2 durante 6 segundos para ponerlo en emparejamiento, luego pulsa Buscar</string>
+    <string name="flic_scan_hint">Mantén pulsado tu botón Flic 2 durante 6 segundos para ponerlo en emparejamiento, luego pulsa Buscar.</string>
     <string name="flic_stop_scan">Detener</string>
     <string name="flic_start_scan">Buscar botón</string>
     <string name="flic_forget">Olvidar</string>
@@ -275,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luces</string>
-    <string name="auto_lights_desc">Enciende o apaga las luces según el amanecer y atardecer</string>
+    <string name="auto_lights_desc">Enciende o apaga las luces según el amanecer y atardecer.</string>
     <string name="auto_lights_on_before_sunset">Encender antes del atardecer</string>
     <string name="auto_lights_off_after_sunrise">Apagar después del amanecer</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Esperando ubicación GPS\u2026</string>
     <string name="auto_volume_title">Volumen</string>
-    <string name="auto_volume_desc">Volumen adaptable según velocidad</string>
+    <string name="auto_volume_desc">Volumen adaptable según velocidad.</string>
     <string name="auto_sunrise_sunset">Amanecer y atardecer</string>
     <string name="auto_midnight_sun_title">Sol de medianoche</string>
     <string name="auto_midnight_sun_body">Hoy el sol no se pone en esta latitud, las luces permanecerán APAGADAS</string>
@@ -369,7 +369,7 @@
     <string name="flic_status_scan_failed_fmt">Búsqueda fallida (código %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador</string>
+    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador.</string>
     <string name="about_crash_logs_empty">Sin fallos registrados</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
     <!-- Newly translated strings -->
@@ -400,7 +400,7 @@
     <string name="menu_voice_periodic_off">Desactivar anuncios periódicos</string>
     <string name="menu_voice_periodic_on">Activar anuncios periódicos</string>
     <string name="report_time">Hora</string>
-    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece</string>
+    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece.</string>
     <string name="scan_show_all_title">Mostrar todos los dispositivos</string>
     <string name="scan_simulate_subtitle">Omite BLE y usa respuestas predefinidas. Solo en versiones de desarrollo.</string>
     <string name="scan_simulate_title">Ruedas virtuales</string>
@@ -430,7 +430,7 @@
     <string name="watch_pwm_numbers">Texto</string>
     <string name="watch_show_phone_battery">Mostrar batería del teléfono</string>
     <string name="watch_show_speed_unit">Etiqueta de unidad de velocidad</string>
-    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad</string>
+    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad.</string>
     <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
     <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
     <string name="flic_action_record_start">Iniciar grabación de viaje</string>
@@ -439,7 +439,7 @@
     <string name="watch_screen_button_1">Botón 1</string>
     <string name="watch_screen_button_2">Botón 2</string>
     <string name="watch_haptic_on_action">Vibrar al activar</string>
-    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
+    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Sonido de motor</string>

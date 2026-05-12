@@ -111,7 +111,7 @@
     <string name="watch_pwm_numbers">Texto</string>
     <string name="watch_pwm_both">Ambos</string>
     <string name="watch_show_speed_unit">Etiqueta de unidad de velocidad</string>
-    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad</string>
+    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad.</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Botones físicos</string>
@@ -140,7 +140,7 @@
     <string name="cloud_restore_success">Configuración restaurada</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente</string>
+    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente.</string>
     <string name="cloud_retry_now">Sincronizar todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -165,7 +165,7 @@
     <string name="section_connection">Conexión</string>
     <string name="section_display">Pantalla</string>
     <string name="auto_record_on_start">Grabar automáticamente al iniciar</string>
-    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada</string>
+    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada.</string>
     <string name="auto_record_start_in_motion">Empezar a grabar al moverte</string>
     <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en el siguiente viaje.</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
@@ -194,7 +194,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Límites de velocidad</string>
     <string name="section_legal_mode_speed">Velocidad en Modo Legal</string>
-    <string name="legal_mode_caption">Se aplica cuando el Modo Legal está ACTIVO. Debe ser menor que el tiltback normal</string>
+    <string name="legal_mode_caption">Se aplica cuando el Modo Legal está ACTIVO. Debe ser menor que el tiltback normal.</string>
     <string name="speed_limits_disconnected">Conecta tu rueda para editar los límites de velocidad</string>
     <string name="speed_tiltback">Velocidad de Tiltback</string>
     <string name="speed_alarm">Velocidad de alarma</string>
@@ -240,7 +240,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Botones Flic 2</string>
-    <string name="flic_scan_hint">Mantén presionado tu botón Flic 2 durante 6 segundos para ponerlo en modo emparejamiento, luego toca Buscar</string>
+    <string name="flic_scan_hint">Mantén presionado tu botón Flic 2 durante 6 segundos para ponerlo en modo emparejamiento, luego toca Buscar.</string>
     <string name="flic_stop_scan">Detener</string>
     <string name="flic_start_scan">Buscar botón</string>
     <string name="flic_no_buttons">No hay botones Flic emparejados</string>
@@ -337,7 +337,7 @@
     <string name="scan_scanning">Buscando…</string>
     <string name="scan_start">Iniciar búsqueda</string>
     <string name="scan_show_all_title">Mostrar todos los dispositivos</string>
-    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece</string>
+    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -396,13 +396,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luces</string>
-    <string name="auto_lights_desc">Enciende o apaga las luces delanteras según el atardecer y el amanecer</string>
+    <string name="auto_lights_desc">Enciende o apaga las luces delanteras según el atardecer y el amanecer.</string>
     <string name="auto_lights_on_before_sunset">Prender antes del atardecer</string>
     <string name="auto_lights_off_after_sunrise">Apagar después del amanecer</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Esperando ubicación GPS…</string>
     <string name="auto_volume_title">Volumen</string>
-    <string name="auto_volume_desc">Sube el volumen de la música según la velocidad</string>
+    <string name="auto_volume_desc">Sube el volumen de la música según la velocidad.</string>
     <string name="auto_sunrise_sunset">Amanecer y atardecer</string>
     <string name="auto_midnight_sun_title">Sol de medianoche</string>
     <string name="auto_midnight_sun_body">Hoy el sol no se pone en esta latitud, las luces permanecerán APAGADAS</string>
@@ -446,7 +446,7 @@
     <string name="alarm_repeat_help">ON: se vuelve a disparar cada pausa mientras la condición se mantenga.\nOFF: se dispara una vez y queda en silencio hasta que la condición cese</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador</string>
+    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador.</string>
     <string name="about_crash_logs_empty">Sin fallos registrados</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
     <string name="about_thanks">Créditos</string>
@@ -458,7 +458,7 @@
     <string name="watch_screen_button_1">Botón 1</string>
     <string name="watch_screen_button_2">Botón 2</string>
     <string name="watch_haptic_on_action">Vibrar al activar</string>
-    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
+    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Sonido de motor</string>

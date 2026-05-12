@@ -111,7 +111,7 @@
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_pwm_both">Обидва</string>
     <string name="watch_show_speed_unit">Підпис одиниць швидкості</string>
-    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості</string>
+    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості.</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Апаратні кнопки</string>
@@ -140,7 +140,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки</string>
+    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки.</string>
     <string name="cloud_retry_now">Синхронізувати все</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -165,7 +165,7 @@
     <string name="section_connection">З\'єднання</string>
     <string name="section_display">Екран</string>
     <string name="auto_record_on_start">Автозапис при підключенні</string>
-    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене</string>
+    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене.</string>
     <string name="auto_record_start_in_motion">Починати запис при русі</string>
     <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці.</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
@@ -194,7 +194,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Обмеження швидкості</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>
-    <string name="legal_mode_caption">Застосовується, коли увімкнено легальний режим. Має бути нижчою за звичайний tiltback</string>
+    <string name="legal_mode_caption">Застосовується, коли увімкнено легальний режим. Має бути нижчою за звичайний tiltback.</string>
     <string name="speed_limits_disconnected">Підключи моноколесо, щоб змінити обмеження швидкості</string>
     <string name="speed_tiltback">Швидкість tiltback</string>
     <string name="speed_alarm">Швидкість тривоги</string>
@@ -240,7 +240,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати</string>
+    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати.</string>
     <string name="flic_stop_scan">Стоп</string>
     <string name="flic_start_scan">Шукати кнопку</string>
     <string name="flic_no_buttons">Кнопки Flic не спарені</string>
@@ -337,7 +337,7 @@
     <string name="scan_scanning">Пошук…</string>
     <string name="scan_start">Почати сканування</string>
     <string name="scan_show_all_title">Показати всі пристрої</string>
-    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється</string>
+    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -396,13 +396,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Світло</string>
-    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
+    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця.</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
     <string name="auto_minutes_fmt">%1$d хв</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
-    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
+    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості.</string>
     <string name="auto_sunrise_sunset">Схід і захід сонця</string>
     <string name="auto_midnight_sun_title">Полярний день</string>
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ</string>
@@ -446,7 +446,7 @@
     <string name="alarm_repeat_help">УВІМК: повторно спрацьовує після кожної паузи, поки виконується умова.\nВИМК: спрацьовує один раз і мовчить, поки умова не зникне</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником</string>
+    <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником.</string>
     <string name="about_crash_logs_empty">Збоїв не зафіксовано</string>
     <string name="about_share_crash">Поділитися журналом збою</string>
     <string name="about_thanks">Подяки</string>
@@ -458,7 +458,7 @@
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вібрація при дії</string>
-    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки</string>
+    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>

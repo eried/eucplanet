@@ -111,7 +111,7 @@
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_pwm_both">Both</string>
     <string name="watch_show_speed_unit">Speed unit label</string>
-    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number</string>
+    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number.</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Hardware buttons</string>
@@ -127,7 +127,7 @@
     <string name="watch_screen_button_1">Button 1</string>
     <string name="watch_screen_button_2">Button 2</string>
     <string name="watch_haptic_on_action">Vibrate on action</string>
-    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires</string>
+    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires.</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
@@ -149,7 +149,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
+    <string name="cloud_trips_caption">New trips are saved to your folder automatically.</string>
     <string name="cloud_retry_now">Synchronize all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
@@ -174,7 +174,7 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Records a trip when the wheel is connected</string>
+    <string name="auto_record_caption">Records a trip when the wheel is connected.</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
     <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
@@ -203,7 +203,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Speed Limits</string>
     <string name="section_legal_mode_speed">Legal Mode Speed</string>
-    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback</string>
+    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
@@ -327,7 +327,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 Buttons</string>
-    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
+    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
     <string name="flic_stop_scan">Stop</string>
     <string name="flic_start_scan">Scan for button</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
@@ -424,7 +424,7 @@
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
     <string name="scan_show_all_title">Show all devices</string>
-    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
+    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -483,13 +483,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>
-    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
+    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise.</string>
     <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
     <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Boost music volume based on speed</string>
+    <string name="auto_volume_desc">Boost music volume based on speed.</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF</string>
@@ -534,7 +534,7 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>
-    <string name="about_crash_logs_hint">Tap a file to share it with the developer</string>
+    <string name="about_crash_logs_hint">Tap a file to share it with the developer.</string>
     <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_thanks">Credits</string>

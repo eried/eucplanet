@@ -112,7 +112,7 @@
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
     <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
-    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist</string>
+    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist.</string>
     <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
     <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Leerlauf, läuft bei der nächsten Fahrt wieder an.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
-    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein</string>
+    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
     <string name="speed_limits_disconnected">Rad verbinden, um Geschwindigkeitsgrenzen zu bearbeiten</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Aufnahme</string>
 
     <string name="section_flic_buttons">Flic 2-Tasten</string>
-    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen</string>
+    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Nach Taste suchen</string>
     <string name="flic_forget">Vergessen</string>
@@ -275,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Licht</string>
-    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang</string>
+    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang.</string>
     <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
     <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>
     <string name="auto_minutes_fmt">%1$d Min.</string>
     <string name="auto_waiting_gps">Warte auf GPS-Position\u2026</string>
     <string name="auto_volume_title">Lautstärke</string>
-    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
+    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit.</string>
     <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
     <string name="auto_midnight_sun_title">Mitternachtssonne</string>
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS</string>
@@ -369,7 +369,7 @@
     <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen</string>
+    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
     <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_thanks">Danksagungen</string>
@@ -399,7 +399,7 @@
     <string name="menu_voice_periodic_off">Regelmäßige Ansagen ausschalten</string>
     <string name="menu_voice_periodic_on">Regelmäßige Ansagen einschalten</string>
     <string name="report_time">Zeit</string>
-    <string name="scan_show_all_subtitle">Aktivieren, falls dein Rad nicht erscheint</string>
+    <string name="scan_show_all_subtitle">Aktivieren, falls dein Rad nicht erscheint.</string>
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
     <string name="scan_simulate_subtitle">Umgeht BLE und nutzt vordefinierte Antworten. Nur in Debug-Builds.</string>
     <string name="scan_simulate_title">Virtuelle Räder</string>
@@ -429,7 +429,7 @@
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Telefonakku anzeigen</string>
     <string name="watch_show_speed_unit">Einheitenkürzel</string>
-    <string name="watch_show_speed_unit_desc">Zeigt das Einheitenkürzel neben der großen Geschwindigkeitszahl</string>
+    <string name="watch_show_speed_unit_desc">Zeigt das Einheitenkürzel neben der großen Geschwindigkeitszahl.</string>
     <string name="watch_show_watch_battery">Uhrenakku anzeigen</string>
     <string name="watch_show_wheel_battery">Rad-Akku anzeigen</string>
     <string name="flic_action_record_start">Fahrtaufzeichnung starten</string>
@@ -438,7 +438,7 @@
     <string name="watch_screen_button_1">Taste 1</string>
     <string name="watch_screen_button_2">Taste 2</string>
     <string name="watch_haptic_on_action">Bei Aktion vibrieren</string>
-    <string name="watch_haptic_on_action_desc">Kurze Vibration der Uhr, sobald eine Tasten-Aktion ausgelöst wird</string>
+    <string name="watch_haptic_on_action_desc">Kurze Vibration der Uhr, sobald eine Tasten-Aktion ausgelöst wird.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorklang</string>

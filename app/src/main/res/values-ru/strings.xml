@@ -112,7 +112,7 @@
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено</string>
+    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено.</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
     <string name="auto_record_start_in_motion_caption">Стартует при движении, останавливается после простоя, возобновляется в следующей поездке.</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Ограничения скорости</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
-    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback</string>
+    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback.</string>
     <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить ограничения скорости</string>
     <string name="speed_tiltback">Tiltback</string>
     <string name="speed_alarm">Предупреждение</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Запись</string>
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск</string>
+    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
     <string name="flic_stop_scan">Стоп</string>
     <string name="flic_start_scan">Искать кнопку</string>
     <string name="flic_forget">Забыть</string>
@@ -275,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Фары</string>
-    <string name="auto_lights_desc">Включать и выключать фары по восходу и закату</string>
+    <string name="auto_lights_desc">Включать и выключать фары по восходу и закату.</string>
     <string name="auto_lights_on_before_sunset">Включать фары до заката</string>
     <string name="auto_lights_off_after_sunrise">Выключать фары после восхода</string>
     <string name="auto_minutes_fmt">%1$d мин</string>
     <string name="auto_waiting_gps">Ждём GPS\u2026</string>
     <string name="auto_volume_title">Громкость</string>
-    <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
+    <string name="auto_volume_desc">Громкость подстраивается под скорость.</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными</string>
@@ -369,7 +369,7 @@
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику</string>
+    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
     <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
     <!-- Credits -->
@@ -418,7 +418,7 @@
     <string name="report_time">Время</string>
 
     <!-- Scan extras -->
-    <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
+    <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется.</string>
     <string name="scan_show_all_title">Показать все устройства</string>
     <string name="scan_simulate_subtitle">Обходит BLE и подаёт заготовленные ответы. Только в отладочных сборках.</string>
     <string name="scan_simulate_title">Виртуальные колёса</string>
@@ -465,7 +465,7 @@
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_show_phone_battery">Показывать заряд телефона</string>
     <string name="watch_show_speed_unit">Подпись единиц скорости</string>
-    <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости</string>
+    <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости.</string>
     <string name="watch_show_watch_battery">Показывать заряд часов</string>
     <string name="watch_show_wheel_battery">Показывать заряд колеса</string>
     <string name="flic_action_record_start">Начать запись поездки</string>
@@ -474,7 +474,7 @@
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вибрация при действии</string>
-    <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки</string>
+    <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки.</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигателя</string>
