@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -219,6 +220,7 @@ fun SettingsScreen(
     val titleDisplay = stringResource(R.string.tab_display)
     val titleSpeed = stringResource(R.string.tab_speed)
     val titleVoice = stringResource(R.string.tab_voice)
+    val titleMotor = stringResource(R.string.section_engine_sound)
     val titleCloud = stringResource(R.string.tab_cloud)
     val titleAlarms = stringResource(R.string.tab_alarms)
     val titleAuto = stringResource(R.string.tab_auto)
@@ -281,6 +283,20 @@ fun SettingsScreen(
         stringResource(R.string.report_time)
     ).joinToString(" ")
 
+    val corpusMotor = listOf(
+        titleMotor,
+        stringResource(R.string.engine_sound_enabled),
+        stringResource(R.string.engine_type_label),
+        stringResource(R.string.engine_volume),
+        stringResource(R.string.engine_muffler_label),
+        stringResource(R.string.engine_gearbox_label),
+        stringResource(R.string.engine_idle_label),
+        stringResource(R.string.engine_decel_label),
+        stringResource(R.string.engine_brake_label),
+        stringResource(R.string.engine_duck_label),
+        stringResource(R.string.engine_headphones_only)
+    ).joinToString(" ")
+
     val corpusCloud = listOf(
         titleCloud,
         stringResource(R.string.section_cloud_folder),
@@ -329,6 +345,9 @@ fun SettingsScreen(
         },
         SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
             VoiceTab(settings, viewModel)
+        },
+        SectionDef("motor", titleMotor, Icons.Default.GraphicEq, corpusMotor) {
+            EngineSoundSection(settings, viewModel)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
             CloudTab(settings, viewModel)
@@ -715,8 +734,6 @@ private fun VoiceTab(
             current = settings.voiceOutputChannel,
             onChange = { viewModel.updateVoiceOutputChannel(it) }
         )
-
-        EngineSoundSection(settings = settings, viewModel = viewModel)
 
         SectionHeader(stringResource(R.string.section_announcements))
 
@@ -1886,9 +1903,7 @@ private fun EngineSoundSection(
 ) {
     var showSafety by remember { mutableStateOf(false) }
 
-    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
-    SectionHeader(stringResource(R.string.section_engine_sound))
-
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     SwitchSetting(
         label = stringResource(R.string.engine_sound_enabled),
         checked = settings.engineSoundEnabled
@@ -1996,6 +2011,7 @@ private fun EngineSoundSection(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
     }
 
     if (showSafety) {
