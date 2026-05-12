@@ -176,6 +176,58 @@ data class EngineProfile(
                 decelPopProbability = 0.2f,
                 compressionTone = 0.45f
             ),
+            // --- Extra ICE flavors ---
+            EngineProfile(
+                key = "BOXER_6",
+                displayName = "Boxer 6",
+                kind = Kind.ICE,
+                idleRpm = 850, maxRpm = 7800,
+                cylinderCount = 6,
+                // Flat-6 firing pattern (Porsche-ish): even 120° steps in 720° cycle
+                firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
+                harmonics = floatArrayOf(1f, 0.55f, 0.45f, 0.28f, 0.18f, 0.1f),
+                exhaustGrit = 0.18f,
+                decelPopProbability = 0.45f,
+                compressionTone = 0.5f
+            ),
+            EngineProfile(
+                key = "INLINE_6_SILKY",
+                displayName = "Inline-6 (silky)",
+                kind = Kind.ICE,
+                idleRpm = 700, maxRpm = 7000,
+                cylinderCount = 6,
+                firingAngles = floatArrayOf(0f, 120f, 240f, 360f, 480f, 600f),
+                harmonics = floatArrayOf(1f, 0.8f, 0.6f, 0.42f, 0.28f, 0.17f),
+                exhaustGrit = 0.08f,
+                decelPopProbability = 0.25f,
+                compressionTone = 0.4f
+            ),
+            EngineProfile(
+                key = "TRACTOR",
+                displayName = "Tractor",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 450, maxRpm = 2400,
+                cylinderCount = 1,
+                firingAngles = floatArrayOf(0f),
+                harmonics = floatArrayOf(1f, 0.9f, 0.75f, 0.55f, 0.35f, 0.2f),
+                exhaustGrit = 0.5f,
+                decelPopProbability = 0.55f,
+                compressionTone = 0.95f
+            ),
+            EngineProfile(
+                key = "STEAM_LOCO",
+                displayName = "Steam locomotive",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 180, maxRpm = 900,
+                cylinderCount = 2,
+                // Two cylinders firing 180° apart — that's the classic "chuff-chuff"
+                firingAngles = floatArrayOf(0f, 180f),
+                twoStroke = true,
+                harmonics = floatArrayOf(1f, 0.95f, 0.85f, 0.7f, 0.5f, 0.3f),
+                exhaustGrit = 0.7f,
+                decelPopProbability = 0.0f,
+                compressionTone = 0.9f
+            ),
             // --- Synth / futuristic (gearless) ---
             EngineProfile(
                 key = "TRON_WHINE",
@@ -197,6 +249,61 @@ data class EngineProfile(
                 synthShape = 1,           // saw — gritty turbine
                 synthFmDepth = 0.6f,
                 exhaustGrit = 0.45f,
+                decelPopProbability = 0.0f
+            ),
+            EngineProfile(
+                key = "LIGHTSABER",
+                displayName = "Lightsaber",
+                kind = Kind.SYNTH, gearless = true,
+                idleRpm = 300, maxRpm = 1800,
+                synthBaseHz = 55f, synthMaxHz = 220f,
+                synthShape = 0,           // sine — pure hum
+                synthFmDepth = 0.75f,     // heavy modulation gives the wobble
+                exhaustGrit = 0.02f,
+                decelPopProbability = 0.0f
+            ),
+            EngineProfile(
+                key = "JET_TURBINE",
+                displayName = "Jet turbine",
+                kind = Kind.SYNTH, gearless = true,
+                idleRpm = 1500, maxRpm = 18000,
+                synthBaseHz = 180f, synthMaxHz = 3800f,
+                synthShape = 2,           // square — bright whine
+                synthFmDepth = 0.08f,     // tight, only a touch of warble
+                exhaustGrit = 0.55f,      // turbine air hiss
+                decelPopProbability = 0.0f
+            ),
+            EngineProfile(
+                key = "UFO_HOVER",
+                displayName = "UFO hover",
+                kind = Kind.SYNTH, gearless = true,
+                idleRpm = 700, maxRpm = 3200,
+                synthBaseHz = 95f, synthMaxHz = 460f,
+                synthShape = 0,           // sine
+                synthFmDepth = 1.0f,      // huge wobble — the cliche flying-saucer warble
+                exhaustGrit = 0.1f,
+                decelPopProbability = 0.0f
+            ),
+            EngineProfile(
+                key = "F1_ELECTRIC",
+                displayName = "F1 electric whine",
+                kind = Kind.SYNTH, gearless = true,
+                idleRpm = 800, maxRpm = 20000,
+                synthBaseHz = 220f, synthMaxHz = 5200f,
+                synthShape = 1,           // saw — rich harmonic content
+                synthFmDepth = 0.04f,
+                exhaustGrit = 0.0f,
+                decelPopProbability = 0.0f
+            ),
+            EngineProfile(
+                key = "HOVER_BIKE",
+                displayName = "Hover bike",
+                kind = Kind.SYNTH, gearless = true,
+                idleRpm = 500, maxRpm = 7000,
+                synthBaseHz = 90f, synthMaxHz = 1400f,
+                synthShape = 1,           // saw + sine FM = thick mid
+                synthFmDepth = 0.35f,
+                exhaustGrit = 0.25f,
                 decelPopProbability = 0.0f
             ),
             // --- Sampled (real recordings, all CC0 from BigSoundBank — see Credits) ---
@@ -236,6 +343,35 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 850, maxRpm = 6000,
                 sampleAssetBase = "engine_citycar_saxo"
+            ),
+            EngineProfile(
+                key = "SAMPLED_HELICOPTER",
+                displayName = "Helicopter (sampled)",
+                kind = Kind.ICE, gearless = true,
+                // Helicopter rotor "RPM" is metaphorical here — drives playback speed mapping
+                idleRpm = 250, maxRpm = 1100,
+                sampleAssetBase = "engine_helicopter"
+            ),
+            EngineProfile(
+                key = "SAMPLED_TRACTOR",
+                displayName = "Tractor (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 600, maxRpm = 2600,
+                sampleAssetBase = "engine_tractor"
+            ),
+            EngineProfile(
+                key = "SAMPLED_LAWNMOWER",
+                displayName = "Lawn mower (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 1800, maxRpm = 3600,
+                sampleAssetBase = "engine_lawnmower"
+            ),
+            EngineProfile(
+                key = "SAMPLED_STEAM_LOCO",
+                displayName = "Steam locomotive (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 200, maxRpm = 900,
+                sampleAssetBase = "engine_steam_loco"
             )
         )
 

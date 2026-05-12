@@ -131,7 +131,41 @@ class SettingsViewModel @Inject constructor(
     fun markEngineSafetyShown() = update { copy(engineSafetyShown = true) }
 
     fun previewEngine(key: String) {
-        engineSoundEngine.previewProfile(key)
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            engineSoundEngine.previewProfile(
+                key = key,
+                volume = s.engineVolume,
+                muffler = s.engineMuffler,
+                gearbox = s.engineGearbox
+            )
+        }
+    }
+
+    /** Preview the currently selected engine with [mufflerOverride] applied — for the per-option ▶ buttons. */
+    fun previewMufflerOption(mufflerOverride: String) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            engineSoundEngine.previewProfile(
+                key = s.engineType,
+                volume = s.engineVolume,
+                muffler = mufflerOverride,
+                gearbox = s.engineGearbox
+            )
+        }
+    }
+
+    /** Preview the currently selected engine with [gearboxOverride] applied — for the per-option ▶ buttons. */
+    fun previewGearboxOption(gearboxOverride: String) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            engineSoundEngine.previewProfile(
+                key = s.engineType,
+                volume = s.engineVolume,
+                muffler = s.engineMuffler,
+                gearbox = gearboxOverride
+            )
+        }
     }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }

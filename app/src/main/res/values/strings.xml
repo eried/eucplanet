@@ -242,7 +242,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
-    <string name="engine_sound_enabled_hint">Synthesised engine driven by your wheel\'s speed and load. Plays through the media channel so it mixes with music.</string>
+    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load. Higher load pushes the revs up, coasting and regen pull them back.</string>
     <string name="engine_safety_title">Heads up</string>
     <string name="engine_safety_message">Engine sound can mask traffic noise. Use lower volumes in city riding, and consider a single-ear headphone so you stay aware of your surroundings.</string>
     <string name="engine_safety_ok">Got it</string>
@@ -255,7 +255,7 @@
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>
     <string name="engine_muffler_muffled">Muffled</string>
-    <string name="engine_gearbox_label">Virtual gearbox</string>
+    <string name="engine_gearbox_label">Gearbox</string>
     <string name="engine_gearbox_off">Off</string>
     <string name="engine_gearbox_four">4-speed</string>
     <string name="engine_gearbox_six">6-speed</string>
@@ -286,13 +286,26 @@
     <string name="engine_preset_v8_muscle">V8 muscle</string>
     <string name="engine_preset_v12_italian">V12 Italian</string>
     <string name="engine_preset_v16_luxury">V16 luxury</string>
+    <string name="engine_preset_boxer_6">Boxer 6</string>
+    <string name="engine_preset_inline_6_silky">Inline-6 (silky)</string>
+    <string name="engine_preset_tractor">Tractor</string>
+    <string name="engine_preset_steam_loco">Steam locomotive</string>
     <string name="engine_preset_tron_whine">Tron whine</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
+    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_jet_turbine">Jet turbine</string>
+    <string name="engine_preset_ufo_hover">UFO hover</string>
+    <string name="engine_preset_f1_electric">F1 electric whine</string>
+    <string name="engine_preset_hover_bike">Hover bike</string>
     <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
     <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
     <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
     <string name="engine_preset_sampled_motorcycle">Motorcycle</string>
     <string name="engine_preset_sampled_city_car">City car</string>
+    <string name="engine_preset_sampled_helicopter">Helicopter</string>
+    <string name="engine_preset_sampled_tractor">Tractor</string>
+    <string name="engine_preset_sampled_lawnmower">Lawn mower</string>
+    <string name="engine_preset_sampled_steam_loco">Steam locomotive</string>
 
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>

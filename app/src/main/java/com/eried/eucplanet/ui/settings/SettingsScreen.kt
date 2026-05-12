@@ -1951,7 +1951,8 @@ private fun EngineSoundSection(
                 "MUFFLED" to stringResource(R.string.engine_muffler_muffled)
             ),
             current = settings.engineMuffler,
-            onChange = { viewModel.updateEngineMuffler(it) }
+            onChange = { viewModel.updateEngineMuffler(it) },
+            onPreview = { viewModel.previewMufflerOption(it) }
         )
 
         SegmentedChoice(
@@ -1962,7 +1963,8 @@ private fun EngineSoundSection(
                 "SIX" to stringResource(R.string.engine_gearbox_six)
             ),
             current = settings.engineGearbox,
-            onChange = { viewModel.updateEngineGearbox(it) }
+            onChange = { viewModel.updateEngineGearbox(it) },
+            onPreview = { viewModel.previewGearboxOption(it) }
         )
 
         SegmentedChoice(
@@ -2087,7 +2089,7 @@ private fun EngineTypePicker(
                     Text(
                         sourceLabel,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
@@ -2212,7 +2214,8 @@ private fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
     current: String,
-    onChange: (String) -> Unit
+    onChange: (String) -> Unit,
+    onPreview: ((String) -> Unit)? = null
 ) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
@@ -2232,7 +2235,13 @@ private fun SegmentedChoice(
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    icon = {},
+                    // When onPreview is wired, the leading icon slot becomes a per-option ▶ button.
+                    // IconButton consumes the click, so the SegmentedButton onChange doesn't fire.
+                    icon = {
+                        if (onPreview != null) {
+                            PlayButton(onClick = { onPreview(key) })
+                        }
+                    },
                     label = {
                         Text(
                             optLabel,

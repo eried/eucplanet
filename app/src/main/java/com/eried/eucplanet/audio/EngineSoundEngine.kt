@@ -122,10 +122,28 @@ class EngineSoundEngine @Inject constructor(
         voiceActive = active
     }
 
-    /** Live preview while user is on the settings page (no telemetry yet). */
-    fun previewProfile(key: String, durationMs: Long = 2500L) {
-        val saved = profile
+    /**
+     * Live preview while user is on the settings page (no telemetry yet).
+     *
+     * Optional overrides let the caller A/B-test a specific knob (volume slider,
+     * muffler/gearbox option) without committing the change first. When null,
+     * the engine's current state (last [applySettings]) is used.
+     */
+    fun previewProfile(
+        key: String,
+        durationMs: Long = 2500L,
+        volume: Float? = null,
+        muffler: String? = null,
+        gearbox: String? = null
+    ) {
+        val savedProfile = profile
+        val savedVolume = masterVolume
+        val savedMuffler = mufflerKey
+        val savedGearbox = gearboxKey
         profile = EngineProfile.byKey(key)
+        if (volume != null) masterVolume = volume.coerceIn(0f, 1f)
+        if (muffler != null) mufflerKey = muffler
+        if (gearbox != null) gearboxKey = gearbox
         // Synthesize a small acceleration sweep: idle → mid → idle
         Thread {
             try {
@@ -145,7 +163,10 @@ class EngineSoundEngine @Inject constructor(
                 Thread.sleep(250)
                 stop()
             } finally {
-                profile = saved
+                profile = savedProfile
+                masterVolume = savedVolume
+                mufflerKey = savedMuffler
+                gearboxKey = savedGearbox
             }
         }.start()
     }
