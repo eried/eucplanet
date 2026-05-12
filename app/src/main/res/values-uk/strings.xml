@@ -438,7 +438,7 @@
     <string name="alarm_vibrate_target_label">Вібрувати на</string>
     <string name="alarm_vibrate_target_phone">Телефоні</string>
     <string name="alarm_vibrate_target_watch">Годиннику</string>
-    <string name="alarm_vibrate_target_both">Обох</string>
+    <string name="alarm_vibrate_target_both">Усі</string>
     <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_fmt">Пауза: %1$dс</string>
     <string name="alarm_cooldown_help">Мінімальна пауза між спрацюваннями цього правила, навіть якщо умова продовжує виконуватись</string>

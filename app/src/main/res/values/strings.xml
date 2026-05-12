@@ -525,7 +525,7 @@
     <string name="alarm_vibrate_target_label">Vibrate on</string>
     <string name="alarm_vibrate_target_phone">Phone</string>
     <string name="alarm_vibrate_target_watch">Watch</string>
-    <string name="alarm_vibrate_target_both">Both</string>
+    <string name="alarm_vibrate_target_both">All</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>

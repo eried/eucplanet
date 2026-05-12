@@ -378,7 +378,7 @@
     <string name="action_reorder">Arrastra para reordenar</string>
     <string name="alarm_delete_body">%1$s será eliminada. Esta acción no se puede deshacer.</string>
     <string name="alarm_delete_title">¿Eliminar esta alarma?</string>
-    <string name="alarm_vibrate_target_both">Ambos</string>
+    <string name="alarm_vibrate_target_both">Todos</string>
     <string name="alarm_vibrate_target_label">Vibrar en</string>
     <string name="alarm_vibrate_target_phone">Teléfono</string>
     <string name="alarm_vibrate_target_watch">Reloj</string>

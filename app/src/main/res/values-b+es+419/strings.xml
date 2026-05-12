@@ -438,7 +438,7 @@
     <string name="alarm_vibrate_target_label">Vibrar en</string>
     <string name="alarm_vibrate_target_phone">Celular</string>
     <string name="alarm_vibrate_target_watch">Reloj</string>
-    <string name="alarm_vibrate_target_both">Ambos</string>
+    <string name="alarm_vibrate_target_both">Todos</string>
     <string name="alarm_section_timing">Tiempos</string>
     <string name="alarm_cooldown_fmt">Pausa: %1$ds</string>
     <string name="alarm_cooldown_help">Tiempo mínimo entre disparos de esta regla, aunque la condición se siga cumpliendo</string>

@@ -438,7 +438,7 @@
     <string name="alarm_vibrate_target_label">Wibruj na</string>
     <string name="alarm_vibrate_target_phone">Telefonie</string>
     <string name="alarm_vibrate_target_watch">Zegarku</string>
-    <string name="alarm_vibrate_target_both">Obu</string>
+    <string name="alarm_vibrate_target_both">Wszystkie</string>
     <string name="alarm_section_timing">Czasy</string>
     <string name="alarm_cooldown_fmt">Odstęp: %1$ds</string>
     <string name="alarm_cooldown_help">Minimalny czas między uruchomieniami tej reguły, nawet jeśli warunek wciąż jest spełniony</string>

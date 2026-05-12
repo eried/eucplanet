@@ -362,7 +362,7 @@
     <string name="action_reorder">Dra för att ändra ordning</string>
     <string name="alarm_delete_body">%1$s tas bort. Detta kan inte ångras.</string>
     <string name="alarm_delete_title">Radera detta larm?</string>
-    <string name="alarm_vibrate_target_both">Båda</string>
+    <string name="alarm_vibrate_target_both">Alla</string>
     <string name="alarm_vibrate_target_label">Vibrera på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klocka</string>

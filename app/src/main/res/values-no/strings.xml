@@ -378,7 +378,7 @@
     <string name="action_reorder">Dra for å endre rekkefølge</string>
     <string name="alarm_delete_body">%1$s blir fjernet. Dette kan ikke angres.</string>
     <string name="alarm_delete_title">Slette denne alarmen?</string>
-    <string name="alarm_vibrate_target_both">Begge</string>
+    <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_vibrate_target_label">Vibrer på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klokke</string>

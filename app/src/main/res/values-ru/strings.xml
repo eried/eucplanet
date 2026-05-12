@@ -382,7 +382,7 @@
     <!-- Alarm delete + vibrate target -->
     <string name="alarm_delete_body">%1$s будет удалено. Это действие нельзя отменить.</string>
     <string name="alarm_delete_title">Удалить это правило?</string>
-    <string name="alarm_vibrate_target_both">Оба</string>
+    <string name="alarm_vibrate_target_both">Все</string>
     <string name="alarm_vibrate_target_label">Вибрировать на</string>
     <string name="alarm_vibrate_target_phone">Телефон</string>
     <string name="alarm_vibrate_target_watch">Часы</string>

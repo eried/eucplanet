@@ -362,7 +362,7 @@
     <string name="action_reorder">拖动以重新排序</string>
     <string name="alarm_delete_body">%1$s 将被移除,此操作无法撤销。</string>
     <string name="alarm_delete_title">删除此报警?</string>
-    <string name="alarm_vibrate_target_both">两者</string>
+    <string name="alarm_vibrate_target_both">全部</string>
     <string name="alarm_vibrate_target_label">振动设备</string>
     <string name="alarm_vibrate_target_phone">手机</string>
     <string name="alarm_vibrate_target_watch">手表</string>

@@ -362,7 +362,7 @@
     <string name="action_reorder">Træk for at ændre rækkefølge</string>
     <string name="alarm_delete_body">%1$s fjernes. Dette kan ikke fortrydes.</string>
     <string name="alarm_delete_title">Slet denne alarm?</string>
-    <string name="alarm_vibrate_target_both">Begge</string>
+    <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_vibrate_target_label">Vibrér på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Ur</string>

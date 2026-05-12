@@ -438,7 +438,7 @@
     <string name="alarm_vibrate_target_label">Trillen op</string>
     <string name="alarm_vibrate_target_phone">Telefoon</string>
     <string name="alarm_vibrate_target_watch">Horloge</string>
-    <string name="alarm_vibrate_target_both">Beide</string>
+    <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimale tijd tussen vuringen voor deze regel, ook als de voorwaarde blijft passen</string>

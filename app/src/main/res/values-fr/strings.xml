@@ -362,7 +362,7 @@
     <string name="action_reorder">Glisser pour réorganiser</string>
     <string name="alarm_delete_body">%1$s sera supprimée. Action irréversible.</string>
     <string name="alarm_delete_title">Supprimer cette alarme ?</string>
-    <string name="alarm_vibrate_target_both">Les deux</string>
+    <string name="alarm_vibrate_target_both">Tous</string>
     <string name="alarm_vibrate_target_label">Vibrer sur</string>
     <string name="alarm_vibrate_target_phone">Téléphone</string>
     <string name="alarm_vibrate_target_watch">Montre</string>
