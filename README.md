@@ -8,7 +8,7 @@
 
 An open-source Android companion app for **electric unicycles**, with a Wear OS companion for Galaxy Watch Ultra and other Wear OS 5+ watches.
 
-Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, does the things I actually want while riding, and doesn't phone home.
+Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.
 
 > **Wheel support tiers:**
 >
@@ -17,7 +17,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 > | **Verified** | InMotion V14 50GB / 50S, P6 | Author's daily wheel + telemetry/controls confirmed against labelled real-hardware captures |
 > | **Preliminary** | InMotion V12 HS / HT / Pro | Parser exists, not yet author-tested |
 > | **Preview** | KingSong S22 / S20 / S19 / S18 / S16 / KS-14/16/18 / F18P / F22P | Telemetry + commands implemented from the public protocol; needs a real-hardware tester |
-> | **Preview** | Begode/Gotway Master / Master Pro / T3 / T4 / RS / RS-HT / EX / EX.N / EX2 / MSP / MSX / Hero / Mten4 / Mten5 / MCM5 | same |
+> | **Preview** | Begode/Gotway Master / Master Pro / T3 / T4 / RS / RS-HT / EX / EX.N / EX2 / MSP / MSX / Hero / XWay / Mten4 / Mten5 / MCM5 | same; high-voltage tiltback (>100 km/h) handled since v0.6.2 |
 > | **Preview** | Veteran Sherman / Sherman S / Sherman Max / Patton / Lynx / Abrams | same |
 > | **Preview** | InMotion V1 family: V5 / V8 / V8F / V8S / V10 / V10F / V10S / V10T / V10FT / L6 / Lively / Glide 3 | same |
 > | **Preview** | Ninebot Z6 / Z10, plus legacy One E / E+ / S2 / Mini (read-only) | same; Ninebot Z uses the documented XOR keystream encryption |
