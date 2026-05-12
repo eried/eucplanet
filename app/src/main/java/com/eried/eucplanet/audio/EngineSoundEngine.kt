@@ -33,7 +33,8 @@ import kotlin.math.sqrt
  */
 @Singleton
 class EngineSoundEngine @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val sfxSidecar: SfxSidecar
 ) {
 
     private val sampleRate = 44100
@@ -444,6 +445,13 @@ class EngineSoundEngine @Inject constructor(
             val effRpm = smoothedRpm + revDetector.currentBump(now)
             val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
             sampledPlayer.update(rpmNorm, gain * idleEnvelope.coerceIn(0f, 1f))
+            // The synth path consumes pendingPops by rendering them into its own buffer.
+            // For the sampled path MediaPlayer has no mix point, so we layer pops as one-shot
+            // SoundPool plays. Same gating: only when the profile actually supports pops.
+            if (pops > 0 && profile.supportsPops && profile.popSampleAsset != null) {
+                val popVolume = gain * idleEnvelope.coerceIn(0f, 1f)
+                repeat(pops) { sfxSidecar.firePop(profile.popSampleAsset, popVolume) }
+            }
         }
     }
 
@@ -457,6 +465,10 @@ class EngineSoundEngine @Inject constructor(
         running = true
         requestAudioFocus()
         if (profile.sampleAssetBase != null) {
+            // Preload pop/brake SFX so the first trigger doesn't get dropped while
+            // SoundPool decodes. firePop() drops the call if the asset isn't ready yet,
+            // but we want pops to land from the first decel event.
+            sfxSidecar.load(profile)
             sampledPlayer.start(profile)
             return
         }
@@ -508,6 +520,7 @@ class EngineSoundEngine @Inject constructor(
         }
         audioTrack = null
         sampledPlayer.stop()
+        sfxSidecar.release()
         abandonAudioFocus()
         synth.reset()
         revDetector.reset()

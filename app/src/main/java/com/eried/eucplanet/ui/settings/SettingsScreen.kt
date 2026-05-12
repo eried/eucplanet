@@ -1939,6 +1939,13 @@ private fun EngineSoundSection(
             onPreview = if (parked) { { viewModel.previewEngine(it) } } else null
         )
 
+        // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
+        // or muffler LPF on any sampled engine, since MediaPlayer has no filter point)
+        // are hidden from the UI. EngineProfile carries the per-engine support booleans.
+        val currentProfile = remember(settings.engineType) {
+            com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
+        }
+
         if (!parked) {
             Text(
                 stringResource(R.string.engine_preview_parked_only),
@@ -1957,17 +1964,19 @@ private fun EngineSoundSection(
             onValueChange = { viewModel.updateEngineVolume(it / 100f) }
         )
 
-        SegmentedChoice(
-            label = stringResource(R.string.engine_muffler_label),
-            options = listOf(
-                "OPEN" to stringResource(R.string.engine_muffler_open),
-                "HALF" to stringResource(R.string.engine_muffler_half),
-                "MUFFLED" to stringResource(R.string.engine_muffler_muffled)
-            ),
-            current = settings.engineMuffler,
-            onChange = { viewModel.updateEngineMuffler(it) },
-            onPreview = if (parked) { { viewModel.previewEngineSection("DEFAULT") } } else null
-        )
+        if (currentProfile.supportsMuffler) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_muffler_label),
+                options = listOf(
+                    "OPEN" to stringResource(R.string.engine_muffler_open),
+                    "HALF" to stringResource(R.string.engine_muffler_half),
+                    "MUFFLED" to stringResource(R.string.engine_muffler_muffled)
+                ),
+                current = settings.engineMuffler,
+                onChange = { viewModel.updateEngineMuffler(it) },
+                onPreview = if (parked) { { viewModel.previewEngineSection("DEFAULT") } } else null
+            )
+        }
 
         SegmentedChoice(
             label = stringResource(R.string.engine_gearbox_label),
@@ -1992,29 +2001,33 @@ private fun EngineSoundSection(
             onChange = { viewModel.updateEngineIdleBehavior(it) }
         )
 
-        SegmentedChoice(
-            label = stringResource(R.string.engine_decel_label),
-            options = listOf(
-                "SMOOTH" to stringResource(R.string.engine_decel_smooth),
-                "STANDARD" to stringResource(R.string.engine_decel_standard),
-                "BACKFIRE" to stringResource(R.string.engine_decel_backfire)
-            ),
-            current = settings.engineDecelChar,
-            onChange = { viewModel.updateEngineDecelChar(it) },
-            onPreview = if (parked) { { viewModel.previewEngineSection("DECEL") } } else null
-        )
+        if (currentProfile.supportsPops) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_decel_label),
+                options = listOf(
+                    "SMOOTH" to stringResource(R.string.engine_decel_smooth),
+                    "STANDARD" to stringResource(R.string.engine_decel_standard),
+                    "BACKFIRE" to stringResource(R.string.engine_decel_backfire)
+                ),
+                current = settings.engineDecelChar,
+                onChange = { viewModel.updateEngineDecelChar(it) },
+                onPreview = if (parked) { { viewModel.previewEngineSection("DECEL") } } else null
+            )
+        }
 
-        SegmentedChoice(
-            label = stringResource(R.string.engine_brake_label),
-            options = listOf(
-                "OFF" to stringResource(R.string.engine_brake_off),
-                "LIGHT" to stringResource(R.string.engine_brake_light),
-                "STRONG" to stringResource(R.string.engine_brake_strong)
-            ),
-            current = settings.engineBrake,
-            onChange = { viewModel.updateEngineBrake(it) },
-            onPreview = if (parked) { { viewModel.previewEngineSection("BRAKE") } } else null
-        )
+        if (currentProfile.supportsBrakeWhine) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_brake_label),
+                options = listOf(
+                    "OFF" to stringResource(R.string.engine_brake_off),
+                    "LIGHT" to stringResource(R.string.engine_brake_light),
+                    "STRONG" to stringResource(R.string.engine_brake_strong)
+                ),
+                current = settings.engineBrake,
+                onChange = { viewModel.updateEngineBrake(it) },
+                onPreview = if (parked) { { viewModel.previewEngineSection("BRAKE") } } else null
+            )
+        }
 
         SegmentedChoice(
             label = stringResource(R.string.engine_duck_label),

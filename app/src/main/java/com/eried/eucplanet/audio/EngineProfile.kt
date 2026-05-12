@@ -332,7 +332,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 700, maxRpm = 6500,
                 sampleAssetBase = "engine_v8_cobra",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             ),
             EngineProfile(
                 key = "SAMPLED_VTWIN_DUCATI",
@@ -340,7 +341,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 950, maxRpm = 9000,
                 sampleAssetBase = "engine_vtwin_ducati",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             ),
             EngineProfile(
                 key = "SAMPLED_DIESEL_IVECO",
@@ -356,7 +358,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1100, maxRpm = 10500,
                 sampleAssetBase = "engine_motorcycle",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             ),
             EngineProfile(
                 key = "SAMPLED_CITY_CAR",
@@ -364,7 +367,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 850, maxRpm = 6000,
                 sampleAssetBase = "engine_citycar_saxo",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_snap"
             ),
             EngineProfile(
                 key = "SAMPLED_HELICOPTER",
@@ -405,7 +409,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1000, maxRpm = 5500,
                 sampleAssetBase = "engine_car_cruise",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_snap"
             ),
             EngineProfile(
                 key = "SAMPLED_ASTON_MARTIN",
@@ -413,7 +418,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 7500,
                 sampleAssetBase = "engine_aston_martin",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             ),
             EngineProfile(
                 key = "SAMPLED_BIG_DIESEL",
@@ -429,7 +435,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 800, maxRpm = 5000,
                 sampleAssetBase = "engine_damaged_muffler",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             ),
             EngineProfile(
                 key = "SAMPLED_QUAD_ATV",
@@ -437,7 +444,8 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 6500,
                 sampleAssetBase = "engine_quad_atv",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_crack"
             )
         )
 
