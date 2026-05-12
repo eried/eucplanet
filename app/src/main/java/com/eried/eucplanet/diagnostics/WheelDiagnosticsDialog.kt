@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -1054,9 +1055,15 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 WheelDiagnosticsViewModel.WrapMode.WRAP_NINEBOT_LEGACY to "9bot",
                 WheelDiagnosticsViewModel.WrapMode.WRAP_INMOTION_V1 to "V1"
             )
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp)
+                    .height(IntrinsicSize.Max)
+            ) {
                 modes.forEachIndexed { index, (m, label) ->
                     SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
                         selected = mode == m,
                         onClick = { mode = m },
                         // Force square corners on the segmented row to match

@@ -70,7 +70,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-Ordner</string>
-    <string name="cloud_caption">Wähle einen Ordner auf diesem Telefon, in dem Fahrten-CSVs und ein Einstellungs-Backup gespeichert werden</string>
+    <string name="cloud_caption">Ordner für Fahrten-CSVs und Einstellungs-Backup.</string>
     <string name="cloud_help_title">So sicherst du in OneDrive, Drive oder Dropbox</string>
     <string name="cloud_help_body">Androids Ordnerauswahl zeigt OneDrive, Google Drive oder Dropbox normalerweise nicht an. Diese Apps stellen anderen Apps keinen beschreibbaren Ordner bereit, daher speichern wir lokal und überlassen den Upload einer Sync-App.\n\nEinrichtung:\n1. Installiere Autosync (für OneDrive, Drive oder Dropbox) oder FolderSync aus dem Play Store.\n2. Melde dich in dieser App an und erstelle ein Sync-Paar: dein gewählter lokaler Ordner → ein Cloud-Ordner.\n3. Stelle \"Nur hochladen\" mit sofortiger oder Änderungs-Sync ein.\n4. Komm hierher zurück und wähle denselben lokalen Ordner.\n\nNeue Fahrten landen in diesem Ordner, wenn eine Aufnahme endet. Die Sync-App lädt sie im Hintergrund hoch.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
@@ -112,9 +112,9 @@
     <string name="section_connection">Verbindung</string>
     <string name="section_display">Anzeige</string>
     <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
-    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist</string>
+    <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist.</string>
     <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
-    <string name="auto_record_start_in_motion_caption">Wartet auf Bewegung, um die Aufnahme zu starten, stoppt automatisch nach der Leerlaufzeit und startet bei der nächsten Fahrt neu</string>
+    <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Leerlauf, läuft bei der nächsten Fahrt wieder an.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
     <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Geschwindigkeitsgrenzen</string>
     <string name="section_legal_mode_speed">Legal-Modus, Geschwindigkeit</string>
-    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein</string>
+    <string name="legal_mode_caption">Gilt, wenn Legal-Modus aktiv ist. Muss niedriger als normales Tiltback sein.</string>
     <string name="speed_limits_disconnected">Rad verbinden, um Geschwindigkeitsgrenzen zu bearbeiten</string>
     <string name="speed_tiltback">Tiltback-Geschwindigkeit</string>
     <string name="speed_alarm">Alarm-Geschwindigkeit</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Aufnahme</string>
 
     <string name="section_flic_buttons">Flic 2-Tasten</string>
-    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen</string>
+    <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen.</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Nach Taste suchen</string>
     <string name="flic_forget">Vergessen</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle. Funktioniert nur bei sichtbarer App</string>
+    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle (nur bei sichtbarer App).</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
@@ -275,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Licht</string>
-    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang</string>
+    <string name="auto_lights_desc">Schaltet das Licht basierend auf Sonnenauf- und -untergang.</string>
     <string name="auto_lights_on_before_sunset">Licht AN vor Sonnenuntergang</string>
     <string name="auto_lights_off_after_sunrise">Licht AUS nach Sonnenaufgang</string>
     <string name="auto_minutes_fmt">%1$d Min.</string>
     <string name="auto_waiting_gps">Warte auf GPS-Position\u2026</string>
     <string name="auto_volume_title">Lautstärke</string>
-    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit</string>
+    <string name="auto_volume_desc">Adaptive Systemlautstärke je nach Geschwindigkeit.</string>
     <string name="auto_sunrise_sunset">Sonnenauf- und -untergang</string>
     <string name="auto_midnight_sun_title">Mitternachtssonne</string>
     <string name="auto_midnight_sun_body">Die Sonne geht heute an diesem Breitengrad nicht unter, das Licht bleibt AUS</string>
@@ -369,7 +369,7 @@
     <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen</string>
+    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
     <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_thanks">Danksagungen</string>
@@ -377,11 +377,11 @@
     <string name="action_reorder">Zum Umsortieren ziehen</string>
     <string name="alarm_delete_body">%1$s wird entfernt. Das kann nicht rückgängig gemacht werden.</string>
     <string name="alarm_delete_title">Diesen Alarm löschen?</string>
-    <string name="alarm_vibrate_target_both">Beide</string>
+    <string name="alarm_vibrate_target_both">Alle</string>
     <string name="alarm_vibrate_target_label">Vibrieren auf</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Uhr</string>
-    <string name="auto_connect_caption">Verbindet wieder mit dem zuletzt gekoppelten Rad. Beim ersten Mal musst du manuell verbinden</string>
+    <string name="auto_connect_caption">Verbindet sich automatisch wieder mit dem zuletzt gekoppelten Rad.</string>
     <string name="discard_trip_pending_label">Fahrt wird gleich gesichert</string>
     <string name="experimental_banner">Vorläufig unterstütztes Rad. Tippe, um Probleme zu melden.</string>
     <string name="experimental_dialog_body">Die Unterstützung für dieses Rad ist vorläufig. Nur die V14-Familie und das P6 sind vom Autor verifiziert. Mit Vorsicht verwenden.\n\nWenn du auf dieses Banner tippst, wird ein Problem gemeldet, damit der Autor beheben kann, was nicht funktioniert.</string>
@@ -399,9 +399,9 @@
     <string name="menu_voice_periodic_off">Regelmäßige Ansagen ausschalten</string>
     <string name="menu_voice_periodic_on">Regelmäßige Ansagen einschalten</string>
     <string name="report_time">Zeit</string>
-    <string name="scan_show_all_subtitle">Aktivieren, falls dein Rad nicht erscheint</string>
+    <string name="scan_show_all_subtitle">Aktivieren, falls dein Rad nicht erscheint.</string>
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
-    <string name="scan_simulate_subtitle">Für die Entwicklung ohne Hardware. Umgeht BLE und schickt vorgefertigte Antworten durch die Adapter-Pipeline</string>
+    <string name="scan_simulate_subtitle">Umgeht BLE und nutzt vordefinierte Antworten. Nur in Debug-Builds.</string>
     <string name="scan_simulate_title">Virtuelle Räder</string>
     <string name="section_watch_buttons">Hardware-Tasten</string>
     <string name="section_watch_display">Anzeige</string>
@@ -416,20 +416,24 @@
     <string name="voice_output_channel_notification">Benachrichtigung</string>
     <string name="voice_time_fmt">Zeit %1$s</string>
     <string name="watch_auto_start">Auf Uhr automatisch starten</string>
-    <string name="watch_auto_start_desc">Öffnet die Uhr-App automatisch, wenn du die Telefon-App öffnest</string>
+    <string name="watch_auto_start_desc">Öffnet die Uhr-App zusammen mit der Telefon-App.</string>
     <string name="watch_button_1">Taste 1</string>
     <string name="watch_button_2">Taste 2</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Langer Druck</string>
     <string name="watch_keep_on">Display anlassen</string>
-    <string name="watch_keep_on_desc">Verhindert, dass die Uhr in den Ruhezustand geht, solange die EUC Planet App offen ist</string>
+    <string name="watch_keep_on_desc">Hält die Uhr wach, solange die App offen ist.</string>
     <string name="watch_pwm_bar">Balken</string>
     <string name="watch_pwm_both">Beide</string>
-    <string name="watch_pwm_display">Last-Anzeige (PWM)</string>
+    <string name="watch_pwm_display">PWM-Anzeige</string>
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Telefonakku anzeigen</string>
     <string name="watch_show_speed_unit">Einheitenkürzel</string>
-    <string name="watch_show_speed_unit_desc">Zeigt das Einheitenkürzel neben der großen Geschwindigkeitszahl</string>
+    <string name="watch_show_speed_unit_desc">Zeigt das Einheitenkürzel neben der großen Geschwindigkeitszahl.</string>
+    <string name="watch_prioritize_pwm">PWM priorisieren</string>
+    <string name="watch_prioritize_pwm_desc">PWM-Balken und -Zahl größer als die Geschwindigkeit darstellen.</string>
+    <string name="watch_dial_rotation">Zifferblatt-Drehung</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Uhrenakku anzeigen</string>
     <string name="watch_show_wheel_battery">Rad-Akku anzeigen</string>
     <string name="flic_action_record_start">Fahrtaufzeichnung starten</string>
@@ -438,5 +442,72 @@
     <string name="watch_screen_button_1">Taste 1</string>
     <string name="watch_screen_button_2">Taste 2</string>
     <string name="watch_haptic_on_action">Bei Aktion vibrieren</string>
-    <string name="watch_haptic_on_action_desc">Kurze Vibration der Uhr, sobald eine Tasten-Aktion ausgelöst wird</string>
+    <string name="watch_haptic_on_action_desc">Kurze Vibration der Uhr, sobald eine Tasten-Aktion ausgelöst wird.</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motorklang</string>
+    <string name="engine_sound_enabled">Motorklang</string>
+    <string name="engine_sound_enabled_hint">Die Motordrehzahl folgt in Echtzeit der Geschwindigkeit und Motorlast deines Rads.</string>
+    <string name="engine_safety_title">Achtung</string>
+    <string name="engine_safety_message">Motorklang kann den Straßenverkehr überdecken. Im Stadtverkehr leiser stellen und ein einzelnes Headset erwägen, damit du die Umgebung weiter wahrnimmst.</string>
+    <string name="engine_safety_ok">Verstanden</string>
+    <string name="engine_type_label">Motor</string>
+    <string name="engine_preview">Vorschau</string>
+    <string name="engine_source_sampled">Sample</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Lautstärke</string>
+    <string name="engine_volume_auto_label">An Tempo anpassen</string>
+    <string name="engine_volume_auto_hint">Lauter bei langsamer Fahrt und leiser bei höherem Tempo, damit Fußgänger dich nahe 0 km/h hören.</string>
+    <string name="engine_muffler_label">Auspuff</string>
+    <string name="engine_muffler_open">Offen</string>
+    <string name="engine_muffler_half">Halb</string>
+    <string name="engine_muffler_muffled">Gedämpft</string>
+    <string name="engine_gearbox_label">Getriebe</string>
+    <string name="engine_gearbox_off">Aus</string>
+    <string name="engine_gearbox_four">4-Gang</string>
+    <string name="engine_gearbox_six">6-Gang</string>
+    <string name="engine_idle_label">Im Stand</string>
+    <string name="engine_idle_always">Immer Leerlauf</string>
+    <string name="engine_idle_fade">Ausblenden</string>
+    <string name="engine_idle_moving">Nur in Bewegung</string>
+    <string name="engine_decel_label">Beim Verzögern</string>
+    <string name="engine_decel_smooth">Sanft</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Fehlzündung</string>
+    <string name="engine_brake_label">Motorbremse</string>
+    <string name="engine_brake_off">Aus</string>
+    <string name="engine_brake_light">Leicht</string>
+    <string name="engine_brake_strong">Stark</string>
+    <string name="engine_duck_label">Bei Sprachausgabe</string>
+    <string name="engine_duck_duck">Leiser</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Mischen</string>
+    <string name="engine_headphones_only">Nur mit Kopfhörern</string>
+    <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur mit kabelgebundenem oder Bluetooth-Audio.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert — zuerst anhalten, um Klänge zu testen.</string>
+    <string name="engine_preset_two_stroke">2-Takt</string>
+    <string name="engine_preset_four_stroke_single">4-Takt Einzylinder</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_inline_4">Reihen-4</string>
+    <string name="engine_preset_inline_6_silky">Reihen-6 (seidig)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Dampflok</string>
+    <string name="engine_preset_jet_turbine">Jet-Turbine</string>
+    <string name="engine_preset_ufo_hover">UFO schwebend</string>
+    <string name="engine_preset_f1_electric">F1 elektrisch</string>
+    <string name="engine_preset_hover_bike">Schwebebike</string>
+    <string name="engine_preset_lightsaber">Lichtschwert</string>
+    <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
+    <string name="engine_preset_sampled_motorcycle">Motorrad</string>
+    <string name="engine_preset_sampled_city_car">Kleinwagen</string>
+    <string name="engine_preset_sampled_helicopter">Hubschrauber</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Rasenmäher</string>
+    <string name="engine_preset_sampled_steam_loco">Dampflok</string>
+    <string name="engine_preset_sampled_big_diesel">Großer Diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Auto auf Reise</string>
+    <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
+    <string name="engine_preset_sampled_quad_atv">Quad</string>
 </resources>

@@ -70,6 +70,10 @@ class RecordingViewModel @Inject constructor(
 
     val recording: StateFlow<Boolean> = tripRepository.recording
 
+    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.imperialUnits }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
+
     /**
      * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
      * row for this id shows an hourglass instead of the upload-success tick. Tapping

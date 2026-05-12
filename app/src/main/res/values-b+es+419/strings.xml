@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Ruedas virtuales</string>
-    <string name="scan_simulate_subtitle">Para desarrollo sin hardware. Omite BLE y envía respuestas predefinidas a través del adaptador</string>
+    <string name="scan_simulate_subtitle">Omite BLE y usa respuestas predefinidas. Solo en versiones de desarrollo.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Conectada</string>
@@ -100,18 +100,22 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
     <string name="watch_keep_on">Mantener pantalla encendida</string>
-    <string name="watch_keep_on_desc">Evita que el reloj se duerma mientras la app de EUC Planet esté abierta</string>
+    <string name="watch_keep_on_desc">Mantené el reloj despierto mientras la app esté abierta.</string>
     <string name="watch_auto_start">Iniciar reloj automáticamente</string>
-    <string name="watch_auto_start_desc">Abre la app del reloj automáticamente cuando abras la app del celular</string>
+    <string name="watch_auto_start_desc">Abre la app del reloj junto con la del celular.</string>
     <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
     <string name="watch_show_phone_battery">Mostrar batería del celular</string>
     <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
-    <string name="watch_pwm_display">Indicador de carga (PWM)</string>
+    <string name="watch_pwm_display">Indicador de PWM</string>
     <string name="watch_pwm_bar">Barra</string>
     <string name="watch_pwm_numbers">Texto</string>
     <string name="watch_pwm_both">Ambos</string>
     <string name="watch_show_speed_unit">Etiqueta de unidad de velocidad</string>
-    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad</string>
+    <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad.</string>
+    <string name="watch_prioritize_pwm">Priorizar PWM</string>
+    <string name="watch_prioritize_pwm_desc">Hace que la barra y el número de PWM se vean más grandes que la velocidad.</string>
+    <string name="watch_dial_rotation">Rotación de la carátula</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Botones físicos</string>
@@ -122,7 +126,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
-    <string name="cloud_caption">Elige una carpeta en este celular donde se guardarán los CSV de viajes y un respaldo de la configuración</string>
+    <string name="cloud_caption">Carpeta donde se guardan los CSV de viajes y el respaldo de ajustes.</string>
     <string name="cloud_help_title">Cómo respaldar a OneDrive, Drive o Dropbox</string>
     <string name="cloud_help_body">El selector de carpetas de Android normalmente no muestra OneDrive, Google Drive ni Dropbox. Esas apps no exponen una carpeta escribible a otras apps, así que guardamos localmente y dejamos que una app de sincronización haga la subida.\n\nConfiguración:\n1. Instala Autosync (para OneDrive, Drive o Dropbox) o FolderSync desde Play Store.\n2. En esa app, inicia sesión y crea un par de sincronización: tu carpeta local elegida hacia una carpeta en la nube.\n3. Configúralo como \"Solo subir\" con sincronización instantánea o al cambiar.\n4. Vuelve aquí y selecciona la misma carpeta local.\n\nLos viajes nuevos llegan a esa carpeta cuando termina una grabación. La app de sincronización los sube en segundo plano.</string>
     <string name="cloud_choose_folder">Elegir carpeta</string>
@@ -140,7 +144,7 @@
     <string name="cloud_restore_success">Configuración restaurada</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
-    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente</string>
+    <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente.</string>
     <string name="cloud_retry_now">Sincronizar todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
@@ -165,12 +169,12 @@
     <string name="section_connection">Conexión</string>
     <string name="section_display">Pantalla</string>
     <string name="auto_record_on_start">Grabar automáticamente al iniciar</string>
-    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada</string>
+    <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada.</string>
     <string name="auto_record_start_in_motion">Empezar a grabar al moverte</string>
-    <string name="auto_record_start_in_motion_caption">Espera a que te muevas para grabar, se detiene tras el tiempo de inactividad y vuelve a empezar en el siguiente viaje</string>
+    <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en el siguiente viaje.</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
     <string name="auto_connect_on_start">Conectar automáticamente al iniciar</string>
-    <string name="auto_connect_caption">Reconecta a la última rueda emparejada. La primera vez tienes que conectar manualmente</string>
+    <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada.</string>
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="imperial_units">Unidades imperiales</string>
     <string name="language">Idioma</string>
@@ -194,7 +198,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Límites de velocidad</string>
     <string name="section_legal_mode_speed">Velocidad en Modo Legal</string>
-    <string name="legal_mode_caption">Se aplica cuando el Modo Legal está ACTIVO. Debe ser menor que el tiltback normal</string>
+    <string name="legal_mode_caption">Se aplica cuando el Modo Legal está ACTIVO. Debe ser menor que el tiltback normal.</string>
     <string name="speed_limits_disconnected">Conecta tu rueda para editar los límites de velocidad</string>
     <string name="speed_tiltback">Velocidad de Tiltback</string>
     <string name="speed_alarm">Velocidad de alarma</string>
@@ -240,7 +244,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Botones Flic 2</string>
-    <string name="flic_scan_hint">Mantén presionado tu botón Flic 2 durante 6 segundos para ponerlo en modo emparejamiento, luego toca Buscar</string>
+    <string name="flic_scan_hint">Mantén presionado tu botón Flic 2 durante 6 segundos para ponerlo en modo emparejamiento, luego toca Buscar.</string>
     <string name="flic_stop_scan">Detener</string>
     <string name="flic_start_scan">Buscar botón</string>
     <string name="flic_no_buttons">No hay botones Flic emparejados</string>
@@ -252,7 +256,7 @@
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
     <string name="section_volume_keys">Teclas de volumen</string>
-    <string name="volume_keys_caption">Usa los botones de volumen del celular como atajos. Solo funciona mientras la app esté visible en pantalla</string>
+    <string name="volume_keys_caption">Botones de volumen como atajos (solo con la app visible).</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>
@@ -337,7 +341,7 @@
     <string name="scan_scanning">Buscando…</string>
     <string name="scan_start">Iniciar búsqueda</string>
     <string name="scan_show_all_title">Mostrar todos los dispositivos</string>
-    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece</string>
+    <string name="scan_show_all_subtitle">Actívalo si tu rueda no aparece.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -396,13 +400,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luces</string>
-    <string name="auto_lights_desc">Enciende o apaga las luces delanteras según el atardecer y el amanecer</string>
+    <string name="auto_lights_desc">Enciende o apaga las luces delanteras según el atardecer y el amanecer.</string>
     <string name="auto_lights_on_before_sunset">Prender antes del atardecer</string>
     <string name="auto_lights_off_after_sunrise">Apagar después del amanecer</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Esperando ubicación GPS…</string>
     <string name="auto_volume_title">Volumen</string>
-    <string name="auto_volume_desc">Sube el volumen de la música según la velocidad</string>
+    <string name="auto_volume_desc">Sube el volumen de la música según la velocidad.</string>
     <string name="auto_sunrise_sunset">Amanecer y atardecer</string>
     <string name="auto_midnight_sun_title">Sol de medianoche</string>
     <string name="auto_midnight_sun_body">Hoy el sol no se pone en esta latitud, las luces permanecerán APAGADAS</string>
@@ -438,7 +442,7 @@
     <string name="alarm_vibrate_target_label">Vibrar en</string>
     <string name="alarm_vibrate_target_phone">Celular</string>
     <string name="alarm_vibrate_target_watch">Reloj</string>
-    <string name="alarm_vibrate_target_both">Ambos</string>
+    <string name="alarm_vibrate_target_both">Todos</string>
     <string name="alarm_section_timing">Tiempos</string>
     <string name="alarm_cooldown_fmt">Pausa: %1$ds</string>
     <string name="alarm_cooldown_help">Tiempo mínimo entre disparos de esta regla, aunque la condición se siga cumpliendo</string>
@@ -446,7 +450,7 @@
     <string name="alarm_repeat_help">ON: se vuelve a disparar cada pausa mientras la condición se mantenga.\nOFF: se dispara una vez y queda en silencio hasta que la condición cese</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador</string>
+    <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador.</string>
     <string name="about_crash_logs_empty">Sin fallos registrados</string>
     <string name="about_share_crash">Compartir registro de fallo</string>
     <string name="about_thanks">Créditos</string>
@@ -458,5 +462,72 @@
     <string name="watch_screen_button_1">Botón 1</string>
     <string name="watch_screen_button_2">Botón 2</string>
     <string name="watch_haptic_on_action">Vibrar al activar</string>
-    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
+    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones.</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Sonido de motor</string>
+    <string name="engine_sound_enabled">Generar sonido de motor</string>
+    <string name="engine_sound_enabled_hint">Las RPM del motor siguen en tiempo real la velocidad y la carga de tu rueda.</string>
+    <string name="engine_safety_title">Atención</string>
+    <string name="engine_safety_message">El sonido del motor puede tapar el ruido del tráfico. Usa volúmenes bajos en la ciudad y considera un auricular en un solo oído para mantenerte atento al entorno.</string>
+    <string name="engine_safety_ok">Entendido</string>
+    <string name="engine_type_label">Motor</string>
+    <string name="engine_preview">Vista previa</string>
+    <string name="engine_source_sampled">Sampleado</string>
+    <string name="engine_source_synth">Sintético</string>
+    <string name="engine_volume">Volumen</string>
+    <string name="engine_volume_auto_label">Ajustar por velocidad</string>
+    <string name="engine_volume_auto_hint">Más fuerte a baja velocidad y más bajo al acelerar para que los peatones te escuchen cerca de 0 km/h.</string>
+    <string name="engine_muffler_label">Escape</string>
+    <string name="engine_muffler_open">Abierto</string>
+    <string name="engine_muffler_half">Medio</string>
+    <string name="engine_muffler_muffled">Silenciado</string>
+    <string name="engine_gearbox_label">Caja de cambios</string>
+    <string name="engine_gearbox_off">Sin</string>
+    <string name="engine_gearbox_four">4 marchas</string>
+    <string name="engine_gearbox_six">6 marchas</string>
+    <string name="engine_idle_label">Cuando está detenido</string>
+    <string name="engine_idle_always">Ralentí continuo</string>
+    <string name="engine_idle_fade">Desvanecer</string>
+    <string name="engine_idle_moving">Solo en movimiento</string>
+    <string name="engine_decel_label">Al desacelerar</string>
+    <string name="engine_decel_smooth">Suave</string>
+    <string name="engine_decel_standard">Estándar</string>
+    <string name="engine_decel_backfire">Petardeo</string>
+    <string name="engine_brake_label">Frenado de motor</string>
+    <string name="engine_brake_off">Apagado</string>
+    <string name="engine_brake_light">Ligero</string>
+    <string name="engine_brake_strong">Fuerte</string>
+    <string name="engine_duck_label">Volumen cuando hay otros anuncios</string>
+    <string name="engine_duck_duck">Bajar</string>
+    <string name="engine_duck_pause">Pausar</string>
+    <string name="engine_duck_mix">Mezclar</string>
+    <string name="engine_headphones_only">Solo con auriculares</string>
+    <string name="engine_headphones_only_hint">Omite el altavoz del teléfono. El motor suena solo cuando hay audio por cable o Bluetooth.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Vista previa desactivada mientras te mueves — detente para probar los sonidos.</string>
+    <string name="engine_preset_two_stroke">2 tiempos</string>
+    <string name="engine_preset_four_stroke_single">4 tiempos monocilíndrico</string>
+    <string name="engine_preset_quad_bike">Cuatrimoto</string>
+    <string name="engine_preset_inline_4">4 en línea</string>
+    <string name="engine_preset_inline_6_silky">6 en línea (suave)</string>
+    <string name="engine_preset_tractor">Tractor</string>
+    <string name="engine_preset_steam_loco">Locomotora a vapor</string>
+    <string name="engine_preset_jet_turbine">Turbina a reacción</string>
+    <string name="engine_preset_ufo_hover">OVNI flotando</string>
+    <string name="engine_preset_f1_electric">F1 eléctrico</string>
+    <string name="engine_preset_hover_bike">Moto flotante</string>
+    <string name="engine_preset_lightsaber">Sable de luz</string>
+    <string name="engine_preset_sampled_diesel_iveco">Camión diésel</string>
+    <string name="engine_preset_sampled_motorcycle">Motocicleta</string>
+    <string name="engine_preset_sampled_city_car">Auto urbano</string>
+    <string name="engine_preset_sampled_helicopter">Helicóptero</string>
+    <string name="engine_preset_sampled_tractor">Tractor</string>
+    <string name="engine_preset_sampled_lawnmower">Cortadora de césped</string>
+    <string name="engine_preset_sampled_steam_loco">Locomotora a vapor</string>
+    <string name="engine_preset_sampled_big_diesel">Diésel grande</string>
+    <string name="engine_preset_sampled_car_cruise">Auto en ruta</string>
+    <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
+    <string name="engine_preset_sampled_quad_atv">Cuatrimoto</string>
 </resources>

@@ -32,6 +32,11 @@ fun SpeedGauge(
     maxSpeed: Float,
     imperial: Boolean,
     accent: Color,
+    /** Matches the phone's overrideColor semantics. When true the accent
+     *  paints the speed arc + number; when false (i.e. accentKey == "default"
+     *  on the phone) the gauge falls back to safe-green so both surfaces show
+     *  the same color for the default theme. */
+    useAccent: Boolean = false,
     showColorBand: Boolean = true,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
@@ -47,11 +52,19 @@ fun SpeedGauge(
     drawSpeedText: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    // Speed-arc colour rule (matches phone dashboard exactly):
+    //  - Color band ON  → band tier wins (safe / orange / red), even if a custom
+    //    accent is picked — the band is a safety signal.
+    //  - Color band OFF → custom accent wins, else safe-green.
+    val orangeFracG = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
+    val redFracG = (redThresholdPct / 100f).coerceIn(orangeFracG + 0.04f, 0.95f)
+    val frac = (speed / maxSpeed.coerceAtLeast(0.0001f)).coerceIn(0f, 1f)
     val speedColor = when {
-        speed > maxSpeed * 0.85f -> GaugeAccentRed
-        speed > maxSpeed * 0.65f -> GaugeAccentOrange
-        speed > maxSpeed * 0.4f -> GaugeAccentYellow
-        else -> GaugeAccentGreen
+        showColorBand && frac >= redFracG    -> GaugeAccentRed
+        showColorBand && frac >= orangeFracG -> GaugeAccentOrange
+        showColorBand                         -> GaugeAccentGreen
+        useAccent                             -> accent
+        else                                  -> GaugeAccentGreen
     }
     val textMeasurer = rememberTextMeasurer()
 
@@ -96,8 +109,8 @@ fun SpeedGauge(
             val bandThickness = arcThickness * 0.35f
             val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f
             val bandAlpha = 0.65f
-            val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.25f, 0.95f)
-            val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.01f, 1f)
+            val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
+            val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
             val orangeStart = startAngle + sweepTotal * orangeFrac
             val orangeSweep = sweepTotal * (redFrac - orangeFrac)
             val redStart = startAngle + sweepTotal * redFrac
@@ -197,6 +210,16 @@ fun SpeedGauge(
                 )
             )
         }
+        // Digit-stable reference height for pinning the unit label only.
+        // Speed text itself is centered against its own height so width-clamped
+        // variants don't end up glued to the top.
+        val refHeight = textMeasurer.measure(
+            "0",
+            style = TextStyle(
+                fontSize = (dim * baseFactor).sp,
+                fontWeight = FontWeight.Bold
+            )
+        ).size.height.toFloat()
         drawText(
             speedMeasured,
             topLeft = Offset(
@@ -205,7 +228,8 @@ fun SpeedGauge(
             )
         )
 
-        // Unit label below speed number
+        // Unit label pinned to reference height — fixed position regardless
+        // of digit count.
         val unitMeasured = textMeasurer.measure(
             unitLabel,
             style = TextStyle(fontSize = (dim * 0.06f).sp, color = dimColor)
@@ -214,7 +238,7 @@ fun SpeedGauge(
             unitMeasured,
             topLeft = Offset(
                 center.x - unitMeasured.size.width / 2f,
-                center.y + speedMeasured.size.height / 2f - dim * 0.01f
+                center.y + refHeight / 2f - dim * 0.01f
             )
         )
     }

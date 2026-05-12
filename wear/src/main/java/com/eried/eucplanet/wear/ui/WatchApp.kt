@@ -66,6 +66,7 @@ import androidx.wear.compose.material.Text
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import com.eried.eucplanet.wear.R
 import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
@@ -118,7 +119,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Color.Black)
+            // Virtual orientation lets the rider tilt the dial in software when the wheel
+            // is in motion — applied to the first screen only so the details screen stays
+            // in its canonical orientation. Clamped on the phone side to [-90..90].
+            .rotate(state.dialRotationDeg.toFloat()),
         contentAlignment = Alignment.Center
     ) {
         // The disconnected state is rendered by zeroing every metric and
@@ -133,12 +138,17 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // ~10% bigger than the previous 0.115f / 0.055f values.
         val buttonDp = (sw * 0.127f).coerceIn(37f, 55f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(18f, 26f).dp
-        // Speed gets all the visual weight in the centre now that the unit
-        // label is gone (swipe to page 2 to see km/h vs mph).
-        val speedFontSp = (sw * 0.245f).coerceIn(60f, 92f).sp
+        // "Prioritize PWM" inverts the size hierarchy — when on, speed shrinks
+        // by ~35% and PWM (bar + number) grows by ~60% so cutout-margin becomes
+        // the dominant glance signal.
+        val prioritizePwm = state.prioritizePwm
+        val speedFontSp = (sw * if (prioritizePwm) 0.16f else 0.245f).coerceIn(40f, 92f).sp
         val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-        val loadBarWidth = (sw * 0.30f).coerceIn(82f, 130f).dp
-        val loadBarHeight = (sw * 0.018f).coerceIn(5f, 8f).dp
+        val loadBarWidth = (sw * if (prioritizePwm) 0.55f else 0.30f).coerceIn(82f, 240f).dp
+        // In Prioritize PWM mode the bar becomes the dominant glance — go thicker
+        // than the previous 0.030f (10-14 dp) and ride the new 5-22 dp band so it
+        // reads as the focal indicator even on smaller round faces.
+        val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
         val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
         val watchPercent = rememberWatchBatteryPercent()
 
@@ -150,6 +160,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
             maxSpeed = maxSpeed,
             imperial = state.imperialUnits,
             accent = accent,
+            useAccent = state.accentKey != "default",
             showColorBand = state.showGaugeBand,
             orangeThresholdPct = state.gaugeOrangeThresholdPct,
             redThresholdPct = state.gaugeRedThresholdPct,
@@ -164,9 +175,15 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // so the speed glyph stays visually centred — the row is symmetric
         // around the speed even when the unit is shown.
         val unitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
-        val pwmNumberSp = (sw * 0.038f).coerceIn(11f, 14f).sp
+        // Prioritize PWM blows up the number — was 0.075f / 28sp cap, now 0.11f / 40sp cap
+        // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
+        val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(11f, 40f).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
         val showPwmNumber = state.pwmDisplay == "NUMBERS" || state.pwmDisplay == "BOTH"
+        // In "BOTH" mode the bar shares a row with the percent number, so we shrink the
+        // bar width so a 100% reading doesn't run into the number cluster on either side.
+        val showingBothInline = showBar && showPwmNumber
+        val barWidthShrink = if (showingBothInline) 0.66f else 1f
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -174,7 +191,12 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
-                if (state.showSpeedUnit) {
+                // Don't reveal a unit label until the phone has sent us its imperial flag —
+                // otherwise a watch booted before the phone app would default to km/h and
+                // confuse an mph user. Once phoneSynced flips true, the unit re-appears
+                // (subject to the user's showSpeedUnit setting).
+                val showUnit = state.showSpeedUnit && state.phoneSynced
+                if (showUnit) {
                     // Invisible mirror keeps the speed glyph centred.
                     Text(
                         text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
@@ -185,18 +207,23 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     Spacer(Modifier.width(3.dp))
                 }
                 val useAccent = state.accentKey != "default"
+                // Band ON → band tier wins (even over custom accent — it's a safety signal).
+                // Band OFF → custom accent wins, else safe-green.
+                val speedTextColor = if (state.showGaugeBand) {
+                    speedBandColor(
+                        state.speedKmh, maxSpeed,
+                        showBand = true,
+                        state.gaugeOrangeThresholdPct,
+                        state.gaugeRedThresholdPct
+                    )
+                } else if (useAccent) accent else GaugeAccentGreen
                 Text(
                     text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    // Default accent → tier coloring (green/yellow/orange/red)
-                    // so the watch matches the phone dashboard's "rainbow"
-                    // mode. Any other accent → wear that accent so the
-                    // watch identity stays consistent with the phone's pick.
-                    color = if (useAccent) accent
-                            else speedTierColor(state.speedKmh, maxSpeed)
+                    color = speedTextColor
                 )
-                if (state.showSpeedUnit) {
+                if (showUnit) {
                     Spacer(Modifier.width(3.dp))
                     Text(
                         text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
@@ -221,7 +248,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         LoadBar(
                             percent = state.pwmPercent,
                             modifier = Modifier
-                                .width(loadBarWidth)
+                                .width(loadBarWidth * barWidthShrink)
                                 .height(loadBarHeight)
                         )
                     }
@@ -249,12 +276,13 @@ private fun MainScreen(state: WatchState, accent: Color) {
                                 color = pwmNumberColor
                             )
                         } else {
-                            // Text-only → "Load (PWM):" stays muted grey
-                            // (caption colour) so only the live percent
-                            // reflects load tier.
+                            // Text-only → "PWM:" prefix stays muted grey (caption
+                            // colour) so only the live percent reflects load tier.
+                            // Always use the short "PWM:" — it's the standard EUC
+                            // term and the long-form "Load (PWM):" wasted glance time.
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "Load (PWM): ",
+                                    text = "PWM: ",
                                     fontSize = pwmNumberSp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color(0xFF9AA0A6)
@@ -307,12 +335,34 @@ private fun MainScreen(state: WatchState, accent: Color) {
     }
 }
 
-private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color = when {
-    speedKmh > maxSpeedKmh * 0.85f -> Color(0xFFEF5350)
-    speedKmh > maxSpeedKmh * 0.65f -> Color(0xFFFFA726)
-    speedKmh > maxSpeedKmh * 0.4f -> Color(0xFFFFCA28)
-    else -> Color(0xFF66BB6A)
+/**
+ * Speed-number color matched to the phone dashboard's SpeedGauge logic:
+ * when the gauge color band is visible we tint by the same orange/red thresholds
+ * the user configured; when the band is hidden we stay on the safe-tier green.
+ * Project palette (GaugeAccentRed / Orange / Green) — not Material 400 swatches —
+ * so the watch and phone read as the same hue.
+ */
+private fun speedBandColor(
+    speedKmh: Float,
+    maxSpeedKmh: Float,
+    showBand: Boolean,
+    orangePct: Int,
+    redPct: Int
+): Color {
+    if (!showBand) return GaugeAccentGreen
+    val orangeFrac = (orangePct / 100f).coerceIn(0.25f, 0.95f)
+    val redFrac = (redPct / 100f).coerceIn(orangeFrac + 0.01f, 1f)
+    val frac = (speedKmh / maxSpeedKmh).coerceIn(0f, 1f)
+    return when {
+        frac >= redFrac    -> GaugeAccentRed
+        frac >= orangeFrac -> GaugeAccentOrange
+        else               -> GaugeAccentGreen
+    }
 }
+
+@Deprecated("Use speedBandColor; kept for compatibility.")
+private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color =
+    speedBandColor(speedKmh, maxSpeedKmh, showBand = true, orangePct = 65, redPct = 85)
 
 /**
  * Compact PWM-as-load progress bar. Track is dim grey; fill colour shifts
@@ -623,9 +673,13 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
 
         val imperial = state.imperialUnits
-        val distUnit = WatchUnits.distanceUnit(imperial)
-        val tempUnit = WatchUnits.tempUnit(imperial)
-        val speedUnit = WatchUnits.speedUnit(LocalContext.current, imperial)
+        // Hide all unit labels until the phone has actually told us which unit
+        // system the rider uses — otherwise an mph user sees km/h on launch and
+        // assumes the wrong thing.
+        val unitsKnown = state.phoneSynced
+        val distUnit = if (unitsKnown) WatchUnits.distanceUnit(imperial) else ""
+        val tempUnit = if (unitsKnown) WatchUnits.tempUnit(imperial) else ""
+        val speedUnit = if (unitsKnown) WatchUnits.speedUnit(LocalContext.current, imperial) else ""
         val tripDisplay = WatchUnits.distance(state.tripKm, imperial)
         val tempDisplay = WatchUnits.temperature(state.temperatureC, imperial)
         val speedDisplay = WatchUnits.speed(state.speedKmh, imperial)

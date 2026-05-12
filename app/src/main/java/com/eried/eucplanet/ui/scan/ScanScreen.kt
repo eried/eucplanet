@@ -223,13 +223,60 @@ fun ScanScreen(
             // call sits in a real composable scope. Used to gate the
             // virtual-wheel picker below.
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
-            val showVirtualPicker = BuildConfig.DEBUG || diagEnabled
+            // Virtual wheel picker is a Service-Mode-only affordance. Previously it
+            // also showed in debug builds, but that leaks "fake wheel" entries into
+            // the riders' scan list during dogfooding — gate purely on service mode.
+            val showVirtualPicker = diagEnabled
 
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Virtual-wheel picker. Sits at the top so a phone with a
-                // long list of real BLE devices in range doesn't bury it
-                // below the fold. Shown in debug builds always, and in any
-                // build when the user has Service Mode active.
+                items(devices) { device ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selecting = true
+                                viewModel.selectDevice(device)
+                                onDeviceSelected()
+                            },
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Bluetooth,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = device.name,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                Text(
+                                    text = device.address,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Text(
+                                text = "${device.rssi} dBm",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                // Virtual-wheel picker. Sits below the real BLE list — riders looking
+                // for their wheel see real devices first; the simulator section is for
+                // testing and only available in debug builds or when Service Mode is on.
                 if (showVirtualPicker) {
                     item {
                         Card(
@@ -323,51 +370,6 @@ fun ScanScreen(
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-
-                items(devices) { device ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selecting = true
-                                viewModel.selectDevice(device)
-                                onDeviceSelected()
-                            },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Bluetooth,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = device.name,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                                Text(
-                                    text = device.address,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = "${device.rssi} dBm",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }

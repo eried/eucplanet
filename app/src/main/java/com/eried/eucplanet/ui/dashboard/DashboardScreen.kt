@@ -151,6 +151,10 @@ fun DashboardScreen(
     }
     val wheelData by viewModel.wheelData.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
+    // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
+    // displayed speed on the gauge — the underlying wheelData.speed stays accurate
+    // for recording, alarms, voice announcements, motor sound, etc.
+    val cheatSpeedMult by viewModel.cheatState.speedDisplayMultiplier.collectAsState()
     SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
     val safetyActive by viewModel.safetySpeedActive.collectAsState()
     val locked by viewModel.locked.collectAsState()
@@ -442,7 +446,7 @@ fun DashboardScreen(
                 val maxByHeight = maxHeight * ratio
                 val dialW = minOf(candidateW, maxByHeight)
                 SpeedGauge(
-                    speed = wheelData.speed.absoluteValue,
+                    speed = wheelData.speed.absoluteValue * cheatSpeedMult,
                     maxSpeed = gaugeMax,
                     imperial = imperial,
                     overrideColor = if (useAccent) primary else null,
@@ -810,8 +814,19 @@ fun DashboardScreen(
                 val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
                 val licenseText = remember {
                     try {
-                        context.resources.openRawResource(R.raw.license)
+                        val raw = context.resources.openRawResource(R.raw.license)
                             .bufferedReader().use { it.readText() }
+                        // LICENSE files are hard-wrapped at ~78 columns, which
+                        // renders as ragged lines on a phone. Re-flow each
+                        // paragraph into a single line (collapse single \n to
+                        // space) while keeping blank-line paragraph breaks.
+                        raw.split(Regex("\\r?\\n\\s*\\r?\\n"))
+                            .joinToString("\n\n") { paragraph ->
+                                paragraph
+                                    .replace(Regex("\\r?\\n"), " ")
+                                    .replace(Regex(" +"), " ")
+                                    .trim()
+                            }
                     } catch (_: Exception) { "" }
                 }
                 var showDiagnosticsConfirm by remember { mutableStateOf(false) }
@@ -828,7 +843,7 @@ fun DashboardScreen(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .heightIn(max = 680.dp),
+                            .heightIn(max = 820.dp),
                         shape = RoundedCornerShape(20.dp),
                         color = MaterialTheme.colorScheme.surface
                     ) {
@@ -1000,12 +1015,17 @@ fun DashboardScreen(
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
                                                 Spacer(Modifier.height(12.dp))
+                                                androidx.compose.material3.HorizontalDivider(
+                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    thickness = 1.dp
+                                                )
+                                                Spacer(Modifier.height(10.dp))
                                                 Text(
                                                     "Thanks to:",
-                                                    style = MaterialTheme.typography.titleSmall,
+                                                    style = MaterialTheme.typography.titleMedium,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
-                                                Spacer(Modifier.height(4.dp))
+                                                Spacer(Modifier.height(6.dp))
                                                 // Credits table. Two columns — name on the left,
                                                 // why on the right — no headers since the format
                                                 // is self-evident. Hardcoded English because the
@@ -1015,15 +1035,22 @@ fun DashboardScreen(
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
-                                                credits.forEach { (name, why) ->
+                                                val dividerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                                credits.forEachIndexed { idx, (name, why) ->
+                                                    if (idx > 0) {
+                                                        androidx.compose.material3.HorizontalDivider(
+                                                            color = dividerColor,
+                                                            thickness = 0.5.dp
+                                                        )
+                                                    }
                                                     Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .padding(vertical = 3.dp)
+                                                            .padding(vertical = 6.dp)
                                                     ) {
                                                         Text(
                                                             name,
-                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                            style = MaterialTheme.typography.bodyMedium.copy(
                                                                 fontWeight = FontWeight.SemiBold
                                                             ),
                                                             modifier = Modifier.weight(0.42f),
@@ -1032,7 +1059,56 @@ fun DashboardScreen(
                                                         Spacer(Modifier.width(8.dp))
                                                         Text(
                                                             why,
-                                                            style = MaterialTheme.typography.bodySmall,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            modifier = Modifier.weight(0.58f),
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                        )
+                                                    }
+                                                }
+                                                Spacer(Modifier.height(14.dp))
+                                                androidx.compose.material3.HorizontalDivider(
+                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    thickness = 1.dp
+                                                )
+                                                Spacer(Modifier.height(10.dp))
+                                                Text(
+                                                    "Resources & libraries:",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                                Spacer(Modifier.height(6.dp))
+                                                val resources = listOf(
+                                                    "BigSoundBank — engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
+                                                    "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
+                                                    "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
+                                                    "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
+                                                    "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
+                                                    "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer."
+                                                )
+                                                resources.forEachIndexed { idx, (name, why) ->
+                                                    if (idx > 0) {
+                                                        androidx.compose.material3.HorizontalDivider(
+                                                            color = dividerColor,
+                                                            thickness = 0.5.dp
+                                                        )
+                                                    }
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(vertical = 6.dp)
+                                                    ) {
+                                                        Text(
+                                                            name,
+                                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                                fontWeight = FontWeight.SemiBold
+                                                            ),
+                                                            modifier = Modifier.weight(0.42f),
+                                                            color = MaterialTheme.colorScheme.onSurface
+                                                        )
+                                                        Spacer(Modifier.width(8.dp))
+                                                        Text(
+                                                            why,
+                                                            style = MaterialTheme.typography.bodyMedium,
                                                             modifier = Modifier.weight(0.58f),
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
@@ -1052,6 +1128,7 @@ fun DashboardScreen(
                                                 if (licenseText.isNotBlank()) licenseText else "—",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Justify,
                                                 modifier = Modifier
                                                     .fillMaxSize()
                                                     .verticalScroll(rememberScrollState())
@@ -1206,11 +1283,19 @@ private fun SpeedGauge(
     safeBandColor: Color = AccentBlue,
     modifier: Modifier = Modifier
 ) {
-    val speedColor = overrideColor ?: when {
-        speed > maxSpeed * 0.85f -> AccentRed
-        speed > maxSpeed * 0.65f -> AccentOrange
-        speed > maxSpeed * 0.4f -> AccentYellow
-        else -> AccentGreen
+    // Speed-arc + speed-number colour rule (phone & watch share this rule):
+    //  - Color band ON  → band tier wins (safe / orange / red), even if the user
+    //    has a custom accent — the band is a safety signal, not a style choice.
+    //  - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
+    val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
+    val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
+    val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
+    val speedColor = when {
+        showColorBand && speedFraction >= redFrac    -> AccentRed
+        showColorBand && speedFraction >= orangeFrac -> AccentOrange
+        showColorBand                                -> safeBandColor
+        overrideColor != null                        -> overrideColor
+        else                                          -> safeBandColor
     }
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1231,7 +1316,8 @@ private fun SpeedGauge(
 
         val startAngle = 140f
         val sweepTotal = 260f
-        val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
+        // speedFraction is computed at the top of the composable now (for speedColor),
+        // so the band-drawing branch reuses it.
         val speedSweep = sweepTotal * speedFraction
 
         // Background arc
@@ -1249,9 +1335,8 @@ private fun SpeedGauge(
             val bandThickness = arcThickness * 0.35f
             val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f
             val bandAlpha = 0.65f
-            // Stored values are 25..100 and already correspond to the arc's visible portion.
-            val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.25f, 0.95f)
-            val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.01f, 1f)
+            // orangeFrac / redFrac are computed at the top of the composable (for
+            // speedColor) — reuse so the band and number can never drift apart.
             val orangeStart = startAngle + sweepTotal * orangeFrac
             val orangeSweep = sweepTotal * (redFrac - orangeFrac)
             val redStart = startAngle + sweepTotal * redFrac
@@ -1347,6 +1432,19 @@ private fun SpeedGauge(
                 )
             )
         }
+        // Digit-stable reference height (measured from "0" at the BASE font
+        // factor) — used to pin the unit label so it doesn't dance when the
+        // speed text width-clamps to a smaller size at 2+ digits.
+        val refHeight = textMeasurer.measure(
+            "0",
+            style = TextStyle(
+                fontSize = (size.minDimension * baseFactor).sp,
+                fontWeight = FontWeight.Bold
+            )
+        ).size.height.toFloat()
+        // Speed text: vertically centered against its OWN measured height, so
+        // smaller (width-clamped) variants still look centered rather than
+        // glued to the top of the refHeight box.
         drawText(
             speedMeasured,
             topLeft = Offset(
@@ -1355,7 +1453,8 @@ private fun SpeedGauge(
             )
         )
 
-        // speed unit below speed number
+        // Speed unit pinned against refHeight — fixed position regardless of
+        // how many digits the speed has.
         val unitMeasured = textMeasurer.measure(
             unitLabel,
             style = TextStyle(fontSize = (size.minDimension * 0.06f).sp, color = dimColor)
@@ -1364,7 +1463,7 @@ private fun SpeedGauge(
             unitMeasured,
             topLeft = Offset(
                 center.x - unitMeasured.size.width / 2f,
-                center.y + speedMeasured.size.height / 2f - size.minDimension * 0.01f
+                center.y + refHeight / 2f - size.minDimension * 0.01f
             )
         )
 

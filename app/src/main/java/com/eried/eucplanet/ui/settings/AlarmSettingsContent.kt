@@ -2,8 +2,10 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -376,9 +378,14 @@ private fun AlarmRuleEditorDialog(
                 )
                 Spacer(Modifier.height(4.dp))
                 val comparatorEntries = AlarmComparator.entries
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                ) {
                     comparatorEntries.forEachIndexed { index, entry ->
                         SegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
                             selected = entry == selectedComp,
                             onClick = { comparator = entry.name },
                             shape = SegmentedButtonDefaults.itemShape(index, comparatorEntries.size)
@@ -509,14 +516,25 @@ private fun AlarmRuleEditorDialog(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    // "BOTH" is first + the default for new alarms — the rider doesn't
+                    // need to think about whether a watch is paired or not (no watch
+                    // connected → that branch silently no-ops, see WatchVibrator). The
+                    // storage key stays "BOTH" for compatibility; the user-visible label
+                    // is "All" since "Both" reads as "phone + watch only" while "All"
+                    // covers any future channels (e.g., paired earbud haptics).
                     val targetEntries = listOf(
+                        "BOTH" to stringResource(R.string.alarm_vibrate_target_both),
                         "PHONE" to stringResource(R.string.alarm_vibrate_target_phone),
-                        "WATCH" to stringResource(R.string.alarm_vibrate_target_watch),
-                        "BOTH" to stringResource(R.string.alarm_vibrate_target_both)
+                        "WATCH" to stringResource(R.string.alarm_vibrate_target_watch)
                     )
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                    ) {
                         targetEntries.forEachIndexed { index, (key, label) ->
                             SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
                                 selected = key == vibrateTarget,
                                 onClick = { vibrateTarget = key },
                                 shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size)

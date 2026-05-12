@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtual wheels</string>
-    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline</string>
+    <string name="scan_simulate_subtitle">Bypass BLE, feed canned responses. Debug builds only.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -100,18 +100,22 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
     <string name="watch_keep_on">Keep display on</string>
-    <string name="watch_keep_on_desc">Stop the watch from sleeping while the EUC Planet app is open</string>
+    <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
     <string name="watch_auto_start">Auto-start on watch</string>
-    <string name="watch_auto_start_desc">Open the watch app automatically when you open the phone app</string>
+    <string name="watch_auto_start_desc">Open the watch app together with the phone app.</string>
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>
-    <string name="watch_pwm_display">Load (PWM) indicator</string>
+    <string name="watch_pwm_display">PWM indicator</string>
     <string name="watch_pwm_bar">Bar</string>
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_pwm_both">Both</string>
     <string name="watch_show_speed_unit">Speed unit label</string>
-    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number</string>
+    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number.</string>
+    <string name="watch_prioritize_pwm">Prioritize PWM</string>
+    <string name="watch_prioritize_pwm_desc">Make the PWM bar and number larger than the speed.</string>
+    <string name="watch_dial_rotation">Dial rotation</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Hardware buttons</string>
@@ -127,11 +131,11 @@
     <string name="watch_screen_button_1">Button 1</string>
     <string name="watch_screen_button_2">Button 2</string>
     <string name="watch_haptic_on_action">Vibrate on action</string>
-    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires</string>
+    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires.</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Pick a folder on this phone where trip CSVs and a settings backup will be saved</string>
+    <string name="cloud_caption">Folder where trip CSVs and settings backup land.</string>
     <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
     <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
@@ -149,7 +153,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
+    <string name="cloud_trips_caption">New trips are saved to your folder automatically.</string>
     <string name="cloud_retry_now">Synchronize all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
@@ -174,12 +178,12 @@
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Records a trip when the wheel is connected</string>
+    <string name="auto_record_caption">Records a trip when the wheel is connected.</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
-    <string name="auto_record_start_in_motion_caption">Waits for movement to start recording, auto-stops after the idle time, and restarts on the next ride</string>
+    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time</string>
+    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically.</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
@@ -203,7 +207,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Speed Limits</string>
     <string name="section_legal_mode_speed">Legal Mode Speed</string>
-    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback</string>
+    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
@@ -238,6 +242,83 @@
     <string name="voice_output_channel_media">Media</string>
     <string name="voice_output_channel_notification">Notification</string>
     <string name="voice_output_channel_alarm">Alarm</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motor sound</string>
+    <string name="engine_sound_enabled">Engine sound</string>
+    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load.</string>
+    <string name="engine_safety_title">Heads up</string>
+    <string name="engine_safety_message">Engine sound can mask traffic noise. Use lower volumes in city riding, and consider a single-ear headphone so you stay aware of your surroundings.</string>
+    <string name="engine_safety_ok">Got it</string>
+    <string name="engine_type_label">Engine</string>
+    <string name="engine_preview">Preview</string>
+    <string name="engine_preview_parked_only">Previews disabled while moving — stop first to test sounds.</string>
+    <string name="engine_source_sampled">Sampled</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Volume</string>
+    <string name="engine_volume_auto_label">Adjust by speed</string>
+    <string name="engine_volume_auto_hint">Louder at slow speeds, quieter at speed so pedestrians notice you near zero km/h.</string>
+    <string name="engine_muffler_label">Muffler</string>
+    <string name="engine_muffler_open">Open</string>
+    <string name="engine_muffler_half">Half</string>
+    <string name="engine_muffler_muffled">Muffled</string>
+    <string name="engine_gearbox_label">Gearbox</string>
+    <string name="engine_gearbox_off">Off</string>
+    <string name="engine_gearbox_four">4-speed</string>
+    <string name="engine_gearbox_six">6-speed</string>
+    <string name="engine_idle_label">When parked</string>
+    <string name="engine_idle_always">Always idling</string>
+    <string name="engine_idle_fade">Fade out</string>
+    <string name="engine_idle_moving">Only when moving</string>
+    <string name="engine_decel_label">Decel character</string>
+    <string name="engine_decel_smooth">Smooth</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Backfire</string>
+    <string name="engine_brake_label">Engine brake</string>
+    <string name="engine_brake_off">Off</string>
+    <string name="engine_brake_light">Light</string>
+    <string name="engine_brake_strong">Strong</string>
+    <string name="engine_duck_label">While voice speaks</string>
+    <string name="engine_duck_duck">Duck</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Mix</string>
+    <string name="engine_headphones_only">Only with headphones</string>
+    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only with wired or Bluetooth audio.</string>
+    <!-- Engine preset names -->
+    <string name="engine_preset_two_stroke">2-stroke</string>
+    <string name="engine_preset_four_stroke_single">4-stroke single</string>
+    <string name="engine_preset_quad_bike">Quad bike</string>
+    <string name="engine_preset_v_twin">V-twin</string>
+    <string name="engine_preset_inline_4">Inline-4</string>
+    <string name="engine_preset_v8_muscle">V8 muscle</string>
+    <string name="engine_preset_v12_italian">V12 Italian</string>
+    <string name="engine_preset_v16_luxury">V16 luxury</string>
+    <string name="engine_preset_boxer_6">Boxer 6</string>
+    <string name="engine_preset_inline_6_silky">Inline-6 (silky)</string>
+    <string name="engine_preset_tractor">Tractor</string>
+    <string name="engine_preset_steam_loco">Steam locomotive</string>
+    <string name="engine_preset_tron_whine">Tron whine</string>
+    <string name="engine_preset_pod_racer">Pod racer</string>
+    <string name="engine_preset_lightsaber">Lightsaber</string>
+    <string name="engine_preset_jet_turbine">Jet turbine</string>
+    <string name="engine_preset_ufo_hover">UFO hover</string>
+    <string name="engine_preset_f1_electric">F1 electric whine</string>
+    <string name="engine_preset_hover_bike">Hover bike</string>
+    <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
+    <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
+    <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
+    <string name="engine_preset_sampled_motorcycle">Motorcycle</string>
+    <string name="engine_preset_sampled_city_car">City car</string>
+    <string name="engine_preset_sampled_helicopter">Helicopter</string>
+    <string name="engine_preset_sampled_tractor">Tractor</string>
+    <string name="engine_preset_sampled_lawnmower">Lawn mower</string>
+    <string name="engine_preset_sampled_steam_loco">Steam locomotive</string>
+    <string name="engine_preset_sampled_car_cruise">Car cruise</string>
+    <string name="engine_preset_sampled_aston_martin">Aston Martin</string>
+    <string name="engine_preset_sampled_big_diesel">Big diesel</string>
+    <string name="engine_preset_sampled_broken_exhaust">Broken exhaust</string>
+    <string name="engine_preset_sampled_quad_atv">Quad ATV</string>
+
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>
     <string name="report_speed">Speed</string>
@@ -250,7 +331,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 Buttons</string>
-    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
+    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
     <string name="flic_stop_scan">Stop</string>
     <string name="flic_start_scan">Scan for button</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
@@ -262,7 +343,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volume Keys</string>
-    <string name="volume_keys_caption">Use the phone\'s volume buttons as shortcuts. Works only while the app is visible on screen</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible).</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
@@ -347,7 +428,7 @@
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
     <string name="scan_show_all_title">Show all devices</string>
-    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
+    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -406,13 +487,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>
-    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
+    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise.</string>
     <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
     <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Boost music volume based on speed</string>
+    <string name="auto_volume_desc">Boost music volume based on speed.</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF</string>
@@ -448,7 +529,7 @@
     <string name="alarm_vibrate_target_label">Vibrate on</string>
     <string name="alarm_vibrate_target_phone">Phone</string>
     <string name="alarm_vibrate_target_watch">Watch</string>
-    <string name="alarm_vibrate_target_both">Both</string>
+    <string name="alarm_vibrate_target_both">All</string>
     <string name="alarm_section_timing">Timing</string>
     <string name="alarm_cooldown_fmt">Cooldown: %1$ds</string>
     <string name="alarm_cooldown_help">Minimum time between fires for this rule, even if the condition keeps matching</string>
@@ -457,7 +538,7 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>
-    <string name="about_crash_logs_hint">Tap a file to share it with the developer</string>
+    <string name="about_crash_logs_hint">Tap a file to share it with the developer.</string>
     <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_thanks">Credits</string>

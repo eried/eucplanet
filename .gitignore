@@ -26,6 +26,8 @@ release/
 *.btsnoop
 *.cfa
 *.log
+deletelater.html
+delete.html
 
 # Stray build-output paths that have leaked into the repo before
 **/eucplanet_*.png

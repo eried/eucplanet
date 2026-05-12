@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Віртуальні моноколеса</string>
-    <string name="scan_simulate_subtitle">Для розробки без обладнання. Обходить BLE і подає заздалегідь готові відповіді через адаптер</string>
+    <string name="scan_simulate_subtitle">Обходить BLE і подає підготовлені відповіді. Лише у налагоджувальних збірках.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Підключено</string>
@@ -100,18 +100,22 @@
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
     <string name="watch_keep_on">Не вимикати екран</string>
-    <string name="watch_keep_on_desc">Не давати годиннику засинати, поки відкритий додаток EUC Planet</string>
+    <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий.</string>
     <string name="watch_auto_start">Автозапуск на годиннику</string>
-    <string name="watch_auto_start_desc">Автоматично відкривати додаток на годиннику, коли відкриваєш додаток на телефоні</string>
+    <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні.</string>
     <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
-    <string name="watch_pwm_display">Індикатор навантаження (PWM)</string>
+    <string name="watch_pwm_display">Індикатор PWM</string>
     <string name="watch_pwm_bar">Смуга</string>
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_pwm_both">Обидва</string>
     <string name="watch_show_speed_unit">Підпис одиниць швидкості</string>
-    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості</string>
+    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості.</string>
+    <string name="watch_prioritize_pwm">Пріоритет PWM</string>
+    <string name="watch_prioritize_pwm_desc">PWM (смуга й число) більший за швидкість.</string>
+    <string name="watch_dial_rotation">Обертання циферблата</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Апаратні кнопки</string>
@@ -122,7 +126,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервних копій</string>
-    <string name="cloud_caption">Вибери папку на цьому телефоні, куди зберігатимуться CSV поїздок і резервна копія налаштувань</string>
+    <string name="cloud_caption">Тека для CSV поїздок та резервної копії налаштувань.</string>
     <string name="cloud_help_title">Як робити копії в OneDrive, Drive або Dropbox</string>
     <string name="cloud_help_body">Системний вибір папок Android зазвичай не показує OneDrive, Google Drive чи Dropbox. Ці додатки не надають іншим додаткам папку для запису, тому ми зберігаємо локально, а вивантаженням займається додаток синхронізації.\n\nНалаштування:\n1. Встанови Autosync (для OneDrive, Drive чи Dropbox) або FolderSync з Play Store.\n2. У цьому додатку увійди й створи пару синхронізації: твоя локальна папка до папки в хмарі.\n3. Постав режим \"Лише вивантаження\" з миттєвою синхронізацією або за зміною.\n4. Повернись сюди і вибери ту саму локальну папку.\n\nНові поїздки потрапляють у цю папку, коли запис завершується. Додаток синхронізації вивантажує їх у фоні.</string>
     <string name="cloud_choose_folder">Вибрати папку</string>
@@ -140,7 +144,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки</string>
+    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки.</string>
     <string name="cloud_retry_now">Синхронізувати все</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -165,12 +169,12 @@
     <string name="section_connection">З\'єднання</string>
     <string name="section_display">Екран</string>
     <string name="auto_record_on_start">Автозапис при підключенні</string>
-    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене</string>
+    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене.</string>
     <string name="auto_record_start_in_motion">Починати запис при русі</string>
-    <string name="auto_record_start_in_motion_caption">Чекає початку руху, щоб почати запис, автоматично зупиняє після часу простою і відновлює при наступній поїздці</string>
+    <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці.</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення на старті</string>
-    <string name="auto_connect_caption">Підключається до останнього спареного моноколеса. Першого разу треба підключитися вручну</string>
+    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса.</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="imperial_units">Імперські одиниці</string>
     <string name="language">Мова</string>
@@ -194,7 +198,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Обмеження швидкості</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>
-    <string name="legal_mode_caption">Застосовується, коли увімкнено легальний режим. Має бути нижчою за звичайний tiltback</string>
+    <string name="legal_mode_caption">Застосовується, коли увімкнено легальний режим. Має бути нижчою за звичайний tiltback.</string>
     <string name="speed_limits_disconnected">Підключи моноколесо, щоб змінити обмеження швидкості</string>
     <string name="speed_tiltback">Швидкість tiltback</string>
     <string name="speed_alarm">Швидкість тривоги</string>
@@ -240,7 +244,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати</string>
+    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати.</string>
     <string name="flic_stop_scan">Стоп</string>
     <string name="flic_start_scan">Шукати кнопку</string>
     <string name="flic_no_buttons">Кнопки Flic не спарені</string>
@@ -252,7 +256,7 @@
     <string name="flic_double_click">Подвійне натискання</string>
     <string name="flic_hold">Утримання</string>
     <string name="section_volume_keys">Кнопки гучності</string>
-    <string name="volume_keys_caption">Використовуй кнопки гучності телефона як швидкі дії. Працює лише поки додаток видно на екрані</string>
+    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли додаток відкритий).</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>
@@ -337,7 +341,7 @@
     <string name="scan_scanning">Пошук…</string>
     <string name="scan_start">Почати сканування</string>
     <string name="scan_show_all_title">Показати всі пристрої</string>
-    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється</string>
+    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється.</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -396,13 +400,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Світло</string>
-    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
+    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця.</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
     <string name="auto_minutes_fmt">%1$d хв</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
-    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
+    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості.</string>
     <string name="auto_sunrise_sunset">Схід і захід сонця</string>
     <string name="auto_midnight_sun_title">Полярний день</string>
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ</string>
@@ -438,7 +442,7 @@
     <string name="alarm_vibrate_target_label">Вібрувати на</string>
     <string name="alarm_vibrate_target_phone">Телефоні</string>
     <string name="alarm_vibrate_target_watch">Годиннику</string>
-    <string name="alarm_vibrate_target_both">Обох</string>
+    <string name="alarm_vibrate_target_both">Усі</string>
     <string name="alarm_section_timing">Тайминг</string>
     <string name="alarm_cooldown_fmt">Пауза: %1$dс</string>
     <string name="alarm_cooldown_help">Мінімальна пауза між спрацюваннями цього правила, навіть якщо умова продовжує виконуватись</string>
@@ -446,7 +450,7 @@
     <string name="alarm_repeat_help">УВІМК: повторно спрацьовує після кожної паузи, поки виконується умова.\nВИМК: спрацьовує один раз і мовчить, поки умова не зникне</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником</string>
+    <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником.</string>
     <string name="about_crash_logs_empty">Збоїв не зафіксовано</string>
     <string name="about_share_crash">Поділитися журналом збою</string>
     <string name="about_thanks">Подяки</string>
@@ -458,5 +462,72 @@
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вібрація при дії</string>
-    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки</string>
+    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки.</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Звук двигуна</string>
+    <string name="engine_sound_enabled">Звук двигуна</string>
+    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса.</string>
+    <string name="engine_safety_title">Увага</string>
+    <string name="engine_safety_message">Звук двигуна може заглушити дорожній рух. У місті використовуй меншу гучність і один навушник, щоб залишатись уважним до середовища.</string>
+    <string name="engine_safety_ok">Зрозуміло</string>
+    <string name="engine_type_label">Двигун</string>
+    <string name="engine_preview">Перегляд</string>
+    <string name="engine_source_sampled">Семпл</string>
+    <string name="engine_source_synth">Синтез</string>
+    <string name="engine_volume">Гучність</string>
+    <string name="engine_volume_auto_label">Залежно від швидкості</string>
+    <string name="engine_volume_auto_hint">Гучніше на малій швидкості й тихіше в русі, щоб пішоходи чули вас біля 0 км/год.</string>
+    <string name="engine_muffler_label">Глушник</string>
+    <string name="engine_muffler_open">Відкритий</string>
+    <string name="engine_muffler_half">Середній</string>
+    <string name="engine_muffler_muffled">Приглушений</string>
+    <string name="engine_gearbox_label">Коробка передач</string>
+    <string name="engine_gearbox_off">Вимк.</string>
+    <string name="engine_gearbox_four">4-ступ.</string>
+    <string name="engine_gearbox_six">6-ступ.</string>
+    <string name="engine_idle_label">На стоянці</string>
+    <string name="engine_idle_always">Завжди холостий</string>
+    <string name="engine_idle_fade">Згасання</string>
+    <string name="engine_idle_moving">Лише в русі</string>
+    <string name="engine_decel_label">При гальмуванні</string>
+    <string name="engine_decel_smooth">Плавно</string>
+    <string name="engine_decel_standard">Стандарт</string>
+    <string name="engine_decel_backfire">Постріл</string>
+    <string name="engine_brake_label">Гальмо двигуном</string>
+    <string name="engine_brake_off">Вимк.</string>
+    <string name="engine_brake_light">Легке</string>
+    <string name="engine_brake_strong">Сильне</string>
+    <string name="engine_duck_label">Під час мовлення</string>
+    <string name="engine_duck_duck">Тихіше</string>
+    <string name="engine_duck_pause">Пауза</string>
+    <string name="engine_duck_mix">Змішати</string>
+    <string name="engine_headphones_only">Лише з навушниками</string>
+    <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки з дротовим або Bluetooth-аудіо.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Перегляд недоступний у русі — зупинись, щоб протестувати звуки.</string>
+    <string name="engine_preset_two_stroke">2-тактний</string>
+    <string name="engine_preset_four_stroke_single">4-тактний одноцил.</string>
+    <string name="engine_preset_quad_bike">Квадроцикл</string>
+    <string name="engine_preset_inline_4">Рядний 4</string>
+    <string name="engine_preset_inline_6_silky">Рядний 6 (шовковий)</string>
+    <string name="engine_preset_tractor">Трактор</string>
+    <string name="engine_preset_steam_loco">Паровоз</string>
+    <string name="engine_preset_jet_turbine">Реактивна турбіна</string>
+    <string name="engine_preset_ufo_hover">НЛО у зависі</string>
+    <string name="engine_preset_f1_electric">F1 електричний</string>
+    <string name="engine_preset_hover_bike">Лет. мотоцикл</string>
+    <string name="engine_preset_lightsaber">Світловий меч</string>
+    <string name="engine_preset_sampled_diesel_iveco">Дизельна вантажівка</string>
+    <string name="engine_preset_sampled_motorcycle">Мотоцикл</string>
+    <string name="engine_preset_sampled_city_car">Міське авто</string>
+    <string name="engine_preset_sampled_helicopter">Гелікоптер</string>
+    <string name="engine_preset_sampled_tractor">Трактор</string>
+    <string name="engine_preset_sampled_lawnmower">Газонокосарка</string>
+    <string name="engine_preset_sampled_steam_loco">Паровоз</string>
+    <string name="engine_preset_sampled_big_diesel">Великий дизель</string>
+    <string name="engine_preset_sampled_car_cruise">Авто в дорозі</string>
+    <string name="engine_preset_sampled_broken_exhaust">Розбитий вихлоп</string>
+    <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
 </resources>
