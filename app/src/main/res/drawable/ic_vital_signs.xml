@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Material Symbols "vital_signs" glyph, Apache 2.0.
+    Source: https://fonts.google.com/icons?selected=Material+Symbols+Outlined:vital_signs
+    Wrapped in a translate-960 group because Material Symbols SVGs use a
+    viewBox of 0 -960 960 960 (origin bottom-left), while Android vector
+    drawables anchor the viewport at (0, 0).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+    <group android:translateY="960">
+        <path
+            android:fillColor="@android:color/white"
+            android:pathData="M326,-171q-15,-11 -22,-28l-92,-241H40v-80h228l92,244 184,-485q7,-17 22,-28t34,-11q19,0 34,11t22,28l92,241h172v80H692l-92,-244 -184,485q-7,17 -22,28t-34,11q-19,0 -34,-11Z"/>
+    </group>
+</vector>

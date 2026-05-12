@@ -36,9 +36,8 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
-import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.GraphicEq
-import androidx.compose.material.icons.filled.Equalizer
+import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -100,6 +99,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -351,7 +351,7 @@ fun SettingsScreen(
         SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
             VoiceTab(settings, viewModel)
         },
-        SectionDef("motor", titleMotor, Icons.Default.GraphicEq, corpusMotor) {
+        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
             EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
@@ -2113,12 +2113,21 @@ private fun EngineTypePicker(
                 onValueChange = {},
                 readOnly = true,
                 leadingIcon = {
-                    Icon(
-                        imageVector = if (isSampled) Icons.Filled.Album else Icons.Filled.Equalizer,
-                        contentDescription = sourceLabel,
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (isSampled) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_vital_signs),
+                            contentDescription = sourceLabel,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.GraphicEq,
+                            contentDescription = sourceLabel,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 suffix = {
                     Text(
@@ -2140,12 +2149,21 @@ private fun EngineTypePicker(
                     val itemIsSampled = p.sampleAssetBase != null
                     DropdownMenuItem(
                         leadingIcon = {
-                            Icon(
-                                imageVector = if (itemIsSampled) Icons.Filled.Album else Icons.Filled.Equalizer,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            if (itemIsSampled) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_vital_signs),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.GraphicEq,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         },
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
