@@ -249,7 +249,7 @@ fun SettingsScreen(
         stringResource(R.string.theme),
         stringResource(R.string.accent_color),
         stringResource(R.string.show_gauge_color_band),
-        "Language"
+        stringResource(R.string.language)
     ).joinToString(" ")
 
     val corpusSpeed = listOf(
@@ -599,7 +599,7 @@ private fun DisplayTab(
         }
 
         SimpleDropdown(
-            label = "Language",
+            label = stringResource(R.string.language),
             currentKey = settings.language,
             options = languageOptions,
             onSelect = { viewModel.updateLanguage(it) }
