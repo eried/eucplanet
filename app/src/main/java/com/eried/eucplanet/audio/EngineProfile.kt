@@ -372,6 +372,41 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 200, maxRpm = 900,
                 sampleAssetBase = "engine_steam_loco"
+            ),
+            EngineProfile(
+                key = "SAMPLED_CAR_CRUISE",
+                displayName = "Car cruise (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 1000, maxRpm = 5500,
+                sampleAssetBase = "engine_car_cruise"
+            ),
+            EngineProfile(
+                key = "SAMPLED_ASTON_MARTIN",
+                displayName = "Aston Martin (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 900, maxRpm = 7500,
+                sampleAssetBase = "engine_aston_martin"
+            ),
+            EngineProfile(
+                key = "SAMPLED_BIG_DIESEL",
+                displayName = "Big diesel (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 600, maxRpm = 2800,
+                sampleAssetBase = "engine_big_diesel"
+            ),
+            EngineProfile(
+                key = "SAMPLED_BROKEN_EXHAUST",
+                displayName = "Broken exhaust (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 800, maxRpm = 5000,
+                sampleAssetBase = "engine_damaged_muffler"
+            ),
+            EngineProfile(
+                key = "SAMPLED_QUAD_ATV",
+                displayName = "Quad ATV (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 900, maxRpm = 6500,
+                sampleAssetBase = "engine_quad_atv"
             )
         )
 
