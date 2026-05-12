@@ -427,15 +427,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
-    <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。负载越高转速越高,松油门和回充将其拉回。</string>
+    <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。</string>
     <string name="engine_safety_title">注意</string>
     <string name="engine_safety_message">引擎声可能盖过交通噪音。在城市里请降低音量,可以只戴一只耳机以保持对周围环境的感知。</string>
     <string name="engine_safety_ok">知道了</string>
-    <string name="engine_type_label">引擎类型</string>
+    <string name="engine_type_label">引擎</string>
     <string name="engine_preview">预览</string>
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
-    <string name="engine_volume">引擎音量</string>
+    <string name="engine_volume">音量</string>
     <string name="engine_muffler_label">排气</string>
     <string name="engine_muffler_open">开放</string>
     <string name="engine_muffler_half">半</string>
@@ -461,7 +461,7 @@
     <string name="engine_duck_pause">暂停</string>
     <string name="engine_duck_mix">混合</string>
     <string name="engine_headphones_only">仅在耳机连接时</string>
-    <string name="engine_headphones_only_hint">跳过手机扬声器。引擎声仅在连接有线或蓝牙音频时播放。</string>
+    <string name="engine_headphones_only_hint">跳过手机扬声器。引擎仅在有线或蓝牙音频下播放。</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">行进中预览已停用 — 停下后再试听。</string>

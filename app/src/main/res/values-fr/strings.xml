@@ -427,15 +427,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Son du moteur</string>
     <string name="engine_sound_enabled">Son du moteur</string>
-    <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue. Plus de charge fait monter les tours, lever les gaz et la régénération les font redescendre.</string>
+    <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue.</string>
     <string name="engine_safety_title">Attention</string>
     <string name="engine_safety_message">Le son du moteur peut couvrir les bruits de la circulation. Garde un volume bas en ville et envisage un seul écouteur pour rester attentif à l\'environnement.</string>
     <string name="engine_safety_ok">Compris</string>
-    <string name="engine_type_label">Type de moteur</string>
+    <string name="engine_type_label">Moteur</string>
     <string name="engine_preview">Aperçu</string>
-    <string name="engine_source_sampled">Échant.</string>
+    <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Volume du moteur</string>
+    <string name="engine_volume">Volume</string>
     <string name="engine_muffler_label">Échappement</string>
     <string name="engine_muffler_open">Ouvert</string>
     <string name="engine_muffler_half">Moyen</string>
@@ -461,7 +461,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Mixer</string>
     <string name="engine_headphones_only">Uniquement au casque</string>
-    <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne que si un audio filaire ou Bluetooth est connecté.</string>
+    <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne qu\'avec un audio filaire ou Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Aperçu désactivé en mouvement — arrête-toi pour tester les sons.</string>

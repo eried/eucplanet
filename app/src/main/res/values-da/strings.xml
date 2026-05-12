@@ -427,15 +427,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
-    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning. Mere belastning hæver omdrejningerne, udrul og regen trækker dem ned igen.</string>
+    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning.</string>
     <string name="engine_safety_title">Obs</string>
     <string name="engine_safety_message">Motorlyd kan dække trafikstøj. Hold volumen lav i byen og overvej kun ét høretelefonstykke, så du stadig hører omgivelserne.</string>
     <string name="engine_safety_ok">OK</string>
-    <string name="engine_type_label">Motortype</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Forhåndsvis</string>
     <string name="engine_source_sampled">Sample</string>
-    <string name="engine_source_synth">Synt.</string>
-    <string name="engine_volume">Motorlydstyrke</string>
+    <string name="engine_source_synth">Synt</string>
+    <string name="engine_volume">Lydstyrke</string>
     <string name="engine_muffler_label">Lyddæmper</string>
     <string name="engine_muffler_open">Åben</string>
     <string name="engine_muffler_half">Halv</string>
@@ -461,7 +461,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Miks</string>
     <string name="engine_headphones_only">Kun med hovedtelefoner</string>
-    <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun, når kablet eller Bluetooth-lyd er tilsluttet.</string>
+    <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun med kablet eller Bluetooth-lyd.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Forhåndsvisning slået fra i bevægelse — stop for at teste lyde.</string>

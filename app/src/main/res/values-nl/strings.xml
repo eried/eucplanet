@@ -463,15 +463,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
-    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel. Meer last drijft de toeren omhoog, uitrollen en regeneratie trekken ze terug.</string>
+    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel.</string>
     <string name="engine_safety_title">Let op</string>
     <string name="engine_safety_message">Motorgeluid kan verkeersgeluiden overstemmen. Houd het volume in de stad laag en overweeg een enkele oortelefoon, zodat je je omgeving blijft horen.</string>
     <string name="engine_safety_ok">Begrepen</string>
-    <string name="engine_type_label">Motortype</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Voorbeeld</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Motorvolume</string>
+    <string name="engine_volume">Volume</string>
     <string name="engine_muffler_label">Demper</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>
@@ -497,7 +497,7 @@
     <string name="engine_duck_pause">Pauzeren</string>
     <string name="engine_duck_mix">Mengen</string>
     <string name="engine_headphones_only">Alleen met koptelefoon</string>
-    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen als bekabelde of Bluetooth-audio is verbonden.</string>
+    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Voorbeeld uitgeschakeld tijdens rijden — stop eerst om geluiden te testen.</string>

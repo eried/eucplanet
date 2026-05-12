@@ -479,15 +479,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигателя</string>
     <string name="engine_sound_enabled">Звук двигателя</string>
-    <string name="engine_sound_enabled_hint">Обороты двигателя следуют за скоростью и нагрузкой колеса в реальном времени. Больше нагрузки — выше обороты, накатом и рекуперацией они снижаются.</string>
+    <string name="engine_sound_enabled_hint">Обороты двигателя следуют за скоростью и нагрузкой колеса в реальном времени.</string>
     <string name="engine_safety_title">Внимание</string>
     <string name="engine_safety_message">Звук двигателя может перекрыть звуки движения. В городе используй меньшую громкость и одиночный наушник, чтобы слышать окружение.</string>
     <string name="engine_safety_ok">Понятно</string>
-    <string name="engine_type_label">Тип двигателя</string>
+    <string name="engine_type_label">Двигатель</string>
     <string name="engine_preview">Предпросмотр</string>
     <string name="engine_source_sampled">Сэмпл</string>
-    <string name="engine_source_synth">Синт.</string>
-    <string name="engine_volume">Громкость двигателя</string>
+    <string name="engine_source_synth">Синтез</string>
+    <string name="engine_volume">Громкость</string>
     <string name="engine_muffler_label">Глушитель</string>
     <string name="engine_muffler_open">Открытый</string>
     <string name="engine_muffler_half">Средний</string>
@@ -513,7 +513,7 @@
     <string name="engine_duck_pause">Пауза</string>
     <string name="engine_duck_mix">Смешать</string>
     <string name="engine_headphones_only">Только с наушниками</string>
-    <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при подключённом проводном или Bluetooth-аудио.</string>
+    <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Предпросмотр недоступен в движении — остановись, чтобы проверить звуки.</string>

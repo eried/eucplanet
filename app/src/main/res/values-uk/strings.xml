@@ -463,15 +463,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>
     <string name="engine_sound_enabled">Звук двигуна</string>
-    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса. Більше навантаження підіймає оберти, відпускання газу та рекуперація їх знижують.</string>
+    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса.</string>
     <string name="engine_safety_title">Увага</string>
     <string name="engine_safety_message">Звук двигуна може заглушити дорожній рух. У місті використовуй меншу гучність і один навушник, щоб залишатись уважним до середовища.</string>
     <string name="engine_safety_ok">Зрозуміло</string>
-    <string name="engine_type_label">Тип двигуна</string>
+    <string name="engine_type_label">Двигун</string>
     <string name="engine_preview">Перегляд</string>
     <string name="engine_source_sampled">Семпл</string>
-    <string name="engine_source_synth">Синт.</string>
-    <string name="engine_volume">Гучність двигуна</string>
+    <string name="engine_source_synth">Синтез</string>
+    <string name="engine_volume">Гучність</string>
     <string name="engine_muffler_label">Глушник</string>
     <string name="engine_muffler_open">Відкритий</string>
     <string name="engine_muffler_half">Середній</string>
@@ -497,7 +497,7 @@
     <string name="engine_duck_pause">Пауза</string>
     <string name="engine_duck_mix">Змішати</string>
     <string name="engine_headphones_only">Лише з навушниками</string>
-    <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки коли підключено дротовий або Bluetooth-аудіо.</string>
+    <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки з дротовим або Bluetooth-аудіо.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Перегляд недоступний у русі — зупинись, щоб протестувати звуки.</string>

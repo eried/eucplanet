@@ -463,15 +463,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Som do motor</string>
     <string name="engine_sound_enabled">Som do motor</string>
-    <string name="engine_sound_enabled_hint">As RPM do motor seguem em tempo real a velocidade e a carga da sua roda. Mais carga sobe as voltas, soltar o acelerador e a regeneração as descem.</string>
+    <string name="engine_sound_enabled_hint">As RPM do motor seguem em tempo real a velocidade e a carga da sua roda.</string>
     <string name="engine_safety_title">Atenção</string>
     <string name="engine_safety_message">O som do motor pode encobrir o ruído do tráfego. Use volumes baixos na cidade e considere usar um fone só em um ouvido para manter a consciência do entorno.</string>
     <string name="engine_safety_ok">Entendi</string>
-    <string name="engine_type_label">Tipo de motor</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Pré-visualização</string>
-    <string name="engine_source_sampled">Amostra</string>
-    <string name="engine_source_synth">Sintet.</string>
-    <string name="engine_volume">Volume do motor</string>
+    <string name="engine_source_sampled">Sampleado</string>
+    <string name="engine_source_synth">Sintético</string>
+    <string name="engine_volume">Volume</string>
     <string name="engine_muffler_label">Escapamento</string>
     <string name="engine_muffler_open">Aberto</string>
     <string name="engine_muffler_half">Médio</string>
@@ -497,7 +497,7 @@
     <string name="engine_duck_pause">Pausar</string>
     <string name="engine_duck_mix">Mixar</string>
     <string name="engine_headphones_only">Só com fones</string>
-    <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca quando há áudio com fio ou Bluetooth conectado.</string>
+    <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca com áudio com fio ou Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Prévia desativada em movimento — pare para testar os sons.</string>

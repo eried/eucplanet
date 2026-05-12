@@ -463,15 +463,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Suono del motore</string>
     <string name="engine_sound_enabled">Suono del motore</string>
-    <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota. Più carico fa salire i giri, rilasciare gas e rigenerazione li riportano giù.</string>
+    <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota.</string>
     <string name="engine_safety_title">Attenzione</string>
     <string name="engine_safety_message">Il suono del motore può coprire i rumori del traffico. In città tieni il volume basso e valuta un solo auricolare per restare consapevole dell\'ambiente.</string>
     <string name="engine_safety_ok">Capito</string>
-    <string name="engine_type_label">Tipo di motore</string>
+    <string name="engine_type_label">Motore</string>
     <string name="engine_preview">Anteprima</string>
     <string name="engine_source_sampled">Campione</string>
-    <string name="engine_source_synth">Sintet.</string>
-    <string name="engine_volume">Volume motore</string>
+    <string name="engine_source_synth">Sintetico</string>
+    <string name="engine_volume">Volume</string>
     <string name="engine_muffler_label">Scarico</string>
     <string name="engine_muffler_open">Aperto</string>
     <string name="engine_muffler_half">Medio</string>
@@ -497,7 +497,7 @@
     <string name="engine_duck_pause">Pausa</string>
     <string name="engine_duck_mix">Mixa</string>
     <string name="engine_headphones_only">Solo con cuffie</string>
-    <string name="engine_headphones_only_hint">Esclude lo speaker del telefono. Il motore suona solo se è collegato un audio cablato o Bluetooth.</string>
+    <string name="engine_headphones_only_hint">Esclude lo speaker del telefono. Il motore suona solo con audio cablato o Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Anteprime disattivate in movimento — fermati per provare i suoni.</string>

@@ -463,15 +463,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Dźwięk silnika</string>
     <string name="engine_sound_enabled">Dźwięk silnika</string>
-    <string name="engine_sound_enabled_hint">Obroty silnika podążają w czasie rzeczywistym za prędkością i obciążeniem koła. Większe obciążenie podbija obroty, zwolnienie gazu i regeneracja je opuszczają.</string>
+    <string name="engine_sound_enabled_hint">Obroty silnika podążają w czasie rzeczywistym za prędkością i obciążeniem koła.</string>
     <string name="engine_safety_title">Uwaga</string>
     <string name="engine_safety_message">Dźwięk silnika może zagłuszyć ruch uliczny. W mieście ścisz głośność i rozważ pojedynczą słuchawkę, by zachować świadomość otoczenia.</string>
     <string name="engine_safety_ok">Rozumiem</string>
-    <string name="engine_type_label">Typ silnika</string>
+    <string name="engine_type_label">Silnik</string>
     <string name="engine_preview">Podgląd</string>
     <string name="engine_source_sampled">Próbka</string>
     <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Głośność silnika</string>
+    <string name="engine_volume">Głośność</string>
     <string name="engine_muffler_label">Tłumik</string>
     <string name="engine_muffler_open">Otwarty</string>
     <string name="engine_muffler_half">Średni</string>
@@ -497,7 +497,7 @@
     <string name="engine_duck_pause">Pauza</string>
     <string name="engine_duck_mix">Mieszaj</string>
     <string name="engine_headphones_only">Tylko ze słuchawkami</string>
-    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie, gdy podłączone jest audio przewodowe lub Bluetooth.</string>
+    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Podgląd wyłączony podczas jazdy — zatrzymaj się, by przetestować dźwięki.</string>

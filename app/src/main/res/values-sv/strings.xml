@@ -427,15 +427,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorljud</string>
     <string name="engine_sound_enabled">Motorljud</string>
-    <string name="engine_sound_enabled_hint">Motorvarvet följer i realtid hjulets hastighet och motorlast. Mer last drar upp varvet, rullning och regen drar ner det.</string>
+    <string name="engine_sound_enabled_hint">Motorvarvet följer i realtid hjulets hastighet och motorlast.</string>
     <string name="engine_safety_title">Obs</string>
     <string name="engine_safety_message">Motorljud kan dränka trafikljud. Sänk volymen i stadsmiljö och överväg ett enkelhörlur så att du fortfarande hör omgivningen.</string>
     <string name="engine_safety_ok">OK</string>
-    <string name="engine_type_label">Motortyp</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Förhandsvisning</string>
     <string name="engine_source_sampled">Sample</string>
-    <string name="engine_source_synth">Synt.</string>
-    <string name="engine_volume">Motorvolym</string>
+    <string name="engine_source_synth">Synt</string>
+    <string name="engine_volume">Volym</string>
     <string name="engine_muffler_label">Ljuddämpare</string>
     <string name="engine_muffler_open">Öppen</string>
     <string name="engine_muffler_half">Halv</string>
@@ -461,7 +461,7 @@
     <string name="engine_duck_pause">Pausa</string>
     <string name="engine_duck_mix">Mixa</string>
     <string name="engine_headphones_only">Endast med hörlurar</string>
-    <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara när trådbundet eller Bluetooth-ljud är anslutet.</string>
+    <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara med trådbundet eller Bluetooth-ljud.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Förhandsvisning av i rörelse — stanna för att testa ljud.</string>

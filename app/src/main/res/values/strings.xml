@@ -242,16 +242,16 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
-    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load. Higher load pushes the revs up, coasting and regen pull them back.</string>
+    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load.</string>
     <string name="engine_safety_title">Heads up</string>
     <string name="engine_safety_message">Engine sound can mask traffic noise. Use lower volumes in city riding, and consider a single-ear headphone so you stay aware of your surroundings.</string>
     <string name="engine_safety_ok">Got it</string>
-    <string name="engine_type_label">Engine type</string>
+    <string name="engine_type_label">Engine</string>
     <string name="engine_preview">Preview</string>
     <string name="engine_preview_parked_only">Previews disabled while moving — stop first to test sounds.</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Engine volume</string>
+    <string name="engine_volume">Volume</string>
     <string name="engine_muffler_label">Muffler</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>
@@ -277,7 +277,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Mix</string>
     <string name="engine_headphones_only">Only with headphones</string>
-    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only when wired or Bluetooth audio is connected.</string>
+    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only with wired or Bluetooth audio.</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">2-stroke</string>
     <string name="engine_preset_four_stroke_single">4-stroke single</string>

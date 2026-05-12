@@ -443,15 +443,15 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorklang</string>
     <string name="engine_sound_enabled">Motorklang</string>
-    <string name="engine_sound_enabled_hint">Die Motordrehzahl folgt in Echtzeit der Geschwindigkeit und Motorlast deines Rads. Mehr Last dreht hoch, Ausrollen und Regen ziehen sie wieder zurück.</string>
+    <string name="engine_sound_enabled_hint">Die Motordrehzahl folgt in Echtzeit der Geschwindigkeit und Motorlast deines Rads.</string>
     <string name="engine_safety_title">Achtung</string>
     <string name="engine_safety_message">Motorklang kann den Straßenverkehr überdecken. Im Stadtverkehr leiser stellen und ein einzelnes Headset erwägen, damit du die Umgebung weiter wahrnimmst.</string>
     <string name="engine_safety_ok">Verstanden</string>
-    <string name="engine_type_label">Motortyp</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Vorschau</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
-    <string name="engine_volume">Motorlautstärke</string>
+    <string name="engine_volume">Lautstärke</string>
     <string name="engine_muffler_label">Auspuff</string>
     <string name="engine_muffler_open">Offen</string>
     <string name="engine_muffler_half">Halb</string>
@@ -477,7 +477,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Mischen</string>
     <string name="engine_headphones_only">Nur mit Kopfhörern</string>
-    <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur, wenn kabelgebundenes oder Bluetooth-Audio verbunden ist.</string>
+    <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur mit kabelgebundenem oder Bluetooth-Audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert — zuerst anhalten, um Klänge zu testen.</string>

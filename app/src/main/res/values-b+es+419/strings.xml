@@ -461,17 +461,17 @@
     <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
 
     <!-- Motor sound generator -->
-    <string name="section_engine_sound">Sonido del motor</string>
-    <string name="engine_sound_enabled">Sonido del motor</string>
-    <string name="engine_sound_enabled_hint">Las RPM del motor siguen en tiempo real la velocidad y la carga de tu rueda. Más carga sube las vueltas, soltar el acelerador y la regeneración las bajan.</string>
+    <string name="section_engine_sound">Sonido de motor</string>
+    <string name="engine_sound_enabled">Generar sonido de motor</string>
+    <string name="engine_sound_enabled_hint">Las RPM del motor siguen en tiempo real la velocidad y la carga de tu rueda.</string>
     <string name="engine_safety_title">Atención</string>
     <string name="engine_safety_message">El sonido del motor puede tapar el ruido del tráfico. Usa volúmenes bajos en la ciudad y considera un auricular en un solo oído para mantenerte atento al entorno.</string>
     <string name="engine_safety_ok">Entendido</string>
-    <string name="engine_type_label">Tipo de motor</string>
+    <string name="engine_type_label">Motor</string>
     <string name="engine_preview">Vista previa</string>
-    <string name="engine_source_sampled">Muestra</string>
-    <string name="engine_source_synth">Sintet.</string>
-    <string name="engine_volume">Volumen del motor</string>
+    <string name="engine_source_sampled">Sampleado</string>
+    <string name="engine_source_synth">Sintético</string>
+    <string name="engine_volume">Volumen</string>
     <string name="engine_muffler_label">Escape</string>
     <string name="engine_muffler_open">Abierto</string>
     <string name="engine_muffler_half">Medio</string>
@@ -488,11 +488,11 @@
     <string name="engine_decel_smooth">Suave</string>
     <string name="engine_decel_standard">Estándar</string>
     <string name="engine_decel_backfire">Petardeo</string>
-    <string name="engine_brake_label">Freno motor</string>
+    <string name="engine_brake_label">Frenado de motor</string>
     <string name="engine_brake_off">Apagado</string>
     <string name="engine_brake_light">Ligero</string>
     <string name="engine_brake_strong">Fuerte</string>
-    <string name="engine_duck_label">Cuando habla la voz</string>
+    <string name="engine_duck_label">Volumen cuando hay otros anuncios</string>
     <string name="engine_duck_duck">Bajar</string>
     <string name="engine_duck_pause">Pausar</string>
     <string name="engine_duck_mix">Mezclar</string>
