@@ -472,6 +472,8 @@
     <string name="engine_source_sampled">Próbka</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Głośność</string>
+    <string name="engine_volume_auto_label">Dostosuj do prędkości</string>
+    <string name="engine_volume_auto_hint">Głośniej przy wolnej jeździe, ciszej przy szybkiej, aby piesi słyszeli Cię blisko 0 km/h.</string>
     <string name="engine_muffler_label">Tłumik</string>
     <string name="engine_muffler_open">Otwarty</string>
     <string name="engine_muffler_half">Średni</string>

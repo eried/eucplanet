@@ -453,6 +453,8 @@
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
     <string name="engine_volume">Volum</string>
+    <string name="engine_volume_auto_label">Juster etter fart</string>
+    <string name="engine_volume_auto_hint">Høyere ved lav fart og lavere ved høyere fart, slik at fotgjengere hører deg nær 0 km/t.</string>
     <string name="engine_muffler_label">Lyddemper</string>
     <string name="engine_muffler_open">Åpen</string>
     <string name="engine_muffler_half">Halv</string>

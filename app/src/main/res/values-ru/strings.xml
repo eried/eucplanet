@@ -488,6 +488,8 @@
     <string name="engine_source_sampled">Сэмпл</string>
     <string name="engine_source_synth">Синтез</string>
     <string name="engine_volume">Громкость</string>
+    <string name="engine_volume_auto_label">Зависит от скорости</string>
+    <string name="engine_volume_auto_hint">Громче на малой скорости и тише на ходу, чтобы пешеходы слышали вас около 0 км/ч.</string>
     <string name="engine_muffler_label">Глушитель</string>
     <string name="engine_muffler_open">Открытый</string>
     <string name="engine_muffler_half">Средний</string>

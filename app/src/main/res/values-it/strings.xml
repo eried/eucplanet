@@ -472,6 +472,8 @@
     <string name="engine_source_sampled">Campione</string>
     <string name="engine_source_synth">Sintetico</string>
     <string name="engine_volume">Volume</string>
+    <string name="engine_volume_auto_label">Regola con la velocità</string>
+    <string name="engine_volume_auto_hint">Più alto a bassa velocità e più basso in corsa, così i pedoni ti sentono vicino a 0 km/h.</string>
     <string name="engine_muffler_label">Scarico</string>
     <string name="engine_muffler_open">Aperto</string>
     <string name="engine_muffler_half">Medio</string>

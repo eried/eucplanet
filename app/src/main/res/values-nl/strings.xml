@@ -472,6 +472,8 @@
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
+    <string name="engine_volume_auto_label">Aanpassen aan snelheid</string>
+    <string name="engine_volume_auto_hint">Luider bij lage snelheid en zachter onderweg, zodat voetgangers je horen rond 0 km/u.</string>
     <string name="engine_muffler_label">Demper</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>

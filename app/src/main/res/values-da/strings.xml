@@ -436,6 +436,8 @@
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
     <string name="engine_volume">Lydstyrke</string>
+    <string name="engine_volume_auto_label">Juster efter fart</string>
+    <string name="engine_volume_auto_hint">Højere ved lav fart og lavere ved høj fart, så fodgængere kan høre dig tæt på 0 km/t.</string>
     <string name="engine_muffler_label">Lyddæmper</string>
     <string name="engine_muffler_open">Åben</string>
     <string name="engine_muffler_half">Halv</string>

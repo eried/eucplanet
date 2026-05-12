@@ -436,6 +436,8 @@
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
+    <string name="engine_volume_auto_label">Ajuster selon la vitesse</string>
+    <string name="engine_volume_auto_hint">Plus fort à basse vitesse et plus discret en roulant pour que les piétons vous entendent près de 0 km/h.</string>
     <string name="engine_muffler_label">Échappement</string>
     <string name="engine_muffler_open">Ouvert</string>
     <string name="engine_muffler_half">Moyen</string>

@@ -452,6 +452,8 @@
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Lautstärke</string>
+    <string name="engine_volume_auto_label">An Tempo anpassen</string>
+    <string name="engine_volume_auto_hint">Lauter bei langsamer Fahrt und leiser bei höherem Tempo, damit Fußgänger dich nahe 0 km/h hören.</string>
     <string name="engine_muffler_label">Auspuff</string>
     <string name="engine_muffler_open">Offen</string>
     <string name="engine_muffler_half">Halb</string>

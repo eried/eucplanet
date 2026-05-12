@@ -436,6 +436,8 @@
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
     <string name="engine_volume">音量</string>
+    <string name="engine_volume_auto_label">随速度调节</string>
+    <string name="engine_volume_auto_hint">低速时更响、高速时更轻，让行人在接近 0 km/h 时也能听到你。</string>
     <string name="engine_muffler_label">排气</string>
     <string name="engine_muffler_open">开放</string>
     <string name="engine_muffler_half">半</string>

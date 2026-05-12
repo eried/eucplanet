@@ -472,6 +472,8 @@
     <string name="engine_source_sampled">Семпл</string>
     <string name="engine_source_synth">Синтез</string>
     <string name="engine_volume">Гучність</string>
+    <string name="engine_volume_auto_label">Залежно від швидкості</string>
+    <string name="engine_volume_auto_hint">Гучніше на малій швидкості й тихіше в русі, щоб пішоходи чули вас біля 0 км/год.</string>
     <string name="engine_muffler_label">Глушник</string>
     <string name="engine_muffler_open">Відкритий</string>
     <string name="engine_muffler_half">Середній</string>
