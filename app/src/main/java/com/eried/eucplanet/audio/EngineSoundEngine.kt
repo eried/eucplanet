@@ -128,37 +128,41 @@ class EngineSoundEngine @Inject constructor(
      * Optional overrides let the caller A/B-test a specific knob (volume slider,
      * muffler/gearbox option) without committing the change first. When null,
      * the engine's current state (last [applySettings]) is used.
+     *
+     * [scenario] picks the motion fed to the engine for the preview duration:
+     *  - "DEFAULT" / null — idle → mid-rev → idle sweep (engine type, muffler)
+     *  - "GEARBOX"        — speed sweep through the full band so virtual gears shift
+     *  - "DECEL"          — accel under load then sharp off-throttle to trigger pops
+     *  - "BRAKE"          — sustained coast at speed so engine-brake whine engages
      */
     fun previewProfile(
         key: String,
         durationMs: Long = 2500L,
         volume: Float? = null,
         muffler: String? = null,
-        gearbox: String? = null
+        gearbox: String? = null,
+        scenario: String = "DEFAULT"
     ) {
         val savedProfile = profile
         val savedVolume = masterVolume
         val savedMuffler = mufflerKey
         val savedGearbox = gearboxKey
+        val savedPwmEverNonZero = pwmEverNonZero
         profile = EngineProfile.byKey(key)
         if (volume != null) masterVolume = volume.coerceIn(0f, 1f)
         if (muffler != null) mufflerKey = muffler
         if (gearbox != null) gearboxKey = gearbox
-        // Synthesize a small acceleration sweep: idle → mid → idle
+        // Scenario-driven paths use pushTelemetry which only honors pwm-based load once
+        // it's seen a non-zero pwm; prime the flag so brake/decel scenarios behave.
+        pwmEverNonZero = true
         Thread {
             try {
                 start()
-                val steps = 25
-                val halfDur = durationMs / 2
-                for (i in 0..steps) {
-                    val t = i.toFloat() / steps
-                    pushParamsDirect(rpmFraction = t, load = t * 0.7f)
-                    Thread.sleep(halfDur / steps)
-                }
-                for (i in 0..steps) {
-                    val t = 1f - i.toFloat() / steps
-                    pushParamsDirect(rpmFraction = t, load = t * 0.3f)
-                    Thread.sleep(halfDur / steps)
+                when (scenario) {
+                    "GEARBOX" -> runGearboxScenario(durationMs)
+                    "BRAKE"   -> runBrakeScenario(durationMs)
+                    "DECEL"   -> runDecelScenario(durationMs)
+                    else      -> runDefaultSweep(durationMs)
                 }
                 Thread.sleep(250)
                 stop()
@@ -167,8 +171,63 @@ class EngineSoundEngine @Inject constructor(
                 masterVolume = savedVolume
                 mufflerKey = savedMuffler
                 gearboxKey = savedGearbox
+                pwmEverNonZero = savedPwmEverNonZero
             }
         }.start()
+    }
+
+    private fun runDefaultSweep(durationMs: Long) {
+        val steps = 25
+        val halfDur = durationMs / 2
+        for (i in 0..steps) {
+            val t = i.toFloat() / steps
+            pushParamsDirect(rpmFraction = t, load = t * 0.7f)
+            Thread.sleep(halfDur / steps)
+        }
+        for (i in 0..steps) {
+            val t = 1f - i.toFloat() / steps
+            pushParamsDirect(rpmFraction = t, load = t * 0.3f)
+            Thread.sleep(halfDur / steps)
+        }
+    }
+
+    /** Speed sweep 0..80 km/h so the gearbox actually crosses gear thresholds. */
+    private fun runGearboxScenario(durationMs: Long) {
+        // computeTargetRpm assumes 0..80 km/h band, so we span that.
+        val steps = 50
+        for (i in 0..steps) {
+            val s = 80f * (i.toFloat() / steps)
+            pushTelemetry(speedKmh = s, pwmPercent = 55f)
+            Thread.sleep(durationMs / steps)
+        }
+    }
+
+    /** Steady coast at speed with throttle closed — engineBrake envelope ramps up. */
+    private fun runBrakeScenario(durationMs: Long) {
+        val steps = 30
+        for (i in 0..steps) {
+            pushTelemetry(speedKmh = 22f, pwmPercent = 0f)
+            Thread.sleep(durationMs / steps)
+        }
+    }
+
+    /** Rev up under load, then sharp throttle drop — wakes up decel pops / backfire. */
+    private fun runDecelScenario(durationMs: Long) {
+        val accelSteps = 18
+        val accelDur = (durationMs * 0.55f).toLong()
+        for (i in 0..accelSteps) {
+            val t = i.toFloat() / accelSteps
+            pushTelemetry(speedKmh = 10f + 25f * t, pwmPercent = 30f + 50f * t)
+            Thread.sleep(accelDur / accelSteps)
+        }
+        // Sharp drop — both pwmDrop and smoothedLoad fall, triggering decelTrigger + pops
+        pushTelemetry(speedKmh = 35f, pwmPercent = 0f)
+        val tailDur = (durationMs * 0.45f).toLong()
+        val tailSteps = 15
+        for (i in 0..tailSteps) {
+            pushTelemetry(speedKmh = 35f - 25f * (i.toFloat() / tailSteps), pwmPercent = 0f)
+            Thread.sleep(tailDur / tailSteps)
+        }
     }
 
     private fun pushParamsDirect(rpmFraction: Float, load: Float) {

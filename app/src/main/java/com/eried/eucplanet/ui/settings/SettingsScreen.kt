@@ -1952,7 +1952,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineMuffler,
             onChange = { viewModel.updateEngineMuffler(it) },
-            onPreview = { viewModel.previewMufflerOption(it) }
+            onPreview = { viewModel.previewEngineSection("DEFAULT") }
         )
 
         SegmentedChoice(
@@ -1964,7 +1964,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineGearbox,
             onChange = { viewModel.updateEngineGearbox(it) },
-            onPreview = { viewModel.previewGearboxOption(it) }
+            onPreview = { viewModel.previewEngineSection("GEARBOX") }
         )
 
         SegmentedChoice(
@@ -1986,7 +1986,8 @@ private fun EngineSoundSection(
                 "BACKFIRE" to stringResource(R.string.engine_decel_backfire)
             ),
             current = settings.engineDecelChar,
-            onChange = { viewModel.updateEngineDecelChar(it) }
+            onChange = { viewModel.updateEngineDecelChar(it) },
+            onPreview = { viewModel.previewEngineSection("DECEL") }
         )
 
         SegmentedChoice(
@@ -1997,7 +1998,8 @@ private fun EngineSoundSection(
                 "STRONG" to stringResource(R.string.engine_brake_strong)
             ),
             current = settings.engineBrake,
-            onChange = { viewModel.updateEngineBrake(it) }
+            onChange = { viewModel.updateEngineBrake(it) },
+            onPreview = { viewModel.previewEngineSection("BRAKE") }
         )
 
         SegmentedChoice(
@@ -2048,14 +2050,19 @@ private fun EngineTypePicker(
     onSelect: (String) -> Unit,
     onPreview: (String) -> Unit
 ) {
-    val profiles = com.eried.eucplanet.audio.EngineProfile.PROFILES
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val res = ctx.resources
+    val unsortedProfiles = com.eried.eucplanet.audio.EngineProfile.PROFILES
     fun displayFor(key: String): String {
         val resKey = "engine_preset_" + key.lowercase()
         val resId = res.getIdentifier(resKey, "string", ctx.packageName)
         return if (resId != 0) ctx.getString(resId)
-            else (profiles.firstOrNull { it.key == key }?.displayName ?: key)
+            else (unsortedProfiles.firstOrNull { it.key == key }?.displayName ?: key)
+    }
+    // Alphabetical by localized display name. Recomputed when the configuration locale changes
+    // because displayFor reads from the current ctx.resources.
+    val profiles = remember(ctx) {
+        unsortedProfiles.sortedBy { displayFor(it.key).lowercase() }
     }
     var expanded by remember { mutableStateOf(false) }
 
@@ -2215,14 +2222,20 @@ private fun SegmentedChoice(
     options: List<Pair<String, String>>,
     current: String,
     onChange: (String) -> Unit,
-    onPreview: ((String) -> Unit)? = null
+    onPreview: (() -> Unit)? = null
 ) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (onPreview != null) {
+                Spacer(Modifier.width(4.dp))
+                PlayButton(onClick = onPreview)
+            }
+        }
         Spacer(Modifier.height(6.dp))
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
@@ -2235,13 +2248,7 @@ private fun SegmentedChoice(
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    // When onPreview is wired, the leading icon slot becomes a per-option ▶ button.
-                    // IconButton consumes the click, so the SegmentedButton onChange doesn't fire.
-                    icon = {
-                        if (onPreview != null) {
-                            PlayButton(onClick = { onPreview(key) })
-                        }
-                    },
+                    icon = {},
                     label = {
                         Text(
                             optLabel,

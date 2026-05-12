@@ -142,28 +142,24 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Preview the currently selected engine with [mufflerOverride] applied — for the per-option ▶ buttons. */
-    fun previewMufflerOption(mufflerOverride: String) {
-        viewModelScope.launch {
-            val s = settingsRepository.get()
-            engineSoundEngine.previewProfile(
-                key = s.engineType,
-                volume = s.engineVolume,
-                muffler = mufflerOverride,
-                gearbox = s.engineGearbox
-            )
-        }
-    }
-
-    /** Preview the currently selected engine with [gearboxOverride] applied — for the per-option ▶ buttons. */
-    fun previewGearboxOption(gearboxOverride: String) {
+    /**
+     * Section preview — play a short clip that demonstrates the section's current setting.
+     *
+     * [scenario] picks the motion pattern fed to the engine:
+     *  - "DEFAULT": idle → mid-rev → idle (Muffler — shows the muffler tone across the rev range)
+     *  - "GEARBOX": speed sweep so the virtual gearbox actually shifts
+     *  - "DECEL":   accel under load then sharp off-throttle to trigger pops / backfire
+     *  - "BRAKE":   sustained coast at speed so the engine-brake whine engages
+     */
+    fun previewEngineSection(scenario: String) {
         viewModelScope.launch {
             val s = settingsRepository.get()
             engineSoundEngine.previewProfile(
                 key = s.engineType,
                 volume = s.engineVolume,
                 muffler = s.engineMuffler,
-                gearbox = gearboxOverride
+                gearbox = s.engineGearbox,
+                scenario = scenario
             )
         }
     }
