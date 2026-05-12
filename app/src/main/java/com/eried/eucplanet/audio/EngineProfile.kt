@@ -62,7 +62,24 @@ data class EngineProfile(
      * When set, the engine is rendered by playing back and pitch-shifting these
      * samples instead of the procedural [EngineSynth]. Null = procedural.
      */
-    val sampleAssetBase: String? = null
+    val sampleAssetBase: String? = null,
+    // --- Per-engine feature support ---
+    // ICE / SYNTH profiles use the in-house DSP so every effect is "free" and these default to true.
+    // Sampled profiles can only do what MediaPlayer + SoundPool sidecars give us:
+    //  - muffler LPF: only the DSP path has a filter — set false on sampled profiles
+    //  - pops / brake whine: only available if a SoundPool side-channel asset is wired
+    //    (popSampleAsset / brakeWhineSampleAsset). Until the sidecars ship, sampled
+    //    profiles set these false so the UI can grey-out the controls per engine.
+    /** Whether the muffler/exhaust LPF row applies to this engine. */
+    val supportsMuffler: Boolean = true,
+    /** Whether the decel-pops/backfire row applies to this engine. */
+    val supportsPops: Boolean = true,
+    /** Whether the engine-brake whine row applies to this engine. */
+    val supportsBrakeWhine: Boolean = true,
+    /** Optional res/raw name (without extension) for a sampled pop SFX, played via SoundPool. */
+    val popSampleAsset: String? = null,
+    /** Optional res/raw name (without extension) for a sampled brake-whine loop. */
+    val brakeWhineSampleAsset: String? = null
 ) {
     enum class Kind { ICE, SYNTH }
 
@@ -314,35 +331,40 @@ data class EngineProfile(
                 displayName = "V8 (Cobra, sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 700, maxRpm = 6500,
-                sampleAssetBase = "engine_v8_cobra"
+                sampleAssetBase = "engine_v8_cobra",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_VTWIN_DUCATI",
                 displayName = "V-twin (Ducati, sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 950, maxRpm = 9000,
-                sampleAssetBase = "engine_vtwin_ducati"
+                sampleAssetBase = "engine_vtwin_ducati",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_DIESEL_IVECO",
                 displayName = "Diesel truck (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 800, maxRpm = 3200,
-                sampleAssetBase = "engine_diesel_iveco"
+                sampleAssetBase = "engine_diesel_iveco",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_MOTORCYCLE",
                 displayName = "Motorcycle (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1100, maxRpm = 10500,
-                sampleAssetBase = "engine_motorcycle"
+                sampleAssetBase = "engine_motorcycle",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_CITY_CAR",
                 displayName = "City car (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 850, maxRpm = 6000,
-                sampleAssetBase = "engine_citycar_saxo"
+                sampleAssetBase = "engine_citycar_saxo",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_HELICOPTER",
@@ -350,63 +372,72 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 // Helicopter rotor "RPM" is metaphorical here — drives playback speed mapping
                 idleRpm = 250, maxRpm = 1100,
-                sampleAssetBase = "engine_helicopter"
+                sampleAssetBase = "engine_helicopter",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_TRACTOR",
                 displayName = "Tractor (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2600,
-                sampleAssetBase = "engine_tractor"
+                sampleAssetBase = "engine_tractor",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_LAWNMOWER",
                 displayName = "Lawn mower (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1800, maxRpm = 3600,
-                sampleAssetBase = "engine_lawnmower"
+                sampleAssetBase = "engine_lawnmower",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_STEAM_LOCO",
                 displayName = "Steam locomotive (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 200, maxRpm = 900,
-                sampleAssetBase = "engine_steam_loco"
+                sampleAssetBase = "engine_steam_loco",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_CAR_CRUISE",
                 displayName = "Car cruise (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1000, maxRpm = 5500,
-                sampleAssetBase = "engine_car_cruise"
+                sampleAssetBase = "engine_car_cruise",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_ASTON_MARTIN",
                 displayName = "Aston Martin (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 7500,
-                sampleAssetBase = "engine_aston_martin"
+                sampleAssetBase = "engine_aston_martin",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_BIG_DIESEL",
                 displayName = "Big diesel (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2800,
-                sampleAssetBase = "engine_big_diesel"
+                sampleAssetBase = "engine_big_diesel",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_BROKEN_EXHAUST",
                 displayName = "Broken exhaust (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 800, maxRpm = 5000,
-                sampleAssetBase = "engine_damaged_muffler"
+                sampleAssetBase = "engine_damaged_muffler",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             ),
             EngineProfile(
                 key = "SAMPLED_QUAD_ATV",
                 displayName = "Quad ATV (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 6500,
-                sampleAssetBase = "engine_quad_atv"
+                sampleAssetBase = "engine_quad_atv",
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
             )
         )
 

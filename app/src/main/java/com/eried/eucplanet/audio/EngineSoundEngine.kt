@@ -9,6 +9,7 @@ import android.media.AudioTrack
 import android.os.Build
 import android.util.Log
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -81,6 +82,8 @@ class EngineSoundEngine @Inject constructor(
     private var pendingPops: Int = 0
     private var voiceActive: Boolean = false
     private var voiceDuckGain: Float = 1f
+    /** Tracks the previous applySettings()'s enabled flag so we only log toggle edges. */
+    private var lastAppliedEnabled: Boolean = false
 
     private val revDetector = RevDetector()
     private var connected: Boolean = false
@@ -91,6 +94,7 @@ class EngineSoundEngine @Inject constructor(
     /** Apply settings — called whenever AppSettings changes. */
     fun applySettings(s: AppSettings) {
         val previousProfileKey = profile.key
+        val previousEnabled = lastAppliedEnabled
         profile = EngineProfile.byKey(s.engineType)
         masterVolume = s.engineVolume.coerceIn(0f, 1f)
         mufflerKey = s.engineMuffler
@@ -100,6 +104,21 @@ class EngineSoundEngine @Inject constructor(
         engineBrakeMode = s.engineBrake
         duckMode = s.engineDuckOnVoice
         headphonesOnly = s.engineHeadphonesOnly
+        lastAppliedEnabled = s.engineSoundEnabled
+
+        // Service-Mode log: only milestone events (engine selected, sound toggled),
+        // never per-tick telemetry. DiagnosticsLogger.info() is a no-op when service
+        // mode is off, so this costs nothing in normal operation.
+        if (s.engineSoundEnabled && previousProfileKey != profile.key) {
+            val pathKind = if (profile.sampleAssetBase != null) "sampled" else profile.kind.name.lowercase()
+            DiagnosticsLogger.info("engine: ${profile.key} ($pathKind)")
+        }
+        if (previousEnabled != s.engineSoundEnabled) {
+            DiagnosticsLogger.info(
+                if (s.engineSoundEnabled) "engine: sound enabled (${profile.key})"
+                else "engine: sound disabled"
+            )
+        }
 
         if (!s.engineSoundEnabled) {
             stop()
@@ -120,6 +139,18 @@ class EngineSoundEngine @Inject constructor(
             start()
         } else if (!isConnected) {
             stop()
+            // Reset telemetry-state so the next wheel session starts clean:
+            // pwmEverNonZero is sticky to avoid flapping back to derivative-load
+            // mid-ride on a momentary 0% PWM read, but across BLE sessions
+            // (potentially a different wheel) we want to re-discover capability.
+            pwmEverNonZero = false
+            lastPwm = 0f
+            lastSpeedKmh = 0f
+            lastTelemetryAtMs = 0L
+            smoothedRpm = 0f
+            smoothedLoad = 0f
+            brakeEnvelope = 0f
+            decelEnvelope = 0f
         }
     }
 
@@ -408,7 +439,10 @@ class EngineSoundEngine @Inject constructor(
         // Sample-based engine takes its parameters from the same snapshot.
         if (sampledPlayer.isPlaying()) {
             val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
-            val rpmNorm = ((smoothedRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
+            // Include revBump so a quick throttle blip pitches the sample up briefly,
+            // matching what the synth path does for the same telemetry.
+            val effRpm = smoothedRpm + revDetector.currentBump(now)
+            val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
             sampledPlayer.update(rpmNorm, gain * idleEnvelope.coerceIn(0f, 1f))
         }
     }

@@ -88,11 +88,22 @@ class SampledEnginePlayer(private val context: Context) {
     @SuppressLint("NewApi") // PlaybackParams is API 23+, our minSdk is at least 24
     fun update(rpmNorm: Float, volume: Float) {
         val mp = player ?: return
+        val vol = volume.coerceIn(0f, 1f)
+        // When the idle envelope fades us all the way out (parked + FADE elapsed) keep the
+        // MediaPlayer paused instead of looping silently. Resume on the first non-silent tick.
+        if (vol < MUTE_THRESHOLD) {
+            if (mp.isPlaying) {
+                try { mp.pause() } catch (_: Throwable) {}
+            }
+            lastVolume = 0f
+            return
+        }
+
         // Map rpmNorm -> playback speed. At idle (rpmNorm=0) we want ~0.6x for a deeper rumble,
         // at full revs (rpmNorm=1) we want ~1.8x for the high-rev wail. A slight curve makes it feel less linear.
         val curved = rpmNorm.coerceIn(0f, 1f).let { it * (0.4f + 0.6f * it) }
         val targetSpeed = 0.6f + 1.2f * curved        // 0.6..1.8
-        if (abs(targetSpeed - lastSpeed) > 0.01f) {
+        if (abs(targetSpeed - lastSpeed) > 0.01f || !mp.isPlaying) {
             try {
                 if (!mp.isPlaying) mp.start()
                 mp.playbackParams = PlaybackParams().setSpeed(targetSpeed)
@@ -101,7 +112,6 @@ class SampledEnginePlayer(private val context: Context) {
                 Log.w(TAG, "setPlaybackParams failed", e)
             }
         }
-        val vol = volume.coerceIn(0f, 1f)
         if (abs(vol - lastVolume) > 0.01f) {
             try {
                 mp.setVolume(vol, vol)
@@ -112,5 +122,9 @@ class SampledEnginePlayer(private val context: Context) {
 
     companion object {
         private const val TAG = "SampledEnginePlayer"
+        // Below this gain the listener can't hear anything anyway — pause the player
+        // to save the decode loop. Hysteresis-free: resume kicks in the moment the
+        // engine asks for non-trivial volume again.
+        private const val MUTE_THRESHOLD = 0.01f
     }
 }
