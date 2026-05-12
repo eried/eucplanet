@@ -462,4 +462,30 @@
     <string name="engine_duck_mix">Mixer</string>
     <string name="engine_headphones_only">Uniquement au casque</string>
     <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne que si un audio filaire ou Bluetooth est connecté.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Aperçu désactivé en mouvement — arrête-toi pour tester les sons.</string>
+    <string name="engine_preset_two_stroke">2 temps</string>
+    <string name="engine_preset_four_stroke_single">4 temps monocylindre</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_inline_4">4 en ligne</string>
+    <string name="engine_preset_inline_6_silky">6 en ligne (soyeux)</string>
+    <string name="engine_preset_tractor">Tracteur</string>
+    <string name="engine_preset_steam_loco">Locomotive à vapeur</string>
+    <string name="engine_preset_jet_turbine">Turbine à réaction</string>
+    <string name="engine_preset_ufo_hover">OVNI en vol stationnaire</string>
+    <string name="engine_preset_f1_electric">F1 électrique</string>
+    <string name="engine_preset_hover_bike">Moto volante</string>
+    <string name="engine_preset_lightsaber">Sabre laser</string>
+    <string name="engine_preset_sampled_diesel_iveco">Camion diesel</string>
+    <string name="engine_preset_sampled_motorcycle">Moto</string>
+    <string name="engine_preset_sampled_city_car">Citadine</string>
+    <string name="engine_preset_sampled_helicopter">Hélicoptère</string>
+    <string name="engine_preset_sampled_tractor">Tracteur</string>
+    <string name="engine_preset_sampled_lawnmower">Tondeuse</string>
+    <string name="engine_preset_sampled_steam_loco">Locomotive à vapeur</string>
+    <string name="engine_preset_sampled_big_diesel">Gros diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Voiture en croisière</string>
+    <string name="engine_preset_sampled_broken_exhaust">Échappement cassé</string>
+    <string name="engine_preset_sampled_quad_atv">Quad</string>
 </resources>

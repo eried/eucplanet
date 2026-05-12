@@ -462,4 +462,30 @@
     <string name="engine_duck_mix">Mixa</string>
     <string name="engine_headphones_only">Endast med hörlurar</string>
     <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara när trådbundet eller Bluetooth-ljud är anslutet.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Förhandsvisning av i rörelse — stanna för att testa ljud.</string>
+    <string name="engine_preset_two_stroke">Tvåtakt</string>
+    <string name="engine_preset_four_stroke_single">Fyrtakt encylindrig</string>
+    <string name="engine_preset_quad_bike">Fyrhjuling</string>
+    <string name="engine_preset_inline_4">Rak 4</string>
+    <string name="engine_preset_inline_6_silky">Rak 6 (silkeslen)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Ånglok</string>
+    <string name="engine_preset_jet_turbine">Jetturbin</string>
+    <string name="engine_preset_ufo_hover">UFO i sväv</string>
+    <string name="engine_preset_f1_electric">F1 elektrisk</string>
+    <string name="engine_preset_hover_bike">Svävcykel</string>
+    <string name="engine_preset_lightsaber">Ljussvärd</string>
+    <string name="engine_preset_sampled_diesel_iveco">Dieselbil</string>
+    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_city_car">Stadsbil</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Gräsklippare</string>
+    <string name="engine_preset_sampled_steam_loco">Ånglok</string>
+    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Bil på väg</string>
+    <string name="engine_preset_sampled_broken_exhaust">Trasig avgas</string>
+    <string name="engine_preset_sampled_quad_atv">Fyrhjuling</string>
 </resources>

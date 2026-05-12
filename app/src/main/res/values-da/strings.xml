@@ -462,4 +462,30 @@
     <string name="engine_duck_mix">Miks</string>
     <string name="engine_headphones_only">Kun med hovedtelefoner</string>
     <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun, når kablet eller Bluetooth-lyd er tilsluttet.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Forhåndsvisning slået fra i bevægelse — stop for at teste lyde.</string>
+    <string name="engine_preset_two_stroke">Totakt</string>
+    <string name="engine_preset_four_stroke_single">Firtakt encylindret</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_inline_4">Række-4</string>
+    <string name="engine_preset_inline_6_silky">Række-6 (silkeblød)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_jet_turbine">Jet-turbine</string>
+    <string name="engine_preset_ufo_hover">UFO hængende</string>
+    <string name="engine_preset_f1_electric">F1 elektrisk</string>
+    <string name="engine_preset_hover_bike">Svævecykel</string>
+    <string name="engine_preset_lightsaber">Lyssværd</string>
+    <string name="engine_preset_sampled_diesel_iveco">Dieselbil</string>
+    <string name="engine_preset_sampled_motorcycle">Motorcykel</string>
+    <string name="engine_preset_sampled_city_car">Bybil</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Plæneklipper</string>
+    <string name="engine_preset_sampled_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Bil på tur</string>
+    <string name="engine_preset_sampled_broken_exhaust">Defekt udstødning</string>
+    <string name="engine_preset_sampled_quad_atv">Quad</string>
 </resources>

@@ -498,4 +498,30 @@
     <string name="engine_duck_mix">Mezclar</string>
     <string name="engine_headphones_only">Solo con auriculares</string>
     <string name="engine_headphones_only_hint">Omite el altavoz del teléfono. El motor suena solo cuando hay audio por cable o Bluetooth.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Vista previa desactivada mientras te mueves — detente para probar los sonidos.</string>
+    <string name="engine_preset_two_stroke">2 tiempos</string>
+    <string name="engine_preset_four_stroke_single">4 tiempos monocilíndrico</string>
+    <string name="engine_preset_quad_bike">Cuatrimoto</string>
+    <string name="engine_preset_inline_4">4 en línea</string>
+    <string name="engine_preset_inline_6_silky">6 en línea (suave)</string>
+    <string name="engine_preset_tractor">Tractor</string>
+    <string name="engine_preset_steam_loco">Locomotora a vapor</string>
+    <string name="engine_preset_jet_turbine">Turbina a reacción</string>
+    <string name="engine_preset_ufo_hover">OVNI flotando</string>
+    <string name="engine_preset_f1_electric">F1 eléctrico</string>
+    <string name="engine_preset_hover_bike">Moto flotante</string>
+    <string name="engine_preset_lightsaber">Sable de luz</string>
+    <string name="engine_preset_sampled_diesel_iveco">Camión diésel</string>
+    <string name="engine_preset_sampled_motorcycle">Motocicleta</string>
+    <string name="engine_preset_sampled_city_car">Auto urbano</string>
+    <string name="engine_preset_sampled_helicopter">Helicóptero</string>
+    <string name="engine_preset_sampled_tractor">Tractor</string>
+    <string name="engine_preset_sampled_lawnmower">Cortadora de césped</string>
+    <string name="engine_preset_sampled_steam_loco">Locomotora a vapor</string>
+    <string name="engine_preset_sampled_big_diesel">Diésel grande</string>
+    <string name="engine_preset_sampled_car_cruise">Auto en ruta</string>
+    <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
+    <string name="engine_preset_sampled_quad_atv">Cuatrimoto</string>
 </resources>

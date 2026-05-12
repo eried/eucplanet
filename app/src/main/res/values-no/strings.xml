@@ -479,4 +479,30 @@
     <string name="engine_duck_mix">Miks</string>
     <string name="engine_headphones_only">Kun med hodetelefoner</string>
     <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller kun når kablet eller Bluetooth-lyd er tilkoblet.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Forhåndsvisning av i bevegelse — stopp for å teste lyder.</string>
+    <string name="engine_preset_two_stroke">Totakt</string>
+    <string name="engine_preset_four_stroke_single">Firetakt enkeltsylindret</string>
+    <string name="engine_preset_quad_bike">Firehjuling</string>
+    <string name="engine_preset_inline_4">Rekke-4</string>
+    <string name="engine_preset_inline_6_silky">Rekke-6 (silkemyk)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_jet_turbine">Jetturbin</string>
+    <string name="engine_preset_ufo_hover">UFO i sveving</string>
+    <string name="engine_preset_f1_electric">F1 elektrisk</string>
+    <string name="engine_preset_hover_bike">Svevesykkel</string>
+    <string name="engine_preset_lightsaber">Lyssverd</string>
+    <string name="engine_preset_sampled_diesel_iveco">Dieselbil</string>
+    <string name="engine_preset_sampled_motorcycle">Motorsykkel</string>
+    <string name="engine_preset_sampled_city_car">Bybil</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Gressklipper</string>
+    <string name="engine_preset_sampled_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Bil på tur</string>
+    <string name="engine_preset_sampled_broken_exhaust">Ødelagt eksos</string>
+    <string name="engine_preset_sampled_quad_atv">Firehjuling</string>
 </resources>

@@ -498,4 +498,30 @@
     <string name="engine_duck_mix">Mixar</string>
     <string name="engine_headphones_only">Só com fones</string>
     <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca quando há áudio com fio ou Bluetooth conectado.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Prévia desativada em movimento — pare para testar os sons.</string>
+    <string name="engine_preset_two_stroke">2 tempos</string>
+    <string name="engine_preset_four_stroke_single">4 tempos monocilíndrico</string>
+    <string name="engine_preset_quad_bike">Quadriciclo</string>
+    <string name="engine_preset_inline_4">4 em linha</string>
+    <string name="engine_preset_inline_6_silky">6 em linha (suave)</string>
+    <string name="engine_preset_tractor">Trator</string>
+    <string name="engine_preset_steam_loco">Locomotiva a vapor</string>
+    <string name="engine_preset_jet_turbine">Turbina a jato</string>
+    <string name="engine_preset_ufo_hover">OVNI flutuando</string>
+    <string name="engine_preset_f1_electric">F1 elétrico</string>
+    <string name="engine_preset_hover_bike">Moto flutuante</string>
+    <string name="engine_preset_lightsaber">Sabre de luz</string>
+    <string name="engine_preset_sampled_diesel_iveco">Caminhão diesel</string>
+    <string name="engine_preset_sampled_motorcycle">Motocicleta</string>
+    <string name="engine_preset_sampled_city_car">Carro urbano</string>
+    <string name="engine_preset_sampled_helicopter">Helicóptero</string>
+    <string name="engine_preset_sampled_tractor">Trator</string>
+    <string name="engine_preset_sampled_lawnmower">Cortador de grama</string>
+    <string name="engine_preset_sampled_steam_loco">Locomotiva a vapor</string>
+    <string name="engine_preset_sampled_big_diesel">Diesel grande</string>
+    <string name="engine_preset_sampled_car_cruise">Carro em viagem</string>
+    <string name="engine_preset_sampled_broken_exhaust">Escapamento quebrado</string>
+    <string name="engine_preset_sampled_quad_atv">Quadriciclo</string>
 </resources>

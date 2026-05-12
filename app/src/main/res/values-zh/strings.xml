@@ -462,4 +462,30 @@
     <string name="engine_duck_mix">混合</string>
     <string name="engine_headphones_only">仅在耳机连接时</string>
     <string name="engine_headphones_only_hint">跳过手机扬声器。引擎声仅在连接有线或蓝牙音频时播放。</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">行进中预览已停用 — 停下后再试听。</string>
+    <string name="engine_preset_two_stroke">二冲程</string>
+    <string name="engine_preset_four_stroke_single">四冲程单缸</string>
+    <string name="engine_preset_quad_bike">四轮越野车</string>
+    <string name="engine_preset_inline_4">直列4缸</string>
+    <string name="engine_preset_inline_6_silky">直列6缸(顺滑)</string>
+    <string name="engine_preset_tractor">拖拉机</string>
+    <string name="engine_preset_steam_loco">蒸汽机车</string>
+    <string name="engine_preset_jet_turbine">喷气涡轮</string>
+    <string name="engine_preset_ufo_hover">UFO悬停</string>
+    <string name="engine_preset_f1_electric">F1 电动</string>
+    <string name="engine_preset_hover_bike">悬浮摩托</string>
+    <string name="engine_preset_lightsaber">光剑</string>
+    <string name="engine_preset_sampled_diesel_iveco">柴油卡车</string>
+    <string name="engine_preset_sampled_motorcycle">摩托车</string>
+    <string name="engine_preset_sampled_city_car">城市轿车</string>
+    <string name="engine_preset_sampled_helicopter">直升机</string>
+    <string name="engine_preset_sampled_tractor">拖拉机</string>
+    <string name="engine_preset_sampled_lawnmower">割草机</string>
+    <string name="engine_preset_sampled_steam_loco">蒸汽机车</string>
+    <string name="engine_preset_sampled_big_diesel">大型柴油</string>
+    <string name="engine_preset_sampled_car_cruise">汽车巡航</string>
+    <string name="engine_preset_sampled_broken_exhaust">破损排气</string>
+    <string name="engine_preset_sampled_quad_atv">四轮越野车</string>
 </resources>

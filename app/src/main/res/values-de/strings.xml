@@ -478,4 +478,30 @@
     <string name="engine_duck_mix">Mischen</string>
     <string name="engine_headphones_only">Nur mit Kopfhörern</string>
     <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur, wenn kabelgebundenes oder Bluetooth-Audio verbunden ist.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert — zuerst anhalten, um Klänge zu testen.</string>
+    <string name="engine_preset_two_stroke">2-Takt</string>
+    <string name="engine_preset_four_stroke_single">4-Takt Einzylinder</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_inline_4">Reihen-4</string>
+    <string name="engine_preset_inline_6_silky">Reihen-6 (seidig)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Dampflok</string>
+    <string name="engine_preset_jet_turbine">Jet-Turbine</string>
+    <string name="engine_preset_ufo_hover">UFO schwebend</string>
+    <string name="engine_preset_f1_electric">F1 elektrisch</string>
+    <string name="engine_preset_hover_bike">Schwebebike</string>
+    <string name="engine_preset_lightsaber">Lichtschwert</string>
+    <string name="engine_preset_sampled_diesel_iveco">Diesel-LKW</string>
+    <string name="engine_preset_sampled_motorcycle">Motorrad</string>
+    <string name="engine_preset_sampled_city_car">Kleinwagen</string>
+    <string name="engine_preset_sampled_helicopter">Hubschrauber</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Rasenmäher</string>
+    <string name="engine_preset_sampled_steam_loco">Dampflok</string>
+    <string name="engine_preset_sampled_big_diesel">Großer Diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Auto auf Reise</string>
+    <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
+    <string name="engine_preset_sampled_quad_atv">Quad</string>
 </resources>

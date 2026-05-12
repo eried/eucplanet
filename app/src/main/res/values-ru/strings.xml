@@ -514,4 +514,30 @@
     <string name="engine_duck_mix">Смешать</string>
     <string name="engine_headphones_only">Только с наушниками</string>
     <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при подключённом проводном или Bluetooth-аудио.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Предпросмотр недоступен в движении — остановись, чтобы проверить звуки.</string>
+    <string name="engine_preset_two_stroke">2-тактный</string>
+    <string name="engine_preset_four_stroke_single">4-тактный одноцил.</string>
+    <string name="engine_preset_quad_bike">Квадроцикл</string>
+    <string name="engine_preset_inline_4">Рядный 4</string>
+    <string name="engine_preset_inline_6_silky">Рядный 6 (шёлковый)</string>
+    <string name="engine_preset_tractor">Трактор</string>
+    <string name="engine_preset_steam_loco">Паровоз</string>
+    <string name="engine_preset_jet_turbine">Реактивная турбина</string>
+    <string name="engine_preset_ufo_hover">НЛО в зависе</string>
+    <string name="engine_preset_f1_electric">F1 электрический</string>
+    <string name="engine_preset_hover_bike">Лет. мотоцикл</string>
+    <string name="engine_preset_lightsaber">Световой меч</string>
+    <string name="engine_preset_sampled_diesel_iveco">Дизельный грузовик</string>
+    <string name="engine_preset_sampled_motorcycle">Мотоцикл</string>
+    <string name="engine_preset_sampled_city_car">Городской авто</string>
+    <string name="engine_preset_sampled_helicopter">Вертолёт</string>
+    <string name="engine_preset_sampled_tractor">Трактор</string>
+    <string name="engine_preset_sampled_lawnmower">Газонокосилка</string>
+    <string name="engine_preset_sampled_steam_loco">Паровоз</string>
+    <string name="engine_preset_sampled_big_diesel">Большой дизель</string>
+    <string name="engine_preset_sampled_car_cruise">Авто в пути</string>
+    <string name="engine_preset_sampled_broken_exhaust">Дырявый глушитель</string>
+    <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
 </resources>

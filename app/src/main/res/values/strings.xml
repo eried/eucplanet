@@ -248,6 +248,7 @@
     <string name="engine_safety_ok">Got it</string>
     <string name="engine_type_label">Engine type</string>
     <string name="engine_preview">Preview</string>
+    <string name="engine_preview_parked_only">Previews disabled while moving — stop first to test sounds.</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Engine volume</string>

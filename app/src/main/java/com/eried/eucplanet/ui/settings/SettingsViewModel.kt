@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -52,6 +53,17 @@ class SettingsViewModel @Inject constructor(
     val isConnected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /**
+     * Engine-sound preview buttons should only fire while the rider is parked,
+     * because previewing pushes synthetic telemetry through the same audio path
+     * as the real ride and would clash. Disconnected = no ride happening, so
+     * preview is allowed. Connected + sub-walking-pace = parked.
+     */
+    val engineParked: StateFlow<Boolean> = wheelRepository.wheelData
+        .map { kotlin.math.abs(it.speed) < 0.5f }
+        .combine(isConnected) { speedParked, conn -> !conn || speedParked }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
 

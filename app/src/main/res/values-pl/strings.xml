@@ -498,4 +498,30 @@
     <string name="engine_duck_mix">Mieszaj</string>
     <string name="engine_headphones_only">Tylko ze słuchawkami</string>
     <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie, gdy podłączone jest audio przewodowe lub Bluetooth.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Podgląd wyłączony podczas jazdy — zatrzymaj się, by przetestować dźwięki.</string>
+    <string name="engine_preset_two_stroke">2-suw</string>
+    <string name="engine_preset_four_stroke_single">4-suw jednocyl.</string>
+    <string name="engine_preset_quad_bike">Quad</string>
+    <string name="engine_preset_inline_4">Rzędowy 4</string>
+    <string name="engine_preset_inline_6_silky">Rzędowy 6 (jedwabisty)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Lokomotywa parowa</string>
+    <string name="engine_preset_jet_turbine">Turbina odrzutowa</string>
+    <string name="engine_preset_ufo_hover">UFO w zawisie</string>
+    <string name="engine_preset_f1_electric">F1 elektryczne</string>
+    <string name="engine_preset_hover_bike">Lewitujący motocykl</string>
+    <string name="engine_preset_lightsaber">Miecz świetlny</string>
+    <string name="engine_preset_sampled_diesel_iveco">Ciężarówka diesel</string>
+    <string name="engine_preset_sampled_motorcycle">Motocykl</string>
+    <string name="engine_preset_sampled_city_car">Auto miejskie</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Kosiarka</string>
+    <string name="engine_preset_sampled_steam_loco">Lokomotywa parowa</string>
+    <string name="engine_preset_sampled_big_diesel">Duży diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Auto w trasie</string>
+    <string name="engine_preset_sampled_broken_exhaust">Zepsuty wydech</string>
+    <string name="engine_preset_sampled_quad_atv">Quad</string>
 </resources>

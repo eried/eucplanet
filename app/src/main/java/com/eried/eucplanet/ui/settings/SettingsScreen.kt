@@ -147,6 +147,7 @@ fun SettingsScreen(
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
+    val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val expandedSections = rememberSaveable(
         saver = androidx.compose.runtime.saveable.listSaver(
@@ -349,7 +350,7 @@ fun SettingsScreen(
             VoiceTab(settings, viewModel)
         },
         SectionDef("motor", titleMotor, Icons.Default.GraphicEq, corpusMotor) {
-            EngineSoundSection(settings, viewModel)
+            EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
             CloudTab(settings, viewModel)
@@ -1906,7 +1907,8 @@ private fun ButtonConfig(
 @Composable
 private fun EngineSoundSection(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    parked: Boolean
 ) {
     var showSafety by remember { mutableStateOf(false) }
 
@@ -1927,11 +1929,21 @@ private fun EngineSoundSection(
     )
 
     if (settings.engineSoundEnabled) {
+        // Previews push synthetic telemetry, which would clash with a live ride.
+        // Only allow ▶ while the wheel is disconnected or parked.
         EngineTypePicker(
             currentKey = settings.engineType,
             onSelect = { viewModel.updateEngineType(it) },
-            onPreview = { viewModel.previewEngine(it) }
+            onPreview = if (parked) { { viewModel.previewEngine(it) } } else null
         )
+
+        if (!parked) {
+            Text(
+                stringResource(R.string.engine_preview_parked_only),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         SliderSetting(
             label = stringResource(R.string.engine_volume),
@@ -1952,7 +1964,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineMuffler,
             onChange = { viewModel.updateEngineMuffler(it) },
-            onPreview = { viewModel.previewEngineSection("DEFAULT") }
+            onPreview = if (parked) { { viewModel.previewEngineSection("DEFAULT") } } else null
         )
 
         SegmentedChoice(
@@ -1964,7 +1976,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineGearbox,
             onChange = { viewModel.updateEngineGearbox(it) },
-            onPreview = { viewModel.previewEngineSection("GEARBOX") }
+            onPreview = if (parked) { { viewModel.previewEngineSection("GEARBOX") } } else null
         )
 
         SegmentedChoice(
@@ -1987,7 +1999,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineDecelChar,
             onChange = { viewModel.updateEngineDecelChar(it) },
-            onPreview = { viewModel.previewEngineSection("DECEL") }
+            onPreview = if (parked) { { viewModel.previewEngineSection("DECEL") } } else null
         )
 
         SegmentedChoice(
@@ -1999,7 +2011,7 @@ private fun EngineSoundSection(
             ),
             current = settings.engineBrake,
             onChange = { viewModel.updateEngineBrake(it) },
-            onPreview = { viewModel.previewEngineSection("BRAKE") }
+            onPreview = if (parked) { { viewModel.previewEngineSection("BRAKE") } } else null
         )
 
         SegmentedChoice(
@@ -2048,7 +2060,7 @@ private fun EngineSoundSection(
 private fun EngineTypePicker(
     currentKey: String,
     onSelect: (String) -> Unit,
-    onPreview: (String) -> Unit
+    onPreview: ((String) -> Unit)? = null
 ) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     val res = ctx.resources
@@ -2079,8 +2091,10 @@ private fun EngineTypePicker(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.width(4.dp))
-            PlayButton(onClick = { onPreview(currentKey) })
+            if (onPreview != null) {
+                Spacer(Modifier.width(4.dp))
+                PlayButton(onClick = { onPreview(currentKey) })
+            }
         }
         Spacer(Modifier.height(6.dp))
         ExposedDropdownMenuBox(
