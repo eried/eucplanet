@@ -43,7 +43,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -110,9 +109,8 @@ fun AutomationsContent(
                         )
                         Text(
                             stringResource(R.string.auto_lights_suspended),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = AccentOrange,
-                            fontStyle = FontStyle.Italic
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AccentOrange
                         )
                     }
                 }
