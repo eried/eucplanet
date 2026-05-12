@@ -238,6 +238,55 @@
     <string name="voice_output_channel_media">Media</string>
     <string name="voice_output_channel_notification">Notification</string>
     <string name="voice_output_channel_alarm">Alarm</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motor sound</string>
+    <string name="engine_sound_enabled">Engine sound</string>
+    <string name="engine_sound_enabled_hint">Synthesised engine driven by your wheel\'s speed and load. Plays through the media channel so it mixes with music.</string>
+    <string name="engine_safety_title">Heads up</string>
+    <string name="engine_safety_message">Engine sound can mask traffic noise. Use lower volumes in city riding, and consider a single-ear headphone so you stay aware of your surroundings.</string>
+    <string name="engine_safety_ok">Got it</string>
+    <string name="engine_type_label">Engine type</string>
+    <string name="engine_preview">Preview</string>
+    <string name="engine_volume">Engine volume</string>
+    <string name="engine_muffler_label">Muffler</string>
+    <string name="engine_muffler_open">Open</string>
+    <string name="engine_muffler_half">Half</string>
+    <string name="engine_muffler_muffled">Muffled</string>
+    <string name="engine_gearbox_label">Virtual gearbox</string>
+    <string name="engine_gearbox_off">Off</string>
+    <string name="engine_gearbox_four">4-speed</string>
+    <string name="engine_gearbox_six">6-speed</string>
+    <string name="engine_idle_label">When parked</string>
+    <string name="engine_idle_always">Always idling</string>
+    <string name="engine_idle_fade">Fade out</string>
+    <string name="engine_idle_moving">Only when moving</string>
+    <string name="engine_decel_label">Decel character</string>
+    <string name="engine_decel_smooth">Smooth</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Backfire</string>
+    <string name="engine_brake_label">Engine brake</string>
+    <string name="engine_brake_off">Off</string>
+    <string name="engine_brake_light">Light</string>
+    <string name="engine_brake_strong">Strong</string>
+    <string name="engine_duck_label">While voice speaks</string>
+    <string name="engine_duck_duck">Duck</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Mix</string>
+    <string name="engine_headphones_only">Only with headphones</string>
+    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only when wired or Bluetooth audio is connected.</string>
+    <!-- Engine preset names -->
+    <string name="engine_preset_two_stroke">2-stroke</string>
+    <string name="engine_preset_four_stroke_single">4-stroke single</string>
+    <string name="engine_preset_quad_bike">Quad bike</string>
+    <string name="engine_preset_v_twin">V-twin</string>
+    <string name="engine_preset_inline_4">Inline-4</string>
+    <string name="engine_preset_v8_muscle">V8 muscle</string>
+    <string name="engine_preset_v12_italian">V12 Italian</string>
+    <string name="engine_preset_v16_luxury">V16 luxury</string>
+    <string name="engine_preset_tron_whine">Tron whine</string>
+    <string name="engine_preset_pod_racer">Pod racer</string>
+
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>
     <string name="report_speed">Speed</string>

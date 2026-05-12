@@ -228,7 +228,45 @@ data class AppSettings(
      * fires (tap or hold) so the user gets tactile confirmation.
      */
     @ColumnInfo(defaultValue = "1")
-    val watchHapticOnAction: Boolean = true
+    val watchHapticOnAction: Boolean = true,
+
+    // --- Motor Sound generator ---
+    //
+    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
+    // through the media stream so it mixes with music; the user controls how it
+    // behaves under voice announces via [engineDuckOnVoice].
+    @ColumnInfo(defaultValue = "0")
+    val engineSoundEnabled: Boolean = false,
+    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
+    @ColumnInfo(defaultValue = "FOUR_STROKE_SINGLE")
+    val engineType: String = "FOUR_STROKE_SINGLE",
+    /** In-app gain 0..1 over the media stream. */
+    @ColumnInfo(defaultValue = "0.6")
+    val engineVolume: Float = 0.6f,
+    /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
+    @ColumnInfo(defaultValue = "HALF")
+    val engineMuffler: String = "HALF",
+    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
+    @ColumnInfo(defaultValue = "FOUR")
+    val engineGearbox: String = "FOUR",
+    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
+    @ColumnInfo(defaultValue = "FADE")
+    val engineIdleBehavior: String = "FADE",
+    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
+    @ColumnInfo(defaultValue = "STANDARD")
+    val engineDecelChar: String = "STANDARD",
+    /** "OFF", "LIGHT", "STRONG" — engine-brake whine layered during sustained decel/regen. */
+    @ColumnInfo(defaultValue = "LIGHT")
+    val engineBrake: String = "LIGHT",
+    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
+    @ColumnInfo(defaultValue = "DUCK")
+    val engineDuckOnVoice: String = "DUCK",
+    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
+    @ColumnInfo(defaultValue = "0")
+    val engineHeadphonesOnly: Boolean = false,
+    /** True once the one-time safety disclosure has been acknowledged. */
+    @ColumnInfo(defaultValue = "0")
+    val engineSafetyShown: Boolean = false
 )
 
 enum class FlicAction(val labelRes: Int) {

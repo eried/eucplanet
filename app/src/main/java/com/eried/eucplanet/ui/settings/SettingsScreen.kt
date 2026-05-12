@@ -716,6 +716,8 @@ private fun VoiceTab(
             onChange = { viewModel.updateVoiceOutputChannel(it) }
         )
 
+        EngineSoundSection(settings = settings, viewModel = viewModel)
+
         SectionHeader(stringResource(R.string.section_announcements))
 
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
@@ -1873,6 +1875,211 @@ private fun ButtonConfig(
             ActionDropdown(stringResource(R.string.flic_double_click), doubleClickAction, onDoubleClickChange)
             Spacer(Modifier.height(8.dp))
             ActionDropdown(stringResource(R.string.flic_hold), holdAction, onHoldChange)
+        }
+    }
+}
+
+@Composable
+private fun EngineSoundSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var showSafety by remember { mutableStateOf(false) }
+
+    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+    SectionHeader(stringResource(R.string.section_engine_sound))
+
+    SwitchSetting(
+        label = stringResource(R.string.engine_sound_enabled),
+        checked = settings.engineSoundEnabled
+    ) { enabled ->
+        if (enabled && !settings.engineSafetyShown) {
+            showSafety = true
+        }
+        viewModel.updateEngineSoundEnabled(enabled)
+    }
+    Text(
+        stringResource(R.string.engine_sound_enabled_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    if (settings.engineSoundEnabled) {
+        EngineTypePicker(
+            currentKey = settings.engineType,
+            onSelect = { viewModel.updateEngineType(it) },
+            onPreview = { viewModel.previewEngine(it) }
+        )
+
+        SliderSetting(
+            label = stringResource(R.string.engine_volume),
+            value = settings.engineVolume * 100f,
+            range = 0f..100f,
+            unit = "%",
+            steps = 19,
+            format = "%.0f",
+            onValueChange = { viewModel.updateEngineVolume(it / 100f) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_muffler_label),
+            options = listOf(
+                "OPEN" to stringResource(R.string.engine_muffler_open),
+                "HALF" to stringResource(R.string.engine_muffler_half),
+                "MUFFLED" to stringResource(R.string.engine_muffler_muffled)
+            ),
+            current = settings.engineMuffler,
+            onChange = { viewModel.updateEngineMuffler(it) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_gearbox_label),
+            options = listOf(
+                "OFF" to stringResource(R.string.engine_gearbox_off),
+                "FOUR" to stringResource(R.string.engine_gearbox_four),
+                "SIX" to stringResource(R.string.engine_gearbox_six)
+            ),
+            current = settings.engineGearbox,
+            onChange = { viewModel.updateEngineGearbox(it) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_idle_label),
+            options = listOf(
+                "ALWAYS" to stringResource(R.string.engine_idle_always),
+                "FADE" to stringResource(R.string.engine_idle_fade),
+                "MOVING" to stringResource(R.string.engine_idle_moving)
+            ),
+            current = settings.engineIdleBehavior,
+            onChange = { viewModel.updateEngineIdleBehavior(it) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_decel_label),
+            options = listOf(
+                "SMOOTH" to stringResource(R.string.engine_decel_smooth),
+                "STANDARD" to stringResource(R.string.engine_decel_standard),
+                "BACKFIRE" to stringResource(R.string.engine_decel_backfire)
+            ),
+            current = settings.engineDecelChar,
+            onChange = { viewModel.updateEngineDecelChar(it) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_brake_label),
+            options = listOf(
+                "OFF" to stringResource(R.string.engine_brake_off),
+                "LIGHT" to stringResource(R.string.engine_brake_light),
+                "STRONG" to stringResource(R.string.engine_brake_strong)
+            ),
+            current = settings.engineBrake,
+            onChange = { viewModel.updateEngineBrake(it) }
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_duck_label),
+            options = listOf(
+                "DUCK" to stringResource(R.string.engine_duck_duck),
+                "PAUSE" to stringResource(R.string.engine_duck_pause),
+                "MIX" to stringResource(R.string.engine_duck_mix)
+            ),
+            current = settings.engineDuckOnVoice,
+            onChange = { viewModel.updateEngineDuckOnVoice(it) }
+        )
+
+        SwitchSetting(
+            label = stringResource(R.string.engine_headphones_only),
+            checked = settings.engineHeadphonesOnly
+        ) { viewModel.updateEngineHeadphonesOnly(it) }
+        Text(
+            stringResource(R.string.engine_headphones_only_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+
+    if (showSafety) {
+        AlertDialog(
+            onDismissRequest = {
+                showSafety = false
+                viewModel.markEngineSafetyShown()
+            },
+            title = { Text(stringResource(R.string.engine_safety_title)) },
+            text = { Text(stringResource(R.string.engine_safety_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSafety = false
+                    viewModel.markEngineSafetyShown()
+                }) { Text(stringResource(R.string.engine_safety_ok)) }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EngineTypePicker(
+    currentKey: String,
+    onSelect: (String) -> Unit,
+    onPreview: (String) -> Unit
+) {
+    val profiles = com.eried.eucplanet.audio.EngineProfile.PROFILES
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val res = ctx.resources
+    fun displayFor(key: String): String {
+        val resKey = "engine_preset_" + key.lowercase()
+        val resId = res.getIdentifier(resKey, "string", ctx.packageName)
+        return if (resId != 0) ctx.getString(resId)
+            else (profiles.firstOrNull { it.key == key }?.displayName ?: key)
+    }
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            stringResource(R.string.engine_type_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.weight(1f)
+            ) {
+                OutlinedTextField(
+                    value = displayFor(currentKey),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    profiles.forEach { p ->
+                        DropdownMenuItem(
+                            text = { Text(displayFor(p.key)) },
+                            onClick = {
+                                onSelect(p.key)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.width(8.dp))
+            Button(onClick = { onPreview(currentKey) }) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = stringResource(R.string.engine_preview))
+                Spacer(Modifier.width(4.dp))
+                Text(stringResource(R.string.engine_preview))
+            }
         }
     }
 }

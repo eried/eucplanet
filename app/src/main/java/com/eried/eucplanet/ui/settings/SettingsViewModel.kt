@@ -33,7 +33,8 @@ class SettingsViewModel @Inject constructor(
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
     private val automationManager: AutomationManager,
-    private val wearBridge: com.eried.eucplanet.wear.WearBridge
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
+    private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine
 ) : ViewModel() {
 
     /** Manual "wake the watch app" trigger — fires the same /euc/wake
@@ -115,6 +116,23 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
     fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
+
+    // Motor sound
+    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
+    fun updateEngineType(v: String) = update { copy(engineType = v) }
+    fun updateEngineVolume(v: Float) = update { copy(engineVolume = v.coerceIn(0f, 1f)) }
+    fun updateEngineMuffler(v: String) = update { copy(engineMuffler = v) }
+    fun updateEngineGearbox(v: String) = update { copy(engineGearbox = v) }
+    fun updateEngineIdleBehavior(v: String) = update { copy(engineIdleBehavior = v) }
+    fun updateEngineDecelChar(v: String) = update { copy(engineDecelChar = v) }
+    fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
+    fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
+    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
+    fun markEngineSafetyShown() = update { copy(engineSafetyShown = true) }
+
+    fun previewEngine(key: String) {
+        engineSoundEngine.previewProfile(key)
+    }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }

@@ -65,6 +65,13 @@ class VoiceService @Inject constructor(
     private var focusHeld = false
     private var pendingUtterances = 0
 
+    /**
+     * True while any TTS utterance is in flight. Engine sound observes this to
+     * duck/pause itself while the user is being spoken to.
+     */
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
@@ -121,7 +128,7 @@ class VoiceService @Inject constructor(
     }
 
     private val utteranceListener = object : UtteranceProgressListener() {
-        override fun onStart(utteranceId: String?) {}
+        override fun onStart(utteranceId: String?) { _isSpeaking.value = true }
         override fun onDone(utteranceId: String?) { onUtteranceFinished(utteranceId) }
         @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String?) { onUtteranceFinished(utteranceId) }
@@ -135,7 +142,10 @@ class VoiceService @Inject constructor(
         if (utteranceId != null && utteranceId.startsWith("trig_")) {
             triggerInFlight = false
         }
-        if (pendingUtterances == 0) abandonAudioFocus()
+        if (pendingUtterances == 0) {
+            abandonAudioFocus()
+            _isSpeaking.value = false
+        }
     }
 
     @Synchronized
