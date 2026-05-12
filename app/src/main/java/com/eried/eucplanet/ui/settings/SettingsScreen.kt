@@ -2068,63 +2068,60 @@ private fun EngineTypePicker(
             Text(
                 stringResource(R.string.engine_type_label),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                sourceLabel,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Spacer(Modifier.width(4.dp))
+            PlayButton(onClick = { onPreview(currentKey) })
         }
         Spacer(Modifier.height(6.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth()
         ) {
-            ExposedDropdownMenuBox(
+            OutlinedTextField(
+                value = displayFor(currentKey),
+                onValueChange = {},
+                readOnly = true,
+                suffix = {
+                    Text(
+                        sourceLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+            )
+            ExposedDropdownMenu(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.weight(1f)
+                onDismissRequest = { expanded = false }
             ) {
-                OutlinedTextField(
-                    value = displayFor(currentKey),
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    profiles.forEach { p ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(displayFor(p.key), modifier = Modifier.weight(1f))
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(
-                                        if (p.sampleAssetBase != null)
-                                            stringResource(R.string.engine_source_sampled)
-                                        else
-                                            stringResource(R.string.engine_source_synth),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            },
-                            onClick = {
-                                onSelect(p.key)
-                                expanded = false
+                profiles.forEach { p ->
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(displayFor(p.key), modifier = Modifier.weight(1f))
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    if (p.sampleAssetBase != null)
+                                        stringResource(R.string.engine_source_sampled)
+                                    else
+                                        stringResource(R.string.engine_source_synth),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
-                        )
-                    }
+                        },
+                        onClick = {
+                            onSelect(p.key)
+                            expanded = false
+                        }
+                    )
                 }
             }
-            PlayButton(onClick = { onPreview(currentKey) })
         }
     }
 }

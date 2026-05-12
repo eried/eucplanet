@@ -1015,15 +1015,22 @@ fun DashboardScreen(
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
-                                                credits.forEach { (name, why) ->
+                                                val dividerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                                credits.forEachIndexed { idx, (name, why) ->
+                                                    if (idx > 0) {
+                                                        androidx.compose.material3.HorizontalDivider(
+                                                            color = dividerColor,
+                                                            thickness = 0.5.dp
+                                                        )
+                                                    }
                                                     Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .padding(vertical = 3.dp)
+                                                            .padding(vertical = 6.dp)
                                                     ) {
                                                         Text(
                                                             name,
-                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                            style = MaterialTheme.typography.bodyMedium.copy(
                                                                 fontWeight = FontWeight.SemiBold
                                                             ),
                                                             modifier = Modifier.weight(0.42f),
@@ -1032,7 +1039,7 @@ fun DashboardScreen(
                                                         Spacer(Modifier.width(8.dp))
                                                         Text(
                                                             why,
-                                                            style = MaterialTheme.typography.bodySmall,
+                                                            style = MaterialTheme.typography.bodyMedium,
                                                             modifier = Modifier.weight(0.58f),
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
@@ -1053,15 +1060,21 @@ fun DashboardScreen(
                                                     "Flic2 SDK" to "Shortcut Labs. Used for hardware Flic button integration.",
                                                     "Play services (location, wearable)" to "Google. Apache 2.0. GPS and watch companion data layer."
                                                 )
-                                                resources.forEach { (name, why) ->
+                                                resources.forEachIndexed { idx, (name, why) ->
+                                                    if (idx > 0) {
+                                                        androidx.compose.material3.HorizontalDivider(
+                                                            color = dividerColor,
+                                                            thickness = 0.5.dp
+                                                        )
+                                                    }
                                                     Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .padding(vertical = 3.dp)
+                                                            .padding(vertical = 6.dp)
                                                     ) {
                                                         Text(
                                                             name,
-                                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                            style = MaterialTheme.typography.bodyMedium.copy(
                                                                 fontWeight = FontWeight.SemiBold
                                                             ),
                                                             modifier = Modifier.weight(0.42f),
@@ -1070,7 +1083,7 @@ fun DashboardScreen(
                                                         Spacer(Modifier.width(8.dp))
                                                         Text(
                                                             why,
-                                                            style = MaterialTheme.typography.bodySmall,
+                                                            style = MaterialTheme.typography.bodyMedium,
                                                             modifier = Modifier.weight(0.58f),
                                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                                         )
