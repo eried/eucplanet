@@ -440,4 +440,43 @@
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrer ved handling</string>
     <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motorlyd</string>
+    <string name="engine_sound_enabled">Motorlyd</string>
+    <string name="engine_sound_enabled_hint">Motorturtallet følger i sanntid hjulets hastighet og motorbelastning. Mer belastning drar opp turtallet, rulling og regen drar det ned igjen.</string>
+    <string name="engine_safety_title">Obs</string>
+    <string name="engine_safety_message">Motorlyd kan dekke over trafikkstøy. Hold volumet lavt i byen og vurder kun én øreplugg så du fortsatt hører omgivelsene.</string>
+    <string name="engine_safety_ok">OK</string>
+    <string name="engine_type_label">Motortype</string>
+    <string name="engine_preview">Forhåndsvis</string>
+    <string name="engine_source_sampled">Sample</string>
+    <string name="engine_source_synth">Synt.</string>
+    <string name="engine_volume">Motorvolum</string>
+    <string name="engine_muffler_label">Lyddemper</string>
+    <string name="engine_muffler_open">Åpen</string>
+    <string name="engine_muffler_half">Halv</string>
+    <string name="engine_muffler_muffled">Dempet</string>
+    <string name="engine_gearbox_label">Girkasse</string>
+    <string name="engine_gearbox_off">Av</string>
+    <string name="engine_gearbox_four">4-trinns</string>
+    <string name="engine_gearbox_six">6-trinns</string>
+    <string name="engine_idle_label">Når parkert</string>
+    <string name="engine_idle_always">Alltid tomgang</string>
+    <string name="engine_idle_fade">Tone ut</string>
+    <string name="engine_idle_moving">Kun i bevegelse</string>
+    <string name="engine_decel_label">Ved retardasjon</string>
+    <string name="engine_decel_smooth">Myk</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Smell</string>
+    <string name="engine_brake_label">Motorbrems</string>
+    <string name="engine_brake_off">Av</string>
+    <string name="engine_brake_light">Lett</string>
+    <string name="engine_brake_strong">Sterk</string>
+    <string name="engine_duck_label">Når stemmen taler</string>
+    <string name="engine_duck_duck">Senk</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Miks</string>
+    <string name="engine_headphones_only">Kun med hodetelefoner</string>
+    <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller kun når kablet eller Bluetooth-lyd er tilkoblet.</string>
 </resources>

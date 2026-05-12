@@ -423,4 +423,43 @@
     <string name="watch_screen_button_2">Knap 2</string>
     <string name="watch_haptic_on_action">Vibrér ved handling</string>
     <string name="watch_haptic_on_action_desc">Kort vibration på uret hver gang en knaphandling udløses</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motorlyd</string>
+    <string name="engine_sound_enabled">Motorlyd</string>
+    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning. Mere belastning hæver omdrejningerne, udrul og regen trækker dem ned igen.</string>
+    <string name="engine_safety_title">Obs</string>
+    <string name="engine_safety_message">Motorlyd kan dække trafikstøj. Hold volumen lav i byen og overvej kun ét høretelefonstykke, så du stadig hører omgivelserne.</string>
+    <string name="engine_safety_ok">OK</string>
+    <string name="engine_type_label">Motortype</string>
+    <string name="engine_preview">Forhåndsvis</string>
+    <string name="engine_source_sampled">Sample</string>
+    <string name="engine_source_synth">Synt.</string>
+    <string name="engine_volume">Motorlydstyrke</string>
+    <string name="engine_muffler_label">Lyddæmper</string>
+    <string name="engine_muffler_open">Åben</string>
+    <string name="engine_muffler_half">Halv</string>
+    <string name="engine_muffler_muffled">Dæmpet</string>
+    <string name="engine_gearbox_label">Gearkasse</string>
+    <string name="engine_gearbox_off">Fra</string>
+    <string name="engine_gearbox_four">4-gears</string>
+    <string name="engine_gearbox_six">6-gears</string>
+    <string name="engine_idle_label">Når parkeret</string>
+    <string name="engine_idle_always">Altid tomgang</string>
+    <string name="engine_idle_fade">Fade ud</string>
+    <string name="engine_idle_moving">Kun i bevægelse</string>
+    <string name="engine_decel_label">Ved opbremsning</string>
+    <string name="engine_decel_smooth">Blød</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Knald</string>
+    <string name="engine_brake_label">Motorbremse</string>
+    <string name="engine_brake_off">Fra</string>
+    <string name="engine_brake_light">Let</string>
+    <string name="engine_brake_strong">Stærk</string>
+    <string name="engine_duck_label">Når stemmen taler</string>
+    <string name="engine_duck_duck">Sænk</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Miks</string>
+    <string name="engine_headphones_only">Kun med hovedtelefoner</string>
+    <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun, når kablet eller Bluetooth-lyd er tilsluttet.</string>
 </resources>

@@ -14,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.concurrent.thread
 import kotlin.math.abs
-import kotlin.math.max
+import kotlin.math.sqrt
 
 /**
  * Motor sound generator. Synthesises a virtual engine driven by real-time
@@ -50,6 +50,13 @@ class EngineSoundEngine @Inject constructor(
     private val synth = EngineSynth(sampleRate)
     private val sampledPlayer = SampledEnginePlayer(context)
 
+    /**
+     * Reference top speed used to map km/h → rev band. Updated from
+     * WheelRepository.maxSpeedCap so a 50 km/h wheel revs out at 50 km/h and
+     * a 150 km/h wheel takes longer to hit redline.
+     */
+    @Volatile private var maxSpeedRefKmh: Float = 90f
+
     // --- Main-thread state used to derive params from raw telemetry ---
     private var profile: EngineProfile = EngineProfile.byKey("FOUR_STROKE_SINGLE")
     private var masterVolume: Float = 0.6f
@@ -66,7 +73,6 @@ class EngineSoundEngine @Inject constructor(
     private var lastPwm: Float = 0f
     private var pwmEverNonZero: Boolean = false      // becomes true once we see real PWM, so we don't fall back forever
     private var lastSpeedKmh: Float = 0f
-    private var lastSpeedAtMs: Long = 0L
     private var lastMovingAtMs: Long = 0L
     private var lastTelemetryAtMs: Long = 0L
     private var idleEnvelope: Float = 0f             // 0 = silent, 1 = full idle
@@ -123,6 +129,14 @@ class EngineSoundEngine @Inject constructor(
     }
 
     /**
+     * Tell the engine what the wheel's top speed is so the speed→RPM map matches
+     * the wheel. WheelService wires this to WheelRepository.maxSpeedCap.
+     */
+    fun setMaxSpeedRef(kmh: Float) {
+        if (kmh > 5f) maxSpeedRefKmh = kmh
+    }
+
+    /**
      * Live preview while user is on the settings page (no telemetry yet).
      *
      * Optional overrides let the caller A/B-test a specific knob (volume slider,
@@ -172,6 +186,14 @@ class EngineSoundEngine @Inject constructor(
                 mufflerKey = savedMuffler
                 gearboxKey = savedGearbox
                 pwmEverNonZero = savedPwmEverNonZero
+                // Reset smoothing state so the next real telemetry tick doesn't carry over
+                // the scenario's rpm/load — avoids a transient when the user goes riding right after.
+                smoothedRpm = 0f
+                smoothedLoad = 0f
+                brakeEnvelope = 0f
+                decelEnvelope = 0f
+                lastPwm = 0f
+                lastTelemetryAtMs = 0L
             }
         }.start()
     }
@@ -191,12 +213,12 @@ class EngineSoundEngine @Inject constructor(
         }
     }
 
-    /** Speed sweep 0..80 km/h so the gearbox actually crosses gear thresholds. */
+    /** Speed sweep 0..maxSpeedRef km/h so the gearbox actually crosses gear thresholds. */
     private fun runGearboxScenario(durationMs: Long) {
-        // computeTargetRpm assumes 0..80 km/h band, so we span that.
+        val topKmh = maxSpeedRefKmh
         val steps = 50
         for (i in 0..steps) {
-            val s = 80f * (i.toFloat() / steps)
+            val s = topKmh * (i.toFloat() / steps)
             pushTelemetry(speedKmh = s, pwmPercent = 55f)
             Thread.sleep(durationMs / steps)
         }
@@ -331,13 +353,13 @@ class EngineSoundEngine @Inject constructor(
         voiceDuckGain += (targetDuck - voiceDuckGain) * (dt * 10f).coerceAtMost(1f)
 
         lastSpeedKmh = speedKmh
-        lastSpeedAtMs = now
 
         emit()
     }
 
     private fun computeTargetRpm(speedKmh: Float, load: Float): Float {
         val absSpeed = abs(speedKmh)
+        val maxRef = maxSpeedRefKmh
         val gearless = profile.gearless || gearboxKey == "OFF"
         val gearCount = when (gearboxKey) {
             "SIX" -> 6
@@ -345,12 +367,13 @@ class EngineSoundEngine @Inject constructor(
             else -> 0
         }
         val baseFrac = if (gearless || gearCount == 0) {
-            // Linear map speed → 0..1 across an assumed 0..80 km/h band
-            (absSpeed / 80f).coerceIn(0f, 1f)
+            // sqrt curve against the wheel's top speed — typical EUC cruise (10-30 km/h) is a
+            // small fraction of a fast wheel's max (90-150). Linear would leave the engine at
+            // idle most of the time; sqrt pushes 20 km/h on a 100 km/h wheel up to ~45% rev band.
+            sqrt((absSpeed / maxRef).coerceIn(0f, 1f))
         } else {
             // Gearbox: each gear covers a band of speed; RPM ramps 0..1 within each, then drops on shift.
-            val maxSpeed = 80f
-            val perGear = maxSpeed / gearCount
+            val perGear = maxRef / gearCount
             val gearIdx = (absSpeed / perGear).toInt().coerceAtMost(gearCount - 1)
             val withinGear = (absSpeed - gearIdx * perGear) / perGear
             withinGear.coerceIn(0f, 1f)

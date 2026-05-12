@@ -423,4 +423,43 @@
     <string name="watch_screen_button_2">按钮 2</string>
     <string name="watch_haptic_on_action">动作时震动</string>
     <string name="watch_haptic_on_action_desc">每次触发按钮动作时，手表会有一次短促震动</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">引擎声</string>
+    <string name="engine_sound_enabled">引擎声</string>
+    <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。负载越高转速越高,松油门和回充将其拉回。</string>
+    <string name="engine_safety_title">注意</string>
+    <string name="engine_safety_message">引擎声可能盖过交通噪音。在城市里请降低音量,可以只戴一只耳机以保持对周围环境的感知。</string>
+    <string name="engine_safety_ok">知道了</string>
+    <string name="engine_type_label">引擎类型</string>
+    <string name="engine_preview">预览</string>
+    <string name="engine_source_sampled">采样</string>
+    <string name="engine_source_synth">合成</string>
+    <string name="engine_volume">引擎音量</string>
+    <string name="engine_muffler_label">排气</string>
+    <string name="engine_muffler_open">开放</string>
+    <string name="engine_muffler_half">半</string>
+    <string name="engine_muffler_muffled">静音</string>
+    <string name="engine_gearbox_label">变速箱</string>
+    <string name="engine_gearbox_off">关</string>
+    <string name="engine_gearbox_four">4 挡</string>
+    <string name="engine_gearbox_six">6 挡</string>
+    <string name="engine_idle_label">停车时</string>
+    <string name="engine_idle_always">始终怠速</string>
+    <string name="engine_idle_fade">淡出</string>
+    <string name="engine_idle_moving">仅行进中</string>
+    <string name="engine_decel_label">减速时</string>
+    <string name="engine_decel_smooth">平滑</string>
+    <string name="engine_decel_standard">标准</string>
+    <string name="engine_decel_backfire">回火</string>
+    <string name="engine_brake_label">发动机制动</string>
+    <string name="engine_brake_off">关</string>
+    <string name="engine_brake_light">轻</string>
+    <string name="engine_brake_strong">强</string>
+    <string name="engine_duck_label">语音播报时</string>
+    <string name="engine_duck_duck">降低</string>
+    <string name="engine_duck_pause">暂停</string>
+    <string name="engine_duck_mix">混合</string>
+    <string name="engine_headphones_only">仅在耳机连接时</string>
+    <string name="engine_headphones_only_hint">跳过手机扬声器。引擎声仅在连接有线或蓝牙音频时播放。</string>
 </resources>

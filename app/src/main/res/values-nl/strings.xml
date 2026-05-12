@@ -459,4 +459,43 @@
     <string name="watch_screen_button_2">Knop 2</string>
     <string name="watch_haptic_on_action">Trillen bij actie</string>
     <string name="watch_haptic_on_action_desc">Korte trilling van het horloge wanneer een knop-actie wordt geactiveerd</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motorgeluid</string>
+    <string name="engine_sound_enabled">Motorgeluid</string>
+    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel. Meer last drijft de toeren omhoog, uitrollen en regeneratie trekken ze terug.</string>
+    <string name="engine_safety_title">Let op</string>
+    <string name="engine_safety_message">Motorgeluid kan verkeersgeluiden overstemmen. Houd het volume in de stad laag en overweeg een enkele oortelefoon, zodat je je omgeving blijft horen.</string>
+    <string name="engine_safety_ok">Begrepen</string>
+    <string name="engine_type_label">Motortype</string>
+    <string name="engine_preview">Voorbeeld</string>
+    <string name="engine_source_sampled">Sample</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Motorvolume</string>
+    <string name="engine_muffler_label">Demper</string>
+    <string name="engine_muffler_open">Open</string>
+    <string name="engine_muffler_half">Half</string>
+    <string name="engine_muffler_muffled">Gedempt</string>
+    <string name="engine_gearbox_label">Versnellingsbak</string>
+    <string name="engine_gearbox_off">Uit</string>
+    <string name="engine_gearbox_four">4-traps</string>
+    <string name="engine_gearbox_six">6-traps</string>
+    <string name="engine_idle_label">In stilstand</string>
+    <string name="engine_idle_always">Altijd stationair</string>
+    <string name="engine_idle_fade">Uitvagen</string>
+    <string name="engine_idle_moving">Alleen bij rijden</string>
+    <string name="engine_decel_label">Bij vertragen</string>
+    <string name="engine_decel_smooth">Soepel</string>
+    <string name="engine_decel_standard">Standaard</string>
+    <string name="engine_decel_backfire">Terugslag</string>
+    <string name="engine_brake_label">Motorrem</string>
+    <string name="engine_brake_off">Uit</string>
+    <string name="engine_brake_light">Licht</string>
+    <string name="engine_brake_strong">Sterk</string>
+    <string name="engine_duck_label">Tijdens spraak</string>
+    <string name="engine_duck_duck">Zachter</string>
+    <string name="engine_duck_pause">Pauzeren</string>
+    <string name="engine_duck_mix">Mengen</string>
+    <string name="engine_headphones_only">Alleen met koptelefoon</string>
+    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen als bekabelde of Bluetooth-audio is verbonden.</string>
 </resources>

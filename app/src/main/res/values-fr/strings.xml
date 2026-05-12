@@ -423,4 +423,43 @@
     <string name="watch_screen_button_2">Bouton 2</string>
     <string name="watch_haptic_on_action">Vibrer à l\'action</string>
     <string name="watch_haptic_on_action_desc">Brève vibration de la montre chaque fois qu\'une action de bouton se déclenche</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Son du moteur</string>
+    <string name="engine_sound_enabled">Son du moteur</string>
+    <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue. Plus de charge fait monter les tours, lever les gaz et la régénération les font redescendre.</string>
+    <string name="engine_safety_title">Attention</string>
+    <string name="engine_safety_message">Le son du moteur peut couvrir les bruits de la circulation. Garde un volume bas en ville et envisage un seul écouteur pour rester attentif à l\'environnement.</string>
+    <string name="engine_safety_ok">Compris</string>
+    <string name="engine_type_label">Type de moteur</string>
+    <string name="engine_preview">Aperçu</string>
+    <string name="engine_source_sampled">Échant.</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Volume du moteur</string>
+    <string name="engine_muffler_label">Échappement</string>
+    <string name="engine_muffler_open">Ouvert</string>
+    <string name="engine_muffler_half">Moyen</string>
+    <string name="engine_muffler_muffled">Étouffé</string>
+    <string name="engine_gearbox_label">Boîte de vitesses</string>
+    <string name="engine_gearbox_off">Aucune</string>
+    <string name="engine_gearbox_four">4 rapports</string>
+    <string name="engine_gearbox_six">6 rapports</string>
+    <string name="engine_idle_label">À l\'arrêt</string>
+    <string name="engine_idle_always">Ralenti continu</string>
+    <string name="engine_idle_fade">Fondu</string>
+    <string name="engine_idle_moving">Seulement en mouvement</string>
+    <string name="engine_decel_label">À la décélération</string>
+    <string name="engine_decel_smooth">Doux</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Retour de flamme</string>
+    <string name="engine_brake_label">Frein moteur</string>
+    <string name="engine_brake_off">Désactivé</string>
+    <string name="engine_brake_light">Léger</string>
+    <string name="engine_brake_strong">Fort</string>
+    <string name="engine_duck_label">Pendant l\'annonce</string>
+    <string name="engine_duck_duck">Baisser</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Mixer</string>
+    <string name="engine_headphones_only">Uniquement au casque</string>
+    <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne que si un audio filaire ou Bluetooth est connecté.</string>
 </resources>

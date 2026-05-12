@@ -459,4 +459,43 @@
     <string name="watch_screen_button_2">Pulsante 2</string>
     <string name="watch_haptic_on_action">Vibra all\'azione</string>
     <string name="watch_haptic_on_action_desc">Breve vibrazione dell\'orologio ogni volta che si attiva un\'azione di pulsante</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Suono del motore</string>
+    <string name="engine_sound_enabled">Suono del motore</string>
+    <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota. Più carico fa salire i giri, rilasciare gas e rigenerazione li riportano giù.</string>
+    <string name="engine_safety_title">Attenzione</string>
+    <string name="engine_safety_message">Il suono del motore può coprire i rumori del traffico. In città tieni il volume basso e valuta un solo auricolare per restare consapevole dell\'ambiente.</string>
+    <string name="engine_safety_ok">Capito</string>
+    <string name="engine_type_label">Tipo di motore</string>
+    <string name="engine_preview">Anteprima</string>
+    <string name="engine_source_sampled">Campione</string>
+    <string name="engine_source_synth">Sintet.</string>
+    <string name="engine_volume">Volume motore</string>
+    <string name="engine_muffler_label">Scarico</string>
+    <string name="engine_muffler_open">Aperto</string>
+    <string name="engine_muffler_half">Medio</string>
+    <string name="engine_muffler_muffled">Silenziato</string>
+    <string name="engine_gearbox_label">Cambio</string>
+    <string name="engine_gearbox_off">Off</string>
+    <string name="engine_gearbox_four">4 marce</string>
+    <string name="engine_gearbox_six">6 marce</string>
+    <string name="engine_idle_label">Da fermo</string>
+    <string name="engine_idle_always">Sempre al minimo</string>
+    <string name="engine_idle_fade">Sfumatura</string>
+    <string name="engine_idle_moving">Solo in movimento</string>
+    <string name="engine_decel_label">In decelerazione</string>
+    <string name="engine_decel_smooth">Morbida</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Backfire</string>
+    <string name="engine_brake_label">Freno motore</string>
+    <string name="engine_brake_off">Off</string>
+    <string name="engine_brake_light">Leggero</string>
+    <string name="engine_brake_strong">Forte</string>
+    <string name="engine_duck_label">Mentre parla la voce</string>
+    <string name="engine_duck_duck">Abbassa</string>
+    <string name="engine_duck_pause">Pausa</string>
+    <string name="engine_duck_mix">Mixa</string>
+    <string name="engine_headphones_only">Solo con cuffie</string>
+    <string name="engine_headphones_only_hint">Esclude lo speaker del telefono. Il motore suona solo se è collegato un audio cablato o Bluetooth.</string>
 </resources>

@@ -459,4 +459,43 @@
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вібрація при дії</string>
     <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Звук двигуна</string>
+    <string name="engine_sound_enabled">Звук двигуна</string>
+    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса. Більше навантаження підіймає оберти, відпускання газу та рекуперація їх знижують.</string>
+    <string name="engine_safety_title">Увага</string>
+    <string name="engine_safety_message">Звук двигуна може заглушити дорожній рух. У місті використовуй меншу гучність і один навушник, щоб залишатись уважним до середовища.</string>
+    <string name="engine_safety_ok">Зрозуміло</string>
+    <string name="engine_type_label">Тип двигуна</string>
+    <string name="engine_preview">Перегляд</string>
+    <string name="engine_source_sampled">Семпл</string>
+    <string name="engine_source_synth">Синт.</string>
+    <string name="engine_volume">Гучність двигуна</string>
+    <string name="engine_muffler_label">Глушник</string>
+    <string name="engine_muffler_open">Відкритий</string>
+    <string name="engine_muffler_half">Середній</string>
+    <string name="engine_muffler_muffled">Приглушений</string>
+    <string name="engine_gearbox_label">Коробка передач</string>
+    <string name="engine_gearbox_off">Вимк.</string>
+    <string name="engine_gearbox_four">4-ступ.</string>
+    <string name="engine_gearbox_six">6-ступ.</string>
+    <string name="engine_idle_label">На стоянці</string>
+    <string name="engine_idle_always">Завжди холостий</string>
+    <string name="engine_idle_fade">Згасання</string>
+    <string name="engine_idle_moving">Лише в русі</string>
+    <string name="engine_decel_label">При гальмуванні</string>
+    <string name="engine_decel_smooth">Плавно</string>
+    <string name="engine_decel_standard">Стандарт</string>
+    <string name="engine_decel_backfire">Постріл</string>
+    <string name="engine_brake_label">Гальмо двигуном</string>
+    <string name="engine_brake_off">Вимк.</string>
+    <string name="engine_brake_light">Легке</string>
+    <string name="engine_brake_strong">Сильне</string>
+    <string name="engine_duck_label">Під час мовлення</string>
+    <string name="engine_duck_duck">Тихіше</string>
+    <string name="engine_duck_pause">Пауза</string>
+    <string name="engine_duck_mix">Змішати</string>
+    <string name="engine_headphones_only">Лише з навушниками</string>
+    <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки коли підключено дротовий або Bluetooth-аудіо.</string>
 </resources>

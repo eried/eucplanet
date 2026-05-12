@@ -459,4 +459,43 @@
     <string name="watch_screen_button_2">Przycisk 2</string>
     <string name="watch_haptic_on_action">Wibracja przy akcji</string>
     <string name="watch_haptic_on_action_desc">Krótka wibracja zegarka za każdym razem, gdy uruchomi się akcja przypisana do przycisku</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Dźwięk silnika</string>
+    <string name="engine_sound_enabled">Dźwięk silnika</string>
+    <string name="engine_sound_enabled_hint">Obroty silnika podążają w czasie rzeczywistym za prędkością i obciążeniem koła. Większe obciążenie podbija obroty, zwolnienie gazu i regeneracja je opuszczają.</string>
+    <string name="engine_safety_title">Uwaga</string>
+    <string name="engine_safety_message">Dźwięk silnika może zagłuszyć ruch uliczny. W mieście ścisz głośność i rozważ pojedynczą słuchawkę, by zachować świadomość otoczenia.</string>
+    <string name="engine_safety_ok">Rozumiem</string>
+    <string name="engine_type_label">Typ silnika</string>
+    <string name="engine_preview">Podgląd</string>
+    <string name="engine_source_sampled">Próbka</string>
+    <string name="engine_source_synth">Synth</string>
+    <string name="engine_volume">Głośność silnika</string>
+    <string name="engine_muffler_label">Tłumik</string>
+    <string name="engine_muffler_open">Otwarty</string>
+    <string name="engine_muffler_half">Średni</string>
+    <string name="engine_muffler_muffled">Wytłumiony</string>
+    <string name="engine_gearbox_label">Skrzynia biegów</string>
+    <string name="engine_gearbox_off">Wył.</string>
+    <string name="engine_gearbox_four">4-biegowa</string>
+    <string name="engine_gearbox_six">6-biegowa</string>
+    <string name="engine_idle_label">W spoczynku</string>
+    <string name="engine_idle_always">Stały bieg jałowy</string>
+    <string name="engine_idle_fade">Wyciszanie</string>
+    <string name="engine_idle_moving">Tylko w ruchu</string>
+    <string name="engine_decel_label">Przy hamowaniu silnikiem</string>
+    <string name="engine_decel_smooth">Płynne</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Strzał z wydechu</string>
+    <string name="engine_brake_label">Hamulec silnikiem</string>
+    <string name="engine_brake_off">Wył.</string>
+    <string name="engine_brake_light">Lekki</string>
+    <string name="engine_brake_strong">Mocny</string>
+    <string name="engine_duck_label">Podczas głosu</string>
+    <string name="engine_duck_duck">Ścisz</string>
+    <string name="engine_duck_pause">Pauza</string>
+    <string name="engine_duck_mix">Mieszaj</string>
+    <string name="engine_headphones_only">Tylko ze słuchawkami</string>
+    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie, gdy podłączone jest audio przewodowe lub Bluetooth.</string>
 </resources>

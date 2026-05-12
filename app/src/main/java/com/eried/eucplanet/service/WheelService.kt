@@ -120,6 +120,14 @@ class WheelService : LifecycleService() {
             }
         }
 
+        // Speed→RPM mapping uses the wheel's top speed as the reference so 30 km/h on a
+        // V11 (max 50) revs harder than 30 km/h on a P6 (max 150).
+        lifecycleScope.launch {
+            wheelRepository.maxSpeedCap.collect { cap ->
+                engineSoundEngine.setMaxSpeedRef(cap)
+            }
+        }
+
         // Start periodic voice announcements
         startVoiceLoop()
 

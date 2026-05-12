@@ -828,7 +828,7 @@ fun DashboardScreen(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .heightIn(max = 680.dp),
+                            .heightIn(max = 820.dp),
                         shape = RoundedCornerShape(20.dp),
                         color = MaterialTheme.colorScheme.surface
                     ) {
@@ -1000,12 +1000,17 @@ fun DashboardScreen(
                                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                                 )
                                                 Spacer(Modifier.height(12.dp))
+                                                androidx.compose.material3.HorizontalDivider(
+                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    thickness = 1.dp
+                                                )
+                                                Spacer(Modifier.height(10.dp))
                                                 Text(
                                                     "Thanks to:",
-                                                    style = MaterialTheme.typography.titleSmall,
+                                                    style = MaterialTheme.typography.titleMedium,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
-                                                Spacer(Modifier.height(4.dp))
+                                                Spacer(Modifier.height(6.dp))
                                                 // Credits table. Two columns — name on the left,
                                                 // why on the right — no headers since the format
                                                 // is self-evident. Hardcoded English because the
@@ -1046,14 +1051,19 @@ fun DashboardScreen(
                                                     }
                                                 }
                                                 Spacer(Modifier.height(14.dp))
+                                                androidx.compose.material3.HorizontalDivider(
+                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    thickness = 1.dp
+                                                )
+                                                Spacer(Modifier.height(10.dp))
                                                 Text(
                                                     "Resources & libraries:",
-                                                    style = MaterialTheme.typography.titleSmall,
+                                                    style = MaterialTheme.typography.titleMedium,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
-                                                Spacer(Modifier.height(4.dp))
+                                                Spacer(Modifier.height(6.dp))
                                                 val resources = listOf(
-                                                    "BigSoundBank — engine samples" to "Joseph SARDIN. CC0 / public domain. V8 Cobra, V-twin Ducati, diesel truck, motorcycle and city car recordings used in the Motor sound generator.",
+                                                    "BigSoundBank — engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
                                                     "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
                                                     "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
