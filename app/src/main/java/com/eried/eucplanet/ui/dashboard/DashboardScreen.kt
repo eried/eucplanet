@@ -486,7 +486,7 @@ fun DashboardScreen(
                 DashIndicatorIcon(
                     icon = gpsIcon,
                     active = gpsFix && locationGranted,
-                    activeColor = AccentGreen,
+                    activeColor = if (useAccent) primary else AccentGreen,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 4.dp)
