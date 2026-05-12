@@ -203,9 +203,13 @@ class BegodeParser {
      * matching toggles.
      */
     private fun parseLiveB(frame: ByteArray): WheelSettings? {
-        // Tiltback / max speed (spec 4.5 offset 10..11): >= 100 means disabled.
+        // Tiltback / max speed (spec 4.5 offset 10..11). The original Gotway
+        // spec called out ">= 100 = disabled" back when 50 km/h wheels were
+        // the norm; modern high-voltage wheels (Master Pro, XWay, MSX HS)
+        // genuinely set tiltbacks above 100 km/h, so we only treat clearly
+        // out-of-range sentinels (>= 200) as disabled.
         val rawMax = ByteUtils.getUint16BE(frame, 10)
-        val maxSpeed = if (rawMax >= 100) 0f else rawMax.toFloat()
+        val maxSpeed = if (rawMax >= 200) 0f else rawMax.toFloat()
 
         // Settings bitfield at offset 6 (u16 BE). bit 0 is miles flag; we
         // surface that via WheelSettings if the UI ever needs it. The other

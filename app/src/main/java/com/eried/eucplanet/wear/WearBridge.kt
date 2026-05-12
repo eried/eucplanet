@@ -158,7 +158,9 @@ class WearBridge @Inject constructor(
                     val s = settingsRepository.get()
                     val effTilt = if (wheelRepository.safetySpeedActive.value)
                         s.safetyTiltbackKmh else s.tiltbackSpeedKmh
-                    val gaugeMax = ((effTilt / 10f).toInt() + 1) * 10f
+                    // Mirror the phone dashboard's 30 km/h floor so the watch
+                    // gauge stays usable even when the wheel reports no tilt.
+                    val gaugeMax = (((effTilt / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
                     publish(
                         data = wheelRepository.wheelData.value,
                         state = wheelRepository.connectionState.value,

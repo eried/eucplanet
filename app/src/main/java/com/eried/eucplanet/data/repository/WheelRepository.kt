@@ -512,6 +512,12 @@ class WheelRepository @Inject constructor(
     private suspend fun reconcileSpeedLimits(ws: WheelSettings, appSettings: AppSettings) {
         val wTilt = ws.maxSpeedKmh
         val wAlarm = ws.alarmSpeedKmh
+        // The wheel reports 0 when tiltback is either unsupported by the
+        // adapter (some Begode/Veteran families) or explicitly disabled on
+        // the wheel itself. Treat both as "don't know" — overwriting the
+        // user's stored tilt with 0 would silently break their dashboard
+        // gauge (gaugeMax floors at 10 km/h).
+        if (wTilt <= 0f) return
         val legalTilt = appSettings.safetyTiltbackKmh
         val normalTilt = appSettings.tiltbackSpeedKmh
         val tolerance = 0.5f

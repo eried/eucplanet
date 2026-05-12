@@ -419,7 +419,11 @@ fun DashboardScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
             val effectiveTiltback = if (safetyActive) safetyTiltbackSpeed else tiltbackSpeed
-            val gaugeMax = ((effectiveTiltback / 10f).toInt() + 1) * 10f
+            // Floor the gauge at 30 km/h so a bogus/zero tiltback (e.g. when
+            // a wheel doesn't report tiltback over BLE) still gives a usable
+            // speedo. Without the floor we'd get ((0/10)+1)*10 = 10 km/h max,
+            // which renders as ~6 mph and looks completely broken.
+            val gaugeMax = (((effectiveTiltback / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
             val pwm = wheelData.pwm.absoluteValue
 
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
