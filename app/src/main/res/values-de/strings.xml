@@ -70,7 +70,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-Ordner</string>
-    <string name="cloud_caption">Wähle einen Ordner auf diesem Telefon, in dem Fahrten-CSVs und ein Einstellungs-Backup gespeichert werden</string>
+    <string name="cloud_caption">Ordner für Fahrten-CSVs und Einstellungs-Backup.</string>
     <string name="cloud_help_title">So sicherst du in OneDrive, Drive oder Dropbox</string>
     <string name="cloud_help_body">Androids Ordnerauswahl zeigt OneDrive, Google Drive oder Dropbox normalerweise nicht an. Diese Apps stellen anderen Apps keinen beschreibbaren Ordner bereit, daher speichern wir lokal und überlassen den Upload einer Sync-App.\n\nEinrichtung:\n1. Installiere Autosync (für OneDrive, Drive oder Dropbox) oder FolderSync aus dem Play Store.\n2. Melde dich in dieser App an und erstelle ein Sync-Paar: dein gewählter lokaler Ordner → ein Cloud-Ordner.\n3. Stelle \"Nur hochladen\" mit sofortiger oder Änderungs-Sync ein.\n4. Komm hierher zurück und wähle denselben lokalen Ordner.\n\nNeue Fahrten landen in diesem Ordner, wenn eine Aufnahme endet. Die Sync-App lädt sie im Hintergrund hoch.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
@@ -114,7 +114,7 @@
     <string name="auto_record_on_start">Automatisch aufnehmen beim Start</string>
     <string name="auto_record_caption">Zeichnet eine Fahrt auf, wenn das Rad verbunden ist</string>
     <string name="auto_record_start_in_motion">Aufnahme bei Bewegung starten</string>
-    <string name="auto_record_start_in_motion_caption">Wartet auf Bewegung, um die Aufnahme zu starten, stoppt automatisch nach der Leerlaufzeit und startet bei der nächsten Fahrt neu</string>
+    <string name="auto_record_start_in_motion_caption">Startet bei Bewegung, stoppt nach Leerlauf, läuft bei der nächsten Fahrt wieder an.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
     <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
     <string name="section_volume_keys">Lautstärketasten</string>
-    <string name="volume_keys_caption">Verwende die Lautstärketasten des Telefons als Kurzbefehle. Funktioniert nur bei sichtbarer App</string>
+    <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle (nur bei sichtbarer App).</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
     <string name="volume_up">Lautstärke +</string>
     <string name="volume_down">Lautstärke −</string>
@@ -381,7 +381,7 @@
     <string name="alarm_vibrate_target_label">Vibrieren auf</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Uhr</string>
-    <string name="auto_connect_caption">Verbindet wieder mit dem zuletzt gekoppelten Rad. Beim ersten Mal musst du manuell verbinden</string>
+    <string name="auto_connect_caption">Verbindet sich automatisch wieder mit dem zuletzt gekoppelten Rad.</string>
     <string name="discard_trip_pending_label">Fahrt wird gleich gesichert</string>
     <string name="experimental_banner">Vorläufig unterstütztes Rad. Tippe, um Probleme zu melden.</string>
     <string name="experimental_dialog_body">Die Unterstützung für dieses Rad ist vorläufig. Nur die V14-Familie und das P6 sind vom Autor verifiziert. Mit Vorsicht verwenden.\n\nWenn du auf dieses Banner tippst, wird ein Problem gemeldet, damit der Autor beheben kann, was nicht funktioniert.</string>
@@ -401,7 +401,7 @@
     <string name="report_time">Zeit</string>
     <string name="scan_show_all_subtitle">Aktivieren, falls dein Rad nicht erscheint</string>
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
-    <string name="scan_simulate_subtitle">Für die Entwicklung ohne Hardware. Umgeht BLE und schickt vorgefertigte Antworten durch die Adapter-Pipeline</string>
+    <string name="scan_simulate_subtitle">Umgeht BLE und nutzt vordefinierte Antworten. Nur in Debug-Builds.</string>
     <string name="scan_simulate_title">Virtuelle Räder</string>
     <string name="section_watch_buttons">Hardware-Tasten</string>
     <string name="section_watch_display">Anzeige</string>
@@ -416,13 +416,13 @@
     <string name="voice_output_channel_notification">Benachrichtigung</string>
     <string name="voice_time_fmt">Zeit %1$s</string>
     <string name="watch_auto_start">Auf Uhr automatisch starten</string>
-    <string name="watch_auto_start_desc">Öffnet die Uhr-App automatisch, wenn du die Telefon-App öffnest</string>
+    <string name="watch_auto_start_desc">Öffnet die Uhr-App zusammen mit der Telefon-App.</string>
     <string name="watch_button_1">Taste 1</string>
     <string name="watch_button_2">Taste 2</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Langer Druck</string>
     <string name="watch_keep_on">Display anlassen</string>
-    <string name="watch_keep_on_desc">Verhindert, dass die Uhr in den Ruhezustand geht, solange die EUC Planet App offen ist</string>
+    <string name="watch_keep_on_desc">Hält die Uhr wach, solange die App offen ist.</string>
     <string name="watch_pwm_bar">Balken</string>
     <string name="watch_pwm_both">Beide</string>
     <string name="watch_pwm_display">Last-Anzeige (PWM)</string>

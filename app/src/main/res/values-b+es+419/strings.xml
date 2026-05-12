@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Ruedas virtuales</string>
-    <string name="scan_simulate_subtitle">Para desarrollo sin hardware. Omite BLE y envía respuestas predefinidas a través del adaptador</string>
+    <string name="scan_simulate_subtitle">Omite BLE y usa respuestas predefinidas. Solo en versiones de desarrollo.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Conectada</string>
@@ -100,9 +100,9 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
     <string name="watch_keep_on">Mantener pantalla encendida</string>
-    <string name="watch_keep_on_desc">Evita que el reloj se duerma mientras la app de EUC Planet esté abierta</string>
+    <string name="watch_keep_on_desc">Mantené el reloj despierto mientras la app esté abierta.</string>
     <string name="watch_auto_start">Iniciar reloj automáticamente</string>
-    <string name="watch_auto_start_desc">Abre la app del reloj automáticamente cuando abras la app del celular</string>
+    <string name="watch_auto_start_desc">Abre la app del reloj junto con la del celular.</string>
     <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
     <string name="watch_show_phone_battery">Mostrar batería del celular</string>
     <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
@@ -122,7 +122,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
-    <string name="cloud_caption">Elige una carpeta en este celular donde se guardarán los CSV de viajes y un respaldo de la configuración</string>
+    <string name="cloud_caption">Carpeta donde se guardan los CSV de viajes y el respaldo de ajustes.</string>
     <string name="cloud_help_title">Cómo respaldar a OneDrive, Drive o Dropbox</string>
     <string name="cloud_help_body">El selector de carpetas de Android normalmente no muestra OneDrive, Google Drive ni Dropbox. Esas apps no exponen una carpeta escribible a otras apps, así que guardamos localmente y dejamos que una app de sincronización haga la subida.\n\nConfiguración:\n1. Instala Autosync (para OneDrive, Drive o Dropbox) o FolderSync desde Play Store.\n2. En esa app, inicia sesión y crea un par de sincronización: tu carpeta local elegida hacia una carpeta en la nube.\n3. Configúralo como \"Solo subir\" con sincronización instantánea o al cambiar.\n4. Vuelve aquí y selecciona la misma carpeta local.\n\nLos viajes nuevos llegan a esa carpeta cuando termina una grabación. La app de sincronización los sube en segundo plano.</string>
     <string name="cloud_choose_folder">Elegir carpeta</string>
@@ -167,10 +167,10 @@
     <string name="auto_record_on_start">Grabar automáticamente al iniciar</string>
     <string name="auto_record_caption">Graba un viaje cuando la rueda está conectada</string>
     <string name="auto_record_start_in_motion">Empezar a grabar al moverte</string>
-    <string name="auto_record_start_in_motion_caption">Espera a que te muevas para grabar, se detiene tras el tiempo de inactividad y vuelve a empezar en el siguiente viaje</string>
+    <string name="auto_record_start_in_motion_caption">Empieza al moverte, se detiene tras inactividad y reanuda en el siguiente viaje.</string>
     <string name="auto_record_stop_idle_seconds">Detener tras inactividad de</string>
     <string name="auto_connect_on_start">Conectar automáticamente al iniciar</string>
-    <string name="auto_connect_caption">Reconecta a la última rueda emparejada. La primera vez tienes que conectar manualmente</string>
+    <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada.</string>
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="imperial_units">Unidades imperiales</string>
     <string name="language">Idioma</string>
@@ -252,7 +252,7 @@
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
     <string name="section_volume_keys">Teclas de volumen</string>
-    <string name="volume_keys_caption">Usa los botones de volumen del celular como atajos. Solo funciona mientras la app esté visible en pantalla</string>
+    <string name="volume_keys_caption">Botones de volumen como atajos (solo con la app visible).</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
     <string name="volume_up">Volumen arriba</string>
     <string name="volume_down">Volumen abajo</string>

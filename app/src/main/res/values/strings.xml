@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtual wheels</string>
-    <string name="scan_simulate_subtitle">For development without hardware. Bypasses BLE and feeds canned responses through the adapter pipeline</string>
+    <string name="scan_simulate_subtitle">Bypass BLE, feed canned responses. Debug builds only.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Connected</string>
@@ -100,9 +100,9 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
     <string name="watch_keep_on">Keep display on</string>
-    <string name="watch_keep_on_desc">Stop the watch from sleeping while the EUC Planet app is open</string>
+    <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
     <string name="watch_auto_start">Auto-start on watch</string>
-    <string name="watch_auto_start_desc">Open the watch app automatically when you open the phone app</string>
+    <string name="watch_auto_start_desc">Open the watch app together with the phone app.</string>
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>
@@ -131,7 +131,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Pick a folder on this phone where trip CSVs and a settings backup will be saved</string>
+    <string name="cloud_caption">Folder where trip CSVs and settings backup land.</string>
     <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
     <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
@@ -176,10 +176,10 @@
     <string name="auto_record_on_start">Auto-record on start</string>
     <string name="auto_record_caption">Records a trip when the wheel is connected</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
-    <string name="auto_record_start_in_motion_caption">Waits for movement to start recording, auto-stops after the idle time, and restarts on the next ride</string>
+    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last wheel you paired. You need to connect manually the first time</string>
+    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically.</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
@@ -337,7 +337,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volume Keys</string>
-    <string name="volume_keys_caption">Use the phone\'s volume buttons as shortcuts. Works only while the app is visible on screen</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible).</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>

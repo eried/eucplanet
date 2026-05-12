@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Wirtualne koła</string>
-    <string name="scan_simulate_subtitle">Do prac deweloperskich bez sprzętu. Pomija BLE i podaje gotowe odpowiedzi przez warstwę adaptera</string>
+    <string name="scan_simulate_subtitle">Pomija BLE i podaje gotowe odpowiedzi. Tylko w wersjach deweloperskich.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Połączono</string>
@@ -100,9 +100,9 @@
     <string name="section_watch_general">Ogólne</string>
     <string name="section_watch_display">Ekran</string>
     <string name="watch_keep_on">Nie wygaszaj ekranu</string>
-    <string name="watch_keep_on_desc">Nie pozwól zegarkowi zasnąć, gdy aplikacja EUC Planet jest otwarta</string>
+    <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta.</string>
     <string name="watch_auto_start">Auto-start na zegarku</string>
-    <string name="watch_auto_start_desc">Automatycznie otwiera aplikację na zegarku, gdy otworzysz ją na telefonie</string>
+    <string name="watch_auto_start_desc">Otwórz aplikację na zegarku razem z aplikacją na telefonie.</string>
     <string name="watch_show_wheel_battery">Pokaż baterię koła</string>
     <string name="watch_show_phone_battery">Pokaż baterię telefonu</string>
     <string name="watch_show_watch_battery">Pokaż baterię zegarka</string>
@@ -122,7 +122,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Folder kopii zapasowej</string>
-    <string name="cloud_caption">Wybierz folder na tym telefonie, w którym będą zapisywane CSV tras i kopia ustawień</string>
+    <string name="cloud_caption">Folder na CSV-y tras i kopię ustawień.</string>
     <string name="cloud_help_title">Jak robić kopie zapasowe na OneDrive, Drive lub Dropboxie</string>
     <string name="cloud_help_body">Wybierak folderów Androida zazwyczaj nie pokazuje OneDrive, Google Drive ani Dropboksa. Te aplikacje nie udostępniają zapisywalnego folderu innym aplikacjom, więc zapisujemy lokalnie i pozwalamy aplikacji synchronizującej zająć się przesyłaniem.\n\nKonfiguracja:\n1. Zainstaluj Autosync (dla OneDrive, Drive lub Dropboksa) albo FolderSync ze Sklepu Play.\n2. W tej aplikacji zaloguj się i utwórz parę synchronizacji: wybrany folder lokalny do folderu w chmurze.\n3. Ustaw na \"Tylko wysyłanie\" z synchronizacją natychmiastową lub przy zmianie.\n4. Wróć tutaj i wybierz ten sam folder lokalny.\n\nNowe trasy lądują w tym folderze, gdy nagrywanie się kończy. Aplikacja synchronizująca wysyła je w tle.</string>
     <string name="cloud_choose_folder">Wybierz folder</string>
@@ -167,10 +167,10 @@
     <string name="auto_record_on_start">Automatyczne nagrywanie po starcie</string>
     <string name="auto_record_caption">Nagrywa trasę, gdy koło jest podłączone</string>
     <string name="auto_record_start_in_motion">Zacznij nagrywać przy ruchu</string>
-    <string name="auto_record_start_in_motion_caption">Czeka na ruch, aby zacząć nagrywanie, sam zatrzymuje się po czasie bezczynności i wznawia przy następnej jeździe</string>
+    <string name="auto_record_start_in_motion_caption">Startuje przy ruchu, kończy po bezczynności, wznawia przy kolejnej jeździe.</string>
     <string name="auto_record_stop_idle_seconds">Zatrzymaj po bezczynności</string>
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
-    <string name="auto_connect_caption">Łączy ponownie z ostatnim sparowanym kołem. Pierwszy raz musisz połączyć się ręcznie</string>
+    <string name="auto_connect_caption">Automatycznie łączy się z ostatnio sparowanym kołem.</string>
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
     <string name="imperial_units">Jednostki imperialne</string>
     <string name="language">Język</string>
@@ -252,7 +252,7 @@
     <string name="flic_double_click">Podwójne kliknięcie</string>
     <string name="flic_hold">Przytrzymanie</string>
     <string name="section_volume_keys">Klawisze głośności</string>
-    <string name="volume_keys_caption">Używaj przycisków głośności telefonu jako skrótów. Działa tylko gdy aplikacja jest widoczna na ekranie</string>
+    <string name="volume_keys_caption">Klawisze głośności jako skróty (tylko gdy aplikacja jest widoczna).</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
     <string name="volume_up">Głośność w górę</string>
     <string name="volume_down">Głośność w dół</string>

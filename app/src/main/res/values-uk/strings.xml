@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Віртуальні моноколеса</string>
-    <string name="scan_simulate_subtitle">Для розробки без обладнання. Обходить BLE і подає заздалегідь готові відповіді через адаптер</string>
+    <string name="scan_simulate_subtitle">Обходить BLE і подає підготовлені відповіді. Лише у налагоджувальних збірках.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Підключено</string>
@@ -100,9 +100,9 @@
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
     <string name="watch_keep_on">Не вимикати екран</string>
-    <string name="watch_keep_on_desc">Не давати годиннику засинати, поки відкритий додаток EUC Planet</string>
+    <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий.</string>
     <string name="watch_auto_start">Автозапуск на годиннику</string>
-    <string name="watch_auto_start_desc">Автоматично відкривати додаток на годиннику, коли відкриваєш додаток на телефоні</string>
+    <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні.</string>
     <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
@@ -122,7 +122,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервних копій</string>
-    <string name="cloud_caption">Вибери папку на цьому телефоні, куди зберігатимуться CSV поїздок і резервна копія налаштувань</string>
+    <string name="cloud_caption">Тека для CSV поїздок та резервної копії налаштувань.</string>
     <string name="cloud_help_title">Як робити копії в OneDrive, Drive або Dropbox</string>
     <string name="cloud_help_body">Системний вибір папок Android зазвичай не показує OneDrive, Google Drive чи Dropbox. Ці додатки не надають іншим додаткам папку для запису, тому ми зберігаємо локально, а вивантаженням займається додаток синхронізації.\n\nНалаштування:\n1. Встанови Autosync (для OneDrive, Drive чи Dropbox) або FolderSync з Play Store.\n2. У цьому додатку увійди й створи пару синхронізації: твоя локальна папка до папки в хмарі.\n3. Постав режим \"Лише вивантаження\" з миттєвою синхронізацією або за зміною.\n4. Повернись сюди і вибери ту саму локальну папку.\n\nНові поїздки потрапляють у цю папку, коли запис завершується. Додаток синхронізації вивантажує їх у фоні.</string>
     <string name="cloud_choose_folder">Вибрати папку</string>
@@ -167,10 +167,10 @@
     <string name="auto_record_on_start">Автозапис при підключенні</string>
     <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене</string>
     <string name="auto_record_start_in_motion">Починати запис при русі</string>
-    <string name="auto_record_start_in_motion_caption">Чекає початку руху, щоб почати запис, автоматично зупиняє після часу простою і відновлює при наступній поїздці</string>
+    <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці.</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення на старті</string>
-    <string name="auto_connect_caption">Підключається до останнього спареного моноколеса. Першого разу треба підключитися вручну</string>
+    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса.</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="imperial_units">Імперські одиниці</string>
     <string name="language">Мова</string>
@@ -252,7 +252,7 @@
     <string name="flic_double_click">Подвійне натискання</string>
     <string name="flic_hold">Утримання</string>
     <string name="section_volume_keys">Кнопки гучності</string>
-    <string name="volume_keys_caption">Використовуй кнопки гучності телефона як швидкі дії. Працює лише поки додаток видно на екрані</string>
+    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли додаток відкритий).</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>

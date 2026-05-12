@@ -69,7 +69,7 @@
     <string name="tab_cloud">Backup af indstillinger og ture</string>
 
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Vælg en mappe på telefonen, hvor tur-CSV\'er og en indstillingsbackup gemmes</string>
+    <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup.</string>
     <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox — de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
@@ -113,10 +113,10 @@
     <string name="auto_record_on_start">Optag automatisk ved start</string>
     <string name="auto_record_caption">Optager en tur, når hjulet er tilsluttet</string>
     <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
-    <string name="auto_record_start_in_motion_caption">Venter på bevægelse for at starte optagelsen, stopper automatisk efter inaktivitetstiden og starter igen ved næste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper efter inaktivitet, starter igen ved næste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
-    <string name="auto_connect_caption">Forbinder igen til det hjul, du senest parrede. Første gang skal du forbinde manuelt</string>
+    <string name="auto_connect_caption">Forbinder automatisk igen til det senest parrede hjul.</string>
     <string name="last_device">Seneste enhed: %1$s</string>
     <string name="imperial_units">Imperiale enheder</string>
     <string name="language">Sprog</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Dobbeltklik</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Brug telefonens lydstyrketaster som genveje. Virker kun, når appen er synlig</string>
+    <string name="volume_keys_caption">Lydstyrketaster som genveje (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
@@ -385,7 +385,7 @@
     <string name="report_time">Tid</string>
     <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises</string>
     <string name="scan_show_all_title">Vis alle enheder</string>
-    <string name="scan_simulate_subtitle">Til udvikling uden hardware. Springer BLE over og sender prædefinerede svar gennem adapter-pipelinen</string>
+    <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i debug-builds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
     <string name="section_watch_buttons">Hardwareknapper</string>
     <string name="section_watch_display">Skærm</string>
@@ -400,13 +400,13 @@
     <string name="voice_output_channel_notification">Notifikation</string>
     <string name="voice_time_fmt">tid %1$s</string>
     <string name="watch_auto_start">Start automatisk på uret</string>
-    <string name="watch_auto_start_desc">Åbn ur-appen automatisk, når du åbner telefon-appen</string>
+    <string name="watch_auto_start_desc">Åbn ur-appen sammen med telefon-appen.</string>
     <string name="watch_button_1">Knap 1</string>
     <string name="watch_button_2">Knap 2</string>
     <string name="watch_button_click_label">Klik</string>
     <string name="watch_button_hold_label">Langt tryk</string>
     <string name="watch_keep_on">Hold skærmen tændt</string>
-    <string name="watch_keep_on_desc">Forhindrer uret i at gå i dvale, mens EUC Planet-appen er åben</string>
+    <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben.</string>
     <string name="watch_pwm_bar">Bjælke</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">Belastnings (PWM) indikator</string>

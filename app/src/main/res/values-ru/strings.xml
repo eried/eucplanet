@@ -70,7 +70,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
-    <string name="cloud_caption">Выберите папку на этом телефоне, куда будут сохраняться CSV-файлы поездок и резервная копия настроек</string>
+    <string name="cloud_caption">Папка для CSV поездок и резервной копии настроек.</string>
     <string name="cloud_help_title">Как делать копии в OneDrive, Drive или Dropbox</string>
     <string name="cloud_help_body">Выбор папок в Android обычно не показывает OneDrive, Google Drive или Dropbox. Эти приложения не предоставляют другим приложениям доступ к папке для записи, поэтому мы сохраняем локально, а загрузку делает приложение синхронизации.\n\nНастройка:\n1. Установите Autosync (для OneDrive, Drive или Dropbox) или FolderSync из Play Store.\n2. Войдите в это приложение и создайте пару синхронизации: ваша локальная папка к папке в облаке.\n3. Настройте \"Только загрузка\" с мгновенной синхронизацией или по изменению.\n4. Вернитесь сюда и выберите ту же локальную папку.\n\nНовые поездки попадают в эту папку, когда запись заканчивается. Приложение синхронизации загружает их в фоне.</string>
     <string name="cloud_choose_folder">Выбрать папку</string>
@@ -114,7 +114,7 @@
     <string name="auto_record_on_start">Автоматически начинать запись</string>
     <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
-    <string name="auto_record_start_in_motion_caption">Ждёт начала движения, чтобы начать запись, останавливает её после времени простоя и возобновляет при следующей поездке</string>
+    <string name="auto_record_start_in_motion_caption">Стартует при движении, останавливается после простоя, возобновляется в следующей поездке.</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
     <string name="section_volume_keys">Кнопки громкости</string>
-    <string name="volume_keys_caption">Используйте кнопки громкости телефона как быстрые действия. Работает только когда приложение открыто</string>
+    <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении).</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
@@ -388,7 +388,7 @@
     <string name="alarm_vibrate_target_watch">Часы</string>
 
     <!-- Auto-connect caption -->
-    <string name="auto_connect_caption">Переподключается к последнему сопряжённому колесу. В первый раз нужно подключиться вручную</string>
+    <string name="auto_connect_caption">Автоматически переподключается к последнему сопряжённому колесу.</string>
 
     <!-- Trip pending backup -->
     <string name="discard_trip_pending_label">Поездка скоро будет сохранена в копию</string>
@@ -420,7 +420,7 @@
     <!-- Scan extras -->
     <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
     <string name="scan_show_all_title">Показать все устройства</string>
-    <string name="scan_simulate_subtitle">Для разработки без железа. Обходит BLE и подаёт заранее подготовленные ответы через адаптер</string>
+    <string name="scan_simulate_subtitle">Обходит BLE и подаёт заготовленные ответы. Только в отладочных сборках.</string>
     <string name="scan_simulate_title">Виртуальные колёса</string>
 
     <!-- Watch sections -->
@@ -452,13 +452,13 @@
 
     <!-- Watch settings -->
     <string name="watch_auto_start">Автозапуск на часах</string>
-    <string name="watch_auto_start_desc">Открывать приложение на часах автоматически, когда вы открываете приложение на телефоне</string>
+    <string name="watch_auto_start_desc">Открывать приложение на часах вместе с приложением на телефоне.</string>
     <string name="watch_button_1">Кнопка 1</string>
     <string name="watch_button_2">Кнопка 2</string>
     <string name="watch_button_click_label">Нажатие</string>
     <string name="watch_button_hold_label">Долгое нажатие</string>
     <string name="watch_keep_on">Не гасить экран</string>
-    <string name="watch_keep_on_desc">Не давать часам уходить в сон, пока открыто приложение EUC Planet</string>
+    <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение.</string>
     <string name="watch_pwm_bar">Полоса</string>
     <string name="watch_pwm_both">Оба</string>
     <string name="watch_pwm_display">Индикатор нагрузки (PWM)</string>

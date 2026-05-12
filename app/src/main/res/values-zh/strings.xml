@@ -69,7 +69,7 @@
     <string name="tab_cloud">设置与行程备份</string>
 
     <string name="section_cloud_folder">备份文件夹</string>
-    <string name="cloud_caption">选择手机上的一个文件夹,用于保存行程 CSV 和设置备份</string>
+    <string name="cloud_caption">存放行程 CSV 与设置备份的文件夹。</string>
     <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
     <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox——这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
@@ -113,10 +113,10 @@
     <string name="auto_record_on_start">启动时自动记录</string>
     <string name="auto_record_caption">连接独轮车时自动记录行程</string>
     <string name="auto_record_start_in_motion">运动时开始录制</string>
-    <string name="auto_record_start_in_motion_caption">等待运动后开始录制,空闲时间过后自动停止,下次行驶时重新开始</string>
+    <string name="auto_record_start_in_motion_caption">运动时开始录制,闲置后停止,下次行驶时重新开始。</string>
     <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
     <string name="auto_connect_on_start">启动时自动连接</string>
-    <string name="auto_connect_caption">自动重连上一次配对的车轮。第一次需要手动连接</string>
+    <string name="auto_connect_caption">自动重连上次配对的车轮。</string>
     <string name="last_device">上次设备:%1$s</string>
     <string name="imperial_units">英制单位</string>
     <string name="language">语言</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">双击</string>
     <string name="flic_hold">长按</string>
     <string name="section_volume_keys">音量键</string>
-    <string name="volume_keys_caption">把手机音量键当作快捷键使用,仅在应用可见时生效</string>
+    <string name="volume_keys_caption">手机音量键作为快捷键(仅在应用可见时)。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
     <string name="volume_up">音量+</string>
     <string name="volume_down">音量-</string>
@@ -385,7 +385,7 @@
     <string name="report_time">时间</string>
     <string name="scan_show_all_subtitle">如果你的车轮没有出现,请打开此选项</string>
     <string name="scan_show_all_title">显示全部设备</string>
-    <string name="scan_simulate_subtitle">用于无硬件时的开发调试。绕过 BLE,通过适配器管线注入预设响应</string>
+    <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
     <string name="scan_simulate_title">虚拟车轮</string>
     <string name="section_watch_buttons">硬件按键</string>
     <string name="section_watch_display">显示</string>
@@ -400,13 +400,13 @@
     <string name="voice_output_channel_notification">通知</string>
     <string name="voice_time_fmt">时间 %1$s</string>
     <string name="watch_auto_start">手表上自动启动</string>
-    <string name="watch_auto_start_desc">打开手机应用时自动打开手表应用</string>
+    <string name="watch_auto_start_desc">打开手机应用时一起打开手表应用。</string>
     <string name="watch_button_1">按键 1</string>
     <string name="watch_button_2">按键 2</string>
     <string name="watch_button_click_label">单击</string>
     <string name="watch_button_hold_label">长按</string>
     <string name="watch_keep_on">保持屏幕常亮</string>
-    <string name="watch_keep_on_desc">EUC Planet 应用打开期间防止手表休眠</string>
+    <string name="watch_keep_on_desc">应用开启期间让手表保持唤醒。</string>
     <string name="watch_pwm_bar">条形图</string>
     <string name="watch_pwm_both">两者</string>
     <string name="watch_pwm_display">负载 (PWM) 显示</string>

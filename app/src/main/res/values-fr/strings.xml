@@ -69,7 +69,7 @@
     <string name="tab_cloud">Sauvegarde des réglages et trajets</string>
 
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
-    <string name="cloud_caption">Choisissez un dossier sur le téléphone où les CSV de trajets et la sauvegarde des paramètres seront enregistrés</string>
+    <string name="cloud_caption">Dossier où atterrissent les CSV de trajets et la sauvegarde des paramètres.</string>
     <string name="cloud_help_title">Sauvegarde vers OneDrive, Drive ou Dropbox</string>
     <string name="cloud_help_body">Le sélecteur de dossier Android n\'affiche généralement pas OneDrive, Google Drive ou Dropbox : ces applis ne proposent pas de dossier accessible en écriture. On enregistre donc en local, et une appli de synchro se charge de l\'upload.\n\nMise en place :\n1. Installez Autosync (pour OneDrive, Drive ou Dropbox) ou FolderSync depuis le Play Store.\n2. Connectez-vous dans l\'appli et créez une paire : votre dossier local → un dossier cloud.\n3. Choisissez « Upload uniquement » en synchro instantanée ou sur changement.\n4. Revenez ici et sélectionnez le même dossier local.\n\nLes nouveaux trajets arrivent dans ce dossier à la fin de l\'enregistrement, et l\'appli de synchro les envoie en arrière-plan.</string>
     <string name="cloud_choose_folder">Choisir un dossier</string>
@@ -113,10 +113,10 @@
     <string name="auto_record_on_start">Enregistrer dès le démarrage</string>
     <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée</string>
     <string name="auto_record_start_in_motion">Démarrer l\'enregistrement en mouvement</string>
-    <string name="auto_record_start_in_motion_caption">Attend un mouvement pour lancer l\'enregistrement, s\'arrête après le délai d\'inactivité, puis redémarre au prochain trajet</string>
+    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant.</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
-    <string name="auto_connect_caption">Se reconnecte à la dernière roue appairée. Vous devez faire la première connexion manuellement</string>
+    <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée.</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="imperial_units">Unités impériales</string>
     <string name="language">Langue</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Double clic</string>
     <string name="flic_hold">Maintenir</string>
     <string name="section_volume_keys">Touches de volume</string>
-    <string name="volume_keys_caption">Utilisez les touches de volume du téléphone comme raccourcis. Fonctionne uniquement quand l\'appli est visible</string>
+    <string name="volume_keys_caption">Touches de volume en raccourcis (uniquement quand l\'appli est visible).</string>
     <string name="volume_keys_enable">Activer les actions de volume</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
@@ -385,7 +385,7 @@
     <string name="report_time">Temps</string>
     <string name="scan_show_all_subtitle">Activez si votre roue n\'apparaît pas</string>
     <string name="scan_show_all_title">Afficher tous les appareils</string>
-    <string name="scan_simulate_subtitle">Pour le développement sans matériel. Contourne le BLE et envoie des réponses préenregistrées dans le pipeline d\'adaptateur</string>
+    <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
     <string name="scan_simulate_title">Roues virtuelles</string>
     <string name="section_watch_buttons">Boutons matériels</string>
     <string name="section_watch_display">Affichage</string>
@@ -400,13 +400,13 @@
     <string name="voice_output_channel_notification">Notification</string>
     <string name="voice_time_fmt">temps %1$s</string>
     <string name="watch_auto_start">Démarrage auto sur la montre</string>
-    <string name="watch_auto_start_desc">Ouvre automatiquement l\'appli de la montre quand vous ouvrez celle du téléphone</string>
+    <string name="watch_auto_start_desc">Ouvre l\'appli de la montre en même temps que celle du téléphone.</string>
     <string name="watch_button_1">Bouton 1</string>
     <string name="watch_button_2">Bouton 2</string>
     <string name="watch_button_click_label">Clic</string>
     <string name="watch_button_hold_label">Appui long</string>
     <string name="watch_keep_on">Garder l\'écran allumé</string>
-    <string name="watch_keep_on_desc">Empêche la montre de se mettre en veille tant que l\'appli EUC Planet est ouverte</string>
+    <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte.</string>
     <string name="watch_pwm_bar">Barre</string>
     <string name="watch_pwm_both">Les deux</string>
     <string name="watch_pwm_display">Indicateur de charge (PWM)</string>

@@ -70,7 +70,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Velg en mappe på denne telefonen der tur-CSV-er og en innstillings-backup lagres</string>
+    <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup.</string>
     <string name="cloud_help_title">Slik tar du backup til OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappevelger viser vanligvis ikke OneDrive, Google Drive eller Dropbox. De appene eksponerer ikke en skrivbar mappe til andre apper, så vi lagrer lokalt og lar en synkroniserings-app gjøre opplastingen.\n\nOppsett:\n1. Installer Autosync (for OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Logg inn i den appen og opprett et synkpar: din valgte lokale mappe til en skymappe.\n3. Sett det til \"Kun opplasting\" med umiddelbar eller ved-endring-synk.\n4. Kom tilbake hit og velg den samme lokale mappen.\n\nNye turer havner i den mappen når et opptak slutter. Synk-appen laster dem opp i bakgrunnen.</string>
     <string name="cloud_choose_folder">Velg mappe</string>
@@ -114,7 +114,7 @@
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
     <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet</string>
     <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
-    <string name="auto_record_start_in_motion_caption">Venter på bevegelse for å starte opptak, stopper automatisk etter inaktivitetstiden og starter igjen ved neste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevegelse, stopper etter inaktivitet, starter igjen ved neste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
     <string name="auto_connect_on_start">Auto-koble til ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier. Fungerer bare når appen er synlig</string>
+    <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
@@ -382,7 +382,7 @@
     <string name="alarm_vibrate_target_label">Vibrer på</string>
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klokke</string>
-    <string name="auto_connect_caption">Kobler seg til hjulet du sist paret. Du må koble til manuelt første gang</string>
+    <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt.</string>
     <string name="discard_trip_pending_label">Turen blir sikkerhetskopiert snart</string>
     <string name="experimental_banner">Foreløpig støttet hjul. Trykk for å rapportere problemer.</string>
     <string name="experimental_dialog_body">Støtten for dette hjulet er foreløpig. Bare V14-familien og P6 er verifisert av forfatteren. Bruk det med forsiktighet.\n\nÅ trykke på dette banneret rapporterer en sak, slik at forfatteren kan fikse det som ikke fungerer.</string>
@@ -402,7 +402,7 @@
     <string name="report_time">Tid</string>
     <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises</string>
     <string name="scan_show_all_title">Vis alle enheter</string>
-    <string name="scan_simulate_subtitle">For utvikling uten maskinvare. Hopper over BLE og mater ferdiglagde svar gjennom adapter-rørledningen</string>
+    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
     <string name="section_watch_buttons">Maskinvareknapper</string>
     <string name="section_watch_display">Skjerm</string>
@@ -417,13 +417,13 @@
     <string name="voice_output_channel_notification">Varsel</string>
     <string name="voice_time_fmt">klokken %1$s</string>
     <string name="watch_auto_start">Auto-start på klokke</string>
-    <string name="watch_auto_start_desc">Åpne klokke-appen automatisk når du åpner telefon-appen</string>
+    <string name="watch_auto_start_desc">Åpne klokke-appen sammen med telefon-appen.</string>
     <string name="watch_button_1">Knapp 1</string>
     <string name="watch_button_2">Knapp 2</string>
     <string name="watch_button_click_label">Klikk</string>
     <string name="watch_button_hold_label">Langt trykk</string>
     <string name="watch_keep_on">Hold skjermen på</string>
-    <string name="watch_keep_on_desc">Hindre klokka i å sove mens EUC Planet-appen er åpen</string>
+    <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen.</string>
     <string name="watch_pwm_bar">Stolpe</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">Last-indikator (PWM)</string>

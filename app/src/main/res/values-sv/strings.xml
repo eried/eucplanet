@@ -69,7 +69,7 @@
     <string name="tab_cloud">Backup av inställningar och turer</string>
 
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
-    <string name="cloud_caption">Välj en mapp på telefonen där tur-CSV:er och en säkerhetskopia av inställningarna sparas</string>
+    <string name="cloud_caption">Mapp för tur-CSV:er och inställnings-backup.</string>
     <string name="cloud_help_title">Säkerhetskopiera till OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappväljare visar oftast inte OneDrive, Google Drive eller Dropbox — de apparna exponerar ingen skrivbar mapp för andra appar. Därför sparar vi lokalt och låter en synk-app sköta uppladdningen.\n\nGör så här:\n1. Installera Autosync (för OneDrive, Drive eller Dropbox) eller FolderSync från Play Butik.\n2. Logga in i appen och skapa ett synk-par: din lokala mapp → en molnmapp.\n3. Välj \"Endast uppladdning\" med direktsynk eller synk vid ändring.\n4. Kom tillbaka hit och välj samma lokala mapp.\n\nNya resor hamnar i mappen när inspelningen är klar. Synk-appen laddar upp dem i bakgrunden.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
@@ -113,10 +113,10 @@
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
     <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet</string>
     <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
-    <string name="auto_record_start_in_motion_caption">Väntar på rörelse för att börja spela in, stoppar automatiskt efter inaktivitetstiden och startar igen vid nästa tur</string>
+    <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar efter inaktivitet, startar igen vid nästa tur.</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
-    <string name="auto_connect_caption">Återansluter till det hjul du senast parade. Första gången måste du ansluta manuellt</string>
+    <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet.</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="imperial_units">Imperiella enheter</string>
     <string name="language">Språk</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Dubbelklick</string>
     <string name="flic_hold">Håll</string>
     <string name="section_volume_keys">Volymknappar</string>
-    <string name="volume_keys_caption">Använd telefonens volymknappar som genvägar. Funkar bara när appen är synlig</string>
+    <string name="volume_keys_caption">Volymknappar som genvägar (bara när appen är synlig).</string>
     <string name="volume_keys_enable">Aktivera åtgärder på volymknappar</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
@@ -385,7 +385,7 @@
     <string name="report_time">Tid</string>
     <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns</string>
     <string name="scan_show_all_title">Visa alla enheter</string>
-    <string name="scan_simulate_subtitle">För utveckling utan hårdvara. Förbigår BLE och matar förinspelade svar genom adapterkedjan</string>
+    <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i utvecklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuella hjul</string>
     <string name="section_watch_buttons">Hårdvaruknappar</string>
     <string name="section_watch_display">Skärm</string>
@@ -400,13 +400,13 @@
     <string name="voice_output_channel_notification">Avisering</string>
     <string name="voice_time_fmt">tid %1$s</string>
     <string name="watch_auto_start">Starta automatiskt på klockan</string>
-    <string name="watch_auto_start_desc">Öppna klock-appen automatiskt när du öppnar telefon-appen</string>
+    <string name="watch_auto_start_desc">Öppna klockans app tillsammans med telefonens.</string>
     <string name="watch_button_1">Knapp 1</string>
     <string name="watch_button_2">Knapp 2</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Långt tryck</string>
     <string name="watch_keep_on">Håll skärmen tänd</string>
-    <string name="watch_keep_on_desc">Hindra klockan från att gå i viloläge när EUC Planet-appen är öppen</string>
+    <string name="watch_keep_on_desc">Håll klockan vaken medan appen är öppen.</string>
     <string name="watch_pwm_bar">Stapel</string>
     <string name="watch_pwm_both">Båda</string>
     <string name="watch_pwm_display">Belastningsindikator (PWM)</string>

@@ -48,7 +48,7 @@
 
     <!-- Scan: virtual wheel section (debug builds only) -->
     <string name="scan_simulate_title">Virtuele wielen</string>
-    <string name="scan_simulate_subtitle">Voor ontwikkeling zonder hardware. Omzeilt BLE en voert vooraf opgenomen reacties door de adapterpijplijn</string>
+    <string name="scan_simulate_subtitle">Omzeilt BLE en gebruikt voorgekookte antwoorden. Alleen in debug-builds.</string>
 
     <!-- Dashboard -->
     <string name="connection_connected">Verbonden</string>
@@ -100,9 +100,9 @@
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>
     <string name="watch_keep_on">Scherm aan houden</string>
-    <string name="watch_keep_on_desc">Voorkom dat het horloge in slaap valt terwijl de EUC Planet-app open is</string>
+    <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is.</string>
     <string name="watch_auto_start">Automatisch starten op horloge</string>
-    <string name="watch_auto_start_desc">Open de horloge-app automatisch wanneer je de telefoon-app opent</string>
+    <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app.</string>
     <string name="watch_show_wheel_battery">Accu van wiel tonen</string>
     <string name="watch_show_phone_battery">Accu van telefoon tonen</string>
     <string name="watch_show_watch_battery">Accu van horloge tonen</string>
@@ -122,7 +122,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Back-upmap</string>
-    <string name="cloud_caption">Kies een map op deze telefoon waarin rit-CSV\'s en een back-up van je instellingen worden opgeslagen</string>
+    <string name="cloud_caption">Map voor rit-CSV\'s en instellingen-back-up.</string>
     <string name="cloud_help_title">Hoe je een back-up maakt naar OneDrive, Drive of Dropbox</string>
     <string name="cloud_help_body">Het mapselectievenster van Android laat OneDrive, Google Drive of Dropbox meestal niet zien. Die apps stellen geen schrijfbare map beschikbaar voor andere apps, dus we slaan lokaal op en laten een synchronisatie-app de upload doen.\n\nInstellen:\n1. Installeer Autosync (voor OneDrive, Drive of Dropbox) of FolderSync uit de Play Store.\n2. Log in die app in en maak een sync-paar: jouw gekozen lokale map naar een cloudmap.\n3. Stel het in op \"Alleen uploaden\" met directe of bij-wijziging-synchronisatie.\n4. Kom hier terug en kies dezelfde lokale map.\n\nNieuwe ritten komen in die map terecht zodra een opname eindigt. De sync-app uploadt ze op de achtergrond.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
@@ -167,10 +167,10 @@
     <string name="auto_record_on_start">Automatisch opnemen bij starten</string>
     <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is</string>
     <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
-    <string name="auto_record_start_in_motion_caption">Wacht op beweging om de opname te starten, stopt automatisch na de inactieve tijd, en herstart bij de volgende rit</string>
+    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
-    <string name="auto_connect_caption">Maakt opnieuw verbinding met het laatst gekoppelde wiel. De eerste keer moet je handmatig verbinden</string>
+    <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatst gekoppelde wiel.</string>
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="imperial_units">Imperiale eenheden</string>
     <string name="language">Taal</string>
@@ -252,7 +252,7 @@
     <string name="flic_double_click">Dubbelklik</string>
     <string name="flic_hold">Vasthouden</string>
     <string name="section_volume_keys">Volumeknoppen</string>
-    <string name="volume_keys_caption">Gebruik de volumeknoppen van je telefoon als snelkoppelingen. Werkt alleen als de app zichtbaar op het scherm is</string>
+    <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is).</string>
     <string name="volume_keys_enable">Acties van volumeknoppen aanzetten</string>
     <string name="volume_up">Volume omhoog</string>
     <string name="volume_down">Volume omlaag</string>
