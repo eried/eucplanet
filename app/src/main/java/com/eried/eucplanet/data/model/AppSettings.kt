@@ -243,6 +243,21 @@ data class AppSettings(
     /** In-app gain 0..1 over the media stream. */
     @ColumnInfo(defaultValue = "0.6")
     val engineVolume: Float = 0.6f,
+    /**
+     * When true, engine volume is multiplied by a speed curve (see [engineVolumeAutoCurve]).
+     * The default curve decreases with speed so pedestrians hear the wheel at slow speeds
+     * but the engine fades back at cruise — the opposite of the voice automation, which
+     * RAMPS UP with speed to overcome wind noise.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val engineVolumeAutoEnabled: Boolean = false,
+    /**
+     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. Format matches
+     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
+     * Default is gently decreasing.
+     */
+    @ColumnInfo(defaultValue = "0:1.00,25:0.70,50:0.40,75:0.20")
+    val engineVolumeAutoCurve: String = "0:1.00,25:0.70,50:0.40,75:0.20",
     /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
     @ColumnInfo(defaultValue = "HALF")
     val engineMuffler: String = "HALF",

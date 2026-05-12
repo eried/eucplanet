@@ -1946,14 +1946,6 @@ private fun EngineSoundSection(
             com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
         }
 
-        if (!parked) {
-            Text(
-                stringResource(R.string.engine_preview_parked_only),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
         SliderSetting(
             label = stringResource(R.string.engine_volume),
             value = settings.engineVolume * 100f,

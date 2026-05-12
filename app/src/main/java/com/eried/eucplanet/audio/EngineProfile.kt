@@ -1,6 +1,21 @@
 package com.eried.eucplanet.audio
 
 /**
+ * A clipped window inside a raw resource. The player seeks to [startMs] and
+ * loops/stops at [endMs]. For looped sections (idle_loop, rev_loop) the player
+ * seeks back to startMs when reaching endMs; for one-shots (startup, decel,
+ * shutdown, pops) the player stops at endMs.
+ */
+data class SampleSection(
+    /** res/raw filename without extension (any decoder-supported format works — ogg/mp3/wav/flac). */
+    val rawAsset: String,
+    val startMs: Int,
+    val endMs: Int,
+) {
+    val durationMs: Int get() = (endMs - startMs).coerceAtLeast(0)
+}
+
+/**
  * A virtual engine personality. Drives [EngineSynth].
  *
  * Two flavors:
@@ -79,7 +94,16 @@ data class EngineProfile(
     /** Optional res/raw name (without extension) for a sampled pop SFX, played via SoundPool. */
     val popSampleAsset: String? = null,
     /** Optional res/raw name (without extension) for a sampled brake-whine loop. */
-    val brakeWhineSampleAsset: String? = null
+    val brakeWhineSampleAsset: String? = null,
+    /**
+     * Multi-section composition. When set, the engine is rendered by
+     * [com.eried.eucplanet.audio.CompositionEnginePlayer] (cross-fading
+     * idle_loop ↔ rev_loop, with one-shot startup / decel / shutdown).
+     * Section keys: "startup", "idle_loop", "rev_up", "rev_loop", "decel", "shutdown".
+     */
+    val sampleSections: Map<String, SampleSection>? = null,
+    /** Optional pop SFX variants — picked at random when a pop fires. Supersedes [popSampleAsset]. */
+    val popSections: List<SampleSection>? = null,
 ) {
     enum class Kind { ICE, SYNTH }
 
@@ -333,7 +357,16 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 6500,
                 sampleAssetBase = "engine_v8_cobra",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_v8_cobra",     92,  1805),
+                    "idle_loop" to SampleSection("engine_v8_cobra",  13129, 19688),
+                    "rev_up"    to SampleSection("engine_v8_cobra",   9949, 11120),
+                    "rev_loop"  to SampleSection("engine_v8_cobra",   3313,  6703),
+                    "decel"     to SampleSection("engine_v8_cobra",  11166, 12429),
+                    "shutdown"  to SampleSection("engine_v8_cobra",  21677, 25440)
+                ),
+                popSections = listOf(SampleSection("engine_v8_cobra", 20143, 20527))
             ),
             EngineProfile(
                 key = "SAMPLED_VTWIN_DUCATI",
@@ -342,7 +375,16 @@ data class EngineProfile(
                 idleRpm = 950, maxRpm = 9000,
                 sampleAssetBase = "engine_vtwin_ducati",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_vtwin_ducati",   476,  3096),
+                    "idle_loop" to SampleSection("engine_vtwin_ducati", 10346, 13347),
+                    "rev_up"    to SampleSection("engine_vtwin_ducati", 30830, 33412),
+                    "rev_loop"  to SampleSection("engine_vtwin_ducati",  3658,  6393),
+                    "decel"     to SampleSection("engine_vtwin_ducati", 33955, 35984),
+                    "shutdown"  to SampleSection("engine_vtwin_ducati", 36108, 41433)
+                ),
+                popSections = listOf(SampleSection("src_bsb_0281", 10343, 10667))
             ),
             EngineProfile(
                 key = "SAMPLED_DIESEL_IVECO",
@@ -350,7 +392,17 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 800, maxRpm = 3200,
                 sampleAssetBase = "engine_diesel_iveco",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_diesel_iveco",     0,  1584),
+                    "idle_loop" to SampleSection("src_bsb_1146",         8008, 10057),
+                    "rev_up"    to SampleSection("src_bsb_1146",        10467, 12702),
+                    "rev_loop"  to SampleSection("src_bsb_1147",         3823,  6423),
+                    "decel"     to SampleSection("src_bsb_1147",        16105, 17829),
+                    "shutdown"  to SampleSection("engine_diesel_iveco", 32984, 35278)
+                ),
+                popSections = listOf(SampleSection("src_bsb_1146", 21077, 21616))
             ),
             EngineProfile(
                 key = "SAMPLED_MOTORCYCLE",
@@ -359,7 +411,16 @@ data class EngineProfile(
                 idleRpm = 1100, maxRpm = 10500,
                 sampleAssetBase = "engine_motorcycle",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_motorcycle",              147,  1272),
+                    "idle_loop" to SampleSection("src_fs_119774_moto_start",      2860,  3603),
+                    "rev_up"    to SampleSection("engine_motorcycle",             6653,  7419),
+                    "rev_loop"  to SampleSection("engine_motorcycle",            10125, 10896),
+                    "decel"     to SampleSection("src_fs_119774_moto_start",      4257,  5156),
+                    "shutdown"  to SampleSection("engine_motorcycle",            11923, 13558)
+                ),
+                popSections = listOf(SampleSection("src_fs_119774_moto_start", 857, 956))
             ),
             EngineProfile(
                 key = "SAMPLED_CITY_CAR",
@@ -368,7 +429,15 @@ data class EngineProfile(
                 idleRpm = 850, maxRpm = 6000,
                 sampleAssetBase = "engine_citycar_saxo",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap"
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_citycar_saxo",     0,  1420),
+                    "idle_loop" to SampleSection("src_bsb_0187",        22388, 26996),
+                    "rev_up"    to SampleSection("engine_citycar_saxo",  4363,  5872),
+                    "rev_loop"  to SampleSection("engine_citycar_saxo",  6447,  8024),
+                    "decel"     to SampleSection("src_bsb_0966",         4174,  8028),
+                    "shutdown"  to SampleSection("src_bsb_0187",        32697, 41169)
+                )
             ),
             EngineProfile(
                 key = "SAMPLED_HELICOPTER",
@@ -377,7 +446,17 @@ data class EngineProfile(
                 // Helicopter rotor "RPM" is metaphorical here — drives playback speed mapping
                 idleRpm = 250, maxRpm = 1100,
                 sampleAssetBase = "engine_helicopter",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_fs_559340_heli_long",      0,   7833),
+                    "idle_loop" to SampleSection("src_fs_559340_heli_long",  27395,  38701),
+                    "rev_up"    to SampleSection("src_fs_559340_heli_long",  53325,  55987),
+                    "rev_loop"  to SampleSection("src_fs_559340_heli_long",  59498,  61852),
+                    "decel"     to SampleSection("src_fs_559340_heli_long",  61968,  67717),
+                    "shutdown"  to SampleSection("src_fs_559340_heli_long", 119768, 141723)
+                ),
+                popSections = listOf(SampleSection("src_fs_559340_heli_long", 79023, 80296))
             ),
             EngineProfile(
                 key = "SAMPLED_TRACTOR",
@@ -385,7 +464,13 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2600,
                 sampleAssetBase = "engine_tractor",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false,
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_tractor",                  0,  1776),
+                    "idle_loop" to SampleSection("src_fs_256808_tractor_clean", 6436,  7944),
+                    "rev_loop"  to SampleSection("engine_tractor",               5921,  9672),
+                    "shutdown"  to SampleSection("engine_tractor",              41695, 46648)
+                )
             ),
             EngineProfile(
                 key = "SAMPLED_LAWNMOWER",
@@ -393,7 +478,13 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1800, maxRpm = 3600,
                 sampleAssetBase = "engine_lawnmower",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false,
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_bsb_0763",         0,  2498),
+                    "rev_up"    to SampleSection("engine_lawnmower",  1174,  2771),
+                    "idle_loop" to SampleSection("src_bsb_0763",      7073, 12346)
+                    // No decel / rev_loop / shutdown — omitted per user inventory.
+                )
             ),
             EngineProfile(
                 key = "SAMPLED_STEAM_LOCO",
@@ -401,7 +492,17 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 200, maxRpm = 900,
                 sampleAssetBase = "engine_steam_loco",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_fs_784612_bulleid",       0,  12161),
+                    "idle_loop" to SampleSection("engine_steam_loco",        9042,  17316),
+                    "rev_up"    to SampleSection("engine_steam_loco",       82374,  93361),
+                    "rev_loop"  to SampleSection("engine_steam_loco",       40147,  54208),
+                    "decel"     to SampleSection("engine_steam_loco",       67093,  78260),
+                    "shutdown"  to SampleSection("src_fs_784612_bulleid", 108707, 112272)
+                ),
+                popSections = listOf(SampleSection("src_fs_784612_bulleid", 76172, 78541))
             ),
             EngineProfile(
                 key = "SAMPLED_CAR_CRUISE",
@@ -410,7 +511,16 @@ data class EngineProfile(
                 idleRpm = 1000, maxRpm = 5500,
                 sampleAssetBase = "engine_car_cruise",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_snap"
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_bsb_0872",     6572, 10439),
+                    "idle_loop" to SampleSection("src_bsb_0872",    19678, 23269),
+                    "rev_up"    to SampleSection("src_bsb_0291",     1040,  1647),
+                    "rev_loop"  to SampleSection("src_bsb_0291",     3216,  4146),
+                    "decel"     to SampleSection("src_bsb_0291",     4739,  5647),
+                    "shutdown"  to SampleSection("src_bsb_0966",    46435, 50020)
+                ),
+                popSections = listOf(SampleSection("engine_car_cruise", 48719, 51509))
             ),
             EngineProfile(
                 key = "SAMPLED_ASTON_MARTIN",
@@ -419,7 +529,23 @@ data class EngineProfile(
                 idleRpm = 900, maxRpm = 7500,
                 sampleAssetBase = "engine_aston_martin",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                // Multi-section composition picked in deletelater.html: Vanquish full life
+                // cycle from src_ia_vanquish.mp3 + rev_up from the original aston_martin clip
+                // + 3 pop variants from src_ia_v12vantage.mp3.
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_ia_vanquish",     713, 3455),
+                    "idle_loop" to SampleSection("src_ia_vanquish",    4012, 10662),
+                    "rev_up"    to SampleSection("engine_aston_martin",   0, 2309),
+                    "rev_loop"  to SampleSection("src_ia_vanquish",   16592, 18134),
+                    "decel"     to SampleSection("src_ia_vanquish",   11748, 13161),
+                    "shutdown"  to SampleSection("src_ia_vanquish",   18282, 19924)
+                ),
+                popSections = listOf(
+                    SampleSection("src_ia_v12vantage", 4457, 7206),  // pop_a
+                    SampleSection("src_ia_v12vantage", 7624, 9699),  // pop_b
+                    SampleSection("src_ia_v12vantage", 1862, 3761)   // pop_c
+                )
             ),
             EngineProfile(
                 key = "SAMPLED_BIG_DIESEL",
@@ -427,7 +553,25 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2800,
                 sampleAssetBase = "engine_big_diesel",
-                supportsMuffler = false, supportsPops = false, supportsBrakeWhine = false
+                supportsMuffler = false, supportsBrakeWhine = false,
+                // User layered a "pop_a" clatter from src_bsb_1146 so flip pops on.
+                // Uses sfx_pop_snap (BSB bang-snaps, the lighter of our two pop SFX) since
+                // diesel "pops" are mechanical clatter / turbo wastegate, not spark backfire.
+                supportsPops = true, popSampleAsset = "sfx_pop_snap",
+                // Multi-section composition. Where two regions share a type, the LATER
+                // entry in the user's export wins (the user adds regions iteratively as
+                // they refine their pick).
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_bsb_1146",     0, 2394),
+                    "idle_loop" to SampleSection("src_bsb_1146", 22098, 23888),
+                    "rev_up"    to SampleSection("src_bsb_1146", 10237, 11682),
+                    "rev_loop"  to SampleSection("src_bsb_1147",  8433, 10980),
+                    "decel"     to SampleSection("src_bsb_1147", 16454, 18697),
+                    "shutdown"  to SampleSection("src_bsb_1146", 32536, 35771)
+                ),
+                popSections = listOf(
+                    SampleSection("src_bsb_1146", 21106, 21674)   // pop_a — mechanical clatter
+                )
             ),
             EngineProfile(
                 key = "SAMPLED_BROKEN_EXHAUST",
@@ -436,7 +580,16 @@ data class EngineProfile(
                 idleRpm = 800, maxRpm = 5000,
                 sampleAssetBase = "engine_damaged_muffler",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("engine_damaged_muffler",   391,  3277),
+                    "idle_loop" to SampleSection("engine_damaged_muffler", 41081, 44573),
+                    "rev_up"    to SampleSection("engine_damaged_muffler",  5380,  8324),
+                    "rev_loop"  to SampleSection("engine_damaged_muffler", 15709, 25323),
+                    "decel"     to SampleSection("engine_damaged_muffler", 30674, 33598),
+                    "shutdown"  to SampleSection("engine_damaged_muffler", 46793, 48671)
+                ),
+                popSections = listOf(SampleSection("engine_damaged_muffler", 34606, 36748))
             ),
             EngineProfile(
                 key = "SAMPLED_QUAD_ATV",
@@ -445,7 +598,15 @@ data class EngineProfile(
                 idleRpm = 900, maxRpm = 6500,
                 sampleAssetBase = "engine_quad_atv",
                 supportsMuffler = false, supportsBrakeWhine = false,
-                supportsPops = true, popSampleAsset = "sfx_pop_crack"
+                supportsPops = true, popSampleAsset = "sfx_pop_crack",
+                sampleSections = mapOf(
+                    "startup"   to SampleSection("src_bsb_0712",     0,  1449),
+                    "idle_loop" to SampleSection("src_bsb_0712",  4354,  5939),
+                    "rev_up"    to SampleSection("src_bsb_0712",  2585,  3707),
+                    "rev_loop"  to SampleSection("src_bsb_0712", 14081, 16809),
+                    "decel"     to SampleSection("src_bsb_0712",  6789,  8796),
+                    "shutdown"  to SampleSection("src_bsb_0712", 30230, 33312)
+                )
             )
         )
 

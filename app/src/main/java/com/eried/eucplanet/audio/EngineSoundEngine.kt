@@ -51,6 +51,7 @@ class EngineSoundEngine @Inject constructor(
     @Volatile private var paramsSnapshot: EngineParams = EngineParams.SILENT
     private val synth = EngineSynth(sampleRate)
     private val sampledPlayer = SampledEnginePlayer(context)
+    private val compositionPlayer = CompositionEnginePlayer(context)
 
     /**
      * Reference top speed used to map km/h → rev band. Updated from
@@ -438,19 +439,26 @@ class EngineSoundEngine @Inject constructor(
             mufflerOpenness = muff
         )
         // Sample-based engine takes its parameters from the same snapshot.
-        if (sampledPlayer.isPlaying()) {
-            val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
-            // Include revBump so a quick throttle blip pitches the sample up briefly,
-            // matching what the synth path does for the same telemetry.
-            val effRpm = smoothedRpm + revDetector.currentBump(now)
-            val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
-            sampledPlayer.update(rpmNorm, gain * idleEnvelope.coerceIn(0f, 1f))
-            // The synth path consumes pendingPops by rendering them into its own buffer.
-            // For the sampled path MediaPlayer has no mix point, so we layer pops as one-shot
-            // SoundPool plays. Same gating: only when the profile actually supports pops.
-            if (pops > 0 && profile.supportsPops && profile.popSampleAsset != null) {
-                val popVolume = gain * idleEnvelope.coerceIn(0f, 1f)
-                repeat(pops) { sfxSidecar.firePop(profile.popSampleAsset, popVolume) }
+        val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
+        val effRpm = smoothedRpm + revDetector.currentBump(now)
+        val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
+        val sampledVolume = gain * idleEnvelope.coerceIn(0f, 1f)
+
+        if (compositionPlayer.isPlaying()) {
+            compositionPlayer.update(rpmNorm, sampledVolume)
+            if (decelEnvelope > 0.6f && pops == 0) {
+                // Decel transient hasn't been queued as a pop, but the envelope is high
+                // — likely a clean throttle-close. Fire the composition's decel one-shot.
+                compositionPlayer.fireDecel()
+            }
+        } else if (sampledPlayer.isPlaying()) {
+            sampledPlayer.update(rpmNorm, sampledVolume)
+        }
+        // Pops on either sampled path go through SoundPool — the synth path consumes them
+        // by rendering them into its own buffer, but neither MediaPlayer path has a mix point.
+        if (pops > 0 && profile.supportsPops && profile.sampleAssetBase != null) {
+            if (profile.popSampleAsset != null) {
+                repeat(pops) { sfxSidecar.firePop(profile.popSampleAsset, sampledVolume) }
             }
         }
     }
@@ -464,6 +472,14 @@ class EngineSoundEngine @Inject constructor(
         }
         running = true
         requestAudioFocus()
+        // Multi-section composition wins over single-asset playback — when a profile
+        // declares sampleSections, we use [CompositionEnginePlayer] for proper
+        // idle ↔ rev crossfading plus startup/decel/shutdown one-shots.
+        if (profile.sampleSections != null) {
+            sfxSidecar.load(profile)
+            compositionPlayer.start(profile)
+            return
+        }
         if (profile.sampleAssetBase != null) {
             // Preload pop/brake SFX so the first trigger doesn't get dropped while
             // SoundPool decodes. firePop() drops the call if the asset isn't ready yet,
@@ -520,6 +536,7 @@ class EngineSoundEngine @Inject constructor(
         }
         audioTrack = null
         sampledPlayer.stop()
+        compositionPlayer.stop()
         sfxSidecar.release()
         abandonAudioFocus()
         synth.reset()
