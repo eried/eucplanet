@@ -471,7 +471,7 @@ fun DashboardScreen(
                         .padding(top = 8.dp, start = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = MaterialTheme.colorScheme.onSurface)
+                    DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface)
                     DashIndicatorLetter("D", active = live && wheelData.pcMode == 1, activeColor = if (useAccent) primary else AccentGreen)
                 }
                 // GPS indicator, top-right. Three states:

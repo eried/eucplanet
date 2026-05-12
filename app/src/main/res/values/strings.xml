@@ -514,6 +514,8 @@
     <string name="alarm_metric_label">Metric</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Decrease threshold</string>
+    <string name="alarm_threshold_increase">Increase threshold</string>
     <string name="alarm_section_beep">Beep</string>
     <string name="alarm_enable_beep">Enable beep</string>
     <string name="alarm_beep_freq_fmt">Frequency: %1$dHz</string>

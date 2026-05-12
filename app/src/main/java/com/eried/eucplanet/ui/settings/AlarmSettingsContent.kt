@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -54,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -313,22 +316,29 @@ private fun AlarmRuleEditorDialog(
 
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val thresholdRangeInternal = when (selectedMetric) {
-        AlarmMetric.SPEED -> 5f..100f
+        // Speed cap depends on the user's unit: high-performance wheels run
+        // way past 100 km/h, so the range reads 5..150 km/h or 5..100 mph
+        // (the mph ceiling is internally ~161 km/h).
+        AlarmMetric.SPEED -> if (imperial) (5f / 0.621371f)..(100f / 0.621371f) else 5f..150f
         AlarmMetric.BATTERY -> 0f..100f
         AlarmMetric.TEMPERATURE -> 20f..80f
         AlarmMetric.PWM -> 10f..100f
-        AlarmMetric.VOLTAGE -> 50f..130f
-        AlarmMetric.CURRENT -> 1f..60f
+        AlarmMetric.VOLTAGE -> 20f..300f
+        AlarmMetric.CURRENT -> 1f..50f
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, imperial)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, imperial)..
         displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, imperial)
     val displayedUnit = displayUnit(selectedMetric, imperial)
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            modifier = Modifier.fillMaxWidth(0.95f)
         ) {
             Column(
                 modifier = Modifier
@@ -342,64 +352,87 @@ private fun AlarmRuleEditorDialog(
 
                 Spacer(Modifier.height(12.dp))
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.alarm_name)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                // --- Condition ---
-                Text(stringResource(R.string.alarm_section_condition), fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                    color = AccentBlue)
-
-                Spacer(Modifier.height(6.dp))
-
-                // Metric dropdown
+                // Metric (60%) + comparator (40%) share a row so the editor
+                // stays compact vertically. Comparator field shows just the
+                // glyph (≥ or <) when collapsed but opens to full-word labels
+                // so first-time users still understand what each option means.
                 val metricOptions = AlarmMetric.entries.map { it.name to stringResource(it.labelRes) }
-                DropdownSelect(
-                    label = stringResource(R.string.alarm_metric_label),
-                    selected = stringResource(selectedMetric.labelRes),
-                    options = metricOptions,
-                    onSelect = { metric = it }
-                )
-
-                Spacer(Modifier.height(6.dp))
-
-                // Comparator: 2-way segmented selector
                 val selectedComp = AlarmComparator.parse(comparator)
-                Text(
-                    stringResource(R.string.alarm_comparator_label),
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.height(4.dp))
-                val comparatorEntries = AlarmComparator.entries
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
+                val comparatorOptions = AlarmComparator.entries.map { entry ->
+                    entry.name to stringResource(entry.labelRes)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    comparatorEntries.forEachIndexed { index, entry ->
-                        SegmentedButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            selected = entry == selectedComp,
-                            onClick = { comparator = entry.name },
-                            shape = SegmentedButtonDefaults.itemShape(index, comparatorEntries.size)
-                        ) {
-                            Text(stringResource(entry.labelRes))
-                        }
+                    Box(modifier = Modifier.weight(0.6f)) {
+                        DropdownSelect(
+                            label = stringResource(R.string.alarm_metric_label),
+                            selected = stringResource(selectedMetric.labelRes),
+                            options = metricOptions,
+                            onSelect = { metric = it }
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(0.4f)) {
+                        DropdownSelect(
+                            label = stringResource(R.string.alarm_comparator_label),
+                            selected = selectedComp.symbol,
+                            options = comparatorOptions,
+                            onSelect = { comparator = it }
+                        )
                     }
                 }
 
                 Spacer(Modifier.height(6.dp))
 
-                // Threshold slider
-                Text(stringResource(R.string.alarm_threshold_fmt, "%.0f".format(displayedThreshold), displayedUnit),
-                    fontSize = 13.sp)
+                // Threshold: slider for fast sweep, +/- buttons for fine
+                // single-unit nudges. Tapping the value re-centres focus on the
+                // step buttons (the slider is hard to drop on an exact number).
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            // Step in display units so users get a clean 1 mph
+                            // or 1 km/h nudge regardless of unit system.
+                            val newDisp = (displayedThreshold - 1f).coerceIn(displayedRange)
+                            threshold = internalThreshold(selectedMetric, newDisp, imperial)
+                                .coerceIn(thresholdRangeInternal)
+                        },
+                        enabled = displayedThreshold > displayedRange.start + 0.001f,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Remove,
+                            contentDescription = stringResource(R.string.alarm_threshold_decrease),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Text(
+                        stringResource(R.string.alarm_threshold_fmt, "%.0f".format(displayedThreshold), displayedUnit),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(
+                        onClick = {
+                            val newDisp = (displayedThreshold + 1f).coerceIn(displayedRange)
+                            threshold = internalThreshold(selectedMetric, newDisp, imperial)
+                                .coerceIn(thresholdRangeInternal)
+                        },
+                        enabled = displayedThreshold < displayedRange.endInclusive - 0.001f,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = stringResource(R.string.alarm_threshold_increase),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
                 Slider(
                     value = displayedThreshold.coerceIn(displayedRange),
                     onValueChange = {
@@ -433,8 +466,11 @@ private fun AlarmRuleEditorDialog(
                     Slider(
                         value = beepFrequency.toFloat(),
                         onValueChange = { beepFrequency = it.toInt() },
-                        valueRange = 400f..3000f,
-                        steps = 25
+                        // 200 Hz floor gives a softer "thunk" useful for low-
+                        // urgency reminders (e.g. battery dip). Top stays at
+                        // 3 kHz where the piezo gets piercing.
+                        valueRange = 200f..3000f,
+                        steps = 27
                     )
 
                     Text(stringResource(R.string.alarm_beep_duration_fmt, beepDurationMs), fontSize = 12.sp)
@@ -552,9 +588,14 @@ private fun AlarmRuleEditorDialog(
                 Text(stringResource(R.string.alarm_cooldown_fmt, cooldownSeconds), fontSize = 12.sp)
                 Slider(
                     value = cooldownSeconds.toFloat(),
-                    onValueChange = { cooldownSeconds = it.toInt() },
-                    valueRange = 3f..60f,
-                    steps = 56
+                    onValueChange = {
+                        // Snap to 5 s steps so the slider stops on a clean
+                        // round number rather than landing on 17 s etc.
+                        cooldownSeconds = (kotlin.math.round(it / 5f) * 5f)
+                            .toInt().coerceIn(5, 60)
+                    },
+                    valueRange = 5f..60f,
+                    steps = 10
                 )
                 HintText(stringResource(R.string.alarm_cooldown_help), small = true)
 
@@ -605,6 +646,11 @@ private fun AlarmRuleEditorDialog(
                         Text(stringResource(R.string.action_save))
                     }
                 }
+
+                // Breathing room below the action row — without this the
+                // buttons sit on the rounded corner of the card and look like
+                // they're being clipped.
+                Spacer(Modifier.height(12.dp))
             }
         }
     }

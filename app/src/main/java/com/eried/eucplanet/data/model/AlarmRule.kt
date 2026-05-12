@@ -40,7 +40,7 @@ data class AlarmRule(
     val vibrateTarget: String = "BOTH",
 
     // Timing
-    val cooldownSeconds: Int = 10,
+    val cooldownSeconds: Int = 5,
     val repeatWhileActive: Boolean = false
 )
 

@@ -562,7 +562,11 @@ private fun ConfigurableActionButton(
     val tintColor = when {
         !live -> disabledFg
         stylePrimary -> Color.Black
-        clickAction == "LIGHT_TOGGLE" && state.lightOn -> Color(0xFFFFC107)
+        // Light-on uses the accent (matches the phone dashboard's tile rule).
+        // Default accent falls back to yellow so the "torch is on" cue still
+        // reads at a glance.
+        clickAction == "LIGHT_TOGGLE" && state.lightOn ->
+            if (state.accentKey != "default") accent else Color(0xFFFFC107)
         clickAction == "LIGHT_TOGGLE" -> Color(0xFF606060)
         else -> contentColor
     }
