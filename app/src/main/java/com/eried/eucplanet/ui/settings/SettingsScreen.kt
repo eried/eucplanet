@@ -1129,9 +1129,14 @@ private fun WatchTab(
             "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
             "BOTH" to stringResource(R.string.watch_pwm_both)
         )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
             loadOptions.forEachIndexed { index, (key, label) ->
                 SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.watchPwmDisplay,
                     onClick = { viewModel.updateWatchPwmDisplay(key) },
                     shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)

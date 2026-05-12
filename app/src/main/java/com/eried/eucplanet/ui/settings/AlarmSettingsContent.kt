@@ -2,8 +2,10 @@ package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -376,9 +378,14 @@ private fun AlarmRuleEditorDialog(
                 )
                 Spacer(Modifier.height(4.dp))
                 val comparatorEntries = AlarmComparator.entries
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max)
+                ) {
                     comparatorEntries.forEachIndexed { index, entry ->
                         SegmentedButton(
+                            modifier = Modifier.fillMaxHeight(),
                             selected = entry == selectedComp,
                             onClick = { comparator = entry.name },
                             shape = SegmentedButtonDefaults.itemShape(index, comparatorEntries.size)
@@ -514,9 +521,14 @@ private fun AlarmRuleEditorDialog(
                         "WATCH" to stringResource(R.string.alarm_vibrate_target_watch),
                         "BOTH" to stringResource(R.string.alarm_vibrate_target_both)
                     )
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                    ) {
                         targetEntries.forEachIndexed { index, (key, label) ->
                             SegmentedButton(
+                                modifier = Modifier.fillMaxHeight(),
                                 selected = key == vibrateTarget,
                                 onClick = { vibrateTarget = key },
                                 shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size)
