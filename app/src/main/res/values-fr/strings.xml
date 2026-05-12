@@ -409,11 +409,15 @@
     <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte.</string>
     <string name="watch_pwm_bar">Barre</string>
     <string name="watch_pwm_both">Les deux</string>
-    <string name="watch_pwm_display">Indicateur de charge (PWM)</string>
+    <string name="watch_pwm_display">Indicateur PWM</string>
     <string name="watch_pwm_numbers">Texte</string>
     <string name="watch_show_phone_battery">Afficher la batterie du téléphone</string>
     <string name="watch_show_speed_unit">Étiquette d\'unité de vitesse</string>
     <string name="watch_show_speed_unit_desc">Affiche l\'unité à côté du grand chiffre de vitesse.</string>
+    <string name="watch_prioritize_pwm">Prioriser le PWM</string>
+    <string name="watch_prioritize_pwm_desc">Rend la barre et le chiffre PWM plus grands que la vitesse.</string>
+    <string name="watch_dial_rotation">Rotation du cadran</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Afficher la batterie de la montre</string>
     <string name="watch_show_wheel_battery">Afficher la batterie de la roue</string>
     <string name="flic_action_record_start">Démarrer l\'enregistrement de trajet</string>

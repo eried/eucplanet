@@ -135,14 +135,11 @@ class CompositionEnginePlayer(private val context: Context) {
             rev?.setVolume(smoothedRevVol); lastRevVol = smoothedRevVol
         }
 
-        // Mild playback-speed modulation within each loop so 1-2 s clips don't sound
-        // perfectly static across a 0-50 km/h sweep. Range narrow so the timbre survives.
-        val speed = 0.9f + 0.20f * lastRpmNorm   // 0.90 .. 1.10
-        if (abs(speed - lastSpeed) > 0.02f) {
-            idle?.setSpeed(speed)
-            rev?.setSpeed(speed)
-            lastSpeed = speed
-        }
+        // Playback speed stays at 1.0× — ExoPlayer's Sonic time-stretch was painting
+        // audible artifacts over every loop iteration. The natural idle ↔ rev crossfade
+        // (above) handles the perceived "going faster" without touching pitch.
+        // Variable speed left for a future profile-level opt-in only if a clip really
+        // demands it.
     }
 
     fun fireDecel() {

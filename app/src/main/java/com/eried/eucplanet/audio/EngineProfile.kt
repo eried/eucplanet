@@ -104,6 +104,13 @@ data class EngineProfile(
     val sampleSections: Map<String, SampleSection>? = null,
     /** Optional pop SFX variants — picked at random when a pop fires. Supersedes [popSampleAsset]. */
     val popSections: List<SampleSection>? = null,
+    /**
+     * Preview / hidden engines are excluded from the picker. The full PROFILES list
+     * is kept so the runtime can still resolve a stored key (e.g. the user picked
+     * "Tron whine" before we marked it preview — opening Settings still shows
+     * "Tron whine" as the current value, but the dropdown won't offer it to others).
+     */
+    val preview: Boolean = false,
 ) {
     enum class Kind { ICE, SYNTH }
 
@@ -118,7 +125,7 @@ data class EngineProfile(
         val PROFILES: List<EngineProfile> = listOf(
             // --- Singles & small thumpers (gearless because EUCs don't shift like these) ---
             EngineProfile(
-                key = "TWO_STROKE",
+                key = "TWO_STROKE", preview = true,
                 displayName = "2-stroke",
                 kind = Kind.ICE,
                 idleRpm = 1400, maxRpm = 11000,
@@ -143,7 +150,7 @@ data class EngineProfile(
                 compressionTone = 0.6f
             ),
             EngineProfile(
-                key = "QUAD_BIKE",
+                key = "QUAD_BIKE", preview = true,
                 displayName = "Quad bike",
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 6200,
@@ -157,7 +164,7 @@ data class EngineProfile(
             ),
             // --- Multi-cylinder ICE ---
             EngineProfile(
-                key = "V_TWIN",
+                key = "V_TWIN", preview = true,
                 displayName = "V-twin",
                 kind = Kind.ICE,
                 idleRpm = 950, maxRpm = 6500,
@@ -170,7 +177,7 @@ data class EngineProfile(
                 compressionTone = 0.65f
             ),
             EngineProfile(
-                key = "INLINE_4",
+                key = "INLINE_4", preview = true,
                 displayName = "Inline-4",
                 kind = Kind.ICE,
                 idleRpm = 1100, maxRpm = 13500,
@@ -206,7 +213,7 @@ data class EngineProfile(
                 compressionTone = 0.55f
             ),
             EngineProfile(
-                key = "V16_LUXURY",
+                key = "V16_LUXURY", preview = true,
                 displayName = "V16 (luxury)",
                 kind = Kind.ICE,
                 idleRpm = 550, maxRpm = 6500,
@@ -219,7 +226,7 @@ data class EngineProfile(
             ),
             // --- Extra ICE flavors ---
             EngineProfile(
-                key = "BOXER_6",
+                key = "BOXER_6", preview = true,
                 displayName = "Boxer 6",
                 kind = Kind.ICE,
                 idleRpm = 850, maxRpm = 7800,
@@ -232,7 +239,7 @@ data class EngineProfile(
                 compressionTone = 0.5f
             ),
             EngineProfile(
-                key = "INLINE_6_SILKY",
+                key = "INLINE_6_SILKY", preview = true,
                 displayName = "Inline-6 (silky)",
                 kind = Kind.ICE,
                 idleRpm = 700, maxRpm = 7000,
@@ -244,7 +251,7 @@ data class EngineProfile(
                 compressionTone = 0.4f
             ),
             EngineProfile(
-                key = "TRACTOR",
+                key = "TRACTOR", preview = true,
                 displayName = "Tractor",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 450, maxRpm = 2400,
@@ -256,7 +263,7 @@ data class EngineProfile(
                 compressionTone = 0.95f
             ),
             EngineProfile(
-                key = "STEAM_LOCO",
+                key = "STEAM_LOCO", preview = true,
                 displayName = "Steam locomotive",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 180, maxRpm = 900,
@@ -271,7 +278,7 @@ data class EngineProfile(
             ),
             // --- Synth / futuristic (gearless) ---
             EngineProfile(
-                key = "TRON_WHINE",
+                key = "TRON_WHINE", preview = true,
                 displayName = "Tron whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 600, maxRpm = 14000,
@@ -282,7 +289,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "POD_RACER",
+                key = "POD_RACER", preview = true,
                 displayName = "Pod racer",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 10000,
@@ -293,7 +300,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "LIGHTSABER",
+                key = "LIGHTSABER", preview = true,
                 displayName = "Lightsaber",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 300, maxRpm = 1800,
@@ -315,7 +322,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "UFO_HOVER",
+                key = "UFO_HOVER", preview = true,
                 displayName = "UFO hover",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 700, maxRpm = 3200,
@@ -326,7 +333,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "F1_ELECTRIC",
+                key = "F1_ELECTRIC", preview = true,
                 displayName = "F1 electric whine",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 800, maxRpm = 20000,
@@ -337,7 +344,7 @@ data class EngineProfile(
                 decelPopProbability = 0.0f
             ),
             EngineProfile(
-                key = "HOVER_BIKE",
+                key = "HOVER_BIKE", preview = true,
                 displayName = "Hover bike",
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 7000,
@@ -369,7 +376,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("engine_v8_cobra", 20143, 20527))
             ),
             EngineProfile(
-                key = "SAMPLED_VTWIN_DUCATI",
+                key = "SAMPLED_VTWIN_DUCATI", preview = true,
                 displayName = "V-twin (Ducati, sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 950, maxRpm = 9000,
@@ -387,7 +394,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("src_bsb_0281", 10343, 10667))
             ),
             EngineProfile(
-                key = "SAMPLED_DIESEL_IVECO",
+                key = "SAMPLED_DIESEL_IVECO", preview = true,
                 displayName = "Diesel truck (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 800, maxRpm = 3200,
@@ -405,7 +412,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("src_bsb_1146", 21077, 21616))
             ),
             EngineProfile(
-                key = "SAMPLED_MOTORCYCLE",
+                key = "SAMPLED_MOTORCYCLE", preview = true,
                 displayName = "Motorcycle (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1100, maxRpm = 10500,
@@ -423,7 +430,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("src_fs_119774_moto_start", 857, 956))
             ),
             EngineProfile(
-                key = "SAMPLED_CITY_CAR",
+                key = "SAMPLED_CITY_CAR", preview = true,
                 displayName = "City car (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 850, maxRpm = 6000,
@@ -440,7 +447,7 @@ data class EngineProfile(
                 )
             ),
             EngineProfile(
-                key = "SAMPLED_HELICOPTER",
+                key = "SAMPLED_HELICOPTER", preview = true,
                 displayName = "Helicopter (sampled)",
                 kind = Kind.ICE, gearless = true,
                 // Helicopter rotor "RPM" is metaphorical here — drives playback speed mapping
@@ -459,7 +466,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("src_fs_559340_heli_long", 79023, 80296))
             ),
             EngineProfile(
-                key = "SAMPLED_TRACTOR",
+                key = "SAMPLED_TRACTOR", preview = true,
                 displayName = "Tractor (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2600,
@@ -473,7 +480,7 @@ data class EngineProfile(
                 )
             ),
             EngineProfile(
-                key = "SAMPLED_LAWNMOWER",
+                key = "SAMPLED_LAWNMOWER", preview = true,
                 displayName = "Lawn mower (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1800, maxRpm = 3600,
@@ -487,7 +494,7 @@ data class EngineProfile(
                 )
             ),
             EngineProfile(
-                key = "SAMPLED_STEAM_LOCO",
+                key = "SAMPLED_STEAM_LOCO", preview = true,
                 displayName = "Steam locomotive (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 200, maxRpm = 900,
@@ -505,7 +512,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("src_fs_784612_bulleid", 76172, 78541))
             ),
             EngineProfile(
-                key = "SAMPLED_CAR_CRUISE",
+                key = "SAMPLED_CAR_CRUISE", preview = true,
                 displayName = "Car cruise (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 1000, maxRpm = 5500,
@@ -523,7 +530,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("engine_car_cruise", 48719, 51509))
             ),
             EngineProfile(
-                key = "SAMPLED_ASTON_MARTIN",
+                key = "SAMPLED_ASTON_MARTIN", preview = true,
                 displayName = "Aston Martin (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 7500,
@@ -548,7 +555,7 @@ data class EngineProfile(
                 )
             ),
             EngineProfile(
-                key = "SAMPLED_BIG_DIESEL",
+                key = "SAMPLED_BIG_DIESEL", preview = true,
                 displayName = "Big diesel (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 600, maxRpm = 2800,
@@ -592,7 +599,7 @@ data class EngineProfile(
                 popSections = listOf(SampleSection("engine_damaged_muffler", 34606, 36748))
             ),
             EngineProfile(
-                key = "SAMPLED_QUAD_ATV",
+                key = "SAMPLED_QUAD_ATV", preview = true,
                 displayName = "Quad ATV (sampled)",
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 900, maxRpm = 6500,

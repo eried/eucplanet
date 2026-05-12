@@ -106,12 +106,16 @@
     <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
-    <string name="watch_pwm_display">Індикатор навантаження (PWM)</string>
+    <string name="watch_pwm_display">Індикатор PWM</string>
     <string name="watch_pwm_bar">Смуга</string>
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_pwm_both">Обидва</string>
     <string name="watch_show_speed_unit">Підпис одиниць швидкості</string>
     <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості.</string>
+    <string name="watch_prioritize_pwm">Пріоритет PWM</string>
+    <string name="watch_prioritize_pwm_desc">PWM (смуга й число) більший за швидкість.</string>
+    <string name="watch_dial_rotation">Обертання циферблата</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Апаратні кнопки</string>

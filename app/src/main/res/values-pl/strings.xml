@@ -106,12 +106,16 @@
     <string name="watch_show_wheel_battery">Pokaż baterię koła</string>
     <string name="watch_show_phone_battery">Pokaż baterię telefonu</string>
     <string name="watch_show_watch_battery">Pokaż baterię zegarka</string>
-    <string name="watch_pwm_display">Wskaźnik obciążenia (PWM)</string>
+    <string name="watch_pwm_display">Wskaźnik PWM</string>
     <string name="watch_pwm_bar">Pasek</string>
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_pwm_both">Oba</string>
     <string name="watch_show_speed_unit">Etykieta jednostki prędkości</string>
     <string name="watch_show_speed_unit_desc">Pokazuje jednostkę obok dużej liczby z prędkością.</string>
+    <string name="watch_prioritize_pwm">Priorytet dla PWM</string>
+    <string name="watch_prioritize_pwm_desc">Powiększa pasek i wartość PWM ponad odczyt prędkości.</string>
+    <string name="watch_dial_rotation">Obrót tarczy</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Przyciski sprzętowe</string>

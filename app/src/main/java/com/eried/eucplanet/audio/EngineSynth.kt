@@ -99,7 +99,11 @@ class EngineSynth(private val sampleRate: Int = 44100) {
             val firingRate = firingsPerSec.coerceAtLeast(0.5f)
 
             val rumbleHz = 30f + 20f * rpmNorm   // low rumble around 30-50 Hz
-            val gritAmount = profile.exhaustGrit * (0.4f + 0.6f * params.load + 0.5f * params.decelAmount)
+            // Grit and sub-rumble were carrying a 40% always-on floor — perceived as constant
+            // background hiss + low hum even at idle with zero load. Drop to 5% so the engine
+            // sounds CLEAN at idle and grit only emerges when the rider is actually loading
+            // the motor. Tail still respects decelAmount for the throttle-chop crackle.
+            val gritAmount = profile.exhaustGrit * (0.05f + 0.95f * params.load + 0.5f * params.decelAmount)
 
             // Engine-brake whine: high-frequency overtone above the firing rate, gated by engineBrakeAmount.
             // 2-strokes get a ringier brake (higher overtone) than 4-strokes.
@@ -146,8 +150,9 @@ class EngineSynth(private val sampleRate: Int = 44100) {
                     sample += thump * 0.45f
                 }
 
-                // Sub rumble layer
-                sample += 0.18f * sin(twoPi * rumblePhase).toFloat() * (0.4f + 0.6f * params.load)
+                // Sub rumble layer — same idle-quietening as grit; rumble was a constant low
+                // hum at idle that ate the high-end clarity. Now barely audible until load picks up.
+                sample += 0.18f * sin(twoPi * rumblePhase).toFloat() * (0.1f + 0.9f * params.load)
 
                 // Noise grit
                 sample += gritAmount * 0.6f * nextNoise()

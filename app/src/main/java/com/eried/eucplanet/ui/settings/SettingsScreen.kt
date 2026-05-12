@@ -388,6 +388,7 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val ctxLocal = androidx.compose.ui.platform.LocalContext.current
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
@@ -400,6 +401,32 @@ fun SettingsScreen(
                             }
                         },
                         singleLine = true,
+                        // Quake-style console: typed cheats (daredevilNN, godmode, bug) are
+                        // intercepted on IME Enter before they become a search query. No
+                        // match → field stays populated and the normal text-search filter
+                        // already running below keeps narrowing the visible sections.
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            imeAction = androidx.compose.ui.text.input.ImeAction.Search
+                        ),
+                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                            onSearch = {
+                                val result = viewModel.cheatState.tryConsume(searchQuery)
+                                if (result != null) {
+                                    Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                    if (result is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl) {
+                                        try {
+                                            ctxLocal.startActivity(
+                                                android.content.Intent(
+                                                    android.content.Intent.ACTION_VIEW,
+                                                    android.net.Uri.parse(result.url)
+                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            )
+                                        } catch (_: Throwable) { /* no browser installed — toast still shown */ }
+                                    }
+                                    searchQuery = ""
+                                }
+                            }
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 10.dp)
@@ -1168,10 +1195,32 @@ private fun WatchTab(
         }
 
         SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_prioritize_pwm),
+            description = stringResource(R.string.watch_prioritize_pwm_desc),
+            checked = settings.watchPrioritizePwm,
+            onCheckedChange = { viewModel.updateWatchPrioritizePwm(it) }
+        )
+
+        SwitchSettingWithDesc(
             label = stringResource(R.string.watch_show_speed_unit),
             description = stringResource(R.string.watch_show_speed_unit_desc),
             checked = settings.watchShowSpeedUnit,
             onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
+        )
+
+        Text(
+            stringResource(R.string.watch_dial_rotation),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        SliderSetting(
+            label = stringResource(R.string.watch_dial_rotation_value, settings.watchDialRotationDeg),
+            value = settings.watchDialRotationDeg.toFloat(),
+            range = -90f..90f,
+            unit = "°",
+            steps = 35,                         // 36 segments → -90,-85,…,+90
+            format = "%.0f",
+            onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
         )
 
         // Hardware-button mappings hidden for now — Samsung Watch Ultra and
@@ -1681,9 +1730,10 @@ private fun GaugeThresholdSlider(
     safeColor: androidx.compose.ui.graphics.Color,
     onChange: (orange: Int, red: Int) -> Unit
 ) {
-    // Stored range 25..100 aligns with the gauge arc's visible portion. 20 divisions = 3.75 per
-    // step, stored as Int (rounded). No text labels — the slider track shows the zones directly.
-    val stepSize = 3.75f
+    // Visual range 0..100 so the user SEES the locked green sliver (0..5) and the
+    // locked red sliver (95..100) at the ends of the track — they just can't drag
+    // a handle into those zones. Drag positions are clamped to [5, 95] inclusive.
+    val stepSize = 5f
     var range by remember(orangePct, redPct) {
         mutableStateOf(orangePct.toFloat()..redPct.toFloat())
     }
@@ -1696,8 +1746,8 @@ private fun GaugeThresholdSlider(
             onValueChange = { v ->
                 val start = kotlin.math.round(v.start / stepSize) * stepSize
                 val end = kotlin.math.round(v.endInclusive / stepSize) * stepSize
-                val clampedStart = start.coerceIn(25f, 100f - stepSize)
-                val clampedEnd = end.coerceIn(clampedStart + stepSize, 100f)
+                val clampedStart = start.coerceIn(5f, 90f)
+                val clampedEnd = end.coerceIn(clampedStart + stepSize, 95f)
                 range = clampedStart..clampedEnd
             },
             onValueChangeFinished = {
@@ -1706,8 +1756,8 @@ private fun GaugeThresholdSlider(
                     kotlin.math.round(range.endInclusive).toInt()
                 )
             },
-            valueRange = 25f..100f,
-            steps = 19,  // 20 divisions (3.75 per step) over 25..100
+            valueRange = 0f..100f,
+            steps = 19,  // 20 divisions of 5 over the full 0..100 track
             track = { state ->
                 val span = state.valueRange.endInclusive - state.valueRange.start
                 val startFrac = ((state.activeRangeStart - state.valueRange.start) / span)
@@ -1967,43 +2017,25 @@ private fun EngineSoundSection(
             com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
         }
 
-        SliderSetting(
-            label = stringResource(R.string.engine_volume),
-            value = settings.engineVolume * 100f,
-            range = 0f..100f,
-            unit = "%",
-            steps = 19,
-            format = "%.0f",
-            onValueChange = { viewModel.updateEngineVolume(it / 100f) }
-        )
-
-        // Speed-based auto volume — multiplies the engine volume slider by a 4-point
-        // curve evaluated at the current speed. Defaults to a DECREASING shape so the
-        // engine is loud at low speed (pedestrian awareness) and quieter at speed.
-        // Unlike the voice auto-volume curve (always-increasing for wind noise), this
-        // one has no monotonic constraint.
-        SwitchSetting(
-            label = stringResource(R.string.engine_volume_auto_label),
-            checked = settings.engineVolumeAutoEnabled
-        ) { viewModel.updateEngineVolumeAutoEnabled(it) }
+        // Engine volume is now a 4-point speed curve — no fixed slider. Drag a finger on
+        // the graph to probe the volume at any speed (same UX as the voice auto-volume
+        // curve in Automations).
         Text(
-            stringResource(R.string.engine_volume_auto_hint),
-            style = MaterialTheme.typography.bodySmall,
+            stringResource(R.string.engine_volume),
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        if (settings.engineVolumeAutoEnabled) {
-            var points by remember(settings.engineVolumeAutoCurve) {
-                mutableStateOf(com.eried.eucplanet.service.parseVolumeCurve(settings.engineVolumeAutoCurve))
-            }
-            EngineSpeedVolumeCurveEditor(
-                points = points,
-                useImperial = settings.imperialUnits,
-                onPointsChanged = { newPoints ->
-                    points = newPoints
-                    viewModel.updateEngineVolumeAutoCurve(com.eried.eucplanet.service.encodeVolumeCurve(newPoints))
-                }
-            )
+        var enginePoints by remember(settings.engineVolumeAutoCurve) {
+            mutableStateOf(com.eried.eucplanet.service.parseVolumeCurve(settings.engineVolumeAutoCurve))
         }
+        EngineSpeedVolumeCurveEditor(
+            points = enginePoints,
+            useImperial = settings.imperialUnits,
+            onPointsChanged = { newPoints ->
+                enginePoints = newPoints
+                viewModel.updateEngineVolumeAutoCurve(com.eried.eucplanet.service.encodeVolumeCurve(newPoints))
+            }
+        )
 
         if (currentProfile.supportsMuffler) {
             SegmentedChoice(
@@ -2133,9 +2165,12 @@ private fun EngineTypePicker(
             else (unsortedProfiles.firstOrNull { it.key == key }?.displayName ?: key)
     }
     // Alphabetical by localized display name. Recomputed when the configuration locale changes
-    // because displayFor reads from the current ctx.resources.
-    val profiles = remember(ctx) {
-        unsortedProfiles.sortedBy { displayFor(it.key).lowercase() }
+    // because displayFor reads from the current ctx.resources. Preview engines are hidden
+    // unless they're the user's currently-selected one (so we never silently swap their pick).
+    val profiles = remember(ctx, currentKey) {
+        unsortedProfiles
+            .filter { !it.preview || it.key == currentKey }
+            .sortedBy { displayFor(it.key).lowercase() }
     }
     var expanded by remember { mutableStateOf(false) }
 
@@ -2459,7 +2494,9 @@ private fun EngineSpeedVolumeCurveEditor(
             75f to (p.getOrNull(3)?.second ?: 0.2f),
         )
     }
+    val probeColor = MaterialTheme.colorScheme.onSurface
     var dragIndex by remember { mutableStateOf(-1) }
+    var probeSpeed by remember { mutableStateOf<Float?>(null) }
     val pointsRef = remember { mutableStateOf(normalized) }
     pointsRef.value = normalized
 
@@ -2473,7 +2510,7 @@ private fun EngineSpeedVolumeCurveEditor(
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 36.dp, bottom = 24.dp, top = 10.dp, end = 10.dp)
+                .padding(start = 40.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { offset ->
@@ -2488,10 +2525,19 @@ private fun EngineSpeedVolumeCurveEditor(
                                 }
                                 .filter { it.second < 100f }
                                 .minByOrNull { it.second }
-                            dragIndex = nearest?.first ?: -1
+                            // No monotonic constraint, all 4 points draggable.
+                            if (nearest != null) {
+                                dragIndex = nearest.first
+                                probeSpeed = null
+                            } else {
+                                dragIndex = -1
+                                val speed = (offset.x / w * maxSpeed).coerceIn(0f, maxSpeed)
+                                probeSpeed = speed
+                            }
                         },
                         onDrag = { change, _ ->
                             change.consume()
+                            val w = size.width.toFloat()
                             val h = size.height.toFloat()
                             if (dragIndex in pointsRef.value.indices) {
                                 val newM = (minMult + (h - change.position.y) / h * (maxMult - minMult))
@@ -2500,10 +2546,13 @@ private fun EngineSpeedVolumeCurveEditor(
                                 val mutable = pointsRef.value.toMutableList()
                                 mutable[dragIndex] = oldS to newM
                                 onPointsChanged(mutable)
+                            } else {
+                                val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
+                                probeSpeed = speed
                             }
                         },
-                        onDragEnd = { dragIndex = -1 },
-                        onDragCancel = { dragIndex = -1 }
+                        onDragEnd = { dragIndex = -1; probeSpeed = null },
+                        onDragCancel = { dragIndex = -1; probeSpeed = null }
                     )
                 }
         ) {
@@ -2531,16 +2580,57 @@ private fun EngineSpeedVolumeCurveEditor(
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
             val unitMeasured = textMeasurer.measure(speedUnitLabel, TextStyle(fontSize = 10.sp, color = labelColor))
-            drawText(unitMeasured, topLeft = Offset(w * 0.45f - unitMeasured.size.width / 2f, h + 16f))
+            drawText(unitMeasured, topLeft = Offset((w - unitMeasured.size.width) / 2f, h + 4f))
 
-            // Draw the line between points + dots.
-            val path = Path()
-            normalized.forEachIndexed { idx, (s, v) ->
-                val px = s / maxSpeed * w
-                val py = h - (v - minMult) / (maxMult - minMult) * h
-                if (idx == 0) path.moveTo(px, py) else path.lineTo(px, py)
+            // PCHIP-smoothed curve through the 4 control points + tinted fill below it.
+            if (normalized.size >= 2) {
+                val curvePath = Path()
+                val steps = 100
+                for (i in 0..steps) {
+                    val speed = i.toFloat() / steps * maxSpeed
+                    val mult = com.eried.eucplanet.service.pchipInterpolate(normalized, speed)
+                        .coerceIn(minMult, maxMult)
+                    val x = speed / maxSpeed * w
+                    val y = h - (mult - minMult) / (maxMult - minMult) * h
+                    if (i == 0) curvePath.moveTo(x, y) else curvePath.lineTo(x, y)
+                }
+                val fillPath = Path()
+                fillPath.addPath(curvePath)
+                fillPath.lineTo(w, h)
+                fillPath.lineTo(0f, h)
+                fillPath.close()
+                drawPath(fillPath, color = lineColor.copy(alpha = 0.12f))
+                drawPath(curvePath, color = lineColor, style = Stroke(width = 3f))
             }
-            drawPath(path, lineColor, style = Stroke(width = 3f))
+
+            // Finger probe — dashed vertical line + "30 km/h → 45%" readout above the curve.
+            val currentProbe = probeSpeed
+            if (currentProbe != null && normalized.size >= 2) {
+                val probeMult = com.eried.eucplanet.service.pchipInterpolate(normalized, currentProbe)
+                    .coerceIn(minMult, maxMult)
+                val px = currentProbe / maxSpeed * w
+                val py = h - (probeMult - minMult) / (maxMult - minMult) * h
+                drawLine(
+                    color = probeColor.copy(alpha = 0.5f),
+                    start = Offset(px, 0f),
+                    end = Offset(px, h),
+                    strokeWidth = 1.5f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f))
+                )
+                drawCircle(color = lineColor, radius = 6f, center = Offset(px, py))
+                val displayProbe = Units.speed(currentProbe, useImperial).roundToInt()
+                val probeLabel = "$displayProbe $speedUnitLabel → ${(probeMult * 100).roundToInt()}%"
+                val probeMeasured = textMeasurer.measure(
+                    probeLabel,
+                    TextStyle(fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = probeColor)
+                )
+                val labelX = (px - probeMeasured.size.width / 2f)
+                    .coerceIn(0f, w - probeMeasured.size.width)
+                val labelY = (py - probeMeasured.size.height - 12f).coerceAtLeast(0f)
+                drawText(probeMeasured, topLeft = Offset(labelX, labelY))
+            }
+
+            // Control point handles (all 4 are draggable).
             normalized.forEach { (s, v) ->
                 val px = s / maxSpeed * w
                 val py = h - (v - minMult) / (maxMult - minMult) * h

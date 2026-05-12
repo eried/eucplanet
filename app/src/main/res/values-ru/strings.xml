@@ -461,11 +461,15 @@
     <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение.</string>
     <string name="watch_pwm_bar">Полоса</string>
     <string name="watch_pwm_both">Оба</string>
-    <string name="watch_pwm_display">Индикатор нагрузки (PWM)</string>
+    <string name="watch_pwm_display">Индикатор PWM</string>
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_show_phone_battery">Показывать заряд телефона</string>
     <string name="watch_show_speed_unit">Подпись единиц скорости</string>
     <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости.</string>
+    <string name="watch_prioritize_pwm">Приоритет PWM</string>
+    <string name="watch_prioritize_pwm_desc">PWM (полоса и число) крупнее, чем скорость.</string>
+    <string name="watch_dial_rotation">Поворот циферблата</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Показывать заряд часов</string>
     <string name="watch_show_wheel_battery">Показывать заряд колеса</string>
     <string name="flic_action_record_start">Начать запись поездки</string>

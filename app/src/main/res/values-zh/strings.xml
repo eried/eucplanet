@@ -409,11 +409,15 @@
     <string name="watch_keep_on_desc">应用开启期间让手表保持唤醒。</string>
     <string name="watch_pwm_bar">条形图</string>
     <string name="watch_pwm_both">两者</string>
-    <string name="watch_pwm_display">负载 (PWM) 显示</string>
+    <string name="watch_pwm_display">PWM 指示器</string>
     <string name="watch_pwm_numbers">文字</string>
     <string name="watch_show_phone_battery">显示手机电量</string>
     <string name="watch_show_speed_unit">速度单位标签</string>
     <string name="watch_show_speed_unit_desc">在大号速度数字旁显示单位标签。</string>
+    <string name="watch_prioritize_pwm">优先显示PWM</string>
+    <string name="watch_prioritize_pwm_desc">让 PWM 条形与数字比速度更显眼。</string>
+    <string name="watch_dial_rotation">表盘旋转</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">显示手表电量</string>
     <string name="watch_show_wheel_battery">显示车轮电量</string>
     <string name="flic_action_record_start">开始行程记录</string>

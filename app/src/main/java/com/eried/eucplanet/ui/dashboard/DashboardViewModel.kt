@@ -52,6 +52,7 @@ class DashboardViewModel @Inject constructor(
     private val flicManager: FlicManager,
     private val syncManager: SyncManager,
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
+    val cheatState: com.eried.eucplanet.cheats.CheatState,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 

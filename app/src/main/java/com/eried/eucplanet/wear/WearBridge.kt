@@ -42,7 +42,8 @@ import javax.inject.Singleton
 class WearBridge @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelRepository: WheelRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val cheatState: com.eried.eucplanet.cheats.CheatState
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -76,6 +77,8 @@ class WearBridge @Inject constructor(
         private const val K_OPT_SHOW_WATCH_BATT = "wwb"
         private const val K_OPT_PWM_DISPLAY = "wpd"
         private const val K_OPT_SHOW_SPEED_UNIT = "wsu"
+        private const val K_OPT_PRIORITIZE_PWM = "wpp"
+        private const val K_OPT_DIAL_ROTATION = "wrot"
         private const val K_OPT_GAUGE_BAND = "wgb"
         private const val K_OPT_GAUGE_ORANGE = "wgo"
         private const val K_OPT_GAUGE_RED = "wgr"
@@ -147,12 +150,21 @@ class WearBridge @Inject constructor(
         scope.launch {
             while (true) {
                 try {
+                    // Watch gauge max must match the phone dashboard gauge max so the
+                    // two dials show the same range. Dashboard computes:
+                    //   gaugeMax = ((effectiveTiltback / 10) + 1) * 10
+                    // where effectiveTiltback is the safety-tiltback when legal mode is
+                    // on, normal tiltback otherwise. Mirroring that here.
+                    val s = settingsRepository.get()
+                    val effTilt = if (wheelRepository.safetySpeedActive.value)
+                        s.safetyTiltbackKmh else s.tiltbackSpeedKmh
+                    val gaugeMax = ((effTilt / 10f).toInt() + 1) * 10f
                     publish(
                         data = wheelRepository.wheelData.value,
                         state = wheelRepository.connectionState.value,
                         name = wheelRepository.modelName.value,
-                        maxSpeed = wheelRepository.maxSpeedCap.value,
-                        settings = settingsRepository.get()
+                        maxSpeed = gaugeMax,
+                        settings = s
                     )
                 } catch (e: Exception) {
                     Log.w(TAG, "publish loop error", e)
@@ -173,7 +185,9 @@ class WearBridge @Inject constructor(
             val request = PutDataMapRequest.create(PATH_STATE).apply {
                 dataMap.putBoolean(K_CONNECTED, state == ConnectionState.CONNECTED)
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
-                dataMap.putFloat(K_SPEED, data.speed)
+                // Apply the Quake-console daredevilNN multiplier (1.0 when no cheat).
+                // The watch only renders telemetry, doesn't record — so faking here is safe.
+                dataMap.putFloat(K_SPEED, data.speed * cheatState.speedDisplayMultiplier.value)
                 dataMap.putInt(K_BATTERY, data.batteryPercent)
                 dataMap.putInt(K_PHONE_BATT, readPhoneBatteryPercent())
                 dataMap.putFloat(K_VOLTAGE, data.voltage)
@@ -196,6 +210,8 @@ class WearBridge @Inject constructor(
                 dataMap.putBoolean(K_OPT_SHOW_WATCH_BATT, settings.watchShowWatchBattery)
                 dataMap.putString(K_OPT_PWM_DISPLAY, settings.watchPwmDisplay)
                 dataMap.putBoolean(K_OPT_SHOW_SPEED_UNIT, settings.watchShowSpeedUnit)
+                dataMap.putBoolean(K_OPT_PRIORITIZE_PWM, settings.watchPrioritizePwm)
+                dataMap.putInt(K_OPT_DIAL_ROTATION, settings.watchDialRotationDeg)
                 dataMap.putBoolean(K_OPT_GAUGE_BAND, settings.showGaugeColorBand)
                 dataMap.putInt(K_OPT_GAUGE_ORANGE, settings.gaugeOrangeThresholdPct)
                 dataMap.putInt(K_OPT_GAUGE_RED, settings.gaugeRedThresholdPct)

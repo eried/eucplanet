@@ -409,11 +409,15 @@
     <string name="watch_keep_on_desc">Håll klockan vaken medan appen är öppen.</string>
     <string name="watch_pwm_bar">Stapel</string>
     <string name="watch_pwm_both">Båda</string>
-    <string name="watch_pwm_display">Belastningsindikator (PWM)</string>
+    <string name="watch_pwm_display">PWM-indikator</string>
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Visa telefonens batteri</string>
     <string name="watch_show_speed_unit">Etikett för hastighetsenhet</string>
     <string name="watch_show_speed_unit_desc">Visa enhetens etikett bredvid den stora hastighetssiffran.</string>
+    <string name="watch_prioritize_pwm">Prioritera PWM</string>
+    <string name="watch_prioritize_pwm_desc">Gör PWM-stapeln och siffran större än hastigheten.</string>
+    <string name="watch_dial_rotation">Urtavlans rotation</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Visa klockans batteri</string>
     <string name="watch_show_wheel_battery">Visa hjulets batteri</string>
     <string name="flic_action_record_start">Starta turinspelning</string>

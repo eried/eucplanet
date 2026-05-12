@@ -188,6 +188,21 @@ data class AppSettings(
     val watchShowSpeedUnit: Boolean = true,
     @ColumnInfo(defaultValue = "0")
     val watchEnableGpsSpeed: Boolean = false,
+    /**
+     * When true the watch dial inverts the size hierarchy on its first screen:
+     * the PWM bar + number become the focal element, the speed reading shrinks.
+     * Useful when the rider cares more about cutout headroom than current speed.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val watchPrioritizePwm: Boolean = false,
+    /**
+     * Virtual rotation applied to the watch's first screen only, in degrees
+     * (–90..+90, step 5). Lets the rider tilt the dial so it reads naturally with
+     * their wrist orientation when the wheel is in motion. Doesn't affect the
+     * other watch screens or any phone UI.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val watchDialRotationDeg: Int = 0,
 
     /**
      * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
@@ -244,20 +259,21 @@ data class AppSettings(
     @ColumnInfo(defaultValue = "0.6")
     val engineVolume: Float = 0.6f,
     /**
-     * When true, engine volume is multiplied by a speed curve (see [engineVolumeAutoCurve]).
-     * The default curve decreases with speed so pedestrians hear the wheel at slow speeds
-     * but the engine fades back at cruise — the opposite of the voice automation, which
-     * RAMPS UP with speed to overcome wind noise.
+     * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
+     * could disable the speed curve. The current UI always uses the curve so this field
+     * is unused — kept only for backup/sync compatibility with v0.5.x exports.
      */
     @ColumnInfo(defaultValue = "0")
     val engineVolumeAutoEnabled: Boolean = false,
     /**
-     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. Format matches
+     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
+     * volume — there's no separate fixed-volume slider any more. Format matches
      * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
-     * Default is gently decreasing.
+     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
+     * silent at top.
      */
-    @ColumnInfo(defaultValue = "0:1.00,25:0.70,50:0.40,75:0.20")
-    val engineVolumeAutoCurve: String = "0:1.00,25:0.70,50:0.40,75:0.20",
+    @ColumnInfo(defaultValue = "0:1.00,25:0.10,50:0.10,75:0.00")
+    val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
     /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
     @ColumnInfo(defaultValue = "HALF")
     val engineMuffler: String = "HALF",

@@ -409,11 +409,15 @@
     <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben.</string>
     <string name="watch_pwm_bar">Bjælke</string>
     <string name="watch_pwm_both">Begge</string>
-    <string name="watch_pwm_display">Belastnings (PWM) indikator</string>
+    <string name="watch_pwm_display">PWM-indikator</string>
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_show_phone_battery">Vis telefonbatteri</string>
     <string name="watch_show_speed_unit">Enhedslabel for hastighed</string>
     <string name="watch_show_speed_unit_desc">Vis enhedslabel ved siden af det store hastighedstal.</string>
+    <string name="watch_prioritize_pwm">Prioriter PWM</string>
+    <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten.</string>
+    <string name="watch_dial_rotation">Urskivens rotation</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Vis ur-batteri</string>
     <string name="watch_show_wheel_battery">Vis hjul-batteri</string>
     <string name="flic_action_record_start">Start turoptagelse</string>

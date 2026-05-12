@@ -425,11 +425,15 @@
     <string name="watch_keep_on_desc">Hält die Uhr wach, solange die App offen ist.</string>
     <string name="watch_pwm_bar">Balken</string>
     <string name="watch_pwm_both">Beide</string>
-    <string name="watch_pwm_display">Last-Anzeige (PWM)</string>
+    <string name="watch_pwm_display">PWM-Anzeige</string>
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Telefonakku anzeigen</string>
     <string name="watch_show_speed_unit">Einheitenkürzel</string>
     <string name="watch_show_speed_unit_desc">Zeigt das Einheitenkürzel neben der großen Geschwindigkeitszahl.</string>
+    <string name="watch_prioritize_pwm">PWM priorisieren</string>
+    <string name="watch_prioritize_pwm_desc">PWM-Balken und -Zahl größer als die Geschwindigkeit darstellen.</string>
+    <string name="watch_dial_rotation">Zifferblatt-Drehung</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Uhrenakku anzeigen</string>
     <string name="watch_show_wheel_battery">Rad-Akku anzeigen</string>
     <string name="flic_action_record_start">Fahrtaufzeichnung starten</string>

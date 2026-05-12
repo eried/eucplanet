@@ -106,12 +106,16 @@
     <string name="watch_show_wheel_battery">Accu van wiel tonen</string>
     <string name="watch_show_phone_battery">Accu van telefoon tonen</string>
     <string name="watch_show_watch_battery">Accu van horloge tonen</string>
-    <string name="watch_pwm_display">Belastingsindicator (PWM)</string>
+    <string name="watch_pwm_display">PWM-indicator</string>
     <string name="watch_pwm_bar">Balk</string>
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_pwm_both">Beide</string>
     <string name="watch_show_speed_unit">Snelheidseenheid</string>
     <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal.</string>
+    <string name="watch_prioritize_pwm">PWM voorrang geven</string>
+    <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid.</string>
+    <string name="watch_dial_rotation">Wijzerplaatrotatie</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Hardwareknoppen</string>

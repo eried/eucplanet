@@ -53,6 +53,10 @@ object WatchKeys {
     /** "BAR" / "NUMBERS" / "BOTH". */
     const val OPT_PWM_DISPLAY = "wpd"
     const val OPT_SHOW_SPEED_UNIT = "wsu"
+    /** When true, the dial enlarges PWM at the expense of the speed font. */
+    const val OPT_PRIORITIZE_PWM = "wpp"
+    /** Virtual rotation of the first watch screen, in degrees (-90..+90, step 5). */
+    const val OPT_DIAL_ROTATION = "wrot"
     /** Phone's `showGaugeColorBand` toggle. When false, the gauge stays
      *  monochrome on the watch too. */
     const val OPT_GAUGE_BAND = "wgb"
@@ -141,6 +145,15 @@ data class WatchState(
     val showWatchBattery: Boolean = true,
     val pwmDisplay: String = "BOTH",
     val showSpeedUnit: Boolean = true,
+    val prioritizePwm: Boolean = false,
+    val dialRotationDeg: Int = 0,
+    /**
+     * True once the watch has received its first telemetry DataMap from the phone
+     * this session. Used to gate the unit label (km/h vs mph) — before sync the
+     * watch has no way to know which unit system the rider uses, so we hide it
+     * to avoid showing the wrong one.
+     */
+    val phoneSynced: Boolean = false,
     val showGaugeBand: Boolean = false,
     val gaugeOrangeThresholdPct: Int = 65,
     val gaugeRedThresholdPct: Int = 85,

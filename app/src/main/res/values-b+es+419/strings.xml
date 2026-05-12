@@ -106,12 +106,16 @@
     <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
     <string name="watch_show_phone_battery">Mostrar batería del celular</string>
     <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
-    <string name="watch_pwm_display">Indicador de carga (PWM)</string>
+    <string name="watch_pwm_display">Indicador de PWM</string>
     <string name="watch_pwm_bar">Barra</string>
     <string name="watch_pwm_numbers">Texto</string>
     <string name="watch_pwm_both">Ambos</string>
     <string name="watch_show_speed_unit">Etiqueta de unidad de velocidad</string>
     <string name="watch_show_speed_unit_desc">Muestra la unidad junto al número grande de velocidad.</string>
+    <string name="watch_prioritize_pwm">Priorizar PWM</string>
+    <string name="watch_prioritize_pwm_desc">Hace que la barra y el número de PWM se vean más grandes que la velocidad.</string>
+    <string name="watch_dial_rotation">Rotación de la carátula</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
     <string name="section_watch_buttons">Botones físicos</string>

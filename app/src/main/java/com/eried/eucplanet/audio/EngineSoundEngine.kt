@@ -361,17 +361,14 @@ class EngineSoundEngine @Inject constructor(
         val brakeAlpha = (dt * if (targetBrake > brakeEnvelope) 1.4f else 3f).coerceAtMost(1f)
         brakeEnvelope += brakeAlpha * (targetBrake - brakeEnvelope)
 
-        // Speed-based auto volume — multiplier from the 4-point curve at the current
-        // speed, then smoothed so a sudden speed change doesn't pop the gain.
-        if (volumeAutoEnabled && volumeAutoCurve.isNotEmpty()) {
-            val target = com.eried.eucplanet.service.pchipInterpolate(volumeAutoCurve, abs(speedKmh))
+        // The curve IS the engine volume — no separate fixed slider any more. Evaluate
+        // the 4-point pchip at the current speed and smooth the result so a sudden
+        // speed change doesn't pop the gain.
+        val targetVol = if (volumeAutoCurve.isNotEmpty())
+            com.eried.eucplanet.service.pchipInterpolate(volumeAutoCurve, abs(speedKmh))
                 .coerceIn(0f, 1f)
-            smoothedSpeedMult += (target - smoothedSpeedMult) * (dt * 4f).coerceAtMost(1f)
-        } else {
-            // Snap back to 1.0 when the feature is off so disabling mid-ride doesn't
-            // leave a residual scale factor in place.
-            smoothedSpeedMult += (1f - smoothedSpeedMult) * (dt * 4f).coerceAtMost(1f)
-        }
+        else 1f
+        smoothedSpeedMult += (targetVol - smoothedSpeedMult) * (dt * 4f).coerceAtMost(1f)
 
         // Idle envelope
         val moving = abs(speedKmh) > 0.3f
@@ -444,7 +441,9 @@ class EngineSoundEngine @Inject constructor(
             "MUFFLED" -> 0.15f
             else -> 0.55f                                // HALF
         }
-        val gain = masterVolume * voiceDuckGain * smoothedSpeedMult
+        // The smoothed speed curve drives the master gain directly — no separate
+        // slider any more. voiceDuckGain dips when TTS is speaking.
+        val gain = smoothedSpeedMult * voiceDuckGain
         paramsSnapshot = EngineParams(
             rpm = smoothedRpm,
             load = smoothedLoad,
