@@ -660,6 +660,7 @@ fun DashboardScreen(
                     icon = Icons.Default.FlashlightOn,
                     label = stringResource(R.string.action_light),
                     active = wheelData.lightOn,
+                    activeColor = if (useAccent) primary else AccentYellow,
                     enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                     onClick = { viewModel.onLightToggle() },
                     aspectRatio = actionAspect, heightDp = actionHeight,
