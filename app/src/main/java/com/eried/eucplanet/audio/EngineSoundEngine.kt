@@ -48,6 +48,7 @@ class EngineSoundEngine @Inject constructor(
 
     @Volatile private var paramsSnapshot: EngineParams = EngineParams.SILENT
     private val synth = EngineSynth(sampleRate)
+    private val sampledPlayer = SampledEnginePlayer(context)
 
     // --- Main-thread state used to derive params from raw telemetry ---
     private var profile: EngineProfile = EngineProfile.byKey("FOUR_STROKE_SINGLE")
@@ -83,6 +84,7 @@ class EngineSoundEngine @Inject constructor(
 
     /** Apply settings — called whenever AppSettings changes. */
     fun applySettings(s: AppSettings) {
+        val previousProfileKey = profile.key
         profile = EngineProfile.byKey(s.engineType)
         masterVolume = s.engineVolume.coerceIn(0f, 1f)
         mufflerKey = s.engineMuffler
@@ -95,8 +97,14 @@ class EngineSoundEngine @Inject constructor(
 
         if (!s.engineSoundEnabled) {
             stop()
+            return
         }
-        // start() is gated on connection; called from [setConnected].
+        // Engine type swap while running: restart the correct path.
+        if (running && previousProfileKey != profile.key) {
+            stop()
+            start()
+        }
+        // Otherwise start() is gated on connection; called from [setConnected].
     }
 
     /** Wheel BLE connect/disconnect. */
@@ -294,6 +302,12 @@ class EngineSoundEngine @Inject constructor(
             profile = profile,
             mufflerOpenness = muff
         )
+        // Sample-based engine takes its parameters from the same snapshot.
+        if (sampledPlayer.isPlaying()) {
+            val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
+            val rpmNorm = ((smoothedRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
+            sampledPlayer.update(rpmNorm, gain * idleEnvelope.coerceIn(0f, 1f))
+        }
     }
 
     /** Start the audio producer thread. Idempotent. */
@@ -305,6 +319,10 @@ class EngineSoundEngine @Inject constructor(
         }
         running = true
         requestAudioFocus()
+        if (profile.sampleAssetBase != null) {
+            sampledPlayer.start(profile)
+            return
+        }
         try {
             val minBuf = AudioTrack.getMinBufferSize(
                 sampleRate, channelMask, AudioFormat.ENCODING_PCM_FLOAT
@@ -352,6 +370,7 @@ class EngineSoundEngine @Inject constructor(
             }
         }
         audioTrack = null
+        sampledPlayer.stop()
         abandonAudioFocus()
         synth.reset()
         revDetector.reset()

@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -2050,12 +2052,26 @@ private fun EngineTypePicker(
     }
     var expanded by remember { mutableStateOf(false) }
 
+    val currentProfile = profiles.firstOrNull { it.key == currentKey }
+    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
+        stringResource(R.string.engine_source_sampled)
+    else
+        stringResource(R.string.engine_source_synth)
+
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(
-            stringResource(R.string.engine_type_label),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.engine_type_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                sourceLabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
         Spacer(Modifier.height(6.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -2081,7 +2097,20 @@ private fun EngineTypePicker(
                 ) {
                     profiles.forEach { p ->
                         DropdownMenuItem(
-                            text = { Text(displayFor(p.key)) },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(displayFor(p.key), modifier = Modifier.weight(1f))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        if (p.sampleAssetBase != null)
+                                            stringResource(R.string.engine_source_sampled)
+                                        else
+                                            stringResource(R.string.engine_source_synth),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            },
                             onClick = {
                                 onSelect(p.key)
                                 expanded = false
@@ -2090,12 +2119,7 @@ private fun EngineTypePicker(
                     }
                 }
             }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = { onPreview(currentKey) }) {
-                Icon(Icons.Filled.PlayArrow, contentDescription = stringResource(R.string.engine_preview))
-                Spacer(Modifier.width(4.dp))
-                Text(stringResource(R.string.engine_preview))
-            }
+            PlayButton(onClick = { onPreview(currentKey) })
         }
     }
 }
@@ -2195,9 +2219,14 @@ private fun SegmentedChoice(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(6.dp))
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
             options.forEachIndexed { index, (key, optLabel) ->
                 SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),

@@ -248,6 +248,8 @@
     <string name="engine_safety_ok">Got it</string>
     <string name="engine_type_label">Engine type</string>
     <string name="engine_preview">Preview</string>
+    <string name="engine_source_sampled">Sampled</string>
+    <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Engine volume</string>
     <string name="engine_muffler_label">Muffler</string>
     <string name="engine_muffler_open">Open</string>
@@ -286,6 +288,11 @@
     <string name="engine_preset_v16_luxury">V16 luxury</string>
     <string name="engine_preset_tron_whine">Tron whine</string>
     <string name="engine_preset_pod_racer">Pod racer</string>
+    <string name="engine_preset_sampled_v8_cobra">V8 Cobra</string>
+    <string name="engine_preset_sampled_vtwin_ducati">V-twin Ducati</string>
+    <string name="engine_preset_sampled_diesel_iveco">Diesel truck</string>
+    <string name="engine_preset_sampled_motorcycle">Motorcycle</string>
+    <string name="engine_preset_sampled_city_car">City car</string>
 
     <string name="col_periodic">Periodic</string>
     <string name="col_trigger">Trigger</string>

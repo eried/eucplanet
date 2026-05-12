@@ -52,7 +52,17 @@ data class EngineProfile(
     /** Synth waveform shape — 0 = sine, 1 = saw, 2 = square. */
     val synthShape: Int = 1,
     /** FM modulation depth for synth (0..1). */
-    val synthFmDepth: Float = 0.3f
+    val synthFmDepth: Float = 0.3f,
+    /**
+     * Resource basename for sample-based rendering, looked up under `res/raw/`.
+     *
+     * - `${sampleAssetBase}_idle` is the looped idle sample (required)
+     * - `${sampleAssetBase}_rev`  is the optional mid/high-RPM loop (crossfaded by load)
+     *
+     * When set, the engine is rendered by playing back and pitch-shifting these
+     * samples instead of the procedural [EngineSynth]. Null = procedural.
+     */
+    val sampleAssetBase: String? = null
 ) {
     enum class Kind { ICE, SYNTH }
 
@@ -188,6 +198,44 @@ data class EngineProfile(
                 synthFmDepth = 0.6f,
                 exhaustGrit = 0.45f,
                 decelPopProbability = 0.0f
+            ),
+            // --- Sampled (real recordings, all CC0 from BigSoundBank — see Credits) ---
+            // For sampled engines the procedural [kind] flags below are unused; the SampledEnginePlayer
+            // handles render. Idle/max RPM still drive the playback-speed mapping.
+            EngineProfile(
+                key = "SAMPLED_V8_COBRA",
+                displayName = "V8 (Cobra, sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 700, maxRpm = 6500,
+                sampleAssetBase = "engine_v8_cobra"
+            ),
+            EngineProfile(
+                key = "SAMPLED_VTWIN_DUCATI",
+                displayName = "V-twin (Ducati, sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 950, maxRpm = 9000,
+                sampleAssetBase = "engine_vtwin_ducati"
+            ),
+            EngineProfile(
+                key = "SAMPLED_DIESEL_IVECO",
+                displayName = "Diesel truck (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 800, maxRpm = 3200,
+                sampleAssetBase = "engine_diesel_iveco"
+            ),
+            EngineProfile(
+                key = "SAMPLED_MOTORCYCLE",
+                displayName = "Motorcycle (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 1100, maxRpm = 10500,
+                sampleAssetBase = "engine_motorcycle"
+            ),
+            EngineProfile(
+                key = "SAMPLED_CITY_CAR",
+                displayName = "City car (sampled)",
+                kind = Kind.ICE, gearless = true,
+                idleRpm = 850, maxRpm = 6000,
+                sampleAssetBase = "engine_citycar_saxo"
             )
         )
 
