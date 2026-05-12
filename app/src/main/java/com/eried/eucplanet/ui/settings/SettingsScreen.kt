@@ -36,7 +36,9 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -2102,10 +2104,22 @@ private fun EngineTypePicker(
             onExpandedChange = { expanded = !expanded },
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
+            // Sits on the LEFT of the engine name so two presets that share a name
+            // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
+            val isSampled = currentProfile?.sampleAssetBase != null
             OutlinedTextField(
                 value = displayFor(currentKey),
                 onValueChange = {},
                 readOnly = true,
+                leadingIcon = {
+                    Icon(
+                        imageVector = if (isSampled) Icons.Filled.Album else Icons.Filled.Equalizer,
+                        contentDescription = sourceLabel,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 suffix = {
                     Text(
                         sourceLabel,
@@ -2123,13 +2137,22 @@ private fun EngineTypePicker(
                 onDismissRequest = { expanded = false }
             ) {
                 profiles.forEach { p ->
+                    val itemIsSampled = p.sampleAssetBase != null
                     DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (itemIsSampled) Icons.Filled.Album else Icons.Filled.Equalizer,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(displayFor(p.key), modifier = Modifier.weight(1f))
                                 Spacer(Modifier.width(8.dp))
                                 Text(
-                                    if (p.sampleAssetBase != null)
+                                    if (itemIsSampled)
                                         stringResource(R.string.engine_source_sampled)
                                     else
                                         stringResource(R.string.engine_source_synth),
