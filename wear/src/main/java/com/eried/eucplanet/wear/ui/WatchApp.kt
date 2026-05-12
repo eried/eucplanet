@@ -244,9 +244,16 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.offset(y = -(sw * 0.020f).coerceIn(6f, 12f).dp)
                 ) {
+                    // PWM safe-zone colour matches the phone dashboard: accent
+                    // when a non-default accent is picked, else safe green. The
+                    // ≥60 / ≥80 tiers always override with orange / red so the
+                    // danger signal can't be hidden by the accent.
+                    val pwmAccent = state.accentKey != "default"
+                    val pwmSafeColor = if (pwmAccent) accent else GaugeAccentGreen
                     if (showBar) {
                         LoadBar(
                             percent = state.pwmPercent,
+                            safeColor = pwmSafeColor,
                             modifier = Modifier
                                 .width(loadBarWidth * barWidthShrink)
                                 .height(loadBarHeight)
@@ -254,17 +261,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     }
                     if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
                     if (showPwmNumber) {
-                        // Tier scale matches the phone dashboard's LOAD card:
-                        // ≥ 80% red, ≥ 60% orange, else green (or accent for
-                        // custom accents). Disconnected -> safe-tier green so
-                        // the dash reads continuous with the speed glyph.
-                        val pwmAccent = state.accentKey != "default"
                         val pwmNumberColor = when {
-                            pwmAccent -> accent
-                            !state.connected -> GaugeAccentGreen
+                            !state.connected -> pwmSafeColor
                             state.pwmPercent >= 80f -> GaugeAccentRed
                             state.pwmPercent >= 60f -> GaugeAccentOrange
-                            else -> GaugeAccentGreen
+                            else -> pwmSafeColor
                         }
                         val numberText = if (state.connected) "%.0f%%".format(state.pwmPercent) else DASH
                         if (showBar) {
@@ -370,12 +371,19 @@ private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color =
  * tells you how hard the motor is working.
  */
 @Composable
-private fun LoadBar(percent: Float, modifier: Modifier = Modifier) {
+private fun LoadBar(
+    percent: Float,
+    /** Safe-zone fill colour. Matches the phone's PWM rule: accent (if a
+     *  non-default accent is picked) or green; the >=60/>=80 tiers always
+     *  override with orange/red. */
+    safeColor: Color = Color(0xFF66BB6A),
+    modifier: Modifier = Modifier
+) {
     val pct = percent.coerceIn(0f, 100f)
     val fillColor = when {
         pct >= 80f -> Color(0xFFEF5350)
         pct >= 60f -> Color(0xFFFFA726)
-        else -> Color(0xFF66BB6A)
+        else -> safeColor
     }
     val trackColor = Color(0xFF333333)
     Canvas(modifier = modifier) {
