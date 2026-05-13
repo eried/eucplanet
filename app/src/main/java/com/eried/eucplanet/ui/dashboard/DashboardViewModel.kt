@@ -54,6 +54,7 @@ class DashboardViewModel @Inject constructor(
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -156,6 +157,11 @@ class DashboardViewModel @Inject constructor(
     val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.imperialUnits)
+
+    /** What the dashboard's BackHandler should do — "ASK" / "BACKGROUND" / "STOP_ALL". */
+    val backButtonAction: StateFlow<String> = settingsRepository.settings
+        .map { it.backButtonAction }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.backButtonAction)
 
     val accentKey: StateFlow<String> = settingsRepository.settings
         .map { it.accentColor }
@@ -272,6 +278,18 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun stopEverything() {
+        // If the user opted in, ask the paired watch to close its app too so
+        // its dial doesn't sit on a stale frame after we tear the session
+        // down. Fire-and-forget on a background dispatcher so the activity
+        // finish() that follows isn't blocked on the message round-trip.
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val settings = settingsRepository.get()
+                if (settings.watchCloseOnExit) {
+                    wearBridge.sendCloseToWatchBlocking()
+                }
+            } catch (_: Exception) { /* best effort */ }
+        }
         val intent = Intent(context, WheelService::class.java)
         context.stopService(intent)
     }

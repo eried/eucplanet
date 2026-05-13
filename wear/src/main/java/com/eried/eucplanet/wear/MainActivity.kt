@@ -93,7 +93,26 @@ class MainActivity : ComponentActivity() {
         // if no phone is paired right now.
         WatchStateRepository.sendWatchInfo(applicationContext)
 
+        // Listen for a phone-side "Stop all" close signal. Phone fires this
+        // only when the user has the matching "Close watch on exit" toggle
+        // on; we finish the task so the dial doesn't sit on a stale frame.
+        lifecycleScope.launch {
+            WatchStateRepository.closeSignal.collect {
+                finishAndRemoveTask()
+            }
+        }
+
         setContent { WatchApp() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        WatchStateRepository.setActivityVisible(true)
+    }
+
+    override fun onStop() {
+        WatchStateRepository.setActivityVisible(false)
+        super.onStop()
     }
 
     override fun onDestroy() {

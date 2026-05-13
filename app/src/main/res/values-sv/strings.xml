@@ -118,6 +118,12 @@
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
     <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet.</string>
     <string name="last_device">Senaste enhet: %1$s</string>
+    <string name="section_application">Applikation</string>
+    <string name="back_button_action">När du sveper tillbaka</string>
+    <string name="back_button_action_desc">Välj vad svep bakåt från huvudskärmen gör.</string>
+    <string name="back_button_action_ask">Fråga</string>
+    <string name="back_button_action_background">Bakgrund</string>
+    <string name="back_button_action_stop">Stoppa allt</string>
     <string name="imperial_units">Imperiella enheter</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
@@ -389,6 +395,8 @@
     <string name="sources_apply">Tillämpa</string>
     <string name="sources_cancel">Avbryt</string>
 
+    <string name="alarm_threshold_decrease">Sänk tröskel</string>
+    <string name="alarm_threshold_increase">Höj tröskel</string>
     <string name="alarm_section_beep">Pip</string>
     <string name="alarm_enable_beep">Aktivera pip</string>
     <string name="alarm_beep_freq_fmt">Frekvens: %1$dHz</string>
@@ -407,6 +415,7 @@
     <string name="alarm_repeat">Upprepa medan aktivt</string>
     <string name="alarm_repeat_help">PÅ: utlöser igen efter varje paus så länge villkoret gäller.\nAV: utlöser en gång och är tyst tills villkoret upphör</string>
 
+    <string name="about_crash_logs">Kraschloggar</string>
     <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren.</string>
     <string name="about_crash_logs_empty">Inga krascher registrerade</string>
     <string name="about_share_crash">Dela kraschlogg</string>
@@ -454,6 +463,8 @@
     <string name="voice_time_fmt">tid %1$s</string>
     <string name="watch_auto_start">Starta automatiskt på klockan</string>
     <string name="watch_auto_start_desc">Öppna klockans app tillsammans med telefonens.</string>
+    <string name="watch_close_on_exit">Auto-stopp på klockan</string>
+    <string name="watch_close_on_exit_desc">Stoppa klockans app vid Stoppa allt.</string>
     <string name="watch_button_1">Knapp 1</string>
     <string name="watch_button_2">Knapp 2</string>
     <string name="watch_button_click_label">Klick</string>

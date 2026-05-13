@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий.</string>
     <string name="watch_auto_start">Автозапуск на годиннику</string>
     <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні.</string>
+    <string name="watch_close_on_exit">Автозупинка на годиннику</string>
+    <string name="watch_close_on_exit_desc">Зупиняти додаток годинника при «Зупинити все».</string>
     <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
@@ -176,6 +178,12 @@
     <string name="auto_connect_on_start">Автопідключення на старті</string>
     <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса.</string>
     <string name="last_device">Останній пристрій: %1$s</string>
+    <string name="section_application">Застосунок</string>
+    <string name="back_button_action">При свайпі назад</string>
+    <string name="back_button_action_desc">Вибери, що робить свайп назад з головного екрана.</string>
+    <string name="back_button_action_ask">Питати</string>
+    <string name="back_button_action_background">У фоні</string>
+    <string name="back_button_action_stop">Зупинити все</string>
     <string name="imperial_units">Імперські одиниці</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>
@@ -480,6 +488,8 @@
     <string name="sources_apply">Застосувати</string>
     <string name="sources_cancel">Скасувати</string>
 
+    <string name="alarm_threshold_decrease">Зменшити поріг</string>
+    <string name="alarm_threshold_increase">Збільшити поріг</string>
     <string name="alarm_section_beep">Сигнал</string>
     <string name="alarm_enable_beep">Увімкнути сигнал</string>
     <string name="alarm_beep_freq_fmt">Частота: %1$dГц</string>
@@ -503,6 +513,7 @@
     <string name="alarm_repeat_help">УВІМК: повторно спрацьовує після кожної паузи, поки виконується умова.\nВИМК: спрацьовує один раз і мовчить, поки умова не зникне</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Журнали збоїв</string>
     <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником.</string>
     <string name="about_crash_logs_empty">Збоїв не зафіксовано</string>
     <string name="about_share_crash">Поділитися журналом збою</string>

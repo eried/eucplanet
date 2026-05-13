@@ -118,6 +118,12 @@
     <string name="auto_record_stop_idle_seconds">Stoppen nach Leerlauf von</string>
     <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
+    <string name="section_application">Anwendung</string>
+    <string name="back_button_action">Beim Zurückwischen</string>
+    <string name="back_button_action_desc">Lege fest, was beim Zurückwischen vom Dashboard passiert.</string>
+    <string name="back_button_action_ask">Fragen</string>
+    <string name="back_button_action_background">Hintergrund</string>
+    <string name="back_button_action_stop">Alles stoppen</string>
     <string name="imperial_units">Imperiale Einheiten</string>
     <string name="language">Sprache</string>
     <string name="theme">Design</string>
@@ -353,6 +359,8 @@
     <string name="sources_apply">Anwenden</string>
     <string name="sources_cancel">Abbrechen</string>
 
+    <string name="alarm_threshold_decrease">Schwelle senken</string>
+    <string name="alarm_threshold_increase">Schwelle erhöhen</string>
     <string name="alarm_section_beep">Piepton</string>
     <string name="alarm_enable_beep">Piepton aktivieren</string>
     <string name="alarm_beep_freq_fmt">Frequenz: %1$d Hz</string>
@@ -422,6 +430,7 @@
     <string name="flic_status_scan_failed_fmt">Suche fehlgeschlagen (Code %1$d)</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Absturzprotokolle</string>
     <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
     <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
@@ -470,6 +479,8 @@
     <string name="voice_time_fmt">Zeit %1$s</string>
     <string name="watch_auto_start">Auf Uhr automatisch starten</string>
     <string name="watch_auto_start_desc">Öffnet die Uhr-App zusammen mit der Telefon-App.</string>
+    <string name="watch_close_on_exit">Auto-Stopp auf der Uhr</string>
+    <string name="watch_close_on_exit_desc">Uhr-App bei „Alles stoppen“ ebenfalls stoppen.</string>
     <string name="watch_button_1">Taste 1</string>
     <string name="watch_button_2">Taste 2</string>
     <string name="watch_button_click_label">Klick</string>

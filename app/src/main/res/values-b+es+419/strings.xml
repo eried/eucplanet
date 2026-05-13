@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Mantené el reloj despierto mientras la app esté abierta.</string>
     <string name="watch_auto_start">Iniciar reloj automáticamente</string>
     <string name="watch_auto_start_desc">Abre la app del reloj junto con la del celular.</string>
+    <string name="watch_close_on_exit">Auto-detener en el reloj</string>
+    <string name="watch_close_on_exit_desc">Detener la app del reloj al Detener todo.</string>
     <string name="watch_show_wheel_battery">Mostrar batería de la rueda</string>
     <string name="watch_show_phone_battery">Mostrar batería del celular</string>
     <string name="watch_show_watch_battery">Mostrar batería del reloj</string>
@@ -176,6 +178,12 @@
     <string name="auto_connect_on_start">Conectar automáticamente al iniciar</string>
     <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada.</string>
     <string name="last_device">Último dispositivo: %1$s</string>
+    <string name="section_application">Aplicación</string>
+    <string name="back_button_action">Al deslizar atrás</string>
+    <string name="back_button_action_desc">Elegí qué hace deslizar atrás desde el panel principal.</string>
+    <string name="back_button_action_ask">Preguntar</string>
+    <string name="back_button_action_background">Segundo plano</string>
+    <string name="back_button_action_stop">Detener todo</string>
     <string name="imperial_units">Unidades imperiales</string>
     <string name="language">Idioma</string>
     <string name="theme">Tema</string>
@@ -480,6 +488,8 @@
     <string name="sources_apply">Aplicar</string>
     <string name="sources_cancel">Cancelar</string>
 
+    <string name="alarm_threshold_decrease">Bajar umbral</string>
+    <string name="alarm_threshold_increase">Subir umbral</string>
     <string name="alarm_section_beep">Pitido</string>
     <string name="alarm_enable_beep">Activar pitido</string>
     <string name="alarm_beep_freq_fmt">Frecuencia: %1$dHz</string>
@@ -503,6 +513,7 @@
     <string name="alarm_repeat_help">ON: se vuelve a disparar cada pausa mientras la condición se mantenga.\nOFF: se dispara una vez y queda en silencio hasta que la condición cese</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Registros de fallos</string>
     <string name="about_crash_logs_hint">Toca un archivo para compartirlo con el desarrollador.</string>
     <string name="about_crash_logs_empty">Sin fallos registrados</string>
     <string name="about_share_crash">Compartir registro de fallo</string>

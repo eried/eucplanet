@@ -1,6 +1,7 @@
 package com.eried.eucplanet.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.AppDatabase
@@ -17,15 +18,43 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    private const val DB_NAME = "eucplanet.db"
+    private const val TAG = "AppModule"
+
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "eucplanet.db"
-        ).fallbackToDestructiveMigration().build()
+        return openOrRecover(context)
     }
+
+    /**
+     * Build the Room database with destructive fallback on both upgrade and
+     * downgrade. If the first open still fails (the usual culprit being a
+     * schema identity-hash mismatch at the same version number, which Room's
+     * fallback machinery does NOT cover), delete the database file and
+     * rebuild from scratch. The user loses local settings in that case, which
+     * is a tiny cost compared to an unrecoverable crash on every cold start.
+     */
+    private fun openOrRecover(context: Context): AppDatabase {
+        val first = buildDb(context)
+        return try {
+            first.openHelper.writableDatabase  // forces identity + integrity check
+            first
+        } catch (t: Throwable) {
+            Log.w(TAG, "DB open failed, wiping and rebuilding: ${t.message}")
+            runCatching { first.close() }
+            runCatching { context.deleteDatabase(DB_NAME) }
+            val rebuilt = buildDb(context)
+            runCatching { rebuilt.openHelper.writableDatabase }
+            rebuilt
+        }
+    }
+
+    private fun buildDb(context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
+            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigrationOnDowngrade()
+            .build()
 
     @Provides
     fun provideSettingsDao(db: AppDatabase): SettingsDao = db.settingsDao()

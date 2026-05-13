@@ -94,6 +94,7 @@ class WearBridge @Inject constructor(
         private const val K_HAPTIC_ON_ACTION = "hap"
 
         private const val PATH_WAKE = "/euc/wake"
+        private const val PATH_QUIT = "/euc/quit"
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -112,6 +113,33 @@ class WearBridge @Inject constructor(
      * once on bridge startup and again from MainActivity.onResume() so the
      * watch wakes whenever the user re-opens the phone app.
      */
+    /**
+     * Synchronous best-effort: tells the paired watch's bridge service to
+     * close MainActivity. Sent right before WheelService tears its session
+     * down, so the watch dial flips to "phone gone" instantly instead of
+     * holding on a stale frame. Runs blocking on the caller because we
+     * usually call this from a service onDestroy where the process is about
+     * to exit; a fire-and-forget launch would be cancelled mid-flight.
+     * Returns quickly if no phone-paired watch is connected.
+     */
+    fun sendCloseToWatchBlocking() {
+        try {
+            val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+            if (nodes.isEmpty()) return
+            val messageClient = Wearable.getMessageClient(context)
+            nodes.forEach { node: Node ->
+                try {
+                    Tasks.await(messageClient.sendMessage(node.id, PATH_QUIT, ByteArray(0)))
+                } catch (e: Exception) {
+                    Log.d(TAG, "watch close to ${node.id} failed: ${e.message}")
+                }
+            }
+            Log.i(TAG, "watch close sent to ${nodes.size} node(s)")
+        } catch (e: Exception) {
+            Log.d(TAG, "watch close skipped: ${e.message}")
+        }
+    }
+
     fun pingWatchToWake() {
         scope.launch {
             try {
