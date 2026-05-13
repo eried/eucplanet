@@ -117,6 +117,11 @@ class DashboardViewModel @Inject constructor(
         .map { it.imperialUnits }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.imperialUnits)
 
+    /** What the dashboard's BackHandler should do — "ASK" / "BACKGROUND" / "STOP_ALL". */
+    val backButtonAction: StateFlow<String> = settingsRepository.settings
+        .map { it.backButtonAction }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.backButtonAction)
+
     val accentKey: StateFlow<String> = settingsRepository.settings
         .map { it.accentColor }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.accentColor)

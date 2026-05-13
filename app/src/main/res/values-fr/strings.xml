@@ -118,6 +118,12 @@
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
     <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée.</string>
     <string name="last_device">Dernier appareil : %1$s</string>
+    <string name="section_application">Application</string>
+    <string name="back_button_action">En balayant vers l\'arrière</string>
+    <string name="back_button_action_desc">Choisis ce que fait le balayage retour depuis l\'écran principal.</string>
+    <string name="back_button_action_ask">Demander</string>
+    <string name="back_button_action_background">Arrière-plan</string>
+    <string name="back_button_action_stop">Tout arrêter</string>
     <string name="imperial_units">Unités impériales</string>
     <string name="language">Langue</string>
     <string name="theme">Thème</string>

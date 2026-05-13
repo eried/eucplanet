@@ -178,6 +178,12 @@
     <string name="auto_connect_on_start">Conectar automaticamente ao iniciar</string>
     <string name="auto_connect_caption">Reconecta automaticamente à última roda pareada.</string>
     <string name="last_device">Último dispositivo: %1$s</string>
+    <string name="section_application">Aplicativo</string>
+    <string name="back_button_action">Ao deslizar para trás</string>
+    <string name="back_button_action_desc">Escolha o que deslizar para trás faz na tela principal.</string>
+    <string name="back_button_action_ask">Perguntar</string>
+    <string name="back_button_action_background">Em segundo plano</string>
+    <string name="back_button_action_stop">Parar tudo</string>
     <string name="imperial_units">Unidades imperiais</string>
     <string name="language">Idioma</string>
     <string name="theme">Tema</string>

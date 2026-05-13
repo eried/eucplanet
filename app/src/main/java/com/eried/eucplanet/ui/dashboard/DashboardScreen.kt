@@ -203,7 +203,17 @@ fun DashboardScreen(
         }
     }
 
-    BackHandler { showQuitDialog = true }
+    val backAction by viewModel.backButtonAction.collectAsState()
+    BackHandler {
+        when (backAction) {
+            "BACKGROUND" -> activity?.moveTaskToBack(true)
+            "STOP_ALL" -> {
+                viewModel.stopEverything()
+                activity?.finish()
+            }
+            else -> showQuitDialog = true   // "ASK" (default) or anything we don't recognise
+        }
+    }
 
     if (showNoTripsDialog) {
         AlertDialog(

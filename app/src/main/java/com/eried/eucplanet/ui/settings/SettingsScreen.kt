@@ -252,7 +252,9 @@ fun SettingsScreen(
         stringResource(R.string.auto_record_start_in_motion),
         stringResource(R.string.auto_record_stop_idle_seconds),
         stringResource(R.string.section_connection),
-        stringResource(R.string.auto_connect_on_start)
+        stringResource(R.string.auto_connect_on_start),
+        stringResource(R.string.section_application),
+        stringResource(R.string.back_button_action)
     ).joinToString(" ")
 
     val corpusDisplay = listOf(
@@ -613,6 +615,40 @@ private fun GeneralTab(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        SectionHeader(stringResource(R.string.section_application))
+
+        Text(
+            stringResource(R.string.back_button_action),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val backOptions = listOf(
+            "ASK" to stringResource(R.string.back_button_action_ask),
+            "BACKGROUND" to stringResource(R.string.back_button_action_background),
+            "STOP_ALL" to stringResource(R.string.back_button_action_stop)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            backOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.backButtonAction,
+                    onClick = { viewModel.updateBackButtonAction(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size)
+                ) {
+                    Text(
+                        label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+        HintText(stringResource(R.string.back_button_action_desc), small = true)
 
     }
 }

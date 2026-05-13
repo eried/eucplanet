@@ -178,6 +178,12 @@
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
     <string name="auto_connect_caption">Automatycznie łączy się z ostatnio sparowanym kołem.</string>
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
+    <string name="section_application">Aplikacja</string>
+    <string name="back_button_action">Po przesunięciu wstecz</string>
+    <string name="back_button_action_desc">Wybierz, co robi przesunięcie wstecz z głównego ekranu.</string>
+    <string name="back_button_action_ask">Pytaj</string>
+    <string name="back_button_action_background">W tle</string>
+    <string name="back_button_action_stop">Zatrzymaj wszystko</string>
     <string name="imperial_units">Jednostki imperialne</string>
     <string name="language">Język</string>
     <string name="theme">Motyw</string>

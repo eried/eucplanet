@@ -118,6 +118,12 @@
     <string name="auto_connect_on_start">启动时自动连接</string>
     <string name="auto_connect_caption">自动重连上次配对的车轮。</string>
     <string name="last_device">上次设备:%1$s</string>
+    <string name="section_application">应用</string>
+    <string name="back_button_action">返回手势</string>
+    <string name="back_button_action_desc">选择从主屏返回时执行的操作。</string>
+    <string name="back_button_action_ask">询问</string>
+    <string name="back_button_action_background">转后台</string>
+    <string name="back_button_action_stop">停止所有</string>
     <string name="imperial_units">英制单位</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>

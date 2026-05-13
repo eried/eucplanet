@@ -178,6 +178,12 @@
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
     <string name="auto_connect_caption">Si riconnette automaticamente all\'ultima ruota accoppiata.</string>
     <string name="last_device">Ultimo dispositivo: %1$s</string>
+    <string name="section_application">Applicazione</string>
+    <string name="back_button_action">Scorrendo indietro</string>
+    <string name="back_button_action_desc">Scegli cosa fa lo scorrimento indietro dalla schermata principale.</string>
+    <string name="back_button_action_ask">Chiedi</string>
+    <string name="back_button_action_background">In background</string>
+    <string name="back_button_action_stop">Ferma tutto</string>
     <string name="imperial_units">Unità imperiali</string>
     <string name="language">Lingua</string>
     <string name="theme">Tema</string>

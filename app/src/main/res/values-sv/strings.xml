@@ -118,6 +118,12 @@
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
     <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet.</string>
     <string name="last_device">Senaste enhet: %1$s</string>
+    <string name="section_application">Applikation</string>
+    <string name="back_button_action">När du sveper tillbaka</string>
+    <string name="back_button_action_desc">Välj vad svep bakåt från huvudskärmen gör.</string>
+    <string name="back_button_action_ask">Fråga</string>
+    <string name="back_button_action_background">Bakgrund</string>
+    <string name="back_button_action_stop">Stoppa allt</string>
     <string name="imperial_units">Imperiella enheter</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>

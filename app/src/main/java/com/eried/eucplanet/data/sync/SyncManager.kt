@@ -543,6 +543,25 @@ class SyncManager @Inject constructor(
         put("watchScreen2Click", s.watchScreen2Click)
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
+        put("watchCloseOnExit", s.watchCloseOnExit)
+        put("watchPrioritizePwm", s.watchPrioritizePwm)
+        put("watchDialRotationDeg", s.watchDialRotationDeg)
+        // Application
+        put("backButtonAction", s.backButtonAction)
+        // Motor sound generator
+        put("engineSoundEnabled", s.engineSoundEnabled)
+        put("engineType", s.engineType)
+        put("engineVolume", s.engineVolume)
+        put("engineVolumeAutoEnabled", s.engineVolumeAutoEnabled)
+        put("engineVolumeAutoCurve", s.engineVolumeAutoCurve)
+        put("engineMuffler", s.engineMuffler)
+        put("engineGearbox", s.engineGearbox)
+        put("engineIdleBehavior", s.engineIdleBehavior)
+        put("engineDecelChar", s.engineDecelChar)
+        put("engineBrake", s.engineBrake)
+        put("engineDuckOnVoice", s.engineDuckOnVoice)
+        put("engineHeadphonesOnly", s.engineHeadphonesOnly)
+        put("engineSafetyShown", s.engineSafetyShown)
     }
 
     private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
@@ -642,7 +661,24 @@ class SyncManager @Inject constructor(
         watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
         watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
         watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
-        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction)
+        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
+        watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
+        watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
+        watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
+        backButtonAction = j.optString("backButtonAction", base.backButtonAction),
+        engineSoundEnabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
+        engineType = j.optString("engineType", base.engineType),
+        engineVolume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
+        engineVolumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
+        engineVolumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
+        engineMuffler = j.optString("engineMuffler", base.engineMuffler),
+        engineGearbox = j.optString("engineGearbox", base.engineGearbox),
+        engineIdleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
+        engineDecelChar = j.optString("engineDecelChar", base.engineDecelChar),
+        engineBrake = j.optString("engineBrake", base.engineBrake),
+        engineDuckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
+        engineHeadphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
+        engineSafetyShown = j.optBoolean("engineSafetyShown", base.engineSafetyShown)
     )
 
     private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {

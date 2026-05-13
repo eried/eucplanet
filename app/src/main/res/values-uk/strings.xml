@@ -178,6 +178,12 @@
     <string name="auto_connect_on_start">Автопідключення на старті</string>
     <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса.</string>
     <string name="last_device">Останній пристрій: %1$s</string>
+    <string name="section_application">Застосунок</string>
+    <string name="back_button_action">При свайпі назад</string>
+    <string name="back_button_action_desc">Вибери, що робить свайп назад з головного екрана.</string>
+    <string name="back_button_action_ask">Питати</string>
+    <string name="back_button_action_background">У фоні</string>
+    <string name="back_button_action_stop">Зупинити все</string>
     <string name="imperial_units">Імперські одиниці</string>
     <string name="language">Мова</string>
     <string name="theme">Тема</string>

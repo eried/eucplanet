@@ -182,6 +182,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
+    fun updateBackButtonAction(value: String) = update { copy(backButtonAction = value) }
 
     // Automations
     fun updateAutoLightsEnabled(v: Boolean) {

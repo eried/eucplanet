@@ -14,6 +14,14 @@ data class AppSettings(
     val lastDeviceName: String? = null,
     val autoConnect: Boolean = true,
 
+    // What happens when the user swipes back from the main dashboard. Values:
+    //   "ASK"        — show the exit dialog (legacy behavior, default)
+    //   "BACKGROUND" — silently send the activity to background, service keeps running
+    //   "STOP_ALL"   — stop the service and finish the activity
+    // Storage keys are language-independent so locale switches don't break the setting.
+    @ColumnInfo(defaultValue = "ASK")
+    val backButtonAction: String = "ASK",
+
     // Speed settings (sent to wheel) - the "normal" mode values
     val tiltbackSpeedKmh: Float = 50f,
     val alarmSpeedKmh: Float = 40f,
