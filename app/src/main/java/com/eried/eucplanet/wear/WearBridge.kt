@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -129,6 +130,30 @@ class WearBridge @Inject constructor(
             } catch (e: Exception) {
                 Log.d(TAG, "watch wake skipped: ${e.message}")
             }
+        }
+    }
+
+    /**
+     * Last-gasp publish when the phone-side service is being destroyed
+     * gracefully (user kills the app, system stops the foreground service,
+     * etc.). Sends one frame marked disconnected with zeroed telemetry so the
+     * watch can flip to "—" instantly instead of waiting out its 3-second
+     * stale timer. If the process is hard-killed and onDestroy never runs,
+     * the watch's stale-detection takes over as a fallback.
+     */
+    fun publishFarewell() {
+        if (!started) return
+        try {
+            val s = runBlocking { settingsRepository.get() }
+            publish(
+                data = com.eried.eucplanet.data.model.WheelData(),
+                state = ConnectionState.DISCONNECTED,
+                name = wheelRepository.modelName.value,
+                maxSpeed = 30f,
+                settings = s
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "farewell publish skipped: ${e.message}")
         }
     }
 

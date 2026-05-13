@@ -844,7 +844,12 @@ private fun VoiceTab(
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
         val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
         val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
-        val sTripEx = stringResource(R.string.voice_trip_fmt, "12.3")
+        // Preview must match what the voice actually says — imperial users
+        // get the miles variant so the page can't lie about the format.
+        val sTripEx = stringResource(
+            if (settings.imperialUnits) R.string.voice_trip_miles_fmt else R.string.voice_trip_fmt,
+            "12.3"
+        )
         val sRecOn = stringResource(R.string.voice_recording_on)
         val sRecOff = stringResource(R.string.voice_recording_off)
         val ctx = androidx.compose.ui.platform.LocalContext.current

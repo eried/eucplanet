@@ -56,6 +56,11 @@ class WheelRepository @Inject constructor(
         private const val TAG = "WheelRepo"
         private const val POLL_INTERVAL_MS = 250L
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
+        // Hard 5-minute window on the metric history buffers. Without this,
+        // each list grows unbounded at 1 Hz (memory leak) and the chart's
+        // takeLast(300) shows ~5m10s instead of a clean 5m because the
+        // sampler drifts. Time-bounding here makes the chart truly 5 min.
+        private const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
         // Re-request settings every N realtime polls to pick up external changes
         // (lock/unlock via InMotion app or physical button). 12 * 250ms = 3s.
         private const val SETTINGS_REFRESH_INTERVAL = 12
@@ -626,6 +631,12 @@ class WheelRepository @Inject constructor(
                     ampsHist.add(MetricSample(now, d.current.absoluteValue))
                     loadHist.add(MetricSample(now, d.pwm.absoluteValue))
                     speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                    // Drop anything older than the 5-min window from every
+                    // buffer in one pass. List.removeAll touches each list
+                    // once so this stays linear in buffer size.
+                    val cutoff = now - HISTORY_WINDOW_MS
+                    listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
+                        .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     _fullHistory.value = FullMetricHistory(
                         battery = battHist.toList(),
                         temperature = tempHist.toList(),

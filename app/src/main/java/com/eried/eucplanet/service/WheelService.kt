@@ -45,10 +45,14 @@ class WheelService : LifecycleService() {
 
     @Inject lateinit var wheelRepository: WheelRepository
     @Inject lateinit var settingsRepository: SettingsRepository
+
+    @Volatile
+    private var imperialCached: Boolean = false
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
+    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -105,6 +109,9 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             settingsRepository.settings.collect { s ->
+                // Notification builder reads imperial without suspending —
+                // mirror the latest value here every settings update.
+                imperialCached = s.imperialUnits
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -229,6 +236,11 @@ class WheelService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        // Send one last DataMap so the watch flips to its disconnected
+        // ("—") state instantly. If the process is hard-killed and this
+        // line never runs, the watch's 3-s stale timer kicks in as
+        // fallback. Either way the rider never sees a frozen-stale dial.
+        try { wearBridge.publishFarewell() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         voiceService.shutdown()
@@ -343,7 +355,9 @@ class WheelService : LifecycleService() {
         )
 
         val text = if (data != null && data.speed > 0) {
-            "%.1f km/h | %d%% | %.1f V".format(data.speed, data.batteryPercent, data.voltage)
+            val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperialCached)
+            val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, imperialCached)
+            "%.1f %s | %d%% | %.1f V".format(displaySpeed, speedUnit, data.batteryPercent, data.voltage)
         } else {
             val state = wheelRepository.connectionState.value
             state.name.lowercase().replaceFirstChar { it.uppercase() }

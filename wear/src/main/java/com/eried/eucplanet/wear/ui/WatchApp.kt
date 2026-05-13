@@ -152,11 +152,21 @@ private fun MainScreen(state: WatchState, accent: Color) {
         val centerOffsetY = -(sw * 0.06f).coerceIn(18f, 28f).dp
         val watchPercent = rememberWatchBatteryPercent()
 
+        // Telemetry is "live" only while the phone has pushed something in
+        // the last 3 s. If the phone app dies (process kill, BT range, user
+        // force-stop) the last DataMap stays in memory forever; without this
+        // gate the watch dial reads the last received speed indefinitely,
+        // which is dangerous on a moving rider's wrist.
+        val lastPushTop by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
+        val nowTickTop = rememberSecondTick()
+        val phoneAlive = lastPushTop > 0 && (nowTickTop - lastPushTop) < 3000L
+
         // Full-bleed dial as the background frame. Color-band visibility and
         // its orange/red thresholds follow the phone's Display settings so the
-        // two surfaces always agree.
+        // two surfaces always agree. Arc collapses to zero when telemetry is
+        // stale so a frozen "23 km/h" can't deceive a stopped rider.
         SpeedGauge(
-            speed = state.speedKmh,
+            speed = if (phoneAlive) state.speedKmh else 0f,
             maxSpeed = maxSpeed,
             imperial = state.imperialUnits,
             accent = accent,
@@ -195,7 +205,9 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 // otherwise a watch booted before the phone app would default to km/h and
                 // confuse an mph user. Once phoneSynced flips true, the unit re-appears
                 // (subject to the user's showSpeedUnit setting).
-                val showUnit = state.showSpeedUnit && state.phoneSynced
+                // Hide the unit also when phone is stale — without telemetry
+                // we can't be honest about the value, so the label would lie.
+                val showUnit = state.showSpeedUnit && state.phoneSynced && phoneAlive
                 if (showUnit) {
                     // Invisible mirror keeps the speed glyph centred.
                     Text(
@@ -217,11 +229,15 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         state.gaugeRedThresholdPct
                     )
                 } else if (useAccent) accent else GaugeAccentGreen
+                // Stale → dash so the rider sees "no signal" rather than a
+                // frozen number that might match their current speed by chance.
                 Text(
-                    text = "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits)),
+                    text = if (phoneAlive)
+                        "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits))
+                    else DASH,
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    color = speedTextColor
+                    color = if (phoneAlive) speedTextColor else Color(0xFF606060)
                 )
                 if (showUnit) {
                     Spacer(Modifier.width(3.dp))
@@ -250,9 +266,13 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     // danger signal can't be hidden by the accent.
                     val pwmAccent = state.accentKey != "default"
                     val pwmSafeColor = if (pwmAccent) accent else GaugeAccentGreen
+                    // pwmLive treats a stale phone the same as a disconnected
+                    // wheel — without a fresh push we don't know whether the
+                    // motor is still hot.
+                    val pwmLive = phoneAlive && state.connected
                     if (showBar) {
                         LoadBar(
-                            percent = state.pwmPercent,
+                            percent = if (pwmLive) state.pwmPercent else 0f,
                             safeColor = pwmSafeColor,
                             modifier = Modifier
                                 .width(loadBarWidth * barWidthShrink)
@@ -262,12 +282,12 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     if (showBar && showPwmNumber) Spacer(Modifier.width(6.dp))
                     if (showPwmNumber) {
                         val pwmNumberColor = when {
-                            !state.connected -> pwmSafeColor
+                            !pwmLive -> pwmSafeColor
                             state.pwmPercent >= 80f -> GaugeAccentRed
                             state.pwmPercent >= 60f -> GaugeAccentOrange
                             else -> pwmSafeColor
                         }
-                        val numberText = if (state.connected) "%.0f%%".format(state.pwmPercent) else DASH
+                        val numberText = if (pwmLive) "%.0f%%".format(state.pwmPercent) else DASH
                         if (showBar) {
                             // Bar alongside → just the tier-coloured "N%".
                             Text(
@@ -310,16 +330,13 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy((sw * 0.018f).coerceIn(5f, 9f).dp)
         ) {
-            // Phone battery is only valid while the phone is actively pushing.
-            // The bridge ticks every 200 ms; if it's been silent for >3 s
-            // (phone app killed, emulator stopped, BT range), the value goes
-            // stale — fall back to a dash so the disconnected state is
-            // obvious. nowTick recomposes once a second to update the check.
-            val lastPush by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
-            val nowTick = rememberSecondTick()
-            val phoneAlive = lastPush > 0 && (nowTick - lastPush) < 3000L
+            // phoneAlive is computed at the top of MainScreen so the whole
+            // dashboard shares one freshness check. Wheel battery and phone
+            // battery both go stale when phone is silent for >3 s.
             BatteryRow(
-                wheelPercent = state.batteryPercent.takeIf { state.showWheelBattery && state.connected },
+                wheelPercent = state.batteryPercent.takeIf {
+                    state.showWheelBattery && state.connected && phoneAlive
+                },
                 phonePercent = if (state.showPhoneBattery && phoneAlive)
                     state.phoneBatteryPercent else null,
                 watchPercent = watchPercent.takeIf { state.showWatchBattery },
@@ -689,9 +706,16 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         // system the rider uses — otherwise an mph user sees km/h on launch and
         // assumes the wrong thing.
         val unitsKnown = state.phoneSynced
-        val distUnit = if (unitsKnown) WatchUnits.distanceUnit(imperial) else ""
-        val tempUnit = if (unitsKnown) WatchUnits.tempUnit(imperial) else ""
-        val speedUnit = if (unitsKnown) WatchUnits.speedUnit(LocalContext.current, imperial) else ""
+        // phoneAlive mirrors the main-screen check: 3 s without a push from
+        // the phone means we're showing stale data. Without this every row
+        // and the headline speed keep displaying their last live values
+        // forever (until the watch app process is killed).
+        val lastPush by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
+        val nowTick = rememberSecondTick()
+        val phoneAlive = lastPush > 0 && (nowTick - lastPush) < 3000L
+        val distUnit = if (unitsKnown && phoneAlive) WatchUnits.distanceUnit(imperial) else ""
+        val tempUnit = if (unitsKnown && phoneAlive) WatchUnits.tempUnit(imperial) else ""
+        val speedUnit = if (unitsKnown && phoneAlive) WatchUnits.speedUnit(LocalContext.current, imperial) else ""
         val tripDisplay = WatchUnits.distance(state.tripKm, imperial)
         val tempDisplay = WatchUnits.temperature(state.temperatureC, imperial)
         val speedDisplay = WatchUnits.speed(state.speedKmh, imperial)
@@ -707,7 +731,8 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             // Wheel-name and Disconnected header both wear the same muted
             // caption tint as the phone dashboard's status row — the speed
             // is the page's visual focus, the header is just context.
-            if (!state.connected) {
+            // Stale phone counts as disconnected from the rider's POV.
+            if (!state.connected || !phoneAlive) {
                 Text(
                     text = stringResource(R.string.watch_disconnected),
                     fontSize = headerSp,
@@ -729,10 +754,13 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             val speedColor = if (useAccent) accent else speedTierColor(state.speedKmh, detailMaxSpeed)
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "%.0f".format(speedDisplay),
+                    // Headline speed dashes out the same way the main-screen
+                    // glyph does. Without this the page keeps showing the
+                    // last reading forever after the phone app dies.
+                    text = if (phoneAlive) "%.0f".format(speedDisplay) else DASH,
                     fontSize = speedSp,
                     fontWeight = FontWeight.Bold,
-                    color = speedColor
+                    color = if (phoneAlive) speedColor else Color(0xFF606060)
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
@@ -744,7 +772,9 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 )
             }
             Spacer(Modifier.height(4.dp))
-            val live = state.connected
+            // A live row needs BOTH a connected wheel and a phone that's
+            // still pushing — otherwise we dash the whole strip.
+            val live = state.connected && phoneAlive
             // Per-metric coloring on default accent mirrors the phone
             // dashboard: voltage / current / power / trip / torque get the
             // accent (which IS cyan when accent=default), temp and PWM use
