@@ -258,6 +258,24 @@
     <string name="flic_click">Натискання</string>
     <string name="flic_double_click">Подвійне натискання</string>
     <string name="flic_hold">Утримання</string>
+    <string name="external_gps_axes_title">Орієнтація осей</string>
+    <string name="external_gps_axes_desc">Зістав кожну вихідну вісь з фізичною віссю пристрою. Автовизначення налаштує автоматично.</string>
+    <string name="external_gps_map_x">Вихід X</string>
+    <string name="external_gps_map_y">Вихід Y</string>
+    <string name="external_gps_map_z">Вихід Z</string>
+    <string name="external_gps_autodetect">Автовизначення</string>
+    <string name="external_gps_autodetect_title">Автовизначення осей</string>
+    <string name="external_gps_autodetect_prep">Підготуйся рухати пристроєм.</string>
+    <string name="external_gps_autodetect_forward">Рухай пристроєм вперед-назад.</string>
+    <string name="external_gps_autodetect_lateral">Рухай пристроєм ліворуч-праворуч.</string>
+    <string name="external_gps_autodetect_vertical">Рухай пристроєм вгору-вниз.</string>
+    <string name="external_gps_autodetect_done">Осі визначено та застосовано.</string>
+    <string name="external_gps_autodetect_abort">Скасувати</string>
+    <string name="gps_log_additional">Використовувати додаткові дані GPS</string>
+    <string name="gps_log_additional_desc">Записує додаткові вибірки GPS з телефона або зовнішнього пристрою.</string>
+    <string name="gps_prioritize_external">Пріоритет зовнішнього GPS</string>
+    <string name="gps_prioritize_external_desc">Коли зовнішній пристрій підключений, використовувати його як джерело швидкості; інакше — телефон.</string>
+    <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
     <string name="section_volume_keys">Кнопки гучності</string>
     <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли додаток відкритий).</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
@@ -455,6 +473,12 @@
     <string name="sources_fresh_hours_fmt">%1$d год тому</string>
     <string name="sources_sats_fmt">%1$d супут.</string>
     <string name="sources_collecting">Збір даних…</string>
+    <string name="sources_apply_calibration">Калібрувати колесо</string>
+    <string name="sources_apply_calibration_title">Застосувати калібрування швидкості</string>
+    <string name="sources_apply_calibration_body_fmt">Встановити калібрування швидкості колеса на %1$+.1f %%?\n\nВи зможете змінити це пізніше в параметрах колеса.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Обчислене значення обмежено діапазоном ±5 %%, який підтримується параметрами колеса. Нове значення: %1$+.1f %%.</string>
+    <string name="sources_apply">Застосувати</string>
+    <string name="sources_cancel">Скасувати</string>
 
     <string name="alarm_section_beep">Сигнал</string>
     <string name="alarm_enable_beep">Увімкнути сигнал</string>

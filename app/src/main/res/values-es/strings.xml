@@ -189,6 +189,24 @@
     <string name="flic_click">Clic</string>
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
+    <string name="external_gps_axes_title">Orientación de ejes</string>
+    <string name="external_gps_axes_desc">Asigna cada eje de salida a un eje físico de la caja. Autodetectar lo hace automáticamente.</string>
+    <string name="external_gps_map_x">Salida X</string>
+    <string name="external_gps_map_y">Salida Y</string>
+    <string name="external_gps_map_z">Salida Z</string>
+    <string name="external_gps_autodetect">Autodetectar</string>
+    <string name="external_gps_autodetect_title">Autodetectar ejes</string>
+    <string name="external_gps_autodetect_prep">Prepárate para mover el dispositivo.</string>
+    <string name="external_gps_autodetect_forward">Mueve el dispositivo adelante y atrás.</string>
+    <string name="external_gps_autodetect_lateral">Mueve el dispositivo a izquierda y derecha.</string>
+    <string name="external_gps_autodetect_vertical">Mueve el dispositivo arriba y abajo.</string>
+    <string name="external_gps_autodetect_done">Ejes detectados y aplicados.</string>
+    <string name="external_gps_autodetect_abort">Cancelar</string>
+    <string name="gps_log_additional">Usar datos GPS adicionales</string>
+    <string name="gps_log_additional_desc">Registra muestras GPS adicionales del teléfono o de una caja externa.</string>
+    <string name="gps_prioritize_external">Priorizar GPS externo</string>
+    <string name="gps_prioritize_external_desc">Cuando hay una caja externa conectada, úsala como fuente de velocidad; si no, usa el teléfono.</string>
+    <string name="gps_show_on_dashboard">Mostrar velocidad en el panel</string>
     <string name="section_volume_keys">Teclas de volumen</string>
     <string name="volume_keys_caption">Botones de volumen como atajos (solo con la app visible).</string>
     <string name="volume_keys_enable">Activar acciones con teclas de volumen</string>
@@ -328,6 +346,12 @@
     <string name="sources_fresh_hours_fmt">hace %1$dh</string>
     <string name="sources_sats_fmt">%1$d sats</string>
     <string name="sources_collecting">Recopilando…</string>
+    <string name="sources_apply_calibration">Calibrar rueda</string>
+    <string name="sources_apply_calibration_title">Aplicar calibración de velocidad</string>
+    <string name="sources_apply_calibration_body_fmt">¿Establecer la calibración de velocidad de la rueda en %1$+.1f %%?\n\nPuedes cambiarlo después en Parámetros de la rueda.</string>
+    <string name="sources_apply_calibration_clamped_fmt">El valor calculado se limitó al rango de ±5 %% admitido por Parámetros de la rueda. Nuevo valor: %1$+.1f %%.</string>
+    <string name="sources_apply">Aplicar</string>
+    <string name="sources_cancel">Cancelar</string>
 
     <string name="alarm_section_beep">Pitido</string>
     <string name="alarm_enable_beep">Activar pitido</string>

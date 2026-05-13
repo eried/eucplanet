@@ -94,12 +94,38 @@ class DashboardViewModel @Inject constructor(
      * accent-coloured marker on the dial and a numeric readout under the main
      * speed when this is non-null.
      */
-    val externalGpsSpeedKmh: StateFlow<Float?> = externalGpsRepository.currentSample
-        .map { sample ->
-            sample
-                ?.takeIf { System.currentTimeMillis() - it.timestamp < 5_000L }
-                ?.speedKmh
+    /**
+     * Extra speed indicator on the dial. Honors the three new GPS settings:
+     *  - [AppSettings.gpsLogAdditional] off → no indicator
+     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
+     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
+     *  - else → phone GPS (when fix available)
+     *
+     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
+     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
+     */
+    val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
+        settingsRepository.settings,
+        externalGpsRepository.currentSample,
+        tripRepository.currentLocation
+    ) { settings, externalSample, location ->
+        if (!settings.gpsLogAdditional || !settings.gpsShowOnDashboard) return@combine null
+        val externalFresh = externalSample != null &&
+            System.currentTimeMillis() - externalSample.timestamp < 5_000L
+        when {
+            settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            location != null && location.hasSpeed() ->
+                (location.speed * 3.6f) to "PHONE"
+            !settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            else -> null
         }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** Convenience: just the speed part of [gpsExtraSpeed] for legacy callers. */
+    val externalGpsSpeedKmh: StateFlow<Float?> = gpsExtraSpeed
+        .map { it?.first }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation

@@ -189,6 +189,24 @@
     <string name="flic_click">Klikk</string>
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
+    <string name="external_gps_axes_title">Akse-orientering</string>
+    <string name="external_gps_axes_desc">Kople hver utgangsakse til en rå akse på enheten. Autoregistrering gjør det automatisk.</string>
+    <string name="external_gps_map_x">Utgang X</string>
+    <string name="external_gps_map_y">Utgang Y</string>
+    <string name="external_gps_map_z">Utgang Z</string>
+    <string name="external_gps_autodetect">Autoregistrer</string>
+    <string name="external_gps_autodetect_title">Autoregistrer akser</string>
+    <string name="external_gps_autodetect_prep">Gjør deg klar til å bevege enheten.</string>
+    <string name="external_gps_autodetect_forward">Beveg enheten frem og tilbake.</string>
+    <string name="external_gps_autodetect_lateral">Beveg enheten til venstre og høyre.</string>
+    <string name="external_gps_autodetect_vertical">Beveg enheten opp og ned.</string>
+    <string name="external_gps_autodetect_done">Akser registrert og brukt.</string>
+    <string name="external_gps_autodetect_abort">Avbryt</string>
+    <string name="gps_log_additional">Bruk ekstra GPS-data</string>
+    <string name="gps_log_additional_desc">Logg ekstra GPS-prøver fra telefonen eller en ekstern boks.</string>
+    <string name="gps_prioritize_external">Prioriter ekstern GPS</string>
+    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilkoblet, bruk den som fartskilde; ellers fall tilbake til telefonen.</string>
+    <string name="gps_show_on_dashboard">Vis hastighet på dashbordet</string>
     <string name="section_volume_keys">Volumtaster</string>
     <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
@@ -328,6 +346,12 @@
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
     <string name="sources_sats_fmt">%1$d sat.</string>
     <string name="sources_collecting">Samler inn…</string>
+    <string name="sources_apply_calibration">Kalibrer hjul</string>
+    <string name="sources_apply_calibration_title">Bruk hastighetskalibrering</string>
+    <string name="sources_apply_calibration_body_fmt">Sette hastighetskalibreringen for hjulet til %1$+.1f %%?\n\nDu kan endre dette senere i hjulparametere.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Den beregnede verdien ble begrenset til området ±5 %% som støttes av hjulparametere. Ny verdi: %1$+.1f %%.</string>
+    <string name="sources_apply">Bruk</string>
+    <string name="sources_cancel">Avbryt</string>
 
     <string name="alarm_section_beep">Pip</string>
     <string name="alarm_enable_beep">Aktiver pip</string>

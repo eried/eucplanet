@@ -35,4 +35,8 @@ object AppModule {
 
     @Provides
     fun provideAlarmDao(db: AppDatabase): AlarmDao = db.alarmDao()
+
+    @Provides
+    fun provideWheelProfileDao(db: AppDatabase): com.eried.eucplanet.data.db.WheelProfileDao =
+        db.wheelProfileDao()
 }

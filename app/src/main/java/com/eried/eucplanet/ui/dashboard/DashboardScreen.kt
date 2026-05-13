@@ -162,7 +162,13 @@ fun DashboardScreen(
     val lockBusy by viewModel.lockBusy.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
-    val externalGpsSpeed by viewModel.externalGpsSpeedKmh.collectAsState()
+    val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
+    val externalGpsSpeed = gpsExtra?.first
+    val externalGpsAccent = when (gpsExtra?.second) {
+        "EXTERNAL" -> AccentPurple
+        "PHONE" -> AccentBlue
+        else -> AccentPurple
+    }
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
@@ -464,8 +470,10 @@ fun DashboardScreen(
                     // signal and not the user's accent. The speed indicator
                     // arc (overrideColor above) still wears the accent.
                     safeBandColor = AccentGreen,
-                    // RaceBox / external GPS overlay (purple dot on the dial).
+                    // Extra GPS overlay (dot on the dial). Colour depends on
+                    // which source is active per user's GPS preferences.
                     externalSpeed = externalGpsSpeed,
+                    externalAccentColor = externalGpsAccent,
                     modifier = Modifier
                         .width(dialW)
                         .aspectRatio(ratio)
@@ -1542,9 +1550,10 @@ private fun SpeedGauge(
             val extAngle = startAngle + sweepTotal * extFraction
             val extRad = Math.toRadians(extAngle.toDouble())
             val dotRadius = arcThickness * 0.45f
-            // Sit the dot just outside the speed arc so it can't be hidden by the
-            // arc's coloured fill at the same angle.
-            val dotDistance = arcRadius + arcThickness * 0.5f
+            // Sit the dot on the centerline of the speed arc so it visually
+            // tracks the speed sweep. Drawing last means it sits on top of
+            // the arc colour band at the same angle.
+            val dotDistance = arcRadius
             val dotCenter = Offset(
                 center.x + dotDistance * cos(extRad).toFloat(),
                 center.y + dotDistance * sin(extRad).toFloat()
@@ -1560,9 +1569,6 @@ private fun SpeedGauge(
                 radius = dotRadius,
                 center = dotCenter
             )
-            // Numeric readout intentionally omitted — the dot on the arc plus
-            // the GPS icon's source ring carries the signal. A "GPS 31.4" text
-            // under the main number cluttered the dial.
         }
     }
 }

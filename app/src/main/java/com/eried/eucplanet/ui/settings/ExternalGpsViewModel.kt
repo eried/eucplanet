@@ -11,8 +11,10 @@ import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -105,5 +107,90 @@ class ExternalGpsViewModel @Inject constructor(
     override fun onCleared() {
         stopScan()
         super.onCleared()
+    }
+
+    /**
+     * State of the axis-autodetect wizard. Each motion phase has two screens:
+     * an [Instruct] page (Cancel + Next) and a [Capture] page that polls the
+     * accelerometer (Cancel only, except the final capture which auto-applies
+     * the result so the abort button would be misleading).
+     */
+    sealed class AutoDetectPhase {
+        object Idle : AutoDetectPhase()
+        object Prep : AutoDetectPhase()
+        object ForwardInstruct : AutoDetectPhase()
+        object ForwardCapture : AutoDetectPhase()
+        object LateralInstruct : AutoDetectPhase()
+        object LateralCapture : AutoDetectPhase()
+        object VerticalInstruct : AutoDetectPhase()
+        object VerticalCapture : AutoDetectPhase()
+        data class Done(val mapX: String, val mapY: String, val mapZ: String) : AutoDetectPhase()
+    }
+
+    private val _autoDetect = MutableStateFlow<AutoDetectPhase>(AutoDetectPhase.Idle)
+    val autoDetect: StateFlow<AutoDetectPhase> = _autoDetect.asStateFlow()
+
+    private val nextSignal = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    private var autoDetectJob: Job? = null
+
+    /** Output axis we assign each captured raw axis to. Convention:
+     *   forward (axis X) = lateral push of the wheel direction of travel
+     *   lateral (axis Y) = side-to-side
+     *   vertical (axis Z) = up/down
+     * which mirrors the rider's body frame and the existing crosshair plot. */
+    fun startAutoDetect(onApply: (mapX: String, mapY: String, mapZ: String) -> Unit) {
+        if (autoDetectJob != null) return
+        autoDetectJob = viewModelScope.launch {
+            try {
+                // Prep screen — rider gets ready to start moving.
+                _autoDetect.value = AutoDetectPhase.Prep
+                nextSignal.first()
+
+                // Forward: walk forward. 1 s warmup then 2 s capture — enough
+                // motion samples (~50–100 IMU frames) to pick the dominant
+                // axis without dragging the wizard out.
+                _autoDetect.value = AutoDetectPhase.ForwardInstruct
+                nextSignal.first()
+                _autoDetect.value = AutoDetectPhase.ForwardCapture
+                kotlinx.coroutines.delay(1000)
+                val forward = repository.captureDominantAxis(2000) ?: "Y"
+
+                // Lateral: walk left without changing device orientation.
+                _autoDetect.value = AutoDetectPhase.LateralInstruct
+                nextSignal.first()
+                _autoDetect.value = AutoDetectPhase.LateralCapture
+                kotlinx.coroutines.delay(1000)
+                val lateral = repository.captureDominantAxis(2000) ?: "X"
+
+                // Vertical: slowly lower the device to the ground. Shorter
+                // window because the motion itself is brief (~2 s).
+                _autoDetect.value = AutoDetectPhase.VerticalInstruct
+                nextSignal.first()
+                _autoDetect.value = AutoDetectPhase.VerticalCapture
+                kotlinx.coroutines.delay(1000)
+                val vertical = repository.captureDominantAxis(2000) ?: "Z"
+
+                onApply(lateral, forward, vertical)
+                _autoDetect.value = AutoDetectPhase.Done(lateral, forward, vertical)
+            } finally {
+                autoDetectJob = null
+            }
+        }
+    }
+
+    /** Advance to the next phase from any *Instruct screen. */
+    fun nextAutoDetectStep() {
+        nextSignal.tryEmit(Unit)
+    }
+
+    fun cancelAutoDetect() {
+        autoDetectJob?.cancel()
+        autoDetectJob = null
+        _autoDetect.value = AutoDetectPhase.Idle
+    }
+
+    fun dismissAutoDetect() {
+        _autoDetect.value = AutoDetectPhase.Idle
     }
 }

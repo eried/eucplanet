@@ -258,6 +258,24 @@
     <string name="flic_click">Kliknięcie</string>
     <string name="flic_double_click">Podwójne kliknięcie</string>
     <string name="flic_hold">Przytrzymanie</string>
+    <string name="external_gps_axes_title">Orientacja osi</string>
+    <string name="external_gps_axes_desc">Przypisz każdą oś wyjściową do osi surowej urządzenia. Autowykrywanie ustawi je automatycznie.</string>
+    <string name="external_gps_map_x">Wyjście X</string>
+    <string name="external_gps_map_y">Wyjście Y</string>
+    <string name="external_gps_map_z">Wyjście Z</string>
+    <string name="external_gps_autodetect">Autowykrywanie</string>
+    <string name="external_gps_autodetect_title">Autowykrywanie osi</string>
+    <string name="external_gps_autodetect_prep">Przygotuj się do ruszania urządzeniem.</string>
+    <string name="external_gps_autodetect_forward">Poruszaj urządzeniem w przód i w tył.</string>
+    <string name="external_gps_autodetect_lateral">Poruszaj urządzeniem w lewo i w prawo.</string>
+    <string name="external_gps_autodetect_vertical">Poruszaj urządzeniem w górę i w dół.</string>
+    <string name="external_gps_autodetect_done">Osie wykryte i zastosowane.</string>
+    <string name="external_gps_autodetect_abort">Przerwij</string>
+    <string name="gps_log_additional">Używaj dodatkowych danych GPS</string>
+    <string name="gps_log_additional_desc">Zapisuj dodatkowe próbki GPS z telefonu lub zewnętrznego urządzenia.</string>
+    <string name="gps_prioritize_external">Priorytet zewnętrznego GPS</string>
+    <string name="gps_prioritize_external_desc">Gdy zewnętrzne urządzenie jest podłączone, użyj go jako źródła prędkości; w przeciwnym razie użyj telefonu.</string>
+    <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="section_volume_keys">Klawisze głośności</string>
     <string name="volume_keys_caption">Klawisze głośności jako skróty (tylko gdy aplikacja jest widoczna).</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>
@@ -455,6 +473,12 @@
     <string name="sources_fresh_hours_fmt">%1$dh temu</string>
     <string name="sources_sats_fmt">%1$d sat.</string>
     <string name="sources_collecting">Zbieranie…</string>
+    <string name="sources_apply_calibration">Kalibruj koło</string>
+    <string name="sources_apply_calibration_title">Zastosuj kalibrację prędkości</string>
+    <string name="sources_apply_calibration_body_fmt">Ustawić kalibrację prędkości koła na %1$+.1f %%?\n\nMożesz to zmienić później w Parametrach koła.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Obliczona wartość została ograniczona do zakresu ±5 %% obsługiwanego przez Parametry koła. Nowa wartość: %1$+.1f %%.</string>
+    <string name="sources_apply">Zastosuj</string>
+    <string name="sources_cancel">Anuluj</string>
 
     <string name="alarm_section_beep">Sygnał</string>
     <string name="alarm_enable_beep">Włącz sygnał</string>

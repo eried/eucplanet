@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -402,25 +403,25 @@ private fun SourceTab(
                 value = snapshot.verticalSpeedMps?.let { formatVerticalSpeed(it, imperial) },
                 color = source.color
             )
+            // Position row with sats + accuracy folded into the label itself
+            // so the metadata sits inline rather than wrapping to a second
+            // line below the coords.
+            val positionLabel = run {
+                val base = stringResource(com.eried.eucplanet.R.string.sources_position)
+                val sats = snapshot.numSatellites?.let {
+                    context.getString(com.eried.eucplanet.R.string.sources_sats_fmt, it)
+                }
+                val acc = snapshot.accuracyMeters?.let { formatAccuracy(it, imperial) }
+                val suffix = listOfNotNull(sats, acc).joinToString(" · ")
+                if (suffix.isEmpty()) base else "$base ($suffix)"
+            }
             ValueRow(
-                label = stringResource(com.eried.eucplanet.R.string.sources_position),
+                label = positionLabel,
                 value = snapshot.latitude?.let { lat ->
                     snapshot.longitude?.let { lon -> "%.5f, %.5f".format(lat, lon) }
                 },
                 color = source.color
             )
-            if (snapshot.numSatellites != null || snapshot.accuracyMeters != null) {
-                val sats = snapshot.numSatellites?.let {
-                    context.getString(com.eried.eucplanet.R.string.sources_sats_fmt, it)
-                }
-                val acc = snapshot.accuracyMeters?.let { formatAccuracy(it, imperial) }
-                val combined = listOfNotNull(sats, acc).joinToString(" · ")
-                Text(
-                    text = combined,
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
         // Freshness row — "Last update 3s ago" / "Updated just now" / "—".
         FreshnessRow(snapshot.lastUpdateMs, nowMs)
@@ -698,67 +699,133 @@ private fun CompareTab(
     val snapB = snapshots[b] ?: SourceSnapshot()
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        // Speed is the headline comparison. Graph stays — taller now — and we
+        // display BOTH the current delta and the rolling-window average delta
+        // in the header so the rider sees a glanceable bias number.
+        val speedSeriesA = viewModel.speedSeries[a]?.collectAsState()?.value
+            ?: DataSourcesViewModel.TimedSeries()
+        val speedSeriesB = viewModel.speedSeries[b]?.collectAsState()?.value
+            ?: DataSourcesViewModel.TimedSeries()
+        val speedDeltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
+            Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
+        val speedDeltaAvg = computeAverageDeltaKmh(speedSeriesA, speedSeriesB)
+            ?.let { Units.speed(it, imperial) }
+
+        // Apply-to-calibration: button always rendered when one of the two
+        // sides is the wheel (so the user knows the action exists), but
+        // enabled only when the wheel is connected AND we've gathered enough
+        // sample data on both sides to compute a meaningful offset.
+        val wheelConnected by viewModel.wheelConnected.collectAsState()
+        val wheelInComparison = a == DataSource.WHEEL || b == DataSource.WHEEL
+        val wheelSeries = when {
+            a == DataSource.WHEEL -> speedSeriesA
+            b == DataSource.WHEEL -> speedSeriesB
+            else -> null
+        }
+        val refSeries = when {
+            a == DataSource.WHEEL -> speedSeriesB
+            b == DataSource.WHEEL -> speedSeriesA
+            else -> null
+        }
+        val proposedCalPct = if (wheelSeries != null && refSeries != null) {
+            val avgW = computeSeriesAverage(wheelSeries)
+            val avgR = computeSeriesAverage(refSeries)
+            if (avgW != null && avgR != null) viewModel.computeCalibrationPct(avgW, avgR) else null
+        } else null
+        var showApplyDialog by remember { mutableStateOf(false) }
+
+        // Button is always rendered (so the header layout doesn't shift
+        // when the user switches A/B), but only enabled when the wheel is
+        // one of the two sources, the wheel is connected, and we have
+        // enough samples on both sides to compute a meaningful offset.
         ComparisonChart(
             title = stringResource(com.eried.eucplanet.R.string.sources_speed),
-            seriesA = viewModel.speedSeries[a]?.collectAsState()?.value
-                ?: DataSourcesViewModel.TimedSeries(),
-            seriesB = viewModel.speedSeries[b]?.collectAsState()?.value
-                ?: DataSourcesViewModel.TimedSeries(),
+            seriesA = speedSeriesA,
+            seriesB = speedSeriesB,
             colorA = a.color,
             colorB = b.color,
             unit = speedUnit,
             transform = { Units.speed(it, imperial) },
-            deltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
-                Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
+            deltaCurrent = speedDeltaCurrent,
+            deltaAvg = speedDeltaAvg,
+            chartHeight = 200.dp,
+            showAverageLine = true,
+            applyActionLabel = stringResource(com.eried.eucplanet.R.string.sources_apply_calibration),
+            applyActionEnabled = wheelInComparison && wheelConnected && proposedCalPct != null,
+            onApplyAction = { showApplyDialog = true }
         )
+        if (showApplyDialog && proposedCalPct != null) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showApplyDialog = false },
+                title = {
+                    Text(stringResource(com.eried.eucplanet.R.string.sources_apply_calibration_title))
+                },
+                text = {
+                    Text(
+                        stringResource(
+                            com.eried.eucplanet.R.string.sources_apply_calibration_body_fmt,
+                            proposedCalPct
+                        )
+                    )
+                },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        viewModel.applyCalibrationPct(proposedCalPct)
+                        showApplyDialog = false
+                    }) {
+                        Text(stringResource(com.eried.eucplanet.R.string.sources_apply))
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        showApplyDialog = false
+                    }) {
+                        Text(stringResource(com.eried.eucplanet.R.string.sources_cancel))
+                    }
+                }
+            )
+        }
 
+        // Everything else collapses to a compact table. Each row is the two
+        // current values + the signed delta; no per-metric graph.
+        Text(
+            stringResource(com.eried.eucplanet.R.string.sources_other_metrics),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         if (snapA.headingDeg != null || snapB.headingDeg != null) {
-            ComparisonChart(
-                title = stringResource(com.eried.eucplanet.R.string.sources_heading),
-                seriesA = viewModel.headingSeries[a]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.headingSeries[b]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
+            CompareTableRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_heading),
+                valueA = snapA.headingDeg?.let { "%.0f°".format(it) },
+                valueB = snapB.headingDeg?.let { "%.0f°".format(it) },
+                delta = if (snapA.headingDeg != null && snapB.headingDeg != null)
+                    "%+.0f°".format(shortestArc(snapA.headingDeg, snapB.headingDeg)) else null,
                 colorA = a.color,
-                colorB = b.color,
-                unit = "°",
-                transform = { it },
-                deltaCurrent = if (snapA.headingDeg != null && snapB.headingDeg != null)
-                    shortestArc(snapA.headingDeg, snapB.headingDeg) else null,
-                deltaSuffix = "°"
+                colorB = b.color
             )
         }
-
         if (snapA.verticalSpeedMps != null || snapB.verticalSpeedMps != null) {
-            ComparisonChart(
-                title = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
-                seriesA = viewModel.vertSpeedSeries[a]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.vertSpeedSeries[b]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
+            CompareTableRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
+                valueA = snapA.verticalSpeedMps?.let { "%+.2f m/s".format(it) },
+                valueB = snapB.verticalSpeedMps?.let { "%+.2f m/s".format(it) },
+                delta = if (snapA.verticalSpeedMps != null && snapB.verticalSpeedMps != null)
+                    "%+.2f m/s".format(snapB.verticalSpeedMps - snapA.verticalSpeedMps) else null,
                 colorA = a.color,
-                colorB = b.color,
-                unit = "m/s",
-                transform = { it },
-                deltaCurrent = if (snapA.verticalSpeedMps != null && snapB.verticalSpeedMps != null)
-                    snapB.verticalSpeedMps - snapA.verticalSpeedMps else null
+                colorB = b.color
             )
         }
-
         val gA = snapA.horizGMagnitude
         val gB = snapB.horizGMagnitude
         if (gA != null || gB != null) {
-            ComparisonChart(
-                title = stringResource(com.eried.eucplanet.R.string.sources_g_horizontal),
-                seriesA = viewModel.gMagnitudeSeries[a]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.gMagnitudeSeries[b]?.collectAsState()?.value
-                    ?: DataSourcesViewModel.TimedSeries(),
+            CompareTableRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_g_horizontal),
+                valueA = gA?.let { "%.2f g".format(it) },
+                valueB = gB?.let { "%.2f g".format(it) },
+                delta = if (gA != null && gB != null) "%+.2f g".format(gB - gA) else null,
                 colorA = a.color,
-                colorB = b.color,
-                unit = "g",
-                transform = { it },
-                deltaCurrent = if (gA != null && gB != null) gB - gA else null
+                colorB = b.color
             )
         }
 
@@ -820,7 +887,13 @@ private fun ComparisonChart(
     unit: String,
     transform: (Float) -> Float,
     deltaCurrent: Float?,
-    deltaSuffix: String = " $unit"
+    deltaSuffix: String = " $unit",
+    deltaAvg: Float? = null,
+    chartHeight: androidx.compose.ui.unit.Dp = 110.dp,
+    showAverageLine: Boolean = false,
+    applyActionLabel: String? = null,
+    applyActionEnabled: Boolean = false,
+    onApplyAction: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -833,24 +906,146 @@ private fun ComparisonChart(
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(
-            text = deltaCurrent?.let { "Δ %+.1f%s".format(it, deltaSuffix) } ?: "—",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = if (deltaCurrent != null) MaterialTheme.colorScheme.onSurface
-            else Color(0xFF707070)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = deltaCurrent?.let { "Δ %+.1f%s".format(it, deltaSuffix) } ?: "—",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (deltaCurrent != null) MaterialTheme.colorScheme.onSurface
+                    else Color(0xFF707070)
+                )
+                if (deltaAvg != null) {
+                    Text(
+                        text = "avg %+.1f%s".format(deltaAvg, deltaSuffix),
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            if (applyActionLabel != null) {
+                Spacer(Modifier.width(4.dp))
+                androidx.compose.material3.TextButton(
+                    onClick = { onApplyAction?.invoke() },
+                    enabled = applyActionEnabled && onApplyAction != null,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 0.dp
+                    )
+                ) {
+                    Text(applyActionLabel, fontSize = 11.sp)
+                }
+            }
+        }
     }
+    val avgSeries = if (showAverageLine) computeTimedAverage(seriesA, seriesB)
+                    else DataSourcesViewModel.TimedSeries()
     LineChart(
         seriesA = seriesA,
         seriesB = seriesB,
+        seriesC = avgSeries,
         colorA = colorA,
         colorB = colorB,
+        colorC = MaterialTheme.colorScheme.onSurface,
         transform = transform,
+        centerOnLatestPct = if (showAverageLine) 10f else null,
         modifier = Modifier
             .fillMaxWidth()
-            .height(110.dp)
+            .height(chartHeight)
     )
+}
+
+/** Simple mean of all sample values currently in the rolling-window buffer.
+ *  Used to feed the apply-calibration math, where we need each source's
+ *  averaged speed (not the delta between them). */
+private fun computeSeriesAverage(s: DataSourcesViewModel.TimedSeries): Float? {
+    val pts = s.points
+    if (pts.isEmpty()) return null
+    var sum = 0.0
+    for ((_, v) in pts) sum += v.toDouble()
+    return (sum / pts.size).toFloat()
+}
+
+/** Time-aligned per-sample average. For each A-timestamp we average with the
+ *  nearest-in-time B value (skipped if the nearest is more than 2 s away). */
+private fun computeTimedAverage(
+    a: DataSourcesViewModel.TimedSeries,
+    b: DataSourcesViewModel.TimedSeries
+): DataSourcesViewModel.TimedSeries {
+    val pa = a.points
+    val pb = b.points
+    if (pa.isEmpty() || pb.isEmpty()) return DataSourcesViewModel.TimedSeries()
+    val out = ArrayList<Pair<Long, Float>>(pa.size)
+    for ((t, va) in pa) {
+        val nearestB = pb.minByOrNull { kotlin.math.abs(it.first - t) } ?: continue
+        if (kotlin.math.abs(nearestB.first - t) > 2_000L) continue
+        out.add(t to (va + nearestB.second) / 2f)
+    }
+    return DataSourcesViewModel.TimedSeries(out)
+}
+
+/**
+ * Time-aligned average of B minus A across the rolling window. We pair each
+ * B sample with the nearest-in-time A sample and average the deltas. The
+ * window is whatever the ViewModel keeps in the series buffers (~30 s today).
+ */
+private fun computeAverageDeltaKmh(
+    a: DataSourcesViewModel.TimedSeries,
+    b: DataSourcesViewModel.TimedSeries
+): Float? {
+    val pa = a.points
+    val pb = b.points
+    if (pa.isEmpty() || pb.isEmpty()) return null
+    var sum = 0.0
+    var n = 0
+    for ((t, vb) in pb) {
+        val nearestA = pa.minByOrNull { kotlin.math.abs(it.first - t) } ?: continue
+        if (kotlin.math.abs(nearestA.first - t) > 2_000L) continue
+        sum += (vb - nearestA.second).toDouble()
+        n++
+    }
+    return if (n == 0) null else (sum / n).toFloat()
+}
+
+@Composable
+private fun CompareTableRow(
+    label: String,
+    valueA: String?,
+    valueB: String?,
+    delta: String?,
+    colorA: Color,
+    colorB: Color
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            modifier = Modifier.weight(0.30f),
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            valueA ?: "—",
+            modifier = Modifier.weight(0.25f),
+            fontSize = 13.sp,
+            color = colorA
+        )
+        Text(
+            valueB ?: "—",
+            modifier = Modifier.weight(0.25f),
+            fontSize = 13.sp,
+            color = colorB
+        )
+        Text(
+            delta ?: "—",
+            modifier = Modifier.weight(0.20f),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = if (delta != null) MaterialTheme.colorScheme.onSurface else Color(0xFF707070)
+        )
+    }
 }
 
 @Composable
@@ -860,7 +1055,16 @@ private fun LineChart(
     colorA: Color,
     colorB: Color,
     transform: (Float) -> Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    seriesC: DataSourcesViewModel.TimedSeries = DataSourcesViewModel.TimedSeries(),
+    colorC: Color = Color.Gray,
+    /**
+     * When non-null, the Y axis centers on the most recent A-or-B value with
+     * top/bottom at ±[centerOnLatestPct] % of that value. Lets two near-equal
+     * but oscillating sources show as a visible spread instead of flattening
+     * into a thin band at the top of the chart. Null = auto-fit min/max.
+     */
+    centerOnLatestPct: Float? = null
 ) {
     val measurer = rememberTextMeasurer()
     val grid = MaterialTheme.colorScheme.surfaceVariant
@@ -872,14 +1076,15 @@ private fun LineChart(
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.30f))
             .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
     ) {
-        Canvas(modifier = Modifier.fillMaxWidth().padding(8.dp).fillMaxWidth().padding(0.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
             val w = size.width
             val h = size.height
 
             // Find the union of points to compute the Y range.
             val pointsA = seriesA.points
             val pointsB = seriesB.points
-            val allPoints = pointsA + pointsB
+            val pointsC = seriesC.points
+            val allPoints = pointsA + pointsB + pointsC
             if (allPoints.size < 2) {
                 // Not enough data — paint a midline placeholder.
                 val midY = h / 2f
@@ -905,20 +1110,56 @@ private fun LineChart(
             }
 
             val now = System.currentTimeMillis()
-            // 30-second window matching the ViewModel buffer.
-            val tMin = now - 30_000L
+            // 5-minute window matching the ViewModel buffer.
+            val tMin = now - 300_000L
             val tMax = now
             val tRange = (tMax - tMin).coerceAtLeast(1L)
 
-            val transformedValues = allPoints.map { transform(it.second) }
-            val yMinRaw = transformedValues.min()
-            val yMaxRaw = transformedValues.max()
-            val yRange = (yMaxRaw - yMinRaw).coerceAtLeast(0.01f)
-            // 10 % vertical padding so peaks/troughs don't touch the box.
-            val padY = yRange * 0.1f
-            val yMin = yMinRaw - padY
-            val yMax = yMaxRaw + padY
-            val yRangePadded = (yMax - yMin).coerceAtLeast(0.02f)
+            // Only consider points within the visible time window so the
+            // Y-axis zooms to what's actually drawn rather than to the full
+            // buffer (which can include older outliers).
+            val visiblePoints = allPoints.filter { it.first in tMin..tMax }
+            val transformedValues = (if (visiblePoints.size >= 2) visiblePoints else allPoints)
+                .map { transform(it.second) }
+
+            val yMin: Float
+            val yMax: Float
+            if (centerOnLatestPct != null) {
+                // Centre on the LATEST values of A and B (whichever are
+                // available) — not the 5-minute spread — so the axis tracks
+                // current speed instead of getting dragged wide by an old
+                // peak. Pad to include both latest values plus a 10 %
+                // breathing margin, with a floor of |centre| × N % so the
+                // chart stays tightly zoomed when A and B are close (the
+                // "wheel = 20, gps = 21" case).
+                val latestA = pointsA.maxByOrNull { it.first }?.second?.let(transform)
+                val latestB = pointsB.maxByOrNull { it.first }?.second?.let(transform)
+                val active = listOfNotNull(latestA, latestB)
+                    .filter { kotlin.math.abs(it) > 0.5f }
+                val targets = if (active.isNotEmpty()) active
+                              else listOfNotNull(latestA, latestB)
+                val center = if (targets.isNotEmpty())
+                    (targets.min() + targets.max()) / 2f else 0f
+                val halfData = if (targets.size >= 2)
+                    (targets.max() - targets.min()) / 2f else 0f
+                val halfTen = kotlin.math.abs(center) * centerOnLatestPct / 100f
+                // Leave ~30% breathing room above and below the data, then take
+                // the larger of that and the absolute %-of-centre window. The
+                // 1.5 floor keeps the chart from collapsing to nothing when
+                // both sources sit at zero (e.g. parked emulator).
+                val halfRange = maxOf(halfData * 1.30f, halfTen, 1.5f)
+                yMin = center - halfRange
+                yMax = center + halfRange
+            } else {
+                // Auto-fit min/max with small padding.
+                val yMinRaw = transformedValues.min()
+                val yMaxRaw = transformedValues.max()
+                val yRangeRaw = (yMaxRaw - yMinRaw).coerceAtLeast(0.5f)
+                val padY = yRangeRaw * 0.04f
+                yMin = yMinRaw - padY
+                yMax = yMaxRaw + padY
+            }
+            val yRangePadded = (yMax - yMin).coerceAtLeast(0.5f)
 
             // Horizontal gridlines (3).
             for (i in 0..2) {
@@ -945,6 +1186,18 @@ private fun LineChart(
 
             pathFor(pointsA)?.let { drawPath(it, color = colorA, style = Stroke(width = 2.2f)) }
             pathFor(pointsB)?.let { drawPath(it, color = colorB, style = Stroke(width = 2.2f)) }
+            // Optional third series (average between A and B). Drawn dashed so
+            // it reads as a derived reference line, not another source.
+            pathFor(pointsC)?.let {
+                drawPath(
+                    path = it,
+                    color = colorC.copy(alpha = 0.85f),
+                    style = Stroke(
+                        width = 1.6f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 5f))
+                    )
+                )
+            }
 
             // y-min / y-max labels on the left edge for context.
             listOf(yMax to 2f, yMin to h - 12f).forEach { (v, ty) ->

@@ -189,6 +189,24 @@
     <string name="flic_click">Clic</string>
     <string name="flic_double_click">Double clic</string>
     <string name="flic_hold">Maintenir</string>
+    <string name="external_gps_axes_title">Orientation des axes</string>
+    <string name="external_gps_axes_desc">Mappe chaque axe de sortie à un axe brut du boîtier. Autodétection les règle automatiquement.</string>
+    <string name="external_gps_map_x">Sortie X</string>
+    <string name="external_gps_map_y">Sortie Y</string>
+    <string name="external_gps_map_z">Sortie Z</string>
+    <string name="external_gps_autodetect">Autodétection</string>
+    <string name="external_gps_autodetect_title">Autodétection des axes</string>
+    <string name="external_gps_autodetect_prep">Préparez-vous à bouger l\'appareil.</string>
+    <string name="external_gps_autodetect_forward">Bougez l\'appareil d\'avant en arrière.</string>
+    <string name="external_gps_autodetect_lateral">Bougez l\'appareil de gauche à droite.</string>
+    <string name="external_gps_autodetect_vertical">Bougez l\'appareil de haut en bas.</string>
+    <string name="external_gps_autodetect_done">Axes détectés et appliqués.</string>
+    <string name="external_gps_autodetect_abort">Annuler</string>
+    <string name="gps_log_additional">Utiliser les données GPS supplémentaires</string>
+    <string name="gps_log_additional_desc">Enregistre des échantillons GPS supplémentaires depuis le téléphone ou un boîtier externe.</string>
+    <string name="gps_prioritize_external">Priorité au GPS externe</string>
+    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser comme source de vitesse ; sinon, basculer sur le téléphone.</string>
+    <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
     <string name="section_volume_keys">Touches de volume</string>
     <string name="volume_keys_caption">Touches de volume en raccourcis (uniquement quand l\'appli est visible).</string>
     <string name="volume_keys_enable">Activer les actions de volume</string>
@@ -364,6 +382,12 @@
     <string name="sources_fresh_hours_fmt">il y a %1$dh</string>
     <string name="sources_sats_fmt">%1$d sat.</string>
     <string name="sources_collecting">Acquisition…</string>
+    <string name="sources_apply_calibration">Calibrer la roue</string>
+    <string name="sources_apply_calibration_title">Appliquer la calibration de vitesse</string>
+    <string name="sources_apply_calibration_body_fmt">Régler la calibration de vitesse de la roue à %1$+.1f %% ?\n\nVous pourrez la modifier plus tard dans les paramètres de la roue.</string>
+    <string name="sources_apply_calibration_clamped_fmt">La valeur calculée a été limitée à la plage de ±5 %% prise en charge par les paramètres de la roue. Nouvelle valeur : %1$+.1f %%.</string>
+    <string name="sources_apply">Appliquer</string>
+    <string name="sources_cancel">Annuler</string>
 
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Activer le bip</string>

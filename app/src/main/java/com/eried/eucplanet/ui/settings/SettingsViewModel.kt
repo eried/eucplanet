@@ -182,6 +182,20 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
+    fun updateSpeedCalibrationOffsetPct(v: Float) = update {
+        // Round to 0.1 % granularity so the value reads cleanly across UI,
+        // backup JSON, and per-wheel profile storage.
+        val rounded = (kotlin.math.round(v * 10f) / 10f).coerceIn(-5f, 5f)
+        copy(speedCalibrationOffsetPct = rounded)
+    }
+    fun updateRaceboxMapX(v: String) = update { copy(raceboxMapX = v) }
+    fun updateRaceboxMapY(v: String) = update { copy(raceboxMapY = v) }
+    fun updateRaceboxMapZ(v: String) = update { copy(raceboxMapZ = v) }
+    fun updateGpsLogAdditional(v: Boolean) = update { copy(gpsLogAdditional = v) }
+    fun updateGpsPrioritizeExternal(v: Boolean) = update { copy(gpsPrioritizeExternal = v) }
+    fun updateGpsShowOnDashboard(v: Boolean) = update { copy(gpsShowOnDashboard = v) }
+    fun setRaceboxAxisMap(mapX: String, mapY: String, mapZ: String) =
+        update { copy(raceboxMapX = mapX, raceboxMapY = mapY, raceboxMapZ = mapZ) }
 
     // Automations
     fun updateAutoLightsEnabled(v: Boolean) {

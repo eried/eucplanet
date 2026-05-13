@@ -189,6 +189,24 @@
     <string name="flic_click">Klick</string>
     <string name="flic_double_click">Dubbelklick</string>
     <string name="flic_hold">Håll</string>
+    <string name="external_gps_axes_title">Axelorientering</string>
+    <string name="external_gps_axes_desc">Mappa varje utgångsaxel till en rå axel på boxen. Autodetektering ställer in dem automatiskt.</string>
+    <string name="external_gps_map_x">Utgång X</string>
+    <string name="external_gps_map_y">Utgång Y</string>
+    <string name="external_gps_map_z">Utgång Z</string>
+    <string name="external_gps_autodetect">Autodetektera</string>
+    <string name="external_gps_autodetect_title">Autodetektera axlar</string>
+    <string name="external_gps_autodetect_prep">Gör dig redo att röra enheten.</string>
+    <string name="external_gps_autodetect_forward">Rör enheten fram och tillbaka.</string>
+    <string name="external_gps_autodetect_lateral">Rör enheten åt vänster och höger.</string>
+    <string name="external_gps_autodetect_vertical">Rör enheten upp och ner.</string>
+    <string name="external_gps_autodetect_done">Axlar identifierade och tillämpade.</string>
+    <string name="external_gps_autodetect_abort">Avbryt</string>
+    <string name="gps_log_additional">Använd ytterligare GPS-data</string>
+    <string name="gps_log_additional_desc">Logga extra GPS-prov från telefonen eller en extern enhet.</string>
+    <string name="gps_prioritize_external">Prioritera extern GPS</string>
+    <string name="gps_prioritize_external_desc">När en extern enhet är ansluten, använd den som hastighetskälla; annars fall tillbaka på telefonen.</string>
+    <string name="gps_show_on_dashboard">Visa hastighet på instrumentpanelen</string>
     <string name="section_volume_keys">Volymknappar</string>
     <string name="volume_keys_caption">Volymknappar som genvägar (bara när appen är synlig).</string>
     <string name="volume_keys_enable">Aktivera åtgärder på volymknappar</string>
@@ -364,6 +382,12 @@
     <string name="sources_fresh_hours_fmt">%1$dh sedan</string>
     <string name="sources_sats_fmt">%1$d sat.</string>
     <string name="sources_collecting">Samlar in…</string>
+    <string name="sources_apply_calibration">Kalibrera hjul</string>
+    <string name="sources_apply_calibration_title">Tillämpa hastighetskalibrering</string>
+    <string name="sources_apply_calibration_body_fmt">Ställ in hjulets hastighetskalibrering till %1$+.1f %%?\n\nDu kan ändra detta senare i Hjulparametrar.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Det beräknade värdet begränsades till intervallet ±5 %% som stöds av Hjulparametrar. Nytt värde: %1$+.1f %%.</string>
+    <string name="sources_apply">Tillämpa</string>
+    <string name="sources_cancel">Avbryt</string>
 
     <string name="alarm_section_beep">Pip</string>
     <string name="alarm_enable_beep">Aktivera pip</string>

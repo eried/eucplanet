@@ -189,6 +189,24 @@
     <string name="flic_click">Klick</string>
     <string name="flic_double_click">Doppelklick</string>
     <string name="flic_hold">Halten</string>
+    <string name="external_gps_axes_title">Achsen-Ausrichtung</string>
+    <string name="external_gps_axes_desc">Ordne jeder Ausgangsachse eine Rohachse der Box zu. Autoerkennung stellt sie automatisch ein.</string>
+    <string name="external_gps_map_x">Ausgabe X</string>
+    <string name="external_gps_map_y">Ausgabe Y</string>
+    <string name="external_gps_map_z">Ausgabe Z</string>
+    <string name="external_gps_autodetect">Autoerkennen</string>
+    <string name="external_gps_autodetect_title">Achsen autoerkennen</string>
+    <string name="external_gps_autodetect_prep">Bereit machen, das Gerät zu bewegen.</string>
+    <string name="external_gps_autodetect_forward">Gerät vor und zurück bewegen.</string>
+    <string name="external_gps_autodetect_lateral">Gerät nach links und rechts bewegen.</string>
+    <string name="external_gps_autodetect_vertical">Gerät auf und ab bewegen.</string>
+    <string name="external_gps_autodetect_done">Achsen erkannt und übernommen.</string>
+    <string name="external_gps_autodetect_abort">Abbrechen</string>
+    <string name="gps_log_additional">Zusätzliche GPS-Daten verwenden</string>
+    <string name="gps_log_additional_desc">Zusätzliche GPS-Samples vom Telefon oder einer externen Box aufzeichnen.</string>
+    <string name="gps_prioritize_external">Externes GPS bevorzugen</string>
+    <string name="gps_prioritize_external_desc">Wenn eine externe Box verbunden ist, sie als Geschwindigkeitsquelle nutzen; sonst das Telefon.</string>
+    <string name="gps_show_on_dashboard">Geschwindigkeit im Dashboard zeigen</string>
     <string name="section_volume_keys">Lautstärketasten</string>
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle (nur bei sichtbarer App).</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>
@@ -328,6 +346,12 @@
     <string name="sources_fresh_hours_fmt">vor %1$dh</string>
     <string name="sources_sats_fmt">%1$d Sat.</string>
     <string name="sources_collecting">Erfassung…</string>
+    <string name="sources_apply_calibration">Rad kalibrieren</string>
+    <string name="sources_apply_calibration_title">Geschwindigkeitskalibrierung anwenden</string>
+    <string name="sources_apply_calibration_body_fmt">Geschwindigkeitskalibrierung des Rads auf %1$+.1f %% setzen?\n\nDu kannst dies später in den Rad-Parametern ändern.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Der berechnete Wert wurde auf den von den Rad-Parametern unterstützten Bereich von ±5 %% begrenzt. Neuer Wert: %1$+.1f %%.</string>
+    <string name="sources_apply">Anwenden</string>
+    <string name="sources_cancel">Abbrechen</string>
 
     <string name="alarm_section_beep">Piepton</string>
     <string name="alarm_enable_beep">Piepton aktivieren</string>

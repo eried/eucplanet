@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,21 +12,32 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
@@ -40,23 +52,55 @@ import com.eried.eucplanet.ui.theme.AccentRed
  *  * Not paired: caption + a single "Pair external GPS" button that switches to
  *    the scan card. Picking a result pairs and triggers connect.
  *  * Paired: status card with name, connection state, live speed when connected,
- *    plus reconnect / disconnect / forget.
+ *    plus reconnect / forget, axis remap dropdowns and autodetect wizard.
  */
 @Composable
-fun ExternalGpsSection(viewModel: ExternalGpsViewModel = hiltViewModel()) {
+fun ExternalGpsSection(
+    viewModel: ExternalGpsViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
+) {
     val pairedAddress by viewModel.pairedAddress.collectAsState()
     val pairedName by viewModel.pairedName.collectAsState()
     val scanning by viewModel.scanning.collectAsState()
     val scanResults by viewModel.scanResults.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     val sample by viewModel.currentSample.collectAsState()
+    val settings by settingsViewModel.settings.collectAsState()
+    val autoDetectPhase by viewModel.autoDetect.collectAsState()
+
+    val additionalEnabled = settings?.gpsLogAdditional == true
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionHeader(stringResource(R.string.section_external_gps))
 
+        // Master toggle. Everything below collapses when this is off; the
+        // app skips the external connect entirely and no dashboard dot
+        // appears (the dashboard's gpsExtraSpeed flow gates on the same
+        // setting).
+        ToggleRow(
+            label = stringResource(R.string.gps_log_additional),
+            checked = additionalEnabled,
+            onCheckedChange = { settingsViewModel.updateGpsLogAdditional(it) }
+        )
+        HintText(stringResource(R.string.gps_log_additional_desc), small = true)
+
+        if (!additionalEnabled) return@Column
+
+        ToggleRow(
+            label = stringResource(R.string.gps_prioritize_external),
+            checked = settings?.gpsPrioritizeExternal == true,
+            onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
+        )
+        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
+        ToggleRow(
+            label = stringResource(R.string.gps_show_on_dashboard),
+            checked = settings?.gpsShowOnDashboard == true,
+            onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
+        )
+
+        Spacer(Modifier.height(8.dp))
+
         if (pairedAddress == null) {
-            // Match the Volume Keys / Flic layout: hint outside the card as small
-            // italic text, action button inside the card, full width.
             HintText(stringResource(R.string.external_gps_caption), small = true)
             UnpairedExternalGpsCard(
                 scanning = scanning,
@@ -69,13 +113,283 @@ fun ExternalGpsSection(viewModel: ExternalGpsViewModel = hiltViewModel()) {
             PairedExternalGpsCard(
                 deviceName = pairedName ?: pairedAddress!!,
                 connectionState = connectionState,
-                liveSpeedKmh = sample?.speedKmh,
-                onReconnect = { viewModel.reconnect() },
-                onDisconnect = { viewModel.disconnect() },
-                onUnpair = { viewModel.unpair() }
+                liveSpeedKmh = sample?.speedKmh
+            )
+
+            // Disconnect / Reconnect sits on the left half, Forget on the
+            // right half of the same row. Keeps the half-width visual rhythm
+            // of LeftAlignedScanButton without leaving an empty gap.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (connectionState == ConnectionState.CONNECTED) {
+                    Button(
+                        onClick = { viewModel.disconnect() },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.external_gps_disconnect))
+                    }
+                } else {
+                    Button(
+                        onClick = { viewModel.reconnect() },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(R.string.external_gps_reconnect))
+                    }
+                }
+                Button(
+                    onClick = { viewModel.unpair() },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                ) {
+                    Text(stringResource(R.string.external_gps_unpair))
+                }
+            }
+
+            // --- Axis remap ---
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.external_gps_axes_title),
+                style = MaterialTheme.typography.titleSmall
+            )
+            HintText(stringResource(R.string.external_gps_axes_desc), small = true)
+
+            val axisOptions = listOf(
+                "X" to "X",
+                "-X" to "-X",
+                "Y" to "Y",
+                "-Y" to "-Y",
+                "Z" to "Z",
+                "-Z" to "-Z"
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    InlineAxisDropdown(
+                        label = stringResource(R.string.external_gps_map_x),
+                        current = settings?.raceboxMapX ?: "X",
+                        options = axisOptions,
+                        onSelect = { settingsViewModel.updateRaceboxMapX(it) }
+                    )
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    InlineAxisDropdown(
+                        label = stringResource(R.string.external_gps_map_y),
+                        current = settings?.raceboxMapY ?: "Y",
+                        options = axisOptions,
+                        onSelect = { settingsViewModel.updateRaceboxMapY(it) }
+                    )
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    InlineAxisDropdown(
+                        label = stringResource(R.string.external_gps_map_z),
+                        current = settings?.raceboxMapZ ?: "Z",
+                        options = axisOptions,
+                        onSelect = { settingsViewModel.updateRaceboxMapZ(it) }
+                    )
+                }
+            }
+
+            LeftAlignedScanButton(
+                label = stringResource(R.string.external_gps_autodetect),
+                onClick = {
+                    viewModel.startAutoDetect { mapX, mapY, mapZ ->
+                        settingsViewModel.setRaceboxAxisMap(mapX, mapY, mapZ)
+                    }
+                }
             )
         }
     }
+
+    if (autoDetectPhase !is ExternalGpsViewModel.AutoDetectPhase.Idle) {
+        AutoDetectDialog(
+            phase = autoDetectPhase,
+            onCancel = { viewModel.cancelAutoDetect() },
+            onNext = { viewModel.nextAutoDetectStep() },
+            onDismiss = { viewModel.dismissAutoDetect() }
+        )
+    }
+}
+
+@Composable
+private fun ToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InlineAxisDropdown(
+    label: String,
+    current: String,
+    options: List<Pair<String, String>>,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val currentLabel = options.firstOrNull { it.first == current }?.second ?: current
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { (key, text) ->
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = {
+                        onSelect(key)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AutoDetectDialog(
+    phase: ExternalGpsViewModel.AutoDetectPhase,
+    onCancel: () -> Unit,
+    onNext: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    // Wizard state machine: each motion phase has a paired Instruct + Capture
+    // dialog. Instruct shows the user what to do and waits for Next; Capture
+    // runs the accelerometer poll and only shows Cancel (and not even that
+    // on the final vertical capture, since by the time it completes the
+    // result has already been applied).
+    val instruction: String
+    val showSpinner: Boolean
+    val showNext: Boolean
+    val showCancel: Boolean
+    val isDone: Boolean
+    when (phase) {
+        is ExternalGpsViewModel.AutoDetectPhase.Prep -> {
+            instruction = stringResource(R.string.external_gps_autodetect_prep)
+            showSpinner = false
+            showNext = true
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.ForwardInstruct -> {
+            instruction = stringResource(R.string.external_gps_autodetect_forward)
+            showSpinner = false
+            showNext = true
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.ForwardCapture -> {
+            instruction = stringResource(R.string.external_gps_autodetect_forward_capture)
+            showSpinner = true
+            showNext = false
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.LateralInstruct -> {
+            instruction = stringResource(R.string.external_gps_autodetect_lateral)
+            showSpinner = false
+            showNext = true
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.LateralCapture -> {
+            instruction = stringResource(R.string.external_gps_autodetect_lateral_capture)
+            showSpinner = true
+            showNext = false
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.VerticalInstruct -> {
+            instruction = stringResource(R.string.external_gps_autodetect_vertical)
+            showSpinner = false
+            showNext = true
+            showCancel = true
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.VerticalCapture -> {
+            instruction = stringResource(R.string.external_gps_autodetect_vertical_capture)
+            showSpinner = true
+            showNext = false
+            showCancel = false  // results land at the end of this phase
+            isDone = false
+        }
+        is ExternalGpsViewModel.AutoDetectPhase.Done -> {
+            instruction = stringResource(R.string.external_gps_autodetect_done)
+            showSpinner = false
+            showNext = false
+            showCancel = false
+            isDone = true
+        }
+        else -> {
+            instruction = ""
+            showSpinner = false
+            showNext = false
+            showCancel = true
+            isDone = false
+        }
+    }
+    AlertDialog(
+        onDismissRequest = {
+            if (isDone) onDismiss() else if (showCancel) onCancel()
+        },
+        title = { Text(stringResource(R.string.external_gps_autodetect_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(instruction, style = MaterialTheme.typography.bodyLarge)
+                if (showSpinner) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+        },
+        // confirmButton: Next during instruct screens, OK on the Done screen.
+        confirmButton = {
+            when {
+                isDone -> TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.action_ok))
+                }
+                showNext -> TextButton(onClick = onNext) {
+                    Text(stringResource(R.string.external_gps_autodetect_next))
+                }
+                else -> {}
+            }
+        },
+        // dismissButton: Cancel everywhere it's allowed (skipped on the final
+        // capture and on Done).
+        dismissButton = {
+            if (showCancel) {
+                TextButton(onClick = onCancel) {
+                    Text(stringResource(R.string.external_gps_autodetect_abort), color = AccentRed)
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -86,12 +400,6 @@ private fun UnpairedExternalGpsCard(
     onStopScan: () -> Unit,
     onPick: (com.eried.eucplanet.ble.gps.ExternalGpsScanResult) -> Unit
 ) {
-    // Dropped the outer Card wrapper that the section used to live inside.
-    // Its 16 dp inner padding pushed the scan button right of the hint
-    // text above it, so the two looked misaligned. Without the wrapper the
-    // button sits at the same column edge as the hint and the per-result
-    // mini-cards still carry their own surface so the scan results remain
-    // visually contained.
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         results.forEach { result ->
             Card(
@@ -140,10 +448,7 @@ private fun UnpairedExternalGpsCard(
 private fun PairedExternalGpsCard(
     deviceName: String,
     connectionState: ConnectionState,
-    liveSpeedKmh: Float?,
-    onReconnect: () -> Unit,
-    onDisconnect: () -> Unit,
-    onUnpair: () -> Unit
+    liveSpeedKmh: Float?
 ) {
     val stateLabel = when (connectionState) {
         ConnectionState.CONNECTED -> stringResource(R.string.external_gps_state_connected)
@@ -170,29 +475,14 @@ private fun PairedExternalGpsCard(
                 stringResource(R.string.external_gps_paired_with, deviceName),
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(stateLabel, style = MaterialTheme.typography.bodyMedium, color = stateColor)
-            if (connectionState == ConnectionState.CONNECTED && liveSpeedKmh != null) {
-                Text(
-                    stringResource(R.string.external_gps_live_speed, liveSpeedKmh),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            // Combine the connection-state label and the live speed onto a
+            // single line so the card stays compact: "Connected — 28.7 km/h".
+            val combinedLine = if (connectionState == ConnectionState.CONNECTED && liveSpeedKmh != null) {
+                stateLabel + "  ·  " + "%.1f km/h".format(liveSpeedKmh)
+            } else {
+                stateLabel
             }
-            Spacer(Modifier.height(4.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (connectionState == ConnectionState.CONNECTED) {
-                    OutlinedButton(onClick = onDisconnect, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.external_gps_disconnect))
-                    }
-                } else {
-                    Button(onClick = onReconnect, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.external_gps_reconnect))
-                    }
-                }
-                TextButton(onClick = onUnpair) {
-                    Text(stringResource(R.string.external_gps_unpair), color = AccentRed)
-                }
-            }
+            Text(combinedLine, style = MaterialTheme.typography.bodyMedium, color = stateColor)
         }
     }
 }

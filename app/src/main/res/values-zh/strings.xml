@@ -189,6 +189,24 @@
     <string name="flic_click">单击</string>
     <string name="flic_double_click">双击</string>
     <string name="flic_hold">长按</string>
+    <string name="external_gps_axes_title">坐标轴方向</string>
+    <string name="external_gps_axes_desc">将每个输出轴映射到设备的物理轴。使用自动检测来自动设置。</string>
+    <string name="external_gps_map_x">输出 X</string>
+    <string name="external_gps_map_y">输出 Y</string>
+    <string name="external_gps_map_z">输出 Z</string>
+    <string name="external_gps_autodetect">自动检测</string>
+    <string name="external_gps_autodetect_title">自动检测坐标轴</string>
+    <string name="external_gps_autodetect_prep">准备移动设备。</string>
+    <string name="external_gps_autodetect_forward">前后移动设备。</string>
+    <string name="external_gps_autodetect_lateral">左右移动设备。</string>
+    <string name="external_gps_autodetect_vertical">上下移动设备。</string>
+    <string name="external_gps_autodetect_done">坐标轴已检测并应用。</string>
+    <string name="external_gps_autodetect_abort">中止</string>
+    <string name="gps_log_additional">使用额外的 GPS 数据</string>
+    <string name="gps_log_additional_desc">记录来自手机或外部设备的额外 GPS 数据。</string>
+    <string name="gps_prioritize_external">优先使用外部 GPS</string>
+    <string name="gps_prioritize_external_desc">连接外部设备时使用它作为速度来源；否则回退到手机。</string>
+    <string name="gps_show_on_dashboard">在主屏显示速度</string>
     <string name="section_volume_keys">音量键</string>
     <string name="volume_keys_caption">手机音量键作为快捷键(仅在应用可见时)。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
@@ -364,6 +382,12 @@
     <string name="sources_fresh_hours_fmt">%1$d小时前</string>
     <string name="sources_sats_fmt">%1$d 颗卫星</string>
     <string name="sources_collecting">采集中…</string>
+    <string name="sources_apply_calibration">校准轮</string>
+    <string name="sources_apply_calibration_title">应用速度校准</string>
+    <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>
+    <string name="sources_apply_calibration_clamped_fmt">计算值已限制在轮参数支持的 ±5 %% 范围内。新值：%1$+.1f %%。</string>
+    <string name="sources_apply">应用</string>
+    <string name="sources_cancel">取消</string>
 
     <string name="alarm_section_beep">蜂鸣</string>
     <string name="alarm_enable_beep">启用蜂鸣</string>

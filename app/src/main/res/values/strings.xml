@@ -87,7 +87,7 @@
     <!-- Settings tabs -->
     <string name="search_settings">Search settings</string>
     <string name="tab_general">General</string>
-    <string name="tab_speed">Wheel speed limits</string>
+    <string name="tab_speed">Wheel parameters</string>
     <string name="tab_display">Display &amp; appearance</string>
     <string name="tab_voice">Voice &amp; announcements</string>
     <string name="tab_alarms">Alarm rules</string>
@@ -205,8 +205,11 @@
     <string name="tts_switch_no">Keep current</string>
 
     <!-- Settings: Speed -->
-    <string name="section_speed_limits">Speed Limits</string>
-    <string name="section_legal_mode_speed">Legal Mode Speed</string>
+    <string name="section_speed_limits">Speed limits</string>
+    <string name="section_speed_calibration">Speed calibration</string>
+    <string name="speed_calibration_label">Speed offset</string>
+    <string name="speed_calibration_caption">Applies a percentage to the speed coming from the wheel. Alarms, voice and the trip log all use the calibrated value.</string>
+    <string name="section_legal_mode_speed">Legal mode speed</string>
     <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
@@ -219,7 +222,7 @@
     <!-- Settings: Voice -->
     <string name="section_announcements">Announcements</string>
     <string name="section_speech">Speech</string>
-    <string name="section_report_status">Report Status</string>
+    <string name="section_report_status">Report status</string>
     <string name="voice_enabled">Report status periodically</string>
     <string name="voice_only_when_connected">Only when wheel is connected</string>
     <string name="voice_interval">Interval</string>
@@ -330,7 +333,7 @@
     <string name="report_time">Time</string>
 
     <!-- Settings: Integration -->
-    <string name="section_flic_buttons">Flic 2 Buttons</string>
+    <string name="section_flic_buttons">Flic 2 buttons</string>
     <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
     <string name="flic_stop_scan">Stop scan</string>
     <string name="flic_start_scan">Start scan</string>
@@ -342,7 +345,7 @@
     <string name="flic_click">Click</string>
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
-    <string name="section_external_gps">External GPS</string>
+    <string name="section_external_gps">Additional GPS</string>
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed feeds the dashboard dial and a new column at the end of each trip CSV.</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
@@ -357,7 +360,29 @@
     <string name="external_gps_disconnect">Disconnect</string>
     <string name="external_gps_unpair">Forget device</string>
     <string name="external_gps_live_speed">Live: %1$.1f km/h</string>
-    <string name="section_volume_keys">Volume Keys</string>
+    <string name="external_gps_axes_title">Axis orientation</string>
+    <string name="external_gps_axes_desc">Remap each output axis to a raw axis on the box.</string>
+    <string name="external_gps_map_x">Output X</string>
+    <string name="external_gps_map_y">Output Y</string>
+    <string name="external_gps_map_z">Output Z</string>
+    <string name="external_gps_autodetect">Autodetect</string>
+    <string name="external_gps_autodetect_title">Autodetect axes</string>
+    <string name="external_gps_autodetect_prep">Get ready to move the device.</string>
+    <string name="external_gps_autodetect_forward">Press Next and walk forward for a few seconds.</string>
+    <string name="external_gps_autodetect_forward_capture">Reading walking motion…</string>
+    <string name="external_gps_autodetect_lateral">Press Next and walk left without changing the device orientation.</string>
+    <string name="external_gps_autodetect_lateral_capture">Reading lateral motion…</string>
+    <string name="external_gps_autodetect_vertical">Press Next and slowly lower the device to the ground.</string>
+    <string name="external_gps_autodetect_vertical_capture">Reading vertical motion…</string>
+    <string name="external_gps_autodetect_done">Axes detected and applied.</string>
+    <string name="external_gps_autodetect_abort">Cancel</string>
+    <string name="external_gps_autodetect_next">Next</string>
+    <string name="gps_log_additional">Use additional GPS data</string>
+    <string name="gps_log_additional_desc">Log extra GPS samples from the phone or an external box.</string>
+    <string name="gps_prioritize_external">Prioritize external GPS</string>
+    <string name="gps_prioritize_external_desc">When an external box is connected, use it as the speed source; otherwise fall back to the phone.</string>
+    <string name="gps_show_on_dashboard">Show speed on dashboard</string>
+    <string name="section_volume_keys">Volume keys</string>
     <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible).</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
@@ -557,7 +582,14 @@
     <string name="sources_fresh_minutes_fmt">%1$dm ago</string>
     <string name="sources_fresh_hours_fmt">%1$dh ago</string>
     <string name="sources_sats_fmt">%1$d sats</string>
+    <string name="sources_other_metrics">Other metrics</string>
     <string name="sources_collecting">Collecting…</string>
+    <string name="sources_apply_calibration">Calibrate wheel</string>
+    <string name="sources_apply_calibration_title">Apply speed calibration</string>
+    <string name="sources_apply_calibration_body_fmt">Set the wheel speed calibration to %1$+.1f %%?\n\nYou can change this later in Wheel parameters.</string>
+    <string name="sources_apply_calibration_clamped_fmt">The computed value was clamped to the ±5 %% range supported by Wheel parameters. New value: %1$+.1f %%.</string>
+    <string name="sources_apply">Apply</string>
+    <string name="sources_cancel">Cancel</string>
 
     <string name="alarm_section_beep">Beep</string>
     <string name="alarm_enable_beep">Enable beep</string>

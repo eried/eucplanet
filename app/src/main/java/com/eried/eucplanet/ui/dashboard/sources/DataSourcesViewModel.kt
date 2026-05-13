@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.repository.ExternalGpsRepository
 import com.eried.eucplanet.data.repository.PhoneSensorRepository
+import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,7 +35,8 @@ class DataSourcesViewModel @Inject constructor(
     private val phoneSensors: PhoneSensorRepository,
     private val tripRepository: TripRepository,
     private val wheelRepository: WheelRepository,
-    private val externalGpsRepository: ExternalGpsRepository
+    private val externalGpsRepository: ExternalGpsRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     companion object {
@@ -46,10 +49,10 @@ class DataSourcesViewModel @Inject constructor(
         // ~2.5 s of phone, enough to follow a sustained corner without the
         // trail smearing into a solid disk.
         private const val TRAIL_MAX = 120
-        /** Rolling window for Compare-tab line charts. 30 s feels right — long
-         *  enough to see a divergence forming, short enough that the line
-         *  always sits over recent data. */
-        private const val SERIES_WINDOW_MS = 30_000L
+        /** Rolling window for Compare-tab line charts. 5 minutes covers a
+         *  full ride episode; the chart filters to the visible time range so
+         *  redraw stays fast even at this size. */
+        private const val SERIES_WINDOW_MS = 300_000L
     }
 
     // Phone IMU trail — rolling buffer of (xG, zG) offsets used by the
@@ -212,6 +215,45 @@ class DataSourcesViewModel @Inject constructor(
                     appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
                 }
             }
+        }
+    }
+
+    /** Currently saved wheel speed calibration in % (range −5..+5). Exposed so
+     *  the Compare tab can preview what new value an "apply from comparison"
+     *  action would write. */
+    val calibrationOffsetPct: StateFlow<Float> = settingsRepository.settings
+        .map { it.speedCalibrationOffsetPct }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
+
+    /** Whether the wheel is connected right now — gates the "apply" button so
+     *  the user can't write calibration with no wheel to write it to. */
+    val wheelConnected: StateFlow<Boolean> = wheelRepository.connectionState
+        .map { it == ConnectionState.CONNECTED }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    /**
+     * Compute the calibration % that would make the wheel's average reading
+     * match the reference source's average over the rolling window, on top of
+     * any calibration already in effect. Returns null if either input is too
+     * small to be meaningful (we don't divide near zero).
+     *
+     * Math: displayed_wheel = raw * (1 + curPct/100). We want
+     * raw * (1 + newPct/100) = ref → newPct = (ref·(1 + curPct/100)/wheel − 1)·100.
+     */
+    fun computeCalibrationPct(avgWheelKmh: Float, avgRefKmh: Float): Float? {
+        if (avgWheelKmh < 1f || avgRefKmh < 1f) return null
+        val curPct = calibrationOffsetPct.value
+        val newPct = (avgRefKmh * (1f + curPct / 100f) / avgWheelKmh - 1f) * 100f
+        return (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-5f, 5f)
+    }
+
+    /** Persist a new wheel speed calibration. Same clamp/rounding rules as the
+     *  Wheel parameters slider. */
+    fun applyCalibrationPct(newPct: Float) {
+        viewModelScope.launch {
+            val rounded = (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-5f, 5f)
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(speedCalibrationOffsetPct = rounded))
         }
     }
 

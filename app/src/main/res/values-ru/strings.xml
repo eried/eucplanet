@@ -189,6 +189,24 @@
     <string name="flic_click">Нажатие</string>
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
+    <string name="external_gps_axes_title">Ориентация осей</string>
+    <string name="external_gps_axes_desc">Сопоставь каждую выходную ось с физической осью устройства. Автоопределение настроит автоматически.</string>
+    <string name="external_gps_map_x">Выход X</string>
+    <string name="external_gps_map_y">Выход Y</string>
+    <string name="external_gps_map_z">Выход Z</string>
+    <string name="external_gps_autodetect">Автоопределение</string>
+    <string name="external_gps_autodetect_title">Автоопределение осей</string>
+    <string name="external_gps_autodetect_prep">Приготовься двигать устройство.</string>
+    <string name="external_gps_autodetect_forward">Двигай устройство вперёд-назад.</string>
+    <string name="external_gps_autodetect_lateral">Двигай устройство влево-вправо.</string>
+    <string name="external_gps_autodetect_vertical">Двигай устройство вверх-вниз.</string>
+    <string name="external_gps_autodetect_done">Оси определены и применены.</string>
+    <string name="external_gps_autodetect_abort">Отмена</string>
+    <string name="gps_log_additional">Использовать дополнительные данные GPS</string>
+    <string name="gps_log_additional_desc">Записывает дополнительные образцы GPS с телефона или внешнего устройства.</string>
+    <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
+    <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе — телефон.</string>
+    <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
     <string name="section_volume_keys">Кнопки громкости</string>
     <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении).</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
@@ -328,6 +346,12 @@
     <string name="sources_fresh_hours_fmt">%1$d ч назад</string>
     <string name="sources_sats_fmt">%1$d спут.</string>
     <string name="sources_collecting">Сбор данных…</string>
+    <string name="sources_apply_calibration">Калибровать колесо</string>
+    <string name="sources_apply_calibration_title">Применить калибровку скорости</string>
+    <string name="sources_apply_calibration_body_fmt">Установить калибровку скорости колеса на %1$+.1f %%?\n\nВы сможете изменить это позже в параметрах колеса.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Вычисленное значение было ограничено диапазоном ±5 %%, поддерживаемым параметрами колеса. Новое значение: %1$+.1f %%.</string>
+    <string name="sources_apply">Применить</string>
+    <string name="sources_cancel">Отмена</string>
 
     <string name="alarm_section_beep">Звуковой сигнал</string>
     <string name="alarm_enable_beep">Подавать сигнал</string>

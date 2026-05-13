@@ -454,6 +454,7 @@ class SyncManager @Inject constructor(
         put("alarmSpeedKmh", s.alarmSpeedKmh)
         put("safetyTiltbackKmh", s.safetyTiltbackKmh)
         put("safetyAlarmKmh", s.safetyAlarmKmh)
+        put("speedCalibrationOffsetPct", s.speedCalibrationOffsetPct)
         put("autoConnect", s.autoConnect)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
@@ -543,6 +544,14 @@ class SyncManager @Inject constructor(
         put("watchScreen2Click", s.watchScreen2Click)
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
+        // External GPS — pairing itself (address/name/source) is device-specific
+        // so it stays out, but the rider's axis-remap preferences travel with them.
+        put("raceboxMapX", s.raceboxMapX)
+        put("raceboxMapY", s.raceboxMapY)
+        put("raceboxMapZ", s.raceboxMapZ)
+        put("gpsLogAdditional", s.gpsLogAdditional)
+        put("gpsPrioritizeExternal", s.gpsPrioritizeExternal)
+        put("gpsShowOnDashboard", s.gpsShowOnDashboard)
     }
 
     private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
@@ -550,6 +559,7 @@ class SyncManager @Inject constructor(
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),
         safetyAlarmKmh = j.optDouble("safetyAlarmKmh", base.safetyAlarmKmh.toDouble()).toFloat(),
+        speedCalibrationOffsetPct = j.optDouble("speedCalibrationOffsetPct", base.speedCalibrationOffsetPct.toDouble()).toFloat(),
         autoConnect = j.optBoolean("autoConnect", base.autoConnect),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
@@ -642,7 +652,13 @@ class SyncManager @Inject constructor(
         watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
         watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
         watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
-        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction)
+        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
+        raceboxMapX = j.optString("raceboxMapX", base.raceboxMapX),
+        raceboxMapY = j.optString("raceboxMapY", base.raceboxMapY),
+        raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),
+        gpsLogAdditional = j.optBoolean("gpsLogAdditional", base.gpsLogAdditional),
+        gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
+        gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard)
     )
 
     private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {

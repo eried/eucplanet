@@ -22,6 +22,17 @@ data class AppSettings(
     val safetyTiltbackKmh: Float = 20f,
     val safetyAlarmKmh: Float = 18f,
 
+    /**
+     * Per-wheel speed calibration as a percentage offset (-20..+20). Applied
+     * at the source where adapters publish telemetry so alarms, voice,
+     * dashboard and recording all see the calibrated speed. Stored here for
+     * the current session and mirrored to the connected wheel's
+     * [com.eried.eucplanet.data.model.WheelProfile] so reconnecting restores
+     * the rider's chosen calibration.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val speedCalibrationOffsetPct: Float = 0f,
+
     // Voice
     val voiceEnabled: Boolean = true,
     // Independent toggle for the periodic (every N seconds) status announcements. When false,
@@ -179,6 +190,39 @@ data class AppSettings(
     val externalGpsName: String? = null,
     @ColumnInfo(defaultValue = "NULL")
     val externalGpsSource: String? = null,
+
+    // RaceBox accelerometer axis remap. The device can be mounted in any
+    // orientation; the rider's notion of "left/right", "forward/back" and
+    // "up/down" may not align with the physical X / Y / Z the box reports.
+    // Each entry says which raw axis (signed) becomes the corresponding
+    // output axis. Allowed values: "X", "-X", "Y", "-Y", "Z", "-Z".
+    // Identity (X→X, Y→Y, Z→Z) is the default and covers a wheel-pedal mount
+    // with the box's logo facing up.
+    @ColumnInfo(defaultValue = "X")
+    val raceboxMapX: String = "X",
+    @ColumnInfo(defaultValue = "Y")
+    val raceboxMapY: String = "Y",
+    @ColumnInfo(defaultValue = "Z")
+    val raceboxMapZ: String = "Z",
+    /**
+     * Master switch for additional GPS data. When OFF (default), the app
+     * doesn't capture or log extra GPS samples, and the whole Additional GPS
+     * sub-section in Settings collapses — no external connect attempts, no
+     * dashboard dot. When ON, samples flow from the phone or an external box
+     * per [gpsPrioritizeExternal].
+     */
+    @ColumnInfo(defaultValue = "0")
+    val gpsLogAdditional: Boolean = false,
+    /**
+     * When ON and an external GPS box is connected, its samples are the
+     * dashboard's "extra speed" source. When OFF (or when no external box is
+     * available) the phone's own GPS speed is used instead.
+     */
+    @ColumnInfo(defaultValue = "1")
+    val gpsPrioritizeExternal: Boolean = true,
+    /** Show the extra-GPS speed indicator on the dashboard speed dial. */
+    @ColumnInfo(defaultValue = "1")
+    val gpsShowOnDashboard: Boolean = true,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     @ColumnInfo(defaultValue = "1")

@@ -695,9 +695,28 @@ private fun SpeedTab(
             InfoHint(stringResource(R.string.speed_limits_disconnected))
         }
 
-        SectionHeader(stringResource(R.string.section_speed_limits))
-
         val imperial = settings.imperialUnits
+
+        // --- Speed calibration ---
+        // Sits ABOVE the speed-limit sliders since the calibrated value is
+        // what the limits compare against. Always visible — disabled when no
+        // wheel is connected because the value is keyed by the wheel's BLE
+        // name and only loaded once we know which wheel we're talking to.
+        SectionHeader(stringResource(R.string.section_speed_calibration))
+        HintText(stringResource(R.string.speed_calibration_caption), small = true)
+        val calPct = settings.speedCalibrationOffsetPct
+        SliderSetting(
+            label = stringResource(R.string.speed_calibration_label),
+            value = calPct,
+            range = -5f..5f,
+            unit = "%",
+            steps = 99,
+            valueText = "%+.1f %%".format(calPct),
+            enabled = isConnected,
+            onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }
+        )
+
+        SectionHeader(stringResource(R.string.section_speed_limits))
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
