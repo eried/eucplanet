@@ -22,7 +22,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -144,69 +147,147 @@ private fun TabBar(
     selected: TabKind,
     onSelect: (TabKind) -> Unit
 ) {
-    data class Entry(
-        val tab: TabKind,
-        val label: String,
-        val color: Color,
-        val source: DataSource?
-    )
-    val entries = listOf(
-        Entry(TabKind.PHONE, DataSource.PHONE.displayName, DataSource.PHONE.color, DataSource.PHONE),
-        Entry(TabKind.WHEEL, DataSource.WHEEL.displayName, DataSource.WHEEL.color, DataSource.WHEEL),
-        Entry(TabKind.RACEBOX, DataSource.RACEBOX.displayName, DataSource.RACEBOX.color, DataSource.RACEBOX),
-        Entry(TabKind.COMPARE, "Compare", MaterialTheme.colorScheme.onSurface, null)
+    val sourceEntries = listOf(
+        Triple(TabKind.PHONE, DataSource.PHONE, DataSource.PHONE.displayName),
+        Triple(TabKind.WHEEL, DataSource.WHEEL, DataSource.WHEEL.displayName),
+        Triple(TabKind.RACEBOX, DataSource.RACEBOX, DataSource.RACEBOX.displayName)
     )
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        entries.forEach { e ->
-            val isSel = e.tab == selected
-            val live = e.source?.let { snapshots[it]?.isLive == true }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(
-                        if (isSel) e.color.copy(alpha = 0.18f)
-                        else MaterialTheme.colorScheme.surfaceVariant
-                    )
-                    .clickable { onSelect(e.tab) }
-                    .padding(vertical = 8.dp, horizontal = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    // Live/offline dot — filled colour for live, hollow grey
-                    // ring for offline. Skipped on the Compare tab.
-                    if (live != null) {
-                        if (live) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .background(e.color)
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .border(1.dp, Color(0xFF707070), CircleShape)
-                            )
-                        }
-                        Spacer(Modifier.width(5.dp))
-                    }
-                    Text(
-                        text = e.label,
-                        fontSize = 12.sp,
-                        fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSel) e.color else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+        // Three source tabs in a tight cluster — they're peers, all the
+        // same chip style with a live/offline dot prefix.
+        Row(
+            modifier = Modifier.weight(3f),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            sourceEntries.forEach { (tab, source, label) ->
+                SourceTabChip(
+                    label = label,
+                    color = source.color,
+                    isSelected = tab == selected,
+                    isLive = snapshots[source]?.isLive == true,
+                    onClick = { onSelect(tab) },
+                    modifier = Modifier.weight(1f)
+                )
             }
+        }
+        // Visual break before Compare: 10dp gap + a thin vertical divider
+        // so the tab bar reads as "(3 sources) | (action)" instead of four
+        // peers. Without this the Compare chip blends in with the sources.
+        Spacer(Modifier.width(10.dp))
+        Box(
+            modifier = Modifier
+                .width(1.dp)
+                .height(28.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+        )
+        Spacer(Modifier.width(10.dp))
+        // Compare tab — outlined chip (no filled background) when unselected
+        // so it reads visually distinct from the three source chips, plus a
+        // compare-arrows icon prefix that source tabs don't have.
+        CompareTabChip(
+            isSelected = TabKind.COMPARE == selected,
+            onClick = { onSelect(TabKind.COMPARE) },
+            modifier = Modifier.weight(1.1f)
+        )
+    }
+}
+
+@Composable
+private fun SourceTabChip(
+    label: String,
+    color: Color,
+    isSelected: Boolean,
+    isLive: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(
+                if (isSelected) color.copy(alpha = 0.18f)
+                else MaterialTheme.colorScheme.surfaceVariant
+            )
+            .clickable { onClick() }
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (isLive) {
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(7.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, Color(0xFF707070), CircleShape)
+                )
+            }
+            Spacer(Modifier.width(5.dp))
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun CompareTabChip(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val accent = MaterialTheme.colorScheme.onSurface
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            // Outlined when unselected — no filled background, just a border.
+            // When selected it fills like the source chips so the active
+            // state still reads obviously.
+            .then(
+                if (isSelected) Modifier.background(accent.copy(alpha = 0.12f))
+                else Modifier
+            )
+            .border(
+                width = 1.dp,
+                color = if (isSelected) accent.copy(alpha = 0.5f) else accent.copy(alpha = 0.30f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable { onClick() }
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CompareArrows,
+                contentDescription = null,
+                tint = if (isSelected) accent else accent.copy(alpha = 0.6f),
+                modifier = Modifier.size(14.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = "Compare",
+                fontSize = 12.sp,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                color = if (isSelected) accent else accent.copy(alpha = 0.7f)
+            )
         }
     }
 }
