@@ -1457,10 +1457,12 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
-            InfoHint(stringResource(R.string.cloud_no_folder))
-            Button(onClick = { pickFolder.launch(null) }) {
-                Text(stringResource(R.string.cloud_choose_folder))
-            }
+            // Dropped the "No folder selected" hint — the Choose folder
+            // button right below says everything that's needed.
+            LeftAlignedScanButton(
+                label = stringResource(R.string.cloud_choose_folder),
+                onClick = { pickFolder.launch(null) }
+            )
         }
 
         if (hasFolder) {
