@@ -1085,16 +1085,16 @@ private fun FlicTab(
                 ) {
                     if (scanning) {
                         CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
-                        Button(
+                        LeftAlignedScanButton(
+                            label = stringResource(R.string.flic_stop_scan),
                             onClick = { viewModel.stopScan() },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                        ) { Text(stringResource(R.string.flic_stop_scan)) }
+                            containerColor = AccentRed
+                        )
                     } else {
-                        Button(
-                            onClick = { viewModel.startScan() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(stringResource(R.string.flic_start_scan)) }
+                        LeftAlignedScanButton(
+                            label = stringResource(R.string.flic_start_scan),
+                            onClick = { viewModel.startScan() }
+                        )
                     }
                 }
             }

@@ -180,7 +180,10 @@
     <string name="section_flic_buttons">Botones Flic 2</string>
     <string name="flic_scan_hint">Mantén pulsado tu botón Flic 2 durante 6 segundos para ponerlo en emparejamiento, luego pulsa Buscar.</string>
     <string name="flic_stop_scan">Detener</string>
-    <string name="flic_start_scan">Buscar botón</string>
+    <string name="flic_start_scan">Buscar</string>
+    <string name="external_gps_pair_button">Vincular</string>
+    <string name="external_gps_pair_action">Vincular</string>
+    <string name="external_gps_stop_scan">Detener</string>
     <string name="flic_forget">Olvidar</string>
     <string name="flic_rename">Renombrar</string>
     <string name="flic_click">Clic</string>

@@ -333,7 +333,7 @@
     <string name="section_flic_buttons">Flic 2 Buttons</string>
     <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
     <string name="flic_stop_scan">Stop</string>
-    <string name="flic_start_scan">Scan for button</string>
+    <string name="flic_start_scan">Scan</string>
     <string name="flic_no_buttons">No Flic buttons paired</string>
     <string name="flic_forget">Forget</string>
     <string name="flic_forget_title">Forget this button?</string>
@@ -344,10 +344,10 @@
     <string name="flic_hold">Hold</string>
     <string name="section_external_gps">External GPS</string>
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed feeds the dashboard dial and a new column at the end of each trip CSV.</string>
-    <string name="external_gps_pair_button">Pair external GPS</string>
+    <string name="external_gps_pair_button">Pair</string>
     <string name="external_gps_pair_action">Pair</string>
     <string name="external_gps_scanning">Scanning for devices…</string>
-    <string name="external_gps_stop_scan">Stop scan</string>
+    <string name="external_gps_stop_scan">Stop</string>
     <string name="external_gps_no_results">No RaceBox devices found yet. Make sure the device is on and within range.</string>
     <string name="external_gps_paired_with">Paired with %1$s</string>
     <string name="external_gps_state_connected">Connected</string>

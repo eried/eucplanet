@@ -246,7 +246,10 @@
     <string name="section_flic_buttons">Flic 2-knoppen</string>
     <string name="flic_scan_hint">Houd je Flic 2-knop 6 seconden ingedrukt om hem in koppelmodus te zetten, tik dan op Scannen.</string>
     <string name="flic_stop_scan">Stop</string>
-    <string name="flic_start_scan">Scannen op knop</string>
+    <string name="flic_start_scan">Scannen</string>
+    <string name="external_gps_pair_button">Koppelen</string>
+    <string name="external_gps_pair_action">Koppelen</string>
+    <string name="external_gps_stop_scan">Stop</string>
     <string name="flic_no_buttons">Geen Flic-knoppen gekoppeld</string>
     <string name="flic_forget">Vergeten</string>
     <string name="flic_forget_title">Deze knop vergeten?</string>

@@ -246,7 +246,10 @@
     <string name="section_flic_buttons">Botões Flic 2</string>
     <string name="flic_scan_hint">Segure o botão Flic 2 por 6 segundos para colocá-lo em modo de pareamento e toque em Procurar.</string>
     <string name="flic_stop_scan">Parar</string>
-    <string name="flic_start_scan">Procurar botão</string>
+    <string name="flic_start_scan">Buscar</string>
+    <string name="external_gps_pair_button">Parear</string>
+    <string name="external_gps_pair_action">Parear</string>
+    <string name="external_gps_stop_scan">Parar</string>
     <string name="flic_no_buttons">Nenhum botão Flic pareado</string>
     <string name="flic_forget">Esquecer</string>
     <string name="flic_forget_title">Esquecer este botão?</string>

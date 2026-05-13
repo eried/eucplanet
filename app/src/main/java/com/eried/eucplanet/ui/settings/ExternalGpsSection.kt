@@ -120,21 +120,20 @@ private fun UnpairedExternalGpsCard(
                     }
                 }
             }
-            if (scanning && results.isEmpty()) {
-                HintText(stringResource(R.string.external_gps_no_results), small = true)
-            }
+            // Skip the "no devices found yet" hint while scanning — the
+            // spinner already says "we're looking". Words add nothing.
             if (scanning) {
                 CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
-                Button(
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.external_gps_stop_scan),
                     onClick = onStopScan,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                ) { Text(stringResource(R.string.external_gps_stop_scan)) }
+                    containerColor = AccentRed
+                )
             } else {
-                Button(
-                    onClick = onStartScan,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text(stringResource(R.string.external_gps_pair_button)) }
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.external_gps_pair_button),
+                    onClick = onStartScan
+                )
             }
         }
     }
@@ -197,6 +196,40 @@ private fun PairedExternalGpsCard(
                     Text(stringResource(R.string.external_gps_unpair), color = AccentRed)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Full-width scan-action button with the label pinned to the left edge.
+ * Used for both the External GPS card and (via the analogous version in
+ * SettingsScreen) the Flic scan card so the two cards in the Integration
+ * tab share an identical visual rhythm: same size, same text alignment.
+ *
+ * Without the [Row] + `weight(1f)` trick, Material 3 centres single-word
+ * labels in a fillMaxWidth Button, which made "Scan" / "Pair" / "Stop"
+ * float in the middle while longer earlier labels filled the chip.
+ */
+@Composable
+fun LeftAlignedScanButton(
+    label: String,
+    onClick: () -> Unit,
+    containerColor: androidx.compose.ui.graphics.Color? = null,
+    modifier: Modifier = Modifier
+) {
+    val colors = if (containerColor != null)
+        ButtonDefaults.buttonColors(containerColor = containerColor)
+    else ButtonDefaults.buttonColors()
+    Button(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors = colors
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = label)
         }
     }
 }

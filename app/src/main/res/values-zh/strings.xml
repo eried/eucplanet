@@ -180,7 +180,10 @@
     <string name="section_flic_buttons">Flic 2 按钮</string>
     <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式,然后点击搜索。</string>
     <string name="flic_stop_scan">停止</string>
-    <string name="flic_start_scan">搜索按钮</string>
+    <string name="flic_start_scan">扫描</string>
+    <string name="external_gps_pair_button">配对</string>
+    <string name="external_gps_pair_action">配对</string>
+    <string name="external_gps_stop_scan">停止</string>
     <string name="flic_forget">忘记</string>
     <string name="flic_rename">重命名</string>
     <string name="flic_click">单击</string>

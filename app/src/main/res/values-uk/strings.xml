@@ -246,7 +246,10 @@
     <string name="section_flic_buttons">Кнопки Flic 2</string>
     <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати.</string>
     <string name="flic_stop_scan">Стоп</string>
-    <string name="flic_start_scan">Шукати кнопку</string>
+    <string name="flic_start_scan">Пошук</string>
+    <string name="external_gps_pair_button">Підʼєднати</string>
+    <string name="external_gps_pair_action">Підʼєднати</string>
+    <string name="external_gps_stop_scan">Стоп</string>
     <string name="flic_no_buttons">Кнопки Flic не спарені</string>
     <string name="flic_forget">Забути</string>
     <string name="flic_forget_title">Забути цю кнопку?</string>
