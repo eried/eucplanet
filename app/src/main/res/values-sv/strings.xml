@@ -331,7 +331,7 @@
 
     <string name="alarm_help">Reglerna kollas uppifrån och ner per mätning. Den första som matchar utlöses</string>
     <string name="alarm_empty">Inga alarmregler ännu</string>
-    <string name="alarm_add">Lägg till larmregel</string>
+    <string name="alarm_add">Nytt larm</string>
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
     <string name="alarm_name">Namn (valfritt)</string>

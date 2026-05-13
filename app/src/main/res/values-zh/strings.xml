@@ -331,7 +331,7 @@
 
     <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发</string>
     <string name="alarm_empty">暂无报警规则</string>
-    <string name="alarm_add">添加报警规则</string>
+    <string name="alarm_add">新建报警</string>
     <string name="alarm_new">新建报警</string>
     <string name="alarm_edit">编辑报警</string>
     <string name="alarm_name">名称(可选)</string>

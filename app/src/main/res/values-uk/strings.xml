@@ -420,7 +420,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Правила перевіряються згори донизу для кожної метрики. Спрацьовує перше відповідне правило для метрики</string>
     <string name="alarm_empty">Правил тривог поки немає</string>
-    <string name="alarm_add">Додати правило тривоги</string>
+    <string name="alarm_add">Нова тривога</string>
     <string name="alarm_new">Нова тривога</string>
     <string name="alarm_edit">Редагувати тривогу</string>
     <string name="alarm_delete_title">Видалити цю тривогу?</string>

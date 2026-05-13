@@ -331,7 +331,7 @@
 
     <string name="alarm_help">Les règles sont vérifiées de haut en bas par métrique. La première qui correspond se déclenche</string>
     <string name="alarm_empty">Aucune règle d\'alarme pour le moment</string>
-    <string name="alarm_add">Ajouter une règle</string>
+    <string name="alarm_add">Nouvelle alarme</string>
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
     <string name="alarm_name">Nom (facultatif)</string>

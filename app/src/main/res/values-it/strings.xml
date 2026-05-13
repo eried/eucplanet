@@ -420,7 +420,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Le regole vengono controllate dall\'alto in basso per ogni metrica. La prima regola corrispondente per ciascuna metrica si attiva</string>
     <string name="alarm_empty">Nessuna regola d\'allarme</string>
-    <string name="alarm_add">Aggiungi regola d\'allarme</string>
+    <string name="alarm_add">Nuovo allarme</string>
     <string name="alarm_new">Nuovo allarme</string>
     <string name="alarm_edit">Modifica allarme</string>
     <string name="alarm_delete_title">Eliminare questo allarme?</string>

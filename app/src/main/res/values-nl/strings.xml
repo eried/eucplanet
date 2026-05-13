@@ -420,7 +420,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Regels worden per metriek van boven naar beneden gecontroleerd. De eerste passende regel per metriek vuurt</string>
     <string name="alarm_empty">Nog geen alarmregels</string>
-    <string name="alarm_add">Alarmregel toevoegen</string>
+    <string name="alarm_add">Nieuw alarm</string>
     <string name="alarm_new">Nieuw alarm</string>
     <string name="alarm_edit">Alarm bewerken</string>
     <string name="alarm_delete_title">Dit alarm verwijderen?</string>

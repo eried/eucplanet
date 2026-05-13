@@ -420,7 +420,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Reguły są sprawdzane od góry do dołu dla każdej metryki. Pierwsza pasująca reguła dla metryki uruchamia alarm</string>
     <string name="alarm_empty">Brak reguł alarmów</string>
-    <string name="alarm_add">Dodaj regułę alarmu</string>
+    <string name="alarm_add">Nowy alarm</string>
     <string name="alarm_new">Nowy alarm</string>
     <string name="alarm_edit">Edytuj alarm</string>
     <string name="alarm_delete_title">Usunąć ten alarm?</string>

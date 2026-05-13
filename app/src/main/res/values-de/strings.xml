@@ -295,7 +295,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Regeln werden pro Messgröße von oben nach unten geprüft. Die erste passende Regel feuert</string>
     <string name="alarm_empty">Noch keine Alarmregeln</string>
-    <string name="alarm_add">Regel hinzufügen</string>
+    <string name="alarm_add">Neuer Alarm</string>
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
     <string name="alarm_name">Name (optional)</string>

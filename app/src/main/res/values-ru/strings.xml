@@ -295,7 +295,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее, остальные пропускаются</string>
     <string name="alarm_empty">Ещё нет правил тревог</string>
-    <string name="alarm_add">Добавить правило</string>
+    <string name="alarm_add">Новое правило</string>
     <string name="alarm_new">Новое правило</string>
     <string name="alarm_edit">Изменить</string>
     <string name="alarm_name">Название (необязательно)</string>

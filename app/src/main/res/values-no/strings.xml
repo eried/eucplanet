@@ -295,7 +295,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Regler sjekkes ovenfra og ned per målepunkt. Første treff utløser</string>
     <string name="alarm_empty">Ingen alarmregler ennå</string>
-    <string name="alarm_add">Legg til regel</string>
+    <string name="alarm_add">Ny alarm</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
     <string name="alarm_name">Navn (valgfritt)</string>

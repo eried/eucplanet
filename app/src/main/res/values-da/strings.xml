@@ -331,7 +331,7 @@
 
     <string name="alarm_help">Reglerne gennemgås oppefra og ned pr. måling. Den første regel, der matcher, udløses</string>
     <string name="alarm_empty">Ingen alarmregler endnu</string>
-    <string name="alarm_add">Tilføj alarmregel</string>
+    <string name="alarm_add">Ny alarm</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
     <string name="alarm_name">Navn (valgfrit)</string>

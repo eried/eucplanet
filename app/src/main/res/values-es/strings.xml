@@ -295,7 +295,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Las reglas se revisan de arriba a abajo por métrica. Dispara la primera que coincida</string>
     <string name="alarm_empty">Aún no hay reglas de alarma</string>
-    <string name="alarm_add">Añadir regla</string>
+    <string name="alarm_add">Nueva alarma</string>
     <string name="alarm_new">Nueva alarma</string>
     <string name="alarm_edit">Editar alarma</string>
     <string name="alarm_name">Nombre (opcional)</string>

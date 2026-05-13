@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -196,16 +198,22 @@ private fun PairedExternalGpsCard(
 }
 
 /**
- * Compact scan-action button sized to its label, sitting at the left edge
- * of its parent column. Shared between the Flic scan card and the External
- * GPS card so the two cards in the Integration tab share an identical
- * visual rhythm — short word, natural-width button, left-aligned.
+ * Compact section-action button sized to its label, sitting at the left
+ * edge of its parent column. Shared across the Integration tab (Flic /
+ * External GPS scan + pair actions) and the Alarms tab (New alarm) so the
+ * "add / start" buttons across the app's settings sections all look the
+ * same: short label, comfortable tap target, optional leading icon.
+ *
+ * The 140 dp min-width is calibrated so 4-letter labels ("Scan" / "Pair" /
+ * "Stop") get a solid tap target without growing edge-to-edge, but longer
+ * labels ("New alarm") can stretch naturally to fit.
  */
 @Composable
 fun LeftAlignedScanButton(
     label: String,
     onClick: () -> Unit,
     containerColor: androidx.compose.ui.graphics.Color? = null,
+    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     modifier: Modifier = Modifier
 ) {
     val colors = if (containerColor != null)
@@ -213,11 +221,17 @@ fun LeftAlignedScanButton(
     else ButtonDefaults.buttonColors()
     Button(
         onClick = onClick,
-        // 100 dp gives the button a comfortable tap target even for 4-char
-        // labels ("Scan" / "Pair" / "Stop") without growing to full width.
-        modifier = modifier.widthIn(min = 100.dp),
+        modifier = modifier.widthIn(min = 140.dp),
         colors = colors
     ) {
+        if (leadingIcon != null) {
+            androidx.compose.material3.Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+        }
         Text(text = label)
     }
 }

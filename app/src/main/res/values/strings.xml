@@ -519,7 +519,7 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Rules are checked top-to-bottom per metric. First matching rule for each metric fires</string>
     <string name="alarm_empty">No alarm rules yet</string>
-    <string name="alarm_add">Add Alarm Rule</string>
+    <string name="alarm_add">New alarm</string>
     <string name="alarm_new">New Alarm</string>
     <string name="alarm_edit">Edit Alarm</string>
     <string name="alarm_delete_title">Delete this alarm?</string>
