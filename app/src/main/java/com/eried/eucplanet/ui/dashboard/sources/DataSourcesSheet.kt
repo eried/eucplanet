@@ -147,7 +147,7 @@ fun DataSourcesSheet(
             } else {
                 val b = compareWith ?: DataSource.PHONE
                 if (b == selectedSource) {
-                    SameSourcePlaceholder(source = selectedSource)
+                    SameSourcePlaceholder()
                 } else {
                     CompareTab(
                         viewModel = viewModel,
@@ -252,23 +252,13 @@ private fun CompareBPicker(
 }
 
 @Composable
-private fun SameSourcePlaceholder(source: DataSource) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            "Same source selected",
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = source.color
-        )
-        Text(
-            "${source.displayName} can't be compared with itself. Pick a different B above to see deltas.",
-            fontSize = 13.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+private fun SameSourcePlaceholder() {
+    Text(
+        "Same source selected",
+        fontSize = 13.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
