@@ -698,10 +698,16 @@ private fun SpeedTab(
         SectionHeader(stringResource(R.string.section_speed_limits))
 
         val imperial = settings.imperialUnits
+        // Some wheels (XWay 168V family, partially-initialized adapters) report 0 for the
+        // model speed cap or current tiltback. Material 3 Slider asserts start < end on its
+        // valueRange — so we clamp every upper endpoint to at least 11 km/h to keep the UI alive.
+        val safeMaxCap = maxSpeedCap.coerceAtLeast(11f)
+        val safeTiltback = settings.tiltbackSpeedKmh.coerceAtLeast(11f)
+        val safeLegalTiltback = settings.safetyTiltbackKmh.coerceAtLeast(11f)
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
-            rangeKmh = 10f..maxSpeedCap,
+            rangeKmh = 10f..safeMaxCap,
             imperial = imperial,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
@@ -709,7 +715,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_alarm),
             valueKmh = settings.alarmSpeedKmh,
-            rangeKmh = 10f..settings.tiltbackSpeedKmh,
+            rangeKmh = 10f..safeTiltback,
             imperial = imperial,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
@@ -720,7 +726,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_legal_tiltback),
             valueKmh = settings.safetyTiltbackKmh,
-            rangeKmh = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
+            rangeKmh = 10f..(safeTiltback - 1f).coerceAtLeast(11f),
             imperial = imperial,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
@@ -728,7 +734,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_legal_alarm),
             valueKmh = settings.safetyAlarmKmh,
-            rangeKmh = 10f..settings.safetyTiltbackKmh,
+            rangeKmh = 10f..safeLegalTiltback,
             imperial = imperial,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }

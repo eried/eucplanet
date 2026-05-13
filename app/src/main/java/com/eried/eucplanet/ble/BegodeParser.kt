@@ -165,12 +165,24 @@ class BegodeParser {
         val rawTemp = ByteUtils.getInt16BE(frame, 12)
         val tempC = rawTemp / 340f + 36.53f
 
-        // Hardware PWM at 14..15 is meaningful only on Freestyl3r CF FW;
-        // otherwise it's noise. We emit it as-is and let the UI live with
-        // a near-zero reading on stock wheels. Spec 4.1 says raw * 10 for
-        // percent; since we want centi-percent we multiply by 100 to keep
-        // parity with InMotion's pwm-as-percent convention.
-        val pwmPct = if (!hasExtras) ByteUtils.getInt16BE(frame, 14) / 100f else lastPwmPct
+        // PWM resolution path:
+        //  - Modern Begodes send the 0x07 extras frame with truePwm; once we
+        //    have ever seen one, [hasExtras] sticks and we trust [lastPwmPct].
+        //  - Some custom firmwares (Freestyl3r CF) populate offset 14..15 with
+        //    a meaningful hardware PWM; if it reads clearly non-zero, use it.
+        //  - Stock older wheels (Master V1, Mten3, MCM5, ...) leave that field
+        //    as noise around zero, which is the bug users see. WheelLog falls
+        //    back to deriving a usable estimate from |speed| / maxSpeed — the
+        //    wheel's duty cycle tracks speed closely under back-EMF-dominated
+        //    cruise, and it's better than reporting a flat 0% while the rider
+        //    is at 80% throttle.
+        val pwmPct = when {
+            hasExtras -> lastPwmPct
+            else -> {
+                val rawHwPwm = ByteUtils.getInt16BE(frame, 14) / 100f
+                if (rawHwPwm > 5f) rawHwPwm else derivePwmFromSpeed(speed, model)
+            }
+        }
 
         val battPct = batteryPercentFromRawCv(rawCv)
 
@@ -286,6 +298,23 @@ class BegodeParser {
             lightOn = lastLightOn,
             timestamp = System.currentTimeMillis()
         )
+    }
+
+    /**
+     * Approximate PWM as |speed| / maxSpeed when the wheel doesn't emit a real
+     * PWM reading. Older Begodes (Master V1, Mten3, MCM5) leave the hardware
+     * PWM field at zero and don't send the 0x07 extras frame; without this,
+     * the dashboard PWM ring sits at 0 even at full throttle. The ratio tracks
+     * actual duty cycle reasonably well because at cruise the back-EMF set by
+     * speed is what the controller is fighting.
+     *
+     * Falls back to a 50 km/h reference cap if the model is unknown so the
+     * estimate is still bounded.
+     */
+    private fun derivePwmFromSpeed(speedKmh: Float, model: BegodeModel?): Float {
+        val cap = (model?.maxSpeedKmh ?: 50).toFloat()
+        if (cap <= 0f) return 0f
+        return (kotlin.math.abs(speedKmh) / cap * 100f).coerceIn(0f, 100f)
     }
 
     /**

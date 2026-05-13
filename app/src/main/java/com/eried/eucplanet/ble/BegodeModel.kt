@@ -18,6 +18,7 @@ enum class BegodeModel(
     val nominalVoltage: Int,
     val maxSpeedKmh: Int
 ) {
+    MTEN3(    "Begode Mten3",      67,  30),
     MTEN4(    "Begode Mten4",      84,  35),
     MTEN5(    "Begode Mten5",      84,  35),
     MCM5_V1(  "Begode MCM5 v1",    67,  40),
@@ -58,6 +59,7 @@ enum class BegodeModel(
                 "msp"    in n -> MSP
                 "mten5"  in n || "mten 5" in n -> MTEN5
                 "mten4"  in n || "mten 4" in n -> MTEN4
+                "mten3"  in n || "mten 3" in n -> MTEN3
                 "mcm5"   in n -> MCM5_V2
                 "t4"     in n -> T4
                 "t3"     in n -> T3

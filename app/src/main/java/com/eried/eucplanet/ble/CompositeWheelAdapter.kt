@@ -145,12 +145,16 @@ class CompositeWheelAdapter @Inject constructor(
             // IM<digits> naming used by R-series + rebrands — V1 family.
             return n.length > 2 && n[2].isDigit()
         }
+        // InMotion E-line (E20, etc.) are small-commuter wheels in the V1 family.
+        // Match "e20" / "e0" / "inmotion-e20" — anchored at start so we don't
+        // catch unrelated devices whose name happens to contain the substring.
+        val unprefixed = if (n.startsWith("inmotion-")) n.substring("inmotion-".length) else n
+        if (unprefixed.startsWith("e") && unprefixed.length > 1 && unprefixed[1].isDigit()) return true
         // "inmotion-v8", "inmotion-v10f", etc.
-        val stripped = if (n.startsWith("inmotion-")) n.substring("inmotion-".length) else n
-        if (stripped.length >= 2 && stripped[0] == 'v' && stripped[1].isDigit()) {
+        if (unprefixed.length >= 2 && unprefixed[0] == 'v' && unprefixed[1].isDigit()) {
             var i = 1
-            while (i < stripped.length && stripped[i].isDigit()) i++
-            val digits = stripped.substring(1, i).toIntOrNull() ?: return false
+            while (i < unprefixed.length && unprefixed[i].isDigit()) i++
+            val digits = unprefixed.substring(1, i).toIntOrNull() ?: return false
             return digits == 3 || digits == 5 || digits == 8 || digits == 10
         }
         return false

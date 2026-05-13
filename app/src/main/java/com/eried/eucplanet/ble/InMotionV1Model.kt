@@ -23,6 +23,10 @@ enum class InMotionV1Model(
     val speedFactor: Float
 ) {
     R0(   30, "InMotion R0",        67, 35, 1000f),
+    // E20: small commuter, no labelled capture yet. Defaults to the V8-class
+    // 84 V / 30 km/h profile so battery curve and speed cap render sensibly;
+    // refine once a real telemetry packet from the wheel is captured.
+    E20(  40, "InMotion E20",       84, 30, 3812f),
     V5(   50, "InMotion V5",        67, 25, 3812f),
     V5PLUS(51, "InMotion V5+",      67, 25, 3812f),
     V5F(  52, "InMotion V5F",       67, 30, 3812f),
@@ -108,6 +112,7 @@ enum class InMotionV1Model(
                 "v5" in n    -> V5
                 "lively" in n -> LIVELY
                 "l6" in n    -> L6
+                "e20" in n   -> E20
                 else -> null
             }
         }
