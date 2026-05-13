@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -80,7 +81,16 @@ fun DataSourcesSheet(
         containerColor = MaterialTheme.colorScheme.surface
     ) {
         var selectedTab by remember { mutableStateOf(TabKind.PHONE) }
-        Column(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp)) {
+        // Pin a minimum height so swapping tabs doesn't make the sheet
+        // hop up and down between e.g. Phone (tall, has G-force crosshair)
+        // and Wheel (short, speed only). 600 dp fits the tallest tab on
+        // a typical phone without forcing an enormous sheet on tablets.
+        Column(
+            modifier = Modifier
+                .heightIn(min = 600.dp)
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 24.dp)
+        ) {
             Text(
                 "Live data sources",
                 fontSize = 18.sp,

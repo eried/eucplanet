@@ -15,7 +15,10 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 enum class DataSource(val displayName: String, val color: Color) {
     PHONE("Phone", AccentBlue),
     WHEEL("Wheel", AccentGreen),
-    RACEBOX("RaceBox", AccentPurple);
+    // Label is "External" so the dialog stays accurate when the user has a
+    // Draggy / VBox / other GPS box paired instead of a literal RaceBox. The
+    // enum name stays RACEBOX for backward compat with the pairing column.
+    RACEBOX("External", AccentPurple);
 
     /**
      * Capability flags so each tab can render the right rows without
