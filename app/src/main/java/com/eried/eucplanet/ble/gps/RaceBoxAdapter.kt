@@ -54,14 +54,19 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         // Pull the candidate frame out of the buffer.
         val frame = ByteArray(totalFrameSize) { buffer.removeFirst() }
 
-        // Only NAV-PVT carries position+speed; ignore other frames.
-        if (cls != 0x01 || id != 0x07 || len != 92) return null
+        // Accept either:
+        //  - Standard UBX NAV-PVT (cls=0x01, id=0x07, len=92): position+speed only.
+        //  - RaceBox extended (cls=0xFF, id=0x01, len=80): position+speed PLUS
+        //    accelerometer X/Y/Z and gyro at the tail. Devices stream this when
+        //    the user enables data recording on the RaceBox companion.
+        val isStandardPvt = cls == 0x01 && id == 0x07 && len == 92
+        val isExtendedPvt = cls == 0xFF && id == 0x01 && len == 80
+        if (!isStandardPvt && !isExtendedPvt) return null
 
-        // Fletcher-8 checksum over class, id, length, payload (everything after the
-        // header bytes, before the trailing checksum bytes).
+        // Fletcher-8 checksum over class, id, length, payload.
         if (!checksumValid(frame)) return null
 
-        return parsePvt(frame)
+        return if (isExtendedPvt) parseExtendedPvt(frame) else parsePvt(frame)
     }
 
     private fun checksumValid(frame: ByteArray): Boolean {
@@ -113,11 +118,62 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         )
     }
 
+    /**
+     * RaceBox extended PVT (cls=0xFF id=0x01, 80-byte payload). The first 60
+     * bytes mirror UBX-NAV-PVT closely so we re-use the same offsets for
+     * fix/position/speed, then read the trailing accelerometer triple.
+     *
+     * Per the RaceBox public protocol notes the tail of the payload carries
+     * accel as int16 milligees (LE) at offsets 68/70/72 — i.e. the last
+     * 6 bytes before checksum start. Gyro words follow but we don't
+     * surface them yet.
+     */
+    private fun parseExtendedPvt(frame: ByteArray): ExternalGpsSample? {
+        val payloadStart = 6
+        if (frame.size < payloadStart + 80) return null
+
+        val fixType = frame[payloadStart + 20].toInt() and 0xFF
+        if (fixType != 2 && fixType != 3 && fixType != 4) return null
+
+        val lonRaw = readInt32LE(frame, payloadStart + 24)
+        val latRaw = readInt32LE(frame, payloadStart + 28)
+        val hMslRaw = readInt32LE(frame, payloadStart + 36)
+        val hAccRaw = readUInt32LE(frame, payloadStart + 40)
+        // Note: in the extended frame the speed field sits at offset 60 too,
+        // same as standard PVT — RaceBox kept the layout compatible for the
+        // shared fields.
+        val gSpeedRaw = readInt32LE(frame, payloadStart + 60)
+
+        // Accel: int16 LE milligees on each axis (positive Y = forward).
+        // Divide by 1000 to get g.
+        val ax = readInt16LE(frame, payloadStart + 68) / 1000f
+        val ay = readInt16LE(frame, payloadStart + 70) / 1000f
+        val az = readInt16LE(frame, payloadStart + 72) / 1000f
+
+        val speedMmS = gSpeedRaw.coerceAtLeast(0)
+        return ExternalGpsSample(
+            source = ExternalGpsSource.RACEBOX,
+            speedKmh = speedMmS * 0.0036f,
+            latitude = latRaw * 1e-7,
+            longitude = lonRaw * 1e-7,
+            altitudeMeters = hMslRaw / 1000f,
+            accuracyMeters = hAccRaw / 1000f,
+            accelXG = ax,
+            accelYG = ay,
+            accelZG = az
+        )
+    }
+
     private fun readInt32LE(b: ByteArray, off: Int): Int =
         (b[off].toInt() and 0xFF) or
             ((b[off + 1].toInt() and 0xFF) shl 8) or
             ((b[off + 2].toInt() and 0xFF) shl 16) or
             ((b[off + 3].toInt() and 0xFF) shl 24)
+
+    private fun readInt16LE(b: ByteArray, off: Int): Int {
+        val v = (b[off].toInt() and 0xFF) or ((b[off + 1].toInt() and 0xFF) shl 8)
+        return if (v and 0x8000 != 0) v or 0x7FFF.inv() else v
+    }
 
     private fun readUInt32LE(b: ByteArray, off: Int): Long =
         readInt32LE(b, off).toLong() and 0xFFFFFFFFL

@@ -193,6 +193,7 @@ fun DashboardScreen(
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
     var showNoTripsDialog by remember { mutableStateOf(false) }
+    var showSourcesSheet by remember { mutableStateOf(false) }
     var showSettingsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
@@ -486,20 +487,65 @@ fun DashboardScreen(
                 //   no permission  -> GpsOff (dim)
                 //   no fix yet     -> GpsNotFixed (dim)
                 //   locked         -> GpsFixed (green)
+                // Tapping the icon opens the multi-source live data sheet
+                // (Phone / Wheel / RaceBox / Compare). When more than one
+                // source is live we paint a small colored ring around the
+                // icon as a hint that there's combined data to inspect.
                 val gpsIcon = when {
                     !locationGranted -> Icons.Default.GpsOff
                     gpsFix -> Icons.Default.GpsFixed
                     else -> Icons.Default.GpsNotFixed
                 }
-                DashIndicatorIcon(
-                    icon = gpsIcon,
-                    active = gpsFix && locationGranted,
-                    activeColor = if (useAccent) primary else AccentGreen,
+                val liveSources = buildList {
+                    if (gpsFix && locationGranted)
+                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.PHONE)
+                    if (connectionState == ConnectionState.CONNECTED)
+                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.WHEEL)
+                    if (externalGpsSpeed != null)
+                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.RACEBOX)
+                }
+                Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
-                )
+                        .clickable { showSourcesSheet = true }
+                ) {
+                    DashIndicatorIcon(
+                        icon = gpsIcon,
+                        active = gpsFix && locationGranted,
+                        activeColor = if (useAccent) primary else AccentGreen,
+                        modifier = Modifier
+                    )
+                    // Multi-source ring overlay — one short arc per live
+                    // source, equally divided around the icon. Single-source
+                    // case skips the ring entirely so the icon doesn't grow
+                    // a useless decoration when only Phone is providing data.
+                    if (liveSources.size >= 2) {
+                        Canvas(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .padding(2.dp)
+                        ) {
+                            val r = size.minDimension / 2f - 1f
+                            val center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f)
+                            val sweep = 360f / liveSources.size
+                            val gap = 8f  // degrees between segments
+                            liveSources.forEachIndexed { idx, src ->
+                                val start = idx * sweep + gap / 2f
+                                drawArc(
+                                    color = src.color,
+                                    startAngle = start - 90f,
+                                    sweepAngle = sweep - gap,
+                                    useCenter = false,
+                                    topLeft = androidx.compose.ui.geometry.Offset(center.x - r, center.y - r),
+                                    size = androidx.compose.ui.geometry.Size(r * 2, r * 2),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.5f)
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(Modifier.height(16.dp))
@@ -816,6 +862,13 @@ fun DashboardScreen(
             if (showDiagnosticsDialog) {
                 com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
                     onDismiss = { showDiagnosticsDialog = false }
+                )
+            }
+
+            if (showSourcesSheet) {
+                com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
+                    imperial = imperial,
+                    onDismiss = { showSourcesSheet = false }
                 )
             }
 

@@ -14,6 +14,13 @@ data class ExternalGpsSample(
     val altitudeMeters: Float,
     /** Horizontal accuracy in metres, or 0 if the device doesn't report it. */
     val accuracyMeters: Float = 0f,
+    /** Linear acceleration in g, or null if the device doesn't report it.
+     *  RaceBox Mini/S/Pro stream accel + gyro alongside the PVT message
+     *  on their custom 0xFF/0x01 frame; basic GPS receivers (Garmin etc.)
+     *  won't fill these in. */
+    val accelXG: Float? = null,
+    val accelYG: Float? = null,
+    val accelZG: Float? = null,
     val timestamp: Long = System.currentTimeMillis()
 )
 

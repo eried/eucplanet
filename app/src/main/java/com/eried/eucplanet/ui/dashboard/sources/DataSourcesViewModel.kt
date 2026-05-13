@@ -1,0 +1,145 @@
+package com.eried.eucplanet.ui.dashboard.sources
+
+import androidx.compose.ui.geometry.Offset
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.repository.ExternalGpsRepository
+import com.eried.eucplanet.data.repository.PhoneSensorRepository
+import com.eried.eucplanet.data.repository.TripRepository
+import com.eried.eucplanet.data.repository.WheelRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/**
+ * Aggregates the three live data sources (Phone IMU + GPS, Wheel BLE, optional
+ * RaceBox) into a single map keyed by [DataSource]. The sheet recomposes off
+ * [snapshots] for the per-source readouts and uses [phoneImuTrail] / [raceboxTrail]
+ * for the fading-dot G-force visualisation.
+ *
+ * Lifecycle: [onSheetOpened] starts the phone IMU listener, [onSheetClosed]
+ * stops it. The other two sources are already running app-wide (wheel BLE
+ * loop and RaceBox GATT connection) so they need no explicit start/stop here.
+ */
+@HiltViewModel
+class DataSourcesViewModel @Inject constructor(
+    private val phoneSensors: PhoneSensorRepository,
+    private val tripRepository: TripRepository,
+    private val wheelRepository: WheelRepository,
+    private val externalGpsRepository: ExternalGpsRepository
+) : ViewModel() {
+
+    companion object {
+        // Trail length picked so a typical 50 Hz IMU sample stream gives ~1.5 s
+        // of history before old samples fade off the bottom of the alpha curve.
+        // Visually this maps to "a smooth tail behind the dot" rather than a
+        // full path replay.
+        private const val TRAIL_MAX = 75
+    }
+
+    // Phone IMU trail — rolling buffer of (xG, zG) offsets used by the
+    // crosshair. Kept as Offset rather than the full PhoneImuSample to keep
+    // the recomposition payload small.
+    private val _phoneImuTrail = MutableStateFlow<List<Offset>>(emptyList())
+    val phoneImuTrail: StateFlow<List<Offset>> = _phoneImuTrail.asStateFlow()
+
+    private val _raceboxTrail = MutableStateFlow<List<Offset>>(emptyList())
+    val raceboxTrail: StateFlow<List<Offset>> = _raceboxTrail.asStateFlow()
+
+    init {
+        // Wire the sensor stream into the trail buffer. New samples land at
+        // the end of the list; old ones are dropped past TRAIL_MAX.
+        viewModelScope.launch {
+            phoneSensors.imu.collect { sample ->
+                if (sample == null) return@collect
+                _phoneImuTrail.update { it.takeLast(TRAIL_MAX - 1) + Offset(sample.xG, sample.zG) }
+            }
+        }
+        viewModelScope.launch {
+            externalGpsRepository.currentSample.collect { sample ->
+                if (sample == null) return@collect
+                val ax = sample.accelXG ?: return@collect
+                val az = sample.accelZG ?: return@collect
+                _raceboxTrail.update { it.takeLast(TRAIL_MAX - 1) + Offset(ax, az) }
+            }
+        }
+    }
+
+    /**
+     * Map of each known source to its current snapshot. The sheet renders
+     * "—" when a field is null (source doesn't know that metric, or device
+     * hasn't reported in yet).
+     */
+    val snapshots: StateFlow<Map<DataSource, SourceSnapshot>> = combine(
+        phoneSensors.imu,
+        tripRepository.currentLocation,
+        wheelRepository.wheelData,
+        wheelRepository.connectionState,
+        externalGpsRepository.currentSample,
+        externalGpsRepository.connectionState
+    ) { values ->
+        val imu = values[0] as com.eried.eucplanet.data.repository.PhoneImuSample?
+        val loc = values[1] as android.location.Location?
+        val wheel = values[2] as com.eried.eucplanet.data.model.WheelData
+        val wheelState = values[3] as ConnectionState
+        val ext = values[4] as com.eried.eucplanet.data.model.ExternalGpsSample?
+        val extState = values[5] as ConnectionState
+
+        val phoneSpeedKmh: Float? = loc?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f }
+        val phoneLive = (imu != null) || (phoneSpeedKmh != null)
+
+        mapOf(
+            DataSource.PHONE to SourceSnapshot(
+                speedKmh = phoneSpeedKmh,
+                latitude = loc?.latitude,
+                longitude = loc?.longitude,
+                isLive = phoneLive,
+                accelXG = imu?.xG,
+                accelYG = imu?.yG,
+                accelZG = imu?.zG
+            ),
+            DataSource.WHEEL to SourceSnapshot(
+                speedKmh = wheel.speed.takeIf { wheelState == ConnectionState.CONNECTED },
+                isLive = wheelState == ConnectionState.CONNECTED
+            ),
+            DataSource.RACEBOX to SourceSnapshot(
+                speedKmh = ext?.speedKmh,
+                latitude = ext?.latitude,
+                longitude = ext?.longitude,
+                isLive = extState == ConnectionState.CONNECTED && ext != null,
+                accelXG = ext?.accelXG,
+                accelYG = ext?.accelYG,
+                accelZG = ext?.accelZG
+            )
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    fun onSheetOpened() {
+        phoneSensors.start()
+        // Drop any stale trail from a previous opening so the visualisation
+        // starts clean. The new IMU samples will fill it back in within a
+        // handful of frames.
+        _phoneImuTrail.value = emptyList()
+        _raceboxTrail.value = emptyList()
+    }
+
+    fun onSheetClosed() {
+        phoneSensors.stop()
+    }
+}
+
+// Local helper for MutableStateFlow.update — keeps the call site tight.
+private fun <T> MutableStateFlow<T>.update(transform: (T) -> T) {
+    while (true) {
+        val current = value
+        val next = transform(current)
+        if (compareAndSet(current, next)) return
+    }
+}
