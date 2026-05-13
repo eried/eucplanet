@@ -531,6 +531,34 @@
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
     <string name="alarm_threshold_decrease">Decrease threshold</string>
     <string name="alarm_threshold_increase">Increase threshold</string>
+
+    <!-- Live data sources bottom sheet (opened by tapping the GPS indicator
+         on the dashboard). The "External" label is intentionally generic
+         (not RaceBox-specific) so future Draggy / VBox / etc. fit cleanly. -->
+    <string name="sources_title">Live data sources</string>
+    <string name="sources_phone">Phone</string>
+    <string name="sources_wheel">Wheel</string>
+    <string name="sources_external">External</string>
+    <string name="sources_compare">Compare</string>
+    <string name="sources_same_source">Same source selected</string>
+    <string name="sources_speed">Speed</string>
+    <string name="sources_heading">Heading</string>
+    <string name="sources_vertical_speed">Vertical speed</string>
+    <string name="sources_position">Position</string>
+    <string name="sources_gforce">G-force</string>
+    <string name="sources_g_horizontal">|G| (horizontal)</string>
+    <string name="sources_lateral_x">Lateral (X)</string>
+    <string name="sources_vertical_y">Vertical (Y)</string>
+    <string name="sources_forward_z">Forward (Z)</string>
+    <string name="sources_distance_between_fixes">Distance between fixes</string>
+    <string name="sources_last_update">Last update</string>
+    <string name="sources_fresh_just_now">just now</string>
+    <string name="sources_fresh_seconds_fmt">%1$ds ago</string>
+    <string name="sources_fresh_minutes_fmt">%1$dm ago</string>
+    <string name="sources_fresh_hours_fmt">%1$dh ago</string>
+    <string name="sources_sats_fmt">%1$d sats</string>
+    <string name="sources_collecting">Collecting…</string>
+
     <string name="alarm_section_beep">Beep</string>
     <string name="alarm_enable_beep">Enable beep</string>
     <string name="alarm_beep_freq_fmt">Frequency: %1$dHz</string>

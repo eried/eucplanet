@@ -300,6 +300,32 @@
     <string name="alarm_metric_label">Métrica</string>
     <string name="alarm_comparator_label">Condición</string>
     <string name="alarm_threshold_fmt">Umbral: %1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">Fuentes de datos en vivo</string>
+    <string name="sources_phone">Teléfono</string>
+    <string name="sources_wheel">Rueda</string>
+    <string name="sources_external">Externo</string>
+    <string name="sources_compare">Comparar</string>
+    <string name="sources_same_source">Misma fuente seleccionada</string>
+    <string name="sources_speed">Velocidad</string>
+    <string name="sources_heading">Rumbo</string>
+    <string name="sources_vertical_speed">Velocidad vertical</string>
+    <string name="sources_position">Posición</string>
+    <string name="sources_gforce">Fuerza G</string>
+    <string name="sources_g_horizontal">|G| (horizontal)</string>
+    <string name="sources_lateral_x">Lateral (X)</string>
+    <string name="sources_vertical_y">Vertical (Y)</string>
+    <string name="sources_forward_z">Adelante (Z)</string>
+    <string name="sources_distance_between_fixes">Distancia entre fijaciones</string>
+    <string name="sources_last_update">Última actualización</string>
+    <string name="sources_fresh_just_now">ahora mismo</string>
+    <string name="sources_fresh_seconds_fmt">hace %1$ds</string>
+    <string name="sources_fresh_minutes_fmt">hace %1$dm</string>
+    <string name="sources_fresh_hours_fmt">hace %1$dh</string>
+    <string name="sources_sats_fmt">%1$d sats</string>
+    <string name="sources_collecting">Recopilando…</string>
+
     <string name="alarm_section_beep">Pitido</string>
     <string name="alarm_enable_beep">Activar pitido</string>
     <string name="alarm_beep_freq_fmt">Frecuencia: %1$dHz</string>

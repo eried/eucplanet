@@ -427,6 +427,32 @@
     <string name="alarm_metric_label">Métrica</string>
     <string name="alarm_comparator_label">Condição</string>
     <string name="alarm_threshold_fmt">Limite: %1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">Fontes de dados ao vivo</string>
+    <string name="sources_phone">Telefone</string>
+    <string name="sources_wheel">Roda</string>
+    <string name="sources_external">Externo</string>
+    <string name="sources_compare">Comparar</string>
+    <string name="sources_same_source">Mesma fonte selecionada</string>
+    <string name="sources_speed">Velocidade</string>
+    <string name="sources_heading">Direção</string>
+    <string name="sources_vertical_speed">Velocidade vertical</string>
+    <string name="sources_position">Posição</string>
+    <string name="sources_gforce">Força G</string>
+    <string name="sources_g_horizontal">|G| (horizontal)</string>
+    <string name="sources_lateral_x">Lateral (X)</string>
+    <string name="sources_vertical_y">Vertical (Y)</string>
+    <string name="sources_forward_z">Frente (Z)</string>
+    <string name="sources_distance_between_fixes">Distância entre leituras</string>
+    <string name="sources_last_update">Última atualização</string>
+    <string name="sources_fresh_just_now">agora mesmo</string>
+    <string name="sources_fresh_seconds_fmt">há %1$ds</string>
+    <string name="sources_fresh_minutes_fmt">há %1$dm</string>
+    <string name="sources_fresh_hours_fmt">há %1$dh</string>
+    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_collecting">Coletando…</string>
+
     <string name="alarm_section_beep">Bipe</string>
     <string name="alarm_enable_beep">Ativar bipe</string>
     <string name="alarm_beep_freq_fmt">Frequência: %1$dHz</string>

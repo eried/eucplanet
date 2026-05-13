@@ -1,6 +1,7 @@
 package com.eried.eucplanet.ui.dashboard.sources
 
 import androidx.compose.ui.graphics.Color
+import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentPurple
@@ -12,13 +13,14 @@ import com.eried.eucplanet.ui.theme.AccentPurple
  * wheel, purple = RaceBox" that carries through to the overlay dot on the
  * speed dial and the lines on the trip-detail chart.
  */
-enum class DataSource(val displayName: String, val color: Color) {
-    PHONE("Phone", AccentBlue),
-    WHEEL("Wheel", AccentGreen),
-    // Label is "External" so the dialog stays accurate when the user has a
-    // Draggy / VBox / other GPS box paired instead of a literal RaceBox. The
-    // enum name stays RACEBOX for backward compat with the pairing column.
-    RACEBOX("External", AccentPurple);
+enum class DataSource(val labelRes: Int, val color: Color) {
+    PHONE(R.string.sources_phone, AccentBlue),
+    WHEEL(R.string.sources_wheel, AccentGreen),
+    // Label string is "External" (not "RaceBox") so the dialog stays
+    // accurate when the user has a Draggy / VBox / other GPS box paired
+    // instead of a literal RaceBox. The enum name stays RACEBOX for
+    // backward compat with the pairing column.
+    RACEBOX(R.string.sources_external, AccentPurple);
 
     /**
      * Capability flags so each tab can render the right rows without
@@ -54,7 +56,13 @@ data class SourceSnapshot(
     /** GPS quality indicator — only filled for sources with a GPS receiver. */
     val numSatellites: Int? = null,
     /** Horizontal positional accuracy in metres, or null. */
-    val accuracyMeters: Float? = null
+    val accuracyMeters: Float? = null,
+    /** Wall-clock time of the most recent data tick from this source, in ms,
+     *  or null if the source has never sent anything. The dashboard renders
+     *  a "Last update Xs ago" row off this; the ticker recomposes the row
+     *  every second so the elapsed time stays accurate without re-emitting
+     *  the snapshot. */
+    val lastUpdateMs: Long? = null
 ) {
     /** Magnitude of horizontal G-force, useful as a single safety number. */
     val horizGMagnitude: Float?

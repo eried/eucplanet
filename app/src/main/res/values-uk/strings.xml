@@ -427,6 +427,32 @@
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
     <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">Джерела даних у реальному часі</string>
+    <string name="sources_phone">Телефон</string>
+    <string name="sources_wheel">Колесо</string>
+    <string name="sources_external">Зовнішнє</string>
+    <string name="sources_compare">Порівняти</string>
+    <string name="sources_same_source">Вибрано те саме джерело</string>
+    <string name="sources_speed">Швидкість</string>
+    <string name="sources_heading">Курс</string>
+    <string name="sources_vertical_speed">Вертикальна швидкість</string>
+    <string name="sources_position">Координати</string>
+    <string name="sources_gforce">Перевантаження</string>
+    <string name="sources_g_horizontal">|G| (горизонтально)</string>
+    <string name="sources_lateral_x">Бокове (X)</string>
+    <string name="sources_vertical_y">Вертикальне (Y)</string>
+    <string name="sources_forward_z">Уперед (Z)</string>
+    <string name="sources_distance_between_fixes">Відстань між точками</string>
+    <string name="sources_last_update">Останнє оновлення</string>
+    <string name="sources_fresh_just_now">щойно</string>
+    <string name="sources_fresh_seconds_fmt">%1$d с тому</string>
+    <string name="sources_fresh_minutes_fmt">%1$d хв тому</string>
+    <string name="sources_fresh_hours_fmt">%1$d год тому</string>
+    <string name="sources_sats_fmt">%1$d супут.</string>
+    <string name="sources_collecting">Збір даних…</string>
+
     <string name="alarm_section_beep">Сигнал</string>
     <string name="alarm_enable_beep">Увімкнути сигнал</string>
     <string name="alarm_beep_freq_fmt">Частота: %1$dГц</string>

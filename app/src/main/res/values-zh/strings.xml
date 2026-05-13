@@ -336,6 +336,32 @@
     <string name="alarm_metric_label">指标</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">实时数据源</string>
+    <string name="sources_phone">手机</string>
+    <string name="sources_wheel">车辆</string>
+    <string name="sources_external">外接设备</string>
+    <string name="sources_compare">对比</string>
+    <string name="sources_same_source">已选择相同来源</string>
+    <string name="sources_speed">速度</string>
+    <string name="sources_heading">方向</string>
+    <string name="sources_vertical_speed">垂直速度</string>
+    <string name="sources_position">位置</string>
+    <string name="sources_gforce">G力</string>
+    <string name="sources_g_horizontal">|G|(水平)</string>
+    <string name="sources_lateral_x">横向 (X)</string>
+    <string name="sources_vertical_y">垂直 (Y)</string>
+    <string name="sources_forward_z">前向 (Z)</string>
+    <string name="sources_distance_between_fixes">定位点间距</string>
+    <string name="sources_last_update">最后更新</string>
+    <string name="sources_fresh_just_now">刚刚</string>
+    <string name="sources_fresh_seconds_fmt">%1$d秒前</string>
+    <string name="sources_fresh_minutes_fmt">%1$d分钟前</string>
+    <string name="sources_fresh_hours_fmt">%1$d小时前</string>
+    <string name="sources_sats_fmt">%1$d 颗卫星</string>
+    <string name="sources_collecting">采集中…</string>
+
     <string name="alarm_section_beep">蜂鸣</string>
     <string name="alarm_enable_beep">启用蜂鸣</string>
     <string name="alarm_beep_freq_fmt">频率:%1$dHz</string>

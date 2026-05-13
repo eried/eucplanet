@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.util.Units
@@ -103,7 +105,7 @@ fun DataSourcesSheet(
                 .padding(bottom = 24.dp)
         ) {
             Text(
-                "Live data sources",
+                stringResource(com.eried.eucplanet.R.string.sources_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -185,7 +187,7 @@ private fun TabBar(
         ) {
             DataSource.values().forEach { src ->
                 SourceTabChip(
-                    label = src.displayName,
+                    label = stringResource(src.labelRes),
                     color = src.color,
                     isSelected = src == selectedSource,
                     isLive = snapshots[src]?.isLive == true,
@@ -232,7 +234,7 @@ private fun CompareBPicker(
         ) {
             DataSource.values().forEach { src ->
                 SourceTabChip(
-                    label = src.displayName,
+                    label = stringResource(src.labelRes),
                     color = src.color,
                     isSelected = src == selected,
                     isLive = snapshots[src]?.isLive == true,
@@ -254,7 +256,7 @@ private fun CompareBPicker(
 @Composable
 private fun SameSourcePlaceholder() {
     Text(
-        "Same source selected",
+        stringResource(com.eried.eucplanet.R.string.sources_same_source),
         fontSize = 13.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.fillMaxWidth()
@@ -349,7 +351,7 @@ private fun CompareTabChip(
             )
             Spacer(Modifier.width(4.dp))
             Text(
-                text = "Compare",
+                text = stringResource(com.eried.eucplanet.R.string.sources_compare),
                 fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = if (isSelected) accent else accent.copy(alpha = 0.7f)
@@ -373,37 +375,44 @@ private fun SourceTab(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val speedUnit = Units.speedUnit(context, imperial)
+    // 1-second wall-clock tick. Drives the "Last update Xs ago" line so the
+    // elapsed time stays accurate without the snapshot re-emitting.
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000L)
+            nowMs = System.currentTimeMillis()
+        }
+    }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ValueRow(
-            label = "Speed",
+            label = stringResource(com.eried.eucplanet.R.string.sources_speed),
             value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, imperial), speedUnit) },
             color = source.color
         )
-        // Heading + vertical speed — shown right under Speed for sources
-        // that report them so the per-source tab serves as a quick GPS dump.
         if (source.hasPosition) {
             ValueRow(
-                label = "Heading",
+                label = stringResource(com.eried.eucplanet.R.string.sources_heading),
                 value = snapshot.headingDeg?.let { "%.0f°".format(it) },
                 color = source.color
             )
             ValueRow(
-                label = "Vertical speed",
-                value = snapshot.verticalSpeedMps?.let { "%+.1f m/s".format(it) },
+                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
+                value = snapshot.verticalSpeedMps?.let { formatVerticalSpeed(it, imperial) },
                 color = source.color
             )
             ValueRow(
-                label = "Position",
+                label = stringResource(com.eried.eucplanet.R.string.sources_position),
                 value = snapshot.latitude?.let { lat ->
                     snapshot.longitude?.let { lon -> "%.5f, %.5f".format(lat, lon) }
                 },
                 color = source.color
             )
-            // GPS quality line — only meaningful for sources that have a
-            // GPS receiver. Compact "n sats · ±N m" string under the position.
             if (snapshot.numSatellites != null || snapshot.accuracyMeters != null) {
-                val sats = snapshot.numSatellites?.let { "$it sats" }
-                val acc = snapshot.accuracyMeters?.let { "±%.1f m".format(it) }
+                val sats = snapshot.numSatellites?.let {
+                    context.getString(com.eried.eucplanet.R.string.sources_sats_fmt, it)
+                }
+                val acc = snapshot.accuracyMeters?.let { formatAccuracy(it, imperial) }
                 val combined = listOfNotNull(sats, acc).joinToString(" · ")
                 Text(
                     text = combined,
@@ -412,12 +421,14 @@ private fun SourceTab(
                 )
             }
         }
+        // Freshness row — "Last update 3s ago" / "Updated just now" / "—".
+        FreshnessRow(snapshot.lastUpdateMs, nowMs)
         // G-force section — crosshair plus three numeric rows when the
         // source claims IMU support.
         if (source.hasImu) {
             Spacer(Modifier.height(4.dp))
             Text(
-                "G-force",
+                stringResource(com.eried.eucplanet.R.string.sources_gforce),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -431,14 +442,76 @@ private fun SourceTab(
                     .aspectRatio(1f)
                     .wrapContentSize(Alignment.Center)
             )
-            ValueRow(label = "Lateral (X)", value = formatG(snapshot.accelXG), color = source.color)
-            ValueRow(label = "Vertical (Y)", value = formatG(snapshot.accelYG), color = source.color)
-            ValueRow(label = "Forward (Z)", value = formatG(snapshot.accelZG), color = source.color)
+            ValueRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_lateral_x),
+                value = formatG(snapshot.accelXG), color = source.color
+            )
+            ValueRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_vertical_y),
+                value = formatG(snapshot.accelYG), color = source.color
+            )
+            ValueRow(
+                label = stringResource(com.eried.eucplanet.R.string.sources_forward_z),
+                value = formatG(snapshot.accelZG), color = source.color
+            )
         }
     }
 }
 
 private fun formatG(g: Float?): String? = g?.let { "%+.2f g".format(it) }
+
+/** Vertical speed display. m/s for metric, ft/s for imperial.
+ *  1 m/s = 3.28084 ft/s. */
+private fun formatVerticalSpeed(mps: Float, imperial: Boolean): String =
+    if (imperial) "%+.1f ft/s".format(mps * 3.28084f)
+    else "%+.1f m/s".format(mps)
+
+/** GPS accuracy display. Metres for metric, feet for imperial. */
+private fun formatAccuracy(meters: Float, imperial: Boolean): String =
+    if (imperial) "±%.1f ft".format(meters * 3.28084f)
+    else "±%.1f m".format(meters)
+
+/** Distance between two GPS fixes. Metres for metric, feet for imperial
+ *  when under a mile, miles above. Keeps the number readable across scales. */
+private fun formatDistance(meters: Double, imperial: Boolean): String {
+    return if (imperial) {
+        val ft = meters * 3.28084
+        if (ft < 1000.0) "%.1f ft".format(ft)
+        else "%.2f mi".format(ft / 5280.0)
+    } else {
+        if (meters < 1000.0) "%.1f m".format(meters)
+        else "%.2f km".format(meters / 1000.0)
+    }
+}
+
+/** "Last update Xs ago" line, recomputed against [nowMs] (ticks every 1s
+ *  in the caller). Shows "—" when the source has never sent anything. */
+@Composable
+private fun FreshnessRow(lastUpdateMs: Long?, nowMs: Long) {
+    val label = if (lastUpdateMs == null) "—" else {
+        val elapsed = (nowMs - lastUpdateMs).coerceAtLeast(0L)
+        when {
+            elapsed < 1500L -> stringResource(com.eried.eucplanet.R.string.sources_fresh_just_now)
+            elapsed < 60_000L -> stringResource(
+                com.eried.eucplanet.R.string.sources_fresh_seconds_fmt,
+                (elapsed / 1000).toInt()
+            )
+            elapsed < 3_600_000L -> stringResource(
+                com.eried.eucplanet.R.string.sources_fresh_minutes_fmt,
+                (elapsed / 60_000).toInt()
+            )
+            else -> stringResource(
+                com.eried.eucplanet.R.string.sources_fresh_hours_fmt,
+                (elapsed / 3_600_000).toInt()
+            )
+        }
+    }
+    ValueRow(
+        label = stringResource(com.eried.eucplanet.R.string.sources_last_update),
+        value = label,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
 
 @Composable
 private fun ValueRow(label: String, value: String?, color: Color) {
@@ -549,7 +622,7 @@ private fun CompareTab(
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ComparisonChart(
-            title = "Speed",
+            title = stringResource(com.eried.eucplanet.R.string.sources_speed),
             seriesA = viewModel.speedSeries[a]?.collectAsState()?.value
                 ?: DataSourcesViewModel.TimedSeries(),
             seriesB = viewModel.speedSeries[b]?.collectAsState()?.value
@@ -564,7 +637,7 @@ private fun CompareTab(
 
         if (snapA.headingDeg != null || snapB.headingDeg != null) {
             ComparisonChart(
-                title = "Heading",
+                title = stringResource(com.eried.eucplanet.R.string.sources_heading),
                 seriesA = viewModel.headingSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
                 seriesB = viewModel.headingSeries[b]?.collectAsState()?.value
@@ -581,7 +654,7 @@ private fun CompareTab(
 
         if (snapA.verticalSpeedMps != null || snapB.verticalSpeedMps != null) {
             ComparisonChart(
-                title = "Vertical speed",
+                title = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
                 seriesA = viewModel.vertSpeedSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
                 seriesB = viewModel.vertSpeedSeries[b]?.collectAsState()?.value
@@ -599,7 +672,7 @@ private fun CompareTab(
         val gB = snapB.horizGMagnitude
         if (gA != null || gB != null) {
             ComparisonChart(
-                title = "|G| (horizontal)",
+                title = stringResource(com.eried.eucplanet.R.string.sources_g_horizontal),
                 seriesA = viewModel.gMagnitudeSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
                 seriesB = viewModel.gMagnitudeSeries[b]?.collectAsState()?.value
@@ -621,14 +694,14 @@ private fun CompareTab(
                 haversineMeters(lat1, lon1, lat2, lon2)
             else null
             Text(
-                "Position",
+                stringResource(com.eried.eucplanet.R.string.sources_position),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             ValueRow(
-                label = "Distance between fixes",
-                value = distance?.let { "%.1f m".format(it) },
+                label = stringResource(com.eried.eucplanet.R.string.sources_distance_between_fixes),
+                value = distance?.let { formatDistance(it, imperial) },
                 color = MaterialTheme.colorScheme.onSurface
             )
             if (lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
@@ -715,6 +788,7 @@ private fun LineChart(
     val measurer = rememberTextMeasurer()
     val grid = MaterialTheme.colorScheme.surfaceVariant
     val axisLabel = MaterialTheme.colorScheme.onSurfaceVariant
+    val collectingLabel = stringResource(com.eried.eucplanet.R.string.sources_collecting)
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -740,7 +814,7 @@ private fun LineChart(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
                 )
                 val measured = measurer.measure(
-                    "Collecting…",
+                    collectingLabel,
                     style = TextStyle(fontSize = 9.sp, color = axisLabel)
                 )
                 drawText(

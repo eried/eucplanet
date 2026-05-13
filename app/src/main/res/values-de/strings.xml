@@ -300,6 +300,32 @@
     <string name="alarm_metric_label">Messgröße</string>
     <string name="alarm_comparator_label">Bedingung</string>
     <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">Live-Datenquellen</string>
+    <string name="sources_phone">Telefon</string>
+    <string name="sources_wheel">Rad</string>
+    <string name="sources_external">Extern</string>
+    <string name="sources_compare">Vergleichen</string>
+    <string name="sources_same_source">Gleiche Quelle ausgewählt</string>
+    <string name="sources_speed">Geschwindigkeit</string>
+    <string name="sources_heading">Kurs</string>
+    <string name="sources_vertical_speed">Vertikalgeschwindigkeit</string>
+    <string name="sources_position">Position</string>
+    <string name="sources_gforce">G-Kraft</string>
+    <string name="sources_g_horizontal">|G| (horizontal)</string>
+    <string name="sources_lateral_x">Seitlich (X)</string>
+    <string name="sources_vertical_y">Vertikal (Y)</string>
+    <string name="sources_forward_z">Vorwärts (Z)</string>
+    <string name="sources_distance_between_fixes">Abstand zwischen Messungen</string>
+    <string name="sources_last_update">Letzte Aktualisierung</string>
+    <string name="sources_fresh_just_now">gerade eben</string>
+    <string name="sources_fresh_seconds_fmt">vor %1$ds</string>
+    <string name="sources_fresh_minutes_fmt">vor %1$dm</string>
+    <string name="sources_fresh_hours_fmt">vor %1$dh</string>
+    <string name="sources_sats_fmt">%1$d Sat.</string>
+    <string name="sources_collecting">Erfassung…</string>
+
     <string name="alarm_section_beep">Piepton</string>
     <string name="alarm_enable_beep">Piepton aktivieren</string>
     <string name="alarm_beep_freq_fmt">Frequenz: %1$d Hz</string>

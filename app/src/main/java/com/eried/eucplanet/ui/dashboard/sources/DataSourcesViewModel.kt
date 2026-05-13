@@ -147,6 +147,15 @@ class DataSourcesViewModel @Inject constructor(
         val phoneSpeedKmh: Float? = loc?.takeIf { it.hasSpeed() }?.let { it.speed * 3.6f }
         val phoneLive = (imu != null) || (phoneSpeedKmh != null)
 
+        // Last-update timestamps. IMU and Location both expose a sample time;
+        // Wheel telemetry doesn't, so we stamp now when wheelData ticks
+        // (frequent enough that the "Xs ago" line stays accurate). External
+        // GPS carries its own timestamp inside the sample.
+        val phoneStamp = imu?.timestamp ?: loc?.takeIf { it.time > 0 }?.time
+        val wheelStamp = if (wheelState == ConnectionState.CONNECTED)
+            System.currentTimeMillis() else null
+        val extStamp = ext?.timestamp
+
         mapOf(
             DataSource.PHONE to SourceSnapshot(
                 speedKmh = phoneSpeedKmh,
@@ -157,15 +166,15 @@ class DataSourcesViewModel @Inject constructor(
                 accelYG = imu?.yG,
                 accelZG = imu?.zG,
                 headingDeg = loc?.takeIf { it.hasBearing() && it.speed > 0.5f }?.bearing,
-                // FusedLocationProvider doesn't expose vertical speed; we'd
-                // have to derive it from altitude deltas. Skip for v1.
                 verticalSpeedMps = null,
                 numSatellites = null,
-                accuracyMeters = loc?.accuracy
+                accuracyMeters = loc?.accuracy,
+                lastUpdateMs = phoneStamp
             ),
             DataSource.WHEEL to SourceSnapshot(
                 speedKmh = wheel.speed.takeIf { wheelState == ConnectionState.CONNECTED },
-                isLive = wheelState == ConnectionState.CONNECTED
+                isLive = wheelState == ConnectionState.CONNECTED,
+                lastUpdateMs = wheelStamp
             ),
             DataSource.RACEBOX to SourceSnapshot(
                 speedKmh = ext?.speedKmh,
@@ -178,7 +187,8 @@ class DataSourcesViewModel @Inject constructor(
                 headingDeg = ext?.headingDeg,
                 verticalSpeedMps = ext?.verticalSpeedMps,
                 numSatellites = ext?.numSatellites,
-                accuracyMeters = ext?.accuracyMeters
+                accuracyMeters = ext?.accuracyMeters,
+                lastUpdateMs = extStamp
             )
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
