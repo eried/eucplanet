@@ -175,6 +175,14 @@ data class AppSettings(
     val watchKeepScreenOn: Boolean = true,
     @ColumnInfo(defaultValue = "1")
     val watchAutoStart: Boolean = true,
+    /**
+     * When the user picks "Stop all" from the phone exit dialog, also close
+     * the watch companion app so its dial doesn't sit on a stale frame after
+     * the phone tears the session down. On by default since the watch app
+     * has no value without the phone feeding it telemetry.
+     */
+    @ColumnInfo(defaultValue = "1")
+    val watchCloseOnExit: Boolean = true,
     @ColumnInfo(defaultValue = "1")
     val watchShowWheelBattery: Boolean = true,
     @ColumnInfo(defaultValue = "1")

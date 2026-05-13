@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
     <string name="watch_auto_start">Auto-start on watch</string>
     <string name="watch_auto_start_desc">Open the watch app together with the phone app.</string>
+    <string name="watch_close_on_exit">Auto-stop on watch</string>
+    <string name="watch_close_on_exit_desc">Stop the watch app on Stop all.</string>
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>

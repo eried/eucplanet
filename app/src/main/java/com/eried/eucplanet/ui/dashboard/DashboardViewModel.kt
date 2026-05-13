@@ -53,6 +53,7 @@ class DashboardViewModel @Inject constructor(
     private val syncManager: SyncManager,
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -231,6 +232,18 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun stopEverything() {
+        // If the user opted in, ask the paired watch to close its app too so
+        // its dial doesn't sit on a stale frame after we tear the session
+        // down. Fire-and-forget on a background dispatcher so the activity
+        // finish() that follows isn't blocked on the message round-trip.
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val settings = settingsRepository.get()
+                if (settings.watchCloseOnExit) {
+                    wearBridge.sendCloseToWatchBlocking()
+                }
+            } catch (_: Exception) { /* best effort */ }
+        }
         val intent = Intent(context, WheelService::class.java)
         context.stopService(intent)
     }

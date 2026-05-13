@@ -344,6 +344,7 @@ fun SettingsScreen(
         stringResource(R.string.section_watch_display),
         stringResource(R.string.watch_keep_on),
         stringResource(R.string.watch_auto_start),
+        stringResource(R.string.watch_close_on_exit),
         stringResource(R.string.watch_show_wheel_battery),
         stringResource(R.string.watch_show_phone_battery),
         stringResource(R.string.watch_show_watch_battery),
@@ -1145,6 +1146,12 @@ private fun WatchTab(
             checked = settings.watchAutoStart,
             onCheckedChange = { viewModel.updateWatchAutoStart(it) },
             onTest = { viewModel.testWatchWake() }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_close_on_exit),
+            description = stringResource(R.string.watch_close_on_exit_desc),
+            checked = settings.watchCloseOnExit,
+            onCheckedChange = { viewModel.updateWatchCloseOnExit(it) }
         )
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_keep_on),

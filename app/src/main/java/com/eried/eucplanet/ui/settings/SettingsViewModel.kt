@@ -223,6 +223,7 @@ class SettingsViewModel @Inject constructor(
     // Wear OS companion
     fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
     fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
+    fun updateWatchCloseOnExit(v: Boolean) = update { copy(watchCloseOnExit = v) }
     fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
     fun updateWatchShowPhoneBattery(v: Boolean) = update { copy(watchShowPhoneBattery = v) }
     fun updateWatchShowWatchBattery(v: Boolean) = update { copy(watchShowWatchBattery = v) }

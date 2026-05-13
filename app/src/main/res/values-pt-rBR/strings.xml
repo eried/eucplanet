@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Mantenha o relógio acordado enquanto o app estiver aberto.</string>
     <string name="watch_auto_start">Iniciar automaticamente no relógio</string>
     <string name="watch_auto_start_desc">Abra o app do relógio junto com o do celular.</string>
+    <string name="watch_close_on_exit">Parada automática no relógio</string>
+    <string name="watch_close_on_exit_desc">Parar o app do relógio em Parar tudo.</string>
     <string name="watch_show_wheel_battery">Mostrar bateria da roda</string>
     <string name="watch_show_phone_battery">Mostrar bateria do celular</string>
     <string name="watch_show_watch_battery">Mostrar bateria do relógio</string>
@@ -427,6 +429,8 @@
     <string name="alarm_metric_label">Métrica</string>
     <string name="alarm_comparator_label">Condição</string>
     <string name="alarm_threshold_fmt">Limite: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Diminuir limite</string>
+    <string name="alarm_threshold_increase">Aumentar limite</string>
     <string name="alarm_section_beep">Bipe</string>
     <string name="alarm_enable_beep">Ativar bipe</string>
     <string name="alarm_beep_freq_fmt">Frequência: %1$dHz</string>
@@ -450,6 +454,7 @@
     <string name="alarm_repeat_help">ON: dispara de novo a cada pausa enquanto a condição se mantiver.\nOFF: dispara uma vez e fica em silêncio até a condição ser desfeita</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Registros de falhas</string>
     <string name="about_crash_logs_hint">Toque em um arquivo para compartilhá-lo com o desenvolvedor.</string>
     <string name="about_crash_logs_empty">Nenhuma falha registrada</string>
     <string name="about_share_crash">Compartilhar log de falha</string>

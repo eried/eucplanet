@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is.</string>
     <string name="watch_auto_start">Automatisch starten op horloge</string>
     <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app.</string>
+    <string name="watch_close_on_exit">Automatisch stoppen op horloge</string>
+    <string name="watch_close_on_exit_desc">Stop de horloge-app bij Alles stoppen.</string>
     <string name="watch_show_wheel_battery">Accu van wiel tonen</string>
     <string name="watch_show_phone_battery">Accu van telefoon tonen</string>
     <string name="watch_show_watch_battery">Accu van horloge tonen</string>
@@ -427,6 +429,8 @@
     <string name="alarm_metric_label">Metriek</string>
     <string name="alarm_comparator_label">Voorwaarde</string>
     <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Drempel verlagen</string>
+    <string name="alarm_threshold_increase">Drempel verhogen</string>
     <string name="alarm_section_beep">Piep</string>
     <string name="alarm_enable_beep">Piep aanzetten</string>
     <string name="alarm_beep_freq_fmt">Frequentie: %1$dHz</string>
@@ -450,6 +454,7 @@
     <string name="alarm_repeat_help">AAN: vuurt elke cooldown opnieuw zolang de voorwaarde geldt.\nUIT: vuurt één keer en blijft stil tot de voorwaarde verdwijnt</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Crashlogs</string>
     <string name="about_crash_logs_hint">Tik op een bestand om het met de ontwikkelaar te delen.</string>
     <string name="about_crash_logs_empty">Geen crashes geregistreerd</string>
     <string name="about_share_crash">Crashlog delen</string>
