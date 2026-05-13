@@ -1075,27 +1075,22 @@ private fun FlicTab(
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
             HintText(stringResource(R.string.flic_scan_hint), small = true)
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (scanning) {
-                        CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
-                        LeftAlignedScanButton(
-                            label = stringResource(R.string.flic_stop_scan),
-                            onClick = { viewModel.stopScan() },
-                            containerColor = AccentRed
-                        )
-                    } else {
-                        LeftAlignedScanButton(
-                            label = stringResource(R.string.flic_start_scan),
-                            onClick = { viewModel.startScan() }
-                        )
-                    }
+            // No outer card here either — its 16 dp inner padding pushed
+            // the button right of the hint above. Spinner + button now sit
+            // directly in the section column so they share the column edge.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (scanning) {
+                    CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
+                    LeftAlignedScanButton(
+                        label = stringResource(R.string.flic_stop_scan),
+                        onClick = { viewModel.stopScan() },
+                        containerColor = AccentRed
+                    )
+                } else {
+                    LeftAlignedScanButton(
+                        label = stringResource(R.string.flic_start_scan),
+                        onClick = { viewModel.startScan() }
+                    )
                 }
             }
         }

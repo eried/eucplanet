@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -83,58 +84,52 @@ private fun UnpairedExternalGpsCard(
     onStopScan: () -> Unit,
     onPick: (com.eried.eucplanet.ble.gps.ExternalGpsScanResult) -> Unit
 ) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            results.forEach { result ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+    // Dropped the outer Card wrapper that the section used to live inside.
+    // Its 16 dp inner padding pushed the scan button right of the hint
+    // text above it, so the two looked misaligned. Without the wrapper the
+    // button sits at the same column edge as the hint and the per-result
+    // mini-cards still carry their own surface so the scan results remain
+    // visually contained.
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        results.forEach { result ->
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(result.device.name, style = MaterialTheme.typography.bodyLarge)
-                            Text(
-                                "${result.source.displayName}  ·  ${result.device.rssi} dBm",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Button(onClick = { onPick(result) }) {
-                            Text(stringResource(R.string.external_gps_pair_action))
-                        }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(result.device.name, style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            "${result.source.displayName}  ·  ${result.device.rssi} dBm",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Button(onClick = { onPick(result) }) {
+                        Text(stringResource(R.string.external_gps_pair_action))
                     }
                 }
             }
-            // Skip the "no devices found yet" hint while scanning — the
-            // spinner already says "we're looking". Words add nothing.
-            if (scanning) {
-                CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
-                LeftAlignedScanButton(
-                    label = stringResource(R.string.external_gps_stop_scan),
-                    onClick = onStopScan,
-                    containerColor = AccentRed
-                )
-            } else {
-                LeftAlignedScanButton(
-                    label = stringResource(R.string.external_gps_pair_button),
-                    onClick = onStartScan
-                )
-            }
+        }
+        if (scanning) {
+            CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
+            LeftAlignedScanButton(
+                label = stringResource(R.string.external_gps_stop_scan),
+                onClick = onStopScan,
+                containerColor = AccentRed
+            )
+        } else {
+            LeftAlignedScanButton(
+                label = stringResource(R.string.external_gps_pair_button),
+                onClick = onStartScan
+            )
         }
     }
 }
@@ -218,7 +213,9 @@ fun LeftAlignedScanButton(
     else ButtonDefaults.buttonColors()
     Button(
         onClick = onClick,
-        modifier = modifier,
+        // 100 dp gives the button a comfortable tap target even for 4-char
+        // labels ("Scan" / "Pair" / "Stop") without growing to full width.
+        modifier = modifier.widthIn(min = 100.dp),
         colors = colors
     ) {
         Text(text = label)
