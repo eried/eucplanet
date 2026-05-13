@@ -201,14 +201,10 @@ private fun PairedExternalGpsCard(
 }
 
 /**
- * Full-width scan-action button with the label pinned to the left edge.
- * Used for both the External GPS card and (via the analogous version in
- * SettingsScreen) the Flic scan card so the two cards in the Integration
- * tab share an identical visual rhythm: same size, same text alignment.
- *
- * Without the [Row] + `weight(1f)` trick, Material 3 centres single-word
- * labels in a fillMaxWidth Button, which made "Scan" / "Pair" / "Stop"
- * float in the middle while longer earlier labels filled the chip.
+ * Compact scan-action button sized to its label, sitting at the left edge
+ * of its parent column. Shared between the Flic scan card and the External
+ * GPS card so the two cards in the Integration tab share an identical
+ * visual rhythm — short word, natural-width button, left-aligned.
  */
 @Composable
 fun LeftAlignedScanButton(
@@ -222,14 +218,9 @@ fun LeftAlignedScanButton(
     else ButtonDefaults.buttonColors()
     Button(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         colors = colors
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = label)
-        }
+        Text(text = label)
     }
 }
