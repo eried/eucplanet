@@ -87,7 +87,15 @@ fun DataSourcesSheet(
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface
     ) {
-        var selectedTab by remember { mutableStateOf(TabKind.PHONE) }
+        // Source A in compare mode = the source tab the user picked last. The
+        // user enters compare mode via the Compare chip; the bottom row then
+        // lets them pick B. Picking the same source as A is allowed (we just
+        // show a friendly "same source" message instead of compare panels)
+        // so the user doesn't get stuck if they fat-finger their own A.
+        var selectedSource by remember { mutableStateOf(DataSource.PHONE) }
+        var compareWith by remember { mutableStateOf<DataSource?>(null) }
+        val inCompareMode = compareWith != null
+
         Column(
             modifier = Modifier
                 .heightIn(min = 620.dp)
@@ -100,42 +108,59 @@ fun DataSourcesSheet(
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(12.dp))
+            // Top row: A picker + Compare toggle.
             TabBar(
                 snapshots = snapshots,
-                selected = selectedTab,
-                onSelect = { selectedTab = it }
+                selectedSource = selectedSource,
+                inCompareMode = inCompareMode,
+                onSelectSource = { selectedSource = it },
+                onToggleCompare = {
+                    compareWith = if (inCompareMode) null
+                    else DataSource.values().first { it != selectedSource }
+                }
             )
-            Spacer(Modifier.height(12.dp))
-            when (selectedTab) {
-                TabKind.PHONE -> SourceTab(
-                    source = DataSource.PHONE,
-                    snapshot = snapshots[DataSource.PHONE] ?: SourceSnapshot(),
-                    trail = imuTrail,
-                    imperial = imperial
-                )
-                TabKind.WHEEL -> SourceTab(
-                    source = DataSource.WHEEL,
-                    snapshot = snapshots[DataSource.WHEEL] ?: SourceSnapshot(),
-                    trail = emptyList(),
-                    imperial = imperial
-                )
-                TabKind.RACEBOX -> SourceTab(
-                    source = DataSource.RACEBOX,
-                    snapshot = snapshots[DataSource.RACEBOX] ?: SourceSnapshot(),
-                    trail = racebox,
-                    imperial = imperial
-                )
-                TabKind.COMPARE -> CompareTab(
-                    viewModel = viewModel,
+            // Bottom row appears in compare mode: B picker. Same chip style
+            // as the source tabs above (matches user's mental model: "the
+            // tabs become the picker") so there's nothing new to learn.
+            if (inCompareMode) {
+                Spacer(Modifier.height(8.dp))
+                CompareBPicker(
                     snapshots = snapshots,
+                    selected = compareWith ?: DataSource.PHONE,
+                    onSelect = { compareWith = it }
+                )
+            }
+            Spacer(Modifier.height(12.dp))
+            // Body: single-source view, "same source" placeholder, or
+            // comparison panels.
+            if (!inCompareMode) {
+                SourceTab(
+                    source = selectedSource,
+                    snapshot = snapshots[selectedSource] ?: SourceSnapshot(),
+                    trail = when (selectedSource) {
+                        DataSource.PHONE -> imuTrail
+                        DataSource.RACEBOX -> racebox
+                        else -> emptyList()
+                    },
                     imperial = imperial
                 )
+            } else {
+                val b = compareWith ?: DataSource.PHONE
+                if (b == selectedSource) {
+                    SameSourcePlaceholder(source = selectedSource)
+                } else {
+                    CompareTab(
+                        viewModel = viewModel,
+                        snapshots = snapshots,
+                        a = selectedSource,
+                        b = b,
+                        imperial = imperial
+                    )
+                }
             }
         }
     }
 }
-
-private enum class TabKind { PHONE, WHEEL, RACEBOX, COMPARE }
 
 /**
  * Tab bar with an inline live/offline dot next to each source label.
@@ -144,38 +169,32 @@ private enum class TabKind { PHONE, WHEEL, RACEBOX, COMPARE }
 @Composable
 private fun TabBar(
     snapshots: Map<DataSource, SourceSnapshot>,
-    selected: TabKind,
-    onSelect: (TabKind) -> Unit
+    selectedSource: DataSource,
+    inCompareMode: Boolean,
+    onSelectSource: (DataSource) -> Unit,
+    onToggleCompare: () -> Unit
 ) {
-    val sourceEntries = listOf(
-        Triple(TabKind.PHONE, DataSource.PHONE, DataSource.PHONE.displayName),
-        Triple(TabKind.WHEEL, DataSource.WHEEL, DataSource.WHEEL.displayName),
-        Triple(TabKind.RACEBOX, DataSource.RACEBOX, DataSource.RACEBOX.displayName)
-    )
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Three source tabs in a tight cluster — they're peers, all the
-        // same chip style with a live/offline dot prefix.
+        // Three source tabs in a tight cluster.
         Row(
             modifier = Modifier.weight(3f),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            sourceEntries.forEach { (tab, source, label) ->
+            DataSource.values().forEach { src ->
                 SourceTabChip(
-                    label = label,
-                    color = source.color,
-                    isSelected = tab == selected,
-                    isLive = snapshots[source]?.isLive == true,
-                    onClick = { onSelect(tab) },
+                    label = src.displayName,
+                    color = src.color,
+                    isSelected = src == selectedSource,
+                    isLive = snapshots[src]?.isLive == true,
+                    onClick = { onSelectSource(src) },
                     modifier = Modifier.weight(1f)
                 )
             }
         }
-        // Visual break before Compare: 10dp gap + a thin vertical divider
-        // so the tab bar reads as "(3 sources) | (action)" instead of four
-        // peers. Without this the Compare chip blends in with the sources.
+        // Visual break before Compare: 10dp gap + a thin vertical divider.
         Spacer(Modifier.width(10.dp))
         Box(
             modifier = Modifier
@@ -184,13 +203,70 @@ private fun TabBar(
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         )
         Spacer(Modifier.width(10.dp))
-        // Compare tab — outlined chip (no filled background) when unselected
-        // so it reads visually distinct from the three source chips, plus a
-        // compare-arrows icon prefix that source tabs don't have.
         CompareTabChip(
-            isSelected = TabKind.COMPARE == selected,
-            onClick = { onSelect(TabKind.COMPARE) },
+            isSelected = inCompareMode,
+            onClick = onToggleCompare,
             modifier = Modifier.weight(1.1f)
+        )
+    }
+}
+
+/**
+ * Second tab row, only visible in compare mode. Same chip style as the top
+ * row's source tabs so the user reads "the tabs ARE the picker — the top
+ * one is A, the new one below is B."
+ */
+@Composable
+private fun CompareBPicker(
+    snapshots: Map<DataSource, SourceSnapshot>,
+    selected: DataSource,
+    onSelect: (DataSource) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier.weight(3f),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            DataSource.values().forEach { src ->
+                SourceTabChip(
+                    label = src.displayName,
+                    color = src.color,
+                    isSelected = src == selected,
+                    isLive = snapshots[src]?.isLive == true,
+                    onClick = { onSelect(src) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        // Padding column matched to the divider + Compare chip on the row
+        // above so the source chips align column-for-column. Empty so the
+        // bottom row doesn't grow a second Compare button.
+        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(1.dp))
+        Spacer(Modifier.width(10.dp))
+        Box(modifier = Modifier.weight(1.1f))
+    }
+}
+
+@Composable
+private fun SameSourcePlaceholder(source: DataSource) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            "Same source selected",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = source.color
+        )
+        Text(
+            "${source.displayName} can't be compared with itself. Pick a different B above to see deltas.",
+            fontSize = 13.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -463,129 +539,94 @@ private fun GForceCrosshair(
 }
 
 /**
- * Compare tab. Two side-by-side picker rows joined by a "VS" badge, then a
- * stack of graphical comparison panels (line charts of the rolling time
- * series for each pair of sources that share a metric, plus the mini-map
- * for position).
+ * Compare body. A and B are picked from the top and bottom tab rows
+ * respectively — no in-body picker. Renders a stack of graphical comparison
+ * panels: line charts of the rolling time series for each pair of sources
+ * that share a metric, plus the mini-map for position.
  */
 @Composable
 private fun CompareTab(
     viewModel: DataSourcesViewModel,
     snapshots: Map<DataSource, SourceSnapshot>,
+    a: DataSource,
+    b: DataSource,
     imperial: Boolean
 ) {
-    var pickerA by remember { mutableStateOf(DataSource.PHONE) }
-    var pickerB by remember { mutableStateOf(DataSource.WHEEL) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val speedUnit = Units.speedUnit(context, imperial)
+    val snapA = snapshots[a] ?: SourceSnapshot()
+    val snapB = snapshots[b] ?: SourceSnapshot()
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        // Picker row — A on the left, "VS" badge in the middle, B on the right.
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CompactPicker(
-                selected = pickerA,
-                exclude = pickerB,
-                onChange = { pickerA = it },
-                modifier = Modifier.weight(1f)
-            )
-            Box(
-                modifier = Modifier.padding(horizontal = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "VS",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            CompactPicker(
-                selected = pickerB,
-                exclude = pickerA,
-                onChange = { pickerB = it },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        // Speed comparison — both sources can always provide speed.
-        val a = snapshots[pickerA] ?: SourceSnapshot()
-        val b = snapshots[pickerB] ?: SourceSnapshot()
         ComparisonChart(
             title = "Speed",
-            seriesA = viewModel.speedSeries[pickerA]?.collectAsState()?.value
+            seriesA = viewModel.speedSeries[a]?.collectAsState()?.value
                 ?: DataSourcesViewModel.TimedSeries(),
-            seriesB = viewModel.speedSeries[pickerB]?.collectAsState()?.value
+            seriesB = viewModel.speedSeries[b]?.collectAsState()?.value
                 ?: DataSourcesViewModel.TimedSeries(),
-            colorA = pickerA.color,
-            colorB = pickerB.color,
+            colorA = a.color,
+            colorB = b.color,
             unit = speedUnit,
             transform = { Units.speed(it, imperial) },
-            deltaCurrent = if (a.speedKmh != null && b.speedKmh != null)
-                Units.speed(b.speedKmh - a.speedKmh, imperial) else null
+            deltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
+                Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
         )
 
-        // Heading comparison if both sources have it.
-        if (a.headingDeg != null || b.headingDeg != null) {
+        if (snapA.headingDeg != null || snapB.headingDeg != null) {
             ComparisonChart(
                 title = "Heading",
-                seriesA = viewModel.headingSeries[pickerA]?.collectAsState()?.value
+                seriesA = viewModel.headingSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.headingSeries[pickerB]?.collectAsState()?.value
+                seriesB = viewModel.headingSeries[b]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                colorA = pickerA.color,
-                colorB = pickerB.color,
+                colorA = a.color,
+                colorB = b.color,
                 unit = "°",
                 transform = { it },
-                deltaCurrent = if (a.headingDeg != null && b.headingDeg != null)
-                    shortestArc(a.headingDeg, b.headingDeg) else null,
+                deltaCurrent = if (snapA.headingDeg != null && snapB.headingDeg != null)
+                    shortestArc(snapA.headingDeg, snapB.headingDeg) else null,
                 deltaSuffix = "°"
             )
         }
 
-        // Vertical speed comparison if both sources have it.
-        if (a.verticalSpeedMps != null || b.verticalSpeedMps != null) {
+        if (snapA.verticalSpeedMps != null || snapB.verticalSpeedMps != null) {
             ComparisonChart(
                 title = "Vertical speed",
-                seriesA = viewModel.vertSpeedSeries[pickerA]?.collectAsState()?.value
+                seriesA = viewModel.vertSpeedSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.vertSpeedSeries[pickerB]?.collectAsState()?.value
+                seriesB = viewModel.vertSpeedSeries[b]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                colorA = pickerA.color,
-                colorB = pickerB.color,
+                colorA = a.color,
+                colorB = b.color,
                 unit = "m/s",
                 transform = { it },
-                deltaCurrent = if (a.verticalSpeedMps != null && b.verticalSpeedMps != null)
-                    b.verticalSpeedMps - a.verticalSpeedMps else null
+                deltaCurrent = if (snapA.verticalSpeedMps != null && snapB.verticalSpeedMps != null)
+                    snapB.verticalSpeedMps - snapA.verticalSpeedMps else null
             )
         }
 
-        // G-force magnitude — chart if either source provides IMU.
-        val gA = a.horizGMagnitude
-        val gB = b.horizGMagnitude
+        val gA = snapA.horizGMagnitude
+        val gB = snapB.horizGMagnitude
         if (gA != null || gB != null) {
             ComparisonChart(
                 title = "|G| (horizontal)",
-                seriesA = viewModel.gMagnitudeSeries[pickerA]?.collectAsState()?.value
+                seriesA = viewModel.gMagnitudeSeries[a]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                seriesB = viewModel.gMagnitudeSeries[pickerB]?.collectAsState()?.value
+                seriesB = viewModel.gMagnitudeSeries[b]?.collectAsState()?.value
                     ?: DataSourcesViewModel.TimedSeries(),
-                colorA = pickerA.color,
-                colorB = pickerB.color,
+                colorA = a.color,
+                colorB = b.color,
                 unit = "g",
                 transform = { it },
                 deltaCurrent = if (gA != null && gB != null) gB - gA else null
             )
         }
 
-        // Position pair — distance + mini-map.
-        if (pickerA.hasPosition && pickerB.hasPosition) {
-            val lat1 = a.latitude
-            val lon1 = a.longitude
-            val lat2 = b.latitude
-            val lon2 = b.longitude
+        if (a.hasPosition && b.hasPosition) {
+            val lat1 = snapA.latitude
+            val lon1 = snapA.longitude
+            val lat2 = snapB.latitude
+            val lon2 = snapB.longitude
             val distance = if (lat1 != null && lon1 != null && lat2 != null && lon2 != null)
                 haversineMeters(lat1, lon1, lat2, lon2)
             else null
@@ -602,7 +643,7 @@ private fun CompareTab(
             )
             if (lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
                 MiniMap(
-                    points = listOf(lat1 to lon1 to pickerA.color, lat2 to lon2 to pickerB.color),
+                    points = listOf(lat1 to lon1 to a.color, lat2 to lon2 to b.color),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(140.dp)
@@ -619,49 +660,6 @@ private fun shortestArc(a: Float, b: Float): Float {
     while (d > 180f) d -= 360f
     while (d < -180f) d += 360f
     return d
-}
-
-/**
- * Compact two-segment picker. Three rounded chips side-by-side, one per
- * source; the [exclude] one is greyed out and unclickable so A and B can
- * never be the same source.
- */
-@Composable
-private fun CompactPicker(
-    selected: DataSource,
-    exclude: DataSource,
-    onChange: (DataSource) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        DataSource.values().forEach { src ->
-            val enabled = src != exclude
-            val sel = src == selected
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(
-                        if (sel) src.color.copy(alpha = 0.25f)
-                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (enabled) 1f else 0.4f)
-                    )
-                    .clickable(enabled = enabled) { onChange(src) }
-                    .padding(vertical = 8.dp, horizontal = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = src.displayName,
-                    fontSize = 11.sp,
-                    fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
-                    color = if (enabled) (if (sel) src.color else MaterialTheme.colorScheme.onSurface)
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
 }
 
 /**
