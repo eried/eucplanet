@@ -109,18 +109,10 @@ class DataSourcesViewModel @Inject constructor(
                 _raceboxTrail.update { it.takeLast(TRAIL_MAX - 1) + Offset(ax, az) }
             }
         }
-        // Append to the time-series buffers from each snapshot tick.
-        viewModelScope.launch {
-            snapshots.collect { map ->
-                val now = System.currentTimeMillis()
-                map.forEach { (src, snap) ->
-                    appendSeries(_speedSeries[src], now, snap.speedKmh)
-                    appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
-                    appendSeries(_headingSeries[src], now, snap.headingDeg)
-                    appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
-                }
-            }
-        }
+        // The time-series append launch is in a second init block below,
+        // AFTER snapshots is declared — referencing it here would NPE
+        // because init blocks run interleaved with property initialisers
+        // in declaration order.
     }
 
     private fun appendSeries(flow: MutableStateFlow<TimedSeries>?, now: Long, v: Float?) {
@@ -190,6 +182,24 @@ class DataSourcesViewModel @Inject constructor(
             )
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    init {
+        // Second init block — runs AFTER `snapshots` is initialised above.
+        // Each emit appends to the per-source per-metric rolling buffers
+        // used by the Compare-tab line charts. Null fields are skipped
+        // inside [appendSeries] so we don't taint the series with NaN.
+        viewModelScope.launch {
+            snapshots.collect { map ->
+                val now = System.currentTimeMillis()
+                map.forEach { (src, snap) ->
+                    appendSeries(_speedSeries[src], now, snap.speedKmh)
+                    appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
+                    appendSeries(_headingSeries[src], now, snap.headingDeg)
+                    appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
+                }
+            }
+        }
+    }
 
     fun onSheetOpened() {
         phoneSensors.start()
