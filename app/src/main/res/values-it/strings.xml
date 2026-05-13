@@ -245,11 +245,11 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Pulsanti Flic 2</string>
     <string name="flic_scan_hint">Tieni premuto il pulsante Flic 2 per 6 secondi per metterlo in modalità accoppiamento, poi tocca Cerca.</string>
-    <string name="flic_stop_scan">Ferma</string>
-    <string name="flic_start_scan">Cerca</string>
-    <string name="external_gps_pair_button">Accoppia</string>
+    <string name="flic_stop_scan">Ferma ricerca</string>
+    <string name="flic_start_scan">Avvia ricerca</string>
+    <string name="external_gps_pair_button">Avvia ricerca</string>
     <string name="external_gps_pair_action">Accoppia</string>
-    <string name="external_gps_stop_scan">Ferma</string>
+    <string name="external_gps_stop_scan">Ferma ricerca</string>
     <string name="flic_no_buttons">Nessun pulsante Flic accoppiato</string>
     <string name="flic_forget">Dimentica</string>
     <string name="flic_forget_title">Dimenticare questo pulsante?</string>

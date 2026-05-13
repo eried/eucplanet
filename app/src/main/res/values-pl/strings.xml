@@ -245,11 +245,11 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
     <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby przejść w tryb parowania, potem stuknij Skanuj.</string>
-    <string name="flic_stop_scan">Stop</string>
-    <string name="flic_start_scan">Skanuj</string>
-    <string name="external_gps_pair_button">Sparuj</string>
+    <string name="flic_stop_scan">Zatrzymaj skan</string>
+    <string name="flic_start_scan">Rozpocznij skan</string>
+    <string name="external_gps_pair_button">Rozpocznij skan</string>
     <string name="external_gps_pair_action">Sparuj</string>
-    <string name="external_gps_stop_scan">Stop</string>
+    <string name="external_gps_stop_scan">Zatrzymaj skan</string>
     <string name="flic_no_buttons">Brak sparowanych przycisków Flic</string>
     <string name="flic_forget">Zapomnij</string>
     <string name="flic_forget_title">Zapomnieć ten przycisk?</string>

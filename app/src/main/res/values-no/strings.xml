@@ -179,11 +179,11 @@
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
     <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann.</string>
-    <string name="flic_stop_scan">Stopp</string>
-    <string name="flic_start_scan">Skann</string>
-    <string name="external_gps_pair_button">Koble</string>
+    <string name="flic_stop_scan">Stopp skann</string>
+    <string name="flic_start_scan">Start skann</string>
+    <string name="external_gps_pair_button">Start skann</string>
     <string name="external_gps_pair_action">Koble</string>
-    <string name="external_gps_stop_scan">Stopp</string>
+    <string name="external_gps_stop_scan">Stopp skann</string>
     <string name="flic_forget">Glem</string>
     <string name="flic_rename">Endre navn</string>
     <string name="flic_click">Klikk</string>

@@ -179,11 +179,11 @@
 
     <string name="section_flic_buttons">Boutons Flic 2</string>
     <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher.</string>
-    <string name="flic_stop_scan">Arrêter</string>
-    <string name="flic_start_scan">Scanner</string>
-    <string name="external_gps_pair_button">Coupler</string>
+    <string name="flic_stop_scan">Arrêter scan</string>
+    <string name="flic_start_scan">Lancer scan</string>
+    <string name="external_gps_pair_button">Lancer scan</string>
     <string name="external_gps_pair_action">Coupler</string>
-    <string name="external_gps_stop_scan">Arrêter</string>
+    <string name="external_gps_stop_scan">Arrêter scan</string>
     <string name="flic_forget">Oublier</string>
     <string name="flic_rename">Renommer</string>
     <string name="flic_click">Clic</string>

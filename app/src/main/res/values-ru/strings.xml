@@ -179,11 +179,11 @@
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
     <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
-    <string name="flic_stop_scan">Стоп</string>
-    <string name="flic_start_scan">Поиск</string>
-    <string name="external_gps_pair_button">Подключить</string>
+    <string name="flic_stop_scan">Остановить поиск</string>
+    <string name="flic_start_scan">Начать поиск</string>
+    <string name="external_gps_pair_button">Начать поиск</string>
     <string name="external_gps_pair_action">Подключить</string>
-    <string name="external_gps_stop_scan">Стоп</string>
+    <string name="external_gps_stop_scan">Остановить поиск</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_rename">Переименовать</string>
     <string name="flic_click">Нажатие</string>

@@ -179,11 +179,11 @@
 
     <string name="section_flic_buttons">Flic 2-knappar</string>
     <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök.</string>
-    <string name="flic_stop_scan">Stoppa</string>
-    <string name="flic_start_scan">Skanna</string>
-    <string name="external_gps_pair_button">Para</string>
+    <string name="flic_stop_scan">Stoppa sökning</string>
+    <string name="flic_start_scan">Starta sökning</string>
+    <string name="external_gps_pair_button">Starta sökning</string>
     <string name="external_gps_pair_action">Para</string>
-    <string name="external_gps_stop_scan">Stoppa</string>
+    <string name="external_gps_stop_scan">Stoppa sökning</string>
     <string name="flic_forget">Glöm</string>
     <string name="flic_rename">Byt namn</string>
     <string name="flic_click">Klick</string>
