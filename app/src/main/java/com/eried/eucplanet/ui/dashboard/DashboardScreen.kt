@@ -46,6 +46,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -202,7 +203,17 @@ fun DashboardScreen(
         }
     }
 
-    BackHandler { showQuitDialog = true }
+    val backAction by viewModel.backButtonAction.collectAsState()
+    BackHandler {
+        when (backAction) {
+            "BACKGROUND" -> activity?.moveTaskToBack(true)
+            "STOP_ALL" -> {
+                viewModel.stopEverything()
+                activity?.finish()
+            }
+            else -> showQuitDialog = true   // "ASK" (default) or anything we don't recognise
+        }
+    }
 
     if (showNoTripsDialog) {
         AlertDialog(
@@ -729,11 +740,16 @@ fun DashboardScreen(
                         )
                     }
                 )
+                // Lock direction is blocked above LOCK_MAX_SPEED in the
+                // repository (covers Flic / watch / volume keys / dashboard);
+                // mirror it here so the button visibly greys out when locking
+                // would be refused. Unlock stays tappable at any speed.
+                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && !lockBlockedBySpeed,
                     onClick = { viewModel.onLockToggle() },
                     modifier = Modifier.weight(1f),
                     aspectRatio = actionAspect, heightDp = actionHeight)
@@ -954,15 +970,37 @@ fun DashboardScreen(
                                 selectedTabIndex = aboutTab,
                                 containerColor = MaterialTheme.colorScheme.surface
                             ) {
+                                // Material 3 Tab applies internal horizontal
+                                // padding around the text slot; with the count
+                                // suffix the slot measures narrower than the
+                                // text and clips on the right even when the
+                                // tab visually has room. wrapContentWidth with
+                                // unbounded = true lets the Text report its
+                                // intrinsic width so the label renders fully.
+                                val unbounded = Modifier.wrapContentWidth(unbounded = true)
                                 Tab(
                                     selected = aboutTab == 0,
                                     onClick = { aboutTab = 0 },
-                                    text = { Text(stringResource(R.string.about_thanks)) }
+                                    text = {
+                                        Text(
+                                            stringResource(R.string.about_thanks),
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            modifier = unbounded
+                                        )
+                                    }
                                 )
                                 Tab(
                                     selected = aboutTab == 1,
                                     onClick = { aboutTab = 1 },
-                                    text = { Text(stringResource(R.string.about_license)) }
+                                    text = {
+                                        Text(
+                                            stringResource(R.string.about_license),
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            modifier = unbounded
+                                        )
+                                    }
                                 )
                                 Tab(
                                     selected = aboutTab == 2,
@@ -972,7 +1010,10 @@ fun DashboardScreen(
                                             if (crashes.isEmpty())
                                                 stringResource(R.string.about_crash_logs)
                                             else
-                                                "${stringResource(R.string.about_crash_logs)} (${crashes.size})"
+                                                "${stringResource(R.string.about_crash_logs)} (${crashes.size})",
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            modifier = unbounded
                                         )
                                     }
                                 )

@@ -178,6 +178,16 @@ class WheelRepository @Inject constructor(
     private val LOCK_COOLDOWN_MS = 3000L
     private val LIGHT_COOLDOWN_MS = 1500L
 
+    /**
+     * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
+     * volume keys, and the dashboard. A misfire while moving locks the wheel
+     * mid-ride and causes an instant motor cutout — so every lock-direction
+     * call goes through one gate here. Unlock always proceeds (a locked wheel
+     * has speed = 0 by definition). 5 km/h covers the standstill / push-assist
+     * range without false rejecting at IMU noise around zero.
+     */
+    private val LOCK_MAX_SPEED_KMH = 5f
+
     private fun startCooldown(busyFlag: MutableStateFlow<Boolean>, durationMs: Long, setUntil: (Long) -> Unit) {
         val now = System.currentTimeMillis()
         setUntil(now + durationMs)
@@ -273,6 +283,13 @@ class WheelRepository @Inject constructor(
     fun toggleLock() {
         if (_lockBusy.value) return  // cooldown active, ignore the spam tap
         val targetState = !_locked.value
+        // Hard block the lock direction when the wheel is moving — any entry
+        // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
+        // always allowed; if the wheel is already locked, speed is 0 anyway.
+        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH) {
+            Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= ${LOCK_MAX_SPEED_KMH}")
+            return
+        }
         _locked.value = targetState
         startCooldown(_lockBusy, LOCK_COOLDOWN_MS) { lockCooldownUntilMs = it }
         scope.launch {

@@ -182,6 +182,7 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
+    fun updateBackButtonAction(value: String) = update { copy(backButtonAction = value) }
 
     // Automations
     fun updateAutoLightsEnabled(v: Boolean) {
@@ -223,6 +224,7 @@ class SettingsViewModel @Inject constructor(
     // Wear OS companion
     fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
     fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
+    fun updateWatchCloseOnExit(v: Boolean) = update { copy(watchCloseOnExit = v) }
     fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
     fun updateWatchShowPhoneBattery(v: Boolean) = update { copy(watchShowPhoneBattery = v) }
     fun updateWatchShowWatchBattery(v: Boolean) = update { copy(watchShowWatchBattery = v) }

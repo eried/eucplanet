@@ -84,6 +84,11 @@ class WatchBridgeService : WearableListenerService() {
     override fun onMessageReceived(event: MessageEvent) {
         when (event.path) {
             WatchPaths.WAKE -> {
+                // Skip the relaunch when the user is already on the dial; the
+                // phone fires /euc/wake every time MainActivity.onResume runs,
+                // and starting the same Activity again triggers a visible task
+                // animation even though nothing changed.
+                if (WatchStateRepository.activityVisible) return
                 val intent = Intent().apply {
                     setClassName(packageName, "com.eried.eucplanet.wear.MainActivity")
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -92,6 +97,14 @@ class WatchBridgeService : WearableListenerService() {
                     // Foreground-launch restrictions can refuse this on some
                     // OEMs; the user will see the app next interaction.
                 }
+            }
+            WatchPaths.QUIT -> {
+                // The phone is shutting its session down ("Stop all") and the
+                // user has opted into closing the watch app alongside it.
+                // MainActivity is listening on this signal; if the Activity
+                // isn't currently in the foreground there's nothing to close,
+                // so the no-op fallback is fine.
+                WatchStateRepository.requestClose()
             }
             WatchHints.VIBRATE -> {
                 val ms = if (event.data.size >= 4) {

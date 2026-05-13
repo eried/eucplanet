@@ -7,8 +7,12 @@ import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -35,6 +39,38 @@ object WatchStateRepository {
      */
     private val _lastPushAtMs = MutableStateFlow(0L)
     val lastPushAtMs: StateFlow<Long> = _lastPushAtMs.asStateFlow()
+
+    /**
+     * Fires when the phone asks the watch app to close (Stop all flow on the
+     * phone, with the user's "Close watch on exit" preference enabled). The
+     * Activity collects it and calls finishAndRemoveTask so the dial doesn't
+     * sit on a stale frame after the phone tears its session down.
+     */
+    private val _closeSignal = MutableSharedFlow<Unit>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val closeSignal: SharedFlow<Unit> = _closeSignal.asSharedFlow()
+
+    fun requestClose() {
+        _closeSignal.tryEmit(Unit)
+    }
+
+    /**
+     * Tracks whether the watch's MainActivity is currently visible. Set true
+     * from onStart and false from onStop so the bridge service can skip its
+     * relaunch animation when the user is already looking at the dial — the
+     * phone fires a /euc/wake every time the user re-opens the phone app and
+     * that was causing a needless reopen flicker on the watch.
+     */
+    @Volatile
+    var activityVisible: Boolean = false
+        private set
+
+    fun setActivityVisible(visible: Boolean) {
+        activityVisible = visible
+    }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

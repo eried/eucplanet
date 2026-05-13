@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
     <string name="watch_auto_start">Auto-start on watch</string>
     <string name="watch_auto_start_desc">Open the watch app together with the phone app.</string>
+    <string name="watch_close_on_exit">Auto-stop on watch</string>
+    <string name="watch_close_on_exit_desc">Stop the watch app on Stop all.</string>
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>
@@ -185,6 +187,12 @@
     <string name="auto_connect_on_start">Auto-connect on start</string>
     <string name="auto_connect_caption">Reconnects to the last paired wheel automatically.</string>
     <string name="last_device">Last device: %1$s</string>
+    <string name="section_application">Application</string>
+    <string name="back_button_action">When swiping back</string>
+    <string name="back_button_action_desc">Choose what swiping back from the dashboard does.</string>
+    <string name="back_button_action_ask">Ask</string>
+    <string name="back_button_action_background">Background</string>
+    <string name="back_button_action_stop">Stop all</string>
     <string name="imperial_units">Imperial units</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>

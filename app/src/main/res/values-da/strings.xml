@@ -106,6 +106,8 @@
     <string name="sync_conflict_folder">Kopiér backup til app</string>
     <string name="sync_conflict_ignore">Spring alle konflikter over</string>
     <string name="action_restore">Gendan</string>
+    <string name="watch_close_on_exit">Auto-stop på uret</string>
+    <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle.</string>
 
     <string name="section_recording">Optagelse</string>
     <string name="section_connection">Forbindelse</string>
@@ -118,6 +120,12 @@
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
     <string name="auto_connect_caption">Forbinder automatisk igen til det senest parrede hjul.</string>
     <string name="last_device">Seneste enhed: %1$s</string>
+    <string name="section_application">Applikation</string>
+    <string name="back_button_action">Når du stryger tilbage</string>
+    <string name="back_button_action_desc">Vælg, hvad du gør, når du stryger tilbage fra hovedskærmen.</string>
+    <string name="back_button_action_ask">Spørg</string>
+    <string name="back_button_action_background">Baggrund</string>
+    <string name="back_button_action_stop">Stop alle</string>
     <string name="imperial_units">Imperiale enheder</string>
     <string name="language">Sprog</string>
     <string name="theme">Tema</string>
@@ -336,6 +344,8 @@
     <string name="alarm_metric_label">Måling</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_fmt">Tærskel: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Sænk tærskel</string>
+    <string name="alarm_threshold_increase">Hæv tærskel</string>
     <string name="alarm_section_beep">Bip</string>
     <string name="alarm_enable_beep">Aktivér bip</string>
     <string name="alarm_beep_freq_fmt">Frekvens: %1$dHz</string>
@@ -354,6 +364,7 @@
     <string name="alarm_repeat">Gentag mens aktiv</string>
     <string name="alarm_repeat_help">TIL: udløses igen efter hver nedkøling, så længe betingelsen er opfyldt.\nFRA: udløses én gang og er stille, indtil betingelsen ophører</string>
 
+    <string name="about_crash_logs">Nedbrudslogs</string>
     <string name="about_crash_logs_hint">Tryk på en fil for at dele den med udvikleren.</string>
     <string name="about_crash_logs_empty">Ingen nedbrud registreret</string>
     <string name="about_share_crash">Del nedbrudslog</string>

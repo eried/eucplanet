@@ -118,6 +118,12 @@
     <string name="auto_connect_on_start">启动时自动连接</string>
     <string name="auto_connect_caption">自动重连上次配对的车轮。</string>
     <string name="last_device">上次设备:%1$s</string>
+    <string name="section_application">应用</string>
+    <string name="back_button_action">返回手势</string>
+    <string name="back_button_action_desc">选择从主屏返回时执行的操作。</string>
+    <string name="back_button_action_ask">询问</string>
+    <string name="back_button_action_background">转后台</string>
+    <string name="back_button_action_stop">停止所有</string>
     <string name="imperial_units">英制单位</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
@@ -336,6 +342,8 @@
     <string name="alarm_metric_label">指标</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
+    <string name="alarm_threshold_decrease">降低阈值</string>
+    <string name="alarm_threshold_increase">提高阈值</string>
     <string name="alarm_section_beep">蜂鸣</string>
     <string name="alarm_enable_beep">启用蜂鸣</string>
     <string name="alarm_beep_freq_fmt">频率:%1$dHz</string>
@@ -354,6 +362,7 @@
     <string name="alarm_repeat">持续触发</string>
     <string name="alarm_repeat_help">开:条件成立期间,每个冷却时间都会重新触发。\n关:触发一次后保持安静,直到条件解除</string>
 
+    <string name="about_crash_logs">崩溃日志</string>
     <string name="about_crash_logs_hint">点击文件可分享给开发者。</string>
     <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
@@ -401,6 +410,8 @@
     <string name="voice_time_fmt">时间 %1$s</string>
     <string name="watch_auto_start">手表上自动启动</string>
     <string name="watch_auto_start_desc">打开手机应用时一起打开手表应用。</string>
+    <string name="watch_close_on_exit">手表自动停止</string>
+    <string name="watch_close_on_exit_desc">在「停止所有」时停止手表应用。</string>
     <string name="watch_button_1">按键 1</string>
     <string name="watch_button_2">按键 2</string>
     <string name="watch_button_click_label">单击</string>

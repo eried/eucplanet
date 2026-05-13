@@ -103,6 +103,8 @@
     <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta.</string>
     <string name="watch_auto_start">Auto-start na zegarku</string>
     <string name="watch_auto_start_desc">Otwórz aplikację na zegarku razem z aplikacją na telefonie.</string>
+    <string name="watch_close_on_exit">Auto-zatrzymanie na zegarku</string>
+    <string name="watch_close_on_exit_desc">Zatrzymaj aplikację zegarka przy Zatrzymaj wszystko.</string>
     <string name="watch_show_wheel_battery">Pokaż baterię koła</string>
     <string name="watch_show_phone_battery">Pokaż baterię telefonu</string>
     <string name="watch_show_watch_battery">Pokaż baterię zegarka</string>
@@ -176,6 +178,12 @@
     <string name="auto_connect_on_start">Automatyczne łączenie po starcie</string>
     <string name="auto_connect_caption">Automatycznie łączy się z ostatnio sparowanym kołem.</string>
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
+    <string name="section_application">Aplikacja</string>
+    <string name="back_button_action">Po przesunięciu wstecz</string>
+    <string name="back_button_action_desc">Wybierz, co robi przesunięcie wstecz z głównego ekranu.</string>
+    <string name="back_button_action_ask">Pytaj</string>
+    <string name="back_button_action_background">W tle</string>
+    <string name="back_button_action_stop">Zatrzymaj wszystko</string>
     <string name="imperial_units">Jednostki imperialne</string>
     <string name="language">Język</string>
     <string name="theme">Motyw</string>
@@ -427,6 +435,8 @@
     <string name="alarm_metric_label">Metryka</string>
     <string name="alarm_comparator_label">Warunek</string>
     <string name="alarm_threshold_fmt">Próg: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Zmniejsz próg</string>
+    <string name="alarm_threshold_increase">Zwiększ próg</string>
     <string name="alarm_section_beep">Sygnał</string>
     <string name="alarm_enable_beep">Włącz sygnał</string>
     <string name="alarm_beep_freq_fmt">Częstotliwość: %1$dHz</string>
@@ -450,6 +460,7 @@
     <string name="alarm_repeat_help">WŁ.: uruchamia się ponownie co odstęp, dopóki warunek jest spełniony.\nWYŁ.: uruchamia się raz i milczy, dopóki warunek nie ustąpi</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Dzienniki awarii</string>
     <string name="about_crash_logs_hint">Stuknij plik, aby udostępnić go deweloperowi.</string>
     <string name="about_crash_logs_empty">Brak zarejestrowanych awarii</string>
     <string name="about_share_crash">Udostępnij log awarii</string>

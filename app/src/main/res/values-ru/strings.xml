@@ -118,6 +118,12 @@
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
+    <string name="section_application">Приложение</string>
+    <string name="back_button_action">При свайпе назад</string>
+    <string name="back_button_action_desc">Выбери, что делает свайп назад с главного экрана.</string>
+    <string name="back_button_action_ask">Спрашивать</string>
+    <string name="back_button_action_background">В фоне</string>
+    <string name="back_button_action_stop">Остановить всё</string>
     <string name="imperial_units">Имперские единицы</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
@@ -300,6 +306,8 @@
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Сравнение</string>
     <string name="alarm_threshold_fmt">Порог: %1$s %2$s</string>
+    <string name="alarm_threshold_decrease">Уменьшить порог</string>
+    <string name="alarm_threshold_increase">Увеличить порог</string>
     <string name="alarm_section_beep">Звуковой сигнал</string>
     <string name="alarm_enable_beep">Подавать сигнал</string>
     <string name="alarm_beep_freq_fmt">Частота: %1$d Гц</string>
@@ -369,6 +377,7 @@
     <string name="flic_status_scan_failed_fmt">Поиск не удался (код %1$d)</string>
 
     <!-- About / crash logs -->
+    <string name="about_crash_logs">Журналы сбоев</string>
     <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
     <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
@@ -453,6 +462,8 @@
     <!-- Watch settings -->
     <string name="watch_auto_start">Автозапуск на часах</string>
     <string name="watch_auto_start_desc">Открывать приложение на часах вместе с приложением на телефоне.</string>
+    <string name="watch_close_on_exit">Автоостановка на часах</string>
+    <string name="watch_close_on_exit_desc">Останавливать приложение часов при «Остановить всё».</string>
     <string name="watch_button_1">Кнопка 1</string>
     <string name="watch_button_2">Кнопка 2</string>
     <string name="watch_button_click_label">Нажатие</string>

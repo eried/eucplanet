@@ -14,6 +14,14 @@ data class AppSettings(
     val lastDeviceName: String? = null,
     val autoConnect: Boolean = true,
 
+    // What happens when the user swipes back from the main dashboard. Values:
+    //   "ASK"        — show the exit dialog (legacy behavior, default)
+    //   "BACKGROUND" — silently send the activity to background, service keeps running
+    //   "STOP_ALL"   — stop the service and finish the activity
+    // Storage keys are language-independent so locale switches don't break the setting.
+    @ColumnInfo(defaultValue = "ASK")
+    val backButtonAction: String = "ASK",
+
     // Speed settings (sent to wheel) - the "normal" mode values
     val tiltbackSpeedKmh: Float = 50f,
     val alarmSpeedKmh: Float = 40f,
@@ -175,6 +183,14 @@ data class AppSettings(
     val watchKeepScreenOn: Boolean = true,
     @ColumnInfo(defaultValue = "1")
     val watchAutoStart: Boolean = true,
+    /**
+     * When the user picks "Stop all" from the phone exit dialog, also close
+     * the watch companion app so its dial doesn't sit on a stale frame after
+     * the phone tears the session down. On by default since the watch app
+     * has no value without the phone feeding it telemetry.
+     */
+    @ColumnInfo(defaultValue = "1")
+    val watchCloseOnExit: Boolean = true,
     @ColumnInfo(defaultValue = "1")
     val watchShowWheelBattery: Boolean = true,
     @ColumnInfo(defaultValue = "1")
