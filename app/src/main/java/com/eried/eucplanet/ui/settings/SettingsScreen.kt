@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +36,9 @@ import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.Motorcycle
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MusicNote
@@ -45,8 +50,21 @@ import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import com.eried.eucplanet.ui.theme.AccentOrange
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
@@ -94,7 +112,10 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -116,10 +137,16 @@ private val languageOptions = listOf(
     "da" to "Dansk",
     "de" to "Deutsch",
     "es" to "Español",
+    "es-419" to "Español (Latinoamérica)",
     "fr" to "Français",
+    "it" to "Italiano",
+    "nl" to "Nederlands",
     "no" to "Norsk",
+    "pl" to "Polski",
+    "pt-BR" to "Português (Brasil)",
     "ru" to "Русский",
     "sv" to "Svenska",
+    "uk" to "Українська",
     "zh" to "中文"
 )
 
@@ -135,6 +162,7 @@ fun SettingsScreen(
     val maxSpeedCap by viewModel.maxSpeedCap.collectAsState()
     val ttsSwitchPrompt by viewModel.ttsSwitchPrompt.collectAsState()
     val isConnected by viewModel.isConnected.collectAsState()
+    val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val expandedSections = rememberSaveable(
         saver = androidx.compose.runtime.saveable.listSaver(
@@ -168,20 +196,16 @@ fun SettingsScreen(
     val settings = settingsState ?: return
 
     ttsSwitchPrompt?.let { lang ->
-        val langName = when (lang) {
-            "en" -> stringResource(R.string.lang_name_en)
-            "es" -> stringResource(R.string.lang_name_es)
-            "ru" -> stringResource(R.string.lang_name_ru)
-            "no" -> stringResource(R.string.lang_name_no)
-            "de" -> stringResource(R.string.lang_name_de)
-            "fr" -> stringResource(R.string.lang_name_fr)
-            "da" -> stringResource(R.string.lang_name_da)
-            "sv" -> stringResource(R.string.lang_name_sv)
-            "zh" -> stringResource(R.string.lang_name_zh)
-            else -> lang
-        }
+        // Single source of truth: the same `languageOptions` list the
+        // dropdown uses. No parallel strings.xml entries to drift from it.
+        val langName = languageOptions.firstOrNull { it.first == lang }?.second ?: lang
+        // The dialog renders in the user's CURRENT language because the
+        // locale switch is deferred until they confirm. Three choices:
+        //  - Yes: switch language AND TTS voice
+        //  - No: switch language only, keep current TTS voice
+        //  - Cancel: don't switch at all
         AlertDialog(
-            onDismissRequest = { viewModel.dismissTtsSwitch() },
+            onDismissRequest = { viewModel.cancelLanguageSwitch() },
             title = { Text(stringResource(R.string.tts_switch_title, langName)) },
             text = { Text(stringResource(R.string.tts_switch_body, langName)) },
             confirmButton = {
@@ -190,8 +214,13 @@ fun SettingsScreen(
                 }
             },
             dismissButton = {
-                Button(onClick = { viewModel.dismissTtsSwitch() }) {
-                    Text(stringResource(R.string.tts_switch_no))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    androidx.compose.material3.TextButton(onClick = { viewModel.cancelLanguageSwitch() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                    Button(onClick = { viewModel.dismissTtsSwitch() }) {
+                        Text(stringResource(R.string.tts_switch_no))
+                    }
                 }
             }
         )
@@ -209,10 +238,12 @@ fun SettingsScreen(
     val titleDisplay = stringResource(R.string.tab_display)
     val titleSpeed = stringResource(R.string.tab_speed)
     val titleVoice = stringResource(R.string.tab_voice)
+    val titleMotor = stringResource(R.string.section_engine_sound)
     val titleCloud = stringResource(R.string.tab_cloud)
     val titleAlarms = stringResource(R.string.tab_alarms)
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
+    val titleWatch = stringResource(R.string.tab_watch)
 
     val corpusGeneral = listOf(
         titleGeneral,
@@ -231,7 +262,7 @@ fun SettingsScreen(
         stringResource(R.string.theme),
         stringResource(R.string.accent_color),
         stringResource(R.string.show_gauge_color_band),
-        "Language"
+        stringResource(R.string.language)
     ).joinToString(" ")
 
     val corpusSpeed = listOf(
@@ -270,6 +301,20 @@ fun SettingsScreen(
         stringResource(R.string.report_time)
     ).joinToString(" ")
 
+    val corpusMotor = listOf(
+        titleMotor,
+        stringResource(R.string.engine_sound_enabled),
+        stringResource(R.string.engine_type_label),
+        stringResource(R.string.engine_volume),
+        stringResource(R.string.engine_muffler_label),
+        stringResource(R.string.engine_gearbox_label),
+        stringResource(R.string.engine_idle_label),
+        stringResource(R.string.engine_decel_label),
+        stringResource(R.string.engine_brake_label),
+        stringResource(R.string.engine_duck_label),
+        stringResource(R.string.engine_headphones_only)
+    ).joinToString(" ")
+
     val corpusCloud = listOf(
         titleCloud,
         stringResource(R.string.section_cloud_folder),
@@ -293,6 +338,19 @@ fun SettingsScreen(
         stringResource(R.string.volume_keys_enable)
     ).joinToString(" ")
 
+    val corpusWatch = listOf(
+        titleWatch,
+        stringResource(R.string.section_watch_general),
+        stringResource(R.string.section_watch_display),
+        stringResource(R.string.watch_keep_on),
+        stringResource(R.string.watch_auto_start),
+        stringResource(R.string.watch_show_wheel_battery),
+        stringResource(R.string.watch_show_phone_battery),
+        stringResource(R.string.watch_show_watch_battery),
+        stringResource(R.string.watch_pwm_display),
+        stringResource(R.string.watch_show_speed_unit)
+    ).joinToString(" ")
+
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel)
@@ -306,6 +364,9 @@ fun SettingsScreen(
         SectionDef("voice", titleVoice, Icons.Default.RecordVoiceOver, corpusVoice) {
             VoiceTab(settings, viewModel)
         },
+        SectionDef("motor", titleMotor, Icons.Default.Motorcycle, corpusMotor) {
+            EngineSoundSection(settings, viewModel, engineParked)
+        },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
             CloudTab(settings, viewModel)
         },
@@ -317,6 +378,9 @@ fun SettingsScreen(
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()
+        },
+        SectionDef("watch", titleWatch, Icons.Default.Watch, corpusWatch) {
+            WatchTab(settings, viewModel)
         }
     )
 
@@ -324,6 +388,7 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val ctxLocal = androidx.compose.ui.platform.LocalContext.current
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
@@ -336,6 +401,32 @@ fun SettingsScreen(
                             }
                         },
                         singleLine = true,
+                        // Quake-style console: typed cheats (daredevilNN, godmode, bug) are
+                        // intercepted on IME Enter before they become a search query. No
+                        // match → field stays populated and the normal text-search filter
+                        // already running below keeps narrowing the visible sections.
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            imeAction = androidx.compose.ui.text.input.ImeAction.Search
+                        ),
+                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                            onSearch = {
+                                val result = viewModel.cheatState.tryConsume(searchQuery)
+                                if (result != null) {
+                                    Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                    if (result is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl) {
+                                        try {
+                                            ctxLocal.startActivity(
+                                                android.content.Intent(
+                                                    android.content.Intent.ACTION_VIEW,
+                                                    android.net.Uri.parse(result.url)
+                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            )
+                                        } catch (_: Throwable) { /* no browser installed — toast still shown */ }
+                                    }
+                                    searchQuery = ""
+                                }
+                            }
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 10.dp)
@@ -548,7 +639,7 @@ private fun DisplayTab(
         }
 
         SimpleDropdown(
-            label = "Language",
+            label = stringResource(R.string.language),
             currentKey = settings.language,
             options = languageOptions,
             onSelect = { viewModel.updateLanguage(it) }
@@ -573,15 +664,13 @@ private fun DisplayTab(
         ) { viewModel.updateShowGaugeColorBand(it) }
 
         if (settings.showGaugeColorBand) {
-            val safeColor = if (com.eried.eucplanet.ui.theme.isDefaultAccent(settings.accentColor)) {
-                AccentBlue
-            } else {
-                MaterialTheme.colorScheme.primary
-            }
+            // Safe band reads as the universal "ok" colour on the real dial
+            // (phone + watch), so the settings preview matches that: always
+            // green, never tinted by the user's accent.
             GaugeThresholdSlider(
                 orangePct = settings.gaugeOrangeThresholdPct,
                 redPct = settings.gaugeRedThresholdPct,
-                safeColor = safeColor,
+                safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
                 onChange = { o, r -> viewModel.updateGaugeThresholds(o, r) }
             )
         }
@@ -755,7 +844,12 @@ private fun VoiceTab(
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
         val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
         val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
-        val sTripEx = stringResource(R.string.voice_trip_fmt, "12.3")
+        // Preview must match what the voice actually says — imperial users
+        // get the miles variant so the page can't lie about the format.
+        val sTripEx = stringResource(
+            if (settings.imperialUnits) R.string.voice_trip_miles_fmt else R.string.voice_trip_fmt,
+            "12.3"
+        )
         val sRecOn = stringResource(R.string.voice_recording_on)
         val sRecOff = stringResource(R.string.voice_recording_off)
         val ctx = androidx.compose.ui.platform.LocalContext.current
@@ -1045,6 +1139,197 @@ private fun FlicTab(
     }
 }
 
+// --- Watch Tab ---
+
+@Composable
+private fun WatchTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_watch_general))
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_auto_start),
+            description = stringResource(R.string.watch_auto_start_desc),
+            checked = settings.watchAutoStart,
+            onCheckedChange = { viewModel.updateWatchAutoStart(it) },
+            onTest = { viewModel.testWatchWake() }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_keep_on),
+            description = stringResource(R.string.watch_keep_on_desc),
+            checked = settings.watchKeepScreenOn,
+            onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
+        )
+
+        SectionHeader(stringResource(R.string.section_watch_display))
+
+        SwitchSetting(
+            stringResource(R.string.watch_show_wheel_battery),
+            settings.watchShowWheelBattery
+        ) { viewModel.updateWatchShowWheelBattery(it) }
+        SwitchSetting(
+            stringResource(R.string.watch_show_phone_battery),
+            settings.watchShowPhoneBattery
+        ) { viewModel.updateWatchShowPhoneBattery(it) }
+        SwitchSetting(
+            stringResource(R.string.watch_show_watch_battery),
+            settings.watchShowWatchBattery
+        ) { viewModel.updateWatchShowWatchBattery(it) }
+
+        Text(
+            stringResource(R.string.watch_pwm_display),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val loadOptions = listOf(
+            "BAR" to stringResource(R.string.watch_pwm_bar),
+            "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+            "BOTH" to stringResource(R.string.watch_pwm_both)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            loadOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.watchPwmDisplay,
+                    onClick = { viewModel.updateWatchPwmDisplay(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
+                ) {
+                    Text(
+                        label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_prioritize_pwm),
+            description = stringResource(R.string.watch_prioritize_pwm_desc),
+            checked = settings.watchPrioritizePwm,
+            onCheckedChange = { viewModel.updateWatchPrioritizePwm(it) }
+        )
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_show_speed_unit),
+            description = stringResource(R.string.watch_show_speed_unit_desc),
+            checked = settings.watchShowSpeedUnit,
+            onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
+        )
+
+        Text(
+            stringResource(R.string.watch_dial_rotation),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        SliderSetting(
+            label = stringResource(R.string.watch_dial_rotation_value, settings.watchDialRotationDeg),
+            value = settings.watchDialRotationDeg.toFloat(),
+            range = -90f..90f,
+            unit = "°",
+            steps = 35,                         // 36 segments → -90,-85,…,+90
+            format = "%.0f",
+            onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
+        )
+
+        // Hardware-button mappings hidden for now — Samsung Watch Ultra and
+        // most Galaxy Wear OS devices don't deliver KEYCODE_STEM_* events to
+        // third-party apps. Keeping the AppSettings columns and dispatch
+        // plumbing in place so the section can come back when we test on a
+        // watch that actually surfaces stem keys.
+
+        // On-screen button bindings (replaces the hardcoded Horn / Light
+        // buttons that used to live on the watch dial). These DO work on
+        // every Wear OS watch since they're regular touch targets.
+        SectionHeader(stringResource(R.string.section_watch_screen_buttons))
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+            currentKey = settings.watchScreen1Click,
+            onSelect = { viewModel.updateWatchScreen1Click(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+            currentKey = settings.watchScreen1Hold,
+            onSelect = { viewModel.updateWatchScreen1Hold(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+            currentKey = settings.watchScreen2Click,
+            onSelect = { viewModel.updateWatchScreen2Click(it) }
+        )
+        WatchActionPicker(
+            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+            currentKey = settings.watchScreen2Hold,
+            onSelect = { viewModel.updateWatchScreen2Hold(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_haptic_on_action),
+            description = stringResource(R.string.watch_haptic_on_action_desc),
+            checked = settings.watchHapticOnAction,
+            onCheckedChange = { viewModel.updateWatchHapticOnAction(it) }
+        )
+    }
+}
+
+@Composable
+private fun WatchActionPicker(
+    label: String,
+    currentKey: String,
+    onSelect: (String) -> Unit
+) {
+    val options = com.eried.eucplanet.data.model.FlicAction.entries.map { action ->
+        action.name to stringResource(action.labelRes)
+    }
+    SimpleDropdown(
+        label = label,
+        currentKey = currentKey,
+        options = options,
+        onSelect = onSelect
+    )
+}
+
+@Composable
+private fun SwitchSettingWithDesc(
+    label: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    onTest: (() -> Unit)? = null
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    highlightMatches(label, LocalSettingsSearchQuery.current),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (onTest != null) {
+                    Spacer(Modifier.width(4.dp))
+                    PlayButton(onClick = onTest)
+                }
+            }
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        }
+        Text(
+            description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 // --- Cloud Tab ---
 
 @Composable
@@ -1293,14 +1578,21 @@ private fun CloudHelpCard() {
 // --- Shared components ---
 
 @Composable
-private fun PlayButton(onClick: () -> Unit) {
+private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.size(20.dp)
     ) {
-        Icon(Icons.Default.PlayArrow, contentDescription = stringResource(R.string.action_test),
+        // Greyed out when disabled so the affordance stays visible — the rider can see
+        // "preview exists, just not while moving" instead of the button vanishing.
+        val baseTint = MaterialTheme.colorScheme.onSurfaceVariant
+        Icon(
+            Icons.Default.PlayArrow,
+            contentDescription = stringResource(R.string.action_test),
             modifier = Modifier.size(14.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            tint = if (enabled) baseTint.copy(alpha = 0.6f) else baseTint.copy(alpha = 0.25f)
+        )
     }
 }
 
@@ -1383,7 +1675,7 @@ private fun SpeedSliderSetting(
         label = label,
         value = displayValue,
         range = displayStart..displayEnd,
-        unit = Units.speedUnit(imperial),
+        unit = Units.speedUnit(LocalContext.current, imperial),
         enabled = enabled,
         onValueChange = { displayed ->
             val kmh = if (imperial) displayed / 0.621371f else displayed
@@ -1456,9 +1748,10 @@ private fun GaugeThresholdSlider(
     safeColor: androidx.compose.ui.graphics.Color,
     onChange: (orange: Int, red: Int) -> Unit
 ) {
-    // Stored range 25..100 aligns with the gauge arc's visible portion. 20 divisions = 3.75 per
-    // step, stored as Int (rounded). No text labels — the slider track shows the zones directly.
-    val stepSize = 3.75f
+    // Visual range 0..100 so the user SEES the locked green sliver (0..5) and the
+    // locked red sliver (95..100) at the ends of the track — they just can't drag
+    // a handle into those zones. Drag positions are clamped to [5, 95] inclusive.
+    val stepSize = 5f
     var range by remember(orangePct, redPct) {
         mutableStateOf(orangePct.toFloat()..redPct.toFloat())
     }
@@ -1471,8 +1764,8 @@ private fun GaugeThresholdSlider(
             onValueChange = { v ->
                 val start = kotlin.math.round(v.start / stepSize) * stepSize
                 val end = kotlin.math.round(v.endInclusive / stepSize) * stepSize
-                val clampedStart = start.coerceIn(25f, 100f - stepSize)
-                val clampedEnd = end.coerceIn(clampedStart + stepSize, 100f)
+                val clampedStart = start.coerceIn(5f, 90f)
+                val clampedEnd = end.coerceIn(clampedStart + stepSize, 95f)
                 range = clampedStart..clampedEnd
             },
             onValueChangeFinished = {
@@ -1481,8 +1774,8 @@ private fun GaugeThresholdSlider(
                     kotlin.math.round(range.endInclusive).toInt()
                 )
             },
-            valueRange = 25f..100f,
-            steps = 19,  // 20 divisions (3.75 per step) over 25..100
+            valueRange = 0f..100f,
+            steps = 19,  // 20 divisions of 5 over the full 0..100 track
             track = { state ->
                 val span = state.valueRange.endInclusive - state.valueRange.start
                 val startFrac = ((state.activeRangeStart - state.valueRange.start) / span)
@@ -1701,6 +1994,314 @@ private fun ButtonConfig(
     }
 }
 
+@Composable
+private fun EngineSoundSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    parked: Boolean
+) {
+    var showSafety by remember { mutableStateOf(false) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    SwitchSetting(
+        label = stringResource(R.string.engine_sound_enabled),
+        checked = settings.engineSoundEnabled
+    ) { enabled ->
+        if (enabled && !settings.engineSafetyShown) {
+            showSafety = true
+        }
+        viewModel.updateEngineSoundEnabled(enabled)
+    }
+    Text(
+        stringResource(R.string.engine_sound_enabled_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    if (settings.engineSoundEnabled) {
+        // Previews push synthetic telemetry, which would clash with a live ride.
+        // Only allow ▶ while the wheel is disconnected or parked.
+        EngineTypePicker(
+            currentKey = settings.engineType,
+            onSelect = { viewModel.updateEngineType(it) },
+            onPreview = { viewModel.previewEngine(it) },
+            previewEnabled = parked
+        )
+
+        // Resolve the active profile so unsupported rows (e.g. decel pops on a diesel
+        // or muffler LPF on any sampled engine, since MediaPlayer has no filter point)
+        // are hidden from the UI. EngineProfile carries the per-engine support booleans.
+        val currentProfile = remember(settings.engineType) {
+            com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
+        }
+
+        // Engine volume is now a 4-point speed curve — no fixed slider. Drag a finger on
+        // the graph to probe the volume at any speed (same UX as the voice auto-volume
+        // curve in Automations).
+        Text(
+            stringResource(R.string.engine_volume),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        var enginePoints by remember(settings.engineVolumeAutoCurve) {
+            mutableStateOf(com.eried.eucplanet.service.parseVolumeCurve(settings.engineVolumeAutoCurve))
+        }
+        EngineSpeedVolumeCurveEditor(
+            points = enginePoints,
+            useImperial = settings.imperialUnits,
+            onPointsChanged = { newPoints ->
+                enginePoints = newPoints
+                viewModel.updateEngineVolumeAutoCurve(com.eried.eucplanet.service.encodeVolumeCurve(newPoints))
+            }
+        )
+
+        if (currentProfile.supportsMuffler) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_muffler_label),
+                options = listOf(
+                    "OPEN" to stringResource(R.string.engine_muffler_open),
+                    "HALF" to stringResource(R.string.engine_muffler_half),
+                    "MUFFLED" to stringResource(R.string.engine_muffler_muffled)
+                ),
+                current = settings.engineMuffler,
+                onChange = { viewModel.updateEngineMuffler(it) },
+                onPreview = { viewModel.previewEngineSection("DEFAULT") },
+                previewEnabled = parked
+            )
+        }
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_gearbox_label),
+            options = listOf(
+                "OFF" to stringResource(R.string.engine_gearbox_off),
+                "FOUR" to stringResource(R.string.engine_gearbox_four),
+                "SIX" to stringResource(R.string.engine_gearbox_six)
+            ),
+            current = settings.engineGearbox,
+            onChange = { viewModel.updateEngineGearbox(it) },
+            onPreview = { viewModel.previewEngineSection("GEARBOX") },
+            previewEnabled = parked
+        )
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_idle_label),
+            options = listOf(
+                "ALWAYS" to stringResource(R.string.engine_idle_always),
+                "FADE" to stringResource(R.string.engine_idle_fade),
+                "MOVING" to stringResource(R.string.engine_idle_moving)
+            ),
+            current = settings.engineIdleBehavior,
+            onChange = { viewModel.updateEngineIdleBehavior(it) }
+        )
+
+        if (currentProfile.supportsPops) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_decel_label),
+                options = listOf(
+                    "SMOOTH" to stringResource(R.string.engine_decel_smooth),
+                    "STANDARD" to stringResource(R.string.engine_decel_standard),
+                    "BACKFIRE" to stringResource(R.string.engine_decel_backfire)
+                ),
+                current = settings.engineDecelChar,
+                onChange = { viewModel.updateEngineDecelChar(it) },
+                onPreview = { viewModel.previewEngineSection("DECEL") },
+                previewEnabled = parked
+            )
+        }
+
+        if (currentProfile.supportsBrakeWhine) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_brake_label),
+                options = listOf(
+                    "OFF" to stringResource(R.string.engine_brake_off),
+                    "LIGHT" to stringResource(R.string.engine_brake_light),
+                    "STRONG" to stringResource(R.string.engine_brake_strong)
+                ),
+                current = settings.engineBrake,
+                onChange = { viewModel.updateEngineBrake(it) },
+                onPreview = { viewModel.previewEngineSection("BRAKE") },
+                previewEnabled = parked
+            )
+        }
+
+        SegmentedChoice(
+            label = stringResource(R.string.engine_duck_label),
+            options = listOf(
+                "DUCK" to stringResource(R.string.engine_duck_duck),
+                "PAUSE" to stringResource(R.string.engine_duck_pause),
+                "MIX" to stringResource(R.string.engine_duck_mix)
+            ),
+            current = settings.engineDuckOnVoice,
+            onChange = { viewModel.updateEngineDuckOnVoice(it) }
+        )
+
+        SwitchSetting(
+            label = stringResource(R.string.engine_headphones_only),
+            checked = settings.engineHeadphonesOnly
+        ) { viewModel.updateEngineHeadphonesOnly(it) }
+        Text(
+            stringResource(R.string.engine_headphones_only_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+    }
+
+    if (showSafety) {
+        AlertDialog(
+            onDismissRequest = {
+                showSafety = false
+                viewModel.markEngineSafetyShown()
+            },
+            title = { Text(stringResource(R.string.engine_safety_title)) },
+            text = { Text(stringResource(R.string.engine_safety_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSafety = false
+                    viewModel.markEngineSafetyShown()
+                }) { Text(stringResource(R.string.engine_safety_ok)) }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EngineTypePicker(
+    currentKey: String,
+    onSelect: (String) -> Unit,
+    onPreview: ((String) -> Unit)? = null,
+    previewEnabled: Boolean = true
+) {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val res = ctx.resources
+    val unsortedProfiles = com.eried.eucplanet.audio.EngineProfile.PROFILES
+    fun displayFor(key: String): String {
+        val resKey = "engine_preset_" + key.lowercase()
+        val resId = res.getIdentifier(resKey, "string", ctx.packageName)
+        return if (resId != 0) ctx.getString(resId)
+            else (unsortedProfiles.firstOrNull { it.key == key }?.displayName ?: key)
+    }
+    // Alphabetical by localized display name. Recomputed when the configuration locale changes
+    // because displayFor reads from the current ctx.resources. Preview engines are hidden
+    // unless they're the user's currently-selected one (so we never silently swap their pick).
+    val profiles = remember(ctx, currentKey) {
+        unsortedProfiles
+            .filter { !it.preview || it.key == currentKey }
+            .sortedBy { displayFor(it.key).lowercase() }
+    }
+    var expanded by remember { mutableStateOf(false) }
+
+    val currentProfile = profiles.firstOrNull { it.key == currentKey }
+    val sourceLabel = if (currentProfile?.sampleAssetBase != null)
+        stringResource(R.string.engine_source_sampled)
+    else
+        stringResource(R.string.engine_source_synth)
+
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.engine_type_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (onPreview != null) {
+                Spacer(Modifier.width(4.dp))
+                PlayButton(onClick = { onPreview(currentKey) }, enabled = previewEnabled)
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Source icon: Album (vinyl) = sampled / analog. Equalizer (bars) = synth / digital.
+            // Sits on the LEFT of the engine name so two presets that share a name
+            // (e.g. "Tractor" Synth vs "Tractor" Sampled) are visually distinct at a glance.
+            val isSampled = currentProfile?.sampleAssetBase != null
+            OutlinedTextField(
+                value = displayFor(currentKey),
+                onValueChange = {},
+                readOnly = true,
+                leadingIcon = {
+                    if (isSampled) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_vital_signs),
+                            contentDescription = sourceLabel,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.GraphicEq,
+                            contentDescription = sourceLabel,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                suffix = {
+                    Text(
+                        sourceLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                profiles.forEach { p ->
+                    val itemIsSampled = p.sampleAssetBase != null
+                    DropdownMenuItem(
+                        leadingIcon = {
+                            if (itemIsSampled) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_vital_signs),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.GraphicEq,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(displayFor(p.key), modifier = Modifier.weight(1f))
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    if (itemIsSampled)
+                                        stringResource(R.string.engine_source_sampled)
+                                    else
+                                        stringResource(R.string.engine_source_synth),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        onClick = {
+                            onSelect(p.key)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun VoiceSelector(
@@ -1709,7 +2310,10 @@ private fun VoiceSelector(
     onVoiceSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentVoice = voices.find { it.locale.toString() == currentLocale }
+    // Tolerant of either tag form: Locale.toString() ("nb_NO") or
+    // toLanguageTag() ("nb-NO"). Older stored values may use either.
+    val normalized = currentLocale.replace('-', '_')
+    val currentVoice = voices.find { it.locale.toString().replace('-', '_') == normalized }
     val displayText = currentVoice?.displayName ?: currentLocale
 
     ExposedDropdownMenuBox(
@@ -1784,23 +2388,44 @@ private fun SegmentedChoice(
     label: String,
     options: List<Pair<String, String>>,
     current: String,
-    onChange: (String) -> Unit
+    onChange: (String) -> Unit,
+    onPreview: (() -> Unit)? = null,
+    previewEnabled: Boolean = true
 ) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (onPreview != null) {
+                Spacer(Modifier.width(4.dp))
+                PlayButton(onClick = onPreview, enabled = previewEnabled)
+            }
+        }
         Spacer(Modifier.height(6.dp))
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
             options.forEachIndexed { index, (key, optLabel) ->
                 SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
                     selected = current == key,
                     onClick = { onChange(key) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                     icon = {},
-                    label = { Text(optLabel, style = MaterialTheme.typography.labelMedium) }
+                    label = {
+                        Text(
+                            optLabel,
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 )
             }
         }
@@ -1847,6 +2472,187 @@ private fun ActionDropdown(
                         expanded = false
                     }
                 )
+            }
+        }
+    }
+}
+
+/**
+ * 4-point curve editor for the engine speed-based auto-volume feature.
+ *
+ * Differences vs the voice [SplineCurveEditor]:
+ *  - Range is 0..1 (a multiplier, not a 1..2× boost — voice ramps UP to overcome wind noise,
+ *    engine ramps DOWN so it's loud for pedestrian awareness at slow speeds).
+ *  - No monotonic constraint — the user can freely shape the curve in any direction.
+ *  - All 4 control points are draggable, including the 0 km/h anchor.
+ */
+@Composable
+private fun EngineSpeedVolumeCurveEditor(
+    points: List<Pair<Float, Float>>,
+    useImperial: Boolean,
+    onPointsChanged: (List<Pair<Float, Float>>) -> Unit
+) {
+    val maxSpeed = 75f
+    val speedUnitLabel = if (useImperial) "mph" else "km/h"
+    val minMult = 0f
+    val maxMult = 1f
+    val gridColor = MaterialTheme.colorScheme.surfaceVariant
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val lineColor = AccentBlue
+    val pointColor = AccentOrange
+    val textMeasurer = rememberTextMeasurer()
+
+    // Always render exactly 4 normalized points at the canonical speeds.
+    val normalized = remember(points) {
+        val p = points.toMutableList()
+        listOf(
+            0f to (p.getOrNull(0)?.second ?: 1.0f),
+            25f to (p.getOrNull(1)?.second ?: 0.7f),
+            50f to (p.getOrNull(2)?.second ?: 0.4f),
+            75f to (p.getOrNull(3)?.second ?: 0.2f),
+        )
+    }
+    val probeColor = MaterialTheme.colorScheme.onSurface
+    var dragIndex by remember { mutableStateOf(-1) }
+    var probeSpeed by remember { mutableStateOf<Float?>(null) }
+    val pointsRef = remember { mutableStateOf(normalized) }
+    pointsRef.value = normalized
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1.7f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 40.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            val w = size.width.toFloat()
+                            val h = size.height.toFloat()
+                            val pts = pointsRef.value
+                            val nearest = pts
+                                .mapIndexed { idx, (s, v) ->
+                                    val px = s / maxSpeed * w
+                                    val py = h - (v - minMult) / (maxMult - minMult) * h
+                                    idx to (offset - Offset(px, py)).getDistance()
+                                }
+                                .filter { it.second < 100f }
+                                .minByOrNull { it.second }
+                            // No monotonic constraint, all 4 points draggable.
+                            if (nearest != null) {
+                                dragIndex = nearest.first
+                                probeSpeed = null
+                            } else {
+                                dragIndex = -1
+                                val speed = (offset.x / w * maxSpeed).coerceIn(0f, maxSpeed)
+                                probeSpeed = speed
+                            }
+                        },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            val w = size.width.toFloat()
+                            val h = size.height.toFloat()
+                            if (dragIndex in pointsRef.value.indices) {
+                                val newM = (minMult + (h - change.position.y) / h * (maxMult - minMult))
+                                    .coerceIn(minMult, maxMult)
+                                val (oldS, _) = pointsRef.value[dragIndex]
+                                val mutable = pointsRef.value.toMutableList()
+                                mutable[dragIndex] = oldS to newM
+                                onPointsChanged(mutable)
+                            } else {
+                                val speed = (change.position.x / w * maxSpeed).coerceIn(0f, maxSpeed)
+                                probeSpeed = speed
+                            }
+                        },
+                        onDragEnd = { dragIndex = -1; probeSpeed = null },
+                        onDragCancel = { dragIndex = -1; probeSpeed = null }
+                    )
+                }
+        ) {
+            val w = size.width
+            val h = size.height
+            val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
+
+            // X axis ticks at 0/25/50/75 km/h.
+            for (i in 0..3) {
+                val x = w * i / 3f
+                drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
+                val speedKmh = maxSpeed * i / 3
+                val displaySpeed = Units.speed(speedKmh, useImperial)
+                val label = "${displaySpeed.roundToInt()}"
+                val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
+                drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
+            }
+            // Y axis ticks at 0%, 50%, 100%.
+            for (i in 0..2) {
+                val mult = i * 0.5f
+                val y = h - (mult - minMult) / (maxMult - minMult) * h
+                drawLine(gridColor, Offset(0f, y), Offset(w, y), strokeWidth = 1f, pathEffect = dash)
+                val label = "${(mult * 100).toInt()}%"
+                val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
+                drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
+            }
+            val unitMeasured = textMeasurer.measure(speedUnitLabel, TextStyle(fontSize = 10.sp, color = labelColor))
+            drawText(unitMeasured, topLeft = Offset((w - unitMeasured.size.width) / 2f, h + 4f))
+
+            // PCHIP-smoothed curve through the 4 control points + tinted fill below it.
+            if (normalized.size >= 2) {
+                val curvePath = Path()
+                val steps = 100
+                for (i in 0..steps) {
+                    val speed = i.toFloat() / steps * maxSpeed
+                    val mult = com.eried.eucplanet.service.pchipInterpolate(normalized, speed)
+                        .coerceIn(minMult, maxMult)
+                    val x = speed / maxSpeed * w
+                    val y = h - (mult - minMult) / (maxMult - minMult) * h
+                    if (i == 0) curvePath.moveTo(x, y) else curvePath.lineTo(x, y)
+                }
+                val fillPath = Path()
+                fillPath.addPath(curvePath)
+                fillPath.lineTo(w, h)
+                fillPath.lineTo(0f, h)
+                fillPath.close()
+                drawPath(fillPath, color = lineColor.copy(alpha = 0.12f))
+                drawPath(curvePath, color = lineColor, style = Stroke(width = 3f))
+            }
+
+            // Finger probe — dashed vertical line + "30 km/h → 45%" readout above the curve.
+            val currentProbe = probeSpeed
+            if (currentProbe != null && normalized.size >= 2) {
+                val probeMult = com.eried.eucplanet.service.pchipInterpolate(normalized, currentProbe)
+                    .coerceIn(minMult, maxMult)
+                val px = currentProbe / maxSpeed * w
+                val py = h - (probeMult - minMult) / (maxMult - minMult) * h
+                drawLine(
+                    color = probeColor.copy(alpha = 0.5f),
+                    start = Offset(px, 0f),
+                    end = Offset(px, h),
+                    strokeWidth = 1.5f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f))
+                )
+                drawCircle(color = lineColor, radius = 6f, center = Offset(px, py))
+                val displayProbe = Units.speed(currentProbe, useImperial).roundToInt()
+                val probeLabel = "$displayProbe $speedUnitLabel → ${(probeMult * 100).roundToInt()}%"
+                val probeMeasured = textMeasurer.measure(
+                    probeLabel,
+                    TextStyle(fontSize = 12.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = probeColor)
+                )
+                val labelX = (px - probeMeasured.size.width / 2f)
+                    .coerceIn(0f, w - probeMeasured.size.width)
+                val labelY = (py - probeMeasured.size.height - 12f).coerceAtLeast(0f)
+                drawText(probeMeasured, topLeft = Offset(labelX, labelY))
+            }
+
+            // Control point handles (all 4 are draggable).
+            normalized.forEach { (s, v) ->
+                val px = s / maxSpeed * w
+                val py = h - (v - minMult) / (maxMult - minMult) * h
+                drawCircle(pointColor, radius = 8f, center = Offset(px, py))
             }
         }
     }

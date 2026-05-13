@@ -293,6 +293,12 @@ class FlicManager @Inject constructor(
                     tripRepository.startRecording()
                 }
             }
+            FlicAction.RECORD_START -> {
+                if (!tripRepository.recording.value) tripRepository.startRecording()
+            }
+            FlicAction.RECORD_STOP -> {
+                if (tripRepository.recording.value) tripRepository.stopRecording()
+            }
             FlicAction.MEDIA_PLAY_PAUSE -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
             FlicAction.MEDIA_NEXT -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
             FlicAction.MEDIA_PREVIOUS -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)

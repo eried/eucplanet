@@ -37,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var flicManager: FlicManager
+    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
 
     private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -77,6 +78,17 @@ class MainActivity : AppCompatActivity() {
         return hasBt || hasLoc
     }
 
+    /**
+     * Pinging the wear bridge on every resume rather than only at process
+     * start makes the auto-launch reliable: opening the phone app brings
+     * the watch app to the foreground each time, even if the watch service
+     * was killed for memory after the previous session.
+     */
+    override fun onResume() {
+        super.onResume()
+        wearBridge.pingWatchToWake()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -87,9 +99,30 @@ class MainActivity : AppCompatActivity() {
                 val first = _settings.value == null
                 _settings.value = it
                 if (first) {
-                    val want = if (it.language.isBlank()) "en" else it.language
-                    if (com.eried.eucplanet.util.LocaleHelper.current() != want) {
-                        com.eried.eucplanet.util.LocaleHelper.apply(want)
+                    if (it.language.isBlank()) {
+                        // First launch ever: pick a supported locale that matches
+                        // the phone's system language and persist the choice.
+                        // AppCompatDelegate persists the applied locale across
+                        // launches, so we don't re-apply on every cold start —
+                        // the user's pick in Settings (which calls
+                        // LocaleHelper.apply directly) is the only other path.
+                        val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
+                        settingsRepository.update(it.copy(language = detected))
+                        com.eried.eucplanet.util.LocaleHelper.apply(detected)
+                    } else {
+                        // Settings.language and the OS-level per-app locale can
+                        // drift (e.g. user changes language via Android System
+                        // Settings → Languages, bypassing our in-app picker).
+                        // Reconcile to whatever AppCompatDelegate actually has
+                        // applied so the in-app language picker shows the
+                        // truth, not a stale column.
+                        val applied = com.eried.eucplanet.util.LocaleHelper.current()
+                        if (applied.isNotBlank()) {
+                            val normalized = com.eried.eucplanet.util.LocaleHelper.normalizeToSupportedTag(applied)
+                            if (normalized != it.language) {
+                                settingsRepository.update(it.copy(language = normalized))
+                            }
+                        }
                     }
                     // Gated on permission because Android 14+ crashes startForeground
                     // with location/connectedDevice types if neither perm is granted.

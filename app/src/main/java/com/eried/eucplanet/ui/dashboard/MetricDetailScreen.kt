@@ -1,9 +1,16 @@
 package com.eried.eucplanet.ui.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -100,7 +108,7 @@ fun MetricDetailScreen(
 
     val unitLabel = when (metricType) {
         MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(imperial)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(imperial)
+        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
         else -> metricType.unit
     }
 
@@ -146,7 +154,9 @@ fun MetricDetailScreen(
             Spacer(Modifier.height(8.dp))
 
             if (samples.size >= 2) {
-                val windowSamples = samples.takeLast(300)
+                // History is already time-windowed to 5 min in WheelRepository,
+                // so the slice here is just defensive — no need to cap by count.
+                val windowSamples = samples
                 val values = windowSamples.map { it.value }
                 val min = values.min()
                 val max = values.max()
@@ -278,6 +288,32 @@ private fun MetricGraph(
     var frozenSamples by remember { mutableStateOf<List<MetricSample>?>(null) }
     val latestSamples = rememberUpdatedState(samples)
 
+    // Zoom state. zoomTarget = 1f means "see the full window"; 2f means
+    // "see half the time range centered on panFractionTarget". The animated
+    // values drive rendering so resets snap smoothly back to 1.0 over ~250ms.
+    var zoomTarget by remember { mutableStateOf(1f) }
+    var panFractionTarget by remember { mutableStateOf(0.5f) }
+    val zoom by animateFloatAsState(
+        targetValue = zoomTarget,
+        animationSpec = tween(250),
+        label = "graphZoom"
+    )
+    val panFraction by animateFloatAsState(
+        targetValue = panFractionTarget,
+        animationSpec = tween(250),
+        label = "graphPan"
+    )
+    val isZoomed = zoomTarget > 1.001f
+
+    // While zoomed we keep the snapshot frozen so live samples don't push the
+    // user's zoomed-in moment off the right edge. Reset both together.
+    val resetZoom = {
+        zoomTarget = 1f
+        panFractionTarget = 0.5f
+        frozenSamples = null
+        touchX = null
+    }
+
     val displaySamples = frozenSamples ?: samples
 
     Box(
@@ -289,24 +325,71 @@ private fun MetricGraph(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(start = 44.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
+                // Double-tap anywhere resets zoom + unfreezes live data. Runs
+                // on its own pointerInput so it composes cleanly with the
+                // scrub / pinch handler below — tap detection only fires on
+                // quick taps so it doesn't shadow press-and-hold scrubbing.
+                .pointerInput(Unit) {
+                    detectTapGestures(onDoubleTap = { resetZoom() })
+                }
                 .pointerInput(Unit) {
                     awaitEachGesture {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        // Snapshot current samples so the graph stops sliding while held
-                        frozenSamples = latestSamples.value
-                        touchX = down.position.x
-                        down.consume()
+                        awaitFirstDown(requireUnconsumed = false)
+                        // Snapshot current samples; if we're not already
+                        // zoomed, this also freezes the live-slide.
+                        if (frozenSamples == null) frozenSamples = latestSamples.value
+
+                        // Pinch tracking. We capture the time-fraction under
+                        // the pinch midpoint at gesture start so the zoom
+                        // anchors to where the user's fingers are, instead
+                        // of always centering on the middle of the window.
+                        var initialPinchDist: Float? = null
+                        var initialZoom = zoomTarget
+                        var anchorTimeFrac = 0.5f
+                        var pinchFracStart = 0.5f
+
                         while (true) {
                             val ev = awaitPointerEvent()
-                            val change = ev.changes.firstOrNull() ?: break
-                            if (!change.pressed) {
+                            val pressed = ev.changes.filter { it.pressed }
+                            if (pressed.isEmpty()) break
+
+                            if (pressed.size >= 2) {
+                                // Two-finger pinch. Hide tooltip and start
+                                // (or continue) a zoom session.
                                 touchX = null
-                                frozenSamples = null
-                                break
+                                val p1 = pressed[0].position
+                                val p2 = pressed[1].position
+                                val dist = (p1 - p2).getDistance()
+                                if (initialPinchDist == null) {
+                                    initialPinchDist = dist
+                                    initialZoom = zoomTarget
+                                    pinchFracStart = ((p1.x + p2.x) / 2f / size.width)
+                                        .coerceIn(0f, 1f)
+                                    val visStart = panFractionTarget - 0.5f / zoomTarget
+                                    val visWidth = 1f / zoomTarget
+                                    anchorTimeFrac = (visStart + pinchFracStart * visWidth)
+                                        .coerceIn(0f, 1f)
+                                } else {
+                                    val scale = dist / initialPinchDist!!
+                                    val newZoom = (initialZoom * scale).coerceIn(1f, 20f)
+                                    zoomTarget = newZoom
+                                    val newPan = anchorTimeFrac +
+                                        (0.5f - pinchFracStart) / newZoom
+                                    val halfVis = 0.5f / newZoom
+                                    panFractionTarget = newPan.coerceIn(halfVis, 1f - halfVis)
+                                }
+                            } else {
+                                // Single finger — scrub for tooltip.
+                                initialPinchDist = null
+                                touchX = pressed[0].position.x
                             }
-                            touchX = change.position.x
-                            change.consume()
+                            ev.changes.forEach { it.consume() }
                         }
+
+                        // All fingers released. Drop tooltip; unfreeze the
+                        // sample list only if we're NOT still zoomed in.
+                        touchX = null
+                        if (zoomTarget <= 1.001f) frozenSamples = null
                     }
                 }
         ) {
@@ -314,7 +397,25 @@ private fun MetricGraph(
             val w = size.width
             val h = size.height
 
-            val values = displaySamples.map { it.value }
+            // Apply zoom: pick the slice of displaySamples in the visible
+            // time window. The window has width 1/zoom and is centered on
+            // panFraction (both in [0..1] of the full snapshot's time range).
+            val fullStart = displaySamples.first().timestampMs
+            val fullEnd = displaySamples.last().timestampMs
+            val fullSpanMs = (fullEnd - fullStart).coerceAtLeast(1)
+            val halfVis = 0.5f / zoom
+            val visStartFrac = (panFraction - halfVis).coerceIn(0f, 1f - 2 * halfVis)
+            val visEndFrac = (visStartFrac + 2 * halfVis).coerceAtMost(1f)
+            val visStartMs = fullStart + (visStartFrac * fullSpanMs).toLong()
+            val visEndMs = fullStart + (visEndFrac * fullSpanMs).toLong()
+            val visibleSamples = if (zoom <= 1.001f) {
+                displaySamples
+            } else {
+                displaySamples.filter { it.timestampMs in visStartMs..visEndMs }
+                    .ifEmpty { displaySamples }
+            }
+
+            val values = visibleSamples.map { it.value }
             val bounds = boundsFor(values.min(), values.max())
             val graphMin = bounds.min
             val graphRange = bounds.range
@@ -331,9 +432,9 @@ private fun MetricGraph(
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
 
-            // Time axis labels
-            val startTime = displaySamples.first().timestampMs
-            val endTime = displaySamples.last().timestampMs
+            // Time axis labels — reflect the currently-visible zoom window.
+            val startTime = visibleSamples.first().timestampMs
+            val endTime = visibleSamples.last().timestampMs
             val totalSec = ((endTime - startTime) / 1000).toInt().coerceAtLeast(1)
             val timeSteps = if (totalSec > 300) 5 else if (totalSec > 60) 4 else 3
             for (i in 0..timeSteps) {
@@ -345,10 +446,10 @@ private fun MetricGraph(
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
 
-            // Data line
+            // Data line — only samples in the visible window are drawn.
             val timeRange = (endTime - startTime).coerceAtLeast(1)
             val path = androidx.compose.ui.graphics.Path()
-            displaySamples.forEachIndexed { idx, sample ->
+            visibleSamples.forEachIndexed { idx, sample ->
                 val x = ((sample.timestampMs - startTime).toFloat() / timeRange) * w
                 val y = h - ((sample.value - graphMin) / graphRange) * h
                 if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
@@ -371,12 +472,12 @@ private fun MetricGraph(
 
                 // Find bracketing samples for interpolation
                 var leftIdx = 0
-                for (i in displaySamples.indices) {
-                    if (displaySamples[i].timestampMs <= targetMs) leftIdx = i else break
+                for (i in visibleSamples.indices) {
+                    if (visibleSamples[i].timestampMs <= targetMs) leftIdx = i else break
                 }
-                val rightIdx = (leftIdx + 1).coerceAtMost(displaySamples.size - 1)
-                val left = displaySamples[leftIdx]
-                val right = displaySamples[rightIdx]
+                val rightIdx = (leftIdx + 1).coerceAtMost(visibleSamples.size - 1)
+                val left = visibleSamples[leftIdx]
+                val right = visibleSamples[rightIdx]
                 val span = (right.timestampMs - left.timestampMs).coerceAtLeast(1)
                 val frac = ((targetMs - left.timestampMs).toFloat() / span).coerceIn(0f, 1f)
                 val interpValue = left.value + (right.value - left.value) * frac
@@ -403,6 +504,33 @@ private fun MetricGraph(
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(6f, 6f)
                 )
                 drawText(measured, topLeft = Offset(boxX + padX, boxY + padY))
+            }
+        }
+
+        // ▶ Live chip — only shown while a zoom is active. Tap to snap back
+        // and resume live sliding. Doubles as the "you are paused" indicator
+        // so the user has an obvious way out of the inspection mode.
+        AnimatedVisibility(
+            visible = isZoomed,
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(150)),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(color.copy(alpha = 0.85f))
+                    .clickable { resetZoom() }
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "Reset",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black
+                )
             }
         }
     }

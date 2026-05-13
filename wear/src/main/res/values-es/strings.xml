@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Abre EUC Planet\nen tu móvil</string>
+    <string name="watch_waiting_wheel">Conecta una rueda\nen EUC Planet</string>
+    <string name="watch_disconnected">Desconectada</string>
+    <string name="watch_horn">Bocina</string>
+    <string name="watch_light">Luz</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Batería</string>
+    <string name="watch_voltage_label">Voltaje</string>
+    <string name="watch_current_label">Corriente</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Potencia</string>
+    <string name="watch_temp_label">Temp</string>
+    <string name="watch_trip_label">Viaje</string>
+    <string name="watch_torque_label">Par</string>
+    <string name="watch_action_failed">Sin conexión al móvil</string>
+    <string name="watch_gps_label">GPS</string>
+    <string name="watch_gps_permission">Toca para activar GPS</string>
+    <string name="watch_gps_waiting">Esperando señal…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">Bocina</string>
+    <string name="watch_action_light">Luz</string>
+    <string name="watch_action_lock">Bloquear rueda</string>
+    <string name="watch_action_safety">Modo Legal</string>
+    <string name="watch_action_safety_on">Modo Legal activado</string>
+    <string name="watch_action_safety_off">Modo Legal desactivado</string>
+    <string name="watch_action_voice">Reporte de voz</string>
+    <string name="watch_action_record">Grabación</string>
+    <string name="watch_action_record_start">Grabación iniciada</string>
+    <string name="watch_action_record_stop">Grabación detenida</string>
+    <string name="watch_action_media_play">Reproducir / pausar</string>
+    <string name="watch_action_media_next">Siguiente</string>
+    <string name="watch_action_media_prev">Anterior</string>
+    <string name="watch_action_long_press_hint">Mantén pulsado para %1$s</string>
+</resources>

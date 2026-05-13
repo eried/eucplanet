@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="watch_waiting_phone">Abra o EUC Planet\nno celular</string>
+    <string name="watch_waiting_wheel">Conecte uma roda\nno EUC Planet</string>
+    <string name="watch_disconnected">Desconectada</string>
+    <string name="watch_horn">Buzina</string>
+    <string name="watch_light">Luz</string>
+    <string name="watch_speed_unit">km/h</string>
+    <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_battery_label">Bateria</string>
+    <string name="watch_voltage_label">Tensão</string>
+    <string name="watch_current_label">Corrente</string>
+    <string name="watch_pwm_label">PWM</string>
+    <string name="watch_power_label">Potência</string>
+    <string name="watch_temp_label">Temp</string>
+    <string name="watch_trip_label">Viagem</string>
+    <string name="watch_torque_label">Torque</string>
+    <string name="watch_action_failed">Sem acesso ao celular</string>
+    <string name="watch_gps_label">Vel. GPS</string>
+    <string name="watch_gps_permission">Toque para ativar o GPS</string>
+    <string name="watch_gps_waiting">Aguardando sinal…</string>
+
+    <!-- Toast labels for hold-action triggers. Short so they fit on a Wear toast. -->
+    <string name="watch_action_horn">Buzina</string>
+    <string name="watch_action_light">Luz</string>
+    <string name="watch_action_lock">Travar roda</string>
+    <string name="watch_action_safety">Modo Legal</string>
+    <string name="watch_action_safety_on">Modo Legal ativo</string>
+    <string name="watch_action_safety_off">Modo Legal desativado</string>
+    <string name="watch_action_voice">Relato por voz</string>
+    <string name="watch_action_record">Gravação</string>
+    <string name="watch_action_record_start">Gravação iniciada</string>
+    <string name="watch_action_record_stop">Gravação parada</string>
+    <string name="watch_action_media_play">Tocar / pausar</string>
+    <string name="watch_action_media_next">Próxima</string>
+    <string name="watch_action_media_prev">Anterior</string>
+    <string name="watch_action_long_press_hint">Segure para %1$s</string>
+</resources>

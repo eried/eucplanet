@@ -107,30 +107,21 @@ fun FlicScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Scan section
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    HintText(stringResource(R.string.flic_scan_hint))
-                    Spacer(Modifier.height(12.dp))
-                    if (scanning) {
-                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-                        Spacer(Modifier.height(8.dp))
-                        Button(
-                            onClick = { viewModel.stopScan() },
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                        ) {
-                            Text(stringResource(R.string.flic_stop_scan))
-                        }
-                    } else {
-                        Button(onClick = { viewModel.startScan() }) {
-                            Text(stringResource(R.string.flic_start_scan))
-                        }
+            HintText(stringResource(R.string.flic_scan_hint))
+            if (scanning) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        onClick = { viewModel.stopScan() },
+                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    ) {
+                        Text(stringResource(R.string.flic_stop_scan))
                     }
+                    Spacer(Modifier.width(12.dp))
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                }
+            } else {
+                Button(onClick = { viewModel.startScan() }) {
+                    Text(stringResource(R.string.flic_start_scan))
                 }
             }
 

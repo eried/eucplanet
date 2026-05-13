@@ -20,4 +20,15 @@ keystore.properties
 release/
 /.playwright-mcp
 /.claude
-/.claude
+
+# Scratch files (analysis, screenshots, ad-hoc)
+.tmp_*
+*.btsnoop
+*.cfa
+*.log
+deletelater.html
+delete.html
+
+# Stray build-output paths that have leaked into the repo before
+**/eucplanet_*.png
+**/build/eucplanet_*

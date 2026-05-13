@@ -64,6 +64,152 @@ object InMotionV2Commands {
     fun getRealTimeData(): ByteArray =
         InMotionV2Protocol.buildPacket(Flags.DEFAULT, Command.REAL_TIME_INFO, byteArrayOf())
 
+    // --- InMotion P6 (extended-routing-only variant) ---
+    //
+    // The P6 ignores the legacy `02 [cmd]` queries (carType returns all zeros in
+    // captures) and only responds to extended-routing queries `02 21 [sub]`.
+    // Confirmed sub-commands seen on a real P6 (firmware A14219B): 0x06 info
+    // bundle (serial + version), 0x07 realtime telemetry, 0x04 total stats.
+    // We send only the info + realtime queries — settings (sub 0x20) and ride
+    // history (sub 0x10/0x11) have a TLV-style layout we haven't reverse-
+    // engineered yet, so polling them just produces unparsed bytes.
+
+    fun getP6Info(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x06, byteArrayOf())
+
+    fun getP6RealTimeData(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x07, byteArrayOf())
+
+    /**
+     * Read settings page A (`02 21 20 [20]`). Comes back as a 51-byte body
+     * with current tiltback at offset 13-14 (uint16 LE / 100, km/h).
+     */
+    fun getP6Settings(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x20, byteArrayOf(0x20))
+
+    /** P6 detailed-data query (`02 21 04`). Response comes back as
+     *  `21 02 84 [86-byte body]`. The InMotion app fires this without an arg
+     *  — earlier preview tried `02 21 04 32` and the wheel ignored it.
+     *  Body offset 58 = MOS temperature with formula `°F = byte − 126`,
+     *  verified at 72 °F = byte 0xC6 in the labelled capture. */
+    fun getP6Stats(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(0x04, byteArrayOf())
+
+    /**
+     * Set the P6 tiltback / max speed.
+     *
+     * P6 takes a 2-byte uint16 LE value in 0.01 km/h units, NOT the V14's
+     * 4-byte (tilt + alarm) packet. `60 21 [v_lo v_hi]` alone is sufficient
+     * and persists across reboots — multiple mid-drag writes without any
+     * follow-up commit are honoured by the wheel and stay put. Pair it with
+     * [setP6AlarmSpeed] only if you also want to change the alarm threshold.
+     */
+    fun setP6MaxSpeed(tiltbackKmh: Float): ByteArray {
+        val v = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.SET_MAX_SPEED, v[0], v[1])
+        )
+    }
+
+    /**
+     * P6 light: `60 50 [on/off, on/off]`. The second byte mirrors the first
+     * — V14 uses a 1-byte arg and is silently ignored by the P6, which is
+     * why the watch / phone toggle didn't take on Gio's wheel.
+     */
+    fun setP6Light(on: Boolean): ByteArray {
+        val v = if (on) 0x01.toByte() else 0x00.toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.SET_LIGHT, v, v)
+        )
+    }
+
+    /**
+     * P6 horn: `60 51 [18 01]`. V14 sends `[02 64]` (sound id + volume) and
+     * the P6 ignores it. Args here are taken verbatim from the InMotion app
+     * capture and produce the standard P6 chirp.
+     */
+    fun hornP6(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(ControlSubCmd.PLAY_SOUND, 0x18, 0x01)
+        )
+
+    /**
+     * P6 Auto Headlight toggle (the "Auto Headlight" switch under General
+     * Settings → Lighting). Wire format: `aa aa 16 05 02 21 60 2f [v] [chk]`,
+     * single-byte payload (1 = ON, 0 = OFF). Verified against the FINAL P6
+     * capture — five toggles by the user produced exactly this frame each
+     * time, with `2f 01 7e` for ON and `2f 00 7f` for OFF.
+     *
+     * On a P6, manual Light (`60 50`) is independent of Auto Headlight: when
+     * Auto Headlight is on, the wheel decides based on ambient light; when
+     * it is off, the user controls the headlight directly via `60 50`.
+     */
+    fun setP6AutoHeadlight(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x2F, if (on) 0x01 else 0x00)
+        )
+
+    /**
+     * Set the P6 **Speed Limit Alarm** (the threshold above which the wheel
+     * beeps). Goes through `60 3e [v_lo v_hi 00 00]` — same opcode the
+     * InMotion app uses for any commit-to-flash scalar setting. Confirmed
+     * against `docs/P6_CAPTURE_LABELS.md`: 13679 = 136.79 km/h = 85 mph
+     * matched the on-screen 85 mph alarm value during the labelled capture.
+     */
+    fun setP6AlarmSpeed(alarmKmh: Float): ByteArray {
+        val v = ByteUtils.putUint16LE((alarmKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x3E, v[0], v[1], 0x00, 0x00)
+        )
+    }
+
+    /**
+     * Set all three P6 **PWM thresholds** at once via `60 4c`:
+     *   - `tiltbackPct`: PWM Tilt-back Limit  (0-100)
+     *   - `alarm1Pct`:   PWM Level 1 Alarm    (0-100)
+     *   - `alarm2Pct`:   PWM Level 2 Alarm    (0-100)
+     *
+     * Wire format: 3 × uint16 LE in 0.01% units. The InMotion app sends all
+     * three in one packet whenever any slider changes, so we mirror that.
+     */
+    fun setP6PwmThresholds(tiltbackPct: Float, alarm1Pct: Float, alarm2Pct: Float): ByteArray {
+        val t = ByteUtils.putUint16LE((tiltbackPct * 100).toInt())
+        val a1 = ByteUtils.putUint16LE((alarm1Pct * 100).toInt())
+        val a2 = ByteUtils.putUint16LE((alarm2Pct * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x4C, t[0], t[1], a1[0], a1[1], a2[0], a2[1])
+        )
+    }
+
+    /**
+     * Toggle the P6 **Speed Clamp at 25 km/h** safety. Maps to the InMotion
+     * app's "Speed Clamp at 25km/h" switch in General Settings.
+     */
+    fun setP6SpeedClamp25(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x24, if (on) 0x01 else 0x00)
+        )
+
+    /**
+     * Set the P6 **Pedal Hardness** slider. The InMotion app sends two bytes
+     * `[live, committed]` while dragging — we send the same value in both
+     * since we're emitting a single atomic set rather than a drag stream.
+     */
+    fun setP6PedalHardness(percent: Int): ByteArray {
+        val v = percent.coerceIn(0, 100).toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x25, v, v)
+        )
+    }
+
     // --- Control commands ---
 
     /**

@@ -65,6 +65,13 @@ class VoiceService @Inject constructor(
     private var focusHeld = false
     private var pendingUtterances = 0
 
+    /**
+     * True while any TTS utterance is in flight. Engine sound observes this to
+     * duck/pause itself while the user is being spoken to.
+     */
+    private val _isSpeaking = MutableStateFlow(false)
+    val isSpeaking: StateFlow<Boolean> = _isSpeaking.asStateFlow()
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val _availableVoices = MutableStateFlow<List<VoiceOption>>(emptyList())
@@ -121,7 +128,7 @@ class VoiceService @Inject constructor(
     }
 
     private val utteranceListener = object : UtteranceProgressListener() {
-        override fun onStart(utteranceId: String?) {}
+        override fun onStart(utteranceId: String?) { _isSpeaking.value = true }
         override fun onDone(utteranceId: String?) { onUtteranceFinished(utteranceId) }
         @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String?) { onUtteranceFinished(utteranceId) }
@@ -135,7 +142,10 @@ class VoiceService @Inject constructor(
         if (utteranceId != null && utteranceId.startsWith("trig_")) {
             triggerInFlight = false
         }
-        if (pendingUtterances == 0) abandonAudioFocus()
+        if (pendingUtterances == 0) {
+            abandonAudioFocus()
+            _isSpeaking.value = false
+        }
     }
 
     @Synchronized
@@ -188,6 +198,20 @@ class VoiceService @Inject constructor(
         if (isReady) speakWelcomeIfEnabled() else welcomePending = true
     }
 
+    /**
+     * Speak the welcome message right now, ignoring the once-per-process gate.
+     * Used after a manual voice-language switch to give the user audible
+     * confirmation that the new voice works.
+     */
+    fun speakWelcomeNow() {
+        scope.launch {
+            val s = settingsRepository.get()
+            val welcome = context.getString(R.string.voice_welcome)
+            speakInternal(welcome, isTrigger = false,
+                rate = s.voiceSpeechRate, localeTag = s.voiceLocale)
+        }
+    }
+
     private fun speakWelcomeIfEnabled() {
         scope.launch {
             val s = settingsRepository.get()
@@ -233,7 +257,17 @@ class VoiceService @Inject constructor(
         val engine = tts ?: return
         val voices = try {
             engine.availableLanguages?.map { locale ->
-                VoiceOption(locale, "${locale.displayLanguage} (${locale.displayCountry})")
+                // Render each voice in its own language (e.g. "Español
+                // (España)") rather than translating into the current UI
+                // locale. Stable across app-language changes and matches
+                // the same native-script policy as the language picker.
+                // displayCountry can be empty for locales that aren't bound
+                // to a region (e.g. plain "ar" Arabic) — skip the parens so
+                // we don't render "العربية ()".
+                val lang = locale.getDisplayLanguage(locale)
+                val country = locale.getDisplayCountry(locale)
+                val label = if (country.isNullOrBlank()) lang else "$lang ($country)"
+                VoiceOption(locale, label)
             }?.sortedBy { it.displayName } ?: emptyList()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to load voices", e)
@@ -259,11 +293,22 @@ class VoiceService @Inject constructor(
 
     fun pickVoiceForLanguage(langCode: String): String? {
         val engine = tts ?: return null
-        val target = langCode.lowercase()
+        // Strip region (e.g. "es-419" -> "es", "pt-BR" -> "pt") since we match
+        // by primary language. TTS engines don't always carry the region.
+        val primary = langCode.substringBefore('-').lowercase()
+        // Norwegian on Android TTS is exposed as Bokmål (nb) or Nynorsk (nn);
+        // the macro-language code "no" is rarely a direct match. Accept either.
+        val acceptable = when (primary) {
+            "no" -> setOf("no", "nb", "nn")
+            else -> setOf(primary)
+        }
         return try {
             val locales = engine.availableLanguages ?: return null
-            val match = locales.firstOrNull { it.language.equals(target, ignoreCase = true) }
-            match?.toLanguageTag()
+            val match = locales.firstOrNull { it.language.lowercase() in acceptable }
+            // Return Locale.toString() form ("nb_NO") not toLanguageTag()
+            // ("nb-NO") so the saved voiceLocale matches what the voice
+            // picker compares against (`it.locale.toString()`).
+            match?.toString()
         } catch (e: Exception) {
             Log.w(TAG, "pickVoiceForLanguage failed", e)
             null
@@ -350,12 +395,22 @@ class VoiceService @Inject constructor(
                 else -> false
             }
             if (enabled) {
+                // Convert each value to the user's display unit before
+                // formatting. The "kilometers / miles" wording in
+                // voice_trip_fmt also switches via the imperial variant.
+                val imperial = settings.imperialUnits
+                val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperial)
+                val displayTemp = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, imperial)
+                val displayTrip = com.eried.eucplanet.util.Units.distance(data.tripDistance, imperial)
                 when (item) {
-                    "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(data.speed)))
+                    "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(displaySpeed)))
                     "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
-                    "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(data.maxTemperature)))
+                    "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
                     "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
-                    "Distance" -> parts.add(context.getString(R.string.voice_trip_fmt, "%.1f".format(data.tripDistance)))
+                    "Distance" -> parts.add(context.getString(
+                        if (imperial) R.string.voice_trip_miles_fmt else R.string.voice_trip_fmt,
+                        "%.1f".format(displayTrip)
+                    ))
                     "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
                     "Time" -> parts.add(context.getString(R.string.voice_time_fmt,
                         android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date())))

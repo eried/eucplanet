@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.util.CrashHandler
+import com.eried.eucplanet.wear.WearBridge
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -13,6 +14,7 @@ class EucPlanetApp : Application(), Configuration.Provider {
 
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject lateinit var wearBridge: WearBridge
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -23,5 +25,6 @@ class EucPlanetApp : Application(), Configuration.Provider {
         super.onCreate()
         CrashHandler.install(this)
         flicManager.initialize()
+        wearBridge.start()
     }
 }

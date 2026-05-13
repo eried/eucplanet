@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -32,8 +33,16 @@ class SettingsViewModel @Inject constructor(
     private val voiceService: VoiceService,
     private val tripRepository: TripRepository,
     private val syncManager: SyncManager,
-    private val automationManager: AutomationManager
+    private val automationManager: AutomationManager,
+    private val wearBridge: com.eried.eucplanet.wear.WearBridge,
+    private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
+    val cheatState: com.eried.eucplanet.cheats.CheatState
 ) : ViewModel() {
+
+    /** Manual "wake the watch app" trigger — fires the same /euc/wake
+     *  message that MainActivity.onResume() sends. Lets the user verify
+     *  pairing without restarting the phone app. */
+    fun testWatchWake() = wearBridge.pingWatchToWake()
 
     val autoLightsSuspended: StateFlow<Boolean> = automationManager.autoLightsSuspended
 
@@ -45,6 +54,17 @@ class SettingsViewModel @Inject constructor(
     val isConnected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /**
+     * Engine-sound preview buttons should only fire while the rider is parked,
+     * because previewing pushes synthetic telemetry through the same audio path
+     * as the real ride and would clash. Disconnected = no ride happening, so
+     * preview is allowed. Connected + sub-walking-pace = parked.
+     */
+    val engineParked: StateFlow<Boolean> = wheelRepository.wheelData
+        .map { kotlin.math.abs(it.speed) < 0.5f }
+        .combine(isConnected) { speedParked, conn -> !conn || speedParked }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val availableVoices: StateFlow<List<VoiceOption>> = voiceService.availableVoices
 
@@ -109,6 +129,55 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
     fun updateVoiceOutputChannel(v: String) = update { copy(voiceOutputChannel = v) }
+
+    // Motor sound
+    fun updateEngineSoundEnabled(v: Boolean) = update { copy(engineSoundEnabled = v) }
+    fun updateEngineType(v: String) = update { copy(engineType = v) }
+    fun updateEngineVolume(v: Float) = update { copy(engineVolume = v.coerceIn(0f, 1f)) }
+    fun updateEngineVolumeAutoEnabled(v: Boolean) = update { copy(engineVolumeAutoEnabled = v) }
+    fun updateEngineVolumeAutoCurve(curve: String) = update { copy(engineVolumeAutoCurve = curve) }
+    fun updateEngineMuffler(v: String) = update { copy(engineMuffler = v) }
+    fun updateEngineGearbox(v: String) = update { copy(engineGearbox = v) }
+    fun updateEngineIdleBehavior(v: String) = update { copy(engineIdleBehavior = v) }
+    fun updateEngineDecelChar(v: String) = update { copy(engineDecelChar = v) }
+    fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
+    fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
+    fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
+    fun markEngineSafetyShown() = update { copy(engineSafetyShown = true) }
+
+    fun previewEngine(key: String) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            engineSoundEngine.previewProfile(
+                key = key,
+                volume = s.engineVolume,
+                muffler = s.engineMuffler,
+                gearbox = s.engineGearbox
+            )
+        }
+    }
+
+    /**
+     * Section preview — play a short clip that demonstrates the section's current setting.
+     *
+     * [scenario] picks the motion pattern fed to the engine:
+     *  - "DEFAULT": idle → mid-rev → idle (Muffler — shows the muffler tone across the rev range)
+     *  - "GEARBOX": speed sweep so the virtual gearbox actually shifts
+     *  - "DECEL":   accel under load then sharp off-throttle to trigger pops / backfire
+     *  - "BRAKE":   sustained coast at speed so the engine-brake whine engages
+     */
+    fun previewEngineSection(scenario: String) {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            engineSoundEngine.previewProfile(
+                key = s.engineType,
+                volume = s.engineVolume,
+                muffler = s.engineMuffler,
+                gearbox = s.engineGearbox,
+                scenario = scenario
+            )
+        }
+    }
     fun updateAutoRecord(v: Boolean) = update { copy(autoRecord = v) }
     fun updateAutoRecordStartInMotion(v: Boolean) = update { copy(autoRecordStartInMotion = v) }
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
@@ -151,23 +220,60 @@ class SettingsViewModel @Inject constructor(
 
     fun updateImperialUnits(v: Boolean) = update { copy(imperialUnits = v) }
 
+    // Wear OS companion
+    fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
+    fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
+    fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
+    fun updateWatchShowPhoneBattery(v: Boolean) = update { copy(watchShowPhoneBattery = v) }
+    fun updateWatchShowWatchBattery(v: Boolean) = update { copy(watchShowWatchBattery = v) }
+    fun updateWatchPwmDisplay(v: String) = update { copy(watchPwmDisplay = v) }
+    fun updateWatchShowSpeedUnit(v: Boolean) = update { copy(watchShowSpeedUnit = v) }
+    fun updateWatchEnableGpsSpeed(v: Boolean) = update { copy(watchEnableGpsSpeed = v) }
+    fun updateWatchPrioritizePwm(v: Boolean) = update { copy(watchPrioritizePwm = v) }
+    fun updateWatchDialRotationDeg(v: Int) = update { copy(watchDialRotationDeg = v.coerceIn(-90, 90)) }
+    fun updateWatchStem1Click(action: String) = update { copy(watchStem1Click = action) }
+    fun updateWatchStem1Hold(action: String) = update { copy(watchStem1Hold = action) }
+    fun updateWatchStem2Click(action: String) = update { copy(watchStem2Click = action) }
+    fun updateWatchStem2Hold(action: String) = update { copy(watchStem2Hold = action) }
+    fun updateWatchScreen1Click(action: String) = update { copy(watchScreen1Click = action) }
+    fun updateWatchScreen1Hold(action: String) = update { copy(watchScreen1Hold = action) }
+    fun updateWatchScreen2Click(action: String) = update { copy(watchScreen2Click = action) }
+    fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
+    fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
+
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()
 
     // Appearance
     fun updateLanguage(v: String) {
-        update { copy(language = v) }
-        com.eried.eucplanet.util.LocaleHelper.apply(v)
         val appLang = if (v.isBlank()) "en" else v
+        // Pull just the primary language subtag (e.g. "es" from "es-419", "pt" from "pt-BR")
+        // so es-419 / pt-BR don't confuse the equality check below.
+        val appLangPrimary = appLang.substringBefore('-').lowercase()
         val ttsLang = voiceService.currentVoiceLanguage().lowercase()
-        if (ttsLang != appLang.lowercase()) {
-            _ttsSwitchPrompt.value = appLang
+        if (ttsLang != appLangPrimary) {
+            // Defer the locale switch until the user confirms in the dialog —
+            // showing the prompt FIRST means the dialog renders in the user's
+            // current language, so they can read it (and Cancel) even if the
+            // requested language is one they don't actually speak.
+            _ttsSwitchPrompt.value = v
+        } else {
+            // TTS already matches — apply the language switch immediately.
+            update { copy(language = v) }
+            com.eried.eucplanet.util.LocaleHelper.apply(v)
         }
     }
 
+    /**
+     * User accepted: switch the app language and ALSO switch the TTS voice
+     * to match the new language.
+     */
     fun acceptTtsSwitch() {
-        val lang = _ttsSwitchPrompt.value ?: return
-        val tag = voiceService.pickVoiceForLanguage(lang)
+        val v = _ttsSwitchPrompt.value ?: return
+        update { copy(language = v) }
+        com.eried.eucplanet.util.LocaleHelper.apply(v)
+        val appLang = if (v.isBlank()) "en" else v
+        val tag = voiceService.pickVoiceForLanguage(appLang)
         if (tag != null) {
             update { copy(voiceLocale = tag) }
             voiceService.setVoiceLocale(tag)
@@ -175,14 +281,31 @@ class SettingsViewModel @Inject constructor(
         _ttsSwitchPrompt.value = null
     }
 
-    fun dismissTtsSwitch() { _ttsSwitchPrompt.value = null }
+    /**
+     * User chose to switch language but keep the existing TTS voice.
+     */
+    fun dismissTtsSwitch() {
+        val v = _ttsSwitchPrompt.value ?: return
+        update { copy(language = v) }
+        com.eried.eucplanet.util.LocaleHelper.apply(v)
+        _ttsSwitchPrompt.value = null
+    }
+
+    /**
+     * User cancelled the language switch entirely (e.g. picked the wrong
+     * language by mistake).
+     */
+    fun cancelLanguageSwitch() { _ttsSwitchPrompt.value = null }
 
     fun updateThemeMode(v: String) = update { copy(themeMode = v) }
     fun updateAccentColor(v: String) = update { copy(accentColor = v) }
     fun updateShowGaugeColorBand(v: Boolean) = update { copy(showGaugeColorBand = v) }
     fun updateGaugeThresholds(orangePct: Int, redPct: Int) = update {
-        val o = orangePct.coerceIn(25, 96)
-        val r = redPct.coerceIn((o + 4).coerceAtMost(100), 100)
+        // Keep all three bands visible: green ≥ 5%, orange ≥ 4%, red ≥ 5%. That way
+        // the user can collapse any zone to a thin sliver but never to zero, which
+        // would make the band confusing on the gauge.
+        val o = orangePct.coerceIn(5, 91)
+        val r = redPct.coerceIn((o + 4).coerceAtMost(95), 95)
         copy(gaugeOrangeThresholdPct = o, gaugeRedThresholdPct = r)
     }
     fun updateCurrentDisplayMode(v: String) = update { copy(currentDisplayMode = v) }

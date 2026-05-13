@@ -16,6 +16,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.MainActivity
 import com.eried.eucplanet.R
+import com.eried.eucplanet.audio.EngineSoundEngine
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -39,13 +40,19 @@ class WheelService : LifecycleService() {
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val EXTRA_ADDRESS = "device_address"
+        const val EXTRA_NAME = "device_name"
     }
 
     @Inject lateinit var wheelRepository: WheelRepository
     @Inject lateinit var settingsRepository: SettingsRepository
+
+    @Volatile
+    private var imperialCached: Boolean = false
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
+    @Inject lateinit var engineSoundEngine: EngineSoundEngine
+    @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -93,6 +100,38 @@ class WheelService : LifecycleService() {
                 automationManager.evaluate(settings)
                 checkLightTransition(data.lightOn, settings)
                 evaluateAutoRecordOnTelemetry(data, settings)
+                if (settings.engineSoundEnabled) {
+                    engineSoundEngine.pushTelemetry(data.speed, data.pwm)
+                }
+            }
+        }
+
+        // Apply engine settings + lifecycle on settings changes and connection
+        lifecycleScope.launch {
+            settingsRepository.settings.collect { s ->
+                // Notification builder reads imperial without suspending —
+                // mirror the latest value here every settings update.
+                imperialCached = s.imperialUnits
+                engineSoundEngine.applySettings(s)
+                engineSoundEngine.setConnected(
+                    wheelRepository.connectionState.value == ConnectionState.CONNECTED,
+                    s
+                )
+            }
+        }
+
+        // Engine ducks itself while TTS is speaking.
+        lifecycleScope.launch {
+            voiceService.isSpeaking.collect { speaking ->
+                engineSoundEngine.setVoiceActive(speaking)
+            }
+        }
+
+        // Speed→RPM mapping uses the wheel's top speed as the reference so 30 km/h on a
+        // V11 (max 50) revs harder than 30 km/h on a P6 (max 150).
+        lifecycleScope.launch {
+            wheelRepository.maxSpeedCap.collect { cap ->
+                engineSoundEngine.setMaxSpeedRef(cap)
             }
         }
 
@@ -130,6 +169,7 @@ class WheelService : LifecycleService() {
                                 !tripRepository.recording.value) {
                                 lifecycleScope.launch { tripRepository.startRecording() }
                             }
+                            engineSoundEngine.setConnected(true, settings)
                         }
                         ConnectionState.DISCONNECTED -> {
                             // Only announce if we were actually connected (not just reconnect cycling)
@@ -137,6 +177,7 @@ class WheelService : LifecycleService() {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_disconnected))
                             }
                             lastLightOn = null
+                            engineSoundEngine.setConnected(false, settings)
                         }
                         else -> {}
                     }
@@ -175,8 +216,9 @@ class WheelService : LifecycleService() {
         when (intent?.action) {
             ACTION_CONNECT -> {
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
+                val name = intent.getStringExtra(EXTRA_NAME)
                 if (address != null) {
-                    wheelRepository.connect(address)
+                    wheelRepository.connect(address, name)
                 }
             }
             ACTION_DISCONNECT -> {
@@ -194,7 +236,13 @@ class WheelService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        // Send one last DataMap so the watch flips to its disconnected
+        // ("—") state instantly. If the process is hard-killed and this
+        // line never runs, the watch's 3-s stale timer kicks in as
+        // fallback. Either way the rider never sees a frozen-stale dial.
+        try { wearBridge.publishFarewell() } catch (_: Exception) {}
         voiceJob?.cancel()
+        engineSoundEngine.stop()
         voiceService.shutdown()
         tripRepository.stopLocationUpdates()
         lifecycleScope.launch { tripRepository.stopRecording() }
@@ -307,7 +355,9 @@ class WheelService : LifecycleService() {
         )
 
         val text = if (data != null && data.speed > 0) {
-            "%.1f km/h | %d%% | %.1f V".format(data.speed, data.batteryPercent, data.voltage)
+            val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperialCached)
+            val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, imperialCached)
+            "%.1f %s | %d%% | %.1f V".format(displaySpeed, speedUnit, data.batteryPercent, data.voltage)
         } else {
             val state = wheelRepository.connectionState.value
             state.name.lowercase().replaceFirstChar { it.uppercase() }

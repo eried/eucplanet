@@ -44,7 +44,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">SPENNING</string>
     <string name="stat_amps">AMPERE</string>
-    <string name="stat_load">LAST</string>
+    <string name="stat_load">BELASTNING (PWM)</string>
     <string name="stat_trip">TUR</string>
     <string name="stat_odo">ODO </string>
 
@@ -55,7 +55,7 @@
     <string name="action_legal_on">Lovlig PÅ</string>
     <string name="action_lock_wheel">Lås hjul</string>
     <string name="action_locked">Låst</string>
-    <string name="action_recorder">Opptak</string>
+    <string name="action_recorder">Opptaker</string>
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
 
     <string name="search_settings">Søk i innstillinger</string>
@@ -66,11 +66,11 @@
     <string name="tab_alarms">Alarmregler</string>
     <string name="tab_auto">Automatiseringer</string>
     <string name="tab_integration">Integrasjon</string>
-    <string name="tab_cloud">Sikkerhetskopi av turer og innstillinger</string>
+    <string name="tab_cloud">Backup av innstillinger og turer</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Velg en mappe på denne telefonen der tur-CSV-er og en innstillings-backup lagres</string>
+    <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup.</string>
     <string name="cloud_help_title">Slik tar du backup til OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappevelger viser vanligvis ikke OneDrive, Google Drive eller Dropbox. De appene eksponerer ikke en skrivbar mappe til andre apper, så vi lagrer lokalt og lar en synkroniserings-app gjøre opplastingen.\n\nOppsett:\n1. Installer Autosync (for OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Logg inn i den appen og opprett et synkpar: din valgte lokale mappe til en skymappe.\n3. Sett det til \"Kun opplasting\" med umiddelbar eller ved-endring-synk.\n4. Kom tilbake hit og velg den samme lokale mappen.\n\nNye turer havner i den mappen når et opptak slutter. Synk-appen laster dem opp i bakgrunnen.</string>
     <string name="cloud_choose_folder">Velg mappe</string>
@@ -112,9 +112,9 @@
     <string name="section_connection">Tilkobling</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Auto-ta opp ved start</string>
-    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet</string>
+    <string name="auto_record_caption">Tar opp en tur når hjulet er tilkoblet.</string>
     <string name="auto_record_start_in_motion">Start opptak når du beveger deg</string>
-    <string name="auto_record_start_in_motion_caption">Venter på bevegelse for å starte opptak, stopper automatisk etter inaktivitetstiden og starter igjen ved neste tur</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevegelse, stopper etter inaktivitet, starter igjen ved neste tur.</string>
     <string name="auto_record_stop_idle_seconds">Stopp etter inaktivitet i</string>
     <string name="auto_connect_on_start">Auto-koble til ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
@@ -139,7 +139,7 @@
 
     <string name="section_speed_limits">Fartsgrenser</string>
     <string name="section_legal_mode_speed">Lovlig modus, fart</string>
-    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback</string>
+    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback.</string>
     <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
@@ -165,8 +165,8 @@
     <string name="voice_speech_speed">Talehastighet</string>
     <string name="unit_x">x</string>
     <string name="voice_audio_focus_label">Under tale</string>
-    <string name="voice_audio_focus_duck">Demp andre lyder</string>
-    <string name="voice_audio_focus_pause">Pause andre lyder</string>
+    <string name="voice_audio_focus_duck">Demp andre</string>
+    <string name="voice_audio_focus_pause">Pause andre</string>
     <string name="voice_audio_focus_off">Ikke gjør noe</string>
     <string name="col_periodic">Jevnlig</string>
     <string name="col_trigger">Hendelse</string>
@@ -178,7 +178,7 @@
     <string name="report_recording">Opptak</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann.</string>
     <string name="flic_stop_scan">Stopp</string>
     <string name="flic_start_scan">Søk etter knapp</string>
     <string name="flic_forget">Glem</string>
@@ -187,7 +187,7 @@
     <string name="flic_double_click">Dobbeltklikk</string>
     <string name="flic_hold">Hold</string>
     <string name="section_volume_keys">Volumtaster</string>
-    <string name="volume_keys_caption">Bruk telefonens volumtaster som snarveier. Fungerer bare når appen er synlig</string>
+    <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
     <string name="volume_up">Volum opp</string>
     <string name="volume_down">Volum ned</string>
@@ -213,17 +213,6 @@
     <string name="voice_legal_on">Lovlig modus på</string>
     <string name="voice_legal_off">Lovlig modus av</string>
     <string name="voice_welcome">Velkommen tilbake til EUC Planet</string>
-
-    <string name="lang_name_en">engelsk</string>
-    <string name="lang_name_es">spansk</string>
-    <string name="lang_name_ru">russisk</string>
-    <string name="lang_name_no">norsk</string>
-    <string name="lang_name_de">tysk</string>
-    <string name="lang_name_fr">fransk</string>
-    <string name="lang_name_da">dansk</string>
-    <string name="lang_name_sv">svensk</string>
-    <string name="lang_name_zh">kinesisk</string>
-
     <!-- Scan screen -->
     <string name="scan_title">Koble til hjul</string>
     <string name="scan_scanning">Søker\u2026</string>
@@ -286,13 +275,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lys</string>
-    <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang</string>
+    <string name="auto_lights_desc">Slå lys av eller på basert på soloppgang og solnedgang.</string>
     <string name="auto_lights_on_before_sunset">Lys PÅ før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Lys AV etter soloppgang</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Venter på GPS-posisjon\u2026</string>
     <string name="auto_volume_title">Volum</string>
-    <string name="auto_volume_desc">Adaptivt systemvolum basert på fart</string>
+    <string name="auto_volume_desc">Adaptivt systemvolum basert på fart.</string>
     <string name="auto_sunrise_sunset">Soloppgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Sola går ikke ned på denne breddegraden i dag, lysene forblir AV</string>
@@ -380,9 +369,146 @@
     <string name="flic_status_scan_failed_fmt">Søk mislyktes (kode %1$d)</string>
 
     <!-- About / crash logs -->
-    <string name="about_crash_logs">Krasjlogger</string>
-    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren</string>
+    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren.</string>
     <string name="about_crash_logs_empty">Ingen krasj</string>
     <string name="about_share_crash">Del krasjlogg</string>
-    <string name="about_license">Lisens</string>
+    <!-- Translations added -->
+    <string name="about_thanks">Takk</string>
+    <string name="about_thanks_body">Jeg ble lei av EUC-apper som utvikler seg for sakte, ser utdaterte ut, har strenge regler rundt nye funksjoner, behandler fellesskapet sitt som kunder og glemmer at EUC-førere er på sitt beste når de hjelper hverandre. Denne prøver å være det motsatte.</string>
+    <string name="action_reorder">Dra for å endre rekkefølge</string>
+    <string name="alarm_delete_body">%1$s blir fjernet. Dette kan ikke angres.</string>
+    <string name="alarm_delete_title">Slette denne alarmen?</string>
+    <string name="alarm_vibrate_target_both">Alle</string>
+    <string name="alarm_vibrate_target_label">Vibrer på</string>
+    <string name="alarm_vibrate_target_phone">Telefon</string>
+    <string name="alarm_vibrate_target_watch">Klokke</string>
+    <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt.</string>
+    <string name="discard_trip_pending_label">Turen blir sikkerhetskopiert snart</string>
+    <string name="experimental_banner">Foreløpig støttet hjul. Trykk for å rapportere problemer.</string>
+    <string name="experimental_dialog_body">Støtten for dette hjulet er foreløpig. Bare V14-familien og P6 er verifisert av forfatteren. Bruk det med forsiktighet.\n\nÅ trykke på dette banneret rapporterer en sak, slik at forfatteren kan fikse det som ikke fungerer.</string>
+    <string name="experimental_dialog_report">Rapporter et problem</string>
+    <string name="experimental_dialog_title">Hjelp med å forbedre EUC Planet</string>
+    <string name="flic_button">Flic-knapp</string>
+    <string name="flic_forget_body">%1$s blir avparet og handlingene tømt. Du kan pare den igjen når som helst.</string>
+    <string name="flic_forget_title">Glemme denne knappen?</string>
+    <string name="flic_no_buttons">Ingen Flic-knapper paret</string>
+    <string name="menu_auto_lights">Innstillinger for auto-lys</string>
+    <string name="menu_start_recording">Start opptak</string>
+    <string name="menu_stop_recording">Stopp opptak</string>
+    <string name="menu_view_current_trip">Vis nåværende tur</string>
+    <string name="menu_view_last_trip">Vis siste tur</string>
+    <string name="menu_voice_periodic_off">Slå av jevnlige kunngjøringer</string>
+    <string name="menu_voice_periodic_on">Slå på jevnlige kunngjøringer</string>
+    <string name="report_time">Tid</string>
+    <string name="scan_show_all_subtitle">Slå på hvis hjulet ditt ikke vises.</string>
+    <string name="scan_show_all_title">Vis alle enheter</string>
+    <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
+    <string name="scan_simulate_title">Virtuelle hjul</string>
+    <string name="section_watch_buttons">Maskinvareknapper</string>
+    <string name="section_watch_display">Skjerm</string>
+    <string name="section_watch_general">Generelt</string>
+    <string name="show_gauge_color_band">Fargebånd på fartsmåler</string>
+    <string name="stat_watts">WATT</string>
+    <string name="tab_watch">Klokke</string>
+    <string name="toast_external_speed_change">Fart oppdatert fra hjulet: %1$d km/t tiltback, %2$d km/t alarm</string>
+    <string name="voice_output_channel_alarm">Alarm</string>
+    <string name="voice_output_channel_label">Lydutgang</string>
+    <string name="voice_output_channel_media">Media</string>
+    <string name="voice_output_channel_notification">Varsel</string>
+    <string name="voice_time_fmt">klokken %1$s</string>
+    <string name="watch_auto_start">Auto-start på klokke</string>
+    <string name="watch_auto_start_desc">Åpne klokke-appen sammen med telefon-appen.</string>
+    <string name="watch_button_1">Knapp 1</string>
+    <string name="watch_button_2">Knapp 2</string>
+    <string name="watch_button_click_label">Klikk</string>
+    <string name="watch_button_hold_label">Langt trykk</string>
+    <string name="watch_keep_on">Hold skjermen på</string>
+    <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen.</string>
+    <string name="watch_pwm_bar">Stolpe</string>
+    <string name="watch_pwm_both">Begge</string>
+    <string name="watch_pwm_display">PWM-indikator</string>
+    <string name="watch_pwm_numbers">Tekst</string>
+    <string name="watch_show_phone_battery">Vis telefonens batteri</string>
+    <string name="watch_show_speed_unit">Etikett for fartsenhet</string>
+    <string name="watch_show_speed_unit_desc">Vis enhetsetiketten ved siden av det store fartstallet.</string>
+    <string name="watch_prioritize_pwm">Prioriter PWM</string>
+    <string name="watch_prioritize_pwm_desc">Gjør PWM-stolpen og -tallet større enn farten.</string>
+    <string name="watch_dial_rotation">Urskiverotasjon</string>
+    <string name="watch_dial_rotation_value">%1$d°</string>
+    <string name="watch_show_watch_battery">Vis klokkens batteri</string>
+    <string name="watch_show_wheel_battery">Vis hjulets batteri</string>
+    <string name="flic_action_record_start">Start turopptak</string>
+    <string name="flic_action_record_stop">Stopp turopptak</string>
+    <string name="section_watch_screen_buttons">Knapper</string>
+    <string name="watch_screen_button_1">Knapp 1</string>
+    <string name="watch_screen_button_2">Knapp 2</string>
+    <string name="watch_haptic_on_action">Vibrer ved handling</string>
+    <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses.</string>
+
+    <!-- Motor sound generator -->
+    <string name="section_engine_sound">Motorlyd</string>
+    <string name="engine_sound_enabled">Motorlyd</string>
+    <string name="engine_sound_enabled_hint">Motorturtallet følger i sanntid hjulets hastighet og motorbelastning.</string>
+    <string name="engine_safety_title">Obs</string>
+    <string name="engine_safety_message">Motorlyd kan dekke over trafikkstøy. Hold volumet lavt i byen og vurder kun én øreplugg så du fortsatt hører omgivelsene.</string>
+    <string name="engine_safety_ok">OK</string>
+    <string name="engine_type_label">Motor</string>
+    <string name="engine_preview">Forhåndsvis</string>
+    <string name="engine_source_sampled">Sample</string>
+    <string name="engine_source_synth">Synt</string>
+    <string name="engine_volume">Volum</string>
+    <string name="engine_volume_auto_label">Juster etter fart</string>
+    <string name="engine_volume_auto_hint">Høyere ved lav fart og lavere ved høyere fart, slik at fotgjengere hører deg nær 0 km/t.</string>
+    <string name="engine_muffler_label">Lyddemper</string>
+    <string name="engine_muffler_open">Åpen</string>
+    <string name="engine_muffler_half">Halv</string>
+    <string name="engine_muffler_muffled">Dempet</string>
+    <string name="engine_gearbox_label">Girkasse</string>
+    <string name="engine_gearbox_off">Av</string>
+    <string name="engine_gearbox_four">4-trinns</string>
+    <string name="engine_gearbox_six">6-trinns</string>
+    <string name="engine_idle_label">Når parkert</string>
+    <string name="engine_idle_always">Alltid tomgang</string>
+    <string name="engine_idle_fade">Tone ut</string>
+    <string name="engine_idle_moving">Kun i bevegelse</string>
+    <string name="engine_decel_label">Ved retardasjon</string>
+    <string name="engine_decel_smooth">Myk</string>
+    <string name="engine_decel_standard">Standard</string>
+    <string name="engine_decel_backfire">Smell</string>
+    <string name="engine_brake_label">Motorbrems</string>
+    <string name="engine_brake_off">Av</string>
+    <string name="engine_brake_light">Lett</string>
+    <string name="engine_brake_strong">Sterk</string>
+    <string name="engine_duck_label">Når stemmen taler</string>
+    <string name="engine_duck_duck">Senk</string>
+    <string name="engine_duck_pause">Pause</string>
+    <string name="engine_duck_mix">Miks</string>
+    <string name="engine_headphones_only">Kun med hodetelefoner</string>
+    <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd.</string>
+
+    <!-- Motor sound: generic preset names + parked hint -->
+    <string name="engine_preview_parked_only">Forhåndsvisning av i bevegelse — stopp for å teste lyder.</string>
+    <string name="engine_preset_two_stroke">Totakt</string>
+    <string name="engine_preset_four_stroke_single">Firetakt enkeltsylindret</string>
+    <string name="engine_preset_quad_bike">Firehjuling</string>
+    <string name="engine_preset_inline_4">Rekke-4</string>
+    <string name="engine_preset_inline_6_silky">Rekke-6 (silkemyk)</string>
+    <string name="engine_preset_tractor">Traktor</string>
+    <string name="engine_preset_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_jet_turbine">Jetturbin</string>
+    <string name="engine_preset_ufo_hover">UFO i sveving</string>
+    <string name="engine_preset_f1_electric">F1 elektrisk</string>
+    <string name="engine_preset_hover_bike">Svevesykkel</string>
+    <string name="engine_preset_lightsaber">Lyssverd</string>
+    <string name="engine_preset_sampled_diesel_iveco">Dieselbil</string>
+    <string name="engine_preset_sampled_motorcycle">Motorsykkel</string>
+    <string name="engine_preset_sampled_city_car">Bybil</string>
+    <string name="engine_preset_sampled_helicopter">Helikopter</string>
+    <string name="engine_preset_sampled_tractor">Traktor</string>
+    <string name="engine_preset_sampled_lawnmower">Gressklipper</string>
+    <string name="engine_preset_sampled_steam_loco">Damplokomotiv</string>
+    <string name="engine_preset_sampled_big_diesel">Stor diesel</string>
+    <string name="engine_preset_sampled_car_cruise">Bil på tur</string>
+    <string name="engine_preset_sampled_broken_exhaust">Ødelagt eksos</string>
+    <string name="engine_preset_sampled_quad_atv">Firehjuling</string>
 </resources>

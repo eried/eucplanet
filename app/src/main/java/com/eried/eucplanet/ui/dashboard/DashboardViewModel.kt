@@ -52,6 +52,8 @@ class DashboardViewModel @Inject constructor(
     private val flicManager: FlicManager,
     private val syncManager: SyncManager,
     private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
+    val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
+    val cheatState: com.eried.eucplanet.cheats.CheatState,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -71,6 +73,8 @@ class DashboardViewModel @Inject constructor(
     val safetySpeedActive: StateFlow<Boolean> = wheelRepository.safetySpeedActive
 
     val locked: StateFlow<Boolean> = wheelRepository.locked
+    val lockBusy: StateFlow<Boolean> = wheelRepository.lockBusy
+    val lightBusy: StateFlow<Boolean> = wheelRepository.lightBusy
 
     val recording: StateFlow<Boolean> = tripRepository.recording
 
@@ -283,6 +287,7 @@ class DashboardViewModel @Inject constructor(
             val intent = Intent(context, WheelService::class.java).apply {
                 action = WheelService.ACTION_CONNECT
                 putExtra(WheelService.EXTRA_ADDRESS, address)
+                putExtra(WheelService.EXTRA_NAME, settings.lastDeviceName)
             }
             context.startForegroundService(intent)
         }

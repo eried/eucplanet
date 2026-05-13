@@ -143,8 +143,10 @@ data class AppSettings(
     val volumeDownHold: String = "SAFETY_TOGGLE",
 
     // Appearance
-    // language: BCP-47 tag. "en", "es", "ru", "no", "de". Stored now, wired in Stage B.
-    val language: String = "en",
+    // language: BCP-47 tag (e.g. "en", "es", "es-419", "no", "pt-BR"). Empty string
+    // means "not set yet" — MainActivity picks a default from the system locale on
+    // first launch and persists the choice.
+    val language: String = "",
     // themeMode: "black", "dark", "light", "system"
     val themeMode: String = "black",
     // accentColor: key into the accent palette
@@ -176,7 +178,136 @@ data class AppSettings(
     @ColumnInfo(defaultValue = "NULL")
     val externalGpsName: String? = null,
     @ColumnInfo(defaultValue = "NULL")
-    val externalGpsSource: String? = null
+    val externalGpsSource: String? = null,
+
+    // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
+    @ColumnInfo(defaultValue = "1")
+    val watchKeepScreenOn: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchAutoStart: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWheelBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowPhoneBattery: Boolean = true,
+    @ColumnInfo(defaultValue = "1")
+    val watchShowWatchBattery: Boolean = true,
+    /** "BAR", "NUMBERS", or "BOTH". */
+    @ColumnInfo(defaultValue = "BOTH")
+    val watchPwmDisplay: String = "BOTH",
+    @ColumnInfo(defaultValue = "1")
+    val watchShowSpeedUnit: Boolean = true,
+    @ColumnInfo(defaultValue = "0")
+    val watchEnableGpsSpeed: Boolean = false,
+    /**
+     * When true the watch dial inverts the size hierarchy on its first screen:
+     * the PWM bar + number become the focal element, the speed reading shrinks.
+     * Useful when the rider cares more about cutout headroom than current speed.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val watchPrioritizePwm: Boolean = false,
+    /**
+     * Virtual rotation applied to the watch's first screen only, in degrees
+     * (–90..+90, step 5). Lets the rider tilt the dial so it reads naturally with
+     * their wrist orientation when the wheel is in motion. Doesn't affect the
+     * other watch screens or any phone UI.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val watchDialRotationDeg: Int = 0,
+
+    /**
+     * Hardware-button bindings on the watch (Galaxy Watch Ultra exposes the
+     * orange Action button as STEM_1 and the bottom side button as STEM_2;
+     * Pixel Watch only has one). Stored as the [FlicAction] enum name so the
+     * picker can reuse the same UI/string set as Flic and Volume keys. The
+     * Wear OS side reads these via the Data Layer publish, intercepts
+     * KEYCODE_STEM_* in MainActivity, and either fires a local control
+     * intent or routes to the phone over /euc/control.
+     */
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem1Hold: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Click: String = "NONE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchStem2Hold: String = "NONE",
+
+    /**
+     * On-screen watch button bindings. Two configurable buttons; tap fires the
+     * "click" action, long-press fires the "hold" action. Same FlicAction
+     * vocabulary as Flic / Volume / Stem buttons. Defaults match the wheel's
+     * most-used controls (Horn, Light) so out-of-the-box behavior matches
+     * the previous hardcoded buttons.
+     */
+    @ColumnInfo(defaultValue = "HORN")
+    val watchScreen1Click: String = "HORN",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchScreen1Hold: String = "NONE",
+    @ColumnInfo(defaultValue = "LIGHT_TOGGLE")
+    val watchScreen2Click: String = "LIGHT_TOGGLE",
+    @ColumnInfo(defaultValue = "NONE")
+    val watchScreen2Hold: String = "NONE",
+
+    /**
+     * If true, the watch vibrates briefly whenever a button-bound action
+     * fires (tap or hold) so the user gets tactile confirmation.
+     */
+    @ColumnInfo(defaultValue = "1")
+    val watchHapticOnAction: Boolean = true,
+
+    // --- Motor Sound generator ---
+    //
+    // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
+    // through the media stream so it mixes with music; the user controls how it
+    // behaves under voice announces via [engineDuckOnVoice].
+    @ColumnInfo(defaultValue = "0")
+    val engineSoundEnabled: Boolean = false,
+    /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
+    @ColumnInfo(defaultValue = "FOUR_STROKE_SINGLE")
+    val engineType: String = "FOUR_STROKE_SINGLE",
+    /** In-app gain 0..1 over the media stream. */
+    @ColumnInfo(defaultValue = "0.6")
+    val engineVolume: Float = 0.6f,
+    /**
+     * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
+     * could disable the speed curve. The current UI always uses the curve so this field
+     * is unused — kept only for backup/sync compatibility with v0.5.x exports.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val engineVolumeAutoEnabled: Boolean = false,
+    /**
+     * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
+     * volume — there's no separate fixed-volume slider any more. Format matches
+     * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
+     * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
+     * silent at top.
+     */
+    @ColumnInfo(defaultValue = "0:1.00,25:0.10,50:0.10,75:0.00")
+    val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
+    /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
+    @ColumnInfo(defaultValue = "HALF")
+    val engineMuffler: String = "HALF",
+    /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
+    @ColumnInfo(defaultValue = "FOUR")
+    val engineGearbox: String = "FOUR",
+    /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
+    @ColumnInfo(defaultValue = "FADE")
+    val engineIdleBehavior: String = "FADE",
+    /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
+    @ColumnInfo(defaultValue = "STANDARD")
+    val engineDecelChar: String = "STANDARD",
+    /** "OFF", "LIGHT", "STRONG" — engine-brake whine layered during sustained decel/regen. */
+    @ColumnInfo(defaultValue = "LIGHT")
+    val engineBrake: String = "LIGHT",
+    /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
+    @ColumnInfo(defaultValue = "DUCK")
+    val engineDuckOnVoice: String = "DUCK",
+    /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
+    @ColumnInfo(defaultValue = "0")
+    val engineHeadphonesOnly: Boolean = false,
+    /** True once the one-time safety disclosure has been acknowledged. */
+    @ColumnInfo(defaultValue = "0")
+    val engineSafetyShown: Boolean = false
 )
 
 enum class FlicAction(val labelRes: Int) {
@@ -189,6 +320,8 @@ enum class FlicAction(val labelRes: Int) {
     SAFETY_OFF(R.string.flic_action_legal_off),
     VOICE_ANNOUNCE(R.string.flic_action_voice),
     RECORD_TOGGLE(R.string.flic_action_record),
+    RECORD_START(R.string.flic_action_record_start),
+    RECORD_STOP(R.string.flic_action_record_stop),
     MEDIA_PLAY_PAUSE(R.string.flic_action_media_play),
     MEDIA_NEXT(R.string.flic_action_media_next),
     MEDIA_PREVIOUS(R.string.flic_action_media_prev)

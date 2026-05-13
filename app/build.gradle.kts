@@ -27,8 +27,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.3.0"
+        versionCode = 42
+        versionName = "0.6.3"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -132,4 +132,11 @@ dependencies {
 
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
+
+    // ExoPlayer — gapless looping for the multi-section engine sound composition
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.common)
+
+    // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
+    implementation(libs.play.services.wearable)
 }

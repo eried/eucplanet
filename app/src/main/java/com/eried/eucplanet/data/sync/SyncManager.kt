@@ -8,7 +8,9 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
+import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.text.SimpleDateFormat
@@ -42,7 +45,8 @@ import javax.inject.Singleton
 class SyncManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val tripDao: TripDao
+    private val tripDao: TripDao,
+    private val alarmDao: AlarmDao
 ) {
     companion object {
         private const val TAG = "SyncManager"
@@ -331,11 +335,14 @@ class SyncManager @Inject constructor(
         return folder.name
     }
 
-    /** Serialise AppSettings to JSON and write to SETTINGS_BACKUP_NAME. */
+    /** Serialise AppSettings + alarm rules to JSON and write to SETTINGS_BACKUP_NAME. */
     suspend fun backupSettings(): Boolean {
         val current = settingsRepository.get()
         val folder = getSyncFolder(current) ?: return false
-        val json = settingsToJson(current).toString(2)
+        val payload = settingsToJson(current).apply {
+            put("alarms", alarmsToJson(alarmDao.getAll()))
+        }
+        val json = payload.toString(2)
         return try {
             val existing = folder.findFile(SETTINGS_BACKUP_NAME)
             existing?.delete()
@@ -362,6 +369,14 @@ class SyncManager @Inject constructor(
             val json = JSONObject(String(bytes, Charsets.UTF_8))
             val restored = jsonToSettings(json, current)
             settingsRepository.update(restored)
+            // Replace alarm rules wholesale only if the backup contains an
+            // "alarms" array. Older backups (pre-v0.4.3) keep the user's
+            // current rules untouched.
+            if (json.has("alarms")) {
+                val rules = jsonToAlarms(json.optJSONArray("alarms"))
+                alarmDao.deleteAll()
+                rules.forEach { alarmDao.insert(it.copy(id = 0)) }
+            }
             true
         } catch (e: Exception) {
             Log.e(TAG, "Settings restore failed", e)
@@ -509,6 +524,25 @@ class SyncManager @Inject constructor(
         put("gaugeRedThresholdPct", s.gaugeRedThresholdPct)
         put("hapticFeedback", s.hapticFeedback)
         put("currentDisplayMode", s.currentDisplayMode)
+        // Wear OS companion settings round-trip too so a watch user moving
+        // to a new phone gets their on-screen-button + display picks back.
+        put("watchKeepScreenOn", s.watchKeepScreenOn)
+        put("watchAutoStart", s.watchAutoStart)
+        put("watchShowWheelBattery", s.watchShowWheelBattery)
+        put("watchShowPhoneBattery", s.watchShowPhoneBattery)
+        put("watchShowWatchBattery", s.watchShowWatchBattery)
+        put("watchPwmDisplay", s.watchPwmDisplay)
+        put("watchShowSpeedUnit", s.watchShowSpeedUnit)
+        put("watchEnableGpsSpeed", s.watchEnableGpsSpeed)
+        put("watchStem1Click", s.watchStem1Click)
+        put("watchStem1Hold", s.watchStem1Hold)
+        put("watchStem2Click", s.watchStem2Click)
+        put("watchStem2Hold", s.watchStem2Hold)
+        put("watchScreen1Click", s.watchScreen1Click)
+        put("watchScreen1Hold", s.watchScreen1Hold)
+        put("watchScreen2Click", s.watchScreen2Click)
+        put("watchScreen2Hold", s.watchScreen2Hold)
+        put("watchHapticOnAction", s.watchHapticOnAction)
     }
 
     private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
@@ -588,6 +622,79 @@ class SyncManager @Inject constructor(
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
         gaugeRedThresholdPct = j.optInt("gaugeRedThresholdPct", base.gaugeRedThresholdPct),
         hapticFeedback = j.optBoolean("hapticFeedback", base.hapticFeedback),
-        currentDisplayMode = j.optString("currentDisplayMode", base.currentDisplayMode)
+        currentDisplayMode = j.optString("currentDisplayMode", base.currentDisplayMode),
+        // Wear OS companion settings — restored if present, defaulted to
+        // the current value (or the AppSettings default for a fresh install)
+        // if not present so older backups still apply cleanly.
+        watchKeepScreenOn = j.optBoolean("watchKeepScreenOn", base.watchKeepScreenOn),
+        watchAutoStart = j.optBoolean("watchAutoStart", base.watchAutoStart),
+        watchShowWheelBattery = j.optBoolean("watchShowWheelBattery", base.watchShowWheelBattery),
+        watchShowPhoneBattery = j.optBoolean("watchShowPhoneBattery", base.watchShowPhoneBattery),
+        watchShowWatchBattery = j.optBoolean("watchShowWatchBattery", base.watchShowWatchBattery),
+        watchPwmDisplay = j.optString("watchPwmDisplay", base.watchPwmDisplay),
+        watchShowSpeedUnit = j.optBoolean("watchShowSpeedUnit", base.watchShowSpeedUnit),
+        watchEnableGpsSpeed = j.optBoolean("watchEnableGpsSpeed", base.watchEnableGpsSpeed),
+        watchStem1Click = j.optString("watchStem1Click", base.watchStem1Click),
+        watchStem1Hold = j.optString("watchStem1Hold", base.watchStem1Hold),
+        watchStem2Click = j.optString("watchStem2Click", base.watchStem2Click),
+        watchStem2Hold = j.optString("watchStem2Hold", base.watchStem2Hold),
+        watchScreen1Click = j.optString("watchScreen1Click", base.watchScreen1Click),
+        watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
+        watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
+        watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
+        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction)
     )
+
+    private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
+        rules.forEach { r ->
+            put(JSONObject().apply {
+                put("name", r.name)
+                put("enabled", r.enabled)
+                put("sortOrder", r.sortOrder)
+                put("metric", r.metric)
+                put("comparator", r.comparator)
+                put("threshold", r.threshold.toDouble())
+                put("beepEnabled", r.beepEnabled)
+                put("beepFrequency", r.beepFrequency)
+                put("beepDurationMs", r.beepDurationMs)
+                put("beepCount", r.beepCount)
+                put("voiceEnabled", r.voiceEnabled)
+                put("voiceText", r.voiceText)
+                put("vibrateEnabled", r.vibrateEnabled)
+                put("vibrateDurationMs", r.vibrateDurationMs)
+                put("vibrateTarget", r.vibrateTarget)
+                put("cooldownSeconds", r.cooldownSeconds)
+                put("repeatWhileActive", r.repeatWhileActive)
+            })
+        }
+    }
+
+    private fun jsonToAlarms(arr: JSONArray?): List<AlarmRule> {
+        if (arr == null) return emptyList()
+        val out = mutableListOf<AlarmRule>()
+        val default = AlarmRule()
+        for (i in 0 until arr.length()) {
+            val o = arr.optJSONObject(i) ?: continue
+            out += AlarmRule(
+                name = o.optString("name", default.name),
+                enabled = o.optBoolean("enabled", default.enabled),
+                sortOrder = o.optInt("sortOrder", default.sortOrder),
+                metric = o.optString("metric", default.metric),
+                comparator = o.optString("comparator", default.comparator),
+                threshold = o.optDouble("threshold", default.threshold.toDouble()).toFloat(),
+                beepEnabled = o.optBoolean("beepEnabled", default.beepEnabled),
+                beepFrequency = o.optInt("beepFrequency", default.beepFrequency),
+                beepDurationMs = o.optInt("beepDurationMs", default.beepDurationMs),
+                beepCount = o.optInt("beepCount", default.beepCount),
+                voiceEnabled = o.optBoolean("voiceEnabled", default.voiceEnabled),
+                voiceText = o.optString("voiceText", default.voiceText),
+                vibrateEnabled = o.optBoolean("vibrateEnabled", default.vibrateEnabled),
+                vibrateDurationMs = o.optInt("vibrateDurationMs", default.vibrateDurationMs),
+                vibrateTarget = o.optString("vibrateTarget", default.vibrateTarget),
+                cooldownSeconds = o.optInt("cooldownSeconds", default.cooldownSeconds),
+                repeatWhileActive = o.optBoolean("repeatWhileActive", default.repeatWhileActive)
+            )
+        }
+        return out
+    }
 }

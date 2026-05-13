@@ -12,9 +12,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+
+// Global hint typography:
+//  - Always [MaterialTheme.typography.bodySmall]
+//  - [MaterialTheme.colorScheme.onSurfaceVariant] color
+//  - No italics — italics read as a separate dialect of text and made the UI
+//    feel decorative rather than informative. Plain bodySmall is the rule.
+//  - Strings end with a period (or locale equivalent — '.' / '。'). Enforced in
+//    the strings.xml files; this composable doesn't add or strip punctuation.
 
 @Composable
 fun InfoHint(
@@ -30,13 +37,12 @@ fun InfoHint(
             imageVector = Icons.Outlined.Info,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(16.dp)
         )
         Text(
             highlightMatches(text, LocalSettingsSearchQuery.current),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontStyle = FontStyle.Italic
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -45,15 +51,16 @@ fun InfoHint(
 fun HintText(
     text: String,
     modifier: Modifier = Modifier,
-    small: Boolean = false,
+    // Kept for source-compat — previously toggled between bodyMedium and bodySmall.
+    // Per the global hint rule we always render bodySmall now, so this flag is a no-op.
+    @Suppress("UNUSED_PARAMETER") small: Boolean = false,
     textAlign: TextAlign? = null
 ) {
     Text(
         highlightMatches(text, LocalSettingsSearchQuery.current),
         modifier = modifier,
-        style = if (small) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontStyle = FontStyle.Italic,
         textAlign = textAlign
     )
 }

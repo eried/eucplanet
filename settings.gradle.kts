@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "EucPlanet"
 include(":app")
+include(":wear")

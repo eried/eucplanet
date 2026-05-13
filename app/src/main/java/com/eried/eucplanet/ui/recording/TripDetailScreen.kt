@@ -131,10 +131,22 @@ fun TripDetailScreen(
                 val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
                 val minutes = duration / 60
                 val seconds = duration % 60
-                val maxSpeed = dataPoints.maxOfOrNull { it.speed } ?: 0f
-                val avgSpeed = dataPoints.map { it.speed }.average().toFloat()
+                val maxSpeedRaw = dataPoints.maxOfOrNull { it.speed } ?: 0f
+                val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
                 val minBattery = dataPoints.minOfOrNull { it.battery } ?: 0
-                val maxTemp = dataPoints.maxOfOrNull { it.temperature } ?: 0f
+                val maxTempRaw = dataPoints.maxOfOrNull { it.temperature } ?: 0f
+                // Convert summary numbers to the user's selected units. The raw stored
+                // values stay metric; only the rendered card text changes.
+                val imperial by viewModel.imperialUnits.collectAsState()
+                val speedUnit = com.eried.eucplanet.util.Units.speedUnit(
+                    androidx.compose.ui.platform.LocalContext.current, imperial
+                )
+                val distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+                val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+                val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, imperial)
+                val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, imperial)
+                val tripDistance = com.eried.eucplanet.util.Units.distance(trip.distanceKm, imperial)
+                val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, imperial)
 
                 Text(
                     dateFormat.format(Date(trip.startTime)),
@@ -149,7 +161,7 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f km".format(trip.distanceKm), AccentBlue, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnit), AccentBlue, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), AccentBlue, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
@@ -160,8 +172,8 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f km/h".format(maxSpeed), AccentOrange, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f km/h".format(avgSpeed), AccentGreen, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnit), AccentOrange, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnit), AccentGreen, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -172,8 +184,8 @@ fun TripDetailScreen(
                 ) {
                     SummaryCard(stringResource(R.string.recording_summary_min_battery), "$minBattery%",
                         if (minBattery < 20) AccentRed else AccentGreen, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_max_temp), "%.0f\u00B0C".format(maxTemp),
-                        if (maxTemp > 60) AccentRed else AccentOrange, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_max_temp), "%.0f%s".format(maxTemp, tempUnit),
+                        if (maxTempRaw > 60) AccentRed else AccentOrange, Modifier.weight(1f))
                 }
 
                 // Route map
@@ -200,16 +212,20 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Speed chart — adds an external-GPS overlay when the CSV has
-                // any non-empty Ext GPS speed cells (i.e. a RaceBox was paired
-                // during this trip). Phone GPS already folds into the main
-                // `speed` series via CsvWriter so it doesn't need its own layer.
-                val extSpeedSeries = dataPoints.map { it.extGpsSpeed }
+                // Speed chart — converts each data point to the user's unit.
+                // When the CSV has any non-empty Ext GPS speed cells (i.e. a
+                // RaceBox was paired during this trip) overlay that series in
+                // purple, also unit-converted so the two lines share an axis.
+                val extSpeedSeries = dataPoints.map {
+                    if (it.extGpsSpeed.isNaN()) Float.NaN
+                    else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, imperial)
+                }
                 val speedOverlays = if (extSpeedSeries.any { !it.isNaN() }) {
                     listOf(ChartOverlay(extSpeedSeries, AccentPurple))
                 } else emptyList()
-                ChartCard(stringResource(R.string.recording_chart_speed, "km/h"), dataPoints.map { it.speed },
-                    AccentGreen, unitLabel = "km/h", minSpan = GraphScale.SPAN_SPEED_KMH,
+                ChartCard(stringResource(R.string.recording_chart_speed, speedUnit),
+                    dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, imperial) },
+                    AccentGreen, unitLabel = speedUnit, minSpan = GraphScale.SPAN_SPEED_KMH,
                     overlays = speedOverlays)
 
                 Spacer(Modifier.height(12.dp))
@@ -220,9 +236,10 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // Temperature chart
-                ChartCard(stringResource(R.string.recording_chart_temp, "\u00B0C"), dataPoints.map { it.temperature },
-                    AccentOrange, unitLabel = "\u00B0C", minSpan = GraphScale.SPAN_TEMPERATURE_C)
+                // Temperature chart \u2014 convert each data point to \u00B0F when imperial.
+                ChartCard(stringResource(R.string.recording_chart_temp, tempUnit),
+                    dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, imperial) },
+                    AccentOrange, unitLabel = tempUnit, minSpan = GraphScale.SPAN_TEMPERATURE_C)
 
                 Spacer(Modifier.height(12.dp))
 

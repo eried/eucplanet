@@ -29,9 +29,18 @@ data class AlarmRule(
     // Vibrate action
     val vibrateEnabled: Boolean = false,
     val vibrateDurationMs: Int = 500,
+    /**
+     * Where the buzz fires when [vibrateEnabled] is true: "PHONE", "WATCH",
+     * or "BOTH". Defaults to BOTH so a rider gets the haptic on whichever
+     * device they're paying attention to — if no watch is paired, the WATCH
+     * branch in [com.eried.eucplanet.wear.WatchVibrator] silently no-ops.
+     * The storage key stays "BOTH" for backup/sync compatibility even though
+     * the UI label is "All".
+     */
+    val vibrateTarget: String = "BOTH",
 
     // Timing
-    val cooldownSeconds: Int = 10,
+    val cooldownSeconds: Int = 5,
     val repeatWhileActive: Boolean = false
 )
 

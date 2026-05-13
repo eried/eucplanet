@@ -1,0 +1,77 @@
+name: App bug
+description: "Something in the app is wrong, regardless of what wheel you have"
+title: "[App bug] "
+labels: ["app-bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for bugs that aren't tied to a specific wheel: layout glitches,
+        crashes, settings that don't save, voice not playing, watch issues,
+        backup problems, etc. If the bug only happens with a specific wheel,
+        please use the **Wheel report** template instead.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where in the app?
+      description: Pick the closest match.
+      options:
+        - Dashboard
+        - Settings
+        - Trip recording
+        - Alarms
+        - Service Mode
+        - Wear OS watch app
+        - Cloud backup / sync
+        - Flic / volume buttons
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: EUC Planet app version
+      description: Visible at the bottom of the dashboard.
+      placeholder: e.g. 0.3.2
+
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model + Android version
+      description: Helps a lot for crashes, layout, BLE, and audio bugs.
+      placeholder: e.g. Pixel 7 / Android 14
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What were you doing when the bug happened? The more specific, the faster we can fix it.
+      placeholder: |
+        1. Open Settings
+        2. Tap "Backup settings & trips"
+        3. Switch the cloud folder to OneDrive
+        4. App freezes for 5 seconds, no error shown
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect vs what happened?
+      placeholder: |
+        Expected: cloud folder switches and a confirmation toast.
+        Actual: app freezes, then nothing visibly changes.
+    validations:
+      required: true
+
+  - type: textarea
+    id: extras
+    attributes:
+      label: Screenshots / video / log
+      description: |
+        Optional but very useful. For crashes you can grab a stack trace from About > Crash logs.
+        For BLE / protocol issues the Service Mode log (long-press the app icon in About) is gold:
+        tap Attach to bundle App config / Wheel state / Trips summary into the log, then Share.
+      placeholder: Drag images or paste log text here

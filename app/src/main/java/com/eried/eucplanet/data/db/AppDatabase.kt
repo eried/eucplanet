@@ -8,7 +8,9 @@ import com.eried.eucplanet.data.model.TripRecord
 
 @Database(
     entities = [AppSettings::class, TripRecord::class, AlarmRule::class],
-    version = 27,
+    // 37 from main + 1 for the three RaceBox externalGps* columns added back
+    // in from the external-gps branch via this merge.
+    version = 38,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

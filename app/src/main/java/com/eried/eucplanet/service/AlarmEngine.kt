@@ -8,6 +8,7 @@ import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.VibratorHelper
+import com.eried.eucplanet.wear.WatchVibrator
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,10 @@ class AlarmEngine @Inject constructor(
     @ApplicationContext private val context: Context,
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    private val watchVibrator: WatchVibrator,
+    private val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val settingsRepository: com.eried.eucplanet.data.repository.SettingsRepository
 ) {
     companion object {
         private const val TAG = "AlarmEngine"
@@ -52,6 +56,9 @@ class AlarmEngine @Inject constructor(
      * First-match-per-metric: for each metric type, only the first matching rule fires.
      */
     fun evaluate(data: WheelData) {
+        // Quake-console godmode: silences all alarms for the session. The user types
+        // `godmode` in the Settings search bar to flip it; lost on app restart.
+        if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
             val rules = alarmDao.getEnabled()
@@ -79,7 +86,8 @@ class AlarmEngine @Inject constructor(
                     if (shouldFire) {
                         Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=$value)")
                         state.lastFireTimeMs = now
-                        executeActions(rule, data, value)
+                        val imperial = settingsRepository.get().imperialUnits
+                        executeActions(rule, data, value, imperial)
                     }
                 }
 
@@ -112,11 +120,14 @@ class AlarmEngine @Inject constructor(
             AlarmComparator.LESS_THAN -> value < threshold
         }
 
-    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float) {
+    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, imperial: Boolean) {
         // Vibrate fires immediately; beep and voice are sequenced so the beep
         // finishes before the voice speaks.
         if (rule.vibrateEnabled) {
-            vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            val onPhone = rule.vibrateTarget != "WATCH"
+            val onWatch = rule.vibrateTarget == "WATCH" || rule.vibrateTarget == "BOTH"
+            if (onPhone) vibratorHelper.oneShot(rule.vibrateDurationMs.toLong())
+            if (onWatch) watchVibrator.vibrate(rule.vibrateDurationMs)
         }
 
         scope.launch {
@@ -127,7 +138,7 @@ class AlarmEngine @Inject constructor(
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                val text = expandTemplate(rule.voiceText, rule, data, triggerValue)
+                val text = expandTemplate(rule.voiceText, rule, data, triggerValue, imperial)
                 voiceService.speak(text)
             }
         }
@@ -137,19 +148,36 @@ class AlarmEngine @Inject constructor(
         template: String,
         rule: AlarmRule,
         data: WheelData,
-        triggerValue: Float
+        triggerValue: Float,
+        imperial: Boolean
     ): String {
         val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).labelRes) } catch (_: Exception) { rule.metric }
+        // {value} and {threshold} are converted using the rule's own metric — speed
+        // alarm in mph reads mph, temperature alarm in °F reads °F, everything else
+        // stays in its native unit (battery %, PWM %, voltage V, current A).
+        val metricForThreshold = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { null }
+        val convertedValue = convertForMetric(metricForThreshold, triggerValue, imperial)
+        val convertedThreshold = convertForMetric(metricForThreshold, rule.threshold, imperial)
+        val speedConverted = com.eried.eucplanet.util.Units.speed(data.speed.absoluteValue, imperial)
+        val tempConverted = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, imperial)
+        val tripConverted = com.eried.eucplanet.util.Units.distance(data.tripDistance, imperial)
         return template
-            .replace("{speed}", "%.0f".format(data.speed.absoluteValue))
+            .replace("{speed}", "%.0f".format(speedConverted))
             .replace("{battery}", "${data.batteryPercent}")
-            .replace("{temp}", "%.0f".format(data.maxTemperature))
+            .replace("{temp}", "%.0f".format(tempConverted))
             .replace("{pwm}", "%.0f".format(data.pwm.absoluteValue))
             .replace("{voltage}", "%.1f".format(data.voltage))
             .replace("{current}", "%.1f".format(data.current.absoluteValue))
-            .replace("{trip}", "%.1f".format(data.tripDistance))
-            .replace("{value}", "%.0f".format(triggerValue))
+            .replace("{trip}", "%.1f".format(tripConverted))
+            .replace("{value}", "%.0f".format(convertedValue))
             .replace("{metric}", metricLabel)
-            .replace("{threshold}", "%.0f".format(rule.threshold))
+            .replace("{threshold}", "%.0f".format(convertedThreshold))
     }
+
+    private fun convertForMetric(metric: AlarmMetric?, valueInternal: Float, imperial: Boolean): Float =
+        when (metric) {
+            AlarmMetric.SPEED -> com.eried.eucplanet.util.Units.speed(valueInternal, imperial)
+            AlarmMetric.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(valueInternal, imperial)
+            else -> valueInternal
+        }
 }

@@ -1,0 +1,254 @@
+package com.eried.eucplanet.ble
+
+import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.model.WheelSettings
+import com.eried.eucplanet.util.ByteUtils
+
+/**
+ * Parsers for inbound KingSong BLE frames. Each frame is a fixed 20-byte
+ * structure validated by the `AA 55` magic at offsets 0..1; the type byte at
+ * offset 16 selects a layout. See docs/protocols/kingsong.md sections 3 and 4.
+ *
+ * Each top-level helper returns null when the input doesn't match its layout
+ * so callers can route by type byte and silently drop frames they can't
+ * decode (for example, BMS pages on a wheel that doesn't ship that page).
+ *
+ * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
+ * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * reference; the implementation here is original).
+ */
+object KingsongParser {
+
+    private const val HEADER0: Byte = 0xAA.toByte()
+    private const val HEADER1: Byte = 0x55.toByte()
+
+    /** Type byte at offset 16 of any complete 20-byte frame. */
+    fun typeOf(frame: ByteArray): Int? {
+        if (frame.size < 20) return null
+        if (frame[0] != HEADER0 || frame[1] != HEADER1) return null
+        return frame[16].toInt() and 0xFF
+    }
+
+    /**
+     * Live telemetry, frame `0xA9`. Speed and voltage are u16 LE / 100; the
+     * 4-byte distance field at offsets 6..9 uses the documented word-swapped
+     * LE32 layout (see spec section 4.1, note on byte order).
+     *
+     * The wheel does not transmit battery percent — we derive it from voltage
+     * using a per-pack-class linear curve keyed on [model]'s nominal voltage.
+     */
+    fun parseLiveTelemetry(frame: ByteArray, model: KingsongModel?): WheelData? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xA9.toByte()) return null
+
+        val voltage = ByteUtils.getUint16LE(frame, 2) / 100f
+        val speed = ByteUtils.getInt16LE(frame, 4) / 100f
+        val distanceMeters = readWordSwappedLE32(frame, 6)
+        val current = ByteUtils.getInt16LE(frame, 10) / 100f
+        val temperature = ByteUtils.getInt16LE(frame, 12) / 100f
+
+        // Mode byte is only meaningful when the sentinel at offset 15 == 0xE0.
+        val modeValid = (frame[15].toInt() and 0xFF) == 0xE0
+        val pcMode = if (modeValid) (frame[14].toInt() and 0xFF) else -1
+
+        val batteryPercent = batteryPercentFromVoltage(voltage, model)
+
+        return WheelData(
+            speed = speed,
+            voltage = voltage,
+            current = current,
+            batteryPercent = batteryPercent,
+            temperatures = listOf(temperature),
+            maxTemperature = temperature,
+            tripDistance = distanceMeters / 1000f,
+            pcMode = pcMode,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Trip / second-temperature frame `0xB9`. Carries the per-power-cycle
+     * trip distance, top speed since power-on, fan and charging flags, and a
+     * second temperature sensor (board or motor depending on model).
+     *
+     * Returned as a partial [WheelData] — caller should merge with the latest
+     * `0xA9` snapshot rather than overwrite it.
+     */
+    fun parseTripFrame(frame: ByteArray): WheelData? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xB9.toByte()) return null
+
+        val tripMeters = readWordSwappedLE32(frame, 2)
+        val topSpeed = ByteUtils.getUint16LE(frame, 8) / 100f
+        val temperature2 = ByteUtils.getInt16LE(frame, 14) / 100f
+
+        return WheelData(
+            tripDistance = tripMeters / 1000f,
+            dynamicSpeedLimit = topSpeed,
+            temperatures = listOf(temperature2),
+            maxTemperature = temperature2,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /** True when frame `0xB9` reports the wheel is currently charging. */
+    fun isCharging(frame: ByteArray): Boolean {
+        if (frame.size < 20) return false
+        if (frame[16] != 0xB9.toByte()) return false
+        return frame[13].toInt() != 0
+    }
+
+    /**
+     * Name / model frame `0xBB`. The ASCII payload is `<model>-<version_int>`
+     * where the version is the last dash-separated token, divided by 100.
+     * Returns the human-readable model string (e.g. `KS-S22`) or null.
+     */
+    fun parseModelName(frame: ByteArray): String? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xBB.toByte()) return null
+        val raw = String(frame, 2, 14, Charsets.US_ASCII).trimEnd { it == ' ' || it.code == 0 }
+        if (raw.isBlank()) return null
+        val lastDash = raw.lastIndexOf('-')
+        return if (lastDash > 0 && raw.substring(lastDash + 1).all { it.isDigit() }) {
+            raw.substring(0, lastDash)
+        } else raw
+    }
+
+    /**
+     * Firmware version derived from the `0xBB` ASCII payload's trailing
+     * dash-separated integer, divided by 100. Returns null when the payload
+     * doesn't end in a numeric token.
+     */
+    fun parseFirmwareVersion(frame: ByteArray): String? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xBB.toByte()) return null
+        val raw = String(frame, 2, 14, Charsets.US_ASCII).trimEnd { it == ' ' || it.code == 0 }
+        val lastDash = raw.lastIndexOf('-')
+        if (lastDash <= 0) return null
+        val token = raw.substring(lastDash + 1)
+        if (token.isEmpty() || !token.all { it.isDigit() }) return null
+        val v = token.toInt()
+        return "%.2f".format(v / 100f)
+    }
+
+    /**
+     * Serial number frame `0xB3`. Bytes 14..16 of the serial overlap the
+     * trailer slots, so this frame's trailer is NOT `0x14 0x5A 0x5A`. We
+     * validate by header magic only.
+     */
+    fun parseSerial(frame: ByteArray): String? {
+        if (frame.size < 20) return null
+        if (frame[0] != HEADER0 || frame[1] != HEADER1) return null
+        if (frame[16] != 0xB3.toByte()) return null
+        val bytes = ByteArray(17)
+        System.arraycopy(frame, 2, bytes, 0, 14)
+        System.arraycopy(frame, 17, bytes, 14, 3)
+        return String(bytes, Charsets.US_ASCII)
+            .trimEnd { it == ' ' || it.code == 0 }
+            .ifBlank { null }
+    }
+
+    /**
+     * CPU and PWM frame `0xF5`. PWM is reported as an unsigned percent at
+     * offset 15; our [WheelData.pwm] convention is hundredths-of-percent so
+     * we scale by 100 to match the V14 dashboard.
+     */
+    fun parseCpuPwm(frame: ByteArray): WheelData? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xF5.toByte()) return null
+        val pwmPercent = (frame[15].toInt() and 0xFF).toFloat()
+        return WheelData(
+            pwm = pwmPercent,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /** Speed-limit frame `0xF6` — the dynamic PWM-derived ceiling, in km/h. */
+    fun parseDynamicSpeedLimit(frame: ByteArray): WheelData? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xF6.toByte()) return null
+        val limitKmh = ByteUtils.getUint16LE(frame, 2) / 100f
+        return WheelData(
+            dynamicSpeedLimit = limitKmh,
+            timestamp = System.currentTimeMillis()
+        )
+    }
+
+    /**
+     * Alarms + max-speed reply, frames `0xA4` and `0xB5`. Returns the four
+     * thresholds packaged as a [WheelSettings]; the `0xA4` flavour expects
+     * the app to echo the frame back with offset 16 changed to `0x98` —
+     * use [buildAlarmEcho] to produce that echo.
+     */
+    fun parseAlarmsAndMaxSpeed(frame: ByteArray): WheelSettings? {
+        if (frame.size < 20) return null
+        val type = frame[16].toInt() and 0xFF
+        if (type != 0xA4 && type != 0xB5) return null
+        val alarm1 = (frame[4].toInt() and 0xFF).toFloat()
+        val alarm2 = (frame[6].toInt() and 0xFF).toFloat()
+        val alarm3 = (frame[8].toInt() and 0xFF).toFloat()
+        val maxSpeed = (frame[10].toInt() and 0xFF).toFloat()
+        return WheelSettings(
+            maxSpeedKmh = maxSpeed,
+            alarmSpeedKmh = alarm1,
+            comfortSensitivity = alarm2.toInt(),
+            classicSensitivity = alarm3.toInt()
+        )
+    }
+
+    /** True when [parseAlarmsAndMaxSpeed]'s frame requires an echo back to the wheel. */
+    fun requiresAlarmEcho(frame: ByteArray): Boolean =
+        frame.size >= 20 && frame[16] == 0xA4.toByte()
+
+    /**
+     * Echo of a `0xA4` settings push: same 20 bytes with offset 16 rewritten
+     * to `0x98`. The wheel uses this as a handshake before applying defaults.
+     */
+    fun buildAlarmEcho(frame: ByteArray): ByteArray? {
+        if (frame.size < 20) return null
+        val out = frame.copyOf(20)
+        out[16] = 0x98.toByte()
+        return out
+    }
+
+    /**
+     * Word-swapped little-endian 32-bit read documented in spec section 3.
+     * For input bytes `[b0, b1, b2, b3]` the value is
+     * `(b1 << 24) | (b0 << 16) | (b3 << 8) | b2`. Public reference parsers
+     * compute the same thing; if a labelled capture later shows a plain
+     * LE32 read works, swap this for [ByteUtils.getUint32LE].
+     */
+    private fun readWordSwappedLE32(frame: ByteArray, offset: Int): Int {
+        val b0 = frame[offset].toInt() and 0xFF
+        val b1 = frame[offset + 1].toInt() and 0xFF
+        val b2 = frame[offset + 2].toInt() and 0xFF
+        val b3 = frame[offset + 3].toInt() and 0xFF
+        return (b1 shl 24) or (b0 shl 16) or (b3 shl 8) or b2
+    }
+
+    /**
+     * Linear voltage-to-percent curve keyed by the wheel's nominal pack
+     * voltage. Bounds match the spec table in section 4.5: a 67.2 V class
+     * pack reads full at 67.2 V and empty at 53.2 V; the same 0.79 / 1.00
+     * ratio scales to all classes (84 / 100.8 / 126 / 151.2 / 176.4 V full).
+     *
+     * Returns 0 when no model is detected — the dashboard renders the empty
+     * battery rather than a stale fallback.
+     */
+    private fun batteryPercentFromVoltage(voltage: Float, model: KingsongModel?): Int {
+        if (model == null || voltage <= 0f) return 0
+        val full: Float
+        val empty: Float
+        when (model.nominalVoltage) {
+            67 -> { full = 67.2f; empty = 53.2f }
+            84 -> { full = 84.0f; empty = 67.0f }
+            100 -> { full = 100.8f; empty = 80.0f }
+            126 -> { full = 126.0f; empty = 100.0f }
+            151 -> { full = 151.2f; empty = 120.0f }
+            176 -> { full = 176.4f; empty = 140.0f }
+            else -> return 0
+        }
+        val pct = ((voltage - empty) / (full - empty) * 100f).toInt()
+        return pct.coerceIn(0, 100)
+    }
+}
