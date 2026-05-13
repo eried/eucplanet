@@ -46,6 +46,7 @@ import androidx.compose.ui.geometry.Size as DpSize
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
@@ -580,12 +581,68 @@ private fun GForceCrosshair(
                 )
             }
 
-            if (trail.isNotEmpty()) {
-                trail.forEachIndexed { idx, point ->
-                    val alpha = (0.15f + 0.7f * (idx / trail.size.toFloat())).coerceIn(0.1f, 0.85f)
-                    val px = cx + (point.x.coerceIn(-maxG, maxG)) * unit
-                    val py = cy - (point.y.coerceIn(-maxG, maxG)) * unit
-                    drawCircle(color = color.copy(alpha = alpha), radius = 3f, center = Offset(px, py))
+            if (trail.size >= 2) {
+                // Comet tail rendered as a Catmull-Rom-smoothed curve. We
+                // sample each segment at SUB sub-points using the standard
+                // four-point Catmull-Rom basis (tension 0.5) and draw small
+                // line strokes between successive samples. With SUB = 12 this
+                // turns a 120-point trail into ~1440 tiny segments that
+                // visually read as one continuous curve through the data
+                // points, not a polyline of straight chords. Stroke width
+                // and alpha taper along the tail (sqrt curve) so the body
+                // stays readable while only the oldest 15% really fades out.
+                //
+                // Trail colour is the source hue mixed toward black so the
+                // tail reads as a darker shade and the bright live sphere
+                // remains the focal point.
+                val trailColor = androidx.compose.ui.graphics.lerp(color, Color.Black, 0.45f)
+                val n = trail.size
+                val mapped = trail.map { p ->
+                    Offset(
+                        cx + p.x.coerceIn(-maxG, maxG) * unit,
+                        cy - p.y.coerceIn(-maxG, maxG) * unit
+                    )
+                }
+                val sub = 12
+                for (i in 1 until n) {
+                    val p0 = mapped[(i - 2).coerceAtLeast(0)]
+                    val p1 = mapped[i - 1]
+                    val p2 = mapped[i]
+                    val p3 = mapped[(i + 1).coerceAtMost(n - 1)]
+                    val age = i / (n - 1).toFloat()
+                    val visible = kotlin.math.sqrt(age)
+                    val alpha = 0.06f + 0.24f * visible
+                    // Stroke tapers from 2.5 px at the oldest end up to
+                    // 9 px at the freshest segment, which sits flush with
+                    // the 14-px live dot for visual continuity.
+                    val stroke = 2.5f + 6.5f * visible
+                    var prev = p1
+                    for (s in 1..sub) {
+                        val t = s / sub.toFloat()
+                        val t2 = t * t
+                        val t3 = t2 * t
+                        val x = 0.5f * (
+                            (2f * p1.x) +
+                            (-p0.x + p2.x) * t +
+                            (2f * p0.x - 5f * p1.x + 4f * p2.x - p3.x) * t2 +
+                            (-p0.x + 3f * p1.x - 3f * p2.x + p3.x) * t3
+                        )
+                        val y = 0.5f * (
+                            (2f * p1.y) +
+                            (-p0.y + p2.y) * t +
+                            (2f * p0.y - 5f * p1.y + 4f * p2.y - p3.y) * t2 +
+                            (-p0.y + 3f * p1.y - 3f * p2.y + p3.y) * t3
+                        )
+                        val cur = Offset(x, y)
+                        drawLine(
+                            color = trailColor.copy(alpha = alpha),
+                            start = prev,
+                            end = cur,
+                            strokeWidth = stroke,
+                            cap = StrokeCap.Round
+                        )
+                        prev = cur
+                    }
                 }
             }
 
@@ -594,8 +651,28 @@ private fun GForceCrosshair(
             if (x != null && z != null) {
                 val px = cx + x.coerceIn(-maxG, maxG) * unit
                 val py = cy - z.coerceIn(-maxG, maxG) * unit
-                drawCircle(color = color, radius = 7f, center = Offset(px, py))
-                drawCircle(color = Color.White, radius = 2.5f, center = Offset(px, py))
+                val center = Offset(px, py)
+                // Two soft halo rings for a glow. The outer ring is barely
+                // visible, the inner one carries most of the bloom.
+                drawCircle(color = color.copy(alpha = 0.15f), radius = 24f, center = center)
+                drawCircle(color = color.copy(alpha = 0.30f), radius = 18f, center = center)
+                // Solid colored ball.
+                drawCircle(color = color, radius = 13f, center = center)
+                // Crisp white border ring so the ball stays readable against
+                // any background colour the source palette throws at us.
+                drawCircle(
+                    color = Color.White,
+                    radius = 13f,
+                    center = center,
+                    style = Stroke(width = 2f)
+                )
+                // Offset highlight — sells the 3D sphere look. Sits up-left
+                // of centre as if a light source is above the dial.
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.85f),
+                    radius = 4f,
+                    center = Offset(px - 4f, py - 4f)
+                )
             }
         }
     }

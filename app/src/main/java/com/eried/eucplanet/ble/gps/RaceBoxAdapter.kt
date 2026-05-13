@@ -32,6 +32,35 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
     /** Rolling buffer of raw notification bytes; UBX frames may straddle chunks. */
     private val buffer = ArrayDeque<Byte>()
 
+    // Running estimate of the gravity vector in the device's own frame. The
+    // RaceBox accel reading is raw — gravity is included — so when the box is
+    // mounted at any angle, e.g. lying flat or strapped to a wheel pedal, that
+    // 1 g of gravity decomposes across two or three axes and is read as a
+    // static 0.5–1.0 g offset. The phone's TYPE_LINEAR_ACCELERATION already
+    // subtracts gravity internally, so we mirror that here with a slow EWMA
+    // (alpha = 0.02 ≈ 5-second time constant at 10 Hz) and subtract before we
+    // hand the values to the UI. The first sample seeds the estimate so we
+    // don't ship one "0 g everywhere" outlier on connect.
+    @Volatile private var gravityInit = false
+    @Volatile private var gravityX = 0f
+    @Volatile private var gravityY = 0f
+    @Volatile private var gravityZ = 0f
+    private val gravityAlpha = 0.02f
+
+    private fun stripGravity(rawX: Float, rawY: Float, rawZ: Float): Triple<Float, Float, Float> {
+        if (!gravityInit) {
+            gravityX = rawX
+            gravityY = rawY
+            gravityZ = rawZ
+            gravityInit = true
+        } else {
+            gravityX = gravityX * (1 - gravityAlpha) + rawX * gravityAlpha
+            gravityY = gravityY * (1 - gravityAlpha) + rawY * gravityAlpha
+            gravityZ = gravityZ * (1 - gravityAlpha) + rawZ * gravityAlpha
+        }
+        return Triple(rawX - gravityX, rawY - gravityY, rawZ - gravityZ)
+    }
+
     override fun decode(notification: ByteArray): ExternalGpsSample? {
         if (notification.isEmpty()) return null
         // Append to the rolling buffer, then try to extract one complete frame.
@@ -132,14 +161,40 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
     }
 
     /**
-     * RaceBox extended PVT (cls=0xFF id=0x01, 80-byte payload). The first 60
-     * bytes mirror UBX-NAV-PVT closely so we re-use the same offsets for
-     * fix/position/speed, then read the trailing accelerometer triple.
+     * RaceBox extended Data Message (cls=0xFF id=0x01, 80-byte payload). This
+     * is RaceBox's own format, NOT a straight extension of UBX-NAV-PVT — the
+     * field layout differs after offset 36 and we have to read RaceBox's
+     * payload-relative offsets directly. An earlier revision of this parser
+     * assumed PVT compatibility and read speed from offset 60, which actually
+     * lands on `headingAccuracy` (a u32 of heading uncertainty in 1e-5°).
+     * Typical heading-uncertainty values gave reported speeds of 100-200 mph
+     * when the rider was at 34 mph — exact symptom we saw in the wild.
      *
-     * Per the RaceBox public protocol notes the tail of the payload carries
-     * accel as int16 milligees (LE) at offsets 68/70/72 — i.e. the last
-     * 6 bytes before checksum start. Gyro words follow but we don't
-     * surface them yet.
+     * Payload-relative offsets (verified against the RaceBox public protocol
+     * and cross-checked against the ESP32-RaceBox open-source client):
+     *  20 fixStatus           uint8   (0 none, 2 2D, 3 3D)
+     *  23 numSVs              uint8
+     *  24 longitude           int32 LE  deg × 1e-7
+     *  28 latitude            int32 LE  deg × 1e-7
+     *  32 wgsAltitude         int32 LE  mm
+     *  36 mslAltitude         int32 LE  mm
+     *  40 horizontalAccuracy  uint32 LE mm
+     *  44 verticalAccuracy    uint32 LE mm
+     *  48 speed               int32 LE  mm/s  ← was wrongly read at 60
+     *  52 heading             int32 LE  deg × 1e-5  ← was wrongly read at 64
+     *  56 speedAccuracy       uint32 LE mm/s
+     *  60 headingAccuracy     uint32 LE deg × 1e-5
+     *  64 pDOP                uint16 LE × 0.01
+     *  66 latLonFlags         uint8
+     *  67 batteryStatus       uint8
+     *  68 gForceX             int16 LE  mg
+     *  70 gForceY             int16 LE  mg
+     *  72 gForceZ             int16 LE  mg
+     *  74 rotRateX/Y/Z        int16 LE  (gyro — not surfaced yet)
+     *
+     * Vertical speed isn't in this frame at all; the UBX-NAV-PVT velD field
+     * is absent. We leave verticalSpeedMps at 0 here; clients that need it
+     * have to switch to the standard UBX-NAV-PVT stream (cls=0x01 id=0x07).
      */
     private fun parseExtendedPvt(frame: ByteArray): ExternalGpsSample? {
         val payloadStart = 6
@@ -153,18 +208,16 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         val latRaw = readInt32LE(frame, payloadStart + 28)
         val hMslRaw = readInt32LE(frame, payloadStart + 36)
         val hAccRaw = readUInt32LE(frame, payloadStart + 40)
-        val velDRaw = readInt32LE(frame, payloadStart + 56)
-        // Note: in the extended frame the speed field sits at offset 60 too,
-        // same as standard PVT — RaceBox kept the layout compatible for the
-        // shared fields.
-        val gSpeedRaw = readInt32LE(frame, payloadStart + 60)
-        val headMotRaw = readInt32LE(frame, payloadStart + 64)
+        val gSpeedRaw = readInt32LE(frame, payloadStart + 48)
+        val headMotRaw = readInt32LE(frame, payloadStart + 52)
 
-        // Accel: int16 LE milligees on each axis (positive Y = forward).
-        // Divide by 1000 to get g.
-        val ax = readInt16LE(frame, payloadStart + 68) / 1000f
-        val ay = readInt16LE(frame, payloadStart + 70) / 1000f
-        val az = readInt16LE(frame, payloadStart + 72) / 1000f
+        // Accel: int16 LE milli-g per axis. Divide by 1000 to get g, then
+        // remove the gravity component so the values are comparable with the
+        // phone's TYPE_LINEAR_ACCELERATION reading.
+        val rawX = readInt16LE(frame, payloadStart + 68) / 1000f
+        val rawY = readInt16LE(frame, payloadStart + 70) / 1000f
+        val rawZ = readInt16LE(frame, payloadStart + 72) / 1000f
+        val (ax, ay, az) = stripGravity(rawX, rawY, rawZ)
 
         val speedMmS = gSpeedRaw.coerceAtLeast(0)
         return ExternalGpsSample(
@@ -180,7 +233,7 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
             headingDeg = (headMotRaw * 1e-5f).let { h ->
                 ((h % 360f) + 360f) % 360f
             },
-            verticalSpeedMps = -velDRaw / 1000f,
+            verticalSpeedMps = 0f,
             numSatellites = numSV
         )
     }

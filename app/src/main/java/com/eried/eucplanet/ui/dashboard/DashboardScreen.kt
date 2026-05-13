@@ -1560,25 +1560,9 @@ private fun SpeedGauge(
                 radius = dotRadius,
                 center = dotCenter
             )
-
-            // Small numeric readout under the unit label, e.g. "GPS 31.4".
-            val extDisplay = com.eried.eucplanet.util.Units.speed(externalSpeed, imperial)
-            val extText = "GPS %.1f".format(extDisplay)
-            val extMeasured = textMeasurer.measure(
-                extText,
-                style = TextStyle(
-                    fontSize = (size.minDimension * 0.045f).sp,
-                    color = externalAccentColor,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-            drawText(
-                extMeasured,
-                topLeft = Offset(
-                    center.x - extMeasured.size.width / 2f,
-                    center.y + speedMeasured.size.height / 2f + unitMeasured.size.height
-                )
-            )
+            // Numeric readout intentionally omitted — the dot on the arc plus
+            // the GPS icon's source ring carries the signal. A "GPS 31.4" text
+            // under the main number cluttered the dial.
         }
     }
 }

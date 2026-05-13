@@ -41,7 +41,11 @@ class DataSourcesViewModel @Inject constructor(
         // of history before old samples fade off the bottom of the alpha curve.
         // Visually this maps to "a smooth tail behind the dot" rather than a
         // full path replay.
-        private const val TRAIL_MAX = 75
+        // Trail length on the X/Z g-force crosshair. RaceBox streams at ~25 Hz
+        // and the phone IMU at ~50 Hz; 120 samples spans ~5 s of RaceBox or
+        // ~2.5 s of phone, enough to follow a sustained corner without the
+        // trail smearing into a solid disk.
+        private const val TRAIL_MAX = 120
         /** Rolling window for Compare-tab line charts. 30 s feels right — long
          *  enough to see a divergence forming, short enough that the line
          *  always sits over recent data. */

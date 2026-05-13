@@ -15,9 +15,10 @@ import javax.inject.Singleton
  * bad setting because nothing survives a restart.
  *
  * Commands recognized in the search field (case-insensitive, on IME Enter):
- *  - `daredevilNN` — set the **display-only** speed multiplier. NN is the
- *    percentage boost, two digits. `daredevil20` shows speed at 1.20× on the
- *    dashboard + watch face. `daredevil00` resets to 1.00× (no boost).
+ *  - `daredevilN` — set the **display-only** speed multiplier. N is the
+ *    percentage offset (any integer, with optional `-`). `daredevil20` shows
+ *    speed at 1.20×, `daredevil5` at 1.05×, `daredevil-50` at 0.50×,
+ *    `daredevil-99` at 0.01×. `daredevil0` resets to 1.00× (no cheat).
  *    Recording, alarms, and every other computation continues to use the real
  *    speed from `WheelData`.
  *  - `godmode` — toggles a session-wide alarm mute. While active, the
@@ -48,11 +49,12 @@ class CheatState @Inject constructor() {
      */
     fun tryConsume(raw: String): Result? {
         val cmd = raw.trim().lowercase()
-        // daredevilNN — NN is the percentage boost (00..99). 00 resets.
+        // daredevil<pct> — pct is any integer with optional leading minus.
+        // 0 (or -0) resets to no cheat.
         DAREDEVIL_REGEX.matchEntire(cmd)?.let { m ->
-            val pct = m.groupValues[1].toInt()
+            val pct = m.groupValues[1].toIntOrNull() ?: return@let
             _speedDisplayMultiplier.value = 1f + (pct / 100f)
-            return Result.Toast("daredevil${"%02d".format(pct)} applied")
+            return Result.Toast("daredevil$pct applied")
         }
         if (cmd == "godmode") {
             _godmode.value = !_godmode.value
@@ -73,6 +75,6 @@ class CheatState @Inject constructor() {
     }
 
     companion object {
-        private val DAREDEVIL_REGEX = Regex("^daredevil(\\d{2})$")
+        private val DAREDEVIL_REGEX = Regex("^daredevil(-?\\d+)$")
     }
 }
