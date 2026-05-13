@@ -101,11 +101,17 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         // are useful as a position sample. Drop and let the next frame land.
         if (fixType != 2 && fixType != 3 && fixType != 4) return null
 
+        val numSV = frame[payloadStart + 23].toInt() and 0xFF
         val lonRaw = readInt32LE(frame, payloadStart + 24)
         val latRaw = readInt32LE(frame, payloadStart + 28)
         val hMslRaw = readInt32LE(frame, payloadStart + 36)
         val hAccRaw = readUInt32LE(frame, payloadStart + 40)
+        // NED vertical velocity, positive = down. Flip sign so the field
+        // reads "+up" consistent with phone Location.verticalAccuracyMeters
+        // semantics elsewhere.
+        val velDRaw = readInt32LE(frame, payloadStart + 56)
         val gSpeedRaw = readInt32LE(frame, payloadStart + 60)
+        val headMotRaw = readInt32LE(frame, payloadStart + 64)
 
         val speedMmS = gSpeedRaw.coerceAtLeast(0)
         return ExternalGpsSample(
@@ -114,7 +120,14 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
             latitude = latRaw * 1e-7,                     // deg
             longitude = lonRaw * 1e-7,                    // deg
             altitudeMeters = hMslRaw / 1000f,             // mm → m
-            accuracyMeters = hAccRaw / 1000f              // mm → m
+            accuracyMeters = hAccRaw / 1000f,             // mm → m
+            headingDeg = (headMotRaw * 1e-5f).let { h ->
+                // Wrap to [0, 360); the wire format can carry small negative
+                // values when heading dithers near zero.
+                ((h % 360f) + 360f) % 360f
+            },
+            verticalSpeedMps = -velDRaw / 1000f,          // mm/s down → m/s up
+            numSatellites = numSV
         )
     }
 
@@ -135,14 +148,17 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         val fixType = frame[payloadStart + 20].toInt() and 0xFF
         if (fixType != 2 && fixType != 3 && fixType != 4) return null
 
+        val numSV = frame[payloadStart + 23].toInt() and 0xFF
         val lonRaw = readInt32LE(frame, payloadStart + 24)
         val latRaw = readInt32LE(frame, payloadStart + 28)
         val hMslRaw = readInt32LE(frame, payloadStart + 36)
         val hAccRaw = readUInt32LE(frame, payloadStart + 40)
+        val velDRaw = readInt32LE(frame, payloadStart + 56)
         // Note: in the extended frame the speed field sits at offset 60 too,
         // same as standard PVT — RaceBox kept the layout compatible for the
         // shared fields.
         val gSpeedRaw = readInt32LE(frame, payloadStart + 60)
+        val headMotRaw = readInt32LE(frame, payloadStart + 64)
 
         // Accel: int16 LE milligees on each axis (positive Y = forward).
         // Divide by 1000 to get g.
@@ -160,7 +176,12 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
             accuracyMeters = hAccRaw / 1000f,
             accelXG = ax,
             accelYG = ay,
-            accelZG = az
+            accelZG = az,
+            headingDeg = (headMotRaw * 1e-5f).let { h ->
+                ((h % 360f) + 360f) % 360f
+            },
+            verticalSpeedMps = -velDRaw / 1000f,
+            numSatellites = numSV
         )
     }
 

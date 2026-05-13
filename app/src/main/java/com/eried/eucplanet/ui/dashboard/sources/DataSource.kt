@@ -45,7 +45,16 @@ data class SourceSnapshot(
     /** Accel in g, axes aligned to the source's reference frame. */
     val accelXG: Float? = null,
     val accelYG: Float? = null,
-    val accelZG: Float? = null
+    val accelZG: Float? = null,
+    /** Heading of motion in degrees [0..360), or null. Phone source fills
+     *  this in from [android.location.Location.getBearing] when speed > 0. */
+    val headingDeg: Float? = null,
+    /** Vertical speed in m/s (+up), or null. */
+    val verticalSpeedMps: Float? = null,
+    /** GPS quality indicator — only filled for sources with a GPS receiver. */
+    val numSatellites: Int? = null,
+    /** Horizontal positional accuracy in metres, or null. */
+    val accuracyMeters: Float? = null
 ) {
     /** Magnitude of horizontal G-force, useful as a single safety number. */
     val horizGMagnitude: Float?

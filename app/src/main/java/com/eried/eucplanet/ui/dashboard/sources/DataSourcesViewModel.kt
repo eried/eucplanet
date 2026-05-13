@@ -42,6 +42,10 @@ class DataSourcesViewModel @Inject constructor(
         // Visually this maps to "a smooth tail behind the dot" rather than a
         // full path replay.
         private const val TRAIL_MAX = 75
+        /** Rolling window for Compare-tab line charts. 30 s feels right — long
+         *  enough to see a divergence forming, short enough that the line
+         *  always sits over recent data. */
+        private const val SERIES_WINDOW_MS = 30_000L
     }
 
     // Phone IMU trail — rolling buffer of (xG, zG) offsets used by the
@@ -52,6 +56,41 @@ class DataSourcesViewModel @Inject constructor(
 
     private val _raceboxTrail = MutableStateFlow<List<Offset>>(emptyList())
     val raceboxTrail: StateFlow<List<Offset>> = _raceboxTrail.asStateFlow()
+
+    /**
+     * Per-source, per-metric rolling time-series used by the Compare tab to
+     * draw line graphs. Each entry is (timestampMs, value). Old entries beyond
+     * [SERIES_WINDOW_MS] are dropped on every sample tick.
+     *
+     * Kept flat (one MutableStateFlow per series) rather than nested in a map
+     * so Compose subscribers only recompose when the specific series they're
+     * watching changes.
+     */
+    data class TimedSeries(val points: List<Pair<Long, Float>> = emptyList())
+
+    private val _speedSeries = DataSource.values().associateWith {
+        MutableStateFlow(TimedSeries())
+    }
+    val speedSeries: Map<DataSource, StateFlow<TimedSeries>> =
+        _speedSeries.mapValues { it.value.asStateFlow() }
+
+    private val _gMagnitudeSeries = DataSource.values().associateWith {
+        MutableStateFlow(TimedSeries())
+    }
+    val gMagnitudeSeries: Map<DataSource, StateFlow<TimedSeries>> =
+        _gMagnitudeSeries.mapValues { it.value.asStateFlow() }
+
+    private val _headingSeries = DataSource.values().associateWith {
+        MutableStateFlow(TimedSeries())
+    }
+    val headingSeries: Map<DataSource, StateFlow<TimedSeries>> =
+        _headingSeries.mapValues { it.value.asStateFlow() }
+
+    private val _vertSpeedSeries = DataSource.values().associateWith {
+        MutableStateFlow(TimedSeries())
+    }
+    val vertSpeedSeries: Map<DataSource, StateFlow<TimedSeries>> =
+        _vertSpeedSeries.mapValues { it.value.asStateFlow() }
 
     init {
         // Wire the sensor stream into the trail buffer. New samples land at
@@ -69,6 +108,27 @@ class DataSourcesViewModel @Inject constructor(
                 val az = sample.accelZG ?: return@collect
                 _raceboxTrail.update { it.takeLast(TRAIL_MAX - 1) + Offset(ax, az) }
             }
+        }
+        // Append to the time-series buffers from each snapshot tick.
+        viewModelScope.launch {
+            snapshots.collect { map ->
+                val now = System.currentTimeMillis()
+                map.forEach { (src, snap) ->
+                    appendSeries(_speedSeries[src], now, snap.speedKmh)
+                    appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
+                    appendSeries(_headingSeries[src], now, snap.headingDeg)
+                    appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
+                }
+            }
+        }
+    }
+
+    private fun appendSeries(flow: MutableStateFlow<TimedSeries>?, now: Long, v: Float?) {
+        if (flow == null || v == null) return
+        flow.update { current ->
+            val cutoff = now - SERIES_WINDOW_MS
+            val kept = current.points.dropWhile { it.first < cutoff }
+            TimedSeries(kept + (now to v))
         }
     }
 
@@ -103,7 +163,13 @@ class DataSourcesViewModel @Inject constructor(
                 isLive = phoneLive,
                 accelXG = imu?.xG,
                 accelYG = imu?.yG,
-                accelZG = imu?.zG
+                accelZG = imu?.zG,
+                headingDeg = loc?.takeIf { it.hasBearing() && it.speed > 0.5f }?.bearing,
+                // FusedLocationProvider doesn't expose vertical speed; we'd
+                // have to derive it from altitude deltas. Skip for v1.
+                verticalSpeedMps = null,
+                numSatellites = null,
+                accuracyMeters = loc?.accuracy
             ),
             DataSource.WHEEL to SourceSnapshot(
                 speedKmh = wheel.speed.takeIf { wheelState == ConnectionState.CONNECTED },
@@ -116,7 +182,11 @@ class DataSourcesViewModel @Inject constructor(
                 isLive = extState == ConnectionState.CONNECTED && ext != null,
                 accelXG = ext?.accelXG,
                 accelYG = ext?.accelYG,
-                accelZG = ext?.accelZG
+                accelZG = ext?.accelZG,
+                headingDeg = ext?.headingDeg,
+                verticalSpeedMps = ext?.verticalSpeedMps,
+                numSatellites = ext?.numSatellites,
+                accuracyMeters = ext?.accuracyMeters
             )
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())

@@ -21,6 +21,16 @@ data class ExternalGpsSample(
     val accelXG: Float? = null,
     val accelYG: Float? = null,
     val accelZG: Float? = null,
+    /** Heading of motion in degrees [0..360), or null if unknown. Both
+     *  standard NAV-PVT and the extended frame report this at offset 64
+     *  as int32 deg × 1e-5. */
+    val headingDeg: Float? = null,
+    /** Vertical speed in m/s (positive up), or null if unknown. Derived
+     *  from the NED down-velocity (offset 56, int32 mm/s, +down → flip). */
+    val verticalSpeedMps: Float? = null,
+    /** Number of satellites used in the fix, or null if unknown. Useful as
+     *  a per-source quality indicator. */
+    val numSatellites: Int? = null,
     val timestamp: Long = System.currentTimeMillis()
 )
 
