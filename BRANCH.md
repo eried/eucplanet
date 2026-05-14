@@ -11,6 +11,14 @@ and wheel calibration, plus Compare-tab tooling and the usual polish.
 - `Ext GPS speed` column in trip CSVs, purple overlay on the trip chart.
 - **E** indicator top-right: dim when stale, lit when sending, hidden when
   no external GPS is paired.
+- Post-connect handshake matches the official RaceBox app: MTU 247,
+  high connection priority, MGA-INI-TIME + MGA-INI-POS assistance
+  writes. Without these the GNSS does a cold-start sky search (30 to
+  90 s), which is why riders reported "no fix unless the official
+  RaceBox app was launched first."
+- Auto-(re)connect on app start and after a connection drop, with
+  backoff 1.5 / 5 / 10 / 30 s. Explicit Disconnect from Settings
+  vetoes the loop until the rider taps Reconnect.
 
 **Live data sources sheet (tap the GPS icon)**
 - Phone / Wheel / External tabs + a Compare tab.
@@ -46,8 +54,11 @@ and wheel calibration, plus Compare-tab tooling and the usual polish.
 
 ## Known gaps
 
-- No auto-connect for the external GPS on app start; tap Reconnect after.
-- No reconnect-on-disconnect retry when the box goes out of range.
+- Full AGPS (MGA-GPS-EPH ephemeris from u-blox AssistNow) is not yet
+  wired up. INI-TIME + INI-POS alone trim cold-start from 90 s to
+  about 15 to 20 s, but a fresh-boot RaceBox still needs sky time
+  before its first fix. AssistNow Online integration is a separate
+  follow-up.
 - Dial upper bound still scales to wheel max; a faster external source
   will pin at the top.
 
