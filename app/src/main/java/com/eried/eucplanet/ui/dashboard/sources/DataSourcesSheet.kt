@@ -700,48 +700,53 @@ private fun CompareTab(
     val snapB = snapshots[b] ?: SourceSnapshot()
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        // Speed is the headline comparison. Wheel telemetry arrives already
-        // multiplied by the user's calibration (WheelRepository applies it on
-        // the hot path), which makes wheel-vs-ref look perfect even when the
-        // sensor itself is off. To keep the Compare tab usable as a
-        // calibration tool we strip the current calibration here, so the
-        // delta on the chart reflects the actual raw error.
+        // Speed is the headline comparison.
+        //
+        // Architecture: _speedSeries[WHEEL] in the ViewModel is the RAW
+        // wheel speed (decalibrated at ingest), so the buffer is invariant
+        // to the rider's calibration offset. We multiply the wheel series
+        // back up by the CURRENT calibration here so the chart line shows
+        // the same value the rider sees on the dial — once calibration
+        // converges, Δ on the chart → 0, which is the verification view.
+        // The proposal math uses the raw series directly, which makes
+        // "Apply" idempotent (re-applying a perfect calibration proposes
+        // the same %, not a creeping larger one).
         val curCalPct by viewModel.calibrationOffsetPct.collectAsState()
         val calMul = 1f + curCalPct / 100f
         val rawSpeedSeriesA = viewModel.speedSeries[a]?.collectAsState()?.value
             ?: DataSourcesViewModel.TimedSeries()
         val rawSpeedSeriesB = viewModel.speedSeries[b]?.collectAsState()?.value
             ?: DataSourcesViewModel.TimedSeries()
-        fun decalibrate(s: DataSourcesViewModel.TimedSeries): DataSourcesViewModel.TimedSeries =
+        fun calibrate(s: DataSourcesViewModel.TimedSeries): DataSourcesViewModel.TimedSeries =
             if (calMul == 1f) s
             else DataSourcesViewModel.TimedSeries(
-                s.points.map { it.first to it.second / calMul }
+                s.points.map { it.first to it.second * calMul }
             )
-        val speedSeriesA = if (a == DataSource.WHEEL) decalibrate(rawSpeedSeriesA) else rawSpeedSeriesA
-        val speedSeriesB = if (b == DataSource.WHEEL) decalibrate(rawSpeedSeriesB) else rawSpeedSeriesB
-        // Match the snapshot-level numbers too so the headline Δ aligns with
-        // the chart lines.
-        val snapASpeed = snapA.speedKmh?.let { if (a == DataSource.WHEEL) it / calMul else it }
-        val snapBSpeed = snapB.speedKmh?.let { if (b == DataSource.WHEEL) it / calMul else it }
-        val speedDeltaCurrent = if (snapASpeed != null && snapBSpeed != null)
-            Units.speed(snapBSpeed - snapASpeed, imperial) else null
+        // For chart + delta display we use CALIBRATED wheel values so the
+        // line matches the dial; phone/external pass through untouched.
+        val speedSeriesA = if (a == DataSource.WHEEL) calibrate(rawSpeedSeriesA) else rawSpeedSeriesA
+        val speedSeriesB = if (b == DataSource.WHEEL) calibrate(rawSpeedSeriesB) else rawSpeedSeriesB
+        // Snapshot speeds come from WheelRepository which already applies
+        // the calibration (it's the value on the dial), so use them as-is.
+        val speedDeltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
+            Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
         val speedDeltaAvg = computeAverageDeltaKmh(speedSeriesA, speedSeriesB)
             ?.let { Units.speed(it, imperial) }
 
-        // Apply-to-calibration: button always rendered when one of the two
-        // sides is the wheel (so the user knows the action exists), but
-        // enabled only when the wheel is connected AND we've gathered enough
-        // sample data on both sides to compute a meaningful offset.
+        // Proposal math: use the RAW wheel buffer (not the calibrated one)
+        // so the result is idempotent. Once the rider tunes calibration
+        // such that raw × (1 + curPct/100) ≈ ref, the proposed % equals
+        // the current curPct and re-applying is a no-op.
         val wheelConnected by viewModel.wheelConnected.collectAsState()
         val wheelInComparison = a == DataSource.WHEEL || b == DataSource.WHEEL
         val wheelSeriesRaw = when {
-            a == DataSource.WHEEL -> speedSeriesA
-            b == DataSource.WHEEL -> speedSeriesB
+            a == DataSource.WHEEL -> rawSpeedSeriesA
+            b == DataSource.WHEEL -> rawSpeedSeriesB
             else -> null
         }
         val refSeries = when {
-            a == DataSource.WHEEL -> speedSeriesB
-            b == DataSource.WHEEL -> speedSeriesA
+            a == DataSource.WHEEL -> rawSpeedSeriesB
+            b == DataSource.WHEEL -> rawSpeedSeriesA
             else -> null
         }
         val proposedCalPct = if (wheelSeriesRaw != null && refSeries != null) {
@@ -769,7 +774,9 @@ private fun CompareTab(
             showAverageLine = true,
             applyActionLabel = stringResource(com.eried.eucplanet.R.string.sources_apply_calibration),
             applyActionEnabled = wheelInComparison && wheelConnected && proposedCalPct != null,
-            onApplyAction = { showApplyDialog = true }
+            onApplyAction = { showApplyDialog = true },
+            resetActionLabel = stringResource(com.eried.eucplanet.R.string.sources_reset_avg),
+            onResetAction = { viewModel.resetRollingAverages() }
         )
         if (showApplyDialog && proposedCalPct != null) {
             androidx.compose.material3.AlertDialog(
@@ -910,7 +917,9 @@ private fun ComparisonChart(
     showAverageLine: Boolean = false,
     applyActionLabel: String? = null,
     applyActionEnabled: Boolean = false,
-    onApplyAction: (() -> Unit)? = null
+    onApplyAction: (() -> Unit)? = null,
+    resetActionLabel: String? = null,
+    onResetAction: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -938,6 +947,18 @@ private fun ComparisonChart(
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+            }
+            if (resetActionLabel != null && onResetAction != null) {
+                Spacer(Modifier.width(4.dp))
+                androidx.compose.material3.TextButton(
+                    onClick = onResetAction,
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 8.dp,
+                        vertical = 0.dp
+                    )
+                ) {
+                    Text(resetActionLabel, fontSize = 11.sp)
                 }
             }
             if (applyActionLabel != null) {
@@ -1142,29 +1163,22 @@ private fun LineChart(
             val yMin: Float
             val yMax: Float
             if (centerOnLatestPct != null) {
-                // Centre on the LATEST values of A and B (whichever are
-                // available) — not the 5-minute spread — so the axis tracks
-                // current speed instead of getting dragged wide by an old
-                // peak. Pad to include both latest values plus a 10 %
-                // breathing margin, with a floor of |centre| × N % so the
-                // chart stays tightly zoomed when A and B are close (the
-                // "wheel = 20, gps = 21" case).
-                val latestA = pointsA.maxByOrNull { it.first }?.second?.let(transform)
-                val latestB = pointsB.maxByOrNull { it.first }?.second?.let(transform)
-                val active = listOfNotNull(latestA, latestB)
-                    .filter { kotlin.math.abs(it) > 0.5f }
-                val targets = if (active.isNotEmpty()) active
-                              else listOfNotNull(latestA, latestB)
-                val center = if (targets.isNotEmpty())
-                    (targets.min() + targets.max()) / 2f else 0f
-                val halfData = if (targets.size >= 2)
-                    (targets.max() - targets.min()) / 2f else 0f
+                // Fit the full visible window's spread (not just the latest
+                // A/B values) so the rider can see the whole 5-minute speed
+                // history with breathing room above and below. Earlier we
+                // centred tightly on the most recent two points, which
+                // collapsed the chart to a narrow band and hid the rest of
+                // the ride. Now: take min/max across every transformed
+                // value in view, expand by 25 %, with a floor of |centre|
+                // × centerOnLatestPct % so a flat parked emulator (both
+                // values near zero) doesn't collapse to a hairline.
+                val active = transformedValues.filter { it.isFinite() }
+                val vMin = active.minOrNull() ?: 0f
+                val vMax = active.maxOrNull() ?: 0f
+                val center = (vMin + vMax) / 2f
+                val halfData = (vMax - vMin) / 2f
                 val halfTen = kotlin.math.abs(center) * centerOnLatestPct / 100f
-                // Leave ~30% breathing room above and below the data, then take
-                // the larger of that and the absolute %-of-centre window. The
-                // 1.5 floor keeps the chart from collapsing to nothing when
-                // both sources sit at zero (e.g. parked emulator).
-                val halfRange = maxOf(halfData * 1.30f, halfTen, 1.5f)
+                val halfRange = maxOf(halfData * 1.25f, halfTen, 2f)
                 yMin = center - halfRange
                 yMax = center + halfRange
             } else {

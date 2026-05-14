@@ -482,6 +482,7 @@
     <string name="sources_fresh_hours_fmt">%1$du geleden</string>
     <string name="sources_sats_fmt">%1$d sat.</string>
     <string name="sources_collecting">Verzamelen…</string>
+    <string name="sources_reset_avg">Gem. resetten</string>
     <string name="sources_apply_calibration">Wiel kalibreren</string>
     <string name="sources_apply_calibration_title">Snelheidskalibratie toepassen</string>
     <string name="sources_apply_calibration_body_fmt">Snelheidskalibratie van het wiel instellen op %1$+.1f %%?\n\nJe kunt dit later wijzigen in Wielparameters.</string>

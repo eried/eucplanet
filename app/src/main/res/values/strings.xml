@@ -593,6 +593,7 @@
     <string name="sources_sats_fmt">%1$d sats</string>
     <string name="sources_other_metrics">Other metrics</string>
     <string name="sources_collecting">Collecting…</string>
+    <string name="sources_reset_avg">Reset avg</string>
     <string name="sources_apply_calibration">Calibrate wheel</string>
     <string name="sources_apply_calibration_title">Apply speed calibration</string>
     <string name="sources_apply_calibration_body_fmt">Set the wheel speed calibration to %1$+.1f %%?\n\nYou can change this later in Wheel parameters.</string>

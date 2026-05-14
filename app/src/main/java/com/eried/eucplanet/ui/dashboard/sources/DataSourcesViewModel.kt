@@ -205,11 +205,26 @@ class DataSourcesViewModel @Inject constructor(
         // Each emit appends to the per-source per-metric rolling buffers
         // used by the Compare-tab line charts. Null fields are skipped
         // inside [appendSeries] so we don't taint the series with NaN.
+        //
+        // Wheel speed is DECALIBRATED at ingest: the wheel telemetry stack
+        // multiplies every raw reading by (1 + curPct/100) before it reaches
+        // us, so we divide it back out and store the raw value in the
+        // _speedSeries[WHEEL] buffer. That makes the buffer curPct-invariant
+        // — applying a new calibration doesn't shift the historical samples,
+        // which means the Compare-tab "Calibrate wheel" math is idempotent
+        // (re-applying a perfect calibration proposes the same %, not a
+        // larger one). The Compare tab is responsible for multiplying the
+        // raw samples back up when rendering the chart line, so the
+        // RIDER sees the calibrated wheel speed there.
         viewModelScope.launch {
             snapshots.collect { map ->
                 val now = System.currentTimeMillis()
+                val curMul = 1f + calibrationOffsetPct.value / 100f
                 map.forEach { (src, snap) ->
-                    appendSeries(_speedSeries[src], now, snap.speedKmh)
+                    val speedForBuffer = if (src == DataSource.WHEEL && snap.speedKmh != null && curMul > 0f)
+                        snap.speedKmh / curMul
+                    else snap.speedKmh
+                    appendSeries(_speedSeries[src], now, speedForBuffer)
                     appendSeries(_gMagnitudeSeries[src], now, snap.horizGMagnitude)
                     appendSeries(_headingSeries[src], now, snap.headingDeg)
                     appendSeries(_vertSpeedSeries[src], now, snap.verticalSpeedMps)
@@ -257,13 +272,27 @@ class DataSourcesViewModel @Inject constructor(
     }
 
     /** Persist a new wheel speed calibration. Same clamp/rounding rules as the
-     *  Wheel parameters slider. */
+     *  Wheel parameters slider.
+     *
+     *  Note: we don't need to clear the rolling buffer here. The buffer
+     *  stores RAW wheel speed (decalibrated at ingest in the init block),
+     *  so it's invariant to curPct changes. The chart line and proposal
+     *  both update immediately because they read the current curPct from
+     *  [calibrationOffsetPct] at render time. */
     fun applyCalibrationPct(newPct: Float) {
         viewModelScope.launch {
             val rounded = (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-15f, 15f)
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(speedCalibrationOffsetPct = rounded))
         }
+    }
+
+    /** Drop the rolling speed buffer for every source so the Compare tab's
+     *  average + computed calibration restart from "now". Exposed so the
+     *  rider can tap Reset avg from the UI after a stretch of stop-and-go
+     *  riding to refresh the comparison without waiting 5 minutes. */
+    fun resetRollingAverages() {
+        _speedSeries.values.forEach { it.value = TimedSeries() }
     }
 
     fun onSheetOpened() {
