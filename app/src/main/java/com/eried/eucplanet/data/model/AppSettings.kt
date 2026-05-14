@@ -154,6 +154,9 @@ data class AppSettings(
     // Display units
     val imperialUnits: Boolean = false,
 
+    @ColumnInfo(defaultValue = "0")
+    val phoneKeepScreenOn: Boolean = false,
+
     // Volume keys (work while app is in foreground)
     val volumeKeysEnabled: Boolean = false,
     val volumeUpClick: String = "HORN",

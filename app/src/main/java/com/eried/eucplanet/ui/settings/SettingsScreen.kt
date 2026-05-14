@@ -675,6 +675,10 @@ private fun DisplayTab(
             viewModel.updateImperialUnits(it)
         }
 
+        SwitchSetting(stringResource(R.string.phone_keep_screen_on), settings.phoneKeepScreenOn) {
+            viewModel.updatePhoneKeepScreenOn(it)
+        }
+
         SimpleDropdown(
             label = stringResource(R.string.language),
             currentKey = settings.language,

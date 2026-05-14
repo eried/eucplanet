@@ -126,6 +126,7 @@
     <string name="back_button_action_background">转后台</string>
     <string name="back_button_action_stop">停止所有</string>
     <string name="imperial_units">英制单位</string>
+    <string name="phone_keep_screen_on">保持屏幕常亮</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
     <string name="theme_black">纯黑</string>

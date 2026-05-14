@@ -195,6 +195,7 @@
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>
     <string name="imperial_units">Imperial units</string>
+    <string name="phone_keep_screen_on">Keep screen on</string>
     <string name="language">Language</string>
     <string name="theme">Theme</string>
     <string name="theme_black">Pure black</string>

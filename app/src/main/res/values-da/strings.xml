@@ -128,6 +128,7 @@
     <string name="back_button_action_background">Baggrund</string>
     <string name="back_button_action_stop">Stop alle</string>
     <string name="imperial_units">Imperiale enheder</string>
+    <string name="phone_keep_screen_on">Hold skærmen tændt</string>
     <string name="language">Sprog</string>
     <string name="theme">Tema</string>
     <string name="theme_black">Helsort</string>

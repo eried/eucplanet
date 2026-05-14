@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -98,6 +99,13 @@ class MainActivity : AppCompatActivity() {
             settingsRepository.settings.collect {
                 val first = _settings.value == null
                 _settings.value = it
+                // Honour the "keep screen on" toggle. Setting the window flag
+                // is idempotent so we don't need a delta check.
+                if (it.phoneKeepScreenOn) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
                 if (first) {
                     if (it.language.isBlank()) {
                         // First launch ever: pick a supported locale that matches

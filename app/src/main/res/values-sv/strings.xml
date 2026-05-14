@@ -126,6 +126,7 @@
     <string name="back_button_action_background">Bakgrund</string>
     <string name="back_button_action_stop">Stoppa allt</string>
     <string name="imperial_units">Imperiella enheter</string>
+    <string name="phone_keep_screen_on">Håll skärmen på</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
     <string name="theme_black">Helsvart</string>

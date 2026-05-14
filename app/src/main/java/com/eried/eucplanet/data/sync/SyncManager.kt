@@ -512,6 +512,7 @@ class SyncManager @Inject constructor(
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("imperialUnits", s.imperialUnits)
+        put("phoneKeepScreenOn", s.phoneKeepScreenOn)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
         put("volumeUpHold", s.volumeUpHold)
@@ -639,6 +640,7 @@ class SyncManager @Inject constructor(
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
+        phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
         volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),

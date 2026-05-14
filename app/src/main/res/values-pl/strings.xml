@@ -186,6 +186,7 @@
     <string name="back_button_action_background">W tle</string>
     <string name="back_button_action_stop">Zatrzymaj wszystko</string>
     <string name="imperial_units">Jednostki imperialne</string>
+    <string name="phone_keep_screen_on">Nie wygaszaj ekranu</string>
     <string name="language">Język</string>
     <string name="theme">Motyw</string>
     <string name="theme_black">Czysta czerń</string>

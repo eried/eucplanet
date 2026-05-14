@@ -47,6 +47,11 @@ class CheatState @Inject constructor() {
      *  rider can lock at any speed. Session only, never persisted. */
     val lockAtAnySpeed: StateFlow<Boolean> = _lockAtAnySpeed.asStateFlow()
 
+    private val _silence = MutableStateFlow(false)
+    /** When true, [com.eried.eucplanet.service.VoiceService] swallows every
+     *  spoken utterance for the session (status, triggers, alarms, welcome). */
+    val silence: StateFlow<Boolean> = _silence.asStateFlow()
+
     /**
      * Try to interpret [raw] as a cheat command. Returns the toast text on a match
      * (the caller is expected to show it and clear the search field), or null when
@@ -68,6 +73,10 @@ class CheatState @Inject constructor() {
         if (cmd == "letmelock") {
             _lockAtAnySpeed.value = !_lockAtAnySpeed.value
             return Result.Toast(if (_lockAtAnySpeed.value) "letmelock on" else "letmelock off")
+        }
+        if (cmd == "silence") {
+            _silence.value = !_silence.value
+            return Result.Toast(if (_silence.value) "silence on" else "silence off")
         }
         if (cmd == "bug") {
             return Result.OpenUrl("https://github.com/eried/eucplanet/issues/new/choose")

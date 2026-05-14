@@ -126,6 +126,7 @@
     <string name="back_button_action_background">Arrière-plan</string>
     <string name="back_button_action_stop">Tout arrêter</string>
     <string name="imperial_units">Unités impériales</string>
+    <string name="phone_keep_screen_on">Garder l\'écran allumé</string>
     <string name="language">Langue</string>
     <string name="theme">Thème</string>
     <string name="theme_black">Noir pur</string>
