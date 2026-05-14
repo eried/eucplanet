@@ -7,6 +7,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -987,6 +989,8 @@ private fun ComparisonChart(
         colorC = MaterialTheme.colorScheme.onSurface,
         transform = transform,
         centerOnLatestPct = if (showAverageLine) 10f else null,
+        interactive = true,
+        valueUnit = unit,
         modifier = Modifier
             .fillMaxWidth()
             .height(chartHeight)
@@ -1102,19 +1106,52 @@ private fun LineChart(
      * but oscillating sources show as a visible spread instead of flattening
      * into a thin band at the top of the chart. Null = auto-fit min/max.
      */
-    centerOnLatestPct: Float? = null
+    centerOnLatestPct: Float? = null,
+    /** Render with units appended next to each value label in the tooltip. */
+    interactive: Boolean = false,
+    valueUnit: String = ""
 ) {
     val measurer = rememberTextMeasurer()
     val grid = MaterialTheme.colorScheme.surfaceVariant
     val axisLabel = MaterialTheme.colorScheme.onSurfaceVariant
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val surface = MaterialTheme.colorScheme.surface
     val collectingLabel = stringResource(com.eried.eucplanet.R.string.sources_collecting)
+    // Scrub X in pixels (relative to the Canvas's draw area), null when no
+    // finger is down. Updated by the pointer modifier attached to the
+    // Canvas; consumed in the drawScope to render a vertical scrub line +
+    // per-series value bubbles.
+    var scrubX by remember { mutableStateOf<Float?>(null) }
+    val canvasPointerModifier = if (interactive) {
+        Modifier.pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val change = event.changes.firstOrNull()
+                    if (change == null || !change.pressed) {
+                        scrubX = null
+                    } else {
+                        scrubX = change.position.x.coerceIn(0f, size.width.toFloat())
+                        // Consume so the parent doesn't try to scroll the
+                        // bottom sheet while the rider is scrubbing.
+                        change.consume()
+                    }
+                }
+            }
+        }
+    } else Modifier
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.30f))
             .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
     ) {
-        Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .then(canvasPointerModifier)
+        ) {
             val w = size.width
             val h = size.height
 
@@ -1237,6 +1274,75 @@ private fun LineChart(
                     style = TextStyle(fontSize = 8.sp, color = axisLabel)
                 )
                 drawText(measured, topLeft = Offset(3f, ty))
+            }
+
+            // Scrub overlay (interactive == true) — draw a vertical line at
+            // the rider's touch X, find the nearest sample on each series,
+            // mark it with a dot, and stack value labels next to the line.
+            val sx = scrubX
+            if (sx != null) {
+                drawLine(
+                    color = onSurface.copy(alpha = 0.45f),
+                    start = Offset(sx, 0f),
+                    end = Offset(sx, h),
+                    strokeWidth = 1f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 3f))
+                )
+                fun nearest(points: List<Pair<Long, Float>>): Pair<Float, Float>? {
+                    if (points.isEmpty()) return null
+                    var bestDx = Float.MAX_VALUE
+                    var bestVal = 0f
+                    var bestY = 0f
+                    points.forEach { (ts, v) ->
+                        val x = ((ts - tMin).toFloat() / tRange) * w
+                        val dx = kotlin.math.abs(x - sx)
+                        if (dx < bestDx) {
+                            bestDx = dx
+                            bestVal = transform(v)
+                            bestY = h - ((transform(v) - yMin) / yRangePadded) * h
+                        }
+                    }
+                    return bestY to bestVal
+                }
+                val unitSuffix = if (valueUnit.isNotEmpty()) " $valueUnit" else ""
+                val hits = listOfNotNull(
+                    nearest(pointsA)?.let { Triple(it.first, it.second, colorA) },
+                    nearest(pointsB)?.let { Triple(it.first, it.second, colorB) }
+                )
+                // Marker dots first so the labels can overlap them cleanly.
+                hits.forEach { (y, _, col) ->
+                    drawCircle(color = col, radius = 4f, center = Offset(sx, y))
+                    drawCircle(color = surface, radius = 1.5f, center = Offset(sx, y))
+                }
+                // Stack labels at the top-right of the line, flipping to the
+                // left if there isn't room on the right.
+                val labelsRightOfLine = (sx + 8f) < (w - 50f)
+                var labelTop = 2f
+                hits.forEachIndexed { idx, (_, v, col) ->
+                    val measured = measurer.measure(
+                        "%.1f%s".format(v, unitSuffix),
+                        style = TextStyle(
+                            fontSize = 10.sp,
+                            color = col,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                    val tx = if (labelsRightOfLine) sx + 6f
+                              else sx - measured.size.width - 6f
+                    // Faint background pill so the number is legible over the
+                    // grid lines.
+                    drawRoundRect(
+                        color = surface.copy(alpha = 0.85f),
+                        topLeft = Offset(tx - 2f, labelTop - 1f),
+                        size = androidx.compose.ui.geometry.Size(
+                            measured.size.width.toFloat() + 4f,
+                            measured.size.height.toFloat() + 2f
+                        ),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(3f, 3f)
+                    )
+                    drawText(measured, topLeft = Offset(tx, labelTop))
+                    labelTop += measured.size.height + 3f
+                }
             }
         }
     }

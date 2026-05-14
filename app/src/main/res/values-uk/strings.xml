@@ -482,7 +482,7 @@
     <string name="sources_fresh_hours_fmt">%1$d год тому</string>
     <string name="sources_sats_fmt">%1$d супут.</string>
     <string name="sources_collecting">Збір даних…</string>
-    <string name="sources_reset_avg">Скинути сер.</string>
+    <string name="sources_reset_avg">Скинути середнє</string>
     <string name="sources_apply_calibration">Калібрувати колесо</string>
     <string name="sources_apply_calibration_title">Застосувати калібрування швидкості</string>
     <string name="sources_apply_calibration_body_fmt">Встановити калібрування швидкості колеса на %1$+.1f %%?\n\nВи зможете змінити це пізніше в параметрах колеса.</string>

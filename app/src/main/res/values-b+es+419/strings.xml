@@ -482,7 +482,7 @@
     <string name="sources_fresh_hours_fmt">hace %1$dh</string>
     <string name="sources_sats_fmt">%1$d sats</string>
     <string name="sources_collecting">Recopilando…</string>
-    <string name="sources_reset_avg">Reiniciar prom.</string>
+    <string name="sources_reset_avg">Reiniciar promedio</string>
     <string name="sources_apply_calibration">Calibrar rueda</string>
     <string name="sources_apply_calibration_title">Aplicar calibración de velocidad</string>
     <string name="sources_apply_calibration_body_fmt">¿Establecer la calibración de velocidad de la rueda en %1$+.1f %%?\n\nPodés cambiarla después en Parámetros de la rueda.</string>

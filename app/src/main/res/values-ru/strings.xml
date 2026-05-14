@@ -353,7 +353,7 @@
     <string name="sources_fresh_hours_fmt">%1$d ч назад</string>
     <string name="sources_sats_fmt">%1$d спут.</string>
     <string name="sources_collecting">Сбор данных…</string>
-    <string name="sources_reset_avg">Сброс ср.</string>
+    <string name="sources_reset_avg">Сбросить среднее</string>
     <string name="sources_apply_calibration">Калибровать колесо</string>
     <string name="sources_apply_calibration_title">Применить калибровку скорости</string>
     <string name="sources_apply_calibration_body_fmt">Установить калибровку скорости колеса на %1$+.1f %%?\n\nВы сможете изменить это позже в параметрах колеса.</string>

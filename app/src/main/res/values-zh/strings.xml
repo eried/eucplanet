@@ -389,7 +389,7 @@
     <string name="sources_fresh_hours_fmt">%1$d小时前</string>
     <string name="sources_sats_fmt">%1$d 颗卫星</string>
     <string name="sources_collecting">采集中…</string>
-    <string name="sources_reset_avg">重置平均</string>
+    <string name="sources_reset_avg">重置平均值</string>
     <string name="sources_apply_calibration">校准轮</string>
     <string name="sources_apply_calibration_title">应用速度校准</string>
     <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>

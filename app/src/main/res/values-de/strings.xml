@@ -353,7 +353,7 @@
     <string name="sources_fresh_hours_fmt">vor %1$dh</string>
     <string name="sources_sats_fmt">%1$d Sat.</string>
     <string name="sources_collecting">Erfassung…</string>
-    <string name="sources_reset_avg">Mittel zurücks.</string>
+    <string name="sources_reset_avg">Mittelwert zurücksetzen</string>
     <string name="sources_apply_calibration">Rad kalibrieren</string>
     <string name="sources_apply_calibration_title">Geschwindigkeitskalibrierung anwenden</string>
     <string name="sources_apply_calibration_body_fmt">Geschwindigkeitskalibrierung des Rads auf %1$+.1f %% setzen?\n\nDu kannst dies später in den Rad-Parametern ändern.</string>
