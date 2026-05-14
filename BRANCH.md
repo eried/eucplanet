@@ -1,55 +1,62 @@
 # external-gps
 
-## What this branch adds
+External BLE GPS support (RaceBox) for ground-truth speed verification
+and wheel calibration, plus Compare-tab tooling and the usual polish.
 
-External BLE GPS box support for high-accuracy speed and position logging. The
-first (and only) implementation is **RaceBox** — Mini, Mini S, Pro. The wheel
-and the GPS box hold separate BLE connections, so pairing one doesn't affect
-the other.
+## What's new
 
-When a RaceBox is paired and connected:
+**External GPS (RaceBox Mini / Mini S / Pro)**
+- Pair in Settings → Integration → External GPS.
+- Purple speed dot on the dial + "GPS X.X" readout under the main speed.
+- `Ext GPS speed` column in trip CSVs, purple overlay on the trip chart.
+- **E** indicator top-right: dim when stale, lit when sending, hidden when
+  no external GPS is paired.
 
-- A small purple **dot on the speedometer dial** marks the external GPS speed
-  alongside the wheel's needle.
-- A **"GPS X.X" readout** sits under the main speed number, in the same purple
-  so the two read as a pair.
-- Trip CSVs gain one new column at the end: **`Ext GPS speed`**. Empty when
-  no device is paired so analysis tools can tell "not connected" from "0 km/h".
-- The trip-detail speed chart adds a thin purple overlay line for the external
-  GPS speed (only when the CSV has data for it).
+**Live data sources sheet (tap the GPS icon)**
+- Phone / Wheel / External tabs + a Compare tab.
+- Compare auto-decalibrates the wheel speed so wheel-vs-GPS delta reflects
+  the real sensor offset, not the residual after the current calibration.
+- A/B selection persists across sheet open/close; first compare entry
+  seeds Wheel vs External (or Phone fallback).
+- **Calibrate wheel** stays enabled whenever the wheel reports motion.
 
-Pairing UI lives in **Settings → Integration → External GPS**.
+**Wheel parameters**
+- Speed calibration range widened from ±5 % to ±15 %.
+- Per-wheel profiles (keyed by BLE name) restore tiltback / alarm /
+  calibration automatically on reconnect.
+
+**Dashboard polish**
+- Lock Wheel stays enabled at all speeds; tap while moving shows a
+  "Slow down to lock the wheel" toast. Repository still hard-blocks the
+  actual lock command on every entry path.
+
+**Begode imperial fix**
+- Begode firmware emits mph-scaled bytes when the wheel's screen is set
+  to imperial. EUC Planet now reads the units flag and converts back to
+  km internally so speed reads correctly in either app unit setting.
 
 ## Who should test this
 
-You need a RaceBox device to exercise the actual protocol. Without one you can
-still:
+- RaceBox owners: pairing, dial overlay, Compare tab, CSV column.
+- Begode riders: flip the wheel display to imperial via the Begode app,
+  then check EUC Planet reads correct speed in both metric and imperial
+  app modes.
+- Everyone else: confirm dashboard / Compare / Lock Wheel still behave
+  normally without an external GPS paired.
 
-- Check that the Integration tab shows the new section.
-- Confirm the dashboard is unchanged when no device is paired.
-- Inspect a trip CSV from a normal recording — the new trailing column should
-  exist with empty cells.
+## Known gaps
 
-## Known limitations
-
-- **No real-device verification yet.** The UBX-NAV-PVT parser is implemented
-  to spec but has not been confirmed against an actual RaceBox. Reach out if
-  it doesn't decode.
-- **Auto-reconnect on app restart is not wired yet.** You'll need to tap
-  "Reconnect" after pairing if the connection drops or the app restarts.
-- **No reconnect-on-disconnect retry.** If the GPS box goes out of range,
-  the connection won't come back automatically.
-- **Dial gauge upper bound** still follows the wheel's max speed. If you
-  paired RaceBox to a moped that goes 80 km/h but the wheel max is 50, the
-  dot will pin at the top of the dial.
+- No auto-connect for the external GPS on app start; tap Reconnect after.
+- No reconnect-on-disconnect retry when the box goes out of range.
+- Dial upper bound still scales to wheel max; a faster external source
+  will pin at the top.
 
 ## How to install
 
-This is a **debug-signed build** (CI). It can't update an existing Play Store
-install in place — uninstall the Play version first, then install this APK.
-Reinstalling the Play Store version later will overwrite this branch build.
+Debug-signed CI build. Uninstall any Play Store install first, then
+install this APK. Reinstalling from Play later overwrites this build.
 
-## Provide feedback
+## Feedback
 
-Open an issue at https://github.com/eried/eucplanet/issues with the tag
+Open an issue at https://github.com/eried/eucplanet/issues tagged
 `branch:external-gps`.
