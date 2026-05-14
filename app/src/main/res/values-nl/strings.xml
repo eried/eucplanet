@@ -81,6 +81,7 @@
     <string name="action_legal_on">Legal AAN</string>
     <string name="action_lock_wheel">Wiel vergrendelen</string>
     <string name="action_locked">Vergrendeld</string>
+    <string name="lock_blocked_in_motion_toast">Vertraag om het wiel te vergrendelen</string>
     <string name="action_recorder">Recorder</string>
     <string name="action_recorder_trips">Recorder\n(%1$d ritten)</string>
 

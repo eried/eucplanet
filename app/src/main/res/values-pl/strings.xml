@@ -81,6 +81,7 @@
     <string name="action_legal_on">Legalny WŁ.</string>
     <string name="action_lock_wheel">Zablokuj koło</string>
     <string name="action_locked">Zablokowane</string>
+    <string name="lock_blocked_in_motion_toast">Zwolnij, aby zablokować koło</string>
     <string name="action_recorder">Rejestrator</string>
     <string name="action_recorder_trips">Rejestrator\n(%1$d tras)</string>
 

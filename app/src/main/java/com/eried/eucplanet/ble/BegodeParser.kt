@@ -38,6 +38,18 @@ class BegodeParser {
     /** True once we have ever seen a 0x07 extras frame; from then on, we trust 0x07 PWM/current over 0x00 derivations. */
     @Volatile private var hasExtras: Boolean = false
 
+    /**
+     * Whether the wheel's on-screen display is set to imperial units. Read
+     * from Live B settings bitfield bit 0. When set, Begode firmware emits
+     * speed/distance/max-speed values pre-scaled to mph/miles on the wire
+     * (not km/h-scaled as the protocol comments suggest), so downstream we
+     * have to multiply by 1.609 to get back to the canonical km internal
+     * unit. Defaults to false until the first Live B frame; the brief
+     * mismatch on the very first 0x00 frame after pairing is bounded to a
+     * single 0.2 s telemetry tick and not worth a barrier.
+     */
+    @Volatile private var wheelInMiles: Boolean = false
+
     fun reset() {
         buffer.clear()
         lastVoltage = 0f
@@ -49,6 +61,7 @@ class BegodeParser {
         lastPwmPct = 0f
         lastLightOn = false
         hasExtras = false
+        wheelInMiles = false
     }
 
     /**
@@ -150,13 +163,22 @@ class BegodeParser {
         // only — we expose signed and let the UI normalise. See open question
         // 9 "reverse speed sign".
         val rawSpeed = ByteUtils.getInt16BE(frame, 4)
-        val speed = rawSpeed * 3.6f / 100f
+        val rawSpeedKmh = rawSpeed * 3.6f / 100f
+        // If the rider has flipped their wheel's screen to imperial via the
+        // Begode app, the wheel ships speed/distance pre-scaled to mph/miles
+        // on the wire even though the protocol spec doesn't acknowledge it.
+        // Multiply by MILES_TO_KM so every downstream consumer keeps seeing
+        // canonical km/h. (Reported by riders comparing wheel + GPS speed in
+        // Compare; WheelLog has the same bug but masks it by auto-flipping
+        // its own display preference to mph in that case.)
+        val speed = if (wheelInMiles) rawSpeedKmh * MILES_TO_KM else rawSpeedKmh
 
         // WheelLog reads only the low u16 at offset 8 as trip-meters; the high
         // word at 6..7 is unused on most firmwares (open question 9). We follow
         // that convention so we don't render bogus distance from older wheels.
         val tripMeters = ByteUtils.getUint16BE(frame, 8)
-        val tripKm = tripMeters / 1000f
+        val tripKmRaw = tripMeters / 1000f
+        val tripKm = if (wheelInMiles) tripKmRaw * MILES_TO_KM else tripKmRaw
 
         val phaseCurrent = ByteUtils.getInt16BE(frame, 10) / 100f
 
@@ -209,12 +231,17 @@ class BegodeParser {
         // genuinely set tiltbacks above 100 km/h, so we only treat clearly
         // out-of-range sentinels (>= 200) as disabled.
         val rawMax = ByteUtils.getUint16BE(frame, 10)
-        val maxSpeed = if (rawMax >= 200) 0f else rawMax.toFloat()
+        val maxSpeedRaw = if (rawMax >= 200) 0f else rawMax.toFloat()
 
-        // Settings bitfield at offset 6 (u16 BE). bit 0 is miles flag; we
-        // surface that via WheelSettings if the UI ever needs it. The other
-        // bits (pedal mode, speed alarms, roll angle) are spec-documented
-        // but the UI doesn't read them yet, so we skip parsing for now.
+        // Settings bitfield at offset 6 (u16 BE). Bit 0 is the imperial-units
+        // flag — set when the rider has switched the wheel's screen to mph in
+        // the Begode app. We stash it on the parser so subsequent Live A
+        // frames can de-convert speed/distance back to km internally; the
+        // tiltback (max speed) on this same frame is in mph too when the
+        // flag is set, so undo it here as well.
+        val settings = ByteUtils.getUint16BE(frame, 6)
+        wheelInMiles = (settings and 0x0001) != 0
+        val maxSpeed = if (wheelInMiles) maxSpeedRaw * MILES_TO_KM else maxSpeedRaw
 
         // Light mode at offset 15 — low 2 bits: 0=off, 1=on, 2=strobe.
         val lightBits = frame[15].toInt() and 0x03
@@ -309,6 +336,9 @@ class BegodeParser {
         private const val HEADER_0: Byte = 0x55
         private const val HEADER_1: Byte = 0xAA.toByte()
         private const val TERM: Byte = 0x5A
+        /** Used to de-convert Begode wire values when the wheel's screen is
+         *  in imperial mode — see [wheelInMiles]. */
+        private const val MILES_TO_KM: Float = 1.609344f
 
         /**
          * Per-pack voltage ratio (spec 4.4). Multiplying raw_cV / 100 by this

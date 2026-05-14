@@ -55,6 +55,7 @@
     <string name="action_legal_on">Légal ACTIVÉ</string>
     <string name="action_lock_wheel">Verrouiller</string>
     <string name="action_locked">Verrouillée</string>
+    <string name="lock_blocked_in_motion_toast">Ralentissez pour verrouiller la roue</string>
     <string name="action_recorder">Enregistreur</string>
     <string name="action_recorder_trips">Enregistreur\n(%1$d trajets)</string>
 

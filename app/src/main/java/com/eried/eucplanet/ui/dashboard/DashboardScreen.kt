@@ -779,17 +779,30 @@ fun DashboardScreen(
                         )
                     }
                 )
-                // Lock direction is blocked above LOCK_MAX_SPEED in the
-                // repository (covers Flic / watch / volume keys / dashboard);
-                // mirror it here so the button visibly greys out when locking
-                // would be refused. Unlock stays tappable at any speed.
+                // Lock direction is hard-blocked above LOCK_MAX_SPEED_KMH in
+                // the repository (covers Flic / watch / volume keys / dash).
+                // The button used to mirror that gate visually, but the
+                // resulting enable/disable flicker as the rider drifts around
+                // 5 km/h was distracting. Keep the button enabled and let the
+                // tap surface a toast when the wheel is in motion — the
+                // repository still refuses the actual lock.
                 val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && !lockBlockedBySpeed,
-                    onClick = { viewModel.onLockToggle() },
+                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                    onClick = {
+                        if (lockBlockedBySpeed) {
+                            Toast.makeText(
+                                toastContext,
+                                R.string.lock_blocked_in_motion_toast,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.onLockToggle()
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                     aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(

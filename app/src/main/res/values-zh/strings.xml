@@ -55,6 +55,7 @@
     <string name="action_legal_on">合规 开</string>
     <string name="action_lock_wheel">锁车</string>
     <string name="action_locked">已锁定</string>
+    <string name="lock_blocked_in_motion_toast">请减速以锁定轮子</string>
     <string name="action_recorder">记录器</string>
     <string name="action_recorder_trips">记录器\n(%1$d 条行程)</string>
 

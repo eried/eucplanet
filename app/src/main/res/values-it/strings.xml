@@ -81,6 +81,7 @@
     <string name="action_legal_on">Legale ON</string>
     <string name="action_lock_wheel">Blocca ruota</string>
     <string name="action_locked">Bloccata</string>
+    <string name="lock_blocked_in_motion_toast">Rallenta per bloccare la ruota</string>
     <string name="action_recorder">Registratore</string>
     <string name="action_recorder_trips">Registratore\n(%1$d viaggi)</string>
 

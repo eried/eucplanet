@@ -81,6 +81,7 @@
     <string name="action_legal_on">Legal ON</string>
     <string name="action_lock_wheel">Lock Wheel</string>
     <string name="action_locked">Locked</string>
+    <string name="lock_blocked_in_motion_toast">Slow down to lock the wheel</string>
     <string name="action_recorder">Recorder</string>
     <string name="action_recorder_trips">Recorder\n(%1$d trips)</string>
 

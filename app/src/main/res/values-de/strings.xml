@@ -55,6 +55,7 @@
     <string name="action_legal_on">Legal AN</string>
     <string name="action_lock_wheel">Sperren</string>
     <string name="action_locked">Gesperrt</string>
+    <string name="lock_blocked_in_motion_toast">Verlangsame, um das Rad zu sperren</string>
     <string name="action_recorder">Aufnahme</string>
     <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
 
