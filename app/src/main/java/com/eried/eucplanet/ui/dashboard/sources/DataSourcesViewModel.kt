@@ -200,6 +200,21 @@ class DataSourcesViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
+    /** Currently saved wheel speed calibration in % (range -15..+15). Exposed
+     *  so the Compare tab can both decalibrate the wheel speed it displays
+     *  (so the rider sees the true raw-vs-ground-truth error) and preview
+     *  what a fresh "apply from comparison" action would write.
+     *
+     *  Declared BEFORE the snapshot-ingest init block below — that block
+     *  reads `calibrationOffsetPct.value` synchronously on every emission,
+     *  and StateFlow.collect emits the current value immediately when the
+     *  coroutine starts, so the property must already be initialised by
+     *  the time the launched coroutine runs. Crash report v0.6.5-rc2 had
+     *  this in the wrong order (NPE on opening the Live data sheet). */
+    val calibrationOffsetPct: StateFlow<Float> = settingsRepository.settings
+        .map { it.speedCalibrationOffsetPct }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
+
     init {
         // Second init block — runs AFTER `snapshots` is initialised above.
         // Each emit appends to the per-source per-metric rolling buffers
@@ -232,14 +247,6 @@ class DataSourcesViewModel @Inject constructor(
             }
         }
     }
-
-    /** Currently saved wheel speed calibration in % (range -15..+15). Exposed
-     *  so the Compare tab can both decalibrate the wheel speed it displays
-     *  (so the rider sees the true raw-vs-ground-truth error) and preview
-     *  what a fresh "apply from comparison" action would write. */
-    val calibrationOffsetPct: StateFlow<Float> = settingsRepository.settings
-        .map { it.speedCalibrationOffsetPct }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
 
     /** Whether the wheel is connected right now. Gates the "apply" button so
      *  the user can't write calibration with no wheel to write it to. */
