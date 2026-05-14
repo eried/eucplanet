@@ -183,7 +183,7 @@ class WheelRepository @Inject constructor(
      * Current speed calibration multiplier (1.0 + offsetPct / 100). Mirrored
      * from AppSettings via the init flow below so the hot telemetry path
      * reads from a volatile field instead of re-collecting the settings flow
-     * on every BLE frame. Bounded to [0.8, 1.2] (matching the UI -20..+20%).
+     * on every BLE frame. Bounded to [0.85, 1.15] (matching the UI -15..+15%).
      */
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
@@ -233,7 +233,7 @@ class WheelRepository @Inject constructor(
         // wheel restores everything (tiltback, alarm, safety, calibration).
         scope.launch {
             settingsRepository.settings.collect { s ->
-                val clamped = s.speedCalibrationOffsetPct.coerceIn(-5f, 5f)
+                val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {

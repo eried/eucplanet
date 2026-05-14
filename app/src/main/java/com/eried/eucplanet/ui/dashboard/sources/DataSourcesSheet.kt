@@ -96,8 +96,12 @@ fun DataSourcesSheet(
         // lets them pick B. Picking the same source as A is allowed (we just
         // show a friendly "same source" message instead of compare panels)
         // so the user doesn't get stuck if they fat-finger their own A.
-        var selectedSource by remember { mutableStateOf(DataSource.PHONE) }
-        var compareWith by remember { mutableStateOf<DataSource?>(null) }
+        // A/B selection lives on the ViewModel so it survives the sheet being
+        // dismissed and re-opened. The rider's last pick (e.g. wheel vs
+        // external) sticks until they change it; no more reselecting wheel
+        // and external every time they reach for the calibration tool.
+        val selectedSource by viewModel.selectedSource.collectAsState()
+        val compareWith by viewModel.compareWith.collectAsState()
         val inCompareMode = compareWith != null
 
         Column(
@@ -117,11 +121,8 @@ fun DataSourcesSheet(
                 snapshots = snapshots,
                 selectedSource = selectedSource,
                 inCompareMode = inCompareMode,
-                onSelectSource = { selectedSource = it },
-                onToggleCompare = {
-                    compareWith = if (inCompareMode) null
-                    else DataSource.values().first { it != selectedSource }
-                }
+                onSelectSource = { viewModel.setSelectedSource(it) },
+                onToggleCompare = { viewModel.toggleCompare() }
             )
             // Bottom row appears in compare mode: B picker. Same chip style
             // as the source tabs above (matches user's mental model: "the
@@ -131,7 +132,7 @@ fun DataSourcesSheet(
                 CompareBPicker(
                     snapshots = snapshots,
                     selected = compareWith ?: DataSource.PHONE,
-                    onSelect = { compareWith = it }
+                    onSelect = { viewModel.setCompareWith(it) }
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -699,15 +700,31 @@ private fun CompareTab(
     val snapB = snapshots[b] ?: SourceSnapshot()
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        // Speed is the headline comparison. Graph stays — taller now — and we
-        // display BOTH the current delta and the rolling-window average delta
-        // in the header so the rider sees a glanceable bias number.
-        val speedSeriesA = viewModel.speedSeries[a]?.collectAsState()?.value
+        // Speed is the headline comparison. Wheel telemetry arrives already
+        // multiplied by the user's calibration (WheelRepository applies it on
+        // the hot path), which makes wheel-vs-ref look perfect even when the
+        // sensor itself is off. To keep the Compare tab usable as a
+        // calibration tool we strip the current calibration here, so the
+        // delta on the chart reflects the actual raw error.
+        val curCalPct by viewModel.calibrationOffsetPct.collectAsState()
+        val calMul = 1f + curCalPct / 100f
+        val rawSpeedSeriesA = viewModel.speedSeries[a]?.collectAsState()?.value
             ?: DataSourcesViewModel.TimedSeries()
-        val speedSeriesB = viewModel.speedSeries[b]?.collectAsState()?.value
+        val rawSpeedSeriesB = viewModel.speedSeries[b]?.collectAsState()?.value
             ?: DataSourcesViewModel.TimedSeries()
-        val speedDeltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
-            Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
+        fun decalibrate(s: DataSourcesViewModel.TimedSeries): DataSourcesViewModel.TimedSeries =
+            if (calMul == 1f) s
+            else DataSourcesViewModel.TimedSeries(
+                s.points.map { it.first to it.second / calMul }
+            )
+        val speedSeriesA = if (a == DataSource.WHEEL) decalibrate(rawSpeedSeriesA) else rawSpeedSeriesA
+        val speedSeriesB = if (b == DataSource.WHEEL) decalibrate(rawSpeedSeriesB) else rawSpeedSeriesB
+        // Match the snapshot-level numbers too so the headline Δ aligns with
+        // the chart lines.
+        val snapASpeed = snapA.speedKmh?.let { if (a == DataSource.WHEEL) it / calMul else it }
+        val snapBSpeed = snapB.speedKmh?.let { if (b == DataSource.WHEEL) it / calMul else it }
+        val speedDeltaCurrent = if (snapASpeed != null && snapBSpeed != null)
+            Units.speed(snapBSpeed - snapASpeed, imperial) else null
         val speedDeltaAvg = computeAverageDeltaKmh(speedSeriesA, speedSeriesB)
             ?.let { Units.speed(it, imperial) }
 
@@ -717,7 +734,7 @@ private fun CompareTab(
         // sample data on both sides to compute a meaningful offset.
         val wheelConnected by viewModel.wheelConnected.collectAsState()
         val wheelInComparison = a == DataSource.WHEEL || b == DataSource.WHEEL
-        val wheelSeries = when {
+        val wheelSeriesRaw = when {
             a == DataSource.WHEEL -> speedSeriesA
             b == DataSource.WHEEL -> speedSeriesB
             else -> null
@@ -727,8 +744,8 @@ private fun CompareTab(
             b == DataSource.WHEEL -> speedSeriesA
             else -> null
         }
-        val proposedCalPct = if (wheelSeries != null && refSeries != null) {
-            val avgW = computeSeriesAverage(wheelSeries)
+        val proposedCalPct = if (wheelSeriesRaw != null && refSeries != null) {
+            val avgW = computeSeriesAverage(wheelSeriesRaw)
             val avgR = computeSeriesAverage(refSeries)
             if (avgW != null && avgR != null) viewModel.computeCalibrationPct(avgW, avgR) else null
         } else null

@@ -391,7 +391,7 @@
     <string name="sources_apply_calibration">Kalibrera hjul</string>
     <string name="sources_apply_calibration_title">Tillämpa hastighetskalibrering</string>
     <string name="sources_apply_calibration_body_fmt">Ställ in hjulets hastighetskalibrering till %1$+.1f %%?\n\nDu kan ändra detta senare i Hjulparametrar.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Det beräknade värdet begränsades till intervallet ±5 %% som stöds av Hjulparametrar. Nytt värde: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Det beräknade värdet begränsades till intervallet ±15 %% som stöds av Hjulparametrar. Nytt värde: %1$+.1f %%.</string>
     <string name="sources_apply">Tillämpa</string>
     <string name="sources_cancel">Avbryt</string>
 

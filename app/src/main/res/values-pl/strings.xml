@@ -484,7 +484,7 @@
     <string name="sources_apply_calibration">Kalibruj koło</string>
     <string name="sources_apply_calibration_title">Zastosuj kalibrację prędkości</string>
     <string name="sources_apply_calibration_body_fmt">Ustawić kalibrację prędkości koła na %1$+.1f %%?\n\nMożesz to zmienić później w Parametrach koła.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Obliczona wartość została ograniczona do zakresu ±5 %% obsługiwanego przez Parametry koła. Nowa wartość: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Obliczona wartość została ograniczona do zakresu ±15 %% obsługiwanego przez Parametry koła. Nowa wartość: %1$+.1f %%.</string>
     <string name="sources_apply">Zastosuj</string>
     <string name="sources_cancel">Anuluj</string>
 

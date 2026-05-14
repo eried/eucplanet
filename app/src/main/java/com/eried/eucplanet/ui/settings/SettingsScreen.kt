@@ -745,9 +745,9 @@ private fun SpeedTab(
         SliderSetting(
             label = stringResource(R.string.speed_calibration_label),
             value = calPct,
-            range = -5f..5f,
+            range = -15f..15f,
             unit = "%",
-            steps = 99,
+            steps = 299,
             valueText = "%+.1f %%".format(calPct),
             enabled = isConnected,
             onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }

@@ -218,40 +218,49 @@ class DataSourcesViewModel @Inject constructor(
         }
     }
 
-    /** Currently saved wheel speed calibration in % (range −5..+5). Exposed so
-     *  the Compare tab can preview what new value an "apply from comparison"
-     *  action would write. */
+    /** Currently saved wheel speed calibration in % (range -15..+15). Exposed
+     *  so the Compare tab can both decalibrate the wheel speed it displays
+     *  (so the rider sees the true raw-vs-ground-truth error) and preview
+     *  what a fresh "apply from comparison" action would write. */
     val calibrationOffsetPct: StateFlow<Float> = settingsRepository.settings
         .map { it.speedCalibrationOffsetPct }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
 
-    /** Whether the wheel is connected right now — gates the "apply" button so
+    /** Whether the wheel is connected right now. Gates the "apply" button so
      *  the user can't write calibration with no wheel to write it to. */
     val wheelConnected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /**
-     * Compute the calibration % that would make the wheel's average reading
-     * match the reference source's average over the rolling window, on top of
-     * any calibration already in effect. Returns null if either input is too
-     * small to be meaningful (we don't divide near zero).
+     * Compute the calibration % that would align the wheel's raw sensor
+     * reading with the reference source's average over the rolling window.
      *
-     * Math: displayed_wheel = raw * (1 + curPct/100). We want
-     * raw * (1 + newPct/100) = ref → newPct = (ref·(1 + curPct/100)/wheel − 1)·100.
+     * The caller passes the average of the RAW wheel speed (i.e. the
+     * calibrated value divided by 1 + curPct/100) so this function deals in
+     * absolute multipliers, not deltas-on-top-of-current. That keeps the
+     * Compare tab usable as a verification tool: with calibration applied,
+     * the wheel/ref delta on the chart reflects the actual sensor offset
+     * rather than collapsing to zero.
+     *
+     * Math: raw * (1 + newPct/100) = ref => newPct = (ref/raw - 1) * 100.
+     *
+     * The only gate is that the wheel itself must be reporting motion (we
+     * can't divide by zero). The reference may be near zero (e.g. a phone
+     * GPS that hasn't picked up motion yet); the rider still gets to see
+     * the dialog and decide. The ±15 clamp keeps extreme outliers sane.
      */
-    fun computeCalibrationPct(avgWheelKmh: Float, avgRefKmh: Float): Float? {
-        if (avgWheelKmh < 1f || avgRefKmh < 1f) return null
-        val curPct = calibrationOffsetPct.value
-        val newPct = (avgRefKmh * (1f + curPct / 100f) / avgWheelKmh - 1f) * 100f
-        return (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-5f, 5f)
+    fun computeCalibrationPct(avgWheelRawKmh: Float, avgRefKmh: Float): Float? {
+        if (avgWheelRawKmh <= 0f) return null
+        val newPct = (avgRefKmh / avgWheelRawKmh - 1f) * 100f
+        return (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-15f, 15f)
     }
 
     /** Persist a new wheel speed calibration. Same clamp/rounding rules as the
      *  Wheel parameters slider. */
     fun applyCalibrationPct(newPct: Float) {
         viewModelScope.launch {
-            val rounded = (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-5f, 5f)
+            val rounded = (kotlin.math.round(newPct * 10f) / 10f).coerceIn(-15f, 15f)
             val current = settingsRepository.get()
             settingsRepository.update(current.copy(speedCalibrationOffsetPct = rounded))
         }
@@ -268,6 +277,50 @@ class DataSourcesViewModel @Inject constructor(
 
     fun onSheetClosed() {
         phoneSensors.stop()
+    }
+
+    // ---- Compare-tab selection state ----
+    //
+    // Kept on the ViewModel (not in Composable remember{}) so the rider's last
+    // A/B pick survives dismissing and re-opening the sheet. Default starts
+    // at single-source PHONE view; the first time the user toggles Compare
+    // on, we seed A=Wheel and B=External (or Phone fallback) since the
+    // dominant use is wheel-vs-ground-truth calibration. From there the
+    // rider's manual picks stick for the lifetime of the activity.
+
+    private val _selectedSource = MutableStateFlow(DataSource.PHONE)
+    val selectedSource: StateFlow<DataSource> = _selectedSource.asStateFlow()
+
+    private val _compareWith = MutableStateFlow<DataSource?>(null)
+    val compareWith: StateFlow<DataSource?> = _compareWith.asStateFlow()
+
+    private var hasEnteredCompareThisSession = false
+
+    fun setSelectedSource(source: DataSource) {
+        _selectedSource.value = source
+    }
+
+    fun setCompareWith(source: DataSource) {
+        _compareWith.value = source
+    }
+
+    fun toggleCompare() {
+        if (_compareWith.value != null) {
+            _compareWith.value = null
+            return
+        }
+        if (!hasEnteredCompareThisSession) {
+            _selectedSource.value = DataSource.WHEEL
+            val externalLive = snapshots.value[DataSource.RACEBOX]?.isLive == true
+            _compareWith.value = if (externalLive) DataSource.RACEBOX else DataSource.PHONE
+            hasEnteredCompareThisSession = true
+        } else {
+            // Restore the rider's last B; if somehow null (e.g. activity
+            // recreation reset our flag without resetting the state), fall
+            // back to anything-but-A.
+            val fallback = DataSource.values().first { it != _selectedSource.value }
+            _compareWith.value = _compareWith.value ?: fallback
+        }
     }
 }
 

@@ -502,33 +502,30 @@ fun DashboardScreen(
                     DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface)
                     DashIndicatorLetter("D", active = live && wheelData.pcMode == 1, activeColor = if (useAccent) primary else AccentGreen)
                 }
-                // GPS indicator, top-right. Three states:
+                // GPS indicator, top-right. The icon glyph + colour speak for
+                // the phone's GPS:
                 //   no permission  -> GpsOff (dim)
                 //   no fix yet     -> GpsNotFixed (dim)
                 //   locked         -> GpsFixed (green)
-                // Tapping the icon opens the multi-source live data sheet
-                // (Phone / Wheel / RaceBox / Compare). When more than one
-                // source is live we paint a small colored ring around the
-                // icon as a hint that there's combined data to inspect.
+                // A small "E" badge sits beneath the icon when a paired
+                // external GPS (RaceBox today) is actively sending samples,
+                // so the rider sees at a glance whether ground-truth speed
+                // is coming from their box vs the phone. Tapping anywhere
+                // opens the multi-source live data sheet.
                 val gpsIcon = when {
                     !locationGranted -> Icons.Default.GpsOff
                     gpsFix -> Icons.Default.GpsFixed
                     else -> Icons.Default.GpsNotFixed
                 }
-                val liveSources = buildList {
-                    if (gpsFix && locationGranted)
-                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.PHONE)
-                    if (connectionState == ConnectionState.CONNECTED)
-                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.WHEEL)
-                    if (externalGpsSpeed != null)
-                        add(com.eried.eucplanet.ui.dashboard.sources.DataSource.RACEBOX)
-                }
-                Box(
+                val externalLive = gpsExtra?.second == "EXTERNAL"
+                Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
-                        .clickable { showSourcesSheet = true }
+                        .clickable { showSourcesSheet = true },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     DashIndicatorIcon(
                         icon = gpsIcon,
@@ -536,34 +533,11 @@ fun DashboardScreen(
                         activeColor = if (useAccent) primary else AccentGreen,
                         modifier = Modifier
                     )
-                    // Multi-source ring overlay — one short arc per live
-                    // source, equally divided around the icon. Single-source
-                    // case skips the ring entirely so the icon doesn't grow
-                    // a useless decoration when only Phone is providing data.
-                    if (liveSources.size >= 2) {
-                        Canvas(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .padding(2.dp)
-                        ) {
-                            val r = size.minDimension / 2f - 1f
-                            val center = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f)
-                            val sweep = 360f / liveSources.size
-                            val gap = 8f  // degrees between segments
-                            liveSources.forEachIndexed { idx, src ->
-                                val start = idx * sweep + gap / 2f
-                                drawArc(
-                                    color = src.color,
-                                    startAngle = start - 90f,
-                                    sweepAngle = sweep - gap,
-                                    useCenter = false,
-                                    topLeft = androidx.compose.ui.geometry.Offset(center.x - r, center.y - r),
-                                    size = androidx.compose.ui.geometry.Size(r * 2, r * 2),
-                                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.5f)
-                                )
-                            }
-                        }
-                    }
+                    DashIndicatorLetter(
+                        "E",
+                        active = externalLive,
+                        activeColor = if (useAccent) primary else AccentGreen
+                    )
                 }
             }
 

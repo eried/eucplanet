@@ -355,7 +355,7 @@
     <string name="sources_apply_calibration">Rad kalibrieren</string>
     <string name="sources_apply_calibration_title">Geschwindigkeitskalibrierung anwenden</string>
     <string name="sources_apply_calibration_body_fmt">Geschwindigkeitskalibrierung des Rads auf %1$+.1f %% setzen?\n\nDu kannst dies später in den Rad-Parametern ändern.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Der berechnete Wert wurde auf den von den Rad-Parametern unterstützten Bereich von ±5 %% begrenzt. Neuer Wert: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Der berechnete Wert wurde auf den von den Rad-Parametern unterstützten Bereich von ±15 %% begrenzt. Neuer Wert: %1$+.1f %%.</string>
     <string name="sources_apply">Anwenden</string>
     <string name="sources_cancel">Abbrechen</string>
 

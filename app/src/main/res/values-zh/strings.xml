@@ -391,7 +391,7 @@
     <string name="sources_apply_calibration">校准轮</string>
     <string name="sources_apply_calibration_title">应用速度校准</string>
     <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>
-    <string name="sources_apply_calibration_clamped_fmt">计算值已限制在轮参数支持的 ±5 %% 范围内。新值：%1$+.1f %%。</string>
+    <string name="sources_apply_calibration_clamped_fmt">计算值已限制在轮参数支持的 ±15 %% 范围内。新值：%1$+.1f %%。</string>
     <string name="sources_apply">应用</string>
     <string name="sources_cancel">取消</string>
 

@@ -484,7 +484,7 @@
     <string name="sources_apply_calibration">Wiel kalibreren</string>
     <string name="sources_apply_calibration_title">Snelheidskalibratie toepassen</string>
     <string name="sources_apply_calibration_body_fmt">Snelheidskalibratie van het wiel instellen op %1$+.1f %%?\n\nJe kunt dit later wijzigen in Wielparameters.</string>
-    <string name="sources_apply_calibration_clamped_fmt">De berekende waarde is beperkt tot het bereik van ±5 %% dat door Wielparameters wordt ondersteund. Nieuwe waarde: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">De berekende waarde is beperkt tot het bereik van ±15 %% dat door Wielparameters wordt ondersteund. Nieuwe waarde: %1$+.1f %%.</string>
     <string name="sources_apply">Toepassen</string>
     <string name="sources_cancel">Annuleren</string>
 

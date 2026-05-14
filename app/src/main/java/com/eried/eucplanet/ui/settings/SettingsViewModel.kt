@@ -186,7 +186,7 @@ class SettingsViewModel @Inject constructor(
     fun updateSpeedCalibrationOffsetPct(v: Float) = update {
         // Round to 0.1 % granularity so the value reads cleanly across UI,
         // backup JSON, and per-wheel profile storage.
-        val rounded = (kotlin.math.round(v * 10f) / 10f).coerceIn(-5f, 5f)
+        val rounded = (kotlin.math.round(v * 10f) / 10f).coerceIn(-15f, 15f)
         copy(speedCalibrationOffsetPct = rounded)
     }
     fun updateRaceboxMapX(v: String) = update { copy(raceboxMapX = v) }

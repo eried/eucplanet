@@ -391,7 +391,7 @@
     <string name="sources_apply_calibration">Calibrer la roue</string>
     <string name="sources_apply_calibration_title">Appliquer la calibration de vitesse</string>
     <string name="sources_apply_calibration_body_fmt">Régler la calibration de vitesse de la roue à %1$+.1f %% ?\n\nVous pourrez la modifier plus tard dans les paramètres de la roue.</string>
-    <string name="sources_apply_calibration_clamped_fmt">La valeur calculée a été limitée à la plage de ±5 %% prise en charge par les paramètres de la roue. Nouvelle valeur : %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">La valeur calculée a été limitée à la plage de ±15 %% prise en charge par les paramètres de la roue. Nouvelle valeur : %1$+.1f %%.</string>
     <string name="sources_apply">Appliquer</string>
     <string name="sources_cancel">Annuler</string>
 

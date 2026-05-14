@@ -595,7 +595,7 @@
     <string name="sources_apply_calibration">Calibrate wheel</string>
     <string name="sources_apply_calibration_title">Apply speed calibration</string>
     <string name="sources_apply_calibration_body_fmt">Set the wheel speed calibration to %1$+.1f %%?\n\nYou can change this later in Wheel parameters.</string>
-    <string name="sources_apply_calibration_clamped_fmt">The computed value was clamped to the ±5 %% range supported by Wheel parameters. New value: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">The computed value was clamped to the ±15 %% range supported by Wheel parameters. New value: %1$+.1f %%.</string>
     <string name="sources_apply">Apply</string>
     <string name="sources_cancel">Cancel</string>
 

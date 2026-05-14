@@ -355,7 +355,7 @@
     <string name="sources_apply_calibration">Kalibrer hjul</string>
     <string name="sources_apply_calibration_title">Bruk hastighetskalibrering</string>
     <string name="sources_apply_calibration_body_fmt">Sette hastighetskalibreringen for hjulet til %1$+.1f %%?\n\nDu kan endre dette senere i hjulparametere.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Den beregnede verdien ble begrenset til området ±5 %% som støttes av hjulparametere. Ny verdi: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Den beregnede verdien ble begrenset til området ±15 %% som støttes av hjulparametere. Ny verdi: %1$+.1f %%.</string>
     <string name="sources_apply">Bruk</string>
     <string name="sources_cancel">Avbryt</string>
 

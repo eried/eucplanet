@@ -484,7 +484,7 @@
     <string name="sources_apply_calibration">Calibra ruota</string>
     <string name="sources_apply_calibration_title">Applica calibrazione velocità</string>
     <string name="sources_apply_calibration_body_fmt">Impostare la calibrazione velocità della ruota a %1$+.1f %%?\n\nPotrai modificarla in seguito nei parametri della ruota.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Il valore calcolato è stato limitato all\'intervallo di ±5 %% supportato dai parametri della ruota. Nuovo valore: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Il valore calcolato è stato limitato all\'intervallo di ±15 %% supportato dai parametri della ruota. Nuovo valore: %1$+.1f %%.</string>
     <string name="sources_apply">Applica</string>
     <string name="sources_cancel">Annulla</string>
 

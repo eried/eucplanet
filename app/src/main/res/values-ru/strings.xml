@@ -355,7 +355,7 @@
     <string name="sources_apply_calibration">Калибровать колесо</string>
     <string name="sources_apply_calibration_title">Применить калибровку скорости</string>
     <string name="sources_apply_calibration_body_fmt">Установить калибровку скорости колеса на %1$+.1f %%?\n\nВы сможете изменить это позже в параметрах колеса.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Вычисленное значение было ограничено диапазоном ±5 %%, поддерживаемым параметрами колеса. Новое значение: %1$+.1f %%.</string>
+    <string name="sources_apply_calibration_clamped_fmt">Вычисленное значение было ограничено диапазоном ±15 %%, поддерживаемым параметрами колеса. Новое значение: %1$+.1f %%.</string>
     <string name="sources_apply">Применить</string>
     <string name="sources_cancel">Отмена</string>
 
