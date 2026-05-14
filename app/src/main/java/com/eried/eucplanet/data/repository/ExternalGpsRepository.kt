@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 /**
@@ -32,7 +33,9 @@ import javax.inject.Singleton
 class ExternalGpsRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val connectionManager: ExternalGpsConnectionManager,
-    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>
+    private val adapters: Set<@JvmSuppressWildcards ExternalGpsAdapter>,
+    // Lazy provider to break the dependency cycle: TripRepository injects us.
+    private val tripRepositoryProvider: Provider<TripRepository>
 ) {
     companion object {
         private const val TAG = "ExtGpsRepo"
@@ -216,12 +219,32 @@ class ExternalGpsRepository @Inject constructor(
             Log.w(TAG, "No adapter for paired source $source — skipping connect")
             return false
         }
-        connectionManager.connect(address, adapter)
+        connectionManager.connect(address, adapter, buildInitWrites(adapter))
         return true
     }
 
     fun connect(address: String, adapter: ExternalGpsAdapter) {
-        connectionManager.connect(address, adapter)
+        connectionManager.connect(address, adapter, buildInitWrites(adapter))
+    }
+
+    /**
+     * Ask the adapter for any post-subscribe init bytes. RaceBox uses this to
+     * push MGA-INI-TIME + MGA-INI-POS so the GNSS can skip a full cold-start
+     * search. We pass the phone's current wall-clock + the most recent
+     * location the trip recorder has seen; the adapter is allowed to skip
+     * POS_LLH when no location is available yet.
+     */
+    private fun buildInitWrites(adapter: ExternalGpsAdapter): List<ByteArray> {
+        val loc = tripRepositoryProvider.get().currentLocation.value
+        val lat = loc?.latitude
+        val lon = loc?.longitude
+        val acc = loc?.accuracy
+        return adapter.initCommands(
+            timeUtcMillis = System.currentTimeMillis(),
+            lastKnownLat = lat,
+            lastKnownLon = lon,
+            lastKnownAccM = acc
+        )
     }
 
     fun disconnect() {

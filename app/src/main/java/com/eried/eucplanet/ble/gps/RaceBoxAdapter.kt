@@ -251,4 +251,142 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
 
     private fun readUInt32LE(b: ByteArray, off: Int): Long =
         readInt32LE(b, off).toLong() and 0xFFFFFFFFL
+
+    // ---- Post-connect MGA-INI assistance writes ----
+    //
+    // Mirrors the official RaceBox companion app's post-subscribe sequence.
+    // Without these, the u-blox receiver inside the RaceBox does a full
+    // cold-start search and a fix can take a minute+. Pushing INI-TIME +
+    // INI-POS doesn't deliver ephemeris (that needs AssistNow Online), but
+    // it tells the receiver where and when it is so it can pick which
+    // satellites to acquire instead of brute-forcing the sky.
+
+    override fun initCommands(
+        timeUtcMillis: Long,
+        lastKnownLat: Double?,
+        lastKnownLon: Double?,
+        lastKnownAccM: Float?
+    ): List<ByteArray> {
+        val out = mutableListOf<ByteArray>()
+        out += buildMgaIniTimeUtc(timeUtcMillis)
+        if (lastKnownLat != null && lastKnownLon != null) {
+            out += buildMgaIniPosLlh(
+                latDeg = lastKnownLat,
+                lonDeg = lastKnownLon,
+                altCm = 0,
+                posAccCm = ((lastKnownAccM ?: 100f) * 100f).toLong().coerceIn(100, 1_000_000)
+            )
+        }
+        return out
+    }
+
+    /**
+     * UBX-MGA-INI-TIME_UTC (class 0x13, id 0x40, type 0x10) per u-blox spec.
+     * Payload (24 bytes):
+     *  0  type       = 0x10
+     *  1  version    = 0x00
+     *  2  ref        = 0x00 (NONE — anchor the time to "now")
+     *  3  leapSecs   = -128 (0x80) if unknown, else signed delta from GPS
+     *  4-5  year     (u16 LE)
+     *  6    month
+     *  7    day
+     *  8    hour
+     *  9    minute
+     *  10   second
+     *  11   reserved
+     *  12-15 ns          (i32 LE) sub-second nanoseconds
+     *  16-19 tAccS       (u32 LE) time accuracy estimate, whole seconds
+     *  20-23 tAccNs      (u32 LE) time accuracy estimate, fractional ns
+     */
+    private fun buildMgaIniTimeUtc(timeUtcMillis: Long): ByteArray {
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        cal.timeInMillis = timeUtcMillis
+        val year = cal.get(java.util.Calendar.YEAR)
+        val month = cal.get(java.util.Calendar.MONTH) + 1
+        val day = cal.get(java.util.Calendar.DAY_OF_MONTH)
+        val hour = cal.get(java.util.Calendar.HOUR_OF_DAY)
+        val minute = cal.get(java.util.Calendar.MINUTE)
+        val second = cal.get(java.util.Calendar.SECOND)
+        val ns = (cal.get(java.util.Calendar.MILLISECOND) * 1_000_000)
+        val payload = ByteArray(24)
+        payload[0] = 0x10
+        payload[1] = 0x00
+        payload[2] = 0x00
+        // leapSecs = 18 (current GPS-UTC offset as of 2017-01-01, still in effect)
+        payload[3] = 18
+        writeU16LE(payload, 4, year)
+        payload[6] = month.toByte()
+        payload[7] = day.toByte()
+        payload[8] = hour.toByte()
+        payload[9] = minute.toByte()
+        payload[10] = second.toByte()
+        // payload[11] reserved -> 0
+        writeI32LE(payload, 12, ns)
+        // tAccS = 10 (phone wall clock is typically accurate to <1s but let's
+        // give the receiver headroom); tAccNs left at 0.
+        writeI32LE(payload, 16, 10)
+        writeI32LE(payload, 20, 0)
+        return wrapUbx(classId = 0x13, msgId = 0x40, payload = payload)
+    }
+
+    /**
+     * UBX-MGA-INI-POS_LLH (class 0x13, id 0x40, type 0x01) per u-blox spec.
+     * Payload (20 bytes):
+     *  0   type = 0x01
+     *  1   version = 0x00
+     *  2-3 reserved
+     *  4-7 lat   (i32 LE)   deg × 1e-7
+     *  8-11 lon  (i32 LE)   deg × 1e-7
+     *  12-15 alt (i32 LE)   cm above MSL
+     *  16-19 posAcc (u32 LE) cm horizontal 1-sigma accuracy
+     */
+    private fun buildMgaIniPosLlh(
+        latDeg: Double,
+        lonDeg: Double,
+        altCm: Int,
+        posAccCm: Long
+    ): ByteArray {
+        val payload = ByteArray(20)
+        payload[0] = 0x01
+        payload[1] = 0x00
+        // bytes 2..3 reserved
+        writeI32LE(payload, 4, (latDeg * 1e7).toInt())
+        writeI32LE(payload, 8, (lonDeg * 1e7).toInt())
+        writeI32LE(payload, 12, altCm)
+        writeI32LE(payload, 16, posAccCm.toInt())
+        return wrapUbx(classId = 0x13, msgId = 0x40, payload = payload)
+    }
+
+    /** Wrap a payload in a complete UBX frame: B5 62, class, id, lenLE, payload, ckA, ckB. */
+    private fun wrapUbx(classId: Int, msgId: Int, payload: ByteArray): ByteArray {
+        val frame = ByteArray(6 + payload.size + 2)
+        frame[0] = 0xB5.toByte()
+        frame[1] = 0x62
+        frame[2] = classId.toByte()
+        frame[3] = msgId.toByte()
+        frame[4] = (payload.size and 0xFF).toByte()
+        frame[5] = ((payload.size ushr 8) and 0xFF).toByte()
+        System.arraycopy(payload, 0, frame, 6, payload.size)
+        var ckA = 0
+        var ckB = 0
+        for (i in 2 until frame.size - 2) {
+            ckA = (ckA + (frame[i].toInt() and 0xFF)) and 0xFF
+            ckB = (ckB + ckA) and 0xFF
+        }
+        frame[frame.size - 2] = ckA.toByte()
+        frame[frame.size - 1] = ckB.toByte()
+        return frame
+    }
+
+    private fun writeU16LE(b: ByteArray, off: Int, v: Int) {
+        b[off] = (v and 0xFF).toByte()
+        b[off + 1] = ((v ushr 8) and 0xFF).toByte()
+    }
+
+    private fun writeI32LE(b: ByteArray, off: Int, v: Int) {
+        b[off] = (v and 0xFF).toByte()
+        b[off + 1] = ((v ushr 8) and 0xFF).toByte()
+        b[off + 2] = ((v ushr 16) and 0xFF).toByte()
+        b[off + 3] = ((v ushr 24) and 0xFF).toByte()
+    }
 }

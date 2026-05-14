@@ -10,6 +10,8 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.ExternalGpsSample
@@ -25,15 +27,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Second GATT instance dedicated to an external BLE GPS box. Independent of
+ * GATT instance dedicated to an external BLE GPS box. Independent of
  * [com.eried.eucplanet.ble.BleConnectionManager] so the wheel and the GPS box
- * can each hold their own connection without interfering.
+ * each hold their own connection without interfering.
  *
- * Responsibility is intentionally narrow: open connection, discover services,
- * subscribe to the Nordic UART TX characteristic, forward every raw
- * notification to the active [ExternalGpsAdapter], and re-emit any
- * [ExternalGpsSample] the adapter produces. No command writes — RaceBox
- * starts streaming on subscribe and we have no need to send anything back.
+ * Responsibilities: open the connection, request a larger MTU + high
+ * connection priority, discover services, subscribe to the Nordic UART TX
+ * characteristic, write whatever post-connect init the adapter wants on the
+ * RX characteristic (for RaceBox: MGA-INI-TIME + MGA-INI-POS to skip
+ * cold-start GNSS search), and forward each TX notification to the adapter.
  */
 @Singleton
 class ExternalGpsConnectionManager @Inject constructor(
@@ -42,12 +44,16 @@ class ExternalGpsConnectionManager @Inject constructor(
     companion object {
         private const val TAG = "ExtGpsConn"
         private val NUS_SERVICE_UUID: UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
+        private val NUS_RX_UUID: UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
         private val NUS_TX_UUID: UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
         private val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+        /** Matches the official RaceBox app capture (btsnoop 2026-05-13). */
+        private const val DESIRED_MTU = 247
     }
 
     private val bluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
@@ -58,10 +64,22 @@ class ExternalGpsConnectionManager @Inject constructor(
     @Volatile private var gatt: BluetoothGatt? = null
     @Volatile private var activeAdapter: ExternalGpsAdapter? = null
 
+    /**
+     * Pending init writes the adapter wants to send on the RX char after the
+     * TX notification subscription completes. We pop them one at a time and
+     * wait for each write to ACK (onCharacteristicWrite) before sending the
+     * next, because the BluetoothGatt API only allows one in-flight write
+     * per connection.
+     */
+    private val pendingInitWrites = ArrayDeque<ByteArray>()
+    @Volatile private var rxCharacteristic: BluetoothGattCharacteristic? = null
+
     @SuppressLint("MissingPermission")
-    fun connect(address: String, adapter: ExternalGpsAdapter) {
+    fun connect(address: String, adapter: ExternalGpsAdapter, initWrites: List<ByteArray>) {
         disconnect()
         activeAdapter = adapter
+        pendingInitWrites.clear()
+        pendingInitWrites.addAll(initWrites)
         val device: BluetoothDevice = try {
             bluetoothManager.adapter.getRemoteDevice(address)
         } catch (e: IllegalArgumentException) {
@@ -70,7 +88,7 @@ class ExternalGpsConnectionManager @Inject constructor(
             return
         }
         _connectionState.value = ConnectionState.CONNECTING
-        Log.i(TAG, "Connecting to ${adapter.source.displayName} @ $address")
+        Log.i(TAG, "Connecting to ${adapter.source.displayName} @ $address (${initWrites.size} init writes queued)")
         gatt = device.connectGatt(context, /* autoConnect = */ false, callback)
     }
 
@@ -82,6 +100,8 @@ class ExternalGpsConnectionManager @Inject constructor(
         }
         gatt = null
         activeAdapter = null
+        rxCharacteristic = null
+        pendingInitWrites.clear()
         _connectionState.value = ConnectionState.DISCONNECTED
     }
 
@@ -90,17 +110,44 @@ class ExternalGpsConnectionManager @Inject constructor(
         override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
             when (newState) {
                 BluetoothProfile.STATE_CONNECTED -> {
-                    Log.i(TAG, "GATT connected, discovering services")
+                    Log.i(TAG, "GATT connected (status=$status), requesting MTU $DESIRED_MTU")
                     _connectionState.value = ConnectionState.INITIALIZING
-                    g.discoverServices()
+                    // Bump connection priority so the streaming side doesn't
+                    // get throttled while we're also driving the wheel
+                    // connection. The standard "balanced" interval (~50 ms)
+                    // would still work but trims GPS lock-time headroom on
+                    // first connect.
+                    try {
+                        g.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "requestConnectionPriority failed (non-fatal)", e)
+                    }
+                    // Negotiate MTU 247 before service discovery so the larger
+                    // payload is in effect by the time we start receiving
+                    // 88-byte extended-PVT frames. The official RaceBox app
+                    // does the same handshake (btsnoop 2026-05-13).
+                    if (!g.requestMtu(DESIRED_MTU)) {
+                        Log.w(TAG, "requestMtu returned false, falling back to discoverServices directly")
+                        g.discoverServices()
+                    }
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i(TAG, "GATT disconnected (status $status)")
                     _connectionState.value = ConnectionState.DISCONNECTED
                     try { g.close() } catch (_: Exception) {}
-                    if (gatt === g) gatt = null
+                    if (gatt === g) {
+                        gatt = null
+                        rxCharacteristic = null
+                        pendingInitWrites.clear()
+                    }
                 }
             }
+        }
+
+        @SuppressLint("MissingPermission")
+        override fun onMtuChanged(g: BluetoothGatt, mtu: Int, status: Int) {
+            Log.i(TAG, "MTU now $mtu (status=$status); discovering services")
+            g.discoverServices()
         }
 
         @SuppressLint("MissingPermission")
@@ -112,11 +159,13 @@ class ExternalGpsConnectionManager @Inject constructor(
             }
             val service = g.getService(NUS_SERVICE_UUID)
             val tx = service?.getCharacteristic(NUS_TX_UUID)
+            val rx = service?.getCharacteristic(NUS_RX_UUID)
             if (tx == null) {
                 Log.e(TAG, "NUS TX characteristic not found")
                 disconnect()
                 return
             }
+            rxCharacteristic = rx
             if (!g.setCharacteristicNotification(tx, true)) {
                 Log.e(TAG, "Failed to enable notifications on TX characteristic")
                 disconnect()
@@ -133,19 +182,42 @@ class ExternalGpsConnectionManager @Inject constructor(
                     @Suppress("DEPRECATION")
                     g.writeDescriptor(cccd)
                 }
+            } else {
+                // No CCCD on this device — proceed straight to init writes.
+                kickInitWrite()
             }
+        }
 
-            // Adapter init commands (RaceBox needs none, defaults to empty).
-            activeAdapter?.initCommands()?.forEach { _ -> /* no RX writes for now */ }
+        @SuppressLint("MissingPermission")
+        override fun onDescriptorWrite(g: BluetoothGatt, descriptor: BluetoothGattDescriptor, status: Int) {
+            if (descriptor.uuid == CCCD_UUID) {
+                Log.i(TAG, "TX CCCD write status=$status; ${pendingInitWrites.size} init write(s) queued")
+                // Mark connected as soon as notifications are wired. The
+                // init writes happen after but the rider already has live
+                // data flowing in case the writes fail.
+                _connectionState.value = ConnectionState.CONNECTED
+                kickInitWrite()
+            }
+        }
 
-            _connectionState.value = ConnectionState.CONNECTED
-            Log.i(TAG, "Subscribed to ${activeAdapter?.source?.displayName} stream")
+        @SuppressLint("MissingPermission")
+        override fun onCharacteristicWrite(
+            g: BluetoothGatt,
+            ch: BluetoothGattCharacteristic,
+            status: Int
+        ) {
+            if (ch.uuid == NUS_RX_UUID) {
+                if (status != BluetoothGatt.GATT_SUCCESS) {
+                    Log.w(TAG, "Init write failed (status=$status); skipping remaining ${pendingInitWrites.size}")
+                    pendingInitWrites.clear()
+                    return
+                }
+                kickInitWrite()
+            }
         }
 
         @Suppress("DEPRECATION")
         override fun onCharacteristicChanged(g: BluetoothGatt, ch: BluetoothGattCharacteristic) {
-            // Pre-Tiramisu callback. The Tiramisu+ overload below routes to the
-            // same handler so adapters always see the bytes once.
             handleNotification(ch.uuid, ch.value ?: ByteArray(0))
         }
 
@@ -155,6 +227,28 @@ class ExternalGpsConnectionManager @Inject constructor(
             value: ByteArray
         ) {
             handleNotification(ch.uuid, value)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun kickInitWrite() {
+        val g = gatt ?: return
+        val rx = rxCharacteristic ?: return
+        if (pendingInitWrites.isEmpty()) return
+        val next = pendingInitWrites.removeFirst()
+        // RaceBox accepts write-with-response on its RX char, matching the
+        // official app's behaviour. Some stacks reject write-no-response on
+        // a char that advertises both; sticking to WRITE_TYPE_DEFAULT (with
+        // response) keeps us safe.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            g.writeCharacteristic(rx, next, BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT)
+        } else {
+            @Suppress("DEPRECATION")
+            rx.value = next
+            @Suppress("DEPRECATION")
+            rx.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            @Suppress("DEPRECATION")
+            g.writeCharacteristic(rx)
         }
     }
 

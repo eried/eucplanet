@@ -29,7 +29,25 @@ interface ExternalGpsAdapter {
      */
     fun decode(notification: ByteArray): ExternalGpsSample?
 
-    /** Optional packets to send right after connect (e.g. enable streaming).
-     *  RaceBox starts streaming on subscribe, so the default is empty. */
-    fun initCommands(): List<ByteArray> = emptyList()
+    /**
+     * Bytes the connection manager should write to the RX characteristic
+     * right after the TX notification subscription is established. For
+     * RaceBox this is MGA-INI-TIME_UTC + MGA-INI-POS_LLH, mirroring the
+     * official RaceBox app's post-connect handshake (captured 2026-05-13
+     * via btsnoop). Without these, the GNSS does a full cold-start search
+     * and a fix can take 30–90 s.
+     *
+     * @param timeUtcMillis  current UTC wall clock from the phone
+     * @param lastKnownLat   most recent phone GPS latitude in degrees, or
+     *                       null if no location is available; adapters
+     *                       MAY still emit a time-only init in that case.
+     * @param lastKnownLon   longitude paired with [lastKnownLat]
+     * @param lastKnownAccM  horizontal accuracy of the position in metres
+     */
+    fun initCommands(
+        timeUtcMillis: Long,
+        lastKnownLat: Double?,
+        lastKnownLon: Double?,
+        lastKnownAccM: Float?
+    ): List<ByteArray> = emptyList()
 }
