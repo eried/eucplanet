@@ -51,7 +51,8 @@ class WheelRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val alarmEngine: AlarmEngine,
     private val voiceService: VoiceService,
-    private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao
+    private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
+    private val cheatState: com.eried.eucplanet.cheats.CheatState
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -364,7 +365,8 @@ class WheelRepository @Inject constructor(
         // Hard block the lock direction when the wheel is moving — any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
-        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH) {
+        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH &&
+            !cheatState.lockAtAnySpeed.value) {
             Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= ${LOCK_MAX_SPEED_KMH}")
             return
         }

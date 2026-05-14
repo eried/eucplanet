@@ -42,6 +42,11 @@ class CheatState @Inject constructor() {
     /** When true, [com.eried.eucplanet.service.AlarmEngine] silences all alarms. */
     val godmode: StateFlow<Boolean> = _godmode.asStateFlow()
 
+    private val _lockAtAnySpeed = MutableStateFlow(false)
+    /** When true, the wheel-lock command bypasses the LOCK_MAX_SPEED gate so the
+     *  rider can lock at any speed. Session only, never persisted. */
+    val lockAtAnySpeed: StateFlow<Boolean> = _lockAtAnySpeed.asStateFlow()
+
     /**
      * Try to interpret [raw] as a cheat command. Returns the toast text on a match
      * (the caller is expected to show it and clear the search field), or null when
@@ -59,6 +64,10 @@ class CheatState @Inject constructor() {
         if (cmd == "godmode") {
             _godmode.value = !_godmode.value
             return Result.Toast(if (_godmode.value) "godmode on" else "godmode off")
+        }
+        if (cmd == "letmelock") {
+            _lockAtAnySpeed.value = !_lockAtAnySpeed.value
+            return Result.Toast(if (_lockAtAnySpeed.value) "letmelock on" else "letmelock off")
         }
         if (cmd == "bug") {
             return Result.OpenUrl("https://github.com/eried/eucplanet/issues/new/choose")

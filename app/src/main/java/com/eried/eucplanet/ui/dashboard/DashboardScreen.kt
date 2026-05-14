@@ -786,7 +786,8 @@ fun DashboardScreen(
                 // 5 km/h was distracting. Keep the button enabled and let the
                 // tap surface a toast when the wheel is in motion — the
                 // repository still refuses the actual lock.
-                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f
+                val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
+                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
