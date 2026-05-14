@@ -81,6 +81,21 @@ class CheatState @Inject constructor() {
         if (cmd == "bug") {
             return Result.OpenUrl("https://github.com/eried/eucplanet/issues/new/choose")
         }
+        if (cmd == "cheat" || cmd == "cheats") {
+            val mul = _speedDisplayMultiplier.value
+            val daredevilState = if (mul == 1f) "off" else "%.2fx".format(mul)
+            return Result.ShowSheet(
+                title = "Console cheats",
+                lines = listOf(
+                    "daredevilN — display-only speed multiplier (now $daredevilState)",
+                    "godmode — mute all alarms (now ${if (_godmode.value) "on" else "off"})",
+                    "silence — mute all voice (now ${if (_silence.value) "on" else "off"})",
+                    "letmelock — lock wheel at any speed (now ${if (_lockAtAnySpeed.value) "on" else "off"})",
+                    "bug — open the GitHub issues page",
+                    "cheat / cheats — this list"
+                )
+            )
+        }
         return null
     }
 
@@ -89,6 +104,9 @@ class CheatState @Inject constructor() {
         data class Toast(override val toast: String) : Result
         data class OpenUrl(val url: String) : Result {
             override val toast: String = "opening $url"
+        }
+        data class ShowSheet(val title: String, val lines: List<String>) : Result {
+            override val toast: String = title
         }
     }
 

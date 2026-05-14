@@ -164,6 +164,21 @@ fun SettingsScreen(
     val isConnected by viewModel.isConnected.collectAsState()
     val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var cheatSheet by remember { mutableStateOf<com.eried.eucplanet.cheats.CheatState.Result.ShowSheet?>(null) }
+    cheatSheet?.let { sheet ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { cheatSheet = null },
+            title = { Text(sheet.title) },
+            text = {
+                Column { sheet.lines.forEach { Text(it, style = MaterialTheme.typography.bodySmall) } }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }) {
+                    Text(stringResource(R.string.action_ok))
+                }
+            }
+        )
+    }
     val expandedSections = rememberSaveable(
         saver = androidx.compose.runtime.saveable.listSaver(
             save = { it.toList() },
@@ -415,16 +430,24 @@ fun SettingsScreen(
                             onSearch = {
                                 val result = viewModel.cheatState.tryConsume(searchQuery)
                                 if (result != null) {
-                                    Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
-                                    if (result is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl) {
-                                        try {
-                                            ctxLocal.startActivity(
-                                                android.content.Intent(
-                                                    android.content.Intent.ACTION_VIEW,
-                                                    android.net.Uri.parse(result.url)
-                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            )
-                                        } catch (_: Throwable) { /* no browser installed — toast still shown */ }
+                                    when (result) {
+                                        is com.eried.eucplanet.cheats.CheatState.Result.ShowSheet -> {
+                                            cheatSheet = result
+                                        }
+                                        is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl -> {
+                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                            try {
+                                                ctxLocal.startActivity(
+                                                    android.content.Intent(
+                                                        android.content.Intent.ACTION_VIEW,
+                                                        android.net.Uri.parse(result.url)
+                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                )
+                                            } catch (_: Throwable) { /* no browser installed */ }
+                                        }
+                                        is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
+                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                     searchQuery = ""
                                 }
