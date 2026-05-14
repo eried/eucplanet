@@ -66,6 +66,15 @@ class ExternalGpsRepository @Inject constructor(
     @Volatile private var mapY: String = "Y"
     @Volatile private var mapZ: String = "Z"
 
+    /**
+     * Tracks whether the user has explicitly disconnected this session. While
+     * set, the auto-reconnect loop stops attempting to re-establish a
+     * connection so the rider's deliberate action sticks until they actively
+     * reconnect (from the Integration settings screen). Resets to false on
+     * every app launch so a paired device naturally reconnects on boot.
+     */
+    @Volatile private var explicitlyDisconnected: Boolean = false
+
     init {
         // Bridge the connection manager's sample stream into a StateFlow so the
         // dashboard can render the latest fix without subscribing to a hot
@@ -99,6 +108,47 @@ class ExternalGpsRepository @Inject constructor(
                         gpsLogAdditional = false
                     )
                 )
+            }
+        }
+
+        // Auto-reconnect loop. Watches the underlying GATT connection state
+        // and re-issues a connect whenever we transition to DISCONNECTED with
+        // a paired device, unless the rider explicitly disconnected this
+        // session. Doubles as the "connect on boot" path: on app start the
+        // state begins as DISCONNECTED, so a paired device gets a single
+        // attempt with no backoff almost immediately.
+        scope.launch {
+            var failedAttempts = 0
+            connectionManager.connectionState.collect { state ->
+                when (state) {
+                    ConnectionState.CONNECTED -> {
+                        failedAttempts = 0
+                    }
+                    ConnectionState.DISCONNECTED -> {
+                        val paired = settingsRepository.get().externalGpsAddress != null
+                        if (!paired || explicitlyDisconnected) return@collect
+                        // Backoff: 2 / 5 / 10 / 30 s, then 30 s forever. Keeps
+                        // the radio quiet when the box is out of range while
+                        // still recovering quickly from a single-frame drop.
+                        val delayMs = when (failedAttempts) {
+                            0 -> 1_500L
+                            1 -> 5_000L
+                            2 -> 10_000L
+                            else -> 30_000L
+                        }
+                        Log.i(TAG, "Auto-reconnect attempt ${failedAttempts + 1} after ${delayMs}ms")
+                        kotlinx.coroutines.delay(delayMs)
+                        // Re-check after the backoff: rider might have
+                        // disconnected/unpaired during the wait.
+                        val recheck = settingsRepository.get().externalGpsAddress != null
+                        if (!recheck || explicitlyDisconnected) return@collect
+                        if (connectionState.value == ConnectionState.DISCONNECTED) {
+                            failedAttempts += 1
+                            connectPaired()
+                        }
+                    }
+                    else -> { /* CONNECTING / INITIALIZING — let it complete */ }
+                }
             }
         }
 
@@ -219,11 +269,15 @@ class ExternalGpsRepository @Inject constructor(
             Log.w(TAG, "No adapter for paired source $source — skipping connect")
             return false
         }
+        // Any explicit connect call clears the user-disconnect veto so the
+        // auto-reconnect loop resumes.
+        explicitlyDisconnected = false
         connectionManager.connect(address, adapter, buildInitWrites(adapter))
         return true
     }
 
     fun connect(address: String, adapter: ExternalGpsAdapter) {
+        explicitlyDisconnected = false
         connectionManager.connect(address, adapter, buildInitWrites(adapter))
     }
 
@@ -248,6 +302,10 @@ class ExternalGpsRepository @Inject constructor(
     }
 
     fun disconnect() {
+        // User-initiated disconnect: veto the auto-reconnect loop so the
+        // rider's tap on "Disconnect" actually sticks. They reset it by
+        // tapping Reconnect / pairing.
+        explicitlyDisconnected = true
         _currentSample.value = null
         connectionManager.disconnect()
     }
