@@ -27,8 +27,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 67
-        versionName = "0.6.5-rc3"
+        versionCode = 68
+        versionName = "0.6.5"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
