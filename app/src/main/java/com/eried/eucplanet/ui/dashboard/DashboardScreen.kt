@@ -170,6 +170,7 @@ fun DashboardScreen(
         "PHONE" -> AccentBlue
         else -> AccentPurple
     }
+    val externalGpsPaired by viewModel.externalGpsPaired.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
@@ -533,11 +534,17 @@ fun DashboardScreen(
                         activeColor = if (useAccent) primary else AccentGreen,
                         modifier = Modifier
                     )
-                    DashIndicatorLetter(
-                        "E",
-                        active = externalLive,
-                        activeColor = if (useAccent) primary else AccentGreen
-                    )
+                    // E badge only when an external GPS is paired at all. Dim
+                    // when paired but stale, lit when actively sending. Hidden
+                    // entirely for riders without a RaceBox or similar so the
+                    // dashboard stays clean for the common case.
+                    if (externalGpsPaired) {
+                        DashIndicatorLetter(
+                            "E",
+                            active = externalLive,
+                            activeColor = if (useAccent) primary else AccentGreen
+                        )
+                    }
                 }
             }
 

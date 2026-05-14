@@ -105,6 +105,14 @@ class DashboardViewModel @Inject constructor(
      * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
      * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
      */
+    /** True when the rider has an external GPS paired in settings, regardless
+     *  of whether it's currently connected or sending samples. Drives the
+     *  visibility of the "E" indicator on the dashboard so users without an
+     *  external GPS don't see a placeholder for a feature they don't use. */
+    val externalGpsPaired: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.externalGpsAddress != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
         settingsRepository.settings,
         externalGpsRepository.currentSample,
