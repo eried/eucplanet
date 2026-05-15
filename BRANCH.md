@@ -24,8 +24,10 @@ and wheel calibration, plus Compare-tab tooling and the usual polish.
 - Phone / Wheel / External tabs + a Compare tab.
 - Compare auto-decalibrates the wheel speed so wheel-vs-GPS delta reflects
   the real sensor offset, not the residual after the current calibration.
-- A/B selection persists across sheet open/close; first compare entry
-  seeds Wheel vs External (or Phone fallback).
+- A/B selection persists across sheet open/close. Compare auto-picks
+  B (Wheel vs External, falling back to Phone) only when A changed
+  since the last entry; toggling Compare off and on restores the
+  rider's previous picks.
 - **Calibrate wheel** stays enabled whenever the wheel reports motion.
 
 **Wheel parameters**
@@ -42,6 +44,22 @@ and wheel calibration, plus Compare-tab tooling and the usual polish.
 - Begode firmware emits mph-scaled bytes when the wheel's screen is set
   to imperial. EUC Planet now reads the units flag and converts back to
   km internally so speed reads correctly in either app unit setting.
+
+**Protocol parity pass (v0.6.6)**
+- Cross-referenced our Veteran, InMotion V1, InMotion V2, KingSong,
+  Begode and Ninebot parsers against the WheelLog reference.
+- Veteran: post-Sherman models (Patton, Sherman L, Lynx S, Nosfet
+  Aero/Apex/Aeon, Oryx) now resolve from the wheel-reported firmware
+  major version; ABRAMS nominal voltage corrected.
+- InMotion V1: V10 family now identifies correctly from slow-info
+  (was reading the model byte as packed BCD); serial number now
+  matches the chassis label.
+- InMotion V2 V12 HS/HT/Pro: light and alarm-speed commands routed
+  through the dedicated two-beam / two-tier builders.
+- Ninebot: light and DRL toggles preserve the other DriveFlags bits
+  instead of clobbering them.
+- KingSong: 0xA9 frame distance routes to total odometer (was trip).
+- Begode: battery current sign aligned with the reference.
 
 ## Who should test this
 
