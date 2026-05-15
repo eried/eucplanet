@@ -573,7 +573,7 @@
     <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Voorbeeld uitgeschakeld tijdens rijden — stop eerst om geluiden te testen.</string>
+    <string name="engine_preview_parked_only">Voorbeeld uitgeschakeld tijdens rijden, stop eerst om geluiden te testen.</string>
     <string name="engine_preset_two_stroke">Tweetakt</string>
     <string name="engine_preset_four_stroke_single">Viertakt eencilinder</string>
     <string name="engine_preset_quad_bike">Quad</string>

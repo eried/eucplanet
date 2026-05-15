@@ -81,23 +81,35 @@ class CheatState @Inject constructor() {
         if (cmd == "bug") {
             return Result.OpenUrl("https://github.com/eried/eucplanet/issues/new/choose")
         }
+        if (cmd == "erwin") {
+            return Result.OpenUrl("https://ried.no")
+        }
         if (cmd == "cheat" || cmd == "cheats") {
             val mul = _speedDisplayMultiplier.value
-            val daredevilState = if (mul == 1f) "off" else "%.2fx".format(mul)
+            val daredevilState = if (mul == 1f) State.Off else State.Value("%.2fx".format(mul))
             return Result.ShowSheet(
-                title = "Console cheats",
-                lines = listOf(
-                    "daredevilN — display-only speed multiplier (now $daredevilState)",
-                    "godmode — mute all alarms (now ${if (_godmode.value) "on" else "off"})",
-                    "silence — mute all voice (now ${if (_silence.value) "on" else "off"})",
-                    "letmelock — lock wheel at any speed (now ${if (_lockAtAnySpeed.value) "on" else "off"})",
-                    "bug — open the GitHub issues page",
-                    "cheat / cheats — this list"
+                title = "Console",
+                rows = listOf(
+                    Row("daredevilN", "Display-only speed multiplier", daredevilState),
+                    Row("godmode", "Mute all alarms", State.Bool(_godmode.value)),
+                    Row("silence", "Mute all voice", State.Bool(_silence.value)),
+                    Row("letmelock", "Lock wheel at any speed", State.Bool(_lockAtAnySpeed.value)),
+                    Row("bug", "Open the GitHub issues page", State.Action),
+                    Row("erwin", "Open ried.no", State.Action),
+                    Row("cheat / cheats", "This list", State.Action)
                 )
             )
         }
         return null
     }
+
+    sealed interface State {
+        object Off : State
+        data class Bool(val on: Boolean) : State
+        data class Value(val text: String) : State
+        object Action : State
+    }
+    data class Row(val name: String, val description: String, val state: State)
 
     sealed interface Result {
         val toast: String
@@ -105,7 +117,7 @@ class CheatState @Inject constructor() {
         data class OpenUrl(val url: String) : Result {
             override val toast: String = "opening $url"
         }
-        data class ShowSheet(val title: String, val lines: List<String>) : Result {
+        data class ShowSheet(val title: String, val rows: List<Row>) : Result {
             override val toast: String = title
         }
     }

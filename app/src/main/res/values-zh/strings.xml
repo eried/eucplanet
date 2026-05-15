@@ -72,7 +72,7 @@
     <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">存放行程 CSV 与设置备份的文件夹。</string>
     <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
-    <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox——这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
+    <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox,这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
     <string name="cloud_change_folder">更换文件夹</string>
     <string name="cloud_remove_folder">取消连接</string>
@@ -537,7 +537,7 @@
     <string name="engine_headphones_only_hint">跳过手机扬声器。引擎仅在有线或蓝牙音频下播放。</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">行进中预览已停用 — 停下后再试听。</string>
+    <string name="engine_preview_parked_only">行进中预览已停用, 停下后再试听。</string>
     <string name="engine_preset_two_stroke">二冲程</string>
     <string name="engine_preset_four_stroke_single">四冲程单缸</string>
     <string name="engine_preset_quad_bike">四轮越野车</string>

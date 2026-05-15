@@ -43,7 +43,7 @@
     <!-- Experimental banner -->
     <string name="experimental_banner">Preliminary supported wheel. Tap to report issues.</string>
     <string name="experimental_dialog_title">Help improve EUC Planet</string>
-    <string name="experimental_dialog_body">Support for this wheel is preliminary — only the InMotion V14 / V12 / P6 family is verified by the author. KingSong, Veteran, Begode, Ninebot and the older InMotion models ship as Preview and need rider testing. Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
+    <string name="experimental_dialog_body">Support for this wheel is preliminary, only the InMotion V14 / V12 / P6 family is verified by the author. KingSong, Veteran, Begode, Ninebot and the older InMotion models ship as Preview and need rider testing. Use it with caution.\n\nTapping this banner will report an issue, so the author can fix what doesn\'t work.</string>
     <string name="experimental_dialog_report">Report an issue</string>
 
     <!-- Scan: virtual wheel section (debug builds only) -->
@@ -265,7 +265,7 @@
     <string name="engine_safety_ok">Got it</string>
     <string name="engine_type_label">Engine</string>
     <string name="engine_preview">Preview</string>
-    <string name="engine_preview_parked_only">Previews disabled while moving — stop first to test sounds.</string>
+    <string name="engine_preview_parked_only">Previews disabled while moving, stop first to test sounds.</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>

@@ -72,7 +72,7 @@
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup.</string>
     <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>
-    <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox — de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
+    <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox, de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
     <string name="cloud_change_folder">Skift mappe</string>
     <string name="cloud_remove_folder">Frakobl</string>
@@ -537,7 +537,7 @@
     <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun med kablet eller Bluetooth-lyd.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Forhåndsvisning slået fra i bevægelse — stop for at teste lyde.</string>
+    <string name="engine_preview_parked_only">Forhåndsvisning slået fra i bevægelse, stop for at teste lyde.</string>
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firtakt encylindret</string>
     <string name="engine_preset_quad_bike">Quad</string>

@@ -573,7 +573,7 @@
     <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Podgląd wyłączony podczas jazdy — zatrzymaj się, by przetestować dźwięki.</string>
+    <string name="engine_preview_parked_only">Podgląd wyłączony podczas jazdy, zatrzymaj się, by przetestować dźwięki.</string>
     <string name="engine_preset_two_stroke">2-suw</string>
     <string name="engine_preset_four_stroke_single">4-suw jednocyl.</string>
     <string name="engine_preset_quad_bike">Quad</string>

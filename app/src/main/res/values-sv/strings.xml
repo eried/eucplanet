@@ -72,7 +72,7 @@
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
     <string name="cloud_caption">Mapp för tur-CSV:er och inställnings-backup.</string>
     <string name="cloud_help_title">Säkerhetskopiera till OneDrive, Drive eller Dropbox</string>
-    <string name="cloud_help_body">Androids mappväljare visar oftast inte OneDrive, Google Drive eller Dropbox — de apparna exponerar ingen skrivbar mapp för andra appar. Därför sparar vi lokalt och låter en synk-app sköta uppladdningen.\n\nGör så här:\n1. Installera Autosync (för OneDrive, Drive eller Dropbox) eller FolderSync från Play Butik.\n2. Logga in i appen och skapa ett synk-par: din lokala mapp → en molnmapp.\n3. Välj \"Endast uppladdning\" med direktsynk eller synk vid ändring.\n4. Kom tillbaka hit och välj samma lokala mapp.\n\nNya resor hamnar i mappen när inspelningen är klar. Synk-appen laddar upp dem i bakgrunden.</string>
+    <string name="cloud_help_body">Androids mappväljare visar oftast inte OneDrive, Google Drive eller Dropbox, de apparna exponerar ingen skrivbar mapp för andra appar. Därför sparar vi lokalt och låter en synk-app sköta uppladdningen.\n\nGör så här:\n1. Installera Autosync (för OneDrive, Drive eller Dropbox) eller FolderSync från Play Butik.\n2. Logga in i appen och skapa ett synk-par: din lokala mapp → en molnmapp.\n3. Välj \"Endast uppladdning\" med direktsynk eller synk vid ändring.\n4. Kom tillbaka hit och välj samma lokala mapp.\n\nNya resor hamnar i mappen när inspelningen är klar. Synk-appen laddar upp dem i bakgrunden.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
     <string name="cloud_change_folder">Byt mapp</string>
     <string name="cloud_remove_folder">Koppla ifrån</string>
@@ -537,7 +537,7 @@
     <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara med trådbundet eller Bluetooth-ljud.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Förhandsvisning av i rörelse — stanna för att testa ljud.</string>
+    <string name="engine_preview_parked_only">Förhandsvisning av i rörelse, stanna för att testa ljud.</string>
     <string name="engine_preset_two_stroke">Tvåtakt</string>
     <string name="engine_preset_four_stroke_single">Fyrtakt encylindrig</string>
     <string name="engine_preset_quad_bike">Fyrhjuling</string>

@@ -30,7 +30,10 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
@@ -170,7 +173,54 @@ fun SettingsScreen(
             onDismissRequest = { cheatSheet = null },
             title = { Text(sheet.title) },
             text = {
-                Column { sheet.lines.forEach { Text(it, style = MaterialTheme.typography.bodySmall) } }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    sheet.rows.forEach { row ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    row.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    row.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            val s = row.state
+                            when (s) {
+                                is com.eried.eucplanet.cheats.CheatState.State.Bool -> {
+                                    Icon(
+                                        imageVector = if (s.on) Icons.Filled.CheckCircle
+                                                      else Icons.Outlined.RadioButtonUnchecked,
+                                        contentDescription = if (s.on) "on" else "off",
+                                        tint = if (s.on) MaterialTheme.colorScheme.primary
+                                               else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Value -> {
+                                    Text(
+                                        s.text,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Off -> {
+                                    Icon(
+                                        imageVector = Icons.Outlined.RadioButtonUnchecked,
+                                        contentDescription = "off",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Action -> { /* no indicator */ }
+                            }
+                        }
+                    }
+                }
             },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = { cheatSheet = null }) {

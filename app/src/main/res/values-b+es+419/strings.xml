@@ -573,7 +573,7 @@
     <string name="engine_headphones_only_hint">Omite el altavoz del teléfono. El motor suena solo cuando hay audio por cable o Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Vista previa desactivada mientras te mueves — detente para probar los sonidos.</string>
+    <string name="engine_preview_parked_only">Vista previa desactivada mientras te mueves, detente para probar los sonidos.</string>
     <string name="engine_preset_two_stroke">2 tiempos</string>
     <string name="engine_preset_four_stroke_single">4 tiempos monocilíndrico</string>
     <string name="engine_preset_quad_bike">Cuatrimoto</string>

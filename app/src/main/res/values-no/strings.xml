@@ -554,7 +554,7 @@
     <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Forhåndsvisning av i bevegelse — stopp for å teste lyder.</string>
+    <string name="engine_preview_parked_only">Forhåndsvisning av i bevegelse, stopp for å teste lyder.</string>
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firetakt enkeltsylindret</string>
     <string name="engine_preset_quad_bike">Firehjuling</string>

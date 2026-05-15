@@ -537,7 +537,7 @@
     <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne qu\'avec un audio filaire ou Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Aperçu désactivé en mouvement — arrête-toi pour tester les sons.</string>
+    <string name="engine_preview_parked_only">Aperçu désactivé en mouvement, arrête-toi pour tester les sons.</string>
     <string name="engine_preset_two_stroke">2 temps</string>
     <string name="engine_preset_four_stroke_single">4 temps monocylindre</string>
     <string name="engine_preset_quad_bike">Quad</string>

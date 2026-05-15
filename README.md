@@ -24,9 +24,9 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 > | **Experimental** | InMotion V11, V13, V9 | In the model registry; please file a wheel report if you try them |
 > | Not yet | Onewheel and other non-EUC vehicles | Different protocol family, out of scope |
 >
-> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner — telemetry verification is the fastest path to upgrading the tier.
+> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner, telemetry verification is the fastest path to upgrading the tier.
 >
-> Want to help add a wheel that's not on the list? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record one labelled riding session and we can usually map it in a single pass.
+> Want to help add a wheel that's not on the list? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md), record one labelled riding session and we can usually map it in a single pass.
 
 ---
 
@@ -106,7 +106,7 @@ I got tired of:
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` implementation in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes connect-time by the BLE-advertised name. Spec docs for each family live under [`docs/protocols/`](docs/protocols/). To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — record a single labelled riding session and we can usually map a new wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` implementation in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes connect-time by the BLE-advertised name. Spec docs for each family live under [`docs/protocols/`](docs/protocols/). To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md), record a single labelled riding session and we can usually map a new wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
 ## License
 

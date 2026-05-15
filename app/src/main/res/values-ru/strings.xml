@@ -213,7 +213,7 @@
     <string name="gps_log_additional">Использовать дополнительные данные GPS</string>
     <string name="gps_log_additional_desc">Записывает дополнительные образцы GPS с телефона или внешнего устройства.</string>
     <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
-    <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе — телефон.</string>
+    <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе, телефон.</string>
     <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
     <string name="section_volume_keys">Кнопки громкости</string>
     <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении).</string>
@@ -589,7 +589,7 @@
     <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Предпросмотр недоступен в движении — остановись, чтобы проверить звуки.</string>
+    <string name="engine_preview_parked_only">Предпросмотр недоступен в движении, остановись, чтобы проверить звуки.</string>
     <string name="engine_preset_two_stroke">2-тактный</string>
     <string name="engine_preset_four_stroke_single">4-тактный одноцил.</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>

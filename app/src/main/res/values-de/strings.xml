@@ -553,7 +553,7 @@
     <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur mit kabelgebundenem oder Bluetooth-Audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert — zuerst anhalten, um Klänge zu testen.</string>
+    <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert, zuerst anhalten, um Klänge zu testen.</string>
     <string name="engine_preset_two_stroke">2-Takt</string>
     <string name="engine_preset_four_stroke_single">4-Takt Einzylinder</string>
     <string name="engine_preset_quad_bike">Quad</string>
