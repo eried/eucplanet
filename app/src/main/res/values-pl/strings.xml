@@ -286,6 +286,7 @@
     <string name="gps_prioritize_external">Priorytet zewnętrznego GPS</string>
     <string name="gps_prioritize_external_desc">Gdy zewnętrzne urządzenie jest podłączone, użyj go jako źródła prędkości; w przeciwnym razie użyj telefonu.</string>
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
+    <string name="gps_show_on_dashboard_desc">Dodaje kolorową kropkę na prędkościomierzu z odczytem GPS.</string>
     <string name="section_volume_keys">Klawisze głośności</string>
     <string name="volume_keys_caption">Klawisze głośności jako skróty (tylko gdy aplikacja jest widoczna).</string>
     <string name="volume_keys_enable">Włącz akcje klawiszy głośności</string>

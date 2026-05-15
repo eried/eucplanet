@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">Externes GPS bevorzugen</string>
     <string name="gps_prioritize_external_desc">Wenn eine externe Box verbunden ist, sie als Geschwindigkeitsquelle nutzen; sonst das Telefon.</string>
     <string name="gps_show_on_dashboard">Geschwindigkeit im Dashboard zeigen</string>
+    <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt auf den Tacho mit dem GPS-Wert.</string>
     <string name="section_volume_keys">Lautstärketasten</string>
     <string name="volume_keys_caption">Lautstärketasten als Kurzbefehle (nur bei sichtbarer App).</string>
     <string name="volume_keys_enable">Lautstärketasten-Aktionen aktivieren</string>

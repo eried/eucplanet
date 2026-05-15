@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">Prioritera extern GPS</string>
     <string name="gps_prioritize_external_desc">När en extern enhet är ansluten, använd den som hastighetskälla; annars fall tillbaka på telefonen.</string>
     <string name="gps_show_on_dashboard">Visa hastighet på instrumentpanelen</string>
+    <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet.</string>
     <string name="section_volume_keys">Volymknappar</string>
     <string name="volume_keys_caption">Volymknappar som genvägar (bara när appen är synlig).</string>
     <string name="volume_keys_enable">Aktivera åtgärder på volymknappar</string>

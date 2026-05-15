@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">优先使用外部 GPS</string>
     <string name="gps_prioritize_external_desc">连接外部设备时使用它作为速度来源；否则回退到手机。</string>
     <string name="gps_show_on_dashboard">在主屏显示速度</string>
+    <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
     <string name="volume_keys_caption">手机音量键作为快捷键(仅在应用可见时)。</string>
     <string name="volume_keys_enable">启用音量键操作</string>

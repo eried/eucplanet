@@ -286,6 +286,7 @@
     <string name="gps_prioritize_external">Priorità al GPS esterno</string>
     <string name="gps_prioritize_external_desc">Quando una scatola esterna è collegata, usala come fonte di velocità; altrimenti il telefono.</string>
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
+    <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS.</string>
     <string name="section_volume_keys">Tasti volume</string>
     <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile).</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>

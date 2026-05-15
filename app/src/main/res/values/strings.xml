@@ -392,6 +392,7 @@
     <string name="gps_prioritize_external">Prioritize external GPS</string>
     <string name="gps_prioritize_external_desc">When an external box is connected, use it as the speed source; otherwise fall back to the phone.</string>
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
+    <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading.</string>
     <string name="section_volume_keys">Volume keys</string>
     <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible).</string>
     <string name="volume_keys_enable">Enable volume key actions</string>

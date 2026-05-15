@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">Priorité au GPS externe</string>
     <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser comme source de vitesse ; sinon, basculer sur le téléphone.</string>
     <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
+    <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS.</string>
     <string name="section_volume_keys">Touches de volume</string>
     <string name="volume_keys_caption">Touches de volume en raccourcis (uniquement quand l\'appli est visible).</string>
     <string name="volume_keys_enable">Activer les actions de volume</string>

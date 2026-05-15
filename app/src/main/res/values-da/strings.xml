@@ -217,6 +217,7 @@
     <string name="gps_prioritize_external">Prioritér ekstern GPS</string>
     <string name="gps_prioritize_external_desc">Når en ekstern boks er tilsluttet, bruges den som hastighedskilde; ellers bruges telefonen.</string>
     <string name="gps_show_on_dashboard">Vis hastighed på dashboardet</string>
+    <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
     <string name="volume_keys_caption">Lydstyrketaster som genveje (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>

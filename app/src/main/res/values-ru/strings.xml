@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
     <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе, телефон.</string>
     <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
+    <string name="gps_show_on_dashboard_desc">Добавляет цветную точку на спидометре с показаниями GPS.</string>
     <string name="section_volume_keys">Кнопки громкости</string>
     <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении).</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>

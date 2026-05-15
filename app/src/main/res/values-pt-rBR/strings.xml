@@ -286,6 +286,7 @@
     <string name="gps_prioritize_external">Priorizar GPS externo</string>
     <string name="gps_prioritize_external_desc">Quando uma caixa externa está conectada, use-a como fonte de velocidade; caso contrário, use o celular.</string>
     <string name="gps_show_on_dashboard">Mostrar velocidade no painel</string>
+    <string name="gps_show_on_dashboard_desc">Coloca um pontinho colorido no velocímetro com a leitura do GPS.</string>
     <string name="section_volume_keys">Teclas de volume</string>
     <string name="volume_keys_caption">Botões de volume como atalhos (só com o app visível).</string>
     <string name="volume_keys_enable">Ativar ações das teclas de volume</string>

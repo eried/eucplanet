@@ -97,6 +97,7 @@ fun ExternalGpsSection(
             checked = settings?.gpsShowOnDashboard == true,
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
+        HintText(stringResource(R.string.gps_show_on_dashboard_desc), small = true)
 
         Spacer(Modifier.height(8.dp))
 

@@ -286,6 +286,7 @@
     <string name="gps_prioritize_external">Externe GPS prioriteit geven</string>
     <string name="gps_prioritize_external_desc">Als een externe box is aangesloten, gebruik die als snelheidsbron; anders valt het terug op de telefoon.</string>
     <string name="gps_show_on_dashboard">Snelheid op dashboard tonen</string>
+    <string name="gps_show_on_dashboard_desc">Zet een gekleurd stipje op de snelheidsmeter met de GPS-waarde.</string>
     <string name="section_volume_keys">Volumeknoppen</string>
     <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is).</string>
     <string name="volume_keys_enable">Acties van volumeknoppen aanzetten</string>

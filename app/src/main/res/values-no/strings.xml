@@ -215,6 +215,7 @@
     <string name="gps_prioritize_external">Prioriter ekstern GPS</string>
     <string name="gps_prioritize_external_desc">Når en ekstern boks er tilkoblet, bruk den som fartskilde; ellers fall tilbake til telefonen.</string>
     <string name="gps_show_on_dashboard">Vis hastighet på dashbordet</string>
+    <string name="gps_show_on_dashboard_desc">Legger en farget prikk på fartsmåleren med GPS-verdien.</string>
     <string name="section_volume_keys">Volumtaster</string>
     <string name="volume_keys_caption">Volumtaster som snarveier (kun når appen er synlig).</string>
     <string name="volume_keys_enable">Aktiver volumtast-handlinger</string>
