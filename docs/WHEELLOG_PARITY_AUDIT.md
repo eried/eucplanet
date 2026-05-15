@@ -327,26 +327,26 @@ Reference: `NinebotAdapter.java` + `NinebotZAdapter.java`.
 ## Priority for the follow-up fix session
 
 1. **HIGH IMPACT — visible wrong readings:**
-   - KingSong: trip / total odometer semantically swapped at parse time
-   - InMotion V1: V10 family never resolves from telemetry (slow-info BCD decode)
-   - InMotion V1: pedal-tilt write byte order wrong (sets wrong angle)
-   - InMotion V1: serial reads backwards
-   - InMotion V1: legacy R / V3 mileage divisor missing (total odo garbage)
-   - InMotion V1: R0 / L6 read u32 (should be u64) at offset 44
-   - InMotion V2 (V12): light command broken (sends V14 form)
-   - InMotion V2 (V12): alarm-speed write missing
-   - Veteran: ABRAMS at 168 V (should be 100 V class)
-   - Veteran: `mVer` byte not parsed (root cause of 4+ downstream bugs)
-   - Veteran: `current` is phase, downstream labels it bus
-   - Ninebot Z: `setLight` writes the wrong param
-   - Begode: 0x07 battery current sign inverted
-   - Begode: total odometer never parsed
-   - Begode: alert byte (8 alarm bits) never parsed
+   - [DONE v0.6.6] KingSong: trip / total odometer semantically swapped at parse time
+   - [DONE v0.6.6] InMotion V1: V10 family never resolves from telemetry (slow-info raw-decimal decode)
+   - [N/A — false alarm] InMotion V1: pedal-tilt write byte order; verified slot order matches WheelLog after re-reading MathsUtil.getBytes (BE) + slot reversal == LE on wire
+   - [DONE v0.6.6] InMotion V1: serial reads backwards (now reads 7..0)
+   - [DEFERRED] InMotion V1: legacy R / V3 mileage divisor missing — those models aren't in our enum yet
+   - [PARTIAL] InMotion V1: R0 / L6 mileage encoding — L6 cm-to-m fixed; R0 u64 read deferred until we have a labelled capture
+   - [DONE v0.6.6] InMotion V2 (V12): light command (sub-cmd 0x50 two-beam dispatch)
+   - [DONE v0.6.6] InMotion V2 (V12): alarm-speed (sub-cmd 0x3e two-tier dispatch)
+   - [DONE v0.6.6] Veteran: ABRAMS at 168 V -> corrected to 100 V class
+   - [DONE v0.6.6] Veteran: `mVer` byte parse + model resolution from firmware major
+   - [DEFERRED] Veteran: `current` is phase, label clarification (downstream cosmetic)
+   - [DONE v0.6.6] Ninebot Z: `setLight` rewritten as DriveFlags read-modify-write (bit 2)
+   - [DONE v0.6.6] Begode: 0x07 battery current sign inverted
+   - [DEFERRED] Begode: total odometer parse (no in-app surface yet)
+   - [DEFERRED] Begode: alert byte 8-alarm bitfield (no in-app surface yet)
 
 2. **MEDIUM — missing models that route into wrong battery class:**
    - KingSong: KS-16X, KS-18L (+ imperial scaler), KS-18LH, KS-S16P, RockWheel
    - InMotion V1: V3 / R1 / R2 series (16 models, 3 different speed factors)
-   - Veteran: Sherman L / Patton S / Oryx / Lynx S / Nosfet ×3 (mVer-keyed, unlocked by item 1)
+   - [DONE v0.6.6] Veteran: Sherman L / Patton S / Oryx / Lynx S / Nosfet ×3 (mVer-keyed registry entries added)
    - Begode: Nikola, Monster, Hero HS/HT split, RS HS/HT split
 
 3. **LOW — additional fields and polish:**
