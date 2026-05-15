@@ -28,6 +28,7 @@ enum class BegodeModel(
     EX(       "Begode EX",        100,  60),
     EX_N(     "Begode EX.N",      100,  60),
     EX2(      "Begode EX2",       126,  80),
+    EX30(     "Begode EX30",      151, 100),
     RS(       "Begode RS",        126,  80),
     RS_HT(    "Begode RS-HT",     134, 100),
     T3(       "Begode T3",         84,  45),
@@ -51,6 +52,7 @@ enum class BegodeModel(
                 "hero"   in n -> HERO
                 "rs-ht"  in n || "rs_ht" in n || "rsht" in n -> RS_HT
                 "rs"     in n -> RS
+                "ex30"   in n || "ex_30" in n -> EX30
                 "ex2"    in n -> EX2
                 "ex.n"   in n || "ex_n" in n -> EX_N
                 "ex"     in n -> EX
