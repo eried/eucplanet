@@ -134,16 +134,14 @@ object InMotionV1Parser {
     }
 
     /**
-     * Mileage at offset 44 has drifted across firmware revisions — see spec
-     * section 4.2. V8 / V10 family uses u32 LE in metres; L6 uses u64 LE in
-     * centimetres; legacy R-series uses a fixed-point u64 we approximate.
+     * Mileage at offset 44 varies across firmware revisions — see spec
+     * section 4.2. L6 stores u32 LE in centimetres (multiply by 100 to get
+     * metres); every other current model stores u32 LE in metres directly.
      */
     private fun readTotalDistanceMeters(payload: ByteArray, model: InMotionV1Model?): Float {
         if (payload.size < 48) return 0f
-        return when {
-            model?.isL6 == true -> ByteUtils.getUint32LE(payload, 44).toFloat() * 100f
-            else -> ByteUtils.getUint32LE(payload, 44).toFloat()
-        }
+        val raw = ByteUtils.getUint32LE(payload, 44).toFloat()
+        return if (model?.isL6 == true) raw * 100f else raw
     }
 
     /**
@@ -161,10 +159,15 @@ object InMotionV1Parser {
         }
     }
 
-    /** Serial as 8 BE bytes hex-formatted. */
+    /**
+     * Serial as 8 hex bytes read in reverse order, matching the WheelLog
+     * reference. The first 8 bytes of the slow-info payload are the serial
+     * stored little-endian relative to the printed format on the chassis;
+     * iterating 7..0 reproduces the rider-visible value.
+     */
     private fun parseSerial(payload: ByteArray): String {
         val sb = StringBuilder(16)
-        for (i in 0 until 8) sb.append("%02X".format(payload[i].toInt() and 0xFF))
+        for (i in 7 downTo 0) sb.append("%02X".format(payload[i].toInt() and 0xFF))
         return sb.toString()
     }
 

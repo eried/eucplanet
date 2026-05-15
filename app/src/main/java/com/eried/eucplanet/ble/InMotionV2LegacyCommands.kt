@@ -53,4 +53,40 @@ object InMotionV2LegacyCommands {
             Command.CONTROL,
             byteArrayOf(0x51, soundId, 0x01)
         )
+
+    /**
+     * Headlight for V12 HS / HT / Pro. WheelLog's `setLightV12` uses a
+     * two-beam packet at sub-cmd 0x50, where the rider can drive the low
+     * and high beam independently. We map our single on/off toggle to
+     * both beams so the dashboard's Light button behaves like a master
+     * switch: on -> both beams on (1, 1), off -> both off (0, 0).
+     *
+     *   payload: [0x50, lowBeam, highBeam]   (each 0 or 1)
+     *
+     * V14 family wheels use a different single-byte sub-cmd; this builder
+     * is for the V12 HS/HT/Pro path only.
+     */
+    fun setLightV12(on: Boolean): ByteArray {
+        val v = if (on) 0x01.toByte() else 0x00.toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x50, v, v)
+        )
+    }
+
+    /**
+     * Two-tier alarm-speed for V12 HS / HT / Pro. WheelLog's `setAlarmSpeedV12`
+     * accepts two thresholds in one packet (sub-cmd 0x3e). Our app exposes a
+     * single alarm threshold, so we send the same value for both tiers.
+     *
+     *   payload: [0x3e, alarm1_lo, alarm1_hi, alarm2_lo, alarm2_hi]
+     *            (each uint16-LE * 100)
+     */
+    fun setAlarmSpeedV12(alarmKmh: Float): ByteArray {
+        val raw = ByteUtils.putUint16LE((alarmKmh * 100).toInt())
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x3e, raw[0], raw[1], raw[0], raw[1])
+        )
+    }
 }

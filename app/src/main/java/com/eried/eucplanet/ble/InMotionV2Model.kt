@@ -27,6 +27,14 @@ enum class InMotionV2Model(
      */
     val hornOpcode: Byte,
     /**
+     * V12 HS / HT / Pro use a two-beam light packet `[0x50, low, high]`
+     * (`InMotionV2LegacyCommands.setLightV12`). V14 family + everything
+     * else uses the single-byte `[0x4B, on]` form. False means the V14
+     * single-byte form; flag was added when riders reported the V12
+     * light toggle did nothing.
+     */
+    val usesV12LightForm: Boolean = false,
+    /**
      * Upper bound for the user-configurable tiltback slider in km/h. Numbers
      * mirror WheelLog's `InmotionAdapterV2.getMaxSpeed()` table; P6 isn't in
      * WheelLog so it gets 130 km/h to match community-reported top speeds.
@@ -49,9 +57,9 @@ enum class InMotionV2Model(
     P6(     21, "InMotion P6",         maxSpeedHasAlarms = true,  hornOpcode = 0x18, maxSpeedKmh = 150),
     V11(    61, "InMotion V11",        maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 60),
     V11Y(   62, "InMotion V11y",       maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
-    V12HS(  71, "InMotion V12 HS",     maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 70),
-    V12HT(  72, "InMotion V12 HT",     maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 70),
-    V12PRO( 73, "InMotion V12 Pro",    maxSpeedHasAlarms = false, hornOpcode = 0x18, maxSpeedKmh = 70),
+    V12HS(  71, "InMotion V12 HS",     maxSpeedHasAlarms = false, hornOpcode = 0x18, usesV12LightForm = true, maxSpeedKmh = 70),
+    V12HT(  72, "InMotion V12 HT",     maxSpeedHasAlarms = false, hornOpcode = 0x18, usesV12LightForm = true, maxSpeedKmh = 70),
+    V12PRO( 73, "InMotion V12 Pro",    maxSpeedHasAlarms = false, hornOpcode = 0x18, usesV12LightForm = true, maxSpeedKmh = 70),
     V13(    81, "InMotion V13",        maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V13PRO( 82, "InMotion V13 Pro",    maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
     V14_50GB(91, "InMotion V14 50GB",  maxSpeedHasAlarms = true,  hornOpcode = 0x02, maxSpeedKmh = 120),
