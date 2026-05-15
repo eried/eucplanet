@@ -318,11 +318,20 @@ class DataSourcesViewModel @Inject constructor(
     // ---- Compare-tab selection state ----
     //
     // Kept on the ViewModel (not in Composable remember{}) so the rider's last
-    // A/B pick survives dismissing and re-opening the sheet. Default starts
-    // at single-source PHONE view; the first time the user toggles Compare
-    // on, we seed A=Wheel and B=External (or Phone fallback) since the
-    // dominant use is wheel-vs-ground-truth calibration. From there the
-    // rider's manual picks stick for the lifetime of the activity.
+    // A/B pick survives dismissing and re-opening the sheet.
+    //
+    // Rule for auto-picking B on Compare entry, derived from two nullable
+    // fields (no boolean "first time" flag):
+    //   On entry, if [lastCompareA] != currentA  -> auto-pick B from A
+    //                                              (prefer Wheel; or
+    //                                              External when A is Wheel)
+    //             if [lastCompareA] == currentA  -> restore [lastCompareB]
+    //
+    // [lastCompareA] is updated on every A change AND on Compare entry.
+    // [lastCompareB] is updated whenever a B is chosen (manual or auto).
+    // The two together let us detect "rider switched single-source A while
+    // Compare was off" (= re-auto-pick) versus "rider toggled Compare off
+    // and on without changing anything" (= preserve last B).
 
     private val _selectedSource = MutableStateFlow(DataSource.PHONE)
     val selectedSource: StateFlow<DataSource> = _selectedSource.asStateFlow()
@@ -330,33 +339,51 @@ class DataSourcesViewModel @Inject constructor(
     private val _compareWith = MutableStateFlow<DataSource?>(null)
     val compareWith: StateFlow<DataSource?> = _compareWith.asStateFlow()
 
-    private var hasEnteredCompareThisSession = false
+    private var lastCompareA: DataSource? = null
+    private var lastCompareB: DataSource? = null
 
     fun setSelectedSource(source: DataSource) {
         _selectedSource.value = source
+        // Inside Compare, the rider's explicit A pick is the "last seen"
+        // for next entry. Outside Compare we deliberately leave
+        // [lastCompareA] alone so the diff vs the next entry's currentA
+        // tells us to re-auto-pick B.
+        if (_compareWith.value != null) {
+            lastCompareA = source
+        }
     }
 
     fun setCompareWith(source: DataSource) {
         _compareWith.value = source
+        lastCompareB = source
     }
 
     fun toggleCompare() {
         if (_compareWith.value != null) {
+            // Exiting Compare. lastCompareA/B are kept; they're already in
+            // sync from the setters above.
             _compareWith.value = null
             return
         }
-        if (!hasEnteredCompareThisSession) {
-            _selectedSource.value = DataSource.WHEEL
+        // Entering Compare. Keep the rider's A as-is (their explicit pick)
+        // and auto-pick B only if A changed since the last entry.
+        val currentA = _selectedSource.value
+        val keepLastB = lastCompareA == currentA && lastCompareB != null
+        val pickedB = if (keepLastB) lastCompareB!! else autoPickBFor(currentA)
+        _compareWith.value = pickedB
+        lastCompareA = currentA
+        lastCompareB = pickedB
+    }
+
+    /** Preferred B given A. Always prefers the wheel except when A is the
+     *  wheel itself, in which case we fall back to External (when actively
+     *  reporting) or Phone. Guaranteed to be != [a]. */
+    private fun autoPickBFor(a: DataSource): DataSource = when (a) {
+        DataSource.WHEEL -> {
             val externalLive = snapshots.value[DataSource.RACEBOX]?.isLive == true
-            _compareWith.value = if (externalLive) DataSource.RACEBOX else DataSource.PHONE
-            hasEnteredCompareThisSession = true
-        } else {
-            // Restore the rider's last B; if somehow null (e.g. activity
-            // recreation reset our flag without resetting the state), fall
-            // back to anything-but-A.
-            val fallback = DataSource.values().first { it != _selectedSource.value }
-            _compareWith.value = _compareWith.value ?: fallback
+            if (externalLive) DataSource.RACEBOX else DataSource.PHONE
         }
+        else -> DataSource.WHEEL
     }
 }
 
