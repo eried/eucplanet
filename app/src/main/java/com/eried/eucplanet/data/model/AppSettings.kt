@@ -1,13 +1,16 @@
 package com.eried.eucplanet.data.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.eried.eucplanet.R
 
-@Entity(tableName = "app_settings")
+/**
+ * The full set of rider preferences. Lives in DataStore as one JSON blob
+ * ([com.eried.eucplanet.data.store.SettingsStore]) so adding a new field is
+ * just a one-line data-class change — no DB migration, no risk of losing
+ * rider state on upgrade. The `id` field is a no-op legacy artifact kept so
+ * older code that copy()'d with `id = 1` still compiles.
+ */
 data class AppSettings(
-    @PrimaryKey val id: Int = 1,
+    val id: Int = 1,
 
     // Connection
     val lastDeviceAddress: String? = null,
@@ -19,7 +22,6 @@ data class AppSettings(
     //   "BACKGROUND" — silently send the activity to background, service keeps running
     //   "STOP_ALL"   — stop the service and finish the activity
     // Storage keys are language-independent so locale switches don't break the setting.
-    @ColumnInfo(defaultValue = "ASK")
     val backButtonAction: String = "ASK",
 
     // Speed settings (sent to wheel) - the "normal" mode values
@@ -38,7 +40,6 @@ data class AppSettings(
      * [com.eried.eucplanet.data.model.WheelProfile] so reconnecting restores
      * the rider's chosen calibration.
      */
-    @ColumnInfo(defaultValue = "0")
     val speedCalibrationOffsetPct: Float = 0f,
 
     // Voice
@@ -46,10 +47,8 @@ data class AppSettings(
     // Independent toggle for the periodic (every N seconds) status announcements. When false,
     // voice still works for triggered events (manual button, Flic, alarms) but the periodic
     // loop is silent. Toggled from the dashboard via long-press on the Voice action.
-    @ColumnInfo(defaultValue = "1")
     val voicePeriodicEnabled: Boolean = true,
     val voiceOnlyWhenConnected: Boolean = true,
-    @ColumnInfo(defaultValue = "60")
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
@@ -92,9 +91,7 @@ data class AppSettings(
     val autoRecord: Boolean = true,
     // Motion-linked loop: wait for speed > 0 to start recording, auto-stop after idle timeout,
     // restart on next motion. When false, recording starts at connect and runs until disconnect.
-    @ColumnInfo(defaultValue = "1")
     val autoRecordStartInMotion: Boolean = true,
-    @ColumnInfo(defaultValue = "180")
     val autoRecordStopIdleSeconds: Int = 180,
 
     // Flic button 1
@@ -112,27 +109,17 @@ data class AppSettings(
     val flic2Hold: String = "SAFETY_ON",
 
     // Flic button 3
-    @ColumnInfo(defaultValue = "NULL")
     val flic3Address: String? = null,
-    @ColumnInfo(defaultValue = "Button 3")
     val flic3Name: String = "Button 3",
-    @ColumnInfo(defaultValue = "NONE")
     val flic3Click: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val flic3DoubleClick: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val flic3Hold: String = "NONE",
 
     // Flic button 4
-    @ColumnInfo(defaultValue = "NULL")
     val flic4Address: String? = null,
-    @ColumnInfo(defaultValue = "Button 4")
     val flic4Name: String = "Button 4",
-    @ColumnInfo(defaultValue = "NONE")
     val flic4Click: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val flic4DoubleClick: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val flic4Hold: String = "NONE",
 
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
@@ -146,15 +133,12 @@ data class AppSettings(
     // Baseline starts at -1 (uninitialized) and is captured from the system music volume on first
     // tick after enable. Manual volume changes during motion rebase: baseline = manual / multiplier.
     val autoVolumeEnabled: Boolean = false,
-    @ColumnInfo(defaultValue = "0:1.0,25:1.0,50:1.5,75:2.0")
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
-    @ColumnInfo(defaultValue = "-1")
     val autoVolumeBaselinePercent: Int = -1,
 
     // Display units
     val imperialUnits: Boolean = false,
 
-    @ColumnInfo(defaultValue = "0")
     val phoneKeepScreenOn: Boolean = false,
 
     // Volume keys (work while app is in foreground)
@@ -174,18 +158,13 @@ data class AppSettings(
     // accentColor: key into the accent palette
     val accentColor: String = "default",
     // Colored danger-zone band behind the speed arc (yellow/orange/red thresholds).
-    @ColumnInfo(defaultValue = "0")
     val showGaugeColorBand: Boolean = false,
     // Percentages of the full speed sweep where orange and red zones begin (yellow fills below orange).
-    @ColumnInfo(defaultValue = "65")
     val gaugeOrangeThresholdPct: Int = 65,
-    @ColumnInfo(defaultValue = "85")
     val gaugeRedThresholdPct: Int = 85,
     // Haptic feedback on dashboard action button taps.
-    @ColumnInfo(defaultValue = "1")
     val hapticFeedback: Boolean = true,
     // "AMPS" or "WATTS" — long-press the amps card to switch.
-    @ColumnInfo(defaultValue = "AMPS")
     val currentDisplayMode: String = "AMPS",
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
@@ -195,11 +174,8 @@ data class AppSettings(
     // External BLE GPS pairing (RaceBox today; future Draggy/VBox/etc. share this slot).
     // Three values stored: BLE MAC, advertised name (for display), and the source-family
     // enum name as a string ("RACEBOX") so we know which adapter to instantiate on connect.
-    @ColumnInfo(defaultValue = "NULL")
     val externalGpsAddress: String? = null,
-    @ColumnInfo(defaultValue = "NULL")
     val externalGpsName: String? = null,
-    @ColumnInfo(defaultValue = "NULL")
     val externalGpsSource: String? = null,
 
     // RaceBox accelerometer axis remap. The device can be mounted in any
@@ -209,11 +185,8 @@ data class AppSettings(
     // output axis. Allowed values: "X", "-X", "Y", "-Y", "Z", "-Z".
     // Identity (X→X, Y→Y, Z→Z) is the default and covers a wheel-pedal mount
     // with the box's logo facing up.
-    @ColumnInfo(defaultValue = "X")
     val raceboxMapX: String = "X",
-    @ColumnInfo(defaultValue = "Y")
     val raceboxMapY: String = "Y",
-    @ColumnInfo(defaultValue = "Z")
     val raceboxMapZ: String = "Z",
     /**
      * Master switch for additional GPS data. When OFF (default), the app
@@ -222,23 +195,18 @@ data class AppSettings(
      * dashboard dot. When ON, samples flow from the phone or an external box
      * per [gpsPrioritizeExternal].
      */
-    @ColumnInfo(defaultValue = "0")
     val gpsLogAdditional: Boolean = false,
     /**
      * When ON and an external GPS box is connected, its samples are the
      * dashboard's "extra speed" source. When OFF (or when no external box is
      * available) the phone's own GPS speed is used instead.
      */
-    @ColumnInfo(defaultValue = "1")
     val gpsPrioritizeExternal: Boolean = true,
     /** Show the extra-GPS speed indicator on the dashboard speed dial. */
-    @ColumnInfo(defaultValue = "1")
     val gpsShowOnDashboard: Boolean = true,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
-    @ColumnInfo(defaultValue = "1")
     val watchKeepScreenOn: Boolean = true,
-    @ColumnInfo(defaultValue = "1")
     val watchAutoStart: Boolean = true,
     /**
      * When the user picks "Stop all" from the phone exit dialog, also close
@@ -246,27 +214,19 @@ data class AppSettings(
      * the phone tears the session down. On by default since the watch app
      * has no value without the phone feeding it telemetry.
      */
-    @ColumnInfo(defaultValue = "1")
     val watchCloseOnExit: Boolean = true,
-    @ColumnInfo(defaultValue = "1")
     val watchShowWheelBattery: Boolean = true,
-    @ColumnInfo(defaultValue = "1")
     val watchShowPhoneBattery: Boolean = true,
-    @ColumnInfo(defaultValue = "1")
     val watchShowWatchBattery: Boolean = true,
     /** "BAR", "NUMBERS", or "BOTH". */
-    @ColumnInfo(defaultValue = "BOTH")
     val watchPwmDisplay: String = "BOTH",
-    @ColumnInfo(defaultValue = "1")
     val watchShowSpeedUnit: Boolean = true,
-    @ColumnInfo(defaultValue = "0")
     val watchEnableGpsSpeed: Boolean = false,
     /**
      * When true the watch dial inverts the size hierarchy on its first screen:
      * the PWM bar + number become the focal element, the speed reading shrinks.
      * Useful when the rider cares more about cutout headroom than current speed.
      */
-    @ColumnInfo(defaultValue = "0")
     val watchPrioritizePwm: Boolean = false,
     /**
      * Virtual rotation applied to the watch's first screen only, in degrees
@@ -274,7 +234,6 @@ data class AppSettings(
      * their wrist orientation when the wheel is in motion. Doesn't affect the
      * other watch screens or any phone UI.
      */
-    @ColumnInfo(defaultValue = "0")
     val watchDialRotationDeg: Int = 0,
 
     /**
@@ -286,13 +245,9 @@ data class AppSettings(
      * KEYCODE_STEM_* in MainActivity, and either fires a local control
      * intent or routes to the phone over /euc/control.
      */
-    @ColumnInfo(defaultValue = "NONE")
     val watchStem1Click: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val watchStem1Hold: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val watchStem2Click: String = "NONE",
-    @ColumnInfo(defaultValue = "NONE")
     val watchStem2Hold: String = "NONE",
 
     /**
@@ -302,20 +257,15 @@ data class AppSettings(
      * most-used controls (Horn, Light) so out-of-the-box behavior matches
      * the previous hardcoded buttons.
      */
-    @ColumnInfo(defaultValue = "HORN")
     val watchScreen1Click: String = "HORN",
-    @ColumnInfo(defaultValue = "NONE")
     val watchScreen1Hold: String = "NONE",
-    @ColumnInfo(defaultValue = "LIGHT_TOGGLE")
     val watchScreen2Click: String = "LIGHT_TOGGLE",
-    @ColumnInfo(defaultValue = "NONE")
     val watchScreen2Hold: String = "NONE",
 
     /**
      * If true, the watch vibrates briefly whenever a button-bound action
      * fires (tap or hold) so the user gets tactile confirmation.
      */
-    @ColumnInfo(defaultValue = "1")
     val watchHapticOnAction: Boolean = true,
 
     // --- Motor Sound generator ---
@@ -323,20 +273,16 @@ data class AppSettings(
     // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
     // through the media stream so it mixes with music; the user controls how it
     // behaves under voice announces via [engineDuckOnVoice].
-    @ColumnInfo(defaultValue = "0")
     val engineSoundEnabled: Boolean = false,
     /** Preset key. See [com.eried.eucplanet.audio.EngineProfile.PROFILES]. */
-    @ColumnInfo(defaultValue = "FOUR_STROKE_SINGLE")
     val engineType: String = "FOUR_STROKE_SINGLE",
     /** In-app gain 0..1 over the media stream. */
-    @ColumnInfo(defaultValue = "0.6")
     val engineVolume: Float = 0.6f,
     /**
      * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
      * could disable the speed curve. The current UI always uses the curve so this field
      * is unused — kept only for backup/sync compatibility with v0.5.x exports.
      */
-    @ColumnInfo(defaultValue = "0")
     val engineVolumeAutoEnabled: Boolean = false,
     /**
      * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
@@ -345,31 +291,22 @@ data class AppSettings(
      * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
      * silent at top.
      */
-    @ColumnInfo(defaultValue = "0:1.00,25:0.10,50:0.10,75:0.00")
     val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
     /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
-    @ColumnInfo(defaultValue = "HALF")
     val engineMuffler: String = "HALF",
     /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
-    @ColumnInfo(defaultValue = "FOUR")
     val engineGearbox: String = "FOUR",
     /** "ALWAYS" (always idling when connected), "FADE" (fade after parked), "MOVING" (only when moving). */
-    @ColumnInfo(defaultValue = "FADE")
     val engineIdleBehavior: String = "FADE",
     /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
-    @ColumnInfo(defaultValue = "STANDARD")
     val engineDecelChar: String = "STANDARD",
     /** "OFF", "LIGHT", "STRONG" — engine-brake whine layered during sustained decel/regen. */
-    @ColumnInfo(defaultValue = "LIGHT")
     val engineBrake: String = "LIGHT",
     /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
-    @ColumnInfo(defaultValue = "DUCK")
     val engineDuckOnVoice: String = "DUCK",
     /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
-    @ColumnInfo(defaultValue = "0")
     val engineHeadphonesOnly: Boolean = false,
     /** True once the one-time safety disclosure has been acknowledged. */
-    @ColumnInfo(defaultValue = "0")
     val engineSafetyShown: Boolean = false
 )
 

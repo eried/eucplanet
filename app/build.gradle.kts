@@ -27,8 +27,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 70
-        versionName = "0.6.7"
+        versionCode = 71
+        versionName = "0.6.8"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -105,6 +105,11 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+    // DataStore (settings live here as a single JSON blob so schema bumps
+    // never wipe rider configuration — Room is reserved for trips, alarms
+    // and per-wheel profiles, which get real migrations.)
+    implementation(libs.datastore.preferences)
 
     // Hilt
     implementation(libs.hilt.android)

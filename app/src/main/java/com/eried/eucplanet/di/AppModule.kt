@@ -1,17 +1,23 @@
 package com.eried.eucplanet.di
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.util.Log
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.AppDatabase
-import com.eried.eucplanet.data.db.SettingsDao
 import com.eried.eucplanet.data.db.TripDao
+import com.eried.eucplanet.data.store.SettingsJson
+import com.eried.eucplanet.data.store.SettingsStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
+import org.json.JSONObject
 import javax.inject.Singleton
 
 @Module
@@ -23,22 +29,88 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideSettingsStore(@ApplicationContext context: Context): SettingsStore {
+        val store = SettingsStore(context)
+        copyLegacyRoomSettingsIfPresent(context, store)
+        return store
+    }
+
+    @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return openOrRecover(context)
     }
 
     /**
-     * Build the Room database with destructive fallback on both upgrade and
-     * downgrade. If the first open still fails (the usual culprit being a
-     * schema identity-hash mismatch at the same version number, which Room's
-     * fallback machinery does NOT cover), delete the database file and
-     * rebuild from scratch. The user loses local settings in that case, which
-     * is a tiny cost compared to an unrecoverable crash on every cold start.
+     * If a pre-v45 database is on disk with a populated `app_settings` row,
+     * serialise it into DataStore before Room runs its migrations. This makes
+     * the upgrade non-destructive for the rider's toggle list. Idempotent —
+     * [SettingsStore.seedIfAbsent] only writes when DataStore is still empty.
+     */
+    private fun copyLegacyRoomSettingsIfPresent(context: Context, store: SettingsStore) {
+        val dbFile = context.getDatabasePath(DB_NAME)
+        if (!dbFile.exists()) return
+        var sqlite: SQLiteDatabase? = null
+        try {
+            sqlite = SQLiteDatabase.openDatabase(
+                dbFile.path,
+                null,
+                SQLiteDatabase.OPEN_READONLY
+            )
+            val cursor = sqlite.rawQuery(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='app_settings'",
+                null
+            )
+            val tableExists = cursor.use { it.moveToFirst() }
+            if (!tableExists) return
+            val row = sqlite.rawQuery("SELECT * FROM app_settings WHERE id = 1", null)
+            row.use { c ->
+                if (!c.moveToFirst()) return
+                val json = JSONObject().apply {
+                    for (i in 0 until c.columnCount) {
+                        val name = c.getColumnName(i)
+                        if (name == "id") continue
+                        when (c.getType(i)) {
+                            android.database.Cursor.FIELD_TYPE_NULL -> { /* skip */ }
+                            android.database.Cursor.FIELD_TYPE_INTEGER -> put(name, c.getLong(i))
+                            android.database.Cursor.FIELD_TYPE_FLOAT -> put(name, c.getDouble(i))
+                            android.database.Cursor.FIELD_TYPE_STRING -> put(name, c.getString(i))
+                            android.database.Cursor.FIELD_TYPE_BLOB -> { /* skip */ }
+                        }
+                    }
+                }
+                val imported = SettingsJson.fromJson(json)
+                runBlocking { store.seedIfAbsent(imported) }
+                Log.i(TAG, "Migrated legacy app_settings row into DataStore")
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "Legacy settings migration skipped: ${t.message}")
+        } finally {
+            runCatching { sqlite?.close() }
+        }
+    }
+
+    /**
+     * v44 -> v45: drop the now-orphan `app_settings` table. Settings have
+     * already been copied into DataStore by [copyLegacyRoomSettingsIfPresent].
+     */
+    private val MIGRATION_44_45 = object : Migration(44, 45) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP TABLE IF EXISTS app_settings")
+        }
+    }
+
+    /**
+     * Build the Room database with the v44->v45 migration. If the open still
+     * fails (e.g. a future identity-hash mismatch from a forgotten migration),
+     * wipe the DB file and rebuild — trip / alarm / profile loss is regrettable
+     * but better than an unrecoverable crash on every cold start. Settings
+     * stay safe in DataStore regardless.
      */
     private fun openOrRecover(context: Context): AppDatabase {
         val first = buildDb(context)
         return try {
-            first.openHelper.writableDatabase  // forces identity + integrity check
+            first.openHelper.writableDatabase
             first
         } catch (t: Throwable) {
             Log.w(TAG, "DB open failed, wiping and rebuilding: ${t.message}")
@@ -52,12 +124,8 @@ object AppModule {
 
     private fun buildDb(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-            .fallbackToDestructiveMigration()
-            .fallbackToDestructiveMigrationOnDowngrade()
+            .addMigrations(MIGRATION_44_45)
             .build()
-
-    @Provides
-    fun provideSettingsDao(db: AppDatabase): SettingsDao = db.settingsDao()
 
     @Provides
     fun provideTripDao(db: AppDatabase): TripDao = db.tripDao()
