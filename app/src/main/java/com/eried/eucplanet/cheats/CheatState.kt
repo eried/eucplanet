@@ -88,7 +88,7 @@ class CheatState @Inject constructor() {
             val mul = _speedDisplayMultiplier.value
             val daredevilState = if (mul == 1f) State.Off else State.Value("%.2fx".format(mul))
             return Result.ShowSheet(
-                title = "EUC Planet",
+                title = "Quick commands",
                 rows = listOf(
                     Row("daredevilN", "Display-only speed multiplier", daredevilState),
                     Row("godmode", "Mute all alarms", State.Bool(_godmode.value)),
