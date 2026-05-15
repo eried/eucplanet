@@ -61,6 +61,17 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     @Volatile private var settingsSnapshot: WheelSettings = WheelSettings()
 
     /**
+     * Last seen value of the DriveFlags bitfield (param 0xD3). Bit 0 is DRL,
+     * bit 1 is tail-light, bit 2 is headlight. We cache the whole byte so
+     * [setLight] / [setDRL] can read-modify-write a single bit without
+     * clobbering the others (a fresh-factory wheel happens to have most
+     * bits zero, but a rider who's enabled DRL via the official app would
+     * otherwise see DRL turn off the first time they touch the in-app
+     * headlight toggle).
+     */
+    @Volatile private var lastDriveFlags: Int = 0
+
+    /**
      * Round-robin pointer into [Z_SETTINGS_QUERIES]. Settings poll cycles
      * through one read per tick so the wheel isn't asked for everything on
      * every poll.
@@ -150,9 +161,14 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     override fun horn(): ByteArray? = null // Z has no documented horn opcode (spec section 19).
 
     override fun setLight(on: Boolean): ByteArray? = when (activeProtocol) {
-        // Map "on" to LED mode 1 (first preset pattern), "off" to mode 0.
-        // The DRL bit in DriveFlags is exposed separately via [setDRL].
-        NinebotProtocol.Z -> encryptForSend(NinebotCommands.setLedMode(if (on) 1 else 0))
+        // The Z headlight is bit 2 of DriveFlags (param 0xD3), NOT the LED
+        // preset (0xC6). We previously wrote `setLedMode(1)` here which
+        // toggles the rainbow light-show pattern, not the actual headlight.
+        // Read-modify-write so DRL (bit 0) and tail-light (bit 1) stay put.
+        NinebotProtocol.Z -> {
+            val flags = if (on) lastDriveFlags or 0x04 else lastDriveFlags and 0x04.inv()
+            encryptForSend(NinebotCommands.setDriveFlags(flags))
+        }
         NinebotProtocol.LEGACY -> null
     }
 
@@ -195,12 +211,12 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     }
 
     override fun setDRL(on: Boolean): ByteArray? = when (activeProtocol) {
-        // Bit 0 of DriveFlags is DRL. We don't yet have visibility into the
-        // current value of the other bits (it'll arrive on the next 0xD3
-        // poll), so we conservatively only flip bit 0 and zero the rest —
-        // matches what a fresh-factory wheel ships with. A future revision
-        // should read-modify-write once we cache the last read value.
-        NinebotProtocol.Z -> encryptForSend(NinebotCommands.setDriveFlags(if (on) 0x01 else 0x00))
+        // Bit 0 of DriveFlags is DRL. Read-modify-write so headlight (bit 2)
+        // and tail-light (bit 1) stay put.
+        NinebotProtocol.Z -> {
+            val flags = if (on) lastDriveFlags or 0x01 else lastDriveFlags and 0x01.inv()
+            encryptForSend(NinebotCommands.setDriveFlags(flags))
+        }
         NinebotProtocol.LEGACY -> null
     }
 
@@ -312,6 +328,9 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
             }
             NinebotCommands.Param.DRIVE_FLAGS -> {
                 val flags = parser.parseZDriveFlags(frame.data) ?: return emptyList()
+                // Cache the whole byte so subsequent setLight / setDRL writes
+                // can read-modify-write a single bit without zeroing the rest.
+                lastDriveFlags = flags
                 val drl = (flags and 0x01) != 0
                 settingsSnapshot = settingsSnapshot.copy(drl = drl)
                 listOf(DecodeResult.Settings(settingsSnapshot))

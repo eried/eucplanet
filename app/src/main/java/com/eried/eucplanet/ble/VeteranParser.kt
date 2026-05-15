@@ -182,25 +182,37 @@ class VeteranParser {
             val rawCurrent = ByteUtils.getInt16BE(frame, 16)
             val rawTempC = ByteUtils.getInt16BE(frame, 18)
 
+            // mVer from offset 28 (u16 BE / 1000 per WheelLog convention).
+            // When non-zero this is the authoritative source for model id,
+            // battery curve, PWM gate, beep variant, and cell count —
+            // overrides the BLE-name match because many wheels advertise
+            // as a generic "Veteran-xxxx" with no model token.
+            val rawVersion = if (frame.size >= 30) ByteUtils.getUint16BE(frame, 28) else 0
+            val mVer = rawVersion / 1000
+            val resolvedModel = VeteranModel.fromMVer(mVer) ?: model
+
             val voltage = voltageCv / 100f
             val speedKmh = applySignMode(rawSpeed, signedSpeedMode) / 10f
+            // Note: this offset carries PHASE current per WheelLog's
+            // setPhaseCurrent. We expose it on the `current` field for now;
+            // downstream consumers that need bus current have to derive
+            // it from phase * pwm / 100.
             val current = applySignMode(rawCurrent, signedSpeedMode) / 10f
             val tripKm = rawTrip / 1000f
             val totalKm = rawTotal / 1000f
             val tempC = rawTempC / 100f
 
-            // Hardware PWM is only meaningful on model >= 2 (Abrams onwards
-            // per spec). Older firmwares put garbage there; computing PWM
-            // locally from speed+current is left to a higher layer because
-            // it needs the rider's reported max-speed.
-            val pwm = if (frame.size >= 36 && hasValidPwm(model)) {
+            // Hardware PWM is only meaningful on mVer >= 2 (Abrams onwards
+            // per spec). Older firmwares put garbage there. Fall back to
+            // the model-based gate when mVer is unknown.
+            val pwm = if (frame.size >= 36 && (mVer >= 2 || hasValidPwm(resolvedModel))) {
                 ByteUtils.getUint16BE(frame, 34) / 100f
             } else 0f
 
             // Pitch angle in hundredths of a degree, signed. Positive forward.
             val pitch = if (frame.size >= 34) ByteUtils.getInt16BE(frame, 32) / 100f else 0f
 
-            val percent = batteryPercentForModel(voltageCv, model)
+            val percent = batteryPercentForModel(voltageCv, resolvedModel)
 
             return WheelData(
                 speed = speedKmh,
@@ -318,35 +330,45 @@ class VeteranParser {
          * Spec: docs/protocols/veteran.md section 7.
          */
         private fun batteryPercentForModel(voltageCv: Int, model: VeteranModel?): Int {
-            // We pick the curve from the resolved model when known; otherwise
-            // use the nominal-voltage hint on VeteranModel as a coarse
-            // disambiguator. Spec groups Sherman/Sherman S/Sherman Max/Abrams
-            // under the 24-cell 100V class even though the user-facing
-            // VeteranModel.nominalVoltage tags Abrams as 168V — the spec
-            // ranges win because the wheel reports raw centivolts.
+            // Pick the per-pack-class curve. Per WheelLog, Sherman / Abrams /
+            // Sherman S / Sherman Max all share the 100 V 24-cell range,
+            // 134 V wheels (Patton + Patton S + Nosfet Aero) share their
+            // own range, and 151 V wheels (Lynx + Sherman L + Lynx S +
+            // Nosfet Apex + Nosfet Aeon) share theirs. Oryx is dual-pack
+            // 218 V — scaled from the 151 V curve since WheelLog's exact
+            // coefficients for that model weren't published when this was
+            // written; flagged for refinement once an Oryx rider can sanity
+            // check the readout.
             val percent = when (model) {
-                VeteranModel.SHERMAN, VeteranModel.SHERMAN_S, VeteranModel.SHERMAN_MAX,
-                VeteranModel.ABRAMS, null ->
-                    ((voltageCv - 7935) / 19.5f).roundToInt()
-                VeteranModel.PATTON ->
+                VeteranModel.PATTON,
+                VeteranModel.PATTON_S,
+                VeteranModel.NOSFET_AERO ->
                     ((voltageCv - 9918) / 24.2f).roundToInt()
-                VeteranModel.LYNX ->
+                VeteranModel.LYNX,
+                VeteranModel.LYNX_S,
+                VeteranModel.SHERMAN_L,
+                VeteranModel.NOSFET_APEX,
+                VeteranModel.NOSFET_AEON ->
                     ((voltageCv - 11902) / 29.03f).roundToInt()
+                VeteranModel.ORYX ->
+                    ((voltageCv - 17186) / 41.92f).roundToInt()
+                // SHERMAN / ABRAMS / SHERMAN_S / SHERMAN_MAX / null all share
+                // the 24-cell 100 V range.
+                else ->
+                    ((voltageCv - 7935) / 19.5f).roundToInt()
             }
             return percent.coerceIn(0, 100)
         }
 
         /**
-         * Per spec, hardware PWM at offsets 34..35 is only valid on model >= 2
+         * Per spec, hardware PWM at offsets 34..35 is only valid on mVer >= 2
          * firmwares (Abrams onwards). For the older 100 V Sherman family the
          * field carries garbage; callers should compute PWM locally from
-         * speed+current there. We approximate the model gate by enum identity
-         * because the firmware version byte is only present mid-frame and is
-         * consumed by the same parser pass.
+         * speed+current there. The mVer-based gate in `parseTelemetry` takes
+         * precedence over this fallback when the version byte is present.
          */
         private fun hasValidPwm(model: VeteranModel?): Boolean = when (model) {
-            VeteranModel.SHERMAN -> false
-            null -> false
+            VeteranModel.SHERMAN, null -> false
             else -> true
         }
     }

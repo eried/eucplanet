@@ -290,7 +290,11 @@ class BegodeParser {
      */
     private fun parseExtras(frame: ByteArray): WheelData? {
         hasExtras = true
-        val battCurrent = ByteUtils.getInt16BE(frame, 2) / 100f
+        // WheelLog inverts the sign here (`setCurrent((-1) * batteryCurrent)`)
+        // so positive current means motoring and negative means regen — the
+        // convention used everywhere else in the app. Without the flip the
+        // dashboard reads backwards during acceleration vs braking.
+        val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
         val motorTempC = ByteUtils.getInt16BE(frame, 6).toFloat()
         val truePwm = ByteUtils.getInt16BE(frame, 8) / 100f
 
