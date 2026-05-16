@@ -4,9 +4,14 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +35,10 @@ import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
@@ -164,6 +172,68 @@ fun SettingsScreen(
     val isConnected by viewModel.isConnected.collectAsState()
     val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    var cheatSheet by remember { mutableStateOf<com.eried.eucplanet.cheats.CheatState.Result.ShowSheet?>(null) }
+    cheatSheet?.let { sheet ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { cheatSheet = null },
+            title = { Text(sheet.title) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    sheet.rows.forEach { row ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    row.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    row.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            val s = row.state
+                            when (s) {
+                                is com.eried.eucplanet.cheats.CheatState.State.Bool -> {
+                                    Icon(
+                                        imageVector = if (s.on) Icons.Filled.CheckCircle
+                                                      else Icons.Outlined.RadioButtonUnchecked,
+                                        contentDescription = if (s.on) "on" else "off",
+                                        tint = if (s.on) MaterialTheme.colorScheme.primary
+                                               else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Value -> {
+                                    Text(
+                                        s.text,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Off -> {
+                                    Icon(
+                                        imageVector = Icons.Outlined.RadioButtonUnchecked,
+                                        contentDescription = "off",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                is com.eried.eucplanet.cheats.CheatState.State.Action -> { /* no indicator */ }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { cheatSheet = null }) {
+                    Text(stringResource(R.string.action_ok))
+                }
+            }
+        )
+    }
     val expandedSections = rememberSaveable(
         saver = androidx.compose.runtime.saveable.listSaver(
             save = { it.toList() },
@@ -415,16 +485,24 @@ fun SettingsScreen(
                             onSearch = {
                                 val result = viewModel.cheatState.tryConsume(searchQuery)
                                 if (result != null) {
-                                    Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
-                                    if (result is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl) {
-                                        try {
-                                            ctxLocal.startActivity(
-                                                android.content.Intent(
-                                                    android.content.Intent.ACTION_VIEW,
-                                                    android.net.Uri.parse(result.url)
-                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            )
-                                        } catch (_: Throwable) { /* no browser installed — toast still shown */ }
+                                    when (result) {
+                                        is com.eried.eucplanet.cheats.CheatState.Result.ShowSheet -> {
+                                            cheatSheet = result
+                                        }
+                                        is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl -> {
+                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                            try {
+                                                ctxLocal.startActivity(
+                                                    android.content.Intent(
+                                                        android.content.Intent.ACTION_VIEW,
+                                                        android.net.Uri.parse(result.url)
+                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                )
+                                            } catch (_: Throwable) { /* no browser installed */ }
+                                        }
+                                        is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
+                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                     searchQuery = ""
                                 }
@@ -514,6 +592,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     else -> null
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CollapsibleSection(
     title: String,
@@ -524,8 +603,22 @@ private fun CollapsibleSection(
     query: String = "",
     content: @Composable () -> Unit
 ) {
+    // Bring the section header into view when the rider opens a section
+    // whose freshly-revealed content would otherwise land below the
+    // viewport. The delay lets Compose place the new content first; without
+    // it the requester anchors on the still-collapsed card and the parent
+    // scroll doesn't move far enough.
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(80)
+            runCatching { requester.bringIntoView() }
+        }
+    }
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(requester),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -578,6 +671,7 @@ private fun GeneralTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_recording))
+        BringIntoViewSection(expanded = settings.autoRecord) {
         SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
         HintText(stringResource(R.string.auto_record_caption), small = true)
         if (settings.autoRecord) {
@@ -603,6 +697,7 @@ private fun GeneralTab(
                 )
             }
         }
+        }   // end autoRecord BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
@@ -675,6 +770,10 @@ private fun DisplayTab(
             viewModel.updateImperialUnits(it)
         }
 
+        SwitchSetting(stringResource(R.string.phone_keep_screen_on), settings.phoneKeepScreenOn) {
+            viewModel.updatePhoneKeepScreenOn(it)
+        }
+
         SimpleDropdown(
             label = stringResource(R.string.language),
             currentKey = settings.language,
@@ -732,9 +831,28 @@ private fun SpeedTab(
             InfoHint(stringResource(R.string.speed_limits_disconnected))
         }
 
-        SectionHeader(stringResource(R.string.section_speed_limits))
-
         val imperial = settings.imperialUnits
+
+        // --- Speed calibration ---
+        // Sits ABOVE the speed-limit sliders since the calibrated value is
+        // what the limits compare against. Always visible — disabled when no
+        // wheel is connected because the value is keyed by the wheel's BLE
+        // name and only loaded once we know which wheel we're talking to.
+        SectionHeader(stringResource(R.string.section_speed_calibration))
+        HintText(stringResource(R.string.speed_calibration_caption), small = true)
+        val calPct = settings.speedCalibrationOffsetPct
+        SliderSetting(
+            label = stringResource(R.string.speed_calibration_label),
+            value = calPct,
+            range = -15f..15f,
+            unit = "%",
+            steps = 299,
+            valueText = "%+.1f %%".format(calPct),
+            enabled = isConnected,
+            onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }
+        )
+
+        SectionHeader(stringResource(R.string.section_speed_limits))
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
@@ -819,6 +937,7 @@ private fun VoiceTab(
 
         SectionHeader(stringResource(R.string.section_announcements))
 
+        BringIntoViewSection(expanded = settings.voiceEnabled) {
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
@@ -836,6 +955,7 @@ private fun VoiceTab(
                 onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
             )
         }
+        }   // end voiceEnabled BringIntoViewSection
 
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
@@ -1105,29 +1225,38 @@ private fun FlicTab(
         }
 
         // Scan section — only shown when there's an empty slot to fill.
+        // Layout matches Volume Keys: hint sits outside the card as small italic
+        // body text, action button sits inside the card and stretches full width
+        // for an obvious tap target.
         val allSlotsFull = settings.flic1Address != null && settings.flic2Address != null &&
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
-            HintText(stringResource(R.string.flic_scan_hint))
-            Spacer(Modifier.height(12.dp))
-            if (scanning) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Button(
+            HintText(stringResource(R.string.flic_scan_hint), small = true)
+            // No outer card here either — its 16 dp inner padding pushed
+            // the button right of the hint above. Spinner + button now sit
+            // directly in the section column so they share the column edge.
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (scanning) {
+                    CircularProgressIndicator(modifier = Modifier.padding(vertical = 4.dp))
+                    LeftAlignedScanButton(
+                        label = stringResource(R.string.flic_stop_scan),
                         onClick = { viewModel.stopScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
-                    ) { Text(stringResource(R.string.flic_stop_scan)) }
-                    Spacer(Modifier.width(12.dp))
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                }
-            } else {
-                Button(onClick = { viewModel.startScan() }) {
-                    Text(stringResource(R.string.flic_start_scan))
+                        containerColor = AccentRed
+                    )
+                } else {
+                    LeftAlignedScanButton(
+                        label = stringResource(R.string.flic_start_scan),
+                        onClick = { viewModel.startScan() }
+                    )
                 }
             }
         }
 
+        ExternalGpsSection()
+
         SectionHeader(stringResource(R.string.section_volume_keys))
         HintText(stringResource(R.string.volume_keys_caption), small = true)
+        BringIntoViewSection(expanded = settings.volumeKeysEnabled) {
         SwitchSetting(stringResource(R.string.volume_keys_enable), settings.volumeKeysEnabled) {
             settingsViewModel.updateVolumeKeysEnabled(it)
         }
@@ -1159,6 +1288,7 @@ private fun FlicTab(
                 }
             }
         }
+        }   // end volumeKeysEnabled BringIntoViewSection
 
     }
 }
@@ -1373,6 +1503,10 @@ private fun CloudTab(
     val syncRunning by viewModel.syncRunning.collectAsState()
     val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
+    var showBackupNameDialog by remember { mutableStateOf(false) }
+    var backupNameDraft by remember { mutableStateOf("") }
+    var overwritePrompt by remember { mutableStateOf<String?>(null) }
+    var showRestorePicker by remember { mutableStateOf(false) }
 
     val pickFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -1394,7 +1528,12 @@ private fun CloudTab(
             CloudEvent.FolderSet -> null
             CloudEvent.FolderFailed -> sFolderFailed
             CloudEvent.BackupSuccess -> sBackupOk
+            is CloudEvent.BackupNamedSuccess -> context.getString(R.string.cloud_backup_named_success, event.name)
             CloudEvent.BackupFailed -> sBackupFail
+            is CloudEvent.BackupExists -> {
+                overwritePrompt = event.name
+                null
+            }
             CloudEvent.RestoreSuccess -> sRestoreOk
             CloudEvent.RestoreFailed -> sRestoreFail
             CloudEvent.UploadEnqueued -> sEnqueued
@@ -1403,6 +1542,64 @@ private fun CloudTab(
         }
         if (msg != null) Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         viewModel.consumeCloudEvent()
+    }
+
+    if (showBackupNameDialog) {
+        NamedBackupDialog(
+            initial = backupNameDraft,
+            onDismiss = {
+                showBackupNameDialog = false
+                backupNameDraft = ""
+            },
+            onSave = { name ->
+                showBackupNameDialog = false
+                backupNameDraft = name
+                viewModel.backupSettingsNamed(name, overwrite = false)
+            },
+            sanitize = viewModel::sanitizeBackupName
+        )
+    }
+
+    overwritePrompt?.let { pendingName ->
+        AlertDialog(
+            onDismissRequest = {
+                // Treat tap-outside the same as Cancel — return to the name
+                // input with the previous text preserved so the rider can
+                // adjust the name instead of losing what they typed.
+                overwritePrompt = null
+                backupNameDraft = pendingName
+                showBackupNameDialog = true
+            },
+            title = { Text(stringResource(R.string.cloud_backup_overwrite_title, pendingName)) },
+            text = { Text(stringResource(R.string.cloud_backup_overwrite_body)) },
+            confirmButton = {
+                Button(onClick = {
+                    overwritePrompt = null
+                    backupNameDraft = ""
+                    viewModel.backupSettingsNamed(pendingName, overwrite = true)
+                }) { Text(stringResource(R.string.action_overwrite)) }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    overwritePrompt = null
+                    backupNameDraft = pendingName
+                    showBackupNameDialog = true
+                }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    if (showRestorePicker) {
+        RestorePickerDialog(
+            onDismiss = { showRestorePicker = false },
+            loadEntries = { viewModel.listBackups() },
+            onPicked = { entry ->
+                showRestorePicker = false
+                viewModel.restoreSettingsFrom(entry.fileName)
+            }
+        )
     }
 
     if (syncConflict != null) {
@@ -1473,9 +1670,47 @@ private fun CloudTab(
         CloudHelpCard()
 
         if (hasFolder) {
+            val openFolderInBrowser: () -> Unit = openFolder@{
+                val uri = settings.syncFolderUri ?: return@openFolder
+                val treeUri = android.net.Uri.parse(uri)
+                // The raw tree URI lands in the DocumentsUI root for most
+                // browsers. Convert to a document URI that points at the
+                // tree's own document id so the browser opens *inside* the
+                // rider's chosen folder rather than its provider root.
+                val docUri = runCatching {
+                    val docId = android.provider.DocumentsContract.getTreeDocumentId(treeUri)
+                    android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+                }.getOrNull() ?: treeUri
+                val openIntent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    setDataAndType(
+                        docUri,
+                        android.provider.DocumentsContract.Document.MIME_TYPE_DIR
+                    )
+                    addFlags(
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    )
+                }
+                runCatching { context.startActivity(openIntent) }
+                    .onFailure {
+                        // Fallback for ROMs whose Files app doesn't handle the
+                        // document URI directly — try the raw tree URI as a
+                        // last resort. Some browsers still land at the root,
+                        // but at least the click does something visible.
+                        val fallback = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            .setDataAndType(treeUri, "*/*")
+                            .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        runCatching { context.startActivity(fallback) }
+                    }
+            }
             Text(
                 stringResource(R.string.cloud_folder_label, folderDisplayName!!),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = openFolderInBrowser)
+                    .padding(vertical = 4.dp)
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1492,17 +1727,25 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
-            InfoHint(stringResource(R.string.cloud_no_folder))
-            Button(onClick = { pickFolder.launch(null) }) {
-                Text(stringResource(R.string.cloud_choose_folder))
-            }
+            // Dropped the "No folder selected" hint — the Choose folder
+            // button right below says everything that's needed.
+            LeftAlignedScanButton(
+                label = stringResource(R.string.cloud_choose_folder),
+                onClick = { pickFolder.launch(null) }
+            )
         }
 
         if (hasFolder) {
             SectionHeader(stringResource(R.string.section_cloud_settings))
-            val lastBackupText = settings.lastSettingsBackupAt?.let {
+            val lastBackupText = settings.lastSettingsBackupAt?.let { ts ->
                 val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
-                stringResource(R.string.cloud_last_backup, fmt.format(java.util.Date(it)))
+                val date = fmt.format(java.util.Date(ts))
+                val named = settings.lastSettingsBackupName
+                if (named != null) {
+                    stringResource(R.string.cloud_last_backup_named, date, named)
+                } else {
+                    stringResource(R.string.cloud_last_backup, date)
+                }
             } ?: stringResource(R.string.cloud_last_backup_never)
             Text(lastBackupText, style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -1510,15 +1753,29 @@ private fun CloudTab(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
+                LongPressActionButton(
+                    text = stringResource(R.string.cloud_backup_now),
                     onClick = { viewModel.backupSettingsNow() },
+                    onLongClick = {
+                        // Fresh long-press always starts with an empty field;
+                        // the only path that pre-fills is bouncing back from
+                        // an overwrite-cancel below.
+                        backupNameDraft = ""
+                        showBackupNameDialog = true
+                    },
                     modifier = Modifier.weight(1f)
-                ) { Text(stringResource(R.string.cloud_backup_now)) }
-                Button(
+                )
+                LongPressActionButton(
+                    text = stringResource(R.string.cloud_restore),
                     onClick = { showRestoreDialog = true },
+                    onLongClick = { showRestorePicker = true },
                     modifier = Modifier.weight(1f)
-                ) { Text(stringResource(R.string.cloud_restore)) }
+                )
             }
+            HintText(
+                stringResource(R.string.cloud_backup_long_press_hint),
+                small = true
+            )
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
@@ -1680,7 +1937,7 @@ private fun AnnounceSwitchSetting(
 }
 
 @Composable
-private fun SectionHeader(title: String) {
+internal fun SectionHeader(title: String) {
     val query = LocalSettingsSearchQuery.current
     Text(
         text = highlightMatches(title, query),
@@ -2030,16 +2287,11 @@ private fun EngineSoundSection(
     viewModel: SettingsViewModel,
     parked: Boolean
 ) {
-    var showSafety by remember { mutableStateOf(false) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    BringIntoViewSection(expanded = settings.engineSoundEnabled) {
     SwitchSetting(
         label = stringResource(R.string.engine_sound_enabled),
         checked = settings.engineSoundEnabled
     ) { enabled ->
-        if (enabled && !settings.engineSafetyShown) {
-            showSafety = true
-        }
         viewModel.updateEngineSoundEnabled(enabled)
     }
     Text(
@@ -2175,23 +2427,6 @@ private fun EngineSoundSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
-    }
-
-    if (showSafety) {
-        AlertDialog(
-            onDismissRequest = {
-                showSafety = false
-                viewModel.markEngineSafetyShown()
-            },
-            title = { Text(stringResource(R.string.engine_safety_title)) },
-            text = { Text(stringResource(R.string.engine_safety_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showSafety = false
-                    viewModel.markEngineSafetyShown()
-                }) { Text(stringResource(R.string.engine_safety_ok)) }
-            }
-        )
     }
 }
 
@@ -2686,4 +2921,194 @@ private fun EngineSpeedVolumeCurveEditor(
             }
         }
     }
+}
+
+/**
+ * Wrap the gating toggle PLUS its conditional content with this. When
+ * [expanded] flips from false to true the wrapper's bounds grow and the
+ * BringIntoViewRequester fires, so the parent scroll moves to put the
+ * wrapper (toggle + new content) into the viewport. Because the wrapper
+ * has real bounds — not the 0-height sentinel the earlier version used —
+ * the system actually has something to scroll to. When the block is taller
+ * than the viewport the BringIntoView responder aligns the TOP edge with
+ * the viewport top, so the rider keeps eyes on the row they just toggled.
+ *
+ * Use a single instance per gating toggle. Pick [spacing] to match the
+ * surrounding column's `verticalArrangement` so the wrapped block sits
+ * visually identical to a flat sequence of composables.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun BringIntoViewSection(
+    expanded: Boolean,
+    spacing: androidx.compose.ui.unit.Dp = 16.dp,
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
+) {
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(120)
+            runCatching { requester.bringIntoView() }
+        }
+    }
+    Column(
+        modifier = Modifier.bringIntoViewRequester(requester),
+        verticalArrangement = Arrangement.spacedBy(spacing),
+        content = content
+    )
+}
+
+/** Backwards-compat shim. New callers should wrap with [BringIntoViewSection];
+ *  this no-op stub keeps existing inline sentinels compiling until they're
+ *  refactored. */
+@Composable
+internal fun BringIntoViewOnFirstShow() { /* no-op */ }
+
+// --- Long-press backup / restore helpers --------------------------------
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LongPressActionButton(
+    text: String,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    androidx.compose.material3.Surface(
+        modifier = modifier
+            .height(40.dp)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                role = androidx.compose.ui.semantics.Role.Button
+            ),
+        shape = androidx.compose.material3.ButtonDefaults.shape,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun NamedBackupDialog(
+    initial: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit,
+    sanitize: (String) -> String?
+) {
+    var raw by remember { mutableStateOf(initial) }
+    val sanitized = sanitize(raw)
+    val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) {
+        // Tiny delay lets the dialog finish its mount animation; without it
+        // the request can land before the field is attached and silently no-op.
+        kotlinx.coroutines.delay(60)
+        runCatching { focusRequester.requestFocus() }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            OutlinedTextField(
+                value = raw,
+                onValueChange = { raw = it },
+                label = { Text(stringResource(R.string.cloud_backup_name_label)) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+            )
+        },
+        confirmButton = {
+            Button(
+                enabled = sanitized != null,
+                onClick = { sanitized?.let(onSave) }
+            ) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RestorePickerDialog(
+    onDismiss: () -> Unit,
+    loadEntries: suspend () -> List<com.eried.eucplanet.data.sync.BackupEntry>,
+    onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit
+) {
+    var entries by remember { mutableStateOf<List<com.eried.eucplanet.data.sync.BackupEntry>?>(null) }
+    var selected by remember { mutableStateOf<com.eried.eucplanet.data.sync.BackupEntry?>(null) }
+    var dropdownOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val loaded = loadEntries()
+        entries = loaded
+        selected = loaded.firstOrNull()
+    }
+    val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
+        text = {
+            val list = entries
+            when {
+                list == null -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                list.isEmpty() -> Text(stringResource(R.string.cloud_restore_picker_empty))
+                else -> ExposedDropdownMenuBox(
+                    expanded = dropdownOpen,
+                    onExpandedChange = { dropdownOpen = !dropdownOpen }
+                ) {
+                    OutlinedTextField(
+                        value = selected?.label ?: defaultLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = dropdownOpen,
+                        onDismissRequest = { dropdownOpen = false }
+                    ) {
+                        list.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(entry.label ?: defaultLabel) },
+                                onClick = {
+                                    selected = entry
+                                    dropdownOpen = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = selected != null,
+                onClick = { selected?.let(onPicked) }
+            ) { Text(stringResource(R.string.action_restore)) }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
 }

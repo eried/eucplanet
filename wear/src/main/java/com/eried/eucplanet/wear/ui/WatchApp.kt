@@ -9,6 +9,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -116,6 +119,14 @@ fun WatchApp() {
 
 @Composable
 private fun MainScreen(state: WatchState, accent: Color) {
+    // Smooth the virtual rotation so re-anchoring from a setting change or a
+    // post-disconnect snap doesn't pop. Single fixed 1 s ease-in-out covers
+    // every angle delta with no per-frame math.
+    val animatedRotation by animateFloatAsState(
+        targetValue = state.dialRotationDeg.toFloat(),
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+        label = "dialRotation"
+    )
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -123,7 +134,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
             // Virtual orientation lets the rider tilt the dial in software when the wheel
             // is in motion — applied to the first screen only so the details screen stays
             // in its canonical orientation. Clamped on the phone side to [-90..90].
-            .rotate(state.dialRotationDeg.toFloat()),
+            .rotate(animatedRotation),
         contentAlignment = Alignment.Center
     ) {
         // The disconnected state is rendered by zeroing every metric and

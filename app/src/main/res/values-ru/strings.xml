@@ -7,6 +7,9 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_ok">ОК</string>
+<string name="crash_log_action_prompt">Что сделать с этим логом?</string>
+    <string name="crash_log_delete_one">Удалить этот лог</string>
+    <string name="crash_log_delete_all">Удалить все логи</string>
     <string name="action_save">Сохранить</string>
     <string name="action_delete">Удалить</string>
     <string name="action_edit">Изменить</string>
@@ -55,6 +58,7 @@
     <string name="action_legal_on">Лег. вкл.</string>
     <string name="action_lock_wheel">Заблокировать</string>
     <string name="action_locked">Закрыто</string>
+    <string name="lock_blocked_in_motion_toast">Снизьте скорость, чтобы заблокировать колесо</string>
     <string name="action_recorder">Запись</string>
     <string name="action_recorder_trips">Поездки\n(%1$d)</string>
 
@@ -70,25 +74,26 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
-    <string name="cloud_caption">Папка для CSV поездок и резервной копии настроек.</string>
+    <string name="cloud_caption">Папка для CSV поездок и резервной копии настроек</string>
     <string name="cloud_help_title">Как делать копии в OneDrive, Drive или Dropbox</string>
     <string name="cloud_help_body">Выбор папок в Android обычно не показывает OneDrive, Google Drive или Dropbox. Эти приложения не предоставляют другим приложениям доступ к папке для записи, поэтому мы сохраняем локально, а загрузку делает приложение синхронизации.\n\nНастройка:\n1. Установите Autosync (для OneDrive, Drive или Dropbox) или FolderSync из Play Store.\n2. Войдите в это приложение и создайте пару синхронизации: ваша локальная папка к папке в облаке.\n3. Настройте \"Только загрузка\" с мгновенной синхронизацией или по изменению.\n4. Вернитесь сюда и выберите ту же локальную папку.\n\nНовые поездки попадают в эту папку, когда запись заканчивается. Приложение синхронизации загружает их в фоне.</string>
     <string name="cloud_choose_folder">Выбрать папку</string>
     <string name="cloud_change_folder">Сменить папку</string>
     <string name="cloud_remove_folder">Отвязать</string>
-    <string name="cloud_no_folder">Папка не выбрана</string>
     <string name="cloud_folder_label">Папка: %1$s</string>
     <string name="section_cloud_settings">Резервная копия настроек</string>
     <string name="cloud_backup_now">Сделать копию</string>
     <string name="cloud_restore">Восстановить</string>
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
+<string name="cloud_last_backup_named">Последняя копия: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>
     <string name="cloud_backup_success">Настройки сохранены</string>
+<string name="cloud_backup_named_success">Сохранено как %1$s</string>
     <string name="cloud_backup_failed">Сбой резервного копирования. Проверьте доступ к папке.</string>
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
-    <string name="cloud_trips_caption">Новые поездки сохраняются в вашу папку автоматически.</string>
+    <string name="cloud_trips_caption">Новые поездки сохраняются в вашу папку автоматически</string>
     <string name="cloud_retry_now">Синхронизировать всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
@@ -101,30 +106,38 @@
     <string name="sync_conflict_ignore">Пропустить все конфликты</string>
     <string name="cloud_uploaded_on">Сохранено %1$s</string>
     <string name="cloud_not_uploaded">Пока не сохранено</string>
-    <string name="cloud_upload_failed">Последняя загрузка не удалась</string>
     <string name="cloud_restore_confirm_title">Восстановить настройки</string>
     <string name="cloud_restore_confirm_body_p1">Ваши текущие настройки будут заменены настройками из резервной копии.</string>
     <string name="cloud_restore_confirm_body_p2">Жесты Flic восстановятся, но кнопки и колесо придётся снова спарить на этом телефоне. Bluetooth-привязки хранятся в Android, а не в приложении.</string>
     <string name="sync_checking">Проверка папки копий…</string>
     <string name="action_restore">Восстановить</string>
+    <string name="action_overwrite">Перезаписать</string>
+    <string name="cloud_backup_long_press_hint">Удерживайте для дополнительных опций</string>
+    <string name="cloud_backup_name_label">Имя</string>
+    <string name="cloud_backup_name_preview">Сохранить как %1$s</string>
+    <string name="cloud_backup_overwrite_title">Перезаписать "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже существует.</string>
+    <string name="cloud_restore_picker_default">(по умолчанию)</string>
+    <string name="cloud_restore_picker_empty">Резервных копий в папке нет</string>
 
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>
     <string name="section_display">Внешний вид</string>
     <string name="auto_record_on_start">Автоматически начинать запись</string>
-    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено.</string>
+    <string name="auto_record_caption">Записывает поездку, когда моноколесо подключено</string>
     <string name="auto_record_start_in_motion">Начинать запись при движении</string>
-    <string name="auto_record_start_in_motion_caption">Стартует при движении, останавливается после простоя, возобновляется в следующей поездке.</string>
+    <string name="auto_record_start_in_motion_caption">Стартует при движении, останавливается после простоя, возобновляется в следующей поездке</string>
     <string name="auto_record_stop_idle_seconds">Остановить после простоя</string>
     <string name="auto_connect_on_start">Автоматически подключаться</string>
     <string name="last_device">Последнее устройство: %1$s</string>
     <string name="section_application">Приложение</string>
     <string name="back_button_action">При свайпе назад</string>
-    <string name="back_button_action_desc">Выбери, что делает свайп назад с главного экрана.</string>
+    <string name="back_button_action_desc">Выбери, что делает свайп назад с главного экрана</string>
     <string name="back_button_action_ask">Спрашивать</string>
     <string name="back_button_action_background">В фоне</string>
     <string name="back_button_action_stop">Остановить всё</string>
     <string name="imperial_units">Имперские единицы</string>
+    <string name="phone_keep_screen_on">Не выключать экран</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
     <string name="theme_black">Чёрная</string>
@@ -132,12 +145,6 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_system">Как в системе</string>
     <string name="accent_color">Акцентный цвет</string>
-    <string name="accent_blue">Синий</string>
-    <string name="accent_green">Зелёный</string>
-    <string name="accent_orange">Оранжевый</string>
-    <string name="accent_purple">Фиолетовый</string>
-    <string name="accent_teal">Бирюзовый</string>
-    <string name="accent_pink">Розовый</string>
     <string name="tts_switch_title">Переключить озвучку на %1$s?</string>
     <string name="tts_switch_body">Текущий голос не совпадает с выбранным языком интерфейса. Переключить озвучку на %1$s?</string>
     <string name="tts_switch_yes">Переключить</string>
@@ -178,22 +185,44 @@
     <string name="col_trigger">По кнопке</string>
     <string name="report_speed">Скорость</string>
     <string name="report_battery">Заряд</string>
-    <string name="report_temp">Темп.</string>
+    <string name="report_temp">Темп</string>
     <string name="report_pwm">PWM</string>
     <string name="report_distance">Пробег</string>
     <string name="report_recording">Запись</string>
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск.</string>
-    <string name="flic_stop_scan">Стоп</string>
-    <string name="flic_start_scan">Искать кнопку</string>
+    <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск</string>
+    <string name="flic_stop_scan">Остановить поиск</string>
+    <string name="flic_start_scan">Начать поиск</string>
+    <string name="external_gps_pair_button">Начать поиск</string>
+    <string name="external_gps_pair_action">Подключить</string>
+    <string name="external_gps_stop_scan">Остановить поиск</string>
     <string name="flic_forget">Забыть</string>
     <string name="flic_rename">Переименовать</string>
     <string name="flic_click">Нажатие</string>
     <string name="flic_double_click">Двойное нажатие</string>
     <string name="flic_hold">Удержание</string>
+    <string name="external_gps_axes_title">Ориентация осей</string>
+    <string name="external_gps_axes_desc">Сопоставь каждую выходную ось с физической осью устройства. Автоопределение настроит автоматически.</string>
+    <string name="external_gps_map_x">Выход X</string>
+    <string name="external_gps_map_y">Выход Y</string>
+    <string name="external_gps_map_z">Выход Z</string>
+    <string name="external_gps_autodetect">Автоопределение</string>
+    <string name="external_gps_autodetect_title">Автоопределение осей</string>
+    <string name="external_gps_autodetect_prep">Приготовься двигать устройство</string>
+    <string name="external_gps_autodetect_forward">Двигай устройство вперёд-назад</string>
+    <string name="external_gps_autodetect_lateral">Двигай устройство влево-вправо</string>
+    <string name="external_gps_autodetect_vertical">Двигай устройство вверх-вниз</string>
+    <string name="external_gps_autodetect_done">Оси определены и применены</string>
+    <string name="external_gps_autodetect_abort">Отмена</string>
+    <string name="gps_log_additional">Использовать дополнительные данные GPS</string>
+    <string name="gps_log_additional_desc">Записывает дополнительные образцы GPS с телефона или внешнего устройства</string>
+    <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
+    <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе, телефон</string>
+    <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
+    <string name="gps_show_on_dashboard_desc">Добавляет цветную точку на спидометре с показаниями GPS</string>
     <string name="section_volume_keys">Кнопки громкости</string>
-    <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении).</string>
+    <string name="volume_keys_caption">Кнопки громкости как быстрые действия (только при открытом приложении)</string>
     <string name="volume_keys_enable">Включить действия по кнопкам громкости</string>
     <string name="volume_up">Громкость +</string>
     <string name="volume_down">Громкость −</string>
@@ -281,13 +310,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Фары</string>
-    <string name="auto_lights_desc">Включать и выключать фары по восходу и закату.</string>
+    <string name="auto_lights_desc">Включать и выключать фары по восходу и закату</string>
     <string name="auto_lights_on_before_sunset">Включать фары до заката</string>
     <string name="auto_lights_off_after_sunrise">Выключать фары после восхода</string>
     <string name="auto_minutes_fmt">%1$d мин</string>
     <string name="auto_waiting_gps">Ждём GPS\u2026</string>
     <string name="auto_volume_title">Громкость</string>
-    <string name="auto_volume_desc">Громкость подстраивается под скорость.</string>
+    <string name="auto_volume_desc">Громкость подстраивается под скорость</string>
     <string name="auto_sunrise_sunset">Восход и закат</string>
     <string name="auto_midnight_sun_title">Полярный день</string>
     <string name="auto_midnight_sun_body">Сегодня на этой широте солнце не садится, фары останутся выключенными</string>
@@ -298,14 +327,44 @@
     <!-- Alarms tab -->
     <string name="alarm_help">Правила проверяются по порядку внутри каждой метрики. Срабатывает первое подходящее, остальные пропускаются</string>
     <string name="alarm_empty">Ещё нет правил тревог</string>
-    <string name="alarm_add">Добавить правило</string>
+    <string name="alarm_add">Новое правило</string>
     <string name="alarm_new">Новое правило</string>
     <string name="alarm_edit">Изменить</string>
-    <string name="alarm_name">Название (необязательно)</string>
-    <string name="alarm_section_condition">Условие</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Сравнение</string>
     <string name="alarm_threshold_fmt">Порог: %1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">Источники данных в реальном времени</string>
+    <string name="sources_phone">Телефон</string>
+    <string name="sources_wheel">Колесо</string>
+    <string name="sources_external">Внешний</string>
+    <string name="sources_compare">Сравнить</string>
+    <string name="sources_same_source">Выбран тот же источник</string>
+    <string name="sources_speed">Скорость</string>
+    <string name="sources_heading">Курс</string>
+    <string name="sources_vertical_speed">Вертикальная скорость</string>
+    <string name="sources_position">Координаты</string>
+    <string name="sources_gforce">Перегрузка</string>
+    <string name="sources_g_horizontal">|G| (горизонтально)</string>
+    <string name="sources_lateral_x">Боковая (X)</string>
+    <string name="sources_vertical_y">Вертикальная (Y)</string>
+    <string name="sources_forward_z">Вперёд (Z)</string>
+    <string name="sources_distance_between_fixes">Расстояние между точками</string>
+    <string name="sources_last_update">Последнее обновление</string>
+    <string name="sources_fresh_just_now">только что</string>
+    <string name="sources_fresh_seconds_fmt">%1$d с назад</string>
+    <string name="sources_fresh_minutes_fmt">%1$d мин назад</string>
+    <string name="sources_fresh_hours_fmt">%1$d ч назад</string>
+    <string name="sources_sats_fmt">%1$d спут</string>
+    <string name="sources_collecting">Сбор данных…</string>
+    <string name="sources_reset_avg">Сбросить среднее</string>
+    <string name="sources_apply_calibration">Калибровать колесо</string>
+    <string name="sources_apply_calibration_title">Применить калибровку скорости</string>
+    <string name="sources_apply_calibration_body_fmt">Установить калибровку скорости колеса на %1$+.1f %%?\n\nВы сможете изменить это позже в параметрах колеса.</string>
+    <string name="sources_apply">Применить</string>
+    <string name="sources_cancel">Отмена</string>
+
     <string name="alarm_threshold_decrease">Уменьшить порог</string>
     <string name="alarm_threshold_increase">Увеличить порог</string>
     <string name="alarm_section_beep">Звуковой сигнал</string>
@@ -368,8 +427,6 @@
     <string name="alarm_test_default">Проверка сигнала</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Ищем\u2026</string>
-    <string name="flic_status_found_paired">Нашли привязанную кнопку</string>
     <string name="flic_status_found_connecting">Нашли кнопку, подключаемся\u2026</string>
     <string name="flic_status_connected_pairing">Подключено, идёт сопряжение\u2026</string>
     <string name="flic_status_accept_pairing">Подтвердите сопряжение на телефоне\u2026</string>
@@ -378,7 +435,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журналы сбоев</string>
-    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
     <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
     <!-- Credits -->
@@ -397,7 +453,7 @@
     <string name="alarm_vibrate_target_watch">Часы</string>
 
     <!-- Auto-connect caption -->
-    <string name="auto_connect_caption">Автоматически переподключается к последнему сопряжённому колесу.</string>
+    <string name="auto_connect_caption">Автоматически переподключается к последнему сопряжённому колесу</string>
 
     <!-- Trip pending backup -->
     <string name="discard_trip_pending_label">Поездка скоро будет сохранена в копию</string>
@@ -412,7 +468,6 @@
     <string name="flic_button">Кнопка Flic</string>
     <string name="flic_forget_body">%1$s будет отвязана и её действия очищены. Можно снова спарить в любой момент.</string>
     <string name="flic_forget_title">Забыть эту кнопку?</string>
-    <string name="flic_no_buttons">Кнопок Flic не привязано</string>
 
     <!-- Menu items -->
     <string name="menu_auto_lights">Настройки автосвета</string>
@@ -427,13 +482,12 @@
     <string name="report_time">Время</string>
 
     <!-- Scan extras -->
-    <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется.</string>
+    <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
     <string name="scan_show_all_title">Показать все устройства</string>
     <string name="scan_simulate_subtitle">Обходит BLE и подаёт заготовленные ответы. Только в отладочных сборках.</string>
     <string name="scan_simulate_title">Виртуальные колёса</string>
 
     <!-- Watch sections -->
-    <string name="section_watch_buttons">Аппаратные кнопки</string>
     <string name="section_watch_display">Экран</string>
     <string name="section_watch_general">Общие</string>
 
@@ -461,24 +515,22 @@
 
     <!-- Watch settings -->
     <string name="watch_auto_start">Автозапуск на часах</string>
-    <string name="watch_auto_start_desc">Открывать приложение на часах вместе с приложением на телефоне.</string>
+    <string name="watch_auto_start_desc">Открывать приложение на часах вместе с приложением на телефоне</string>
     <string name="watch_close_on_exit">Автоостановка на часах</string>
-    <string name="watch_close_on_exit_desc">Останавливать приложение часов при «Остановить всё».</string>
-    <string name="watch_button_1">Кнопка 1</string>
-    <string name="watch_button_2">Кнопка 2</string>
+    <string name="watch_close_on_exit_desc">Останавливать приложение часов при «Остановить всё»</string>
     <string name="watch_button_click_label">Нажатие</string>
     <string name="watch_button_hold_label">Долгое нажатие</string>
     <string name="watch_keep_on">Не гасить экран</string>
-    <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение.</string>
+    <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение</string>
     <string name="watch_pwm_bar">Полоса</string>
     <string name="watch_pwm_both">Оба</string>
     <string name="watch_pwm_display">Индикатор PWM</string>
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_show_phone_battery">Показывать заряд телефона</string>
     <string name="watch_show_speed_unit">Подпись единиц скорости</string>
-    <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости.</string>
+    <string name="watch_show_speed_unit_desc">Показывать подпись единиц рядом с большим числом скорости</string>
     <string name="watch_prioritize_pwm">Приоритет PWM</string>
-    <string name="watch_prioritize_pwm_desc">PWM (полоса и число) крупнее, чем скорость.</string>
+    <string name="watch_prioritize_pwm_desc">PWM (полоса и число) крупнее, чем скорость</string>
     <string name="watch_dial_rotation">Поворот циферблата</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Показывать заряд часов</string>
@@ -489,30 +541,24 @@
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вибрация при действии</string>
-    <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки.</string>
+    <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигателя</string>
     <string name="engine_sound_enabled">Звук двигателя</string>
-    <string name="engine_sound_enabled_hint">Обороты двигателя следуют за скоростью и нагрузкой колеса в реальном времени.</string>
-    <string name="engine_safety_title">Внимание</string>
-    <string name="engine_safety_message">Звук двигателя может перекрыть звуки движения. В городе используй меньшую громкость и одиночный наушник, чтобы слышать окружение.</string>
-    <string name="engine_safety_ok">Понятно</string>
+    <string name="engine_sound_enabled_hint">Обороты двигателя следуют за скоростью и нагрузкой колеса в реальном времени</string>
     <string name="engine_type_label">Двигатель</string>
-    <string name="engine_preview">Предпросмотр</string>
     <string name="engine_source_sampled">Сэмпл</string>
     <string name="engine_source_synth">Синтез</string>
     <string name="engine_volume">Громкость</string>
-    <string name="engine_volume_auto_label">Зависит от скорости</string>
-    <string name="engine_volume_auto_hint">Громче на малой скорости и тише на ходу, чтобы пешеходы слышали вас около 0 км/ч.</string>
     <string name="engine_muffler_label">Глушитель</string>
     <string name="engine_muffler_open">Открытый</string>
     <string name="engine_muffler_half">Средний</string>
     <string name="engine_muffler_muffled">Заглушенный</string>
     <string name="engine_gearbox_label">Коробка передач</string>
-    <string name="engine_gearbox_off">Выкл.</string>
-    <string name="engine_gearbox_four">4-ступ.</string>
-    <string name="engine_gearbox_six">6-ступ.</string>
+    <string name="engine_gearbox_off">Выкл</string>
+    <string name="engine_gearbox_four">4-ступ</string>
+    <string name="engine_gearbox_six">6-ступ</string>
     <string name="engine_idle_label">На стоянке</string>
     <string name="engine_idle_always">Всегда холостой</string>
     <string name="engine_idle_fade">Затухание</string>
@@ -522,7 +568,7 @@
     <string name="engine_decel_standard">Стандарт</string>
     <string name="engine_decel_backfire">Хлопок</string>
     <string name="engine_brake_label">Тормоз двигателем</string>
-    <string name="engine_brake_off">Выкл.</string>
+    <string name="engine_brake_off">Выкл</string>
     <string name="engine_brake_light">Лёгкий</string>
     <string name="engine_brake_strong">Сильный</string>
     <string name="engine_duck_label">Во время речи</string>
@@ -533,9 +579,8 @@
     <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Предпросмотр недоступен в движении — остановись, чтобы проверить звуки.</string>
     <string name="engine_preset_two_stroke">2-тактный</string>
-    <string name="engine_preset_four_stroke_single">4-тактный одноцил.</string>
+    <string name="engine_preset_four_stroke_single">4-тактный одноцил</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>
     <string name="engine_preset_inline_4">Рядный 4</string>
     <string name="engine_preset_inline_6_silky">Рядный 6 (шёлковый)</string>

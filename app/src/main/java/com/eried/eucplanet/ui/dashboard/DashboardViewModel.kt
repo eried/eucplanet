@@ -51,6 +51,7 @@ class DashboardViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val flicManager: FlicManager,
     private val syncManager: SyncManager,
+    private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
@@ -87,6 +88,54 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val currentTripId: StateFlow<Long?> = tripRepository.currentTripId
+
+    /**
+     * Live external-GPS speed in km/h, or null when no device is paired or no
+     * sample has arrived recently. The dashboard's speedometer renders a small
+     * accent-coloured marker on the dial and a numeric readout under the main
+     * speed when this is non-null.
+     */
+    /**
+     * Extra speed indicator on the dial. Honors the three new GPS settings:
+     *  - [AppSettings.gpsLogAdditional] off → no indicator
+     *  - [AppSettings.gpsShowOnDashboard] off → no indicator
+     *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
+     *  - else → phone GPS (when fix available)
+     *
+     * Emits a `Pair<speedKmh, sourceKey>` where sourceKey is "EXTERNAL" or
+     * "PHONE" so the dashboard can pick the colour. Null when nothing to show.
+     */
+    /** True when the rider has an external GPS paired in settings, regardless
+     *  of whether it's currently connected or sending samples. Drives the
+     *  visibility of the "E" indicator on the dashboard so users without an
+     *  external GPS don't see a placeholder for a feature they don't use. */
+    val externalGpsPaired: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.externalGpsAddress != null }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val gpsExtraSpeed: StateFlow<Pair<Float, String>?> = kotlinx.coroutines.flow.combine(
+        settingsRepository.settings,
+        externalGpsRepository.currentSample,
+        tripRepository.currentLocation
+    ) { settings, externalSample, location ->
+        if (!settings.gpsLogAdditional || !settings.gpsShowOnDashboard) return@combine null
+        val externalFresh = externalSample != null &&
+            System.currentTimeMillis() - externalSample.timestamp < 5_000L
+        when {
+            settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            location != null && location.hasSpeed() ->
+                (location.speed * 3.6f) to "PHONE"
+            !settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            else -> null
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** Convenience: just the speed part of [gpsExtraSpeed] for legacy callers. */
+    val externalGpsSpeedKmh: StateFlow<Float?> = gpsExtraSpeed
+        .map { it?.first }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val gpsFix: StateFlow<Boolean> = tripRepository.currentLocation
         .map { it != null }

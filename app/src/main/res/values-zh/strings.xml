@@ -7,6 +7,9 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
+<string name="crash_log_action_prompt">对此日志执行什么操作?</string>
+    <string name="crash_log_delete_one">删除此日志</string>
+    <string name="crash_log_delete_all">删除全部日志</string>
     <string name="action_save">保存</string>
     <string name="action_delete">删除</string>
     <string name="action_edit">编辑</string>
@@ -55,6 +58,7 @@
     <string name="action_legal_on">合规 开</string>
     <string name="action_lock_wheel">锁车</string>
     <string name="action_locked">已锁定</string>
+    <string name="lock_blocked_in_motion_toast">请减速以锁定轮子</string>
     <string name="action_recorder">记录器</string>
     <string name="action_recorder_trips">记录器\n(%1$d 条行程)</string>
 
@@ -71,18 +75,19 @@
     <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">存放行程 CSV 与设置备份的文件夹。</string>
     <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
-    <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox——这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
+    <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox,这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
     <string name="cloud_change_folder">更换文件夹</string>
     <string name="cloud_remove_folder">取消连接</string>
-    <string name="cloud_no_folder">未选择文件夹</string>
     <string name="cloud_folder_label">文件夹:%1$s</string>
     <string name="section_cloud_settings">设置备份</string>
     <string name="cloud_backup_now">备份</string>
     <string name="cloud_restore">恢复</string>
     <string name="cloud_last_backup">上次备份:%1$s</string>
+<string name="cloud_last_backup_named">上次备份:%1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
+<string name="cloud_backup_named_success">已备份为 %1$s</string>
     <string name="cloud_backup_failed">备份失败,请检查文件夹访问权限。</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
@@ -92,7 +97,6 @@
     <string name="cloud_retry_enqueued">上传已排队</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
     <string name="cloud_not_uploaded">尚未备份</string>
-    <string name="cloud_upload_failed">上次上传失败</string>
     <string name="cloud_restore_confirm_title">恢复设置</string>
     <string name="cloud_restore_confirm_body_p1">您当前的设置将被备份中的设置替换。</string>
     <string name="cloud_restore_confirm_body_p2">Flic 手势会恢复,但按键和轮子需要在这台手机上重新配对。它们的蓝牙配对保存在 Android 中,而不是在应用里。</string>
@@ -106,6 +110,14 @@
     <string name="sync_conflict_folder">从备份复制到应用</string>
     <string name="sync_conflict_ignore">全部跳过冲突</string>
     <string name="action_restore">恢复</string>
+    <string name="action_overwrite">覆盖</string>
+    <string name="cloud_backup_long_press_hint">长按以查看更多选项。</string>
+    <string name="cloud_backup_name_label">备份名称</string>
+    <string name="cloud_backup_name_preview">将保存为 %1$s</string>
+    <string name="cloud_backup_overwrite_title">覆盖 "%1$s"？</string>
+    <string name="cloud_backup_overwrite_body">文件夹中已存在同名备份。</string>
+    <string name="cloud_restore_picker_default">(默认)</string>
+    <string name="cloud_restore_picker_empty">同步文件夹中未找到备份。</string>
 
     <string name="section_recording">行程记录</string>
     <string name="section_connection">连接</string>
@@ -125,6 +137,7 @@
     <string name="back_button_action_background">转后台</string>
     <string name="back_button_action_stop">停止所有</string>
     <string name="imperial_units">英制单位</string>
+    <string name="phone_keep_screen_on">保持屏幕常亮</string>
     <string name="language">语言</string>
     <string name="theme">主题</string>
     <string name="theme_black">纯黑</string>
@@ -132,12 +145,6 @@
     <string name="theme_light">浅色</string>
     <string name="theme_system">跟随系统</string>
     <string name="accent_color">强调色</string>
-    <string name="accent_blue">蓝色</string>
-    <string name="accent_green">绿色</string>
-    <string name="accent_orange">橙色</string>
-    <string name="accent_purple">紫色</string>
-    <string name="accent_teal">青色</string>
-    <string name="accent_pink">粉色</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>
     <string name="tts_switch_body">当前的语音合成声音与所选语言不一致。是否切换为%1$s语音用于播报?</string>
     <string name="tts_switch_yes">切换语音</string>
@@ -185,13 +192,35 @@
 
     <string name="section_flic_buttons">Flic 2 按钮</string>
     <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式,然后点击搜索。</string>
-    <string name="flic_stop_scan">停止</string>
-    <string name="flic_start_scan">搜索按钮</string>
+    <string name="flic_stop_scan">停止扫描</string>
+    <string name="flic_start_scan">开始扫描</string>
+    <string name="external_gps_pair_button">开始扫描</string>
+    <string name="external_gps_pair_action">配对</string>
+    <string name="external_gps_stop_scan">停止扫描</string>
     <string name="flic_forget">忘记</string>
     <string name="flic_rename">重命名</string>
     <string name="flic_click">单击</string>
     <string name="flic_double_click">双击</string>
     <string name="flic_hold">长按</string>
+    <string name="external_gps_axes_title">坐标轴方向</string>
+    <string name="external_gps_axes_desc">将每个输出轴映射到设备的物理轴。使用自动检测来自动设置。</string>
+    <string name="external_gps_map_x">输出 X</string>
+    <string name="external_gps_map_y">输出 Y</string>
+    <string name="external_gps_map_z">输出 Z</string>
+    <string name="external_gps_autodetect">自动检测</string>
+    <string name="external_gps_autodetect_title">自动检测坐标轴</string>
+    <string name="external_gps_autodetect_prep">准备移动设备。</string>
+    <string name="external_gps_autodetect_forward">前后移动设备。</string>
+    <string name="external_gps_autodetect_lateral">左右移动设备。</string>
+    <string name="external_gps_autodetect_vertical">上下移动设备。</string>
+    <string name="external_gps_autodetect_done">坐标轴已检测并应用。</string>
+    <string name="external_gps_autodetect_abort">中止</string>
+    <string name="gps_log_additional">使用额外的 GPS 数据</string>
+    <string name="gps_log_additional_desc">记录来自手机或外部设备的额外 GPS 数据。</string>
+    <string name="gps_prioritize_external">优先使用外部 GPS</string>
+    <string name="gps_prioritize_external_desc">连接外部设备时使用它作为速度来源；否则回退到手机。</string>
+    <string name="gps_show_on_dashboard">在主屏显示速度</string>
+    <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
     <string name="volume_keys_caption">手机音量键作为快捷键(仅在应用可见时)。</string>
     <string name="volume_keys_enable">启用音量键操作</string>
@@ -253,8 +282,6 @@
 
     <string name="alarm_test_default">报警测试</string>
 
-    <string name="flic_status_scanning">扫描中\u2026</string>
-    <string name="flic_status_found_paired">找到已配对按钮</string>
     <string name="flic_status_found_connecting">找到按钮,正在连接\u2026</string>
     <string name="flic_status_connected_pairing">已连接,正在配对\u2026</string>
     <string name="flic_status_accept_pairing">请在手机上确认配对\u2026</string>
@@ -334,14 +361,44 @@
 
     <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发</string>
     <string name="alarm_empty">暂无报警规则</string>
-    <string name="alarm_add">添加报警规则</string>
+    <string name="alarm_add">新建报警</string>
     <string name="alarm_new">新建报警</string>
     <string name="alarm_edit">编辑报警</string>
-    <string name="alarm_name">名称(可选)</string>
-    <string name="alarm_section_condition">条件</string>
     <string name="alarm_metric_label">指标</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
+
+    <!-- Live data sources bottom sheet -->
+    <string name="sources_title">实时数据源</string>
+    <string name="sources_phone">手机</string>
+    <string name="sources_wheel">车辆</string>
+    <string name="sources_external">外接设备</string>
+    <string name="sources_compare">对比</string>
+    <string name="sources_same_source">已选择相同来源</string>
+    <string name="sources_speed">速度</string>
+    <string name="sources_heading">方向</string>
+    <string name="sources_vertical_speed">垂直速度</string>
+    <string name="sources_position">位置</string>
+    <string name="sources_gforce">G力</string>
+    <string name="sources_g_horizontal">|G|(水平)</string>
+    <string name="sources_lateral_x">横向 (X)</string>
+    <string name="sources_vertical_y">垂直 (Y)</string>
+    <string name="sources_forward_z">前向 (Z)</string>
+    <string name="sources_distance_between_fixes">定位点间距</string>
+    <string name="sources_last_update">最后更新</string>
+    <string name="sources_fresh_just_now">刚刚</string>
+    <string name="sources_fresh_seconds_fmt">%1$d秒前</string>
+    <string name="sources_fresh_minutes_fmt">%1$d分钟前</string>
+    <string name="sources_fresh_hours_fmt">%1$d小时前</string>
+    <string name="sources_sats_fmt">%1$d 颗卫星</string>
+    <string name="sources_collecting">采集中…</string>
+    <string name="sources_reset_avg">重置平均值</string>
+    <string name="sources_apply_calibration">校准轮</string>
+    <string name="sources_apply_calibration_title">应用速度校准</string>
+    <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>
+    <string name="sources_apply">应用</string>
+    <string name="sources_cancel">取消</string>
+
     <string name="alarm_threshold_decrease">降低阈值</string>
     <string name="alarm_threshold_increase">提高阈值</string>
     <string name="alarm_section_beep">蜂鸣</string>
@@ -363,7 +420,6 @@
     <string name="alarm_repeat_help">开:条件成立期间,每个冷却时间都会重新触发。\n关:触发一次后保持安静,直到条件解除</string>
 
     <string name="about_crash_logs">崩溃日志</string>
-    <string name="about_crash_logs_hint">点击文件可分享给开发者。</string>
     <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
     <string name="about_thanks">致谢</string>
@@ -383,7 +439,6 @@
     <string name="flic_button">Flic 按钮</string>
     <string name="flic_forget_body">%1$s 将取消配对,其操作设置也会清除。你可以随时再次配对。</string>
     <string name="flic_forget_title">忘记此按钮?</string>
-    <string name="flic_no_buttons">尚未配对 Flic 按钮</string>
     <string name="menu_auto_lights">自动大灯设置</string>
     <string name="menu_start_recording">开始记录</string>
     <string name="menu_stop_recording">停止记录</string>
@@ -396,7 +451,6 @@
     <string name="scan_show_all_title">显示全部设备</string>
     <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
     <string name="scan_simulate_title">虚拟车轮</string>
-    <string name="section_watch_buttons">硬件按键</string>
     <string name="section_watch_display">显示</string>
     <string name="section_watch_general">通用</string>
     <string name="show_gauge_color_band">速度表色带</string>
@@ -412,8 +466,6 @@
     <string name="watch_auto_start_desc">打开手机应用时一起打开手表应用。</string>
     <string name="watch_close_on_exit">手表自动停止</string>
     <string name="watch_close_on_exit_desc">在「停止所有」时停止手表应用。</string>
-    <string name="watch_button_1">按键 1</string>
-    <string name="watch_button_2">按键 2</string>
     <string name="watch_button_click_label">单击</string>
     <string name="watch_button_hold_label">长按</string>
     <string name="watch_keep_on">保持屏幕常亮</string>
@@ -443,16 +495,10 @@
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
     <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。</string>
-    <string name="engine_safety_title">注意</string>
-    <string name="engine_safety_message">引擎声可能盖过交通噪音。在城市里请降低音量,可以只戴一只耳机以保持对周围环境的感知。</string>
-    <string name="engine_safety_ok">知道了</string>
     <string name="engine_type_label">引擎</string>
-    <string name="engine_preview">预览</string>
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
     <string name="engine_volume">音量</string>
-    <string name="engine_volume_auto_label">随速度调节</string>
-    <string name="engine_volume_auto_hint">低速时更响、高速时更轻，让行人在接近 0 km/h 时也能听到你。</string>
     <string name="engine_muffler_label">排气</string>
     <string name="engine_muffler_open">开放</string>
     <string name="engine_muffler_half">半</string>
@@ -481,7 +527,6 @@
     <string name="engine_headphones_only_hint">跳过手机扬声器。引擎仅在有线或蓝牙音频下播放。</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">行进中预览已停用 — 停下后再试听。</string>
     <string name="engine_preset_two_stroke">二冲程</string>
     <string name="engine_preset_four_stroke_single">四冲程单缸</string>
     <string name="engine_preset_quad_bike">四轮越野车</string>

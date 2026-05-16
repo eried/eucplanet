@@ -79,6 +79,7 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
+        BringIntoViewSection(expanded = settings.autoLightsEnabled) {
         Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
@@ -183,10 +184,12 @@ fun AutomationsContent(
                 HintText(stringResource(R.string.auto_waiting_gps), small = true)
             }
         }
+        }   // end Lights BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
 
         // --- Volume Section ---
+        BringIntoViewSection(expanded = settings.autoVolumeEnabled) {
         Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
@@ -227,6 +230,7 @@ fun AutomationsContent(
                 }
             )
         }
+        }   // end Volume BringIntoViewSection
 
         Spacer(Modifier.height(32.dp))
     }

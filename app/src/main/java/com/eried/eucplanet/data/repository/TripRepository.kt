@@ -40,7 +40,8 @@ class TripRepository @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val voiceService: VoiceService,
     private val settingsRepository: SettingsRepository,
-    private val syncManager: SyncManager
+    private val syncManager: SyncManager,
+    private val externalGpsRepository: ExternalGpsRepository
 ) {
     companion object {
         private const val TAG = "TripRepo"
@@ -195,7 +196,14 @@ class TripRepository @Inject constructor(
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
                 val location = _currentLocation.value
-                csvWriter?.writeRow(data, location)
+                // Snapshot the external GPS sample only if it's recent — staler than
+                // the record interval and we'd be writing a frozen reading. Empty when
+                // no device is paired or a sample hasn't arrived yet.
+                val extSample = externalGpsRepository.currentSample.value
+                val extSpeed = extSample
+                    ?.takeIf { System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3 }
+                    ?.speedKmh
+                csvWriter?.writeRow(data, location, extSpeed)
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++

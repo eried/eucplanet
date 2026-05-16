@@ -53,7 +53,11 @@ data class TripDataPoint(
     val altitude: Float,
     val latitude: Double,
     val longitude: Double,
-    val totalMileage: Float
+    val totalMileage: Float,
+    /** Phone-derived GPS speed in km/h, parsed from the legacy `GPS speed` column. 0 if absent. */
+    val gpsSpeed: Float = 0f,
+    /** External-GPS-box speed in km/h (RaceBox). NaN when the row's column was empty. */
+    val extGpsSpeed: Float = Float.NaN
 )
 
 @HiltViewModel
@@ -381,12 +385,20 @@ class RecordingViewModel @Inject constructor(
             val iLat = headers.indexOfFirst { it == "latitude" }.takeIf { it >= 0 } ?: 6
             val iLon = headers.indexOfFirst { it == "longitude" }.takeIf { it >= 0 } ?: 7
             val iMileage = headers.indexOfFirst { it.contains("mileage") }.takeIf { it >= 0 } ?: 8
+            // EUC Planet extensions; -1 when the column is absent (older trip files).
+            val iGpsSpeed = headers.indexOfFirst { it == "gps speed" }
+            val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
 
             var line = reader.readLine()
             while (line != null) {
                 try {
                     val parts = line.split(",")
                     if (parts.size > maxOf(iSpeed, iVoltage, iTemp, iBattery)) {
+                        val extRaw = if (iExtGps >= 0) parts.getOrNull(iExtGps)?.trim() else null
+                        val extSpeed = extRaw
+                            ?.takeIf { it.isNotEmpty() }
+                            ?.toFloatOrNull()
+                            ?: Float.NaN
                         points.add(
                             TripDataPoint(
                                 date = parts[0],
@@ -397,7 +409,9 @@ class RecordingViewModel @Inject constructor(
                                 altitude = parts.getOrNull(iAltitude)?.toFloatOrNull() ?: 0f,
                                 latitude = parts.getOrNull(iLat)?.toDoubleOrNull() ?: 0.0,
                                 longitude = parts.getOrNull(iLon)?.toDoubleOrNull() ?: 0.0,
-                                totalMileage = parts.getOrNull(iMileage)?.toFloatOrNull() ?: 0f
+                                totalMileage = parts.getOrNull(iMileage)?.toFloatOrNull() ?: 0f,
+                                gpsSpeed = if (iGpsSpeed >= 0) parts.getOrNull(iGpsSpeed)?.toFloatOrNull() ?: 0f else 0f,
+                                extGpsSpeed = extSpeed
                             )
                         )
                     }

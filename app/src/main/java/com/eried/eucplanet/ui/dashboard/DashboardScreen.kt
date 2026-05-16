@@ -129,6 +129,7 @@ import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
+import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
 import kotlin.math.absoluteValue
@@ -162,6 +163,14 @@ fun DashboardScreen(
     val lockBusy by viewModel.lockBusy.collectAsState()
     val lightBusy by viewModel.lightBusy.collectAsState()
     val recording by viewModel.recording.collectAsState()
+    val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
+    val externalGpsSpeed = gpsExtra?.first
+    val externalGpsAccent = when (gpsExtra?.second) {
+        "EXTERNAL" -> AccentPurple
+        "PHONE" -> AccentBlue
+        else -> AccentPurple
+    }
+    val externalGpsPaired by viewModel.externalGpsPaired.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
@@ -192,6 +201,7 @@ fun DashboardScreen(
     var showQuitDialog by remember { mutableStateOf(false) }
     var showDisconnectDialog by remember { mutableStateOf(false) }
     var showNoTripsDialog by remember { mutableStateOf(false) }
+    var showSourcesSheet by remember { mutableStateOf(false) }
     var showSettingsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
@@ -472,6 +482,10 @@ fun DashboardScreen(
                     // signal and not the user's accent. The speed indicator
                     // arc (overrideColor above) still wears the accent.
                     safeBandColor = AccentGreen,
+                    // Extra GPS overlay (dot on the dial). Colour depends on
+                    // which source is active per user's GPS preferences.
+                    externalSpeed = externalGpsSpeed,
+                    externalAccentColor = externalGpsAccent,
                     modifier = Modifier
                         .width(dialW)
                         .aspectRatio(ratio)
@@ -489,24 +503,49 @@ fun DashboardScreen(
                     DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface)
                     DashIndicatorLetter("D", active = live && wheelData.pcMode == 1, activeColor = if (useAccent) primary else AccentGreen)
                 }
-                // GPS indicator, top-right. Three states:
+                // GPS indicator, top-right. The icon glyph + colour speak for
+                // the phone's GPS:
                 //   no permission  -> GpsOff (dim)
                 //   no fix yet     -> GpsNotFixed (dim)
                 //   locked         -> GpsFixed (green)
+                // A small "E" badge sits beneath the icon when a paired
+                // external GPS (RaceBox today) is actively sending samples,
+                // so the rider sees at a glance whether ground-truth speed
+                // is coming from their box vs the phone. Tapping anywhere
+                // opens the multi-source live data sheet.
                 val gpsIcon = when {
                     !locationGranted -> Icons.Default.GpsOff
                     gpsFix -> Icons.Default.GpsFixed
                     else -> Icons.Default.GpsNotFixed
                 }
-                DashIndicatorIcon(
-                    icon = gpsIcon,
-                    active = gpsFix && locationGranted,
-                    activeColor = if (useAccent) primary else AccentGreen,
+                val externalLive = gpsExtra?.second == "EXTERNAL"
+                Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
-                )
+                        .clickable { showSourcesSheet = true },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    DashIndicatorIcon(
+                        icon = gpsIcon,
+                        active = gpsFix && locationGranted,
+                        activeColor = if (useAccent) primary else AccentGreen,
+                        modifier = Modifier
+                    )
+                    // E badge only when an external GPS is paired at all. Dim
+                    // when paired but stale, lit when actively sending. Hidden
+                    // entirely for riders without a RaceBox or similar so the
+                    // dashboard stays clean for the common case.
+                    if (externalGpsPaired) {
+                        DashIndicatorLetter(
+                            "E",
+                            active = externalLive,
+                            activeColor = if (useAccent) primary else AccentGreen
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(16.dp))
@@ -740,17 +779,31 @@ fun DashboardScreen(
                         )
                     }
                 )
-                // Lock direction is blocked above LOCK_MAX_SPEED in the
-                // repository (covers Flic / watch / volume keys / dashboard);
-                // mirror it here so the button visibly greys out when locking
-                // would be refused. Unlock stays tappable at any speed.
-                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f
+                // Lock direction is hard-blocked above LOCK_MAX_SPEED_KMH in
+                // the repository (covers Flic / watch / volume keys / dash).
+                // The button used to mirror that gate visually, but the
+                // resulting enable/disable flicker as the rider drifts around
+                // 5 km/h was distracting. Keep the button enabled and let the
+                // tap surface a toast when the wheel is in motion — the
+                // repository still refuses the actual lock.
+                val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
+                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
                 ActionButton(
                     if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
                     if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
                     active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy && !lockBlockedBySpeed,
-                    onClick = { viewModel.onLockToggle() },
+                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                    onClick = {
+                        if (lockBlockedBySpeed) {
+                            Toast.makeText(
+                                toastContext,
+                                R.string.lock_blocked_in_motion_toast,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.onLockToggle()
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                     aspectRatio = actionAspect, heightDp = actionHeight)
                 ActionTile(
@@ -811,13 +864,19 @@ fun DashboardScreen(
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
                 } catch (_: Exception) { "?" }
             }
+            val versionRevision = remember {
+                try {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+                } catch (_: Exception) { 0 }
+            }
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
-                versionName = versionName,
+                versionName = if (versionRevision > 0) "$versionName.$versionRevision" else versionName,
                 diagnosticsActive = diagEnabled,
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
@@ -831,8 +890,18 @@ fun DashboardScreen(
                 )
             }
 
+            if (showSourcesSheet) {
+                com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
+                    imperial = imperial,
+                    onDismiss = { showSourcesSheet = false }
+                )
+            }
+
             if (showAboutDialog) {
-                val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
+                var crashes by remember {
+                    mutableStateOf(com.eried.eucplanet.util.CrashHandler.listCrashes(context))
+                }
+                var crashMenuFor by remember { mutableStateOf<java.io.File?>(null) }
                 val licenseText = remember {
                     try {
                         val raw = context.resources.openRawResource(R.raw.license)
@@ -938,7 +1007,16 @@ fun DashboardScreen(
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
                             Text(
-                                "v$versionName · ${com.eried.eucplanet.BuildConfig.BUILD_STAMP}",
+                                buildString {
+                                    append("v")
+                                    append(versionName)
+                                    if (versionRevision > 0) {
+                                        append(".")
+                                        append(versionRevision)
+                                    }
+                                    append(" · ")
+                                    append(com.eried.eucplanet.BuildConfig.BUILD_STAMP)
+                                },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -1205,7 +1283,10 @@ fun DashboardScreen(
                                                     Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .clickable { shareCrashFile(context, file) }
+                                                            .combinedClickable(
+                                                                onClick = { shareCrashFile(context, file) },
+                                                                onLongClick = { crashMenuFor = file }
+                                                            )
                                                             .padding(vertical = 8.dp),
                                                         verticalAlignment = Alignment.CenterVertically,
                                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1240,6 +1321,41 @@ fun DashboardScreen(
                                 }
                             }
                         }
+                    }
+                    crashMenuFor?.let { target ->
+                        androidx.compose.material3.AlertDialog(
+                            onDismissRequest = { crashMenuFor = null },
+                            title = { Text(target.name) },
+                            text = { Text(stringResource(R.string.crash_log_action_prompt)) },
+                            confirmButton = {
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    TextButton(
+                                        onClick = {
+                                            runCatching { target.delete() }
+                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                            crashMenuFor = null
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.crash_log_delete_one)) }
+                                    TextButton(
+                                        onClick = {
+                                            crashes.forEach { runCatching { it.delete() } }
+                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                            crashMenuFor = null
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.crash_log_delete_all)) }
+                                    TextButton(
+                                        onClick = { crashMenuFor = null },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.action_cancel)) }
+                                }
+                            }
+                        )
                     }
                 }
                 if (showDiagnosticsConfirm) {
@@ -1327,6 +1443,11 @@ private fun SpeedGauge(
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
     safeBandColor: Color = AccentBlue,
+    /** External GPS speed in km/h, or null when no external GPS box is connected.
+     *  Drives a small marker on the dial and a smaller readout under the main number,
+     *  both in [externalAccentColor]. */
+    externalSpeed: Float? = null,
+    externalAccentColor: Color = AccentPurple,
     modifier: Modifier = Modifier
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
@@ -1513,6 +1634,34 @@ private fun SpeedGauge(
             )
         )
 
+        // External GPS marker. Tiny dot on the arc at the angle matching the
+        // external speed, plus a small numeric readout under the main number.
+        // Drawn last so it sits on top of the speed arc.
+        if (externalSpeed != null) {
+            val extFraction = (externalSpeed / maxSpeed).coerceIn(0f, 1f)
+            val extAngle = startAngle + sweepTotal * extFraction
+            val extRad = Math.toRadians(extAngle.toDouble())
+            val dotRadius = arcThickness * 0.45f
+            // Sit the dot on the centerline of the speed arc so it visually
+            // tracks the speed sweep. Drawing last means it sits on top of
+            // the arc colour band at the same angle.
+            val dotDistance = arcRadius
+            val dotCenter = Offset(
+                center.x + dotDistance * cos(extRad).toFloat(),
+                center.y + dotDistance * sin(extRad).toFloat()
+            )
+            // Halo for contrast against any arc colour.
+            drawCircle(
+                color = androidx.compose.ui.graphics.Color.Black,
+                radius = dotRadius * 1.45f,
+                center = dotCenter
+            )
+            drawCircle(
+                color = externalAccentColor,
+                radius = dotRadius,
+                center = dotCenter
+            )
+        }
     }
 }
 
@@ -1688,7 +1837,7 @@ private fun WheelInfoBox(
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         }
         Text(
-            text = "v$versionName",
+            text = versionName,
             fontSize = 10.sp,
             color = versionColor,
             modifier = Modifier

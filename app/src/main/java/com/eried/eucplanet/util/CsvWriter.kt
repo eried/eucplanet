@@ -11,8 +11,11 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed
- * The trailing GPS speed column is an EUC Planet extension; DarknessBot viewers ignore trailing columns.
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed`
+ * The two trailing GPS-speed columns are EUC Planet extensions; DarknessBot
+ * viewers ignore trailing columns. `Ext GPS speed` is populated only while an
+ * external BLE GPS box (RaceBox today) is paired and streaming; otherwise it
+ * stays empty so the column doesn't pretend to have data it doesn't.
  */
 class CsvWriter(private val file: File) {
 
@@ -22,11 +25,11 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed")
         writer?.newLine()
     }
 
-    fun writeRow(data: WheelData, location: Location?) {
+    fun writeRow(data: WheelData, location: Location?, externalGpsSpeedKmh: Float? = null) {
         val w = writer ?: return
         // Use wallclock so rows recorded without wheel telemetry (disconnected or
         // never connected) still carry a correct date. WheelData.timestamp defaults to
@@ -42,10 +45,14 @@ class CsvWriter(private val file: File) {
         val gpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else 0f
         val speed = if (data.speed != 0f) data.speed else gpsSpeedKmh
 
+        // External GPS column: empty when not connected so analysis tools can
+        // distinguish "device not paired" from "device read 0 km/h".
+        val extColumn = externalGpsSpeedKmh?.let { String.format(Locale.US, "%.1f", it) } ?: ""
+
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s",
                 date,
                 speed,
                 data.voltage,
@@ -55,7 +62,8 @@ class CsvWriter(private val file: File) {
                 lat,
                 lon,
                 data.totalDistance,
-                gpsSpeedKmh
+                gpsSpeedKmh,
+                extColumn
             )
         )
         w.newLine()

@@ -43,7 +43,12 @@ object KingsongParser {
 
         val voltage = ByteUtils.getUint16LE(frame, 2) / 100f
         val speed = ByteUtils.getInt16LE(frame, 4) / 100f
-        val distanceMeters = readWordSwappedLE32(frame, 6)
+        // 0xA9 offset 6 carries the LIFETIME odometer (`setTotalDistance` in
+        // WheelLog), not the per-power-cycle trip. We previously wired this
+        // to `tripDistance`, which was then overwritten by 0xB9's real trip
+        // value on the next frame, so riders never saw their lifetime odo
+        // and sometimes saw mid-ride trip resets.
+        val totalDistanceMeters = readWordSwappedLE32(frame, 6)
         val current = ByteUtils.getInt16LE(frame, 10) / 100f
         val temperature = ByteUtils.getInt16LE(frame, 12) / 100f
 
@@ -60,7 +65,7 @@ object KingsongParser {
             batteryPercent = batteryPercent,
             temperatures = listOf(temperature),
             maxTemperature = temperature,
-            tripDistance = distanceMeters / 1000f,
+            totalDistance = totalDistanceMeters / 1000f,
             pcMode = pcMode,
             timestamp = System.currentTimeMillis()
         )

@@ -50,7 +50,9 @@ class WheelRepository @Inject constructor(
     private val wheelAdapter: WheelAdapter,
     private val settingsRepository: SettingsRepository,
     private val alarmEngine: AlarmEngine,
-    private val voiceService: VoiceService
+    private val voiceService: VoiceService,
+    private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
+    private val cheatState: com.eried.eucplanet.cheats.CheatState
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -179,9 +181,17 @@ class WheelRepository @Inject constructor(
     private val LIGHT_COOLDOWN_MS = 1500L
 
     /**
+     * Current speed calibration multiplier (1.0 + offsetPct / 100). Mirrored
+     * from AppSettings via the init flow below so the hot telemetry path
+     * reads from a volatile field instead of re-collecting the settings flow
+     * on every BLE frame. Bounded to [0.85, 1.15] (matching the UI -15..+15%).
+     */
+    @Volatile private var speedCalibrationMultiplier: Float = 1f
+
+    /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
      * volume keys, and the dashboard. A misfire while moving locks the wheel
-     * mid-ride and causes an instant motor cutout — so every lock-direction
+     * mid-ride and causes an instant motor cutout, so every lock-direction
      * call goes through one gate here. Unlock always proceeds (a locked wheel
      * has speed = 0 by definition). 5 km/h covers the standstill / push-assist
      * range without false rejecting at IMU noise around zero.
@@ -216,6 +226,23 @@ class WheelRepository @Inject constructor(
             }
         }
 
+        // Track the rider's speed calibration. We mirror it into a volatile
+        // multiplier so the hot telemetry path applies it without re-reading
+        // the settings flow per frame. Also persist a copy into the per-wheel
+        // profile whenever the value changes — keyed by the BLE-advertised
+        // name (AppSettings.lastDeviceName) — so a reconnect to the same
+        // wheel restores everything (tiltback, alarm, safety, calibration).
+        scope.launch {
+            settingsRepository.settings.collect { s ->
+                val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
+                speedCalibrationMultiplier = 1f + clamped / 100f
+                val wheelName = s.lastDeviceName
+                if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
+                    persistWheelProfile(wheelName, s)
+                }
+            }
+        }
+
         // React to connection state changes
         scope.launch {
             bleManager.connectionState.collect { state ->
@@ -223,6 +250,11 @@ class WheelRepository @Inject constructor(
                     ConnectionState.CONNECTED -> {
                         reconcileNextSettings = true
                         startInitSequence()
+                        // Restore the per-wheel saved parameters (tiltback,
+                        // alarm, safety, calibration). Profile is keyed by
+                        // BLE-advertised name; if no profile exists, we save
+                        // the current values as the seed.
+                        scope.launch { loadOrSeedWheelProfile() }
                     }
                     ConnectionState.DISCONNECTED -> {
                         pollingActive = false
@@ -243,6 +275,53 @@ class WheelRepository @Inject constructor(
                     else -> {}
                 }
             }
+        }
+    }
+
+    /**
+     * On wheel connect: if a saved profile exists for the BLE-advertised
+     * name, restore tiltback / alarm / safety speeds and the speed
+     * calibration into the live AppSettings so the dashboard, alarms, voice
+     * and recording all pick the right values up. If no profile exists,
+     * seed one from the current AppSettings — that becomes the starting
+     * point for this wheel and future tweaks are written back via
+     * [persistWheelProfile].
+     */
+    private suspend fun loadOrSeedWheelProfile() {
+        val s = settingsRepository.get()
+        val name = s.lastDeviceName ?: return
+        val existing = runCatching { wheelProfileDao.getByName(name) }.getOrNull()
+        if (existing != null) {
+            settingsRepository.update(
+                s.copy(
+                    tiltbackSpeedKmh = existing.tiltbackSpeedKmh,
+                    alarmSpeedKmh = existing.alarmSpeedKmh,
+                    safetyTiltbackKmh = existing.safetyTiltbackKmh,
+                    safetyAlarmKmh = existing.safetyAlarmKmh,
+                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct
+                )
+            )
+        } else {
+            persistWheelProfile(name, s)
+        }
+    }
+
+    private suspend fun persistWheelProfile(
+        wheelName: String,
+        s: com.eried.eucplanet.data.model.AppSettings
+    ) {
+        runCatching {
+            wheelProfileDao.upsert(
+                com.eried.eucplanet.data.model.WheelProfile(
+                    bleName = wheelName,
+                    tiltbackSpeedKmh = s.tiltbackSpeedKmh,
+                    alarmSpeedKmh = s.alarmSpeedKmh,
+                    safetyTiltbackKmh = s.safetyTiltbackKmh,
+                    safetyAlarmKmh = s.safetyAlarmKmh,
+                    speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
+                    lastConnectedAt = System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -286,7 +365,8 @@ class WheelRepository @Inject constructor(
         // Hard block the lock direction when the wheel is moving — any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
-        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH) {
+        if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH &&
+            !cheatState.lockAtAnySpeed.value) {
             Log.d(TAG, "lock blocked: speed=${_wheelData.value.speed} >= ${LOCK_MAX_SPEED_KMH}")
             return
         }
@@ -633,7 +713,13 @@ class WheelRepository @Inject constructor(
                 // fresh value instead of overwriting with the stale previous.
                 val totalKm = if (result.data.totalDistance > 0f) result.data.totalDistance
                               else previous.totalDistance
+                // Apply the per-wheel speed calibration at the source. Every
+                // downstream consumer (alarms, voice, dashboard, recording)
+                // sees the calibrated value — there is no second source of
+                // truth elsewhere in the app.
+                val cal = speedCalibrationMultiplier
                 _wheelData.value = result.data.copy(
+                    speed = result.data.speed * cal,
                     totalDistance = totalKm,
                     lightOn = if (isP6) previous.lightOn else result.data.lightOn
                 )

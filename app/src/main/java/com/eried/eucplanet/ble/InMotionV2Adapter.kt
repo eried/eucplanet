@@ -135,9 +135,17 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         }
     }
 
-    override fun setLight(on: Boolean): ByteArray =
-        if (useP6Protocol) InMotionV2Commands.setP6Light(on)
-        else InMotionV2Commands.setLight(on)
+    override fun setLight(on: Boolean): ByteArray {
+        if (useP6Protocol) return InMotionV2Commands.setP6Light(on)
+        // V12 HS / HT / Pro need the two-beam `[0x50, low, high]` form;
+        // the V14 single-byte form silently does nothing on those wheels.
+        val m = detectedModel
+        return if (m != null && m.usesV12LightForm) {
+            InMotionV2LegacyCommands.setLightV12(on)
+        } else {
+            InMotionV2Commands.setLight(on)
+        }
+    }
 
     /**
      * Max speed dispatch. Models that can carry alarm thresholds in the same
@@ -175,8 +183,18 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      */
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
-    override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? =
-        if (useP6Protocol) InMotionV2Commands.setP6AlarmSpeed(alarmKmh) else null
+    override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray? {
+        if (useP6Protocol) return InMotionV2Commands.setP6AlarmSpeed(alarmKmh)
+        // V12 HS / HT / Pro use the legacy two-tier alarm packet; V14
+        // family carries alarm in the same packet as max-speed and
+        // doesn't need a separate commit.
+        val m = detectedModel
+        return if (m != null && m.usesV12LightForm) {
+            InMotionV2LegacyCommands.setAlarmSpeedV12(alarmKmh)
+        } else {
+            null
+        }
+    }
 
     override fun setVolume(percent: Int): ByteArray = InMotionV2Commands.setVolume(percent)
     override fun setDRL(on: Boolean): ByteArray = InMotionV2Commands.setDRL(on)

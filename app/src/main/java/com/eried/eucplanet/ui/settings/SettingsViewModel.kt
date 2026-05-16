@@ -8,6 +8,8 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.sync.BackupEntry
+import com.eried.eucplanet.data.sync.BackupOutcome
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
@@ -143,7 +145,6 @@ class SettingsViewModel @Inject constructor(
     fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
     fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
     fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
-    fun markEngineSafetyShown() = update { copy(engineSafetyShown = true) }
 
     fun previewEngine(key: String) {
         viewModelScope.launch {
@@ -183,6 +184,20 @@ class SettingsViewModel @Inject constructor(
     fun updateAutoRecordStopIdleSeconds(v: Int) = update { copy(autoRecordStopIdleSeconds = v.coerceIn(30, 600)) }
     fun updateAutoConnect(v: Boolean) = update { copy(autoConnect = v) }
     fun updateBackButtonAction(value: String) = update { copy(backButtonAction = value) }
+    fun updateSpeedCalibrationOffsetPct(v: Float) = update {
+        // Round to 0.1 % granularity so the value reads cleanly across UI,
+        // backup JSON, and per-wheel profile storage.
+        val rounded = (kotlin.math.round(v * 10f) / 10f).coerceIn(-15f, 15f)
+        copy(speedCalibrationOffsetPct = rounded)
+    }
+    fun updateRaceboxMapX(v: String) = update { copy(raceboxMapX = v) }
+    fun updateRaceboxMapY(v: String) = update { copy(raceboxMapY = v) }
+    fun updateRaceboxMapZ(v: String) = update { copy(raceboxMapZ = v) }
+    fun updateGpsLogAdditional(v: Boolean) = update { copy(gpsLogAdditional = v) }
+    fun updateGpsPrioritizeExternal(v: Boolean) = update { copy(gpsPrioritizeExternal = v) }
+    fun updateGpsShowOnDashboard(v: Boolean) = update { copy(gpsShowOnDashboard = v) }
+    fun setRaceboxAxisMap(mapX: String, mapY: String, mapZ: String) =
+        update { copy(raceboxMapX = mapX, raceboxMapY = mapY, raceboxMapZ = mapZ) }
 
     // Automations
     fun updateAutoLightsEnabled(v: Boolean) {
@@ -223,6 +238,7 @@ class SettingsViewModel @Inject constructor(
 
     // Wear OS companion
     fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
+    fun updatePhoneKeepScreenOn(v: Boolean) = update { copy(phoneKeepScreenOn = v) }
     fun updateWatchAutoStart(v: Boolean) = update { copy(watchAutoStart = v) }
     fun updateWatchCloseOnExit(v: Boolean) = update { copy(watchCloseOnExit = v) }
     fun updateWatchShowWheelBattery(v: Boolean) = update { copy(watchShowWheelBattery = v) }
@@ -343,6 +359,34 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Sanitised name preview for the named-backup dialog. Null when the input
+     *  is empty or strips to empty so the caller can disable the Save button. */
+    fun sanitizeBackupName(raw: String): String? = syncManager.sanitizeBackupName(raw)
+
+    /**
+     * Saves the rider's named backup. Surfaces [BackupOutcome.AlreadyExists] as
+     * [CloudEvent.BackupExists] so the dialog can prompt to overwrite.
+     */
+    fun backupSettingsNamed(name: String, overwrite: Boolean) {
+        viewModelScope.launch {
+            _cloudEvent.value = when (syncManager.backupSettingsAs(name, overwrite)) {
+                BackupOutcome.Saved -> CloudEvent.BackupNamedSuccess(name)
+                BackupOutcome.AlreadyExists -> CloudEvent.BackupExists(name)
+                BackupOutcome.Failed -> CloudEvent.BackupFailed
+            }
+        }
+    }
+
+    /** Latest list of backup files in the sync folder, for the restore picker. */
+    suspend fun listBackups(): List<BackupEntry> = syncManager.listSettingsBackups()
+
+    fun restoreSettingsFrom(fileName: String) {
+        viewModelScope.launch {
+            val ok = syncManager.restoreSettingsFrom(fileName)
+            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+        }
+    }
+
     fun restoreSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.restoreSettings()
@@ -406,7 +450,9 @@ sealed interface CloudEvent {
     data object FolderSet : CloudEvent
     data object FolderFailed : CloudEvent
     data object BackupSuccess : CloudEvent
+    data class BackupNamedSuccess(val name: String) : CloudEvent
     data object BackupFailed : CloudEvent
+    data class BackupExists(val name: String) : CloudEvent
     data object RestoreSuccess : CloudEvent
     data object RestoreFailed : CloudEvent
     data object UploadEnqueued : CloudEvent

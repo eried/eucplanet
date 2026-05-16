@@ -30,7 +30,8 @@ data class VoiceOption(val locale: Locale, val displayName: String)
 @Singleton
 class VoiceService @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val cheatState: com.eried.eucplanet.cheats.CheatState
 ) {
     companion object {
         private const val TAG = "VoiceService"
@@ -429,6 +430,9 @@ class VoiceService @Inject constructor(
     }
 
     private fun speakInternal(text: String, isTrigger: Boolean, rate: Float, localeTag: String) {
+        // Session "silence" toggle: swallow every spoken utterance without
+        // touching audio focus or TTS state.
+        if (cheatState.silence.value) return
         // Buffer calls that arrive before TTS async init completes.
         if (!isReady) {
             synchronized(pendingBeforeReady) {

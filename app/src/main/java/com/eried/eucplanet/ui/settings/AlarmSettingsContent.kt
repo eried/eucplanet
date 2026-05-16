@@ -135,14 +135,11 @@ fun AlarmSettingsContent(
             Spacer(Modifier.height(8.dp))
         }
 
-        Button(
+        LeftAlignedScanButton(
+            label = stringResource(R.string.alarm_add),
             onClick = { editingRule = null; showEditor = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text(stringResource(R.string.alarm_add))
-        }
+            leadingIcon = Icons.Default.Add
+        )
 
         Spacer(Modifier.height(16.dp))
     }

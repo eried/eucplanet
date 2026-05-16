@@ -14,6 +14,7 @@ import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.store.SettingsJson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +52,8 @@ class SyncManager @Inject constructor(
     companion object {
         private const val TAG = "SyncManager"
         const val SETTINGS_BACKUP_NAME = "eucplanet_settings.json"
+        const val SETTINGS_BACKUP_PREFIX = "eucplanet_settings-"
+        const val SETTINGS_BACKUP_SUFFIX = ".json"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
     }
@@ -336,38 +339,62 @@ class SyncManager @Inject constructor(
     }
 
     /** Serialise AppSettings + alarm rules to JSON and write to SETTINGS_BACKUP_NAME. */
-    suspend fun backupSettings(): Boolean {
+    suspend fun backupSettings(): Boolean =
+        backupSettingsAs(name = null, overwrite = true) == BackupOutcome.Saved
+
+    /**
+     * Write a named backup file in the sync folder. [name] = null is the
+     * default `eucplanet_settings.json`; a non-null sanitised name produces
+     * `eucplanet_settings-{name}.json`. When [overwrite] is false and the
+     * target already exists, returns [BackupOutcome.AlreadyExists] without
+     * touching the file so the caller can prompt the rider.
+     */
+    suspend fun backupSettingsAs(name: String?, overwrite: Boolean): BackupOutcome {
         val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return false
-        val payload = settingsToJson(current).apply {
+        val folder = getSyncFolder(current) ?: return BackupOutcome.Failed
+        val fileName = buildBackupFileName(name)
+        val existing = folder.findFile(fileName)
+        if (existing != null && !overwrite) return BackupOutcome.AlreadyExists
+        val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
             put("alarms", alarmsToJson(alarmDao.getAll()))
         }
         val json = payload.toString(2)
         return try {
-            val existing = folder.findFile(SETTINGS_BACKUP_NAME)
             existing?.delete()
-            val file = folder.createFile("application/json", SETTINGS_BACKUP_NAME) ?: return false
+            val file = folder.createFile("application/json", fileName)
+                ?: return BackupOutcome.Failed
             context.contentResolver.openOutputStream(file.uri)?.use { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
-            } ?: return false
-            settingsRepository.update(current.copy(lastSettingsBackupAt = System.currentTimeMillis()))
-            true
+            } ?: return BackupOutcome.Failed
+            // Every successful backup updates the "last backup" label so the
+            // rider sees "Last backup: <date> AS <name>" right after a named
+            // save. Name is null for the default snapshot.
+            settingsRepository.update(
+                current.copy(
+                    lastSettingsBackupAt = System.currentTimeMillis(),
+                    lastSettingsBackupName = name
+                )
+            )
+            BackupOutcome.Saved
         } catch (e: Exception) {
             Log.e(TAG, "Settings backup failed", e)
-            false
+            BackupOutcome.Failed
         }
     }
 
     /** Read settings.json from the folder and apply — keeps current syncFolder/device fields. */
-    suspend fun restoreSettings(): Boolean {
+    suspend fun restoreSettings(): Boolean = restoreSettingsFrom(SETTINGS_BACKUP_NAME)
+
+    /** Restore from the named backup file in the sync folder. */
+    suspend fun restoreSettingsFrom(fileName: String): Boolean {
         val current = settingsRepository.get()
         val folder = getSyncFolder(current) ?: return false
-        val file = folder.findFile(SETTINGS_BACKUP_NAME) ?: return false
+        val file = folder.findFile(fileName) ?: return false
         return try {
             val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                 ?: return false
             val json = JSONObject(String(bytes, Charsets.UTF_8))
-            val restored = jsonToSettings(json, current)
+            val restored = SettingsJson.fromJson(json, current)
             settingsRepository.update(restored)
             // Replace alarm rules wholesale only if the backup contains an
             // "alarms" array. Older backups (pre-v0.4.3) keep the user's
@@ -383,6 +410,52 @@ class SyncManager @Inject constructor(
             false
         }
     }
+
+    /**
+     * List every settings backup in the sync folder. The default
+     * `eucplanet_settings.json` is always returned first (with [BackupEntry.label]
+     * = null), followed by named snapshots sorted by display label.
+     */
+    suspend fun listSettingsBackups(): List<BackupEntry> {
+        val current = settingsRepository.get()
+        val folder = getSyncFolder(current) ?: return emptyList()
+        val out = mutableListOf<BackupEntry>()
+        val named = mutableListOf<BackupEntry>()
+        folder.listFiles().forEach { doc ->
+            val n = doc.name ?: return@forEach
+            if (!n.endsWith(".json", ignoreCase = true)) return@forEach
+            when {
+                n.equals(SETTINGS_BACKUP_NAME, ignoreCase = true) -> {
+                    out += BackupEntry(fileName = n, label = null)
+                }
+                n.startsWith(SETTINGS_BACKUP_PREFIX, ignoreCase = true) &&
+                    n.length > SETTINGS_BACKUP_PREFIX.length + SETTINGS_BACKUP_SUFFIX.length -> {
+                    val label = n.substring(
+                        SETTINGS_BACKUP_PREFIX.length,
+                        n.length - SETTINGS_BACKUP_SUFFIX.length
+                    )
+                    if (label.isNotEmpty()) named += BackupEntry(fileName = n, label = label)
+                }
+            }
+        }
+        named.sortBy { it.label?.lowercase() }
+        return out + named
+    }
+
+    /** Path-safe sanitiser. Strips anything that isn't [A-Za-z0-9_- ], trims,
+     *  collapses whitespace, caps at 32 chars. Empty input returns null so the
+     *  caller can show a validation error. */
+    fun sanitizeBackupName(raw: String): String? {
+        val cleaned = raw.trim()
+            .replace(Regex("[^A-Za-z0-9_\\- ]"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .take(32)
+        return cleaned.takeIf { it.isNotEmpty() }
+    }
+
+    private fun buildBackupFileName(name: String?): String =
+        if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
 
     /** Enqueue the trip upload worker. */
     fun enqueueTripUpload(settings: AppSettings) {
@@ -446,240 +519,6 @@ class SyncManager @Inject constructor(
         }
     }
 
-    // --- JSON mapping ------------------------------------------------------
-
-    private fun settingsToJson(s: AppSettings): JSONObject = JSONObject().apply {
-        // Everything except device bindings, sync folder itself, and last-backup timestamp.
-        put("tiltbackSpeedKmh", s.tiltbackSpeedKmh)
-        put("alarmSpeedKmh", s.alarmSpeedKmh)
-        put("safetyTiltbackKmh", s.safetyTiltbackKmh)
-        put("safetyAlarmKmh", s.safetyAlarmKmh)
-        put("autoConnect", s.autoConnect)
-        put("voiceEnabled", s.voiceEnabled)
-        put("voicePeriodicEnabled", s.voicePeriodicEnabled)
-        put("voiceOnlyWhenConnected", s.voiceOnlyWhenConnected)
-        put("voiceIntervalSeconds", s.voiceIntervalSeconds)
-        put("voiceSpeechRate", s.voiceSpeechRate)
-        put("voiceLocale", s.voiceLocale)
-        put("voiceAudioFocus", s.voiceAudioFocus)
-        put("voiceOutputChannel", s.voiceOutputChannel)
-        put("voiceReportSpeed", s.voiceReportSpeed)
-        put("voiceReportBattery", s.voiceReportBattery)
-        put("voiceReportTemp", s.voiceReportTemp)
-        put("voiceReportPwm", s.voiceReportPwm)
-        put("voiceReportDistance", s.voiceReportDistance)
-        put("voiceReportTime", s.voiceReportTime)
-        put("triggerReportSpeed", s.triggerReportSpeed)
-        put("triggerReportBattery", s.triggerReportBattery)
-        put("triggerReportTemp", s.triggerReportTemp)
-        put("triggerReportPwm", s.triggerReportPwm)
-        put("triggerReportDistance", s.triggerReportDistance)
-        put("triggerReportTime", s.triggerReportTime)
-        put("voiceReportRecording", s.voiceReportRecording)
-        put("triggerReportRecording", s.triggerReportRecording)
-        put("voiceReportOrder", s.voiceReportOrder)
-        put("announceWheelLock", s.announceWheelLock)
-        put("announceLights", s.announceLights)
-        put("announceRecording", s.announceRecording)
-        put("announceConnection", s.announceConnection)
-        put("announceGps", s.announceGps)
-        put("announceSafetyMode", s.announceSafetyMode)
-        put("announceWelcome", s.announceWelcome)
-        put("autoRecord", s.autoRecord)
-        put("autoRecordStartInMotion", s.autoRecordStartInMotion)
-        put("autoRecordStopIdleSeconds", s.autoRecordStopIdleSeconds)
-        put("flic1Name", s.flic1Name)
-        put("flic1Click", s.flic1Click)
-        put("flic1DoubleClick", s.flic1DoubleClick)
-        put("flic1Hold", s.flic1Hold)
-        put("flic2Name", s.flic2Name)
-        put("flic2Click", s.flic2Click)
-        put("flic2DoubleClick", s.flic2DoubleClick)
-        put("flic2Hold", s.flic2Hold)
-        put("flic3Name", s.flic3Name)
-        put("flic3Click", s.flic3Click)
-        put("flic3DoubleClick", s.flic3DoubleClick)
-        put("flic3Hold", s.flic3Hold)
-        put("flic4Name", s.flic4Name)
-        put("flic4Click", s.flic4Click)
-        put("flic4DoubleClick", s.flic4DoubleClick)
-        put("flic4Hold", s.flic4Hold)
-        put("autoLightsEnabled", s.autoLightsEnabled)
-        put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
-        put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
-        put("autoVolumeEnabled", s.autoVolumeEnabled)
-        put("autoVolumeCurve", s.autoVolumeCurve)
-        put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
-        put("imperialUnits", s.imperialUnits)
-        put("volumeKeysEnabled", s.volumeKeysEnabled)
-        put("volumeUpClick", s.volumeUpClick)
-        put("volumeUpHold", s.volumeUpHold)
-        put("volumeDownClick", s.volumeDownClick)
-        put("volumeDownHold", s.volumeDownHold)
-        put("language", s.language)
-        put("themeMode", s.themeMode)
-        put("accentColor", s.accentColor)
-        put("showGaugeColorBand", s.showGaugeColorBand)
-        put("gaugeOrangeThresholdPct", s.gaugeOrangeThresholdPct)
-        put("gaugeRedThresholdPct", s.gaugeRedThresholdPct)
-        put("hapticFeedback", s.hapticFeedback)
-        put("currentDisplayMode", s.currentDisplayMode)
-        // Wear OS companion settings round-trip too so a watch user moving
-        // to a new phone gets their on-screen-button + display picks back.
-        put("watchKeepScreenOn", s.watchKeepScreenOn)
-        put("watchAutoStart", s.watchAutoStart)
-        put("watchShowWheelBattery", s.watchShowWheelBattery)
-        put("watchShowPhoneBattery", s.watchShowPhoneBattery)
-        put("watchShowWatchBattery", s.watchShowWatchBattery)
-        put("watchPwmDisplay", s.watchPwmDisplay)
-        put("watchShowSpeedUnit", s.watchShowSpeedUnit)
-        put("watchEnableGpsSpeed", s.watchEnableGpsSpeed)
-        put("watchStem1Click", s.watchStem1Click)
-        put("watchStem1Hold", s.watchStem1Hold)
-        put("watchStem2Click", s.watchStem2Click)
-        put("watchStem2Hold", s.watchStem2Hold)
-        put("watchScreen1Click", s.watchScreen1Click)
-        put("watchScreen1Hold", s.watchScreen1Hold)
-        put("watchScreen2Click", s.watchScreen2Click)
-        put("watchScreen2Hold", s.watchScreen2Hold)
-        put("watchHapticOnAction", s.watchHapticOnAction)
-        put("watchCloseOnExit", s.watchCloseOnExit)
-        put("watchPrioritizePwm", s.watchPrioritizePwm)
-        put("watchDialRotationDeg", s.watchDialRotationDeg)
-        // Application
-        put("backButtonAction", s.backButtonAction)
-        // Motor sound generator
-        put("engineSoundEnabled", s.engineSoundEnabled)
-        put("engineType", s.engineType)
-        put("engineVolume", s.engineVolume)
-        put("engineVolumeAutoEnabled", s.engineVolumeAutoEnabled)
-        put("engineVolumeAutoCurve", s.engineVolumeAutoCurve)
-        put("engineMuffler", s.engineMuffler)
-        put("engineGearbox", s.engineGearbox)
-        put("engineIdleBehavior", s.engineIdleBehavior)
-        put("engineDecelChar", s.engineDecelChar)
-        put("engineBrake", s.engineBrake)
-        put("engineDuckOnVoice", s.engineDuckOnVoice)
-        put("engineHeadphonesOnly", s.engineHeadphonesOnly)
-        put("engineSafetyShown", s.engineSafetyShown)
-    }
-
-    private fun jsonToSettings(j: JSONObject, base: AppSettings): AppSettings = base.copy(
-        tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
-        alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
-        safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),
-        safetyAlarmKmh = j.optDouble("safetyAlarmKmh", base.safetyAlarmKmh.toDouble()).toFloat(),
-        autoConnect = j.optBoolean("autoConnect", base.autoConnect),
-        voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
-        voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
-        voiceOnlyWhenConnected = j.optBoolean("voiceOnlyWhenConnected", base.voiceOnlyWhenConnected),
-        voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
-        voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
-        voiceLocale = j.optString("voiceLocale", base.voiceLocale),
-        voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
-        voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
-        voiceReportSpeed = j.optBoolean("voiceReportSpeed", base.voiceReportSpeed),
-        voiceReportBattery = j.optBoolean("voiceReportBattery", base.voiceReportBattery),
-        voiceReportTemp = j.optBoolean("voiceReportTemp", base.voiceReportTemp),
-        voiceReportPwm = j.optBoolean("voiceReportPwm", base.voiceReportPwm),
-        voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
-        voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
-        triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
-        triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
-        triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
-        triggerReportPwm = j.optBoolean("triggerReportPwm", base.triggerReportPwm),
-        triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
-        triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
-        voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
-        triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
-        voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
-        announceWheelLock = j.optBoolean("announceWheelLock", base.announceWheelLock),
-        announceLights = j.optBoolean("announceLights", base.announceLights),
-        announceRecording = j.optBoolean("announceRecording", base.announceRecording),
-        announceConnection = j.optBoolean("announceConnection", base.announceConnection),
-        announceGps = j.optBoolean("announceGps", base.announceGps),
-        announceSafetyMode = j.optBoolean("announceSafetyMode", base.announceSafetyMode),
-        announceWelcome = j.optBoolean("announceWelcome", base.announceWelcome),
-        autoRecord = j.optBoolean("autoRecord", base.autoRecord),
-        autoRecordStartInMotion = j.optBoolean(
-            "autoRecordStartInMotion",
-            j.optBoolean("autoRecordOnlyInMotion", base.autoRecordStartInMotion)
-        ),
-        autoRecordStopIdleSeconds = j.optInt("autoRecordStopIdleSeconds", base.autoRecordStopIdleSeconds),
-        flic1Name = j.optString("flic1Name", base.flic1Name),
-        flic1Click = j.optString("flic1Click", base.flic1Click),
-        flic1DoubleClick = j.optString("flic1DoubleClick", base.flic1DoubleClick),
-        flic1Hold = j.optString("flic1Hold", base.flic1Hold),
-        flic2Name = j.optString("flic2Name", base.flic2Name),
-        flic2Click = j.optString("flic2Click", base.flic2Click),
-        flic2DoubleClick = j.optString("flic2DoubleClick", base.flic2DoubleClick),
-        flic2Hold = j.optString("flic2Hold", base.flic2Hold),
-        flic3Name = j.optString("flic3Name", base.flic3Name),
-        flic3Click = j.optString("flic3Click", base.flic3Click),
-        flic3DoubleClick = j.optString("flic3DoubleClick", base.flic3DoubleClick),
-        flic3Hold = j.optString("flic3Hold", base.flic3Hold),
-        flic4Name = j.optString("flic4Name", base.flic4Name),
-        flic4Click = j.optString("flic4Click", base.flic4Click),
-        flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
-        flic4Hold = j.optString("flic4Hold", base.flic4Hold),
-        autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
-        autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
-        autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
-        autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
-        autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
-        autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
-        imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
-        volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
-        volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
-        volumeUpHold = j.optString("volumeUpHold", base.volumeUpHold),
-        volumeDownClick = j.optString("volumeDownClick", base.volumeDownClick),
-        volumeDownHold = j.optString("volumeDownHold", base.volumeDownHold),
-        language = j.optString("language", base.language),
-        themeMode = j.optString("themeMode", base.themeMode),
-        accentColor = j.optString("accentColor", base.accentColor),
-        showGaugeColorBand = j.optBoolean("showGaugeColorBand", base.showGaugeColorBand),
-        gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
-        gaugeRedThresholdPct = j.optInt("gaugeRedThresholdPct", base.gaugeRedThresholdPct),
-        hapticFeedback = j.optBoolean("hapticFeedback", base.hapticFeedback),
-        currentDisplayMode = j.optString("currentDisplayMode", base.currentDisplayMode),
-        // Wear OS companion settings — restored if present, defaulted to
-        // the current value (or the AppSettings default for a fresh install)
-        // if not present so older backups still apply cleanly.
-        watchKeepScreenOn = j.optBoolean("watchKeepScreenOn", base.watchKeepScreenOn),
-        watchAutoStart = j.optBoolean("watchAutoStart", base.watchAutoStart),
-        watchShowWheelBattery = j.optBoolean("watchShowWheelBattery", base.watchShowWheelBattery),
-        watchShowPhoneBattery = j.optBoolean("watchShowPhoneBattery", base.watchShowPhoneBattery),
-        watchShowWatchBattery = j.optBoolean("watchShowWatchBattery", base.watchShowWatchBattery),
-        watchPwmDisplay = j.optString("watchPwmDisplay", base.watchPwmDisplay),
-        watchShowSpeedUnit = j.optBoolean("watchShowSpeedUnit", base.watchShowSpeedUnit),
-        watchEnableGpsSpeed = j.optBoolean("watchEnableGpsSpeed", base.watchEnableGpsSpeed),
-        watchStem1Click = j.optString("watchStem1Click", base.watchStem1Click),
-        watchStem1Hold = j.optString("watchStem1Hold", base.watchStem1Hold),
-        watchStem2Click = j.optString("watchStem2Click", base.watchStem2Click),
-        watchStem2Hold = j.optString("watchStem2Hold", base.watchStem2Hold),
-        watchScreen1Click = j.optString("watchScreen1Click", base.watchScreen1Click),
-        watchScreen1Hold = j.optString("watchScreen1Hold", base.watchScreen1Hold),
-        watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
-        watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
-        watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
-        watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
-        watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
-        watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),
-        backButtonAction = j.optString("backButtonAction", base.backButtonAction),
-        engineSoundEnabled = j.optBoolean("engineSoundEnabled", base.engineSoundEnabled),
-        engineType = j.optString("engineType", base.engineType),
-        engineVolume = j.optDouble("engineVolume", base.engineVolume.toDouble()).toFloat(),
-        engineVolumeAutoEnabled = j.optBoolean("engineVolumeAutoEnabled", base.engineVolumeAutoEnabled),
-        engineVolumeAutoCurve = j.optString("engineVolumeAutoCurve", base.engineVolumeAutoCurve),
-        engineMuffler = j.optString("engineMuffler", base.engineMuffler),
-        engineGearbox = j.optString("engineGearbox", base.engineGearbox),
-        engineIdleBehavior = j.optString("engineIdleBehavior", base.engineIdleBehavior),
-        engineDecelChar = j.optString("engineDecelChar", base.engineDecelChar),
-        engineBrake = j.optString("engineBrake", base.engineBrake),
-        engineDuckOnVoice = j.optString("engineDuckOnVoice", base.engineDuckOnVoice),
-        engineHeadphonesOnly = j.optBoolean("engineHeadphonesOnly", base.engineHeadphonesOnly),
-        engineSafetyShown = j.optBoolean("engineSafetyShown", base.engineSafetyShown)
-    )
 
     private fun alarmsToJson(rules: List<AlarmRule>): JSONArray = JSONArray().apply {
         rules.forEach { r ->
@@ -734,3 +573,19 @@ class SyncManager @Inject constructor(
         return out
     }
 }
+
+/**
+ * Result of a settings-backup attempt. [AlreadyExists] is only ever returned
+ * when the caller asked not to overwrite.
+ */
+sealed interface BackupOutcome {
+    data object Saved : BackupOutcome
+    data object AlreadyExists : BackupOutcome
+    data object Failed : BackupOutcome
+}
+
+/**
+ * One row in the restore picker. [label] = null is the default backup
+ * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
+ */
+data class BackupEntry(val fileName: String, val label: String?)
