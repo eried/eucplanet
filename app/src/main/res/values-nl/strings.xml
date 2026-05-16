@@ -8,6 +8,9 @@
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
+<string name="crash_log_action_prompt">Wat wil je met dit logbestand doen?</string>
+    <string name="crash_log_delete_one">Dit logbestand verwijderen</string>
+    <string name="crash_log_delete_all">Alle logbestanden verwijderen</string>
     <string name="action_save">Opslaan</string>
     <string name="action_delete">Verwijderen</string>
     <string name="action_edit">Bewerken</string>

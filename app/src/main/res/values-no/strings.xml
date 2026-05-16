@@ -7,6 +7,9 @@
     <string name="action_back">Tilbake</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
+<string name="crash_log_action_prompt">Hva vil du gjøre med denne loggen?</string>
+    <string name="crash_log_delete_one">Slett denne loggen</string>
+    <string name="crash_log_delete_all">Slett alle logger</string>
     <string name="action_save">Lagre</string>
     <string name="action_delete">Slett</string>
     <string name="action_edit">Rediger</string>

@@ -7,6 +7,9 @@
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">Aceptar</string>
+<string name="crash_log_action_prompt">¿Qué quieres hacer con este registro?</string>
+    <string name="crash_log_delete_one">Borrar este registro</string>
+    <string name="crash_log_delete_all">Borrar todos los registros</string>
     <string name="action_save">Guardar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_edit">Editar</string>

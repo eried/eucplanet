@@ -1754,7 +1754,13 @@ private fun CloudTab(
                 LongPressActionButton(
                     text = stringResource(R.string.cloud_backup_now),
                     onClick = { viewModel.backupSettingsNow() },
-                    onLongClick = { showBackupNameDialog = true },
+                    onLongClick = {
+                        // Fresh long-press always starts with an empty field;
+                        // the only path that pre-fills is bouncing back from
+                        // an overwrite-cancel below.
+                        backupNameDraft = ""
+                        showBackupNameDialog = true
+                    },
                     modifier = Modifier.weight(1f)
                 )
                 LongPressActionButton(
@@ -2919,17 +2925,28 @@ private fun EngineSpeedVolumeCurveEditor(
 /**
  * Drop this as the FIRST composable inside any conditional / expand-on-toggle
  * block on the Settings screen. A zero-height Spacer carries a
- * BringIntoViewRequester that fires 80 ms after composition so the parent
- * scroll reveals the newly-shown content. The delay covers Compose laying
- * out the rest of the block first.
+ * BringIntoViewRequester that fires ~80 ms after composition so the parent
+ * scroll reveals the newly-shown content.
+ *
+ * The trick: a sentinel of zero size at the top of the new content is
+ * already "visible" the moment the toggle row sits at the bottom of the
+ * viewport, so `bringIntoView()` without args doesn't move anything.
+ * Asking instead for a tall rect *below* the sentinel forces the parent
+ * scroll to reveal that much of the freshly-expanded content.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun BringIntoViewOnFirstShow() {
     val requester = remember { BringIntoViewRequester() }
+    val density = androidx.compose.ui.platform.LocalDensity.current
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(80)
-        runCatching { requester.bringIntoView() }
+        val targetPx = with(density) { 240.dp.toPx() }
+        runCatching {
+            requester.bringIntoView(
+                androidx.compose.ui.geometry.Rect(0f, 0f, 1f, targetPx)
+            )
+        }
     }
     Spacer(
         modifier = Modifier
@@ -3037,7 +3054,7 @@ private fun RestorePickerDialog(
     val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.action_restore)) },
+        title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
         text = {
             val list = entries
             when {

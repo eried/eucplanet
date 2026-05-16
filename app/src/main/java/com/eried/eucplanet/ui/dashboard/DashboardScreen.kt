@@ -864,13 +864,19 @@ fun DashboardScreen(
                     context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
                 } catch (_: Exception) { "?" }
             }
+            val versionRevision = remember {
+                try {
+                    @Suppress("DEPRECATION")
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionCode
+                } catch (_: Exception) { 0 }
+            }
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
-                versionName = versionName,
+                versionName = if (versionRevision > 0) "$versionName·$versionRevision" else versionName,
                 diagnosticsActive = diagEnabled,
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
@@ -892,7 +898,10 @@ fun DashboardScreen(
             }
 
             if (showAboutDialog) {
-                val crashes = remember { com.eried.eucplanet.util.CrashHandler.listCrashes(context) }
+                var crashes by remember {
+                    mutableStateOf(com.eried.eucplanet.util.CrashHandler.listCrashes(context))
+                }
+                var crashMenuFor by remember { mutableStateOf<java.io.File?>(null) }
                 val licenseText = remember {
                     try {
                         val raw = context.resources.openRawResource(R.raw.license)
@@ -1265,7 +1274,10 @@ fun DashboardScreen(
                                                     Row(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
-                                                            .clickable { shareCrashFile(context, file) }
+                                                            .combinedClickable(
+                                                                onClick = { shareCrashFile(context, file) },
+                                                                onLongClick = { crashMenuFor = file }
+                                                            )
                                                             .padding(vertical = 8.dp),
                                                         verticalAlignment = Alignment.CenterVertically,
                                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1300,6 +1312,41 @@ fun DashboardScreen(
                                 }
                             }
                         }
+                    }
+                    crashMenuFor?.let { target ->
+                        androidx.compose.material3.AlertDialog(
+                            onDismissRequest = { crashMenuFor = null },
+                            title = { Text(target.name) },
+                            text = { Text(stringResource(R.string.crash_log_action_prompt)) },
+                            confirmButton = {
+                                Column(
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    TextButton(
+                                        onClick = {
+                                            runCatching { target.delete() }
+                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                            crashMenuFor = null
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.crash_log_delete_one)) }
+                                    TextButton(
+                                        onClick = {
+                                            crashes.forEach { runCatching { it.delete() } }
+                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                            crashMenuFor = null
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.crash_log_delete_all)) }
+                                    TextButton(
+                                        onClick = { crashMenuFor = null },
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text(stringResource(R.string.action_cancel)) }
+                                }
+                            }
+                        )
                     }
                 }
                 if (showDiagnosticsConfirm) {

@@ -8,6 +8,9 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">OK</string>
+<string name="crash_log_action_prompt">What do you want to do with this log?</string>
+    <string name="crash_log_delete_one">Delete this log</string>
+    <string name="crash_log_delete_all">Delete all logs</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>

@@ -7,6 +7,9 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
+<string name="crash_log_action_prompt">Hvad vil du gøre med denne log?</string>
+    <string name="crash_log_delete_one">Slet denne log</string>
+    <string name="crash_log_delete_all">Slet alle logs</string>
     <string name="action_save">Gem</string>
     <string name="action_delete">Slet</string>
     <string name="action_edit">Rediger</string>

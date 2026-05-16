@@ -8,6 +8,9 @@
     <string name="action_back">Voltar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">OK</string>
+<string name="crash_log_action_prompt">O que fazer com este log?</string>
+    <string name="crash_log_delete_one">Apagar este log</string>
+    <string name="crash_log_delete_all">Apagar todos os logs</string>
     <string name="action_save">Salvar</string>
     <string name="action_delete">Excluir</string>
     <string name="action_edit">Editar</string>
