@@ -70,7 +70,7 @@
     <string name="tab_cloud">Sauvegarde des réglages et trajets</string>
 
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
-    <string name="cloud_caption">Dossier où atterrissent les CSV de trajets et la sauvegarde des paramètres.</string>
+    <string name="cloud_caption">Dossier où atterrissent les CSV de trajets et la sauvegarde des paramètres</string>
     <string name="cloud_help_title">Sauvegarde vers OneDrive, Drive ou Dropbox</string>
     <string name="cloud_help_body">Le sélecteur de dossier Android n\'affiche généralement pas OneDrive, Google Drive ou Dropbox : ces applis ne proposent pas de dossier accessible en écriture. On enregistre donc en local, et une appli de synchro se charge de l\'upload.\n\nMise en place :\n1. Installez Autosync (pour OneDrive, Drive ou Dropbox) ou FolderSync depuis le Play Store.\n2. Connectez-vous dans l\'appli et créez une paire : votre dossier local → un dossier cloud.\n3. Choisissez « Upload uniquement » en synchro instantanée ou sur changement.\n4. Revenez ici et sélectionnez le même dossier local.\n\nLes nouveaux trajets arrivent dans ce dossier à la fin de l\'enregistrement, et l\'appli de synchro les envoie en arrière-plan.</string>
     <string name="cloud_choose_folder">Choisir un dossier</string>
@@ -81,6 +81,7 @@
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
+<string name="cloud_last_backup_named">Dernière sauvegarde : %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
     <string name="cloud_backup_success">Paramètres sauvegardés</string>
 <string name="cloud_backup_named_success">Sauvegardé sous %1$s</string>
@@ -88,7 +89,7 @@
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
     <string name="section_cloud_trips">Sauvegarde des trajets</string>
-    <string name="cloud_trips_caption">Les nouveaux trajets sont enregistrés automatiquement dans votre dossier.</string>
+    <string name="cloud_trips_caption">Les nouveaux trajets sont enregistrés automatiquement dans votre dossier</string>
     <string name="cloud_retry_now">Tout synchroniser</string>
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="cloud_uploaded_on">Sauvegardé le %1$s</string>
@@ -107,28 +108,28 @@
     <string name="sync_conflict_ignore">Ignorer tous les conflits</string>
     <string name="action_restore">Restaurer</string>
     <string name="action_overwrite">Écraser</string>
-    <string name="cloud_backup_long_press_hint">Appuyez longtemps pour plus d\'options.</string>
+    <string name="cloud_backup_long_press_hint">Appuyez longtemps pour plus d\'options</string>
     <string name="cloud_backup_name_label">Nom de la sauvegarde</string>
     <string name="cloud_backup_name_preview">Sera enregistré sous %1$s</string>
     <string name="cloud_backup_overwrite_title">Écraser \"%1$s\" ?</string>
     <string name="cloud_backup_overwrite_body">Une sauvegarde du même nom existe déjà.</string>
     <string name="cloud_restore_picker_default">(par défaut)</string>
-    <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier.</string>
+    <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier</string>
 
     <string name="section_recording">Enregistrement</string>
     <string name="section_connection">Connexion</string>
     <string name="section_display">Affichage</string>
     <string name="auto_record_on_start">Enregistrer dès le démarrage</string>
-    <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée.</string>
+    <string name="auto_record_caption">Enregistre un trajet quand la roue est connectée</string>
     <string name="auto_record_start_in_motion">Démarrer l\'enregistrement en mouvement</string>
-    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant.</string>
+    <string name="auto_record_start_in_motion_caption">Démarre au mouvement, s\'arrête après inactivité, reprend au trajet suivant</string>
     <string name="auto_record_stop_idle_seconds">Arrêter après inactivité de</string>
     <string name="auto_connect_on_start">Connexion automatique au démarrage</string>
-    <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée.</string>
+    <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="section_application">Application</string>
     <string name="back_button_action">En balayant vers l\'arrière</string>
-    <string name="back_button_action_desc">Choisis ce que fait le balayage retour depuis l\'écran principal.</string>
+    <string name="back_button_action_desc">Choisis ce que fait le balayage retour depuis l\'écran principal</string>
     <string name="back_button_action_ask">Demander</string>
     <string name="back_button_action_background">Arrière-plan</string>
     <string name="back_button_action_stop">Tout arrêter</string>
@@ -187,7 +188,7 @@
     <string name="report_recording">Enregistrement</string>
 
     <string name="section_flic_buttons">Boutons Flic 2</string>
-    <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher.</string>
+    <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher</string>
     <string name="flic_stop_scan">Arrêter scan</string>
     <string name="flic_start_scan">Lancer scan</string>
     <string name="external_gps_pair_button">Lancer scan</string>
@@ -205,20 +206,20 @@
     <string name="external_gps_map_z">Sortie Z</string>
     <string name="external_gps_autodetect">Autodétection</string>
     <string name="external_gps_autodetect_title">Autodétection des axes</string>
-    <string name="external_gps_autodetect_prep">Préparez-vous à bouger l\'appareil.</string>
-    <string name="external_gps_autodetect_forward">Bougez l\'appareil d\'avant en arrière.</string>
-    <string name="external_gps_autodetect_lateral">Bougez l\'appareil de gauche à droite.</string>
-    <string name="external_gps_autodetect_vertical">Bougez l\'appareil de haut en bas.</string>
-    <string name="external_gps_autodetect_done">Axes détectés et appliqués.</string>
+    <string name="external_gps_autodetect_prep">Préparez-vous à bouger l\'appareil</string>
+    <string name="external_gps_autodetect_forward">Bougez l\'appareil d\'avant en arrière</string>
+    <string name="external_gps_autodetect_lateral">Bougez l\'appareil de gauche à droite</string>
+    <string name="external_gps_autodetect_vertical">Bougez l\'appareil de haut en bas</string>
+    <string name="external_gps_autodetect_done">Axes détectés et appliqués</string>
     <string name="external_gps_autodetect_abort">Annuler</string>
     <string name="gps_log_additional">Utiliser les données GPS supplémentaires</string>
-    <string name="gps_log_additional_desc">Enregistre des échantillons GPS supplémentaires depuis le téléphone ou un boîtier externe.</string>
+    <string name="gps_log_additional_desc">Enregistre des échantillons GPS supplémentaires depuis le téléphone ou un boîtier externe</string>
     <string name="gps_prioritize_external">Priorité au GPS externe</string>
-    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser comme source de vitesse ; sinon, basculer sur le téléphone.</string>
+    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser comme source de vitesse ; sinon, basculer sur le téléphone</string>
     <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
-    <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS.</string>
+    <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS</string>
     <string name="section_volume_keys">Touches de volume</string>
-    <string name="volume_keys_caption">Touches de volume en raccourcis (uniquement quand l\'appli est visible).</string>
+    <string name="volume_keys_caption">Touches de volume en raccourcis (uniquement quand l\'appli est visible)</string>
     <string name="volume_keys_enable">Activer les actions de volume</string>
     <string name="volume_up">Volume haut</string>
     <string name="volume_down">Volume bas</string>
@@ -332,8 +333,8 @@
     <string name="recording_summary_duration">Durée</string>
     <string name="recording_summary_points">Points</string>
     <string name="recording_summary_top_speed">Vitesse max</string>
-    <string name="recording_summary_avg_speed">Vitesse moy.</string>
-    <string name="recording_summary_min_battery">Batterie min.</string>
+    <string name="recording_summary_avg_speed">Vitesse moy</string>
+    <string name="recording_summary_min_battery">Batterie min</string>
     <string name="recording_summary_max_temp">Temp. max</string>
     <string name="recording_chart_speed">Vitesse (%1$s)</string>
     <string name="recording_chart_battery">Batterie (%%)</string>
@@ -341,13 +342,13 @@
     <string name="recording_chart_voltage">Tension (V)</string>
 
     <string name="auto_lights_title">Lumières</string>
-    <string name="auto_lights_desc">Allume ou éteint le phare selon le lever et le coucher du soleil.</string>
+    <string name="auto_lights_desc">Allume ou éteint le phare selon le lever et le coucher du soleil</string>
     <string name="auto_lights_on_before_sunset">Allumer avant le coucher du soleil</string>
     <string name="auto_lights_off_after_sunrise">Éteindre après le lever du soleil</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">En attente de la position GPS\u2026</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Volume adaptatif selon la vitesse.</string>
+    <string name="auto_volume_desc">Volume adaptatif selon la vitesse</string>
     <string name="auto_sunrise_sunset">Lever et coucher du soleil</string>
     <string name="auto_midnight_sun_title">Soleil de minuit</string>
     <string name="auto_midnight_sun_body">Le soleil ne se couche pas à cette latitude aujourd\'hui, les lumières resteront éteintes</string>
@@ -386,7 +387,7 @@
     <string name="sources_fresh_seconds_fmt">il y a %1$ds</string>
     <string name="sources_fresh_minutes_fmt">il y a %1$dm</string>
     <string name="sources_fresh_hours_fmt">il y a %1$dh</string>
-    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Acquisition…</string>
     <string name="sources_reset_avg">Réinitialiser la moyenne</string>
     <string name="sources_apply_calibration">Calibrer la roue</string>
@@ -443,7 +444,7 @@
     <string name="menu_voice_periodic_off">Désactiver les annonces périodiques</string>
     <string name="menu_voice_periodic_on">Activer les annonces périodiques</string>
     <string name="report_time">Temps</string>
-    <string name="scan_show_all_subtitle">Activez si votre roue n\'apparaît pas.</string>
+    <string name="scan_show_all_subtitle">Activez si votre roue n\'apparaît pas</string>
     <string name="scan_show_all_title">Afficher tous les appareils</string>
     <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
     <string name="scan_simulate_title">Roues virtuelles</string>
@@ -459,22 +460,22 @@
     <string name="voice_output_channel_notification">Notification</string>
     <string name="voice_time_fmt">temps %1$s</string>
     <string name="watch_auto_start">Démarrage auto sur la montre</string>
-    <string name="watch_auto_start_desc">Ouvre l\'appli de la montre en même temps que celle du téléphone.</string>
+    <string name="watch_auto_start_desc">Ouvre l\'appli de la montre en même temps que celle du téléphone</string>
     <string name="watch_close_on_exit">Arrêt auto sur la montre</string>
-    <string name="watch_close_on_exit_desc">Arrêter l\'appli de la montre lors de Tout arrêter.</string>
+    <string name="watch_close_on_exit_desc">Arrêter l\'appli de la montre lors de Tout arrêter</string>
     <string name="watch_button_click_label">Clic</string>
     <string name="watch_button_hold_label">Appui long</string>
     <string name="watch_keep_on">Garder l\'écran allumé</string>
-    <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte.</string>
+    <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte</string>
     <string name="watch_pwm_bar">Barre</string>
     <string name="watch_pwm_both">Les deux</string>
     <string name="watch_pwm_display">Indicateur PWM</string>
     <string name="watch_pwm_numbers">Texte</string>
     <string name="watch_show_phone_battery">Afficher la batterie du téléphone</string>
     <string name="watch_show_speed_unit">Étiquette d\'unité de vitesse</string>
-    <string name="watch_show_speed_unit_desc">Affiche l\'unité à côté du grand chiffre de vitesse.</string>
+    <string name="watch_show_speed_unit_desc">Affiche l\'unité à côté du grand chiffre de vitesse</string>
     <string name="watch_prioritize_pwm">Prioriser le PWM</string>
-    <string name="watch_prioritize_pwm_desc">Rend la barre et le chiffre PWM plus grands que la vitesse.</string>
+    <string name="watch_prioritize_pwm_desc">Rend la barre et le chiffre PWM plus grands que la vitesse</string>
     <string name="watch_dial_rotation">Rotation du cadran</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Afficher la batterie de la montre</string>
@@ -485,12 +486,12 @@
     <string name="watch_screen_button_1">Bouton 1</string>
     <string name="watch_screen_button_2">Bouton 2</string>
     <string name="watch_haptic_on_action">Vibrer à l\'action</string>
-    <string name="watch_haptic_on_action_desc">Brève vibration de la montre chaque fois qu\'une action de bouton se déclenche.</string>
+    <string name="watch_haptic_on_action_desc">Brève vibration de la montre chaque fois qu\'une action de bouton se déclenche</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Son du moteur</string>
     <string name="engine_sound_enabled">Son du moteur</string>
-    <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue.</string>
+    <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue</string>
     <string name="engine_type_label">Moteur</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>

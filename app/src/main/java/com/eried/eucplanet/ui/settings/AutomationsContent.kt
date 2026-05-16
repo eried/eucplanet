@@ -95,6 +95,7 @@ fun AutomationsContent(
         }
 
         if (settings.autoLightsEnabled) {
+            BringIntoViewOnFirstShow()
             if (autoLightsSuspended) {
                 Card(colors = CardDefaults.cardColors(containerColor = AccentOrange.copy(alpha = 0.15f))) {
                     Row(
@@ -203,6 +204,7 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
+            BringIntoViewOnFirstShow()
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
             }

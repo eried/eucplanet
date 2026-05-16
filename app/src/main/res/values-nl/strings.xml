@@ -101,11 +101,11 @@
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>
     <string name="watch_keep_on">Scherm aan houden</string>
-    <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is.</string>
+    <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is</string>
     <string name="watch_auto_start">Automatisch starten op horloge</string>
-    <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app.</string>
+    <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app</string>
     <string name="watch_close_on_exit">Automatisch stoppen op horloge</string>
-    <string name="watch_close_on_exit_desc">Stop de horloge-app bij Alles stoppen.</string>
+    <string name="watch_close_on_exit_desc">Stop de horloge-app bij Alles stoppen</string>
     <string name="watch_show_wheel_battery">Accu van wiel tonen</string>
     <string name="watch_show_phone_battery">Accu van telefoon tonen</string>
     <string name="watch_show_watch_battery">Accu van horloge tonen</string>
@@ -114,9 +114,9 @@
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_pwm_both">Beide</string>
     <string name="watch_show_speed_unit">Snelheidseenheid</string>
-    <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal.</string>
+    <string name="watch_show_speed_unit_desc">Toon het eenheidlabel naast het grote snelheidsgetal</string>
     <string name="watch_prioritize_pwm">PWM voorrang geven</string>
-    <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid.</string>
+    <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid</string>
     <string name="watch_dial_rotation">Wijzerplaatrotatie</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
 
@@ -126,7 +126,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Back-upmap</string>
-    <string name="cloud_caption">Map voor rit-CSV\'s en instellingen-back-up.</string>
+    <string name="cloud_caption">Map voor rit-CSV\'s en instellingen-back-up</string>
     <string name="cloud_help_title">Hoe je een back-up maakt naar OneDrive, Drive of Dropbox</string>
     <string name="cloud_help_body">Het mapselectievenster van Android laat OneDrive, Google Drive of Dropbox meestal niet zien. Die apps stellen geen schrijfbare map beschikbaar voor andere apps, dus we slaan lokaal op en laten een synchronisatie-app de upload doen.\n\nInstellen:\n1. Installeer Autosync (voor OneDrive, Drive of Dropbox) of FolderSync uit de Play Store.\n2. Log in die app in en maak een sync-paar: jouw gekozen lokale map naar een cloudmap.\n3. Stel het in op \"Alleen uploaden\" met directe of bij-wijziging-synchronisatie.\n4. Kom hier terug en kies dezelfde lokale map.\n\nNieuwe ritten komen in die map terecht zodra een opname eindigt. De sync-app uploadt ze op de achtergrond.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
@@ -137,6 +137,7 @@
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
+<string name="cloud_last_backup_named">Laatste back-up: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
     <string name="cloud_backup_success">Instellingen geback-upt</string>
 <string name="cloud_backup_named_success">Opgeslagen als %1$s</string>
@@ -144,7 +145,7 @@
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
-    <string name="cloud_trips_caption">Nieuwe ritten worden automatisch in je map opgeslagen.</string>
+    <string name="cloud_trips_caption">Nieuwe ritten worden automatisch in je map opgeslagen</string>
     <string name="cloud_retry_now">Alles synchroniseren</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
@@ -163,29 +164,29 @@
     <string name="sync_checking">Back-upmap controleren…</string>
     <string name="action_restore">Terugzetten</string>
     <string name="action_overwrite">Overschrijven</string>
-    <string name="cloud_backup_long_press_hint">Houd ingedrukt voor meer opties.</string>
+    <string name="cloud_backup_long_press_hint">Houd ingedrukt voor meer opties</string>
     <string name="cloud_backup_name_label">Back-upnaam</string>
     <string name="cloud_backup_name_preview">Wordt opgeslagen als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
     <string name="cloud_restore_picker_default">(standaard)</string>
-    <string name="cloud_restore_picker_empty">Geen back-ups in de map.</string>
+    <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Opname</string>
     <string name="section_connection">Verbinding</string>
     <string name="section_display">Weergave</string>
     <string name="auto_record_on_start">Automatisch opnemen bij starten</string>
-    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is.</string>
+    <string name="auto_record_caption">Neemt een rit op zodra het wiel verbonden is</string>
     <string name="auto_record_start_in_motion">Opname starten bij beweging</string>
-    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit.</string>
+    <string name="auto_record_start_in_motion_caption">Start bij beweging, stopt na inactiviteit, herstart bij de volgende rit</string>
     <string name="auto_record_stop_idle_seconds">Stoppen na inactiviteit van</string>
     <string name="auto_connect_on_start">Automatisch verbinden bij starten</string>
-    <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatst gekoppelde wiel.</string>
+    <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatst gekoppelde wiel</string>
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="section_application">Toepassing</string>
     <string name="back_button_action">Bij terugvegen</string>
-    <string name="back_button_action_desc">Kies wat terugvegen vanaf het dashboard doet.</string>
+    <string name="back_button_action_desc">Kies wat terugvegen vanaf het dashboard doet</string>
     <string name="back_button_action_ask">Vragen</string>
     <string name="back_button_action_background">Achtergrond</string>
     <string name="back_button_action_stop">Alles stoppen</string>
@@ -252,7 +253,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knoppen</string>
-    <string name="flic_scan_hint">Houd je Flic 2-knop 6 seconden ingedrukt om hem in koppelmodus te zetten, tik dan op Scannen.</string>
+    <string name="flic_scan_hint">Houd je Flic 2-knop 6 seconden ingedrukt om hem in koppelmodus te zetten, tik dan op Scannen</string>
     <string name="flic_stop_scan">Scannen stoppen</string>
     <string name="flic_start_scan">Scannen starten</string>
     <string name="external_gps_pair_button">Scannen starten</string>
@@ -272,20 +273,20 @@
     <string name="external_gps_map_z">Uitgang Z</string>
     <string name="external_gps_autodetect">Autodetecteren</string>
     <string name="external_gps_autodetect_title">Assen autodetecteren</string>
-    <string name="external_gps_autodetect_prep">Maak je klaar om het apparaat te bewegen.</string>
-    <string name="external_gps_autodetect_forward">Beweeg het apparaat vooruit en achteruit.</string>
-    <string name="external_gps_autodetect_lateral">Beweeg het apparaat links en rechts.</string>
-    <string name="external_gps_autodetect_vertical">Beweeg het apparaat op en neer.</string>
-    <string name="external_gps_autodetect_done">Assen gedetecteerd en toegepast.</string>
+    <string name="external_gps_autodetect_prep">Maak je klaar om het apparaat te bewegen</string>
+    <string name="external_gps_autodetect_forward">Beweeg het apparaat vooruit en achteruit</string>
+    <string name="external_gps_autodetect_lateral">Beweeg het apparaat links en rechts</string>
+    <string name="external_gps_autodetect_vertical">Beweeg het apparaat op en neer</string>
+    <string name="external_gps_autodetect_done">Assen gedetecteerd en toegepast</string>
     <string name="external_gps_autodetect_abort">Annuleren</string>
     <string name="gps_log_additional">Extra GPS-data gebruiken</string>
-    <string name="gps_log_additional_desc">Log extra GPS-samples van de telefoon of een externe box.</string>
+    <string name="gps_log_additional_desc">Log extra GPS-samples van de telefoon of een externe box</string>
     <string name="gps_prioritize_external">Externe GPS prioriteit geven</string>
-    <string name="gps_prioritize_external_desc">Als een externe box is aangesloten, gebruik die als snelheidsbron; anders valt het terug op de telefoon.</string>
+    <string name="gps_prioritize_external_desc">Als een externe box is aangesloten, gebruik die als snelheidsbron; anders valt het terug op de telefoon</string>
     <string name="gps_show_on_dashboard">Snelheid op dashboard tonen</string>
-    <string name="gps_show_on_dashboard_desc">Zet een gekleurd stipje op de snelheidsmeter met de GPS-waarde.</string>
+    <string name="gps_show_on_dashboard_desc">Zet een gekleurd stipje op de snelheidsmeter met de GPS-waarde</string>
     <string name="section_volume_keys">Volumeknoppen</string>
-    <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is).</string>
+    <string name="volume_keys_caption">Volumeknoppen als snelkoppelingen (alleen als de app zichtbaar is)</string>
     <string name="volume_keys_enable">Acties van volumeknoppen aanzetten</string>
     <string name="volume_up">Volume omhoog</string>
     <string name="volume_down">Volume omlaag</string>
@@ -368,7 +369,7 @@
     <string name="scan_scanning">Zoeken…</string>
     <string name="scan_start">Start scan</string>
     <string name="scan_show_all_title">Alle apparaten tonen</string>
-    <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt.</string>
+    <string name="scan_show_all_subtitle">Schakel in als je wiel niet verschijnt</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -427,13 +428,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Licht</string>
-    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang.</string>
+    <string name="auto_lights_desc">Schakel de koplampen aan of uit op basis van zonsopkomst en zonsondergang</string>
     <string name="auto_lights_on_before_sunset">Licht AAN voor zonsondergang</string>
     <string name="auto_lights_off_after_sunrise">Licht UIT na zonsopkomst</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Wachten op GPS-locatie…</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Verhoog het muziekvolume op basis van snelheid.</string>
+    <string name="auto_volume_desc">Verhoog het muziekvolume op basis van snelheid</string>
     <string name="auto_sunrise_sunset">Zonsopkomst en zonsondergang</string>
     <string name="auto_midnight_sun_title">Middernachtzon</string>
     <string name="auto_midnight_sun_body">De zon gaat vandaag op deze breedtegraad niet onder, het licht blijft UIT</string>
@@ -475,7 +476,7 @@
     <string name="sources_fresh_seconds_fmt">%1$ds geleden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm geleden</string>
     <string name="sources_fresh_hours_fmt">%1$du geleden</string>
-    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Verzamelen…</string>
     <string name="sources_reset_avg">Gemiddelde resetten</string>
     <string name="sources_apply_calibration">Wiel kalibreren</string>
@@ -521,12 +522,12 @@
     <string name="watch_screen_button_1">Knop 1</string>
     <string name="watch_screen_button_2">Knop 2</string>
     <string name="watch_haptic_on_action">Trillen bij actie</string>
-    <string name="watch_haptic_on_action_desc">Korte trilling van het horloge wanneer een knop-actie wordt geactiveerd.</string>
+    <string name="watch_haptic_on_action_desc">Korte trilling van het horloge wanneer een knop-actie wordt geactiveerd</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
-    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel.</string>
+    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>

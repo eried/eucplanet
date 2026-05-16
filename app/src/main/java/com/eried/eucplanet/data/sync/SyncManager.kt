@@ -366,11 +366,15 @@ class SyncManager @Inject constructor(
             context.contentResolver.openOutputStream(file.uri)?.use { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
             } ?: return BackupOutcome.Failed
-            // Only the default backup updates the "last backup" timestamp so
-            // named snapshots don't reset the cadence indicator on the dashboard.
-            if (name == null) {
-                settingsRepository.update(current.copy(lastSettingsBackupAt = System.currentTimeMillis()))
-            }
+            // Every successful backup updates the "last backup" label so the
+            // rider sees "Last backup: <date> AS <name>" right after a named
+            // save. Name is null for the default snapshot.
+            settingsRepository.update(
+                current.copy(
+                    lastSettingsBackupAt = System.currentTimeMillis(),
+                    lastSettingsBackupName = name
+                )
+            )
             BackupOutcome.Saved
         } catch (e: Exception) {
             Log.e(TAG, "Settings backup failed", e)

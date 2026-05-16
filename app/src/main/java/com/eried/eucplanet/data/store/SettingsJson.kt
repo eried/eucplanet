@@ -34,7 +34,8 @@ object SettingsJson {
         externalGpsName = null,
         externalGpsSource = null,
         syncFolderUri = null,
-        lastSettingsBackupAt = null
+        lastSettingsBackupAt = null,
+        lastSettingsBackupName = null
     )
 
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
@@ -51,6 +52,7 @@ object SettingsJson {
         put("externalGpsSource", s.externalGpsSource)
         put("syncFolderUri", s.syncFolderUri)
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
+        put("lastSettingsBackupName", s.lastSettingsBackupName)
 
         put("tiltbackSpeedKmh", s.tiltbackSpeedKmh)
         put("alarmSpeedKmh", s.alarmSpeedKmh)
@@ -183,6 +185,7 @@ object SettingsJson {
         lastSettingsBackupAt = if (j.has("lastSettingsBackupAt") && !j.isNull("lastSettingsBackupAt"))
             j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)
         else base.lastSettingsBackupAt,
+        lastSettingsBackupName = j.optStringOrNull("lastSettingsBackupName", base.lastSettingsBackupName),
         tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),

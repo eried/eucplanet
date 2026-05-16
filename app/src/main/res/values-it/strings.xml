@@ -101,11 +101,11 @@
     <string name="section_watch_general">Generali</string>
     <string name="section_watch_display">Schermo</string>
     <string name="watch_keep_on">Mantieni schermo acceso</string>
-    <string name="watch_keep_on_desc">Tieni l\'orologio sveglio mentre l\'app è aperta.</string>
+    <string name="watch_keep_on_desc">Tieni l\'orologio sveglio mentre l\'app è aperta</string>
     <string name="watch_auto_start">Avvio automatico sull\'orologio</string>
-    <string name="watch_auto_start_desc">Apri l\'app dell\'orologio insieme a quella del telefono.</string>
+    <string name="watch_auto_start_desc">Apri l\'app dell\'orologio insieme a quella del telefono</string>
     <string name="watch_close_on_exit">Arresto automatico sull\'orologio</string>
-    <string name="watch_close_on_exit_desc">Ferma l\'app dell\'orologio con Ferma tutto.</string>
+    <string name="watch_close_on_exit_desc">Ferma l\'app dell\'orologio con Ferma tutto</string>
     <string name="watch_show_wheel_battery">Mostra batteria della ruota</string>
     <string name="watch_show_phone_battery">Mostra batteria del telefono</string>
     <string name="watch_show_watch_battery">Mostra batteria dell\'orologio</string>
@@ -114,9 +114,9 @@
     <string name="watch_pwm_numbers">Testo</string>
     <string name="watch_pwm_both">Entrambi</string>
     <string name="watch_show_speed_unit">Etichetta unità di velocità</string>
-    <string name="watch_show_speed_unit_desc">Mostra l\'unità accanto al grande numero della velocità.</string>
+    <string name="watch_show_speed_unit_desc">Mostra l\'unità accanto al grande numero della velocità</string>
     <string name="watch_prioritize_pwm">Priorità al PWM</string>
-    <string name="watch_prioritize_pwm_desc">Rende la barra e il numero PWM più grandi della velocità.</string>
+    <string name="watch_prioritize_pwm_desc">Rende la barra e il numero PWM più grandi della velocità</string>
     <string name="watch_dial_rotation">Rotazione del quadrante</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
 
@@ -126,7 +126,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Cartella di backup</string>
-    <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni.</string>
+    <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni</string>
     <string name="cloud_help_title">Come fare il backup su OneDrive, Drive o Dropbox</string>
     <string name="cloud_help_body">Il selettore di cartelle di Android di solito non mostra OneDrive, Google Drive o Dropbox. Quelle app non espongono una cartella scrivibile alle altre app, quindi salviamo in locale e lasciamo che un\'app di sincronizzazione faccia l\'upload.\n\nConfigurazione:\n1. Installa Autosync (per OneDrive, Drive o Dropbox) o FolderSync dal Play Store.\n2. In quell\'app, accedi e crea una coppia di sincronizzazione: la tua cartella locale verso una cartella cloud.\n3. Imposta \"Solo upload\" con sincronizzazione istantanea o alla modifica.\n4. Torna qui e seleziona la stessa cartella locale.\n\nI nuovi viaggi finiscono in quella cartella quando una registrazione termina. L\'app di sincronizzazione li carica in background.</string>
     <string name="cloud_choose_folder">Scegli cartella</string>
@@ -137,6 +137,7 @@
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Ripristina</string>
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
+<string name="cloud_last_backup_named">Ultimo backup: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
     <string name="cloud_backup_success">Impostazioni salvate</string>
 <string name="cloud_backup_named_success">Salvato come %1$s</string>
@@ -144,7 +145,7 @@
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
     <string name="section_cloud_trips">Backup dei viaggi</string>
-    <string name="cloud_trips_caption">I nuovi viaggi vengono salvati nella tua cartella automaticamente.</string>
+    <string name="cloud_trips_caption">I nuovi viaggi vengono salvati nella tua cartella automaticamente</string>
     <string name="cloud_retry_now">Sincronizza tutto</string>
     <string name="cloud_retry_enqueued">Upload programmato</string>
     <string name="sync_progress">Sincronizzazione %1$d di %2$d</string>
@@ -163,29 +164,29 @@
     <string name="sync_checking">Controllo della cartella di backup…</string>
     <string name="action_restore">Ripristina</string>
     <string name="action_overwrite">Sovrascrivi</string>
-    <string name="cloud_backup_long_press_hint">Tieni premuto per altre opzioni.</string>
+    <string name="cloud_backup_long_press_hint">Tieni premuto per altre opzioni</string>
     <string name="cloud_backup_name_label">Nome del backup</string>
     <string name="cloud_backup_name_preview">Sarà salvato come %1$s</string>
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
     <string name="cloud_restore_picker_default">(predefinito)</string>
-    <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella.</string>
+    <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Registrazione</string>
     <string name="section_connection">Connessione</string>
     <string name="section_display">Schermo</string>
     <string name="auto_record_on_start">Registra automaticamente all\'avvio</string>
-    <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa.</string>
+    <string name="auto_record_caption">Registra un viaggio quando la ruota è connessa</string>
     <string name="auto_record_start_in_motion">Avvia registrazione in movimento</string>
-    <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro.</string>
+    <string name="auto_record_start_in_motion_caption">Parte al movimento, si ferma dopo inattività, riparte al prossimo giro</string>
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
-    <string name="auto_connect_caption">Si riconnette automaticamente all\'ultima ruota accoppiata.</string>
+    <string name="auto_connect_caption">Si riconnette automaticamente all\'ultima ruota accoppiata</string>
     <string name="last_device">Ultimo dispositivo: %1$s</string>
     <string name="section_application">Applicazione</string>
     <string name="back_button_action">Scorrendo indietro</string>
-    <string name="back_button_action_desc">Scegli cosa fa lo scorrimento indietro dalla schermata principale.</string>
+    <string name="back_button_action_desc">Scegli cosa fa lo scorrimento indietro dalla schermata principale</string>
     <string name="back_button_action_ask">Chiedi</string>
     <string name="back_button_action_background">In background</string>
     <string name="back_button_action_stop">Ferma tutto</string>
@@ -252,7 +253,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Pulsanti Flic 2</string>
-    <string name="flic_scan_hint">Tieni premuto il pulsante Flic 2 per 6 secondi per metterlo in modalità accoppiamento, poi tocca Cerca.</string>
+    <string name="flic_scan_hint">Tieni premuto il pulsante Flic 2 per 6 secondi per metterlo in modalità accoppiamento, poi tocca Cerca</string>
     <string name="flic_stop_scan">Ferma ricerca</string>
     <string name="flic_start_scan">Avvia ricerca</string>
     <string name="external_gps_pair_button">Avvia ricerca</string>
@@ -272,20 +273,20 @@
     <string name="external_gps_map_z">Uscita Z</string>
     <string name="external_gps_autodetect">Autorileva</string>
     <string name="external_gps_autodetect_title">Autorileva assi</string>
-    <string name="external_gps_autodetect_prep">Preparati a muovere il dispositivo.</string>
-    <string name="external_gps_autodetect_forward">Muovi il dispositivo avanti e indietro.</string>
-    <string name="external_gps_autodetect_lateral">Muovi il dispositivo a sinistra e a destra.</string>
-    <string name="external_gps_autodetect_vertical">Muovi il dispositivo su e giù.</string>
-    <string name="external_gps_autodetect_done">Assi rilevati e applicati.</string>
+    <string name="external_gps_autodetect_prep">Preparati a muovere il dispositivo</string>
+    <string name="external_gps_autodetect_forward">Muovi il dispositivo avanti e indietro</string>
+    <string name="external_gps_autodetect_lateral">Muovi il dispositivo a sinistra e a destra</string>
+    <string name="external_gps_autodetect_vertical">Muovi il dispositivo su e giù</string>
+    <string name="external_gps_autodetect_done">Assi rilevati e applicati</string>
     <string name="external_gps_autodetect_abort">Annulla</string>
     <string name="gps_log_additional">Usa dati GPS aggiuntivi</string>
-    <string name="gps_log_additional_desc">Registra campioni GPS aggiuntivi dal telefono o da una scatola esterna.</string>
+    <string name="gps_log_additional_desc">Registra campioni GPS aggiuntivi dal telefono o da una scatola esterna</string>
     <string name="gps_prioritize_external">Priorità al GPS esterno</string>
-    <string name="gps_prioritize_external_desc">Quando una scatola esterna è collegata, usala come fonte di velocità; altrimenti il telefono.</string>
+    <string name="gps_prioritize_external_desc">Quando una scatola esterna è collegata, usala come fonte di velocità; altrimenti il telefono</string>
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
-    <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS.</string>
+    <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS</string>
     <string name="section_volume_keys">Tasti volume</string>
-    <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile).</string>
+    <string name="volume_keys_caption">Tasti volume come scorciatoie (solo con l\'app visibile)</string>
     <string name="volume_keys_enable">Attiva azioni dei tasti volume</string>
     <string name="volume_up">Volume su</string>
     <string name="volume_down">Volume giù</string>
@@ -368,7 +369,7 @@
     <string name="scan_scanning">Ricerca…</string>
     <string name="scan_start">Avvia scansione</string>
     <string name="scan_show_all_title">Mostra tutti i dispositivi</string>
-    <string name="scan_show_all_subtitle">Attivalo se la tua ruota non compare.</string>
+    <string name="scan_show_all_subtitle">Attivalo se la tua ruota non compare</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -427,13 +428,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Luci</string>
-    <string name="auto_lights_desc">Accende o spegne il faro in base al tramonto e all\'alba.</string>
+    <string name="auto_lights_desc">Accende o spegne il faro in base al tramonto e all\'alba</string>
     <string name="auto_lights_on_before_sunset">Luci ON prima del tramonto</string>
     <string name="auto_lights_off_after_sunrise">Luci OFF dopo l\'alba</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">In attesa della posizione GPS…</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità.</string>
+    <string name="auto_volume_desc">Aumenta il volume della musica in base alla velocità</string>
     <string name="auto_sunrise_sunset">Alba e tramonto</string>
     <string name="auto_midnight_sun_title">Sole di mezzanotte</string>
     <string name="auto_midnight_sun_body">Oggi a questa latitudine il sole non tramonta, le luci resteranno spente</string>
@@ -475,7 +476,7 @@
     <string name="sources_fresh_seconds_fmt">%1$ds fa</string>
     <string name="sources_fresh_minutes_fmt">%1$dm fa</string>
     <string name="sources_fresh_hours_fmt">%1$dh fa</string>
-    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Raccolta…</string>
     <string name="sources_reset_avg">Reimposta media</string>
     <string name="sources_apply_calibration">Calibra ruota</string>
@@ -521,12 +522,12 @@
     <string name="watch_screen_button_1">Pulsante 1</string>
     <string name="watch_screen_button_2">Pulsante 2</string>
     <string name="watch_haptic_on_action">Vibra all\'azione</string>
-    <string name="watch_haptic_on_action_desc">Breve vibrazione dell\'orologio ogni volta che si attiva un\'azione di pulsante.</string>
+    <string name="watch_haptic_on_action_desc">Breve vibrazione dell\'orologio ogni volta che si attiva un\'azione di pulsante</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Suono del motore</string>
     <string name="engine_sound_enabled">Suono del motore</string>
-    <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota.</string>
+    <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota</string>
     <string name="engine_type_label">Motore</string>
     <string name="engine_source_sampled">Campione</string>
     <string name="engine_source_synth">Sintetico</string>

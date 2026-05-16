@@ -85,6 +85,7 @@ fun ExternalGpsSection(
         HintText(stringResource(R.string.gps_log_additional_desc), small = true)
 
         if (!additionalEnabled) return@Column
+        BringIntoViewOnFirstShow()
 
         ToggleRow(
             label = stringResource(R.string.gps_prioritize_external),

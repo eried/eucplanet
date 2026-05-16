@@ -70,7 +70,7 @@
     <string name="tab_cloud">Backup af indstillinger og ture</string>
 
     <string name="section_cloud_folder">Backup-mappe</string>
-    <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup.</string>
+    <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup</string>
     <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox, de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
@@ -81,6 +81,7 @@
     <string name="cloud_backup_now">Tag backup</string>
     <string name="cloud_restore">Gendan</string>
     <string name="cloud_last_backup">Seneste backup: %1$s</string>
+<string name="cloud_last_backup_named">Sidste backup: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Endnu ikke taget backup</string>
     <string name="cloud_backup_success">Indstillinger sikkerhedskopieret</string>
 <string name="cloud_backup_named_success">Gemt som %1$s</string>
@@ -88,7 +89,7 @@
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
-    <string name="cloud_trips_caption">Nye ture gemmes automatisk i din mappe.</string>
+    <string name="cloud_trips_caption">Nye ture gemmes automatisk i din mappe</string>
     <string name="cloud_retry_now">Synkronisér alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="cloud_uploaded_on">Sikkerhedskopieret %1$s</string>
@@ -107,30 +108,30 @@
     <string name="sync_conflict_ignore">Spring alle konflikter over</string>
     <string name="action_restore">Gendan</string>
     <string name="action_overwrite">Overskriv</string>
-    <string name="cloud_backup_long_press_hint">Hold inde for flere valgmuligheder.</string>
+    <string name="cloud_backup_long_press_hint">Hold inde for flere valgmuligheder</string>
     <string name="cloud_backup_name_label">Backup-navn</string>
     <string name="cloud_backup_name_preview">Gemmes som %1$s</string>
     <string name="cloud_backup_overwrite_title">Overskriv "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Der findes allerede en backup med dette navn.</string>
     <string name="cloud_restore_picker_default">(standard)</string>
-    <string name="cloud_restore_picker_empty">Ingen backup i mappen.</string>
+    <string name="cloud_restore_picker_empty">Ingen backup i mappen</string>
     <string name="watch_close_on_exit">Auto-stop på uret</string>
-    <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle.</string>
+    <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle</string>
 
     <string name="section_recording">Optagelse</string>
     <string name="section_connection">Forbindelse</string>
     <string name="section_display">Skærm</string>
     <string name="auto_record_on_start">Optag automatisk ved start</string>
-    <string name="auto_record_caption">Optager en tur, når hjulet er tilsluttet.</string>
+    <string name="auto_record_caption">Optager en tur, når hjulet er tilsluttet</string>
     <string name="auto_record_start_in_motion">Start optagelse ved bevægelse</string>
-    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper efter inaktivitet, starter igen ved næste tur.</string>
+    <string name="auto_record_start_in_motion_caption">Starter ved bevægelse, stopper efter inaktivitet, starter igen ved næste tur</string>
     <string name="auto_record_stop_idle_seconds">Stop efter inaktivitet i</string>
     <string name="auto_connect_on_start">Automatisk forbindelse ved start</string>
-    <string name="auto_connect_caption">Forbinder automatisk igen til det senest parrede hjul.</string>
+    <string name="auto_connect_caption">Forbinder automatisk igen til det senest parrede hjul</string>
     <string name="last_device">Seneste enhed: %1$s</string>
     <string name="section_application">Applikation</string>
     <string name="back_button_action">Når du stryger tilbage</string>
-    <string name="back_button_action_desc">Vælg, hvad du gør, når du stryger tilbage fra hovedskærmen.</string>
+    <string name="back_button_action_desc">Vælg, hvad du gør, når du stryger tilbage fra hovedskærmen</string>
     <string name="back_button_action_ask">Spørg</string>
     <string name="back_button_action_background">Baggrund</string>
     <string name="back_button_action_stop">Stop alle</string>
@@ -189,7 +190,7 @@
     <string name="report_recording">Optagelse</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_scan_hint">Hold din Flic 2-knap nede i 6 sekunder for at sætte den i parringstilstand, og tryk så Scan.</string>
+    <string name="flic_scan_hint">Hold din Flic 2-knap nede i 6 sekunder for at sætte den i parringstilstand, og tryk så Scan</string>
     <string name="flic_stop_scan">Stop scanning</string>
     <string name="flic_start_scan">Start scanning</string>
     <string name="external_gps_pair_button">Start scanning</string>
@@ -207,20 +208,20 @@
     <string name="external_gps_map_z">Output Z</string>
     <string name="external_gps_autodetect">Autodetekt</string>
     <string name="external_gps_autodetect_title">Autodetekt akser</string>
-    <string name="external_gps_autodetect_prep">Gør klar til at bevæge enheden.</string>
-    <string name="external_gps_autodetect_forward">Bevæg enheden frem og tilbage.</string>
-    <string name="external_gps_autodetect_lateral">Bevæg enheden venstre og højre.</string>
-    <string name="external_gps_autodetect_vertical">Bevæg enheden op og ned.</string>
-    <string name="external_gps_autodetect_done">Akser registreret og anvendt.</string>
+    <string name="external_gps_autodetect_prep">Gør klar til at bevæge enheden</string>
+    <string name="external_gps_autodetect_forward">Bevæg enheden frem og tilbage</string>
+    <string name="external_gps_autodetect_lateral">Bevæg enheden venstre og højre</string>
+    <string name="external_gps_autodetect_vertical">Bevæg enheden op og ned</string>
+    <string name="external_gps_autodetect_done">Akser registreret og anvendt</string>
     <string name="external_gps_autodetect_abort">Afbryd</string>
     <string name="gps_log_additional">Brug ekstra GPS-data</string>
-    <string name="gps_log_additional_desc">Log ekstra GPS-data fra telefonen eller en ekstern boks.</string>
+    <string name="gps_log_additional_desc">Log ekstra GPS-data fra telefonen eller en ekstern boks</string>
     <string name="gps_prioritize_external">Prioritér ekstern GPS</string>
-    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilsluttet, bruges den som hastighedskilde; ellers bruges telefonen.</string>
+    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilsluttet, bruges den som hastighedskilde; ellers bruges telefonen</string>
     <string name="gps_show_on_dashboard">Vis hastighed på dashboardet</string>
-    <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien.</string>
+    <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
-    <string name="volume_keys_caption">Lydstyrketaster som genveje (kun når appen er synlig).</string>
+    <string name="volume_keys_caption">Lydstyrketaster som genveje (kun når appen er synlig)</string>
     <string name="volume_keys_enable">Aktivér handlinger på lydstyrketaster</string>
     <string name="volume_up">Lyd op</string>
     <string name="volume_down">Lyd ned</string>
@@ -343,13 +344,13 @@
     <string name="recording_chart_voltage">Spænding (V)</string>
 
     <string name="auto_lights_title">Lys</string>
-    <string name="auto_lights_desc">Tænd og sluk frontlyset efter sol op og ned.</string>
+    <string name="auto_lights_desc">Tænd og sluk frontlyset efter sol op og ned</string>
     <string name="auto_lights_on_before_sunset">Tænd lys før solnedgang</string>
     <string name="auto_lights_off_after_sunrise">Sluk lys efter solopgang</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Venter på GPS-position\u2026</string>
     <string name="auto_volume_title">Lydstyrke</string>
-    <string name="auto_volume_desc">Lydstyrken justeres efter hastigheden.</string>
+    <string name="auto_volume_desc">Lydstyrken justeres efter hastigheden</string>
     <string name="auto_sunrise_sunset">Solopgang og solnedgang</string>
     <string name="auto_midnight_sun_title">Midnatssol</string>
     <string name="auto_midnight_sun_body">Solen går ikke ned her i dag, lyset forbliver slukket</string>
@@ -388,7 +389,7 @@
     <string name="sources_fresh_seconds_fmt">%1$ds siden</string>
     <string name="sources_fresh_minutes_fmt">%1$dm siden</string>
     <string name="sources_fresh_hours_fmt">%1$dt siden</string>
-    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Indsamler…</string>
     <string name="sources_reset_avg">Nulstil gennemsnit</string>
     <string name="sources_apply_calibration">Kalibrer hjul</string>
@@ -445,7 +446,7 @@
     <string name="menu_voice_periodic_off">Slå løbende annonceringer fra</string>
     <string name="menu_voice_periodic_on">Slå løbende annonceringer til</string>
     <string name="report_time">Tid</string>
-    <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises.</string>
+    <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises</string>
     <string name="scan_show_all_title">Vis alle enheder</string>
     <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i debug-builds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
@@ -461,20 +462,20 @@
     <string name="voice_output_channel_notification">Notifikation</string>
     <string name="voice_time_fmt">tid %1$s</string>
     <string name="watch_auto_start">Start automatisk på uret</string>
-    <string name="watch_auto_start_desc">Åbn ur-appen sammen med telefon-appen.</string>
+    <string name="watch_auto_start_desc">Åbn ur-appen sammen med telefon-appen</string>
     <string name="watch_button_click_label">Klik</string>
     <string name="watch_button_hold_label">Langt tryk</string>
     <string name="watch_keep_on">Hold skærmen tændt</string>
-    <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben.</string>
+    <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben</string>
     <string name="watch_pwm_bar">Bjælke</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">PWM-indikator</string>
     <string name="watch_pwm_numbers">Tekst</string>
     <string name="watch_show_phone_battery">Vis telefonbatteri</string>
     <string name="watch_show_speed_unit">Enhedslabel for hastighed</string>
-    <string name="watch_show_speed_unit_desc">Vis enhedslabel ved siden af det store hastighedstal.</string>
+    <string name="watch_show_speed_unit_desc">Vis enhedslabel ved siden af det store hastighedstal</string>
     <string name="watch_prioritize_pwm">Prioriter PWM</string>
-    <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten.</string>
+    <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten</string>
     <string name="watch_dial_rotation">Urskivens rotation</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Vis ur-batteri</string>
@@ -485,12 +486,12 @@
     <string name="watch_screen_button_1">Knap 1</string>
     <string name="watch_screen_button_2">Knap 2</string>
     <string name="watch_haptic_on_action">Vibrér ved handling</string>
-    <string name="watch_haptic_on_action_desc">Kort vibration på uret hver gang en knaphandling udløses.</string>
+    <string name="watch_haptic_on_action_desc">Kort vibration på uret hver gang en knaphandling udløses</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
-    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning.</string>
+    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>

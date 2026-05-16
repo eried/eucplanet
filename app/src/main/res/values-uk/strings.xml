@@ -101,11 +101,11 @@
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
     <string name="watch_keep_on">Не вимикати екран</string>
-    <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий.</string>
+    <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий</string>
     <string name="watch_auto_start">Автозапуск на годиннику</string>
-    <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні.</string>
+    <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні</string>
     <string name="watch_close_on_exit">Автозупинка на годиннику</string>
-    <string name="watch_close_on_exit_desc">Зупиняти додаток годинника при «Зупинити все».</string>
+    <string name="watch_close_on_exit_desc">Зупиняти додаток годинника при «Зупинити все»</string>
     <string name="watch_show_wheel_battery">Показувати заряд моноколеса</string>
     <string name="watch_show_phone_battery">Показувати заряд телефона</string>
     <string name="watch_show_watch_battery">Показувати заряд годинника</string>
@@ -114,9 +114,9 @@
     <string name="watch_pwm_numbers">Текст</string>
     <string name="watch_pwm_both">Обидва</string>
     <string name="watch_show_speed_unit">Підпис одиниць швидкості</string>
-    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості.</string>
+    <string name="watch_show_speed_unit_desc">Показувати підпис одиниць поруч із великим числом швидкості</string>
     <string name="watch_prioritize_pwm">Пріоритет PWM</string>
-    <string name="watch_prioritize_pwm_desc">PWM (смуга й число) більший за швидкість.</string>
+    <string name="watch_prioritize_pwm_desc">PWM (смуга й число) більший за швидкість</string>
     <string name="watch_dial_rotation">Обертання циферблата</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
 
@@ -126,7 +126,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервних копій</string>
-    <string name="cloud_caption">Тека для CSV поїздок та резервної копії налаштувань.</string>
+    <string name="cloud_caption">Тека для CSV поїздок та резервної копії налаштувань</string>
     <string name="cloud_help_title">Як робити копії в OneDrive, Drive або Dropbox</string>
     <string name="cloud_help_body">Системний вибір папок Android зазвичай не показує OneDrive, Google Drive чи Dropbox. Ці додатки не надають іншим додаткам папку для запису, тому ми зберігаємо локально, а вивантаженням займається додаток синхронізації.\n\nНалаштування:\n1. Встанови Autosync (для OneDrive, Drive чи Dropbox) або FolderSync з Play Store.\n2. У цьому додатку увійди й створи пару синхронізації: твоя локальна папка до папки в хмарі.\n3. Постав режим \"Лише вивантаження\" з миттєвою синхронізацією або за зміною.\n4. Повернись сюди і вибери ту саму локальну папку.\n\nНові поїздки потрапляють у цю папку, коли запис завершується. Додаток синхронізації вивантажує їх у фоні.</string>
     <string name="cloud_choose_folder">Вибрати папку</string>
@@ -137,6 +137,7 @@
     <string name="cloud_backup_now">Створити копію</string>
     <string name="cloud_restore">Відновити</string>
     <string name="cloud_last_backup">Остання копія: %1$s</string>
+<string name="cloud_last_backup_named">Остання копія: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Копій ще немає</string>
     <string name="cloud_backup_success">Налаштування збережено</string>
 <string name="cloud_backup_named_success">Збережено як %1$s</string>
@@ -144,7 +145,7 @@
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
-    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки.</string>
+    <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки</string>
     <string name="cloud_retry_now">Синхронізувати все</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
@@ -163,29 +164,29 @@
     <string name="sync_checking">Перевіряємо папку копій…</string>
     <string name="action_restore">Відновити</string>
     <string name="action_overwrite">Перезаписати</string>
-    <string name="cloud_backup_long_press_hint">Утримуйте для додаткових опцій.</string>
+    <string name="cloud_backup_long_press_hint">Утримуйте для додаткових опцій</string>
     <string name="cloud_backup_name_label">Назва резервної копії</string>
     <string name="cloud_backup_name_preview">Зберегти як %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписати "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує.</string>
     <string name="cloud_restore_picker_default">(за замовчуванням)</string>
-    <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій.</string>
+    <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Запис</string>
     <string name="section_connection">З\'єднання</string>
     <string name="section_display">Екран</string>
     <string name="auto_record_on_start">Автозапис при підключенні</string>
-    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене.</string>
+    <string name="auto_record_caption">Записує поїздку, коли моноколесо підключене</string>
     <string name="auto_record_start_in_motion">Починати запис при русі</string>
-    <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці.</string>
+    <string name="auto_record_start_in_motion_caption">Стартує під час руху, зупиняється після простою, відновлюється у наступній поїздці</string>
     <string name="auto_record_stop_idle_seconds">Зупиняти після простою</string>
     <string name="auto_connect_on_start">Автопідключення на старті</string>
-    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса.</string>
+    <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="section_application">Застосунок</string>
     <string name="back_button_action">При свайпі назад</string>
-    <string name="back_button_action_desc">Вибери, що робить свайп назад з головного екрана.</string>
+    <string name="back_button_action_desc">Вибери, що робить свайп назад з головного екрана</string>
     <string name="back_button_action_ask">Питати</string>
     <string name="back_button_action_background">У фоні</string>
     <string name="back_button_action_stop">Зупинити все</string>
@@ -244,7 +245,7 @@
     <string name="col_trigger">За тригером</string>
     <string name="report_speed">Швидкість</string>
     <string name="report_battery">Заряд</string>
-    <string name="report_temp">Темп.</string>
+    <string name="report_temp">Темп</string>
     <string name="report_pwm">PWM</string>
     <string name="report_distance">Відстань</string>
     <string name="report_recording">Запис</string>
@@ -252,7 +253,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати.</string>
+    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати</string>
     <string name="flic_stop_scan">Зупинити пошук</string>
     <string name="flic_start_scan">Почати пошук</string>
     <string name="external_gps_pair_button">Почати пошук</string>
@@ -272,20 +273,20 @@
     <string name="external_gps_map_z">Вихід Z</string>
     <string name="external_gps_autodetect">Автовизначення</string>
     <string name="external_gps_autodetect_title">Автовизначення осей</string>
-    <string name="external_gps_autodetect_prep">Підготуйся рухати пристроєм.</string>
-    <string name="external_gps_autodetect_forward">Рухай пристроєм вперед-назад.</string>
-    <string name="external_gps_autodetect_lateral">Рухай пристроєм ліворуч-праворуч.</string>
-    <string name="external_gps_autodetect_vertical">Рухай пристроєм вгору-вниз.</string>
-    <string name="external_gps_autodetect_done">Осі визначено та застосовано.</string>
+    <string name="external_gps_autodetect_prep">Підготуйся рухати пристроєм</string>
+    <string name="external_gps_autodetect_forward">Рухай пристроєм вперед-назад</string>
+    <string name="external_gps_autodetect_lateral">Рухай пристроєм ліворуч-праворуч</string>
+    <string name="external_gps_autodetect_vertical">Рухай пристроєм вгору-вниз</string>
+    <string name="external_gps_autodetect_done">Осі визначено та застосовано</string>
     <string name="external_gps_autodetect_abort">Скасувати</string>
     <string name="gps_log_additional">Використовувати додаткові дані GPS</string>
-    <string name="gps_log_additional_desc">Записує додаткові вибірки GPS з телефона або зовнішнього пристрою.</string>
+    <string name="gps_log_additional_desc">Записує додаткові вибірки GPS з телефона або зовнішнього пристрою</string>
     <string name="gps_prioritize_external">Пріоритет зовнішнього GPS</string>
-    <string name="gps_prioritize_external_desc">Коли зовнішній пристрій підключений, використовувати його як джерело швидкості; інакше, телефон.</string>
+    <string name="gps_prioritize_external_desc">Коли зовнішній пристрій підключений, використовувати його як джерело швидкості; інакше, телефон</string>
     <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
-    <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS.</string>
+    <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS</string>
     <string name="section_volume_keys">Кнопки гучності</string>
-    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли додаток відкритий).</string>
+    <string name="volume_keys_caption">Кнопки гучності як швидкі дії (лише коли додаток відкритий)</string>
     <string name="volume_keys_enable">Увімкнути дії на кнопках гучності</string>
     <string name="volume_up">Гучніше</string>
     <string name="volume_down">Тихіше</string>
@@ -368,7 +369,7 @@
     <string name="scan_scanning">Пошук…</string>
     <string name="scan_start">Почати сканування</string>
     <string name="scan_show_all_title">Показати всі пристрої</string>
-    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється.</string>
+    <string name="scan_show_all_subtitle">Увімкни, якщо твоє моноколесо не з\'являється</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -427,13 +428,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Світло</string>
-    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця.</string>
+    <string name="auto_lights_desc">Вмикати або вимикати фари за заходом і сходом сонця</string>
     <string name="auto_lights_on_before_sunset">Вмикати фари перед заходом</string>
     <string name="auto_lights_off_after_sunrise">Вимикати фари після сходу</string>
     <string name="auto_minutes_fmt">%1$d хв</string>
     <string name="auto_waiting_gps">Чекаємо на координати GPS…</string>
     <string name="auto_volume_title">Гучність</string>
-    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості.</string>
+    <string name="auto_volume_desc">Підвищувати гучність музики залежно від швидкості</string>
     <string name="auto_sunrise_sunset">Схід і захід сонця</string>
     <string name="auto_midnight_sun_title">Полярний день</string>
     <string name="auto_midnight_sun_body">Сьогодні на цій широті сонце не заходить, фари залишатимуться ВИМКНЕНИМИ</string>
@@ -475,7 +476,7 @@
     <string name="sources_fresh_seconds_fmt">%1$d с тому</string>
     <string name="sources_fresh_minutes_fmt">%1$d хв тому</string>
     <string name="sources_fresh_hours_fmt">%1$d год тому</string>
-    <string name="sources_sats_fmt">%1$d супут.</string>
+    <string name="sources_sats_fmt">%1$d супут</string>
     <string name="sources_collecting">Збір даних…</string>
     <string name="sources_reset_avg">Скинути середнє</string>
     <string name="sources_apply_calibration">Калібрувати колесо</string>
@@ -521,12 +522,12 @@
     <string name="watch_screen_button_1">Кнопка 1</string>
     <string name="watch_screen_button_2">Кнопка 2</string>
     <string name="watch_haptic_on_action">Вібрація при дії</string>
-    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки.</string>
+    <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>
     <string name="engine_sound_enabled">Звук двигуна</string>
-    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса.</string>
+    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса</string>
     <string name="engine_type_label">Двигун</string>
     <string name="engine_source_sampled">Семпл</string>
     <string name="engine_source_synth">Синтез</string>
@@ -536,9 +537,9 @@
     <string name="engine_muffler_half">Середній</string>
     <string name="engine_muffler_muffled">Приглушений</string>
     <string name="engine_gearbox_label">Коробка передач</string>
-    <string name="engine_gearbox_off">Вимк.</string>
-    <string name="engine_gearbox_four">4-ступ.</string>
-    <string name="engine_gearbox_six">6-ступ.</string>
+    <string name="engine_gearbox_off">Вимк</string>
+    <string name="engine_gearbox_four">4-ступ</string>
+    <string name="engine_gearbox_six">6-ступ</string>
     <string name="engine_idle_label">На стоянці</string>
     <string name="engine_idle_always">Завжди холостий</string>
     <string name="engine_idle_fade">Згасання</string>
@@ -548,7 +549,7 @@
     <string name="engine_decel_standard">Стандарт</string>
     <string name="engine_decel_backfire">Постріл</string>
     <string name="engine_brake_label">Гальмо двигуном</string>
-    <string name="engine_brake_off">Вимк.</string>
+    <string name="engine_brake_off">Вимк</string>
     <string name="engine_brake_light">Легке</string>
     <string name="engine_brake_strong">Сильне</string>
     <string name="engine_duck_label">Під час мовлення</string>
@@ -560,7 +561,7 @@
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-тактний</string>
-    <string name="engine_preset_four_stroke_single">4-тактний одноцил.</string>
+    <string name="engine_preset_four_stroke_single">4-тактний одноцил</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>
     <string name="engine_preset_inline_4">Рядний 4</string>
     <string name="engine_preset_inline_6_silky">Рядний 6 (шовковий)</string>

@@ -101,11 +101,11 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
     <string name="watch_keep_on">Keep display on</string>
-    <string name="watch_keep_on_desc">Keep the watch awake while the app is open.</string>
+    <string name="watch_keep_on_desc">Keep the watch awake while the app is open</string>
     <string name="watch_auto_start">Auto-start on watch</string>
-    <string name="watch_auto_start_desc">Open the watch app together with the phone app.</string>
+    <string name="watch_auto_start_desc">Open the watch app together with the phone app</string>
     <string name="watch_close_on_exit">Auto-stop on watch</string>
-    <string name="watch_close_on_exit_desc">Stop the watch app on Stop all.</string>
+    <string name="watch_close_on_exit_desc">Stop the watch app on Stop all</string>
     <string name="watch_show_wheel_battery">Show wheel battery</string>
     <string name="watch_show_phone_battery">Show phone battery</string>
     <string name="watch_show_watch_battery">Show watch battery</string>
@@ -114,9 +114,9 @@
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_pwm_both">Both</string>
     <string name="watch_show_speed_unit">Speed unit label</string>
-    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number.</string>
+    <string name="watch_show_speed_unit_desc">Show the unit label next to the big speed number</string>
     <string name="watch_prioritize_pwm">Prioritize PWM</string>
-    <string name="watch_prioritize_pwm_desc">Make the PWM bar and number larger than the speed.</string>
+    <string name="watch_prioritize_pwm_desc">Make the PWM bar and number larger than the speed</string>
     <string name="watch_dial_rotation">Dial rotation</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
 
@@ -131,11 +131,11 @@
     <string name="watch_screen_button_1">Button 1</string>
     <string name="watch_screen_button_2">Button 2</string>
     <string name="watch_haptic_on_action">Vibrate on action</string>
-    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires.</string>
+    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Folder where trip CSVs and settings backup land.</string>
+    <string name="cloud_caption">Folder where trip CSVs and settings backup land</string>
     <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
     <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
@@ -146,6 +146,7 @@
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
+<string name="cloud_last_backup_named">Last backup: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
@@ -153,7 +154,7 @@
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
-    <string name="cloud_trips_caption">New trips are saved to your folder automatically.</string>
+    <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
     <string name="cloud_retry_now">Synchronize all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
@@ -172,29 +173,29 @@
     <string name="sync_checking">Checking backup folder…</string>
     <string name="action_restore">Restore</string>
     <string name="action_overwrite">Overwrite</string>
-    <string name="cloud_backup_long_press_hint">Long press for more options.</string>
+    <string name="cloud_backup_long_press_hint">Long press for more options</string>
     <string name="cloud_backup_name_label">Backup name</string>
     <string name="cloud_backup_name_preview">Will save as %1$s</string>
     <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>
     <string name="cloud_restore_picker_default">(default)</string>
-    <string name="cloud_restore_picker_empty">No backups found in the sync folder.</string>
+    <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Recording</string>
     <string name="section_connection">Connection</string>
     <string name="section_display">Display</string>
     <string name="auto_record_on_start">Auto-record on start</string>
-    <string name="auto_record_caption">Records a trip when the wheel is connected.</string>
+    <string name="auto_record_caption">Records a trip when the wheel is connected</string>
     <string name="auto_record_start_in_motion">Start recording when in motion</string>
-    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride.</string>
+    <string name="auto_record_start_in_motion_caption">Starts on movement, auto-stops after idle, restarts next ride</string>
     <string name="auto_record_stop_idle_seconds">Stop after idle for</string>
     <string name="auto_connect_on_start">Auto-connect on start</string>
-    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically.</string>
+    <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="section_application">Application</string>
     <string name="back_button_action">When swiping back</string>
-    <string name="back_button_action_desc">Choose what swiping back from the dashboard does.</string>
+    <string name="back_button_action_desc">Choose what swiping back from the dashboard does</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>
@@ -257,7 +258,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
-    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load.</string>
+    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load</string>
     <string name="engine_type_label">Engine</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
@@ -335,7 +336,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 buttons</string>
-    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
+    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
     <string name="flic_stop_scan">Stop scan</string>
     <string name="flic_start_scan">Start scan</string>
     <string name="flic_forget">Forget</string>
@@ -358,30 +359,30 @@
     <string name="external_gps_disconnect">Disconnect</string>
     <string name="external_gps_unpair">Forget device</string>
     <string name="external_gps_axes_title">Axis orientation</string>
-    <string name="external_gps_axes_desc">Remap each output axis to a raw axis on the box.</string>
+    <string name="external_gps_axes_desc">Remap each output axis to a raw axis on the box</string>
     <string name="external_gps_map_x">Output X</string>
     <string name="external_gps_map_y">Output Y</string>
     <string name="external_gps_map_z">Output Z</string>
     <string name="external_gps_autodetect">Autodetect</string>
     <string name="external_gps_autodetect_title">Autodetect axes</string>
-    <string name="external_gps_autodetect_prep">Get ready to move the device.</string>
-    <string name="external_gps_autodetect_forward">Press Next and walk forward for a few seconds.</string>
+    <string name="external_gps_autodetect_prep">Get ready to move the device</string>
+    <string name="external_gps_autodetect_forward">Press Next and walk forward for a few seconds</string>
     <string name="external_gps_autodetect_forward_capture">Reading walking motion…</string>
-    <string name="external_gps_autodetect_lateral">Press Next and walk left without changing the device orientation.</string>
+    <string name="external_gps_autodetect_lateral">Press Next and walk left without changing the device orientation</string>
     <string name="external_gps_autodetect_lateral_capture">Reading lateral motion…</string>
-    <string name="external_gps_autodetect_vertical">Press Next and slowly lower the device to the ground.</string>
+    <string name="external_gps_autodetect_vertical">Press Next and slowly lower the device to the ground</string>
     <string name="external_gps_autodetect_vertical_capture">Reading vertical motion…</string>
-    <string name="external_gps_autodetect_done">Axes detected and applied.</string>
+    <string name="external_gps_autodetect_done">Axes detected and applied</string>
     <string name="external_gps_autodetect_abort">Cancel</string>
     <string name="external_gps_autodetect_next">Next</string>
     <string name="gps_log_additional">Use additional GPS data</string>
-    <string name="gps_log_additional_desc">Log extra GPS samples from the phone or an external box.</string>
+    <string name="gps_log_additional_desc">Log extra GPS samples from the phone or an external box</string>
     <string name="gps_prioritize_external">Prioritize external GPS</string>
-    <string name="gps_prioritize_external_desc">When an external box is connected, use it as the speed source; otherwise fall back to the phone.</string>
+    <string name="gps_prioritize_external_desc">When an external box is connected, use it as the speed source; otherwise fall back to the phone</string>
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
-    <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading.</string>
+    <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading</string>
     <string name="section_volume_keys">Volume keys</string>
-    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible).</string>
+    <string name="volume_keys_caption">Use phone volume buttons as shortcuts (only when app is visible)</string>
     <string name="volume_keys_enable">Enable volume key actions</string>
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
@@ -464,7 +465,7 @@
     <string name="scan_scanning">Searching\u2026</string>
     <string name="scan_start">Start Scan</string>
     <string name="scan_show_all_title">Show all devices</string>
-    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear.</string>
+    <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 
     <!-- Metric detail -->
     <string name="metric_detail_title">%1$s</string>
@@ -523,13 +524,13 @@
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lights</string>
-    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise.</string>
+    <string name="auto_lights_desc">Turn on or off the headlights based on sunset and sunrise</string>
     <string name="auto_lights_on_before_sunset">Lights ON before sunset</string>
     <string name="auto_lights_off_after_sunrise">Lights OFF after sunrise</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Waiting for GPS location\u2026</string>
     <string name="auto_volume_title">Volume</string>
-    <string name="auto_volume_desc">Boost music volume based on speed.</string>
+    <string name="auto_volume_desc">Boost music volume based on speed</string>
     <string name="auto_sunrise_sunset">Sunrise and Sunset</string>
     <string name="auto_midnight_sun_title">Midnight Sun</string>
     <string name="auto_midnight_sun_body">Sun doesn\'t set at this latitude today, lights will stay OFF</string>
@@ -615,8 +616,8 @@
     <string name="about_thanks_body">I got tired of EUC apps that evolve too slowly, look dated, have draconian rules around new features, treat their communities as customers, and forget that EUC riders are at their best when they help each other. This one tries to be the opposite.</string>
     <string name="about_license">License</string>
     <string name="service_mode_title">Service Mode</string>
-    <string name="service_mode_caution">CAUTION: Improper use of Service Mode could result in loss of wheel functionality, serious injury, or death.</string>
-    <string name="service_mode_purpose">Service Mode is intended for qualified EUC professionals to conduct diagnostics, repairs, calibrations, and protocol research.</string>
+    <string name="service_mode_caution">CAUTION: Improper use of Service Mode could result in loss of wheel functionality, serious injury, or death</string>
+    <string name="service_mode_purpose">Service Mode is intended for qualified EUC professionals to conduct diagnostics, repairs, calibrations, and protocol research</string>
     <string name="service_mode_recording">While active, the app records every BLE byte sent to and received from the wheel plus any test commands you fire. The log lives in memory until the app is closed.</string>
     <string name="service_mode_link">Visit eucplanet.ried.no/service for more information.</string>
     <string name="service_mode_enter">Enter</string>

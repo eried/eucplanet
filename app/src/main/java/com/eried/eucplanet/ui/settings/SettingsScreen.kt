@@ -674,12 +674,14 @@ private fun GeneralTab(
         SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
         HintText(stringResource(R.string.auto_record_caption), small = true)
         if (settings.autoRecord) {
+            BringIntoViewOnFirstShow()
             SwitchSetting(
                 stringResource(R.string.auto_record_start_in_motion),
                 settings.autoRecordStartInMotion
             ) { viewModel.updateAutoRecordStartInMotion(it) }
             HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
             if (settings.autoRecordStartInMotion) {
+                BringIntoViewOnFirstShow()
                 val idleSec = settings.autoRecordStopIdleSeconds
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
@@ -940,6 +942,7 @@ private fun VoiceTab(
         }
 
         if (settings.voiceEnabled) {
+            BringIntoViewOnFirstShow()
             SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
                 viewModel.updateVoiceOnlyWhenConnected(it)
             }
@@ -1256,6 +1259,7 @@ private fun FlicTab(
             settingsViewModel.updateVolumeKeysEnabled(it)
         }
         if (settings.volumeKeysEnabled) {
+            BringIntoViewOnFirstShow()
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(12.dp)
@@ -1498,6 +1502,7 @@ private fun CloudTab(
     val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
     var showBackupNameDialog by remember { mutableStateOf(false) }
+    var backupNameDraft by remember { mutableStateOf("") }
     var overwritePrompt by remember { mutableStateOf<String?>(null) }
     var showRestorePicker by remember { mutableStateOf(false) }
 
@@ -1539,9 +1544,14 @@ private fun CloudTab(
 
     if (showBackupNameDialog) {
         NamedBackupDialog(
-            onDismiss = { showBackupNameDialog = false },
+            initial = backupNameDraft,
+            onDismiss = {
+                showBackupNameDialog = false
+                backupNameDraft = ""
+            },
             onSave = { name ->
                 showBackupNameDialog = false
+                backupNameDraft = name
                 viewModel.backupSettingsNamed(name, overwrite = false)
             },
             sanitize = viewModel::sanitizeBackupName
@@ -1550,17 +1560,29 @@ private fun CloudTab(
 
     overwritePrompt?.let { pendingName ->
         AlertDialog(
-            onDismissRequest = { overwritePrompt = null },
+            onDismissRequest = {
+                // Treat tap-outside the same as Cancel — return to the name
+                // input with the previous text preserved so the rider can
+                // adjust the name instead of losing what they typed.
+                overwritePrompt = null
+                backupNameDraft = pendingName
+                showBackupNameDialog = true
+            },
             title = { Text(stringResource(R.string.cloud_backup_overwrite_title, pendingName)) },
             text = { Text(stringResource(R.string.cloud_backup_overwrite_body)) },
             confirmButton = {
                 Button(onClick = {
                     overwritePrompt = null
+                    backupNameDraft = ""
                     viewModel.backupSettingsNamed(pendingName, overwrite = true)
                 }) { Text(stringResource(R.string.action_overwrite)) }
             },
             dismissButton = {
-                Button(onClick = { overwritePrompt = null }) {
+                Button(onClick = {
+                    overwritePrompt = null
+                    backupNameDraft = pendingName
+                    showBackupNameDialog = true
+                }) {
                     Text(stringResource(R.string.action_cancel))
                 }
             }
@@ -1713,9 +1735,15 @@ private fun CloudTab(
 
         if (hasFolder) {
             SectionHeader(stringResource(R.string.section_cloud_settings))
-            val lastBackupText = settings.lastSettingsBackupAt?.let {
+            val lastBackupText = settings.lastSettingsBackupAt?.let { ts ->
                 val fmt = java.text.SimpleDateFormat("dd MMM yyyy HH:mm", java.util.Locale.getDefault())
-                stringResource(R.string.cloud_last_backup, fmt.format(java.util.Date(it)))
+                val date = fmt.format(java.util.Date(ts))
+                val named = settings.lastSettingsBackupName
+                if (named != null) {
+                    stringResource(R.string.cloud_last_backup_named, date, named)
+                } else {
+                    stringResource(R.string.cloud_last_backup, date)
+                }
             } ?: stringResource(R.string.cloud_last_backup_never)
             Text(lastBackupText, style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -2265,6 +2293,7 @@ private fun EngineSoundSection(
     )
 
     if (settings.engineSoundEnabled) {
+        BringIntoViewOnFirstShow()
         // Previews push synthetic telemetry, which would clash with a live ride.
         // Only allow ▶ while the wheel is disconnected or parked.
         EngineTypePicker(
@@ -2887,6 +2916,28 @@ private fun EngineSpeedVolumeCurveEditor(
     }
 }
 
+/**
+ * Drop this as the FIRST composable inside any conditional / expand-on-toggle
+ * block on the Settings screen. A zero-height Spacer carries a
+ * BringIntoViewRequester that fires 80 ms after composition so the parent
+ * scroll reveals the newly-shown content. The delay covers Compose laying
+ * out the rest of the block first.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+internal fun BringIntoViewOnFirstShow() {
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(80)
+        runCatching { requester.bringIntoView() }
+    }
+    Spacer(
+        modifier = Modifier
+            .height(0.dp)
+            .bringIntoViewRequester(requester)
+    )
+}
+
 // --- Long-press backup / restore helpers --------------------------------
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -2927,15 +2978,13 @@ private fun LongPressActionButton(
 
 @Composable
 private fun NamedBackupDialog(
+    initial: String,
     onDismiss: () -> Unit,
     onSave: (String) -> Unit,
     sanitize: (String) -> String?
 ) {
-    var raw by remember { mutableStateOf("") }
+    var raw by remember { mutableStateOf(initial) }
     val sanitized = sanitize(raw)
-    val preview = sanitized?.let {
-        stringResource(R.string.cloud_backup_name_preview, "eucplanet_settings-$it.json")
-    }
     val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
     LaunchedEffect(Unit) {
         // Tiny delay lets the dialog finish its mount animation; without it
@@ -2946,24 +2995,15 @@ private fun NamedBackupDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = raw,
-                    onValueChange = { raw = it },
-                    label = { Text(stringResource(R.string.cloud_backup_name_label)) },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                )
-                if (preview != null) {
-                    Text(
-                        preview,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            OutlinedTextField(
+                value = raw,
+                onValueChange = { raw = it },
+                label = { Text(stringResource(R.string.cloud_backup_name_label)) },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+            )
         },
         confirmButton = {
             Button(

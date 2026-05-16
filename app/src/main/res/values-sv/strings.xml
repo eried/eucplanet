@@ -70,7 +70,7 @@
     <string name="tab_cloud">Backup av inställningar och turer</string>
 
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
-    <string name="cloud_caption">Mapp för tur-CSV:er och inställnings-backup.</string>
+    <string name="cloud_caption">Mapp för tur-CSV:er och inställnings-backup</string>
     <string name="cloud_help_title">Säkerhetskopiera till OneDrive, Drive eller Dropbox</string>
     <string name="cloud_help_body">Androids mappväljare visar oftast inte OneDrive, Google Drive eller Dropbox, de apparna exponerar ingen skrivbar mapp för andra appar. Därför sparar vi lokalt och låter en synk-app sköta uppladdningen.\n\nGör så här:\n1. Installera Autosync (för OneDrive, Drive eller Dropbox) eller FolderSync från Play Butik.\n2. Logga in i appen och skapa ett synk-par: din lokala mapp → en molnmapp.\n3. Välj \"Endast uppladdning\" med direktsynk eller synk vid ändring.\n4. Kom tillbaka hit och välj samma lokala mapp.\n\nNya resor hamnar i mappen när inspelningen är klar. Synk-appen laddar upp dem i bakgrunden.</string>
     <string name="cloud_choose_folder">Välj mapp</string>
@@ -81,6 +81,7 @@
     <string name="cloud_backup_now">Säkerhetskopiera</string>
     <string name="cloud_restore">Återställ</string>
     <string name="cloud_last_backup">Senaste kopia: %1$s</string>
+<string name="cloud_last_backup_named">Senaste säkerhetskopia: %1$s AS %2$s</string>
     <string name="cloud_last_backup_never">Ingen kopia ännu</string>
     <string name="cloud_backup_success">Inställningarna säkerhetskopierade</string>
 <string name="cloud_backup_named_success">Säkerhetskopierad som %1$s</string>
@@ -88,7 +89,7 @@
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Säkerhetskopia av resor</string>
-    <string name="cloud_trips_caption">Nya resor sparas automatiskt i din mapp.</string>
+    <string name="cloud_trips_caption">Nya resor sparas automatiskt i din mapp</string>
     <string name="cloud_retry_now">Synkronisera allt</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>
@@ -107,28 +108,28 @@
     <string name="sync_conflict_ignore">Hoppa över alla konflikter</string>
     <string name="action_restore">Återställ</string>
     <string name="action_overwrite">Skriv över</string>
-    <string name="cloud_backup_long_press_hint">Långtryck för fler alternativ.</string>
+    <string name="cloud_backup_long_press_hint">Långtryck för fler alternativ</string>
     <string name="cloud_backup_name_label">Säkerhetskopians namn</string>
     <string name="cloud_backup_name_preview">Sparas som %1$s</string>
     <string name="cloud_backup_overwrite_title">Skriv över "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">En säkerhetskopia med detta namn finns redan i mappen.</string>
     <string name="cloud_restore_picker_default">(standard)</string>
-    <string name="cloud_restore_picker_empty">Inga säkerhetskopior i mappen.</string>
+    <string name="cloud_restore_picker_empty">Inga säkerhetskopior i mappen</string>
 
     <string name="section_recording">Inspelning</string>
     <string name="section_connection">Anslutning</string>
     <string name="section_display">Visning</string>
     <string name="auto_record_on_start">Spela in automatiskt vid start</string>
-    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet.</string>
+    <string name="auto_record_caption">Spelar in en tur när hjulet är anslutet</string>
     <string name="auto_record_start_in_motion">Starta inspelning vid rörelse</string>
-    <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar efter inaktivitet, startar igen vid nästa tur.</string>
+    <string name="auto_record_start_in_motion_caption">Startar vid rörelse, stannar efter inaktivitet, startar igen vid nästa tur</string>
     <string name="auto_record_stop_idle_seconds">Stoppa efter inaktivitet i</string>
     <string name="auto_connect_on_start">Anslut automatiskt vid start</string>
-    <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet.</string>
+    <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="section_application">Applikation</string>
     <string name="back_button_action">När du sveper tillbaka</string>
-    <string name="back_button_action_desc">Välj vad svep bakåt från huvudskärmen gör.</string>
+    <string name="back_button_action_desc">Välj vad svep bakåt från huvudskärmen gör</string>
     <string name="back_button_action_ask">Fråga</string>
     <string name="back_button_action_background">Bakgrund</string>
     <string name="back_button_action_stop">Stoppa allt</string>
@@ -187,7 +188,7 @@
     <string name="report_recording">Inspelning</string>
 
     <string name="section_flic_buttons">Flic 2-knappar</string>
-    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök.</string>
+    <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök</string>
     <string name="flic_stop_scan">Stoppa sökning</string>
     <string name="flic_start_scan">Starta sökning</string>
     <string name="external_gps_pair_button">Starta sökning</string>
@@ -205,20 +206,20 @@
     <string name="external_gps_map_z">Utgång Z</string>
     <string name="external_gps_autodetect">Autodetektera</string>
     <string name="external_gps_autodetect_title">Autodetektera axlar</string>
-    <string name="external_gps_autodetect_prep">Gör dig redo att röra enheten.</string>
-    <string name="external_gps_autodetect_forward">Rör enheten fram och tillbaka.</string>
-    <string name="external_gps_autodetect_lateral">Rör enheten åt vänster och höger.</string>
-    <string name="external_gps_autodetect_vertical">Rör enheten upp och ner.</string>
-    <string name="external_gps_autodetect_done">Axlar identifierade och tillämpade.</string>
+    <string name="external_gps_autodetect_prep">Gör dig redo att röra enheten</string>
+    <string name="external_gps_autodetect_forward">Rör enheten fram och tillbaka</string>
+    <string name="external_gps_autodetect_lateral">Rör enheten åt vänster och höger</string>
+    <string name="external_gps_autodetect_vertical">Rör enheten upp och ner</string>
+    <string name="external_gps_autodetect_done">Axlar identifierade och tillämpade</string>
     <string name="external_gps_autodetect_abort">Avbryt</string>
     <string name="gps_log_additional">Använd ytterligare GPS-data</string>
-    <string name="gps_log_additional_desc">Logga extra GPS-prov från telefonen eller en extern enhet.</string>
+    <string name="gps_log_additional_desc">Logga extra GPS-prov från telefonen eller en extern enhet</string>
     <string name="gps_prioritize_external">Prioritera extern GPS</string>
-    <string name="gps_prioritize_external_desc">När en extern enhet är ansluten, använd den som hastighetskälla; annars fall tillbaka på telefonen.</string>
+    <string name="gps_prioritize_external_desc">När en extern enhet är ansluten, använd den som hastighetskälla; annars fall tillbaka på telefonen</string>
     <string name="gps_show_on_dashboard">Visa hastighet på instrumentpanelen</string>
-    <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet.</string>
+    <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet</string>
     <string name="section_volume_keys">Volymknappar</string>
-    <string name="volume_keys_caption">Volymknappar som genvägar (bara när appen är synlig).</string>
+    <string name="volume_keys_caption">Volymknappar som genvägar (bara när appen är synlig)</string>
     <string name="volume_keys_enable">Aktivera åtgärder på volymknappar</string>
     <string name="volume_up">Volym upp</string>
     <string name="volume_down">Volym ned</string>
@@ -341,13 +342,13 @@
     <string name="recording_chart_voltage">Spänning (V)</string>
 
     <string name="auto_lights_title">Ljus</string>
-    <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång.</string>
+    <string name="auto_lights_desc">Tänd och släck strålkastaren efter solens upp- och nedgång</string>
     <string name="auto_lights_on_before_sunset">Tänd ljus före solnedgång</string>
     <string name="auto_lights_off_after_sunrise">Släck ljus efter soluppgång</string>
     <string name="auto_minutes_fmt">%1$d min</string>
     <string name="auto_waiting_gps">Väntar på GPS-position\u2026</string>
     <string name="auto_volume_title">Volym</string>
-    <string name="auto_volume_desc">Volymen justeras efter hastigheten.</string>
+    <string name="auto_volume_desc">Volymen justeras efter hastigheten</string>
     <string name="auto_sunrise_sunset">Soluppgång och solnedgång</string>
     <string name="auto_midnight_sun_title">Midnattssol</string>
     <string name="auto_midnight_sun_body">Solen går inte ned här i dag, ljuset hålls släckt</string>
@@ -386,7 +387,7 @@
     <string name="sources_fresh_seconds_fmt">%1$ds sedan</string>
     <string name="sources_fresh_minutes_fmt">%1$dm sedan</string>
     <string name="sources_fresh_hours_fmt">%1$dh sedan</string>
-    <string name="sources_sats_fmt">%1$d sat.</string>
+    <string name="sources_sats_fmt">%1$d sat</string>
     <string name="sources_collecting">Samlar in…</string>
     <string name="sources_reset_avg">Nollställ medel</string>
     <string name="sources_apply_calibration">Kalibrera hjul</string>
@@ -443,7 +444,7 @@
     <string name="menu_voice_periodic_off">Stäng av löpande röstmeddelanden</string>
     <string name="menu_voice_periodic_on">Slå på löpande röstmeddelanden</string>
     <string name="report_time">Tid</string>
-    <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns.</string>
+    <string name="scan_show_all_subtitle">Slå på om ditt hjul inte syns</string>
     <string name="scan_show_all_title">Visa alla enheter</string>
     <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i utvecklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuella hjul</string>
@@ -459,22 +460,22 @@
     <string name="voice_output_channel_notification">Avisering</string>
     <string name="voice_time_fmt">tid %1$s</string>
     <string name="watch_auto_start">Starta automatiskt på klockan</string>
-    <string name="watch_auto_start_desc">Öppna klockans app tillsammans med telefonens.</string>
+    <string name="watch_auto_start_desc">Öppna klockans app tillsammans med telefonens</string>
     <string name="watch_close_on_exit">Auto-stopp på klockan</string>
-    <string name="watch_close_on_exit_desc">Stoppa klockans app vid Stoppa allt.</string>
+    <string name="watch_close_on_exit_desc">Stoppa klockans app vid Stoppa allt</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Långt tryck</string>
     <string name="watch_keep_on">Håll skärmen tänd</string>
-    <string name="watch_keep_on_desc">Håll klockan vaken medan appen är öppen.</string>
+    <string name="watch_keep_on_desc">Håll klockan vaken medan appen är öppen</string>
     <string name="watch_pwm_bar">Stapel</string>
     <string name="watch_pwm_both">Båda</string>
     <string name="watch_pwm_display">PWM-indikator</string>
     <string name="watch_pwm_numbers">Text</string>
     <string name="watch_show_phone_battery">Visa telefonens batteri</string>
     <string name="watch_show_speed_unit">Etikett för hastighetsenhet</string>
-    <string name="watch_show_speed_unit_desc">Visa enhetens etikett bredvid den stora hastighetssiffran.</string>
+    <string name="watch_show_speed_unit_desc">Visa enhetens etikett bredvid den stora hastighetssiffran</string>
     <string name="watch_prioritize_pwm">Prioritera PWM</string>
-    <string name="watch_prioritize_pwm_desc">Gör PWM-stapeln och siffran större än hastigheten.</string>
+    <string name="watch_prioritize_pwm_desc">Gör PWM-stapeln och siffran större än hastigheten</string>
     <string name="watch_dial_rotation">Urtavlans rotation</string>
     <string name="watch_dial_rotation_value">%1$d°</string>
     <string name="watch_show_watch_battery">Visa klockans batteri</string>
@@ -485,12 +486,12 @@
     <string name="watch_screen_button_1">Knapp 1</string>
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrera vid åtgärd</string>
-    <string name="watch_haptic_on_action_desc">Kort vibration på klockan varje gång en knappåtgärd utlöses.</string>
+    <string name="watch_haptic_on_action_desc">Kort vibration på klockan varje gång en knappåtgärd utlöses</string>
 
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorljud</string>
     <string name="engine_sound_enabled">Motorljud</string>
-    <string name="engine_sound_enabled_hint">Motorvarvet följer i realtid hjulets hastighet och motorlast.</string>
+    <string name="engine_sound_enabled_hint">Motorvarvet följer i realtid hjulets hastighet och motorlast</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
