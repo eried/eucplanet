@@ -146,7 +146,7 @@
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Restore</string>
     <string name="cloud_last_backup">Last backup: %1$s</string>
-<string name="cloud_last_backup_named">Last backup: %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Last backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>

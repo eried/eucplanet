@@ -81,7 +81,7 @@
     <string name="cloud_backup_now">Sauvegarder</string>
     <string name="cloud_restore">Restaurer</string>
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
-<string name="cloud_last_backup_named">Dernière sauvegarde : %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Dernière sauvegarde : %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
     <string name="cloud_backup_success">Paramètres sauvegardés</string>
 <string name="cloud_backup_named_success">Sauvegardé sous %1$s</string>

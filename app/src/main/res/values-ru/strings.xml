@@ -82,7 +82,7 @@
     <string name="cloud_backup_now">Сделать копию</string>
     <string name="cloud_restore">Восстановить</string>
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
-<string name="cloud_last_backup_named">Последняя копия: %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Последняя копия: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>
     <string name="cloud_backup_success">Настройки сохранены</string>
 <string name="cloud_backup_named_success">Сохранено как %1$s</string>

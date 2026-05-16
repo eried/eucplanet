@@ -81,7 +81,7 @@
     <string name="cloud_backup_now">备份</string>
     <string name="cloud_restore">恢复</string>
     <string name="cloud_last_backup">上次备份:%1$s</string>
-<string name="cloud_last_backup_named">上次备份:%1$s AS %2$s</string>
+<string name="cloud_last_backup_named">上次备份:%1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>

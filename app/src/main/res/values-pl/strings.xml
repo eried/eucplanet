@@ -137,7 +137,7 @@
     <string name="cloud_backup_now">Wykonaj kopię</string>
     <string name="cloud_restore">Przywróć</string>
     <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
-<string name="cloud_last_backup_named">Ostatnia kopia: %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Ostatnia kopia: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
     <string name="cloud_backup_success">Ustawienia zapisane w kopii</string>
 <string name="cloud_backup_named_success">Zapisano jako %1$s</string>

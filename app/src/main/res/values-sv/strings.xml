@@ -81,7 +81,7 @@
     <string name="cloud_backup_now">Säkerhetskopiera</string>
     <string name="cloud_restore">Återställ</string>
     <string name="cloud_last_backup">Senaste kopia: %1$s</string>
-<string name="cloud_last_backup_named">Senaste säkerhetskopia: %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Senaste säkerhetskopia: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ingen kopia ännu</string>
     <string name="cloud_backup_success">Inställningarna säkerhetskopierade</string>
 <string name="cloud_backup_named_success">Säkerhetskopierad som %1$s</string>

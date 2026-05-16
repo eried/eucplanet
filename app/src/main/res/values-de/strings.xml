@@ -82,7 +82,7 @@
     <string name="cloud_backup_now">Sichern</string>
     <string name="cloud_restore">Wiederherstellen</string>
     <string name="cloud_last_backup">Letztes Backup: %1$s</string>
-<string name="cloud_last_backup_named">Letztes Backup: %1$s AS %2$s</string>
+<string name="cloud_last_backup_named">Letztes Backup: %1$s as \"%2$s\"</string>
     <string name="cloud_last_backup_never">Noch nicht gesichert</string>
     <string name="cloud_backup_success">Einstellungen gesichert</string>
 <string name="cloud_backup_named_success">Gesichert als %1$s</string>
