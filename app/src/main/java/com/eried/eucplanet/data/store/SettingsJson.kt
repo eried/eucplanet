@@ -7,17 +7,51 @@ import org.json.JSONObject
  * Hand-written AppSettings <-> JSON mapping used by both the on-disk settings
  * store ([SettingsStore]) and the export/restore feature ([com.eried.eucplanet.data.sync.SyncManager]).
  *
- * Fields not present in [toJson] are intentionally omitted from disk-stored
- * settings — they're device-specific (last paired BLE address, external GPS
- * pairing, sync folder URI, last-backup timestamp). Those stay in
- * [AppSettings] for ergonomics but aren't round-tripped.
+ * Includes every persistent field so [SettingsStore] round-trips them — the
+ * backup writer in SyncManager scrubs device-specific fields (BLE addresses,
+ * SAF folder URI, last-backup timestamp) with [stripDeviceBindings] before
+ * writing the cross-device backup file.
  *
  * Read path uses [base] as the floor so unknown / older payloads just keep
  * the current default — adding a new AppSettings field never breaks restore.
  */
 object SettingsJson {
 
+    /**
+     * Returns a copy of [s] with every device-specific binding nulled out so
+     * the resulting JSON is safe to share between phones. Used by the backup
+     * file writer; the on-disk DataStore blob keeps the full object so the
+     * folder picker, paired Flic addresses, etc. survive an app restart.
+     */
+    fun stripDeviceBindings(s: AppSettings): AppSettings = s.copy(
+        lastDeviceAddress = null,
+        lastDeviceName = null,
+        flic1Address = null,
+        flic2Address = null,
+        flic3Address = null,
+        flic4Address = null,
+        externalGpsAddress = null,
+        externalGpsName = null,
+        externalGpsSource = null,
+        syncFolderUri = null,
+        lastSettingsBackupAt = null
+    )
+
     fun toJson(s: AppSettings): JSONObject = JSONObject().apply {
+        // Device-binding fields. Persisted locally; SyncManager nulls these
+        // via [stripDeviceBindings] before writing the cross-device backup.
+        put("lastDeviceAddress", s.lastDeviceAddress)
+        put("lastDeviceName", s.lastDeviceName)
+        put("flic1Address", s.flic1Address)
+        put("flic2Address", s.flic2Address)
+        put("flic3Address", s.flic3Address)
+        put("flic4Address", s.flic4Address)
+        put("externalGpsAddress", s.externalGpsAddress)
+        put("externalGpsName", s.externalGpsName)
+        put("externalGpsSource", s.externalGpsSource)
+        put("syncFolderUri", s.syncFolderUri)
+        put("lastSettingsBackupAt", s.lastSettingsBackupAt)
+
         put("tiltbackSpeedKmh", s.tiltbackSpeedKmh)
         put("alarmSpeedKmh", s.alarmSpeedKmh)
         put("safetyTiltbackKmh", s.safetyTiltbackKmh)
@@ -137,6 +171,19 @@ object SettingsJson {
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
+        lastDeviceAddress = j.optStringOrNull("lastDeviceAddress", base.lastDeviceAddress),
+        lastDeviceName = j.optStringOrNull("lastDeviceName", base.lastDeviceName),
+        flic1Address = j.optStringOrNull("flic1Address", base.flic1Address),
+        flic2Address = j.optStringOrNull("flic2Address", base.flic2Address),
+        flic3Address = j.optStringOrNull("flic3Address", base.flic3Address),
+        flic4Address = j.optStringOrNull("flic4Address", base.flic4Address),
+        externalGpsAddress = j.optStringOrNull("externalGpsAddress", base.externalGpsAddress),
+        externalGpsName = j.optStringOrNull("externalGpsName", base.externalGpsName),
+        externalGpsSource = j.optStringOrNull("externalGpsSource", base.externalGpsSource),
+        syncFolderUri = j.optStringOrNull("syncFolderUri", base.syncFolderUri),
+        lastSettingsBackupAt = if (j.has("lastSettingsBackupAt") && !j.isNull("lastSettingsBackupAt"))
+            j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)
+        else base.lastSettingsBackupAt,
         tiltbackSpeedKmh = j.optDouble("tiltbackSpeedKmh", base.tiltbackSpeedKmh.toDouble()).toFloat(),
         alarmSpeedKmh = j.optDouble("alarmSpeedKmh", base.alarmSpeedKmh.toDouble()).toFloat(),
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),
@@ -257,4 +304,13 @@ object SettingsJson {
         gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
         gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard)
     )
+
+    /** `optString` returns `""` for null and absent keys, which we cannot
+     *  distinguish from a legitimate empty-string value. This helper keeps
+     *  null vs explicit value vs absent semantics intact for nullable fields. */
+    private fun JSONObject.optStringOrNull(key: String, fallback: String?): String? = when {
+        !has(key) -> fallback
+        isNull(key) -> null
+        else -> optString(key, fallback ?: "")
+    }
 }

@@ -340,7 +340,7 @@ class SyncManager @Inject constructor(
     suspend fun backupSettings(): Boolean {
         val current = settingsRepository.get()
         val folder = getSyncFolder(current) ?: return false
-        val payload = SettingsJson.toJson(current).apply {
+        val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
             put("alarms", alarmsToJson(alarmDao.getAll()))
         }
         val json = payload.toString(2)
