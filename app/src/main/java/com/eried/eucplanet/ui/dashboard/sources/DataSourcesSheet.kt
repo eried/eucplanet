@@ -1185,14 +1185,14 @@ private fun LineChart(
             }
 
             val now = System.currentTimeMillis()
-            // Dynamic time window: grows from 30 s up to the 5-min ViewModel
-            // buffer cap as samples accumulate. Without this the chart shows
-            // a tiny squiggle pinned to the right edge on a fresh open, with
-            // 4-plus minutes of empty space on the left. Now: on a fresh
-            // open the rider sees the last 30 s in detail; the window
-            // widens automatically as the buffer fills.
-            val minWindowMs = 30_000L
-            val maxWindowMs = 300_000L
+            // Dynamic time window: grows from 20 s up to a 2-min cap as
+            // samples accumulate. Without this the chart shows a tiny
+            // squiggle pinned to the right edge on a fresh open. Now: on
+            // a fresh open the rider sees the last 20 s in detail; the
+            // window widens automatically as the buffer fills, capped at
+            // 2 min so the chart still resolves recent dynamics at speed.
+            val minWindowMs = 20_000L
+            val maxWindowMs = 120_000L
             val oldest = allPoints.minOfOrNull { it.first } ?: now
             val windowMs = (now - oldest).coerceIn(minWindowMs, maxWindowMs)
             val tMin = now - windowMs
