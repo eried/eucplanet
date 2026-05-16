@@ -876,7 +876,7 @@ fun DashboardScreen(
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
-                versionName = if (versionRevision > 0) "$versionName-$versionRevision" else versionName,
+                versionName = if (versionRevision > 0) "$versionName.$versionRevision" else versionName,
                 diagnosticsActive = diagEnabled,
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
@@ -1828,7 +1828,7 @@ private fun WheelInfoBox(
             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         }
         Text(
-            text = "v$versionName",
+            text = versionName,
             fontSize = 10.sp,
             color = versionColor,
             modifier = Modifier
