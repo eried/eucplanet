@@ -17,7 +17,7 @@ data class AlarmRule(
     val threshold: Float = 30f,
 
     // Beep action
-    val beepEnabled: Boolean = true,
+    val beepEnabled: Boolean = false,
     val beepFrequency: Int = 1000,   // Hz: 400-3000
     val beepDurationMs: Int = 300,   // per beep
     val beepCount: Int = 1,          // 1=single, 2=double, 3=triple
