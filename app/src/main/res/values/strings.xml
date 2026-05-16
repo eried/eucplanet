@@ -176,10 +176,8 @@
     <string name="sync_checking">Checking backup folder…</string>
     <string name="action_restore">Restore</string>
     <string name="action_overwrite">Overwrite</string>
-    <string name="cloud_backup_long_press_hint">Long-press Backup to save a named snapshot, or long-press Restore to pick which to restore.</string>
-    <string name="cloud_backup_name_title">Name this backup</string>
+    <string name="cloud_backup_long_press_hint">Long press for more options.</string>
     <string name="cloud_backup_name_label">Backup name</string>
-    <string name="cloud_backup_name_hint">Letters, numbers, spaces, dash or underscore.</string>
     <string name="cloud_backup_name_preview">Will save as %1$s</string>
     <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>

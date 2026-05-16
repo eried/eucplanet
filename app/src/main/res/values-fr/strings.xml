@@ -108,10 +108,8 @@
     <string name="sync_conflict_ignore">Ignorer tous les conflits</string>
     <string name="action_restore">Restaurer</string>
     <string name="action_overwrite">Écraser</string>
-    <string name="cloud_backup_long_press_hint">Appuyez longtemps sur Sauvegarde pour un instantané nommé, ou Restauration pour choisir.</string>
-    <string name="cloud_backup_name_title">Nommer la sauvegarde</string>
+    <string name="cloud_backup_long_press_hint">Appuyez longtemps pour plus d\'options.</string>
     <string name="cloud_backup_name_label">Nom de la sauvegarde</string>
-    <string name="cloud_backup_name_hint">Lettres, chiffres, espaces, tiret ou tiret bas.</string>
     <string name="cloud_backup_name_preview">Sera enregistré sous %1$s</string>
     <string name="cloud_backup_overwrite_title">Écraser \"%1$s\" ?</string>
     <string name="cloud_backup_overwrite_body">Une sauvegarde du même nom existe déjà.</string>

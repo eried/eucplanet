@@ -167,10 +167,8 @@
     <string name="sync_checking">Перевіряємо папку копій…</string>
     <string name="action_restore">Відновити</string>
     <string name="action_overwrite">Перезаписати</string>
-    <string name="cloud_backup_long_press_hint">Утримуйте Резервна копія, щоб зберегти іменований знімок, або Відновити, щоб вибрати з кількох.</string>
-    <string name="cloud_backup_name_title">Назвати резервну копію</string>
+    <string name="cloud_backup_long_press_hint">Утримуйте для додаткових опцій.</string>
     <string name="cloud_backup_name_label">Назва резервної копії</string>
-    <string name="cloud_backup_name_hint">Літери, цифри, пробіли, дефіс або підкреслення.</string>
     <string name="cloud_backup_name_preview">Зберегти як %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписати "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує.</string>

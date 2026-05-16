@@ -109,10 +109,8 @@
     <string name="sync_checking">Проверка папки копий…</string>
     <string name="action_restore">Восстановить</string>
     <string name="action_overwrite">Перезаписать</string>
-    <string name="cloud_backup_long_press_hint">Удерживайте Резервная копия для именованного снимка, или Восстановить для выбора.</string>
-    <string name="cloud_backup_name_title">Имя резервной копии</string>
+    <string name="cloud_backup_long_press_hint">Удерживайте для дополнительных опций.</string>
     <string name="cloud_backup_name_label">Имя</string>
-    <string name="cloud_backup_name_hint">Буквы, цифры, пробелы, дефис или подчёркивание.</string>
     <string name="cloud_backup_name_preview">Сохранить как %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписать "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже существует.</string>

@@ -109,10 +109,8 @@
     <string name="sync_checking">Backup-Ordner wird geprüft…</string>
     <string name="action_restore">Wiederherstellen</string>
     <string name="action_overwrite">Überschreiben</string>
-    <string name="cloud_backup_long_press_hint">Lange auf Backup tippen für eine benannte Sicherung, oder auf Wiederherstellen für die Auswahl.</string>
-    <string name="cloud_backup_name_title">Backup benennen</string>
+    <string name="cloud_backup_long_press_hint">Lange drücken für weitere Optionen.</string>
     <string name="cloud_backup_name_label">Backup-Name</string>
-    <string name="cloud_backup_name_hint">Buchstaben, Zahlen, Leerzeichen, Bindestrich oder Unterstrich.</string>
     <string name="cloud_backup_name_preview">Wird gespeichert als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" überschreiben?</string>
     <string name="cloud_backup_overwrite_body">Eine Sicherung mit diesem Namen existiert bereits.</string>

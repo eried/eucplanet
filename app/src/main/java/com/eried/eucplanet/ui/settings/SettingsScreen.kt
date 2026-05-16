@@ -1644,9 +1644,34 @@ private fun CloudTab(
         CloudHelpCard()
 
         if (hasFolder) {
+            val openFolderInBrowser: () -> Unit = openFolder@{
+                val uri = settings.syncFolderUri ?: return@openFolder
+                val parsed = android.net.Uri.parse(uri)
+                val openIntent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                    setDataAndType(parsed, "vnd.android.document/directory")
+                    addFlags(
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                    )
+                }
+                runCatching { context.startActivity(openIntent) }
+                    .onFailure {
+                        // Fallback for ROMs whose Files app doesn't handle the
+                        // tree URI directly — bounce through the documents UI.
+                        val docIntent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            .setDataAndType(parsed, "*/*")
+                            .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        runCatching { context.startActivity(docIntent) }
+                    }
+            }
             Text(
                 stringResource(R.string.cloud_folder_label, folderDisplayName!!),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = openFolderInBrowser)
+                    .padding(vertical = 4.dp)
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -2915,14 +2940,11 @@ private fun NamedBackupDialog(
 ) {
     var raw by remember { mutableStateOf("") }
     val sanitized = sanitize(raw)
-    val preview = if (sanitized != null) {
-        stringResource(R.string.cloud_backup_name_preview, "eucplanet_settings-$sanitized.json")
-    } else {
-        stringResource(R.string.cloud_backup_name_hint)
+    val preview = sanitized?.let {
+        stringResource(R.string.cloud_backup_name_preview, "eucplanet_settings-$it.json")
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.cloud_backup_name_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
@@ -2932,11 +2954,13 @@ private fun NamedBackupDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text(
-                    preview,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (preview != null) {
+                    Text(
+                        preview,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         },
         confirmButton = {
@@ -2953,6 +2977,7 @@ private fun NamedBackupDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RestorePickerDialog(
     onDismiss: () -> Unit,
@@ -2960,7 +2985,13 @@ private fun RestorePickerDialog(
     onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit
 ) {
     var entries by remember { mutableStateOf<List<com.eried.eucplanet.data.sync.BackupEntry>?>(null) }
-    LaunchedEffect(Unit) { entries = loadEntries() }
+    var selected by remember { mutableStateOf<com.eried.eucplanet.data.sync.BackupEntry?>(null) }
+    var dropdownOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val loaded = loadEntries()
+        entries = loaded
+        selected = loaded.firstOrNull()
+    }
     val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -2970,24 +3001,43 @@ private fun RestorePickerDialog(
             when {
                 list == null -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
                 list.isEmpty() -> Text(stringResource(R.string.cloud_restore_picker_empty))
-                else -> Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                else -> ExposedDropdownMenuBox(
+                    expanded = dropdownOpen,
+                    onExpandedChange = { dropdownOpen = !dropdownOpen }
                 ) {
-                    list.forEach { entry ->
-                        Text(
-                            entry.label ?: defaultLabel,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onPicked(entry) }
-                                .padding(vertical = 10.dp, horizontal = 4.dp)
-                        )
+                    OutlinedTextField(
+                        value = selected?.label ?: defaultLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    )
+                    ExposedDropdownMenu(
+                        expanded = dropdownOpen,
+                        onDismissRequest = { dropdownOpen = false }
+                    ) {
+                        list.forEach { entry ->
+                            DropdownMenuItem(
+                                text = { Text(entry.label ?: defaultLabel) },
+                                onClick = {
+                                    selected = entry
+                                    dropdownOpen = false
+                                }
+                            )
+                        }
                     }
                 }
             }
         },
         confirmButton = {
+            Button(
+                enabled = selected != null,
+                onClick = { selected?.let(onPicked) }
+            ) { Text(stringResource(R.string.action_restore)) }
+        },
+        dismissButton = {
             Button(onClick = onDismiss) {
                 Text(stringResource(R.string.action_cancel))
             }

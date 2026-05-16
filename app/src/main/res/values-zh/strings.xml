@@ -108,10 +108,8 @@
     <string name="sync_conflict_ignore">全部跳过冲突</string>
     <string name="action_restore">恢复</string>
     <string name="action_overwrite">覆盖</string>
-    <string name="cloud_backup_long_press_hint">长按"备份"可保存命名快照，长按"恢复"可选择恢复哪一个。</string>
-    <string name="cloud_backup_name_title">为此备份命名</string>
+    <string name="cloud_backup_long_press_hint">长按以查看更多选项。</string>
     <string name="cloud_backup_name_label">备份名称</string>
-    <string name="cloud_backup_name_hint">字母、数字、空格、连字符或下划线。</string>
     <string name="cloud_backup_name_preview">将保存为 %1$s</string>
     <string name="cloud_backup_overwrite_title">覆盖 "%1$s"？</string>
     <string name="cloud_backup_overwrite_body">文件夹中已存在同名备份。</string>

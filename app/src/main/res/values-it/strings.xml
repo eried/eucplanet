@@ -167,10 +167,8 @@
     <string name="sync_checking">Controllo della cartella di backup…</string>
     <string name="action_restore">Ripristina</string>
     <string name="action_overwrite">Sovrascrivi</string>
-    <string name="cloud_backup_long_press_hint">Tieni premuto Backup per un\'istantanea con nome, o Ripristina per scegliere quale.</string>
-    <string name="cloud_backup_name_title">Nome del backup</string>
+    <string name="cloud_backup_long_press_hint">Tieni premuto per altre opzioni.</string>
     <string name="cloud_backup_name_label">Nome del backup</string>
-    <string name="cloud_backup_name_hint">Lettere, numeri, spazi, trattino o trattino basso.</string>
     <string name="cloud_backup_name_preview">Sarà salvato come %1$s</string>
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>

@@ -167,10 +167,8 @@
     <string name="sync_checking">Sprawdzanie folderu kopii…</string>
     <string name="action_restore">Przywróć</string>
     <string name="action_overwrite">Nadpisz</string>
-    <string name="cloud_backup_long_press_hint">Przytrzymaj Kopia, aby zapisać nazwany snapshot, lub Przywróć, aby wybrać.</string>
-    <string name="cloud_backup_name_title">Nazwa kopii</string>
+    <string name="cloud_backup_long_press_hint">Przytrzymaj, aby zobaczyć więcej opcji.</string>
     <string name="cloud_backup_name_label">Nazwa kopii</string>
-    <string name="cloud_backup_name_hint">Litery, cyfry, spacje, myślnik lub podkreślnik.</string>
     <string name="cloud_backup_name_preview">Zapisze jako %1$s</string>
     <string name="cloud_backup_overwrite_title">Nadpisać "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Kopia o tej nazwie już istnieje w folderze.</string>

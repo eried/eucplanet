@@ -167,10 +167,8 @@
     <string name="sync_checking">Back-upmap controleren…</string>
     <string name="action_restore">Terugzetten</string>
     <string name="action_overwrite">Overschrijven</string>
-    <string name="cloud_backup_long_press_hint">Houd Back-up ingedrukt voor een benoemde momentopname, of Terugzetten om er een te kiezen.</string>
-    <string name="cloud_backup_name_title">Naam voor deze back-up</string>
+    <string name="cloud_backup_long_press_hint">Houd ingedrukt voor meer opties.</string>
     <string name="cloud_backup_name_label">Back-upnaam</string>
-    <string name="cloud_backup_name_hint">Letters, cijfers, spaties, koppelteken of underscore.</string>
     <string name="cloud_backup_name_preview">Wordt opgeslagen als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
