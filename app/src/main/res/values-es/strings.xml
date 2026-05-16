@@ -114,8 +114,7 @@
     <string name="cloud_backup_name_preview">Se guardará como %1$s</string>
     <string name="cloud_backup_overwrite_title">¿Sobrescribir "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Ya existe una copia con ese nombre en tu carpeta.</string>
-    <string name="cloud_restore_picker_title">Restaurar desde</string>
-    <string name="cloud_restore_picker_default">Copia por defecto</string>
+    <string name="cloud_restore_picker_default">(por defecto)</string>
     <string name="cloud_restore_picker_empty">No hay copias en la carpeta.</string>
 
     <string name="section_recording">Grabación</string>

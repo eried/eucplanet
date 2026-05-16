@@ -172,8 +172,7 @@
     <string name="cloud_backup_name_preview">Wordt opgeslagen als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
-    <string name="cloud_restore_picker_title">Terugzetten van</string>
-    <string name="cloud_restore_picker_default">Standaard back-up</string>
+    <string name="cloud_restore_picker_default">(standaard)</string>
     <string name="cloud_restore_picker_empty">Geen back-ups in de map.</string>
 
     <!-- Settings: General -->

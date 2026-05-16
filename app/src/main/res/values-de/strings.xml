@@ -114,8 +114,7 @@
     <string name="cloud_backup_name_preview">Wird gespeichert als %1$s</string>
     <string name="cloud_backup_overwrite_title">"%1$s" überschreiben?</string>
     <string name="cloud_backup_overwrite_body">Eine Sicherung mit diesem Namen existiert bereits.</string>
-    <string name="cloud_restore_picker_title">Wiederherstellen aus</string>
-    <string name="cloud_restore_picker_default">Standard-Backup</string>
+    <string name="cloud_restore_picker_default">(Standard)</string>
     <string name="cloud_restore_picker_empty">Keine Backups im Ordner.</string>
 
     <string name="section_recording">Aufnahme</string>

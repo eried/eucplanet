@@ -172,8 +172,7 @@
     <string name="cloud_backup_name_preview">Sarà salvato come %1$s</string>
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
-    <string name="cloud_restore_picker_title">Ripristina da</string>
-    <string name="cloud_restore_picker_default">Backup predefinito</string>
+    <string name="cloud_restore_picker_default">(predefinito)</string>
     <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella.</string>
 
     <!-- Settings: General -->

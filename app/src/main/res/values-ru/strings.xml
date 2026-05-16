@@ -114,8 +114,7 @@
     <string name="cloud_backup_name_preview">Сохранить как %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписать "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже существует.</string>
-    <string name="cloud_restore_picker_title">Восстановить из</string>
-    <string name="cloud_restore_picker_default">Резервная копия по умолчанию</string>
+    <string name="cloud_restore_picker_default">(по умолчанию)</string>
     <string name="cloud_restore_picker_empty">Резервных копий в папке нет.</string>
 
     <string name="section_recording">Запись поездок</string>

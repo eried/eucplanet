@@ -113,8 +113,7 @@
     <string name="cloud_backup_name_preview">Sparas som %1$s</string>
     <string name="cloud_backup_overwrite_title">Skriv över "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">En säkerhetskopia med detta namn finns redan i mappen.</string>
-    <string name="cloud_restore_picker_title">Återställ från</string>
-    <string name="cloud_restore_picker_default">Standardsäkerhetskopia</string>
+    <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_empty">Inga säkerhetskopior i mappen.</string>
 
     <string name="section_recording">Inspelning</string>

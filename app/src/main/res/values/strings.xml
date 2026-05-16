@@ -181,8 +181,7 @@
     <string name="cloud_backup_name_preview">Will save as %1$s</string>
     <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>
-    <string name="cloud_restore_picker_title">Restore from</string>
-    <string name="cloud_restore_picker_default">Default backup</string>
+    <string name="cloud_restore_picker_default">(default)</string>
     <string name="cloud_restore_picker_empty">No backups found in the sync folder.</string>
 
     <!-- Settings: General -->

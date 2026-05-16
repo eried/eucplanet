@@ -113,8 +113,7 @@
     <string name="cloud_backup_name_preview">将保存为 %1$s</string>
     <string name="cloud_backup_overwrite_title">覆盖 "%1$s"？</string>
     <string name="cloud_backup_overwrite_body">文件夹中已存在同名备份。</string>
-    <string name="cloud_restore_picker_title">恢复来源</string>
-    <string name="cloud_restore_picker_default">默认备份</string>
+    <string name="cloud_restore_picker_default">(默认)</string>
     <string name="cloud_restore_picker_empty">同步文件夹中未找到备份。</string>
 
     <string name="section_recording">行程记录</string>

@@ -113,8 +113,7 @@
     <string name="cloud_backup_name_preview">Sera enregistré sous %1$s</string>
     <string name="cloud_backup_overwrite_title">Écraser \"%1$s\" ?</string>
     <string name="cloud_backup_overwrite_body">Une sauvegarde du même nom existe déjà.</string>
-    <string name="cloud_restore_picker_title">Restaurer depuis</string>
-    <string name="cloud_restore_picker_default">Sauvegarde par défaut</string>
+    <string name="cloud_restore_picker_default">(par défaut)</string>
     <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier.</string>
 
     <string name="section_recording">Enregistrement</string>

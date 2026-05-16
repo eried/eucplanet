@@ -172,8 +172,7 @@
     <string name="cloud_backup_name_preview">Зберегти як %1$s</string>
     <string name="cloud_backup_overwrite_title">Перезаписати "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує.</string>
-    <string name="cloud_restore_picker_title">Відновити з</string>
-    <string name="cloud_restore_picker_default">Резервна копія за замовчуванням</string>
+    <string name="cloud_restore_picker_default">(за замовчуванням)</string>
     <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій.</string>
 
     <!-- Settings: General -->

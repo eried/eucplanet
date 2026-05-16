@@ -114,8 +114,7 @@
     <string name="cloud_backup_name_preview">Lagres som %1$s</string>
     <string name="cloud_backup_overwrite_title">Overskrive "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Det finnes allerede en sikkerhetskopi med dette navnet.</string>
-    <string name="cloud_restore_picker_title">Gjenopprett fra</string>
-    <string name="cloud_restore_picker_default">Standard sikkerhetskopi</string>
+    <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_empty">Ingen sikkerhetskopier i mappen.</string>
 
     <string name="section_recording">Opptak</string>

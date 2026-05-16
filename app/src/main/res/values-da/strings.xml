@@ -113,8 +113,7 @@
     <string name="cloud_backup_name_preview">Gemmes som %1$s</string>
     <string name="cloud_backup_overwrite_title">Overskriv "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Der findes allerede en backup med dette navn.</string>
-    <string name="cloud_restore_picker_title">Gendan fra</string>
-    <string name="cloud_restore_picker_default">Standardbackup</string>
+    <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_empty">Ingen backup i mappen.</string>
     <string name="watch_close_on_exit">Auto-stop på uret</string>
     <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle.</string>

@@ -2995,7 +2995,7 @@ private fun RestorePickerDialog(
     val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.cloud_restore_picker_title)) },
+        title = { Text(stringResource(R.string.action_restore)) },
         text = {
             val list = entries
             when {
