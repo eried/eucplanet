@@ -876,7 +876,7 @@ fun DashboardScreen(
                 imperial = imperial,
                 modelName = modelName,
                 firmwareVersion = firmwareVersion,
-                versionName = if (versionRevision > 0) "${versionName}r$versionRevision" else versionName,
+                versionName = if (versionRevision > 0) "$versionName-$versionRevision" else versionName,
                 diagnosticsActive = diagEnabled,
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
