@@ -305,9 +305,7 @@ data class AppSettings(
     /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
     val engineDuckOnVoice: String = "DUCK",
     /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
-    val engineHeadphonesOnly: Boolean = false,
-    /** True once the one-time safety disclosure has been acknowledged. */
-    val engineSafetyShown: Boolean = false
+    val engineHeadphonesOnly: Boolean = false
 )
 
 enum class FlicAction(val labelRes: Int) {

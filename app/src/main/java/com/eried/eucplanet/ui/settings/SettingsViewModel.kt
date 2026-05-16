@@ -145,7 +145,6 @@ class SettingsViewModel @Inject constructor(
     fun updateEngineBrake(v: String) = update { copy(engineBrake = v) }
     fun updateEngineDuckOnVoice(v: String) = update { copy(engineDuckOnVoice = v) }
     fun updateEngineHeadphonesOnly(v: Boolean) = update { copy(engineHeadphonesOnly = v) }
-    fun markEngineSafetyShown() = update { copy(engineSafetyShown = true) }
 
     fun previewEngine(key: String) {
         viewModelScope.launch {
@@ -371,7 +370,7 @@ class SettingsViewModel @Inject constructor(
     fun backupSettingsNamed(name: String, overwrite: Boolean) {
         viewModelScope.launch {
             _cloudEvent.value = when (syncManager.backupSettingsAs(name, overwrite)) {
-                BackupOutcome.Saved -> CloudEvent.BackupSuccess
+                BackupOutcome.Saved -> CloudEvent.BackupNamedSuccess(name)
                 BackupOutcome.AlreadyExists -> CloudEvent.BackupExists(name)
                 BackupOutcome.Failed -> CloudEvent.BackupFailed
             }
@@ -451,6 +450,7 @@ sealed interface CloudEvent {
     data object FolderSet : CloudEvent
     data object FolderFailed : CloudEvent
     data object BackupSuccess : CloudEvent
+    data class BackupNamedSuccess(val name: String) : CloudEvent
     data object BackupFailed : CloudEvent
     data class BackupExists(val name: String) : CloudEvent
     data object RestoreSuccess : CloudEvent

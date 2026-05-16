@@ -121,9 +121,6 @@
     <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
-    <string name="section_watch_buttons">Апаратні кнопки</string>
-    <string name="watch_button_1">Кнопка 1</string>
-    <string name="watch_button_2">Кнопка 2</string>
     <string name="watch_button_click_label">Натискання</string>
     <string name="watch_button_hold_label">Довге натискання</string>
 
@@ -135,7 +132,6 @@
     <string name="cloud_choose_folder">Вибрати папку</string>
     <string name="cloud_change_folder">Змінити папку</string>
     <string name="cloud_remove_folder">Відв\'язати</string>
-    <string name="cloud_no_folder">Папку не вибрано</string>
     <string name="cloud_folder_label">Папка: %1$s</string>
     <string name="section_cloud_settings">Резервна копія налаштувань</string>
     <string name="cloud_backup_now">Створити копію</string>
@@ -143,6 +139,7 @@
     <string name="cloud_last_backup">Остання копія: %1$s</string>
     <string name="cloud_last_backup_never">Копій ще немає</string>
     <string name="cloud_backup_success">Налаштування збережено</string>
+<string name="cloud_backup_named_success">Збережено як %1$s</string>
     <string name="cloud_backup_failed">Резервна копія не вдалася. Перевір доступ до папки.</string>
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
@@ -160,7 +157,6 @@
     <string name="sync_conflict_ignore">Пропустити всі конфлікти</string>
     <string name="cloud_uploaded_on">Збережено %1$s</string>
     <string name="cloud_not_uploaded">Поки не збережено</string>
-    <string name="cloud_upload_failed">Останнє вивантаження не вдалося</string>
     <string name="cloud_restore_confirm_title">Відновити налаштування</string>
     <string name="cloud_restore_confirm_body_p1">Твої поточні налаштування буде замінено налаштуваннями з резервної копії.</string>
     <string name="cloud_restore_confirm_body_p2">Жести Flic відновлюються, але кнопки й моноколесо доведеться знову спарувати на цьому телефоні. Їхні Bluetooth-прив\'язки зберігаються в Android, а не в додатку.</string>
@@ -202,12 +198,6 @@
     <string name="theme_light">Світла</string>
     <string name="theme_system">Як у системі</string>
     <string name="accent_color">Акцентний колір</string>
-    <string name="accent_blue">Синій</string>
-    <string name="accent_green">Зелений</string>
-    <string name="accent_orange">Помаранчевий</string>
-    <string name="accent_purple">Фіолетовий</string>
-    <string name="accent_teal">Бірюзовий</string>
-    <string name="accent_pink">Рожевий</string>
     <string name="tts_switch_title">Переключити голос на %1$s?</string>
     <string name="tts_switch_body">Поточний голос синтезу не відповідає вибраній мові. Переключити озвучення на голос %1$s?</string>
     <string name="tts_switch_yes">Переключити голос</string>
@@ -268,7 +258,6 @@
     <string name="external_gps_pair_button">Почати пошук</string>
     <string name="external_gps_pair_action">Підʼєднати</string>
     <string name="external_gps_stop_scan">Зупинити пошук</string>
-    <string name="flic_no_buttons">Кнопки Flic не спарені</string>
     <string name="flic_forget">Забути</string>
     <string name="flic_forget_title">Забути цю кнопку?</string>
     <string name="flic_forget_body">%1$s буде відв\'язано, а її дії очищено. Спарувати знову можна будь-коли.</string>
@@ -368,8 +357,6 @@
     <string name="alarm_test_default">Перевірка тривоги</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Сканування…</string>
-    <string name="flic_status_found_paired">Знайдено спарену кнопку</string>
     <string name="flic_status_found_connecting">Кнопку знайдено, підключаємось…</string>
     <string name="flic_status_connected_pairing">Підключено, сполучення…</string>
     <string name="flic_status_accept_pairing">Підтверди сполучення на телефоні…</string>
@@ -462,8 +449,6 @@
     <string name="alarm_edit">Редагувати тривогу</string>
     <string name="alarm_delete_title">Видалити цю тривогу?</string>
     <string name="alarm_delete_body">%1$s буде видалено. Цю дію не можна скасувати.</string>
-    <string name="alarm_name">Назва (необов\'язково)</string>
-    <string name="alarm_section_condition">Умова</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Умова</string>
     <string name="alarm_threshold_fmt">Поріг: %1$s %2$s</string>
@@ -496,7 +481,6 @@
     <string name="sources_apply_calibration">Калібрувати колесо</string>
     <string name="sources_apply_calibration_title">Застосувати калібрування швидкості</string>
     <string name="sources_apply_calibration_body_fmt">Встановити калібрування швидкості колеса на %1$+.1f %%?\n\nВи зможете змінити це пізніше в параметрах колеса.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Обчислене значення обмежено діапазоном ±15 %%, який підтримується параметрами колеса. Нове значення: %1$+.1f %%.</string>
     <string name="sources_apply">Застосувати</string>
     <string name="sources_cancel">Скасувати</string>
 
@@ -526,7 +510,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журнали збоїв</string>
-    <string name="about_crash_logs_hint">Натисни на файл, щоб поділитися ним з розробником.</string>
     <string name="about_crash_logs_empty">Збоїв не зафіксовано</string>
     <string name="about_share_crash">Поділитися журналом збою</string>
     <string name="about_thanks">Подяки</string>
@@ -544,16 +527,10 @@
     <string name="section_engine_sound">Звук двигуна</string>
     <string name="engine_sound_enabled">Звук двигуна</string>
     <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса.</string>
-    <string name="engine_safety_title">Увага</string>
-    <string name="engine_safety_message">Звук двигуна може заглушити дорожній рух. У місті використовуй меншу гучність і один навушник, щоб залишатись уважним до середовища.</string>
-    <string name="engine_safety_ok">Зрозуміло</string>
     <string name="engine_type_label">Двигун</string>
-    <string name="engine_preview">Перегляд</string>
     <string name="engine_source_sampled">Семпл</string>
     <string name="engine_source_synth">Синтез</string>
     <string name="engine_volume">Гучність</string>
-    <string name="engine_volume_auto_label">Залежно від швидкості</string>
-    <string name="engine_volume_auto_hint">Гучніше на малій швидкості й тихіше в русі, щоб пішоходи чули вас біля 0 км/год.</string>
     <string name="engine_muffler_label">Глушник</string>
     <string name="engine_muffler_open">Відкритий</string>
     <string name="engine_muffler_half">Середній</string>
@@ -582,7 +559,6 @@
     <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки з дротовим або Bluetooth-аудіо.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Перегляд недоступний у русі, зупинись, щоб протестувати звуки.</string>
     <string name="engine_preset_two_stroke">2-тактний</string>
     <string name="engine_preset_four_stroke_single">4-тактний одноцил.</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>

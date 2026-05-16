@@ -77,7 +77,6 @@
     <string name="cloud_choose_folder">Ordner wählen</string>
     <string name="cloud_change_folder">Ordner ändern</string>
     <string name="cloud_remove_folder">Trennen</string>
-    <string name="cloud_no_folder">Kein Ordner gewählt</string>
     <string name="cloud_folder_label">Ordner: %1$s</string>
     <string name="section_cloud_settings">Einstellungs-Backup</string>
     <string name="cloud_backup_now">Sichern</string>
@@ -85,6 +84,7 @@
     <string name="cloud_last_backup">Letztes Backup: %1$s</string>
     <string name="cloud_last_backup_never">Noch nicht gesichert</string>
     <string name="cloud_backup_success">Einstellungen gesichert</string>
+<string name="cloud_backup_named_success">Gesichert als %1$s</string>
     <string name="cloud_backup_failed">Sicherung fehlgeschlagen. Ordnerzugriff prüfen.</string>
     <string name="cloud_restore_success">Einstellungen wiederhergestellt</string>
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
@@ -102,7 +102,6 @@
     <string name="sync_conflict_ignore">Alle Konflikte überspringen</string>
     <string name="cloud_uploaded_on">Gesichert am %1$s</string>
     <string name="cloud_not_uploaded">Noch nicht gesichert</string>
-    <string name="cloud_upload_failed">Letzter Upload fehlgeschlagen</string>
     <string name="cloud_restore_confirm_title">Einstellungen wiederherstellen</string>
     <string name="cloud_restore_confirm_body_p1">Deine aktuellen Einstellungen werden durch die Einstellungen aus dem Backup ersetzt.</string>
     <string name="cloud_restore_confirm_body_p2">Flic-Gesten werden wiederhergestellt, aber die Tasten und das Rad müssen auf diesem Telefon erneut gekoppelt werden. Ihre Bluetooth-Bindungen liegen in Android, nicht in der App.</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">Hell</string>
     <string name="theme_system">Systemstandard</string>
     <string name="accent_color">Akzentfarbe</string>
-    <string name="accent_blue">Blau</string>
-    <string name="accent_green">Grün</string>
-    <string name="accent_orange">Orange</string>
-    <string name="accent_purple">Violett</string>
-    <string name="accent_teal">Blaugrün</string>
-    <string name="accent_pink">Rosa</string>
     <string name="tts_switch_title">Stimme auf %1$s umstellen?</string>
     <string name="tts_switch_body">Die aktuelle TTS-Stimme passt nicht zur gewählten Sprache. Auf eine %1$s-Stimme für Ansagen wechseln?</string>
     <string name="tts_switch_yes">Stimme wechseln</string>
@@ -333,8 +326,6 @@
     <string name="alarm_add">Neuer Alarm</string>
     <string name="alarm_new">Neuer Alarm</string>
     <string name="alarm_edit">Alarm bearbeiten</string>
-    <string name="alarm_name">Name (optional)</string>
-    <string name="alarm_section_condition">Bedingung</string>
     <string name="alarm_metric_label">Messgröße</string>
     <string name="alarm_comparator_label">Bedingung</string>
     <string name="alarm_threshold_fmt">Schwelle: %1$s %2$s</string>
@@ -367,7 +358,6 @@
     <string name="sources_apply_calibration">Rad kalibrieren</string>
     <string name="sources_apply_calibration_title">Geschwindigkeitskalibrierung anwenden</string>
     <string name="sources_apply_calibration_body_fmt">Geschwindigkeitskalibrierung des Rads auf %1$+.1f %% setzen?\n\nDu kannst dies später in den Rad-Parametern ändern.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Der berechnete Wert wurde auf den von den Rad-Parametern unterstützten Bereich von ±15 %% begrenzt. Neuer Wert: %1$+.1f %%.</string>
     <string name="sources_apply">Anwenden</string>
     <string name="sources_cancel">Abbrechen</string>
 
@@ -433,8 +423,6 @@
     <string name="alarm_test_default">Alarm-Test</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Suche\u2026</string>
-    <string name="flic_status_found_paired">Gekoppelten Knopf gefunden</string>
     <string name="flic_status_found_connecting">Knopf gefunden, verbinde\u2026</string>
     <string name="flic_status_connected_pairing">Verbunden, koppeln\u2026</string>
     <string name="flic_status_accept_pairing">Kopplung am Telefon bestätigen\u2026</string>
@@ -443,7 +431,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Absturzprotokolle</string>
-    <string name="about_crash_logs_hint">Tippe auf eine Datei, um sie mit dem Entwickler zu teilen.</string>
     <string name="about_crash_logs_empty">Keine Abstürze</string>
     <string name="about_share_crash">Absturz­protokoll teilen</string>
     <string name="about_thanks">Danksagungen</string>
@@ -464,7 +451,6 @@
     <string name="flic_button">Flic-Taste</string>
     <string name="flic_forget_body">%1$s wird entkoppelt und seine Aktionen werden gelöscht. Du kannst die Taste jederzeit wieder koppeln.</string>
     <string name="flic_forget_title">Diese Taste vergessen?</string>
-    <string name="flic_no_buttons">Keine Flic-Tasten gekoppelt</string>
     <string name="menu_auto_lights">Auto-Licht-Einstellungen</string>
     <string name="menu_start_recording">Aufnahme starten</string>
     <string name="menu_stop_recording">Aufnahme stoppen</string>
@@ -477,7 +463,6 @@
     <string name="scan_show_all_title">Alle Geräte anzeigen</string>
     <string name="scan_simulate_subtitle">Umgeht BLE und nutzt vordefinierte Antworten. Nur in Debug-Builds.</string>
     <string name="scan_simulate_title">Virtuelle Räder</string>
-    <string name="section_watch_buttons">Hardware-Tasten</string>
     <string name="section_watch_display">Anzeige</string>
     <string name="section_watch_general">Allgemein</string>
     <string name="show_gauge_color_band">Farbband der Geschwindigkeitsanzeige</string>
@@ -493,8 +478,6 @@
     <string name="watch_auto_start_desc">Öffnet die Uhr-App zusammen mit der Telefon-App.</string>
     <string name="watch_close_on_exit">Auto-Stopp auf der Uhr</string>
     <string name="watch_close_on_exit_desc">Uhr-App bei „Alles stoppen“ ebenfalls stoppen.</string>
-    <string name="watch_button_1">Taste 1</string>
-    <string name="watch_button_2">Taste 2</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Langer Druck</string>
     <string name="watch_keep_on">Display anlassen</string>
@@ -524,16 +507,10 @@
     <string name="section_engine_sound">Motorklang</string>
     <string name="engine_sound_enabled">Motorklang</string>
     <string name="engine_sound_enabled_hint">Die Motordrehzahl folgt in Echtzeit der Geschwindigkeit und Motorlast deines Rads.</string>
-    <string name="engine_safety_title">Achtung</string>
-    <string name="engine_safety_message">Motorklang kann den Straßenverkehr überdecken. Im Stadtverkehr leiser stellen und ein einzelnes Headset erwägen, damit du die Umgebung weiter wahrnimmst.</string>
-    <string name="engine_safety_ok">Verstanden</string>
     <string name="engine_type_label">Motor</string>
-    <string name="engine_preview">Vorschau</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Lautstärke</string>
-    <string name="engine_volume_auto_label">An Tempo anpassen</string>
-    <string name="engine_volume_auto_hint">Lauter bei langsamer Fahrt und leiser bei höherem Tempo, damit Fußgänger dich nahe 0 km/h hören.</string>
     <string name="engine_muffler_label">Auspuff</string>
     <string name="engine_muffler_open">Offen</string>
     <string name="engine_muffler_half">Halb</string>
@@ -562,7 +539,6 @@
     <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur mit kabelgebundenem oder Bluetooth-Audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Vorschau in Bewegung deaktiviert, zuerst anhalten, um Klänge zu testen.</string>
     <string name="engine_preset_two_stroke">2-Takt</string>
     <string name="engine_preset_four_stroke_single">4-Takt Einzylinder</string>
     <string name="engine_preset_quad_bike">Quad</string>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -1520,6 +1521,7 @@ private fun CloudTab(
             CloudEvent.FolderSet -> null
             CloudEvent.FolderFailed -> sFolderFailed
             CloudEvent.BackupSuccess -> sBackupOk
+            is CloudEvent.BackupNamedSuccess -> context.getString(R.string.cloud_backup_named_success, event.name)
             CloudEvent.BackupFailed -> sBackupFail
             is CloudEvent.BackupExists -> {
                 overwritePrompt = event.name
@@ -2249,16 +2251,11 @@ private fun EngineSoundSection(
     viewModel: SettingsViewModel,
     parked: Boolean
 ) {
-    var showSafety by remember { mutableStateOf(false) }
-
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
     SwitchSetting(
         label = stringResource(R.string.engine_sound_enabled),
         checked = settings.engineSoundEnabled
     ) { enabled ->
-        if (enabled && !settings.engineSafetyShown) {
-            showSafety = true
-        }
         viewModel.updateEngineSoundEnabled(enabled)
     }
     Text(
@@ -2394,23 +2391,6 @@ private fun EngineSoundSection(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
-    }
-
-    if (showSafety) {
-        AlertDialog(
-            onDismissRequest = {
-                showSafety = false
-                viewModel.markEngineSafetyShown()
-            },
-            title = { Text(stringResource(R.string.engine_safety_title)) },
-            text = { Text(stringResource(R.string.engine_safety_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showSafety = false
-                    viewModel.markEngineSafetyShown()
-                }) { Text(stringResource(R.string.engine_safety_ok)) }
-            }
-        )
     }
 }
 
@@ -2956,6 +2936,13 @@ private fun NamedBackupDialog(
     val preview = sanitized?.let {
         stringResource(R.string.cloud_backup_name_preview, "eucplanet_settings-$it.json")
     }
+    val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) {
+        // Tiny delay lets the dialog finish its mount animation; without it
+        // the request can land before the field is attached and silently no-op.
+        kotlinx.coroutines.delay(60)
+        runCatching { focusRequester.requestFocus() }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
@@ -2965,7 +2952,9 @@ private fun NamedBackupDialog(
                     onValueChange = { raw = it },
                     label = { Text(stringResource(R.string.cloud_backup_name_label)) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
                 )
                 if (preview != null) {
                     Text(

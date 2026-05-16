@@ -76,7 +76,6 @@
     <string name="cloud_choose_folder">选择文件夹</string>
     <string name="cloud_change_folder">更换文件夹</string>
     <string name="cloud_remove_folder">取消连接</string>
-    <string name="cloud_no_folder">未选择文件夹</string>
     <string name="cloud_folder_label">文件夹:%1$s</string>
     <string name="section_cloud_settings">设置备份</string>
     <string name="cloud_backup_now">备份</string>
@@ -84,6 +83,7 @@
     <string name="cloud_last_backup">上次备份:%1$s</string>
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
+<string name="cloud_backup_named_success">已备份为 %1$s</string>
     <string name="cloud_backup_failed">备份失败,请检查文件夹访问权限。</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
@@ -93,7 +93,6 @@
     <string name="cloud_retry_enqueued">上传已排队</string>
     <string name="cloud_uploaded_on">于 %1$s 备份</string>
     <string name="cloud_not_uploaded">尚未备份</string>
-    <string name="cloud_upload_failed">上次上传失败</string>
     <string name="cloud_restore_confirm_title">恢复设置</string>
     <string name="cloud_restore_confirm_body_p1">您当前的设置将被备份中的设置替换。</string>
     <string name="cloud_restore_confirm_body_p2">Flic 手势会恢复,但按键和轮子需要在这台手机上重新配对。它们的蓝牙配对保存在 Android 中,而不是在应用里。</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">浅色</string>
     <string name="theme_system">跟随系统</string>
     <string name="accent_color">强调色</string>
-    <string name="accent_blue">蓝色</string>
-    <string name="accent_green">绿色</string>
-    <string name="accent_orange">橙色</string>
-    <string name="accent_purple">紫色</string>
-    <string name="accent_teal">青色</string>
-    <string name="accent_pink">粉色</string>
     <string name="tts_switch_title">切换语音到%1$s?</string>
     <string name="tts_switch_body">当前的语音合成声音与所选语言不一致。是否切换为%1$s语音用于播报?</string>
     <string name="tts_switch_yes">切换语音</string>
@@ -285,8 +278,6 @@
 
     <string name="alarm_test_default">报警测试</string>
 
-    <string name="flic_status_scanning">扫描中\u2026</string>
-    <string name="flic_status_found_paired">找到已配对按钮</string>
     <string name="flic_status_found_connecting">找到按钮,正在连接\u2026</string>
     <string name="flic_status_connected_pairing">已连接,正在配对\u2026</string>
     <string name="flic_status_accept_pairing">请在手机上确认配对\u2026</string>
@@ -369,8 +360,6 @@
     <string name="alarm_add">新建报警</string>
     <string name="alarm_new">新建报警</string>
     <string name="alarm_edit">编辑报警</string>
-    <string name="alarm_name">名称(可选)</string>
-    <string name="alarm_section_condition">条件</string>
     <string name="alarm_metric_label">指标</string>
     <string name="alarm_comparator_label">条件</string>
     <string name="alarm_threshold_fmt">阈值:%1$s %2$s</string>
@@ -403,7 +392,6 @@
     <string name="sources_apply_calibration">校准轮</string>
     <string name="sources_apply_calibration_title">应用速度校准</string>
     <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>
-    <string name="sources_apply_calibration_clamped_fmt">计算值已限制在轮参数支持的 ±15 %% 范围内。新值：%1$+.1f %%。</string>
     <string name="sources_apply">应用</string>
     <string name="sources_cancel">取消</string>
 
@@ -428,7 +416,6 @@
     <string name="alarm_repeat_help">开:条件成立期间,每个冷却时间都会重新触发。\n关:触发一次后保持安静,直到条件解除</string>
 
     <string name="about_crash_logs">崩溃日志</string>
-    <string name="about_crash_logs_hint">点击文件可分享给开发者。</string>
     <string name="about_crash_logs_empty">没有崩溃记录</string>
     <string name="about_share_crash">分享崩溃日志</string>
     <string name="about_thanks">致谢</string>
@@ -448,7 +435,6 @@
     <string name="flic_button">Flic 按钮</string>
     <string name="flic_forget_body">%1$s 将取消配对,其操作设置也会清除。你可以随时再次配对。</string>
     <string name="flic_forget_title">忘记此按钮?</string>
-    <string name="flic_no_buttons">尚未配对 Flic 按钮</string>
     <string name="menu_auto_lights">自动大灯设置</string>
     <string name="menu_start_recording">开始记录</string>
     <string name="menu_stop_recording">停止记录</string>
@@ -461,7 +447,6 @@
     <string name="scan_show_all_title">显示全部设备</string>
     <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
     <string name="scan_simulate_title">虚拟车轮</string>
-    <string name="section_watch_buttons">硬件按键</string>
     <string name="section_watch_display">显示</string>
     <string name="section_watch_general">通用</string>
     <string name="show_gauge_color_band">速度表色带</string>
@@ -477,8 +462,6 @@
     <string name="watch_auto_start_desc">打开手机应用时一起打开手表应用。</string>
     <string name="watch_close_on_exit">手表自动停止</string>
     <string name="watch_close_on_exit_desc">在「停止所有」时停止手表应用。</string>
-    <string name="watch_button_1">按键 1</string>
-    <string name="watch_button_2">按键 2</string>
     <string name="watch_button_click_label">单击</string>
     <string name="watch_button_hold_label">长按</string>
     <string name="watch_keep_on">保持屏幕常亮</string>
@@ -508,16 +491,10 @@
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
     <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。</string>
-    <string name="engine_safety_title">注意</string>
-    <string name="engine_safety_message">引擎声可能盖过交通噪音。在城市里请降低音量,可以只戴一只耳机以保持对周围环境的感知。</string>
-    <string name="engine_safety_ok">知道了</string>
     <string name="engine_type_label">引擎</string>
-    <string name="engine_preview">预览</string>
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
     <string name="engine_volume">音量</string>
-    <string name="engine_volume_auto_label">随速度调节</string>
-    <string name="engine_volume_auto_hint">低速时更响、高速时更轻，让行人在接近 0 km/h 时也能听到你。</string>
     <string name="engine_muffler_label">排气</string>
     <string name="engine_muffler_open">开放</string>
     <string name="engine_muffler_half">半</string>
@@ -546,7 +523,6 @@
     <string name="engine_headphones_only_hint">跳过手机扬声器。引擎仅在有线或蓝牙音频下播放。</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">行进中预览已停用, 停下后再试听。</string>
     <string name="engine_preset_two_stroke">二冲程</string>
     <string name="engine_preset_four_stroke_single">四冲程单缸</string>
     <string name="engine_preset_quad_bike">四轮越野车</string>

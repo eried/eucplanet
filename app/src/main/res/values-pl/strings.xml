@@ -121,9 +121,6 @@
     <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
-    <string name="section_watch_buttons">Przyciski sprzętowe</string>
-    <string name="watch_button_1">Przycisk 1</string>
-    <string name="watch_button_2">Przycisk 2</string>
     <string name="watch_button_click_label">Kliknięcie</string>
     <string name="watch_button_hold_label">Długie naciśnięcie</string>
 
@@ -135,7 +132,6 @@
     <string name="cloud_choose_folder">Wybierz folder</string>
     <string name="cloud_change_folder">Zmień folder</string>
     <string name="cloud_remove_folder">Odłącz</string>
-    <string name="cloud_no_folder">Nie wybrano folderu</string>
     <string name="cloud_folder_label">Folder: %1$s</string>
     <string name="section_cloud_settings">Kopia zapasowa ustawień</string>
     <string name="cloud_backup_now">Wykonaj kopię</string>
@@ -143,6 +139,7 @@
     <string name="cloud_last_backup">Ostatnia kopia: %1$s</string>
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
     <string name="cloud_backup_success">Ustawienia zapisane w kopii</string>
+<string name="cloud_backup_named_success">Zapisano jako %1$s</string>
     <string name="cloud_backup_failed">Tworzenie kopii nie powiodło się. Sprawdź dostęp do folderu.</string>
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
@@ -160,7 +157,6 @@
     <string name="sync_conflict_ignore">Pomiń wszystkie konflikty</string>
     <string name="cloud_uploaded_on">Kopia z %1$s</string>
     <string name="cloud_not_uploaded">Brak kopii zapasowej</string>
-    <string name="cloud_upload_failed">Ostatnia wysyłka nie powiodła się</string>
     <string name="cloud_restore_confirm_title">Przywróć ustawienia</string>
     <string name="cloud_restore_confirm_body_p1">Twoje obecne ustawienia zostaną zastąpione ustawieniami z kopii.</string>
     <string name="cloud_restore_confirm_body_p2">Gesty Flic są przywracane, ale przyciski i koło trzeba ponownie sparować na tym telefonie. Ich powiązania Bluetooth żyją w Androidzie, a nie w aplikacji.</string>
@@ -202,12 +198,6 @@
     <string name="theme_light">Jasny</string>
     <string name="theme_system">Zgodny z systemem</string>
     <string name="accent_color">Kolor akcentu</string>
-    <string name="accent_blue">Niebieski</string>
-    <string name="accent_green">Zielony</string>
-    <string name="accent_orange">Pomarańczowy</string>
-    <string name="accent_purple">Fioletowy</string>
-    <string name="accent_teal">Morski</string>
-    <string name="accent_pink">Różowy</string>
     <string name="tts_switch_title">Przełączyć głos na %1$s?</string>
     <string name="tts_switch_body">Bieżący głos syntezatora mowy nie pasuje do wybranego języka. Przełączyć na głos %1$s do komunikatów?</string>
     <string name="tts_switch_yes">Przełącz głos</string>
@@ -268,7 +258,6 @@
     <string name="external_gps_pair_button">Rozpocznij skan</string>
     <string name="external_gps_pair_action">Sparuj</string>
     <string name="external_gps_stop_scan">Zatrzymaj skan</string>
-    <string name="flic_no_buttons">Brak sparowanych przycisków Flic</string>
     <string name="flic_forget">Zapomnij</string>
     <string name="flic_forget_title">Zapomnieć ten przycisk?</string>
     <string name="flic_forget_body">%1$s zostanie odparowany, a jego akcje wyczyszczone. Możesz go sparować ponownie w każdej chwili.</string>
@@ -368,8 +357,6 @@
     <string name="alarm_test_default">Test alarmu</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Skanowanie…</string>
-    <string name="flic_status_found_paired">Znaleziono sparowany przycisk</string>
     <string name="flic_status_found_connecting">Znaleziono przycisk, łączenie…</string>
     <string name="flic_status_connected_pairing">Połączono, parowanie…</string>
     <string name="flic_status_accept_pairing">Zaakceptuj parowanie na telefonie…</string>
@@ -462,8 +449,6 @@
     <string name="alarm_edit">Edytuj alarm</string>
     <string name="alarm_delete_title">Usunąć ten alarm?</string>
     <string name="alarm_delete_body">%1$s zostanie usunięty. Tej operacji nie można cofnąć.</string>
-    <string name="alarm_name">Nazwa (opcjonalna)</string>
-    <string name="alarm_section_condition">Warunek</string>
     <string name="alarm_metric_label">Metryka</string>
     <string name="alarm_comparator_label">Warunek</string>
     <string name="alarm_threshold_fmt">Próg: %1$s %2$s</string>
@@ -496,7 +481,6 @@
     <string name="sources_apply_calibration">Kalibruj koło</string>
     <string name="sources_apply_calibration_title">Zastosuj kalibrację prędkości</string>
     <string name="sources_apply_calibration_body_fmt">Ustawić kalibrację prędkości koła na %1$+.1f %%?\n\nMożesz to zmienić później w Parametrach koła.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Obliczona wartość została ograniczona do zakresu ±15 %% obsługiwanego przez Parametry koła. Nowa wartość: %1$+.1f %%.</string>
     <string name="sources_apply">Zastosuj</string>
     <string name="sources_cancel">Anuluj</string>
 
@@ -526,7 +510,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Dzienniki awarii</string>
-    <string name="about_crash_logs_hint">Stuknij plik, aby udostępnić go deweloperowi.</string>
     <string name="about_crash_logs_empty">Brak zarejestrowanych awarii</string>
     <string name="about_share_crash">Udostępnij log awarii</string>
     <string name="about_thanks">Podziękowania</string>
@@ -544,16 +527,10 @@
     <string name="section_engine_sound">Dźwięk silnika</string>
     <string name="engine_sound_enabled">Dźwięk silnika</string>
     <string name="engine_sound_enabled_hint">Obroty silnika podążają w czasie rzeczywistym za prędkością i obciążeniem koła.</string>
-    <string name="engine_safety_title">Uwaga</string>
-    <string name="engine_safety_message">Dźwięk silnika może zagłuszyć ruch uliczny. W mieście ścisz głośność i rozważ pojedynczą słuchawkę, by zachować świadomość otoczenia.</string>
-    <string name="engine_safety_ok">Rozumiem</string>
     <string name="engine_type_label">Silnik</string>
-    <string name="engine_preview">Podgląd</string>
     <string name="engine_source_sampled">Próbka</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Głośność</string>
-    <string name="engine_volume_auto_label">Dostosuj do prędkości</string>
-    <string name="engine_volume_auto_hint">Głośniej przy wolnej jeździe, ciszej przy szybkiej, aby piesi słyszeli Cię blisko 0 km/h.</string>
     <string name="engine_muffler_label">Tłumik</string>
     <string name="engine_muffler_open">Otwarty</string>
     <string name="engine_muffler_half">Średni</string>
@@ -582,7 +559,6 @@
     <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Podgląd wyłączony podczas jazdy, zatrzymaj się, by przetestować dźwięki.</string>
     <string name="engine_preset_two_stroke">2-suw</string>
     <string name="engine_preset_four_stroke_single">4-suw jednocyl.</string>
     <string name="engine_preset_quad_bike">Quad</string>

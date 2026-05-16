@@ -77,7 +77,6 @@
     <string name="cloud_choose_folder">Выбрать папку</string>
     <string name="cloud_change_folder">Сменить папку</string>
     <string name="cloud_remove_folder">Отвязать</string>
-    <string name="cloud_no_folder">Папка не выбрана</string>
     <string name="cloud_folder_label">Папка: %1$s</string>
     <string name="section_cloud_settings">Резервная копия настроек</string>
     <string name="cloud_backup_now">Сделать копию</string>
@@ -85,6 +84,7 @@
     <string name="cloud_last_backup">Последняя копия: %1$s</string>
     <string name="cloud_last_backup_never">Копий ещё нет</string>
     <string name="cloud_backup_success">Настройки сохранены</string>
+<string name="cloud_backup_named_success">Сохранено как %1$s</string>
     <string name="cloud_backup_failed">Сбой резервного копирования. Проверьте доступ к папке.</string>
     <string name="cloud_restore_success">Настройки восстановлены</string>
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
@@ -102,7 +102,6 @@
     <string name="sync_conflict_ignore">Пропустить все конфликты</string>
     <string name="cloud_uploaded_on">Сохранено %1$s</string>
     <string name="cloud_not_uploaded">Пока не сохранено</string>
-    <string name="cloud_upload_failed">Последняя загрузка не удалась</string>
     <string name="cloud_restore_confirm_title">Восстановить настройки</string>
     <string name="cloud_restore_confirm_body_p1">Ваши текущие настройки будут заменены настройками из резервной копии.</string>
     <string name="cloud_restore_confirm_body_p2">Жесты Flic восстановятся, но кнопки и колесо придётся снова спарить на этом телефоне. Bluetooth-привязки хранятся в Android, а не в приложении.</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_system">Как в системе</string>
     <string name="accent_color">Акцентный цвет</string>
-    <string name="accent_blue">Синий</string>
-    <string name="accent_green">Зелёный</string>
-    <string name="accent_orange">Оранжевый</string>
-    <string name="accent_purple">Фиолетовый</string>
-    <string name="accent_teal">Бирюзовый</string>
-    <string name="accent_pink">Розовый</string>
     <string name="tts_switch_title">Переключить озвучку на %1$s?</string>
     <string name="tts_switch_body">Текущий голос не совпадает с выбранным языком интерфейса. Переключить озвучку на %1$s?</string>
     <string name="tts_switch_yes">Переключить</string>
@@ -333,8 +326,6 @@
     <string name="alarm_add">Новое правило</string>
     <string name="alarm_new">Новое правило</string>
     <string name="alarm_edit">Изменить</string>
-    <string name="alarm_name">Название (необязательно)</string>
-    <string name="alarm_section_condition">Условие</string>
     <string name="alarm_metric_label">Метрика</string>
     <string name="alarm_comparator_label">Сравнение</string>
     <string name="alarm_threshold_fmt">Порог: %1$s %2$s</string>
@@ -367,7 +358,6 @@
     <string name="sources_apply_calibration">Калибровать колесо</string>
     <string name="sources_apply_calibration_title">Применить калибровку скорости</string>
     <string name="sources_apply_calibration_body_fmt">Установить калибровку скорости колеса на %1$+.1f %%?\n\nВы сможете изменить это позже в параметрах колеса.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Вычисленное значение было ограничено диапазоном ±15 %%, поддерживаемым параметрами колеса. Новое значение: %1$+.1f %%.</string>
     <string name="sources_apply">Применить</string>
     <string name="sources_cancel">Отмена</string>
 
@@ -433,8 +423,6 @@
     <string name="alarm_test_default">Проверка сигнала</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Ищем\u2026</string>
-    <string name="flic_status_found_paired">Нашли привязанную кнопку</string>
     <string name="flic_status_found_connecting">Нашли кнопку, подключаемся\u2026</string>
     <string name="flic_status_connected_pairing">Подключено, идёт сопряжение\u2026</string>
     <string name="flic_status_accept_pairing">Подтвердите сопряжение на телефоне\u2026</string>
@@ -443,7 +431,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Журналы сбоев</string>
-    <string name="about_crash_logs_hint">Коснитесь файла, чтобы отправить его разработчику.</string>
     <string name="about_crash_logs_empty">Сбоев нет</string>
     <string name="about_share_crash">Поделиться журналом сбоя</string>
     <!-- Credits -->
@@ -477,7 +464,6 @@
     <string name="flic_button">Кнопка Flic</string>
     <string name="flic_forget_body">%1$s будет отвязана и её действия очищены. Можно снова спарить в любой момент.</string>
     <string name="flic_forget_title">Забыть эту кнопку?</string>
-    <string name="flic_no_buttons">Кнопок Flic не привязано</string>
 
     <!-- Menu items -->
     <string name="menu_auto_lights">Настройки автосвета</string>
@@ -498,7 +484,6 @@
     <string name="scan_simulate_title">Виртуальные колёса</string>
 
     <!-- Watch sections -->
-    <string name="section_watch_buttons">Аппаратные кнопки</string>
     <string name="section_watch_display">Экран</string>
     <string name="section_watch_general">Общие</string>
 
@@ -529,8 +514,6 @@
     <string name="watch_auto_start_desc">Открывать приложение на часах вместе с приложением на телефоне.</string>
     <string name="watch_close_on_exit">Автоостановка на часах</string>
     <string name="watch_close_on_exit_desc">Останавливать приложение часов при «Остановить всё».</string>
-    <string name="watch_button_1">Кнопка 1</string>
-    <string name="watch_button_2">Кнопка 2</string>
     <string name="watch_button_click_label">Нажатие</string>
     <string name="watch_button_hold_label">Долгое нажатие</string>
     <string name="watch_keep_on">Не гасить экран</string>
@@ -560,16 +543,10 @@
     <string name="section_engine_sound">Звук двигателя</string>
     <string name="engine_sound_enabled">Звук двигателя</string>
     <string name="engine_sound_enabled_hint">Обороты двигателя следуют за скоростью и нагрузкой колеса в реальном времени.</string>
-    <string name="engine_safety_title">Внимание</string>
-    <string name="engine_safety_message">Звук двигателя может перекрыть звуки движения. В городе используй меньшую громкость и одиночный наушник, чтобы слышать окружение.</string>
-    <string name="engine_safety_ok">Понятно</string>
     <string name="engine_type_label">Двигатель</string>
-    <string name="engine_preview">Предпросмотр</string>
     <string name="engine_source_sampled">Сэмпл</string>
     <string name="engine_source_synth">Синтез</string>
     <string name="engine_volume">Громкость</string>
-    <string name="engine_volume_auto_label">Зависит от скорости</string>
-    <string name="engine_volume_auto_hint">Громче на малой скорости и тише на ходу, чтобы пешеходы слышали вас около 0 км/ч.</string>
     <string name="engine_muffler_label">Глушитель</string>
     <string name="engine_muffler_open">Открытый</string>
     <string name="engine_muffler_half">Средний</string>
@@ -598,7 +575,6 @@
     <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Предпросмотр недоступен в движении, остановись, чтобы проверить звуки.</string>
     <string name="engine_preset_two_stroke">2-тактный</string>
     <string name="engine_preset_four_stroke_single">4-тактный одноцил.</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>

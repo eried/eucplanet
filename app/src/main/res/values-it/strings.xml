@@ -121,9 +121,6 @@
     <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
-    <string name="section_watch_buttons">Pulsanti fisici</string>
-    <string name="watch_button_1">Pulsante 1</string>
-    <string name="watch_button_2">Pulsante 2</string>
     <string name="watch_button_click_label">Clic</string>
     <string name="watch_button_hold_label">Pressione lunga</string>
 
@@ -135,7 +132,6 @@
     <string name="cloud_choose_folder">Scegli cartella</string>
     <string name="cloud_change_folder">Cambia cartella</string>
     <string name="cloud_remove_folder">Scollega</string>
-    <string name="cloud_no_folder">Nessuna cartella selezionata</string>
     <string name="cloud_folder_label">Cartella: %1$s</string>
     <string name="section_cloud_settings">Backup impostazioni</string>
     <string name="cloud_backup_now">Backup</string>
@@ -143,6 +139,7 @@
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
     <string name="cloud_backup_success">Impostazioni salvate</string>
+<string name="cloud_backup_named_success">Salvato come %1$s</string>
     <string name="cloud_backup_failed">Backup fallito. Controlla l\'accesso alla cartella.</string>
     <string name="cloud_restore_success">Impostazioni ripristinate</string>
     <string name="cloud_restore_failed">Nessun backup trovato nella cartella</string>
@@ -160,7 +157,6 @@
     <string name="sync_conflict_ignore">Ignora tutti i conflitti</string>
     <string name="cloud_uploaded_on">Salvato il %1$s</string>
     <string name="cloud_not_uploaded">Non ancora salvato</string>
-    <string name="cloud_upload_failed">Ultimo upload fallito</string>
     <string name="cloud_restore_confirm_title">Ripristina impostazioni</string>
     <string name="cloud_restore_confirm_body_p1">Le tue impostazioni attuali verranno sostituite da quelle del backup.</string>
     <string name="cloud_restore_confirm_body_p2">I gesti Flic vengono ripristinati, ma i pulsanti e la ruota devono essere accoppiati di nuovo su questo telefono. I loro abbinamenti Bluetooth vivono in Android, non nell\'app.</string>
@@ -202,12 +198,6 @@
     <string name="theme_light">Chiaro</string>
     <string name="theme_system">Segui il sistema</string>
     <string name="accent_color">Colore d\'accento</string>
-    <string name="accent_blue">Blu</string>
-    <string name="accent_green">Verde</string>
-    <string name="accent_orange">Arancione</string>
-    <string name="accent_purple">Viola</string>
-    <string name="accent_teal">Verde acqua</string>
-    <string name="accent_pink">Rosa</string>
     <string name="tts_switch_title">Cambiare voce in %1$s?</string>
     <string name="tts_switch_body">La voce di sintesi attuale non corrisponde alla lingua selezionata. Passare a una voce in %1$s per gli annunci?</string>
     <string name="tts_switch_yes">Cambia voce</string>
@@ -268,7 +258,6 @@
     <string name="external_gps_pair_button">Avvia ricerca</string>
     <string name="external_gps_pair_action">Accoppia</string>
     <string name="external_gps_stop_scan">Ferma ricerca</string>
-    <string name="flic_no_buttons">Nessun pulsante Flic accoppiato</string>
     <string name="flic_forget">Dimentica</string>
     <string name="flic_forget_title">Dimenticare questo pulsante?</string>
     <string name="flic_forget_body">%1$s verrà disaccoppiato e le sue azioni cancellate. Puoi accoppiarlo di nuovo quando vuoi.</string>
@@ -368,8 +357,6 @@
     <string name="alarm_test_default">Prova allarme</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Ricerca…</string>
-    <string name="flic_status_found_paired">Pulsante accoppiato trovato</string>
     <string name="flic_status_found_connecting">Pulsante trovato, connessione…</string>
     <string name="flic_status_connected_pairing">Connesso, accoppiamento…</string>
     <string name="flic_status_accept_pairing">Accetta l\'accoppiamento sul telefono…</string>
@@ -462,8 +449,6 @@
     <string name="alarm_edit">Modifica allarme</string>
     <string name="alarm_delete_title">Eliminare questo allarme?</string>
     <string name="alarm_delete_body">%1$s sarà rimosso. L\'azione non può essere annullata.</string>
-    <string name="alarm_name">Nome (opzionale)</string>
-    <string name="alarm_section_condition">Condizione</string>
     <string name="alarm_metric_label">Metrica</string>
     <string name="alarm_comparator_label">Condizione</string>
     <string name="alarm_threshold_fmt">Soglia: %1$s %2$s</string>
@@ -496,7 +481,6 @@
     <string name="sources_apply_calibration">Calibra ruota</string>
     <string name="sources_apply_calibration_title">Applica calibrazione velocità</string>
     <string name="sources_apply_calibration_body_fmt">Impostare la calibrazione velocità della ruota a %1$+.1f %%?\n\nPotrai modificarla in seguito nei parametri della ruota.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Il valore calcolato è stato limitato all\'intervallo di ±15 %% supportato dai parametri della ruota. Nuovo valore: %1$+.1f %%.</string>
     <string name="sources_apply">Applica</string>
     <string name="sources_cancel">Annulla</string>
 
@@ -526,7 +510,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Log dei crash</string>
-    <string name="about_crash_logs_hint">Tocca un file per condividerlo con lo sviluppatore.</string>
     <string name="about_crash_logs_empty">Nessun crash registrato</string>
     <string name="about_share_crash">Condividi registro di crash</string>
     <string name="about_thanks">Crediti</string>
@@ -544,16 +527,10 @@
     <string name="section_engine_sound">Suono del motore</string>
     <string name="engine_sound_enabled">Suono del motore</string>
     <string name="engine_sound_enabled_hint">I giri del motore seguono in tempo reale la velocità e il carico del tuo monoruota.</string>
-    <string name="engine_safety_title">Attenzione</string>
-    <string name="engine_safety_message">Il suono del motore può coprire i rumori del traffico. In città tieni il volume basso e valuta un solo auricolare per restare consapevole dell\'ambiente.</string>
-    <string name="engine_safety_ok">Capito</string>
     <string name="engine_type_label">Motore</string>
-    <string name="engine_preview">Anteprima</string>
     <string name="engine_source_sampled">Campione</string>
     <string name="engine_source_synth">Sintetico</string>
     <string name="engine_volume">Volume</string>
-    <string name="engine_volume_auto_label">Regola con la velocità</string>
-    <string name="engine_volume_auto_hint">Più alto a bassa velocità e più basso in corsa, così i pedoni ti sentono vicino a 0 km/h.</string>
     <string name="engine_muffler_label">Scarico</string>
     <string name="engine_muffler_open">Aperto</string>
     <string name="engine_muffler_half">Medio</string>
@@ -582,7 +559,6 @@
     <string name="engine_headphones_only_hint">Esclude lo speaker del telefono. Il motore suona solo con audio cablato o Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Anteprime disattivate in movimento, fermati per provare i suoni.</string>
     <string name="engine_preset_two_stroke">2 tempi</string>
     <string name="engine_preset_four_stroke_single">4 tempi monocilindrico</string>
     <string name="engine_preset_quad_bike">Quad</string>

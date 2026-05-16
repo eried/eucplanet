@@ -76,7 +76,6 @@
     <string name="cloud_choose_folder">Choisir un dossier</string>
     <string name="cloud_change_folder">Changer de dossier</string>
     <string name="cloud_remove_folder">Déconnecter</string>
-    <string name="cloud_no_folder">Aucun dossier sélectionné</string>
     <string name="cloud_folder_label">Dossier : %1$s</string>
     <string name="section_cloud_settings">Sauvegarde des paramètres</string>
     <string name="cloud_backup_now">Sauvegarder</string>
@@ -84,6 +83,7 @@
     <string name="cloud_last_backup">Dernière sauvegarde : %1$s</string>
     <string name="cloud_last_backup_never">Aucune sauvegarde</string>
     <string name="cloud_backup_success">Paramètres sauvegardés</string>
+<string name="cloud_backup_named_success">Sauvegardé sous %1$s</string>
     <string name="cloud_backup_failed">Échec de la sauvegarde. Vérifiez l\'accès au dossier.</string>
     <string name="cloud_restore_success">Paramètres restaurés</string>
     <string name="cloud_restore_failed">Aucune sauvegarde trouvée dans le dossier</string>
@@ -93,7 +93,6 @@
     <string name="cloud_retry_enqueued">Envoi programmé</string>
     <string name="cloud_uploaded_on">Sauvegardé le %1$s</string>
     <string name="cloud_not_uploaded">Pas encore sauvegardé</string>
-    <string name="cloud_upload_failed">Dernier envoi échoué</string>
     <string name="cloud_restore_confirm_title">Restaurer les paramètres</string>
     <string name="cloud_restore_confirm_body_p1">Vos paramètres actuels seront remplacés par ceux de la sauvegarde.</string>
     <string name="cloud_restore_confirm_body_p2">Les gestes Flic sont restaurés, mais les boutons et la roue doivent être à nouveau appairés sur ce téléphone. Leurs liaisons Bluetooth résident dans Android, pas dans l\'application.</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">Clair</string>
     <string name="theme_system">Suivre le système</string>
     <string name="accent_color">Couleur d\'accent</string>
-    <string name="accent_blue">Bleu</string>
-    <string name="accent_green">Vert</string>
-    <string name="accent_orange">Orange</string>
-    <string name="accent_purple">Violet</string>
-    <string name="accent_teal">Turquoise</string>
-    <string name="accent_pink">Rose</string>
     <string name="tts_switch_title">Changer la voix en %1$s ?</string>
     <string name="tts_switch_body">La voix de synthèse actuelle ne correspond pas à la langue choisie. Passer à une voix %1$s pour les annonces ?</string>
     <string name="tts_switch_yes">Changer la voix</string>
@@ -285,8 +278,6 @@
 
     <string name="alarm_test_default">Test d\'alarme</string>
 
-    <string name="flic_status_scanning">Recherche\u2026</string>
-    <string name="flic_status_found_paired">Bouton appairé trouvé</string>
     <string name="flic_status_found_connecting">Bouton trouvé, connexion\u2026</string>
     <string name="flic_status_connected_pairing">Connecté, appairage\u2026</string>
     <string name="flic_status_accept_pairing">Confirmez l\'appairage sur le téléphone\u2026</string>
@@ -369,8 +360,6 @@
     <string name="alarm_add">Nouvelle alarme</string>
     <string name="alarm_new">Nouvelle alarme</string>
     <string name="alarm_edit">Modifier l\'alarme</string>
-    <string name="alarm_name">Nom (facultatif)</string>
-    <string name="alarm_section_condition">Condition</string>
     <string name="alarm_metric_label">Métrique</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Seuil : %1$s %2$s</string>
@@ -403,7 +392,6 @@
     <string name="sources_apply_calibration">Calibrer la roue</string>
     <string name="sources_apply_calibration_title">Appliquer la calibration de vitesse</string>
     <string name="sources_apply_calibration_body_fmt">Régler la calibration de vitesse de la roue à %1$+.1f %% ?\n\nVous pourrez la modifier plus tard dans les paramètres de la roue.</string>
-    <string name="sources_apply_calibration_clamped_fmt">La valeur calculée a été limitée à la plage de ±15 %% prise en charge par les paramètres de la roue. Nouvelle valeur : %1$+.1f %%.</string>
     <string name="sources_apply">Appliquer</string>
     <string name="sources_cancel">Annuler</string>
 
@@ -428,7 +416,6 @@
     <string name="alarm_repeat_help">ON : redéclenche après chaque pause tant que la condition est vraie.\nOFF : déclenche une fois et reste silencieux jusqu\'à ce que la condition cesse</string>
 
     <string name="about_crash_logs">Journaux de plantage</string>
-    <string name="about_crash_logs_hint">Appuyez sur un fichier pour le partager avec le développeur.</string>
     <string name="about_crash_logs_empty">Aucun plantage enregistré</string>
     <string name="about_share_crash">Partager le journal</string>
     <string name="about_thanks">Remerciements</string>
@@ -448,7 +435,6 @@
     <string name="flic_button">Bouton Flic</string>
     <string name="flic_forget_body">%1$s sera désappairé et ses actions effacées. Vous pourrez le réappairer à tout moment.</string>
     <string name="flic_forget_title">Oublier ce bouton ?</string>
-    <string name="flic_no_buttons">Aucun bouton Flic appairé</string>
     <string name="menu_auto_lights">Réglages des lumières automatiques</string>
     <string name="menu_start_recording">Démarrer l\'enregistrement</string>
     <string name="menu_stop_recording">Arrêter l\'enregistrement</string>
@@ -461,7 +447,6 @@
     <string name="scan_show_all_title">Afficher tous les appareils</string>
     <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
     <string name="scan_simulate_title">Roues virtuelles</string>
-    <string name="section_watch_buttons">Boutons matériels</string>
     <string name="section_watch_display">Affichage</string>
     <string name="section_watch_general">Général</string>
     <string name="show_gauge_color_band">Bande de couleur du compteur de vitesse</string>
@@ -477,8 +462,6 @@
     <string name="watch_auto_start_desc">Ouvre l\'appli de la montre en même temps que celle du téléphone.</string>
     <string name="watch_close_on_exit">Arrêt auto sur la montre</string>
     <string name="watch_close_on_exit_desc">Arrêter l\'appli de la montre lors de Tout arrêter.</string>
-    <string name="watch_button_1">Bouton 1</string>
-    <string name="watch_button_2">Bouton 2</string>
     <string name="watch_button_click_label">Clic</string>
     <string name="watch_button_hold_label">Appui long</string>
     <string name="watch_keep_on">Garder l\'écran allumé</string>
@@ -508,16 +491,10 @@
     <string name="section_engine_sound">Son du moteur</string>
     <string name="engine_sound_enabled">Son du moteur</string>
     <string name="engine_sound_enabled_hint">Le régime moteur suit en temps réel la vitesse et la charge de ta roue.</string>
-    <string name="engine_safety_title">Attention</string>
-    <string name="engine_safety_message">Le son du moteur peut couvrir les bruits de la circulation. Garde un volume bas en ville et envisage un seul écouteur pour rester attentif à l\'environnement.</string>
-    <string name="engine_safety_ok">Compris</string>
     <string name="engine_type_label">Moteur</string>
-    <string name="engine_preview">Aperçu</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
-    <string name="engine_volume_auto_label">Ajuster selon la vitesse</string>
-    <string name="engine_volume_auto_hint">Plus fort à basse vitesse et plus discret en roulant pour que les piétons vous entendent près de 0 km/h.</string>
     <string name="engine_muffler_label">Échappement</string>
     <string name="engine_muffler_open">Ouvert</string>
     <string name="engine_muffler_half">Moyen</string>
@@ -546,7 +523,6 @@
     <string name="engine_headphones_only_hint">Ignore le haut-parleur du téléphone. Le moteur ne sonne qu\'avec un audio filaire ou Bluetooth.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Aperçu désactivé en mouvement, arrête-toi pour tester les sons.</string>
     <string name="engine_preset_two_stroke">2 temps</string>
     <string name="engine_preset_four_stroke_single">4 temps monocylindre</string>
     <string name="engine_preset_quad_bike">Quad</string>

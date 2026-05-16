@@ -121,9 +121,6 @@
     <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
-    <string name="section_watch_buttons">Hardware buttons</string>
-    <string name="watch_button_1">Button 1</string>
-    <string name="watch_button_2">Button 2</string>
     <string name="watch_button_click_label">Click</string>
     <string name="watch_button_hold_label">Long press</string>
 
@@ -144,7 +141,6 @@
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
-    <string name="cloud_no_folder">No folder selected</string>
     <string name="cloud_folder_label">Folder: %1$s</string>
     <string name="section_cloud_settings">Settings backup</string>
     <string name="cloud_backup_now">Backup</string>
@@ -152,6 +148,7 @@
     <string name="cloud_last_backup">Last backup: %1$s</string>
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
+<string name="cloud_backup_named_success">Backed up as %1$s</string>
     <string name="cloud_backup_failed">Backup failed. Check folder access.</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
@@ -169,7 +166,6 @@
     <string name="sync_conflict_ignore">Skip all conflicts</string>
     <string name="cloud_uploaded_on">Backed up on %1$s</string>
     <string name="cloud_not_uploaded">Not backed up yet</string>
-    <string name="cloud_upload_failed">Last upload failed</string>
     <string name="cloud_restore_confirm_title">Restore settings</string>
     <string name="cloud_restore_confirm_body_p1">Your current settings will be replaced by the settings in the backup.</string>
     <string name="cloud_restore_confirm_body_p2">Flic gestures are restored, but the buttons and wheel have to be paired again on this phone. Their Bluetooth bonds live in Android, not in the app.</string>
@@ -211,12 +207,6 @@
     <string name="theme_light">Light</string>
     <string name="theme_system">Follow system</string>
     <string name="accent_color">Accent color</string>
-    <string name="accent_blue">Blue</string>
-    <string name="accent_green">Green</string>
-    <string name="accent_orange">Orange</string>
-    <string name="accent_purple">Purple</string>
-    <string name="accent_teal">Teal</string>
-    <string name="accent_pink">Pink</string>
     <string name="tts_switch_title">Switch voice to %1$s?</string>
     <string name="tts_switch_body">The current text-to-speech voice doesn\'t match the selected language. Switch to a %1$s voice for announcements?</string>
     <string name="tts_switch_yes">Switch voice</string>
@@ -268,17 +258,10 @@
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
     <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load.</string>
-    <string name="engine_safety_title">Heads up</string>
-    <string name="engine_safety_message">Engine sound can mask traffic noise. Use lower volumes in city riding, and consider a single-ear headphone so you stay aware of your surroundings.</string>
-    <string name="engine_safety_ok">Got it</string>
     <string name="engine_type_label">Engine</string>
-    <string name="engine_preview">Preview</string>
-    <string name="engine_preview_parked_only">Previews disabled while moving, stop first to test sounds.</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
-    <string name="engine_volume_auto_label">Adjust by speed</string>
-    <string name="engine_volume_auto_hint">Louder at slow speeds, quieter at speed so pedestrians notice you near zero km/h.</string>
     <string name="engine_muffler_label">Muffler</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>
@@ -355,7 +338,6 @@
     <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan.</string>
     <string name="flic_stop_scan">Stop scan</string>
     <string name="flic_start_scan">Start scan</string>
-    <string name="flic_no_buttons">No Flic buttons paired</string>
     <string name="flic_forget">Forget</string>
     <string name="flic_forget_title">Forget this button?</string>
     <string name="flic_forget_body">%1$s will be unpaired and its actions cleared. You can pair it again anytime.</string>
@@ -367,9 +349,7 @@
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed feeds the dashboard dial and a new column at the end of each trip CSV.</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
-    <string name="external_gps_scanning">Scanning for devices…</string>
     <string name="external_gps_stop_scan">Stop scan</string>
-    <string name="external_gps_no_results">No RaceBox devices found yet. Make sure the device is on and within range.</string>
     <string name="external_gps_paired_with">Paired with %1$s</string>
     <string name="external_gps_state_connected">Connected</string>
     <string name="external_gps_state_connecting">Connecting…</string>
@@ -377,7 +357,6 @@
     <string name="external_gps_reconnect">Reconnect</string>
     <string name="external_gps_disconnect">Disconnect</string>
     <string name="external_gps_unpair">Forget device</string>
-    <string name="external_gps_live_speed">Live: %1$.1f km/h</string>
     <string name="external_gps_axes_title">Axis orientation</string>
     <string name="external_gps_axes_desc">Remap each output axis to a raw axis on the box.</string>
     <string name="external_gps_map_x">Output X</string>
@@ -474,8 +453,6 @@
     <string name="alarm_test_default">Alarm test</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Scanning\u2026</string>
-    <string name="flic_status_found_paired">Found paired button</string>
     <string name="flic_status_found_connecting">Found button, connecting\u2026</string>
     <string name="flic_status_connected_pairing">Connected, pairing\u2026</string>
     <string name="flic_status_accept_pairing">Accept pairing on phone\u2026</string>
@@ -568,8 +545,6 @@
     <string name="alarm_edit">Edit Alarm</string>
     <string name="alarm_delete_title">Delete this alarm?</string>
     <string name="alarm_delete_body">%1$s will be removed. This cannot be undone.</string>
-    <string name="alarm_name">Name (optional)</string>
-    <string name="alarm_section_condition">Condition</string>
     <string name="alarm_metric_label">Metric</string>
     <string name="alarm_comparator_label">Condition</string>
     <string name="alarm_threshold_fmt">Threshold: %1$s %2$s</string>
@@ -607,7 +582,6 @@
     <string name="sources_apply_calibration">Calibrate wheel</string>
     <string name="sources_apply_calibration_title">Apply speed calibration</string>
     <string name="sources_apply_calibration_body_fmt">Set the wheel speed calibration to %1$+.1f %%?\n\nYou can change this later in Wheel parameters.</string>
-    <string name="sources_apply_calibration_clamped_fmt">The computed value was clamped to the ±15 %% range supported by Wheel parameters. New value: %1$+.1f %%.</string>
     <string name="sources_apply">Apply</string>
     <string name="sources_cancel">Cancel</string>
 
@@ -635,7 +609,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crash logs</string>
-    <string name="about_crash_logs_hint">Tap a file to share it with the developer.</string>
     <string name="about_crash_logs_empty">No crashes recorded</string>
     <string name="about_share_crash">Share crash log</string>
     <string name="about_thanks">Credits</string>

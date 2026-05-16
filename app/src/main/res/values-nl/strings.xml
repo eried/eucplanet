@@ -121,9 +121,6 @@
     <string name="watch_dial_rotation_value">%1$d°</string>
 
     <!-- Watch hardware buttons -->
-    <string name="section_watch_buttons">Hardwareknoppen</string>
-    <string name="watch_button_1">Knop 1</string>
-    <string name="watch_button_2">Knop 2</string>
     <string name="watch_button_click_label">Klik</string>
     <string name="watch_button_hold_label">Lang indrukken</string>
 
@@ -135,7 +132,6 @@
     <string name="cloud_choose_folder">Map kiezen</string>
     <string name="cloud_change_folder">Map wijzigen</string>
     <string name="cloud_remove_folder">Ontkoppelen</string>
-    <string name="cloud_no_folder">Geen map gekozen</string>
     <string name="cloud_folder_label">Map: %1$s</string>
     <string name="section_cloud_settings">Back-up van instellingen</string>
     <string name="cloud_backup_now">Back-up</string>
@@ -143,6 +139,7 @@
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
     <string name="cloud_backup_success">Instellingen geback-upt</string>
+<string name="cloud_backup_named_success">Opgeslagen als %1$s</string>
     <string name="cloud_backup_failed">Back-up mislukt. Controleer maptoegang.</string>
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
@@ -160,7 +157,6 @@
     <string name="sync_conflict_ignore">Alle conflicten overslaan</string>
     <string name="cloud_uploaded_on">Geback-upt op %1$s</string>
     <string name="cloud_not_uploaded">Nog geen back-up</string>
-    <string name="cloud_upload_failed">Laatste upload mislukt</string>
     <string name="cloud_restore_confirm_title">Instellingen terugzetten</string>
     <string name="cloud_restore_confirm_body_p1">Je huidige instellingen worden vervangen door de instellingen uit de back-up.</string>
     <string name="cloud_restore_confirm_body_p2">Flic-gebaren worden teruggezet, maar de knoppen en het wiel moeten opnieuw gekoppeld worden op deze telefoon. Hun Bluetooth-koppelingen leven in Android, niet in de app.</string>
@@ -202,12 +198,6 @@
     <string name="theme_light">Licht</string>
     <string name="theme_system">Volg systeem</string>
     <string name="accent_color">Accentkleur</string>
-    <string name="accent_blue">Blauw</string>
-    <string name="accent_green">Groen</string>
-    <string name="accent_orange">Oranje</string>
-    <string name="accent_purple">Paars</string>
-    <string name="accent_teal">Turquoise</string>
-    <string name="accent_pink">Roze</string>
     <string name="tts_switch_title">Stem omschakelen naar %1$s?</string>
     <string name="tts_switch_body">De huidige tekst-naar-spraakstem komt niet overeen met de gekozen taal. Overschakelen naar een %1$s stem voor meldingen?</string>
     <string name="tts_switch_yes">Stem wisselen</string>
@@ -268,7 +258,6 @@
     <string name="external_gps_pair_button">Scannen starten</string>
     <string name="external_gps_pair_action">Koppelen</string>
     <string name="external_gps_stop_scan">Scannen stoppen</string>
-    <string name="flic_no_buttons">Geen Flic-knoppen gekoppeld</string>
     <string name="flic_forget">Vergeten</string>
     <string name="flic_forget_title">Deze knop vergeten?</string>
     <string name="flic_forget_body">%1$s wordt ontkoppeld en de acties worden gewist. Je kunt hem altijd opnieuw koppelen.</string>
@@ -368,8 +357,6 @@
     <string name="alarm_test_default">Alarmtest</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Scannen…</string>
-    <string name="flic_status_found_paired">Gekoppelde knop gevonden</string>
     <string name="flic_status_found_connecting">Knop gevonden, verbinden…</string>
     <string name="flic_status_connected_pairing">Verbonden, koppelen…</string>
     <string name="flic_status_accept_pairing">Accepteer koppeling op telefoon…</string>
@@ -462,8 +449,6 @@
     <string name="alarm_edit">Alarm bewerken</string>
     <string name="alarm_delete_title">Dit alarm verwijderen?</string>
     <string name="alarm_delete_body">%1$s wordt verwijderd. Dit kan niet ongedaan gemaakt worden.</string>
-    <string name="alarm_name">Naam (optioneel)</string>
-    <string name="alarm_section_condition">Voorwaarde</string>
     <string name="alarm_metric_label">Metriek</string>
     <string name="alarm_comparator_label">Voorwaarde</string>
     <string name="alarm_threshold_fmt">Drempel: %1$s %2$s</string>
@@ -496,7 +481,6 @@
     <string name="sources_apply_calibration">Wiel kalibreren</string>
     <string name="sources_apply_calibration_title">Snelheidskalibratie toepassen</string>
     <string name="sources_apply_calibration_body_fmt">Snelheidskalibratie van het wiel instellen op %1$+.1f %%?\n\nJe kunt dit later wijzigen in Wielparameters.</string>
-    <string name="sources_apply_calibration_clamped_fmt">De berekende waarde is beperkt tot het bereik van ±15 %% dat door Wielparameters wordt ondersteund. Nieuwe waarde: %1$+.1f %%.</string>
     <string name="sources_apply">Toepassen</string>
     <string name="sources_cancel">Annuleren</string>
 
@@ -526,7 +510,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Crashlogs</string>
-    <string name="about_crash_logs_hint">Tik op een bestand om het met de ontwikkelaar te delen.</string>
     <string name="about_crash_logs_empty">Geen crashes geregistreerd</string>
     <string name="about_share_crash">Crashlog delen</string>
     <string name="about_thanks">Met dank aan</string>
@@ -544,16 +527,10 @@
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
     <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel.</string>
-    <string name="engine_safety_title">Let op</string>
-    <string name="engine_safety_message">Motorgeluid kan verkeersgeluiden overstemmen. Houd het volume in de stad laag en overweeg een enkele oortelefoon, zodat je je omgeving blijft horen.</string>
-    <string name="engine_safety_ok">Begrepen</string>
     <string name="engine_type_label">Motor</string>
-    <string name="engine_preview">Voorbeeld</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
     <string name="engine_volume">Volume</string>
-    <string name="engine_volume_auto_label">Aanpassen aan snelheid</string>
-    <string name="engine_volume_auto_hint">Luider bij lage snelheid en zachter onderweg, zodat voetgangers je horen rond 0 km/u.</string>
     <string name="engine_muffler_label">Demper</string>
     <string name="engine_muffler_open">Open</string>
     <string name="engine_muffler_half">Half</string>
@@ -582,7 +559,6 @@
     <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Voorbeeld uitgeschakeld tijdens rijden, stop eerst om geluiden te testen.</string>
     <string name="engine_preset_two_stroke">Tweetakt</string>
     <string name="engine_preset_four_stroke_single">Viertakt eencilinder</string>
     <string name="engine_preset_quad_bike">Quad</string>

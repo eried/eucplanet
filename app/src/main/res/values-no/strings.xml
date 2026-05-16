@@ -77,7 +77,6 @@
     <string name="cloud_choose_folder">Velg mappe</string>
     <string name="cloud_change_folder">Bytt mappe</string>
     <string name="cloud_remove_folder">Koble fra</string>
-    <string name="cloud_no_folder">Ingen mappe valgt</string>
     <string name="cloud_folder_label">Mappe: %1$s</string>
     <string name="section_cloud_settings">Backup av innstillinger</string>
     <string name="cloud_backup_now">Ta backup</string>
@@ -85,6 +84,7 @@
     <string name="cloud_last_backup">Siste backup: %1$s</string>
     <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
     <string name="cloud_backup_success">Innstillinger sikkerhetskopiert</string>
+<string name="cloud_backup_named_success">Lagret som %1$s</string>
     <string name="cloud_backup_failed">Backup feilet. Sjekk mappetilgang.</string>
     <string name="cloud_restore_success">Innstillinger gjenopprettet</string>
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
@@ -102,7 +102,6 @@
     <string name="sync_conflict_ignore">Hopp over alle konflikter</string>
     <string name="cloud_uploaded_on">Sikkerhetskopiert %1$s</string>
     <string name="cloud_not_uploaded">Ikke sikkerhetskopiert ennå</string>
-    <string name="cloud_upload_failed">Siste opplasting feilet</string>
     <string name="cloud_restore_confirm_title">Gjenopprett innstillinger</string>
     <string name="cloud_restore_confirm_body_p1">Dine nåværende innstillinger blir erstattet av innstillingene i backupen.</string>
     <string name="cloud_restore_confirm_body_p2">Flic-bevegelser gjenopprettes, men knappene og hjulet må pares på nytt på denne telefonen. Bluetooth-parringen ligger i Android, ikke i appen.</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">Lys</string>
     <string name="theme_system">Følg system</string>
     <string name="accent_color">Aksentfarge</string>
-    <string name="accent_blue">Blå</string>
-    <string name="accent_green">Grønn</string>
-    <string name="accent_orange">Oransje</string>
-    <string name="accent_purple">Lilla</string>
-    <string name="accent_teal">Blågrønn</string>
-    <string name="accent_pink">Rosa</string>
     <string name="tts_switch_title">Bytte stemme til %1$s?</string>
     <string name="tts_switch_body">Nåværende TTS-stemme passer ikke til valgt språk. Bytte til en %1$s-stemme for varsler?</string>
     <string name="tts_switch_yes">Bytt stemme</string>
@@ -333,8 +326,6 @@
     <string name="alarm_add">Ny alarm</string>
     <string name="alarm_new">Ny alarm</string>
     <string name="alarm_edit">Rediger alarm</string>
-    <string name="alarm_name">Navn (valgfritt)</string>
-    <string name="alarm_section_condition">Betingelse</string>
     <string name="alarm_metric_label">Målepunkt</string>
     <string name="alarm_comparator_label">Betingelse</string>
     <string name="alarm_threshold_fmt">Terskel: %1$s %2$s</string>
@@ -367,7 +358,6 @@
     <string name="sources_apply_calibration">Kalibrer hjul</string>
     <string name="sources_apply_calibration_title">Bruk hastighetskalibrering</string>
     <string name="sources_apply_calibration_body_fmt">Sette hastighetskalibreringen for hjulet til %1$+.1f %%?\n\nDu kan endre dette senere i hjulparametere.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Den beregnede verdien ble begrenset til området ±15 %% som støttes av hjulparametere. Ny verdi: %1$+.1f %%.</string>
     <string name="sources_apply">Bruk</string>
     <string name="sources_cancel">Avbryt</string>
 
@@ -433,8 +423,6 @@
     <string name="alarm_test_default">Alarmtest</string>
 
     <!-- Flic scan status -->
-    <string name="flic_status_scanning">Søker\u2026</string>
-    <string name="flic_status_found_paired">Fant paret knapp</string>
     <string name="flic_status_found_connecting">Fant knapp, kobler til\u2026</string>
     <string name="flic_status_connected_pairing">Tilkoblet, parer\u2026</string>
     <string name="flic_status_accept_pairing">Godta paring på telefonen\u2026</string>
@@ -443,7 +431,6 @@
 
     <!-- About / crash logs -->
     <string name="about_crash_logs">Krasjlogger</string>
-    <string name="about_crash_logs_hint">Trykk på en fil for å dele den med utvikleren.</string>
     <string name="about_crash_logs_empty">Ingen krasj</string>
     <string name="about_share_crash">Del krasjlogg</string>
     <!-- Translations added -->
@@ -465,7 +452,6 @@
     <string name="flic_button">Flic-knapp</string>
     <string name="flic_forget_body">%1$s blir avparet og handlingene tømt. Du kan pare den igjen når som helst.</string>
     <string name="flic_forget_title">Glemme denne knappen?</string>
-    <string name="flic_no_buttons">Ingen Flic-knapper paret</string>
     <string name="menu_auto_lights">Innstillinger for auto-lys</string>
     <string name="menu_start_recording">Start opptak</string>
     <string name="menu_stop_recording">Stopp opptak</string>
@@ -478,7 +464,6 @@
     <string name="scan_show_all_title">Vis alle enheter</string>
     <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
-    <string name="section_watch_buttons">Maskinvareknapper</string>
     <string name="section_watch_display">Skjerm</string>
     <string name="section_watch_general">Generelt</string>
     <string name="show_gauge_color_band">Fargebånd på fartsmåler</string>
@@ -494,8 +479,6 @@
     <string name="watch_auto_start_desc">Åpne klokke-appen sammen med telefon-appen.</string>
     <string name="watch_close_on_exit">Auto-stopp på klokken</string>
     <string name="watch_close_on_exit_desc">Stopp klokke-appen ved Stopp alt.</string>
-    <string name="watch_button_1">Knapp 1</string>
-    <string name="watch_button_2">Knapp 2</string>
     <string name="watch_button_click_label">Klikk</string>
     <string name="watch_button_hold_label">Langt trykk</string>
     <string name="watch_keep_on">Hold skjermen på</string>
@@ -525,16 +508,10 @@
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
     <string name="engine_sound_enabled_hint">Motorturtallet følger i sanntid hjulets hastighet og motorbelastning.</string>
-    <string name="engine_safety_title">Obs</string>
-    <string name="engine_safety_message">Motorlyd kan dekke over trafikkstøy. Hold volumet lavt i byen og vurder kun én øreplugg så du fortsatt hører omgivelsene.</string>
-    <string name="engine_safety_ok">OK</string>
     <string name="engine_type_label">Motor</string>
-    <string name="engine_preview">Forhåndsvis</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
     <string name="engine_volume">Volum</string>
-    <string name="engine_volume_auto_label">Juster etter fart</string>
-    <string name="engine_volume_auto_hint">Høyere ved lav fart og lavere ved høyere fart, slik at fotgjengere hører deg nær 0 km/t.</string>
     <string name="engine_muffler_label">Lyddemper</string>
     <string name="engine_muffler_open">Åpen</string>
     <string name="engine_muffler_half">Halv</string>
@@ -563,7 +540,6 @@
     <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Forhåndsvisning av i bevegelse, stopp for å teste lyder.</string>
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firetakt enkeltsylindret</string>
     <string name="engine_preset_quad_bike">Firehjuling</string>

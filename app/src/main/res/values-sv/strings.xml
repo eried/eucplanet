@@ -76,7 +76,6 @@
     <string name="cloud_choose_folder">Välj mapp</string>
     <string name="cloud_change_folder">Byt mapp</string>
     <string name="cloud_remove_folder">Koppla ifrån</string>
-    <string name="cloud_no_folder">Ingen mapp vald</string>
     <string name="cloud_folder_label">Mapp: %1$s</string>
     <string name="section_cloud_settings">Säkerhetskopia av inställningar</string>
     <string name="cloud_backup_now">Säkerhetskopiera</string>
@@ -84,6 +83,7 @@
     <string name="cloud_last_backup">Senaste kopia: %1$s</string>
     <string name="cloud_last_backup_never">Ingen kopia ännu</string>
     <string name="cloud_backup_success">Inställningarna säkerhetskopierade</string>
+<string name="cloud_backup_named_success">Säkerhetskopierad som %1$s</string>
     <string name="cloud_backup_failed">Kopieringen misslyckades. Kontrollera mappåtkomsten.</string>
     <string name="cloud_restore_success">Inställningarna återställda</string>
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
@@ -93,7 +93,6 @@
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>
     <string name="cloud_not_uploaded">Inte säkerhetskopierad ännu</string>
-    <string name="cloud_upload_failed">Senaste uppladdningen misslyckades</string>
     <string name="cloud_restore_confirm_title">Återställ inställningar</string>
     <string name="cloud_restore_confirm_body_p1">Dina nuvarande inställningar ersätts av inställningarna i säkerhetskopian.</string>
     <string name="cloud_restore_confirm_body_p2">Flic-gester återställs, men knapparna och hjulet måste paras om på den här telefonen. Deras Bluetooth-parning lagras i Android, inte i appen.</string>
@@ -142,12 +141,6 @@
     <string name="theme_light">Ljust</string>
     <string name="theme_system">Följ systemet</string>
     <string name="accent_color">Accentfärg</string>
-    <string name="accent_blue">Blå</string>
-    <string name="accent_green">Grön</string>
-    <string name="accent_orange">Orange</string>
-    <string name="accent_purple">Lila</string>
-    <string name="accent_teal">Turkos</string>
-    <string name="accent_pink">Rosa</string>
     <string name="tts_switch_title">Byta röst till %1$s?</string>
     <string name="tts_switch_body">Den nuvarande talrösten matchar inte det valda språket. Byta till en %1$s röst för meddelanden?</string>
     <string name="tts_switch_yes">Byt röst</string>
@@ -285,8 +278,6 @@
 
     <string name="alarm_test_default">Larmtest</string>
 
-    <string name="flic_status_scanning">Skannar\u2026</string>
-    <string name="flic_status_found_paired">Parad knapp hittad</string>
     <string name="flic_status_found_connecting">Knapp hittad, ansluter\u2026</string>
     <string name="flic_status_connected_pairing">Ansluten, parar\u2026</string>
     <string name="flic_status_accept_pairing">Acceptera parning på telefonen\u2026</string>
@@ -369,8 +360,6 @@
     <string name="alarm_add">Nytt larm</string>
     <string name="alarm_new">Nytt larm</string>
     <string name="alarm_edit">Redigera larm</string>
-    <string name="alarm_name">Namn (valfritt)</string>
-    <string name="alarm_section_condition">Villkor</string>
     <string name="alarm_metric_label">Mätning</string>
     <string name="alarm_comparator_label">Villkor</string>
     <string name="alarm_threshold_fmt">Tröskel: %1$s %2$s</string>
@@ -403,7 +392,6 @@
     <string name="sources_apply_calibration">Kalibrera hjul</string>
     <string name="sources_apply_calibration_title">Tillämpa hastighetskalibrering</string>
     <string name="sources_apply_calibration_body_fmt">Ställ in hjulets hastighetskalibrering till %1$+.1f %%?\n\nDu kan ändra detta senare i Hjulparametrar.</string>
-    <string name="sources_apply_calibration_clamped_fmt">Det beräknade värdet begränsades till intervallet ±15 %% som stöds av Hjulparametrar. Nytt värde: %1$+.1f %%.</string>
     <string name="sources_apply">Tillämpa</string>
     <string name="sources_cancel">Avbryt</string>
 
@@ -428,7 +416,6 @@
     <string name="alarm_repeat_help">PÅ: utlöser igen efter varje paus så länge villkoret gäller.\nAV: utlöser en gång och är tyst tills villkoret upphör</string>
 
     <string name="about_crash_logs">Kraschloggar</string>
-    <string name="about_crash_logs_hint">Tryck på en fil för att dela den med utvecklaren.</string>
     <string name="about_crash_logs_empty">Inga krascher registrerade</string>
     <string name="about_share_crash">Dela kraschlogg</string>
     <string name="about_thanks">Tack till</string>
@@ -448,7 +435,6 @@
     <string name="flic_button">Flic-knapp</string>
     <string name="flic_forget_body">%1$s avparas och dess åtgärder rensas. Du kan para den igen när som helst.</string>
     <string name="flic_forget_title">Glömma den här knappen?</string>
-    <string name="flic_no_buttons">Inga Flic-knappar parade</string>
     <string name="menu_auto_lights">Inställningar för automatiskt ljus</string>
     <string name="menu_start_recording">Starta inspelning</string>
     <string name="menu_stop_recording">Stoppa inspelning</string>
@@ -461,7 +447,6 @@
     <string name="scan_show_all_title">Visa alla enheter</string>
     <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i utvecklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuella hjul</string>
-    <string name="section_watch_buttons">Hårdvaruknappar</string>
     <string name="section_watch_display">Skärm</string>
     <string name="section_watch_general">Allmänt</string>
     <string name="show_gauge_color_band">Färgband på hastighetsmätaren</string>
@@ -477,8 +462,6 @@
     <string name="watch_auto_start_desc">Öppna klockans app tillsammans med telefonens.</string>
     <string name="watch_close_on_exit">Auto-stopp på klockan</string>
     <string name="watch_close_on_exit_desc">Stoppa klockans app vid Stoppa allt.</string>
-    <string name="watch_button_1">Knapp 1</string>
-    <string name="watch_button_2">Knapp 2</string>
     <string name="watch_button_click_label">Klick</string>
     <string name="watch_button_hold_label">Långt tryck</string>
     <string name="watch_keep_on">Håll skärmen tänd</string>
@@ -508,16 +491,10 @@
     <string name="section_engine_sound">Motorljud</string>
     <string name="engine_sound_enabled">Motorljud</string>
     <string name="engine_sound_enabled_hint">Motorvarvet följer i realtid hjulets hastighet och motorlast.</string>
-    <string name="engine_safety_title">Obs</string>
-    <string name="engine_safety_message">Motorljud kan dränka trafikljud. Sänk volymen i stadsmiljö och överväg ett enkelhörlur så att du fortfarande hör omgivningen.</string>
-    <string name="engine_safety_ok">OK</string>
     <string name="engine_type_label">Motor</string>
-    <string name="engine_preview">Förhandsvisning</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
     <string name="engine_volume">Volym</string>
-    <string name="engine_volume_auto_label">Anpassa efter farten</string>
-    <string name="engine_volume_auto_hint">Högre vid låg fart och lägre i rörelse, så att fotgängare hör dig nära 0 km/h.</string>
     <string name="engine_muffler_label">Ljuddämpare</string>
     <string name="engine_muffler_open">Öppen</string>
     <string name="engine_muffler_half">Halv</string>
@@ -546,7 +523,6 @@
     <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara med trådbundet eller Bluetooth-ljud.</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
-    <string name="engine_preview_parked_only">Förhandsvisning av i rörelse, stanna för att testa ljud.</string>
     <string name="engine_preset_two_stroke">Tvåtakt</string>
     <string name="engine_preset_four_stroke_single">Fyrtakt encylindrig</string>
     <string name="engine_preset_quad_bike">Fyrhjuling</string>
