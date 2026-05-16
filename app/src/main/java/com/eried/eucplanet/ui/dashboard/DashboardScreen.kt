@@ -1007,7 +1007,16 @@ fun DashboardScreen(
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
                             Text(
-                                "v$versionName · ${com.eried.eucplanet.BuildConfig.BUILD_STAMP}",
+                                buildString {
+                                    append("v")
+                                    append(versionName)
+                                    if (versionRevision > 0) {
+                                        append(".")
+                                        append(versionRevision)
+                                    }
+                                    append(" · ")
+                                    append(com.eried.eucplanet.BuildConfig.BUILD_STAMP)
+                                },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.align(Alignment.CenterHorizontally)
