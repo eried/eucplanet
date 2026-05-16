@@ -2940,11 +2940,18 @@ internal fun BringIntoViewOnFirstShow() {
     val requester = remember { BringIntoViewRequester() }
     val density = androidx.compose.ui.platform.LocalDensity.current
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(80)
-        val targetPx = with(density) { 240.dp.toPx() }
+        kotlinx.coroutines.delay(120)
+        // Ask the parent scroll for a window that extends UP past the gating
+        // toggle (≈ one row + hint) AND DOWN over the freshly-expanded
+        // content. The system prefers fitting the rect's TOP into the
+        // viewport when the rect is taller than the screen, which keeps
+        // the row labelled "Motor sound" / "Volume keys" / etc. visible
+        // while the new content scrolls into view below it.
+        val upPx = with(density) { 80.dp.toPx() }
+        val downPx = with(density) { 360.dp.toPx() }
         runCatching {
             requester.bringIntoView(
-                androidx.compose.ui.geometry.Rect(0f, 0f, 1f, targetPx)
+                androidx.compose.ui.geometry.Rect(0f, -upPx, 1f, downPx)
             )
         }
     }
