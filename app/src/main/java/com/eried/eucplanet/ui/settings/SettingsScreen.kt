@@ -1646,9 +1646,20 @@ private fun CloudTab(
         if (hasFolder) {
             val openFolderInBrowser: () -> Unit = openFolder@{
                 val uri = settings.syncFolderUri ?: return@openFolder
-                val parsed = android.net.Uri.parse(uri)
+                val treeUri = android.net.Uri.parse(uri)
+                // The raw tree URI lands in the DocumentsUI root for most
+                // browsers. Convert to a document URI that points at the
+                // tree's own document id so the browser opens *inside* the
+                // rider's chosen folder rather than its provider root.
+                val docUri = runCatching {
+                    val docId = android.provider.DocumentsContract.getTreeDocumentId(treeUri)
+                    android.provider.DocumentsContract.buildDocumentUriUsingTree(treeUri, docId)
+                }.getOrNull() ?: treeUri
                 val openIntent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
-                    setDataAndType(parsed, "vnd.android.document/directory")
+                    setDataAndType(
+                        docUri,
+                        android.provider.DocumentsContract.Document.MIME_TYPE_DIR
+                    )
                     addFlags(
                         android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             android.content.Intent.FLAG_ACTIVITY_NEW_TASK
@@ -1657,11 +1668,13 @@ private fun CloudTab(
                 runCatching { context.startActivity(openIntent) }
                     .onFailure {
                         // Fallback for ROMs whose Files app doesn't handle the
-                        // tree URI directly — bounce through the documents UI.
-                        val docIntent = android.content.Intent(android.content.Intent.ACTION_VIEW)
-                            .setDataAndType(parsed, "*/*")
+                        // document URI directly — try the raw tree URI as a
+                        // last resort. Some browsers still land at the root,
+                        // but at least the click does something visible.
+                        val fallback = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                            .setDataAndType(treeUri, "*/*")
                             .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                        runCatching { context.startActivity(docIntent) }
+                        runCatching { context.startActivity(fallback) }
                     }
             }
             Text(
