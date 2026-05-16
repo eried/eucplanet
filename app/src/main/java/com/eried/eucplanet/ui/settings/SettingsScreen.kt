@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -528,6 +529,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .imePadding()
                 .onGloballyPositioned {
                     if (scrollContainerTop == null) {
                         scrollContainerTop = it.positionInWindow().y
@@ -566,6 +568,7 @@ fun SettingsScreen(
                             icon = sec.icon,
                             expanded = isExpanded,
                             query = query,
+                            autoExpandedByQuery = !explicitlyExpanded && query.isNotEmpty(),
                             onToggle = {
                                 if (explicitlyExpanded) expandedSections.remove(sec.key)
                                 else expandedSections.add(sec.key)
@@ -601,16 +604,16 @@ private fun CollapsibleSection(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
     query: String = "",
+    autoExpandedByQuery: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    // Bring the section header into view when the rider opens a section
-    // whose freshly-revealed content would otherwise land below the
-    // viewport. The delay lets Compose place the new content first; without
-    // it the requester anchors on the still-collapsed card and the parent
-    // scroll doesn't move far enough.
+    // Bring the section header into view when the rider explicitly toggles
+    // it open. Skip the auto-scroll when the section was forced open by the
+    // search filter — otherwise every visible section fights for the scroll
+    // position as the rider types and the page jumps to the topmost match.
     val requester = remember { BringIntoViewRequester() }
-    LaunchedEffect(expanded) {
-        if (expanded) {
+    LaunchedEffect(expanded, autoExpandedByQuery) {
+        if (expanded && !autoExpandedByQuery) {
             kotlinx.coroutines.delay(80)
             runCatching { requester.bringIntoView() }
         }

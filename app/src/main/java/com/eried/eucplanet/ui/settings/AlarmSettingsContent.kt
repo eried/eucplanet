@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -332,14 +334,24 @@ private fun AlarmRuleEditorDialog(
         onDismissRequest = onDismiss,
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
     ) {
+        // Cap the dialog's height so the inner verticalScroll has a bounded
+        // parent — without this the Column grows past the viewport and the
+        // Save button at the bottom is unreachable on long forms. 88% leaves
+        // room for the status bar and the IME (which the inner imePadding
+        // takes care of).
+        val maxDialogHeight = androidx.compose.ui.platform.LocalConfiguration.current
+            .screenHeightDp.dp * 0.88f
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            modifier = Modifier.fillMaxWidth(0.95f)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .heightIn(max = maxDialogHeight)
         ) {
             Column(
                 modifier = Modifier
                     .padding(20.dp)
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
