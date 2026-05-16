@@ -108,6 +108,17 @@
     <string name="cloud_restore_confirm_body_p2">Flic-Gesten werden wiederhergestellt, aber die Tasten und das Rad müssen auf diesem Telefon erneut gekoppelt werden. Ihre Bluetooth-Bindungen liegen in Android, nicht in der App.</string>
     <string name="sync_checking">Backup-Ordner wird geprüft…</string>
     <string name="action_restore">Wiederherstellen</string>
+    <string name="action_overwrite">Überschreiben</string>
+    <string name="cloud_backup_long_press_hint">Lange auf Backup tippen für eine benannte Sicherung, oder auf Wiederherstellen für die Auswahl.</string>
+    <string name="cloud_backup_name_title">Backup benennen</string>
+    <string name="cloud_backup_name_label">Backup-Name</string>
+    <string name="cloud_backup_name_hint">Buchstaben, Zahlen, Leerzeichen, Bindestrich oder Unterstrich.</string>
+    <string name="cloud_backup_name_preview">Wird gespeichert als %1$s</string>
+    <string name="cloud_backup_overwrite_title">"%1$s" überschreiben?</string>
+    <string name="cloud_backup_overwrite_body">Eine Sicherung mit diesem Namen existiert bereits.</string>
+    <string name="cloud_restore_picker_title">Wiederherstellen aus</string>
+    <string name="cloud_restore_picker_default">Standard-Backup</string>
+    <string name="cloud_restore_picker_empty">Keine Backups im Ordner.</string>
 
     <string name="section_recording">Aufnahme</string>
     <string name="section_connection">Verbindung</string>

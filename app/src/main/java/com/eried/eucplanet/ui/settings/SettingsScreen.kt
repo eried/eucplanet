@@ -4,9 +4,13 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
@@ -587,6 +591,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     else -> null
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CollapsibleSection(
     title: String,
@@ -597,8 +602,22 @@ private fun CollapsibleSection(
     query: String = "",
     content: @Composable () -> Unit
 ) {
+    // Bring the section header into view when the rider opens a section
+    // whose freshly-revealed content would otherwise land below the
+    // viewport. The delay lets Compose place the new content first; without
+    // it the requester anchors on the still-collapsed card and the parent
+    // scroll doesn't move far enough.
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(80)
+            runCatching { requester.bringIntoView() }
+        }
+    }
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(requester),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -1477,6 +1496,9 @@ private fun CloudTab(
     val syncRunning by viewModel.syncRunning.collectAsState()
     val syncConflict by viewModel.syncConflictPrompt.collectAsState()
     var showRestoreDialog by remember { mutableStateOf(false) }
+    var showBackupNameDialog by remember { mutableStateOf(false) }
+    var overwritePrompt by remember { mutableStateOf<String?>(null) }
+    var showRestorePicker by remember { mutableStateOf(false) }
 
     val pickFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -1499,6 +1521,10 @@ private fun CloudTab(
             CloudEvent.FolderFailed -> sFolderFailed
             CloudEvent.BackupSuccess -> sBackupOk
             CloudEvent.BackupFailed -> sBackupFail
+            is CloudEvent.BackupExists -> {
+                overwritePrompt = event.name
+                null
+            }
             CloudEvent.RestoreSuccess -> sRestoreOk
             CloudEvent.RestoreFailed -> sRestoreFail
             CloudEvent.UploadEnqueued -> sEnqueued
@@ -1507,6 +1533,47 @@ private fun CloudTab(
         }
         if (msg != null) Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         viewModel.consumeCloudEvent()
+    }
+
+    if (showBackupNameDialog) {
+        NamedBackupDialog(
+            onDismiss = { showBackupNameDialog = false },
+            onSave = { name ->
+                showBackupNameDialog = false
+                viewModel.backupSettingsNamed(name, overwrite = false)
+            },
+            sanitize = viewModel::sanitizeBackupName
+        )
+    }
+
+    overwritePrompt?.let { pendingName ->
+        AlertDialog(
+            onDismissRequest = { overwritePrompt = null },
+            title = { Text(stringResource(R.string.cloud_backup_overwrite_title, pendingName)) },
+            text = { Text(stringResource(R.string.cloud_backup_overwrite_body)) },
+            confirmButton = {
+                Button(onClick = {
+                    overwritePrompt = null
+                    viewModel.backupSettingsNamed(pendingName, overwrite = true)
+                }) { Text(stringResource(R.string.action_overwrite)) }
+            },
+            dismissButton = {
+                Button(onClick = { overwritePrompt = null }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
+        )
+    }
+
+    if (showRestorePicker) {
+        RestorePickerDialog(
+            onDismiss = { showRestorePicker = false },
+            loadEntries = { viewModel.listBackups() },
+            onPicked = { entry ->
+                showRestorePicker = false
+                viewModel.restoreSettingsFrom(entry.fileName)
+            }
+        )
     }
 
     if (syncConflict != null) {
@@ -1616,15 +1683,23 @@ private fun CloudTab(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Button(
+                LongPressActionButton(
+                    text = stringResource(R.string.cloud_backup_now),
                     onClick = { viewModel.backupSettingsNow() },
+                    onLongClick = { showBackupNameDialog = true },
                     modifier = Modifier.weight(1f)
-                ) { Text(stringResource(R.string.cloud_backup_now)) }
-                Button(
+                )
+                LongPressActionButton(
+                    text = stringResource(R.string.cloud_restore),
                     onClick = { showRestoreDialog = true },
+                    onLongClick = { showRestorePicker = true },
                     modifier = Modifier.weight(1f)
-                ) { Text(stringResource(R.string.cloud_restore)) }
+                )
             }
+            HintText(
+                stringResource(R.string.cloud_backup_long_press_hint),
+                small = true
+            )
 
             SectionHeader(stringResource(R.string.section_cloud_trips))
             HintText(stringResource(R.string.cloud_trips_caption))
@@ -2792,4 +2867,130 @@ private fun EngineSpeedVolumeCurveEditor(
             }
         }
     }
+}
+
+// --- Long-press backup / restore helpers --------------------------------
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LongPressActionButton(
+    text: String,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    androidx.compose.material3.Surface(
+        modifier = modifier
+            .height(40.dp)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick,
+                role = androidx.compose.ui.semantics.Role.Button
+            ),
+        shape = androidx.compose.material3.ButtonDefaults.shape,
+        color = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text,
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun NamedBackupDialog(
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit,
+    sanitize: (String) -> String?
+) {
+    var raw by remember { mutableStateOf("") }
+    val sanitized = sanitize(raw)
+    val preview = if (sanitized != null) {
+        stringResource(R.string.cloud_backup_name_preview, "eucplanet_settings-$sanitized.json")
+    } else {
+        stringResource(R.string.cloud_backup_name_hint)
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.cloud_backup_name_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = raw,
+                    onValueChange = { raw = it },
+                    label = { Text(stringResource(R.string.cloud_backup_name_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    preview,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = sanitized != null,
+                onClick = { sanitized?.let(onSave) }
+            ) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
+}
+
+@Composable
+private fun RestorePickerDialog(
+    onDismiss: () -> Unit,
+    loadEntries: suspend () -> List<com.eried.eucplanet.data.sync.BackupEntry>,
+    onPicked: (com.eried.eucplanet.data.sync.BackupEntry) -> Unit
+) {
+    var entries by remember { mutableStateOf<List<com.eried.eucplanet.data.sync.BackupEntry>?>(null) }
+    LaunchedEffect(Unit) { entries = loadEntries() }
+    val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.cloud_restore_picker_title)) },
+        text = {
+            val list = entries
+            when {
+                list == null -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                list.isEmpty() -> Text(stringResource(R.string.cloud_restore_picker_empty))
+                else -> Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    list.forEach { entry ->
+                        Text(
+                            entry.label ?: defaultLabel,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPicked(entry) }
+                                .padding(vertical = 10.dp, horizontal = 4.dp)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.action_cancel))
+            }
+        }
+    )
 }

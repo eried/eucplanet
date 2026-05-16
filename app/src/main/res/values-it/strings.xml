@@ -166,6 +166,17 @@
     <string name="cloud_restore_confirm_body_p2">I gesti Flic vengono ripristinati, ma i pulsanti e la ruota devono essere accoppiati di nuovo su questo telefono. I loro abbinamenti Bluetooth vivono in Android, non nell\'app.</string>
     <string name="sync_checking">Controllo della cartella di backup…</string>
     <string name="action_restore">Ripristina</string>
+    <string name="action_overwrite">Sovrascrivi</string>
+    <string name="cloud_backup_long_press_hint">Tieni premuto Backup per un\'istantanea con nome, o Ripristina per scegliere quale.</string>
+    <string name="cloud_backup_name_title">Nome del backup</string>
+    <string name="cloud_backup_name_label">Nome del backup</string>
+    <string name="cloud_backup_name_hint">Lettere, numeri, spazi, trattino o trattino basso.</string>
+    <string name="cloud_backup_name_preview">Sarà salvato come %1$s</string>
+    <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
+    <string name="cloud_restore_picker_title">Ripristina da</string>
+    <string name="cloud_restore_picker_default">Backup predefinito</string>
+    <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Registrazione</string>

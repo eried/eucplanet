@@ -175,6 +175,17 @@
     <string name="cloud_restore_confirm_body_p2">Flic gestures are restored, but the buttons and wheel have to be paired again on this phone. Their Bluetooth bonds live in Android, not in the app.</string>
     <string name="sync_checking">Checking backup folder…</string>
     <string name="action_restore">Restore</string>
+    <string name="action_overwrite">Overwrite</string>
+    <string name="cloud_backup_long_press_hint">Long-press Backup to save a named snapshot, or long-press Restore to pick which to restore.</string>
+    <string name="cloud_backup_name_title">Name this backup</string>
+    <string name="cloud_backup_name_label">Backup name</string>
+    <string name="cloud_backup_name_hint">Letters, numbers, spaces, dash or underscore.</string>
+    <string name="cloud_backup_name_preview">Will save as %1$s</string>
+    <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
+    <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>
+    <string name="cloud_restore_picker_title">Restore from</string>
+    <string name="cloud_restore_picker_default">Default backup</string>
+    <string name="cloud_restore_picker_empty">No backups found in the sync folder.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Recording</string>

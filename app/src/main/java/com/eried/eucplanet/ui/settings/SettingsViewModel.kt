@@ -8,6 +8,8 @@ import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.sync.BackupEntry
+import com.eried.eucplanet.data.sync.BackupOutcome
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
@@ -358,6 +360,34 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Sanitised name preview for the named-backup dialog. Null when the input
+     *  is empty or strips to empty so the caller can disable the Save button. */
+    fun sanitizeBackupName(raw: String): String? = syncManager.sanitizeBackupName(raw)
+
+    /**
+     * Saves the rider's named backup. Surfaces [BackupOutcome.AlreadyExists] as
+     * [CloudEvent.BackupExists] so the dialog can prompt to overwrite.
+     */
+    fun backupSettingsNamed(name: String, overwrite: Boolean) {
+        viewModelScope.launch {
+            _cloudEvent.value = when (syncManager.backupSettingsAs(name, overwrite)) {
+                BackupOutcome.Saved -> CloudEvent.BackupSuccess
+                BackupOutcome.AlreadyExists -> CloudEvent.BackupExists(name)
+                BackupOutcome.Failed -> CloudEvent.BackupFailed
+            }
+        }
+    }
+
+    /** Latest list of backup files in the sync folder, for the restore picker. */
+    suspend fun listBackups(): List<BackupEntry> = syncManager.listSettingsBackups()
+
+    fun restoreSettingsFrom(fileName: String) {
+        viewModelScope.launch {
+            val ok = syncManager.restoreSettingsFrom(fileName)
+            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+        }
+    }
+
     fun restoreSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.restoreSettings()
@@ -422,6 +452,7 @@ sealed interface CloudEvent {
     data object FolderFailed : CloudEvent
     data object BackupSuccess : CloudEvent
     data object BackupFailed : CloudEvent
+    data class BackupExists(val name: String) : CloudEvent
     data object RestoreSuccess : CloudEvent
     data object RestoreFailed : CloudEvent
     data object UploadEnqueued : CloudEvent

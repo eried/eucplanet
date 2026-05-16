@@ -107,6 +107,17 @@
     <string name="sync_conflict_folder">Kopiera kopia till app</string>
     <string name="sync_conflict_ignore">Hoppa över alla konflikter</string>
     <string name="action_restore">Återställ</string>
+    <string name="action_overwrite">Skriv över</string>
+    <string name="cloud_backup_long_press_hint">Långtryck på Säkerhetskopia för en namngiven kopia, eller Återställ för att välja vilken.</string>
+    <string name="cloud_backup_name_title">Namnge säkerhetskopia</string>
+    <string name="cloud_backup_name_label">Säkerhetskopians namn</string>
+    <string name="cloud_backup_name_hint">Bokstäver, siffror, mellanslag, bindestreck eller understreck.</string>
+    <string name="cloud_backup_name_preview">Sparas som %1$s</string>
+    <string name="cloud_backup_overwrite_title">Skriv över "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">En säkerhetskopia med detta namn finns redan i mappen.</string>
+    <string name="cloud_restore_picker_title">Återställ från</string>
+    <string name="cloud_restore_picker_default">Standardsäkerhetskopia</string>
+    <string name="cloud_restore_picker_empty">Inga säkerhetskopior i mappen.</string>
 
     <string name="section_recording">Inspelning</string>
     <string name="section_connection">Anslutning</string>

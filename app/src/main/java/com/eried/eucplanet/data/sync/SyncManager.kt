@@ -52,6 +52,8 @@ class SyncManager @Inject constructor(
     companion object {
         private const val TAG = "SyncManager"
         const val SETTINGS_BACKUP_NAME = "eucplanet_settings.json"
+        const val SETTINGS_BACKUP_PREFIX = "eucplanet_settings-"
+        const val SETTINGS_BACKUP_SUFFIX = ".json"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
     }
@@ -337,33 +339,53 @@ class SyncManager @Inject constructor(
     }
 
     /** Serialise AppSettings + alarm rules to JSON and write to SETTINGS_BACKUP_NAME. */
-    suspend fun backupSettings(): Boolean {
+    suspend fun backupSettings(): Boolean =
+        backupSettingsAs(name = null, overwrite = true) == BackupOutcome.Saved
+
+    /**
+     * Write a named backup file in the sync folder. [name] = null is the
+     * default `eucplanet_settings.json`; a non-null sanitised name produces
+     * `eucplanet_settings-{name}.json`. When [overwrite] is false and the
+     * target already exists, returns [BackupOutcome.AlreadyExists] without
+     * touching the file so the caller can prompt the rider.
+     */
+    suspend fun backupSettingsAs(name: String?, overwrite: Boolean): BackupOutcome {
         val current = settingsRepository.get()
-        val folder = getSyncFolder(current) ?: return false
+        val folder = getSyncFolder(current) ?: return BackupOutcome.Failed
+        val fileName = buildBackupFileName(name)
+        val existing = folder.findFile(fileName)
+        if (existing != null && !overwrite) return BackupOutcome.AlreadyExists
         val payload = SettingsJson.toJson(SettingsJson.stripDeviceBindings(current)).apply {
             put("alarms", alarmsToJson(alarmDao.getAll()))
         }
         val json = payload.toString(2)
         return try {
-            val existing = folder.findFile(SETTINGS_BACKUP_NAME)
             existing?.delete()
-            val file = folder.createFile("application/json", SETTINGS_BACKUP_NAME) ?: return false
+            val file = folder.createFile("application/json", fileName)
+                ?: return BackupOutcome.Failed
             context.contentResolver.openOutputStream(file.uri)?.use { out ->
                 out.write(json.toByteArray(Charsets.UTF_8))
-            } ?: return false
-            settingsRepository.update(current.copy(lastSettingsBackupAt = System.currentTimeMillis()))
-            true
+            } ?: return BackupOutcome.Failed
+            // Only the default backup updates the "last backup" timestamp so
+            // named snapshots don't reset the cadence indicator on the dashboard.
+            if (name == null) {
+                settingsRepository.update(current.copy(lastSettingsBackupAt = System.currentTimeMillis()))
+            }
+            BackupOutcome.Saved
         } catch (e: Exception) {
             Log.e(TAG, "Settings backup failed", e)
-            false
+            BackupOutcome.Failed
         }
     }
 
     /** Read settings.json from the folder and apply — keeps current syncFolder/device fields. */
-    suspend fun restoreSettings(): Boolean {
+    suspend fun restoreSettings(): Boolean = restoreSettingsFrom(SETTINGS_BACKUP_NAME)
+
+    /** Restore from the named backup file in the sync folder. */
+    suspend fun restoreSettingsFrom(fileName: String): Boolean {
         val current = settingsRepository.get()
         val folder = getSyncFolder(current) ?: return false
-        val file = folder.findFile(SETTINGS_BACKUP_NAME) ?: return false
+        val file = folder.findFile(fileName) ?: return false
         return try {
             val bytes = context.contentResolver.openInputStream(file.uri)?.use { it.readBytes() }
                 ?: return false
@@ -384,6 +406,52 @@ class SyncManager @Inject constructor(
             false
         }
     }
+
+    /**
+     * List every settings backup in the sync folder. The default
+     * `eucplanet_settings.json` is always returned first (with [BackupEntry.label]
+     * = null), followed by named snapshots sorted by display label.
+     */
+    suspend fun listSettingsBackups(): List<BackupEntry> {
+        val current = settingsRepository.get()
+        val folder = getSyncFolder(current) ?: return emptyList()
+        val out = mutableListOf<BackupEntry>()
+        val named = mutableListOf<BackupEntry>()
+        folder.listFiles().forEach { doc ->
+            val n = doc.name ?: return@forEach
+            if (!n.endsWith(".json", ignoreCase = true)) return@forEach
+            when {
+                n.equals(SETTINGS_BACKUP_NAME, ignoreCase = true) -> {
+                    out += BackupEntry(fileName = n, label = null)
+                }
+                n.startsWith(SETTINGS_BACKUP_PREFIX, ignoreCase = true) &&
+                    n.length > SETTINGS_BACKUP_PREFIX.length + SETTINGS_BACKUP_SUFFIX.length -> {
+                    val label = n.substring(
+                        SETTINGS_BACKUP_PREFIX.length,
+                        n.length - SETTINGS_BACKUP_SUFFIX.length
+                    )
+                    if (label.isNotEmpty()) named += BackupEntry(fileName = n, label = label)
+                }
+            }
+        }
+        named.sortBy { it.label?.lowercase() }
+        return out + named
+    }
+
+    /** Path-safe sanitiser. Strips anything that isn't [A-Za-z0-9_- ], trims,
+     *  collapses whitespace, caps at 32 chars. Empty input returns null so the
+     *  caller can show a validation error. */
+    fun sanitizeBackupName(raw: String): String? {
+        val cleaned = raw.trim()
+            .replace(Regex("[^A-Za-z0-9_\\- ]"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .take(32)
+        return cleaned.takeIf { it.isNotEmpty() }
+    }
+
+    private fun buildBackupFileName(name: String?): String =
+        if (name == null) SETTINGS_BACKUP_NAME else "$SETTINGS_BACKUP_PREFIX$name$SETTINGS_BACKUP_SUFFIX"
 
     /** Enqueue the trip upload worker. */
     fun enqueueTripUpload(settings: AppSettings) {
@@ -501,3 +569,19 @@ class SyncManager @Inject constructor(
         return out
     }
 }
+
+/**
+ * Result of a settings-backup attempt. [AlreadyExists] is only ever returned
+ * when the caller asked not to overwrite.
+ */
+sealed interface BackupOutcome {
+    data object Saved : BackupOutcome
+    data object AlreadyExists : BackupOutcome
+    data object Failed : BackupOutcome
+}
+
+/**
+ * One row in the restore picker. [label] = null is the default backup
+ * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
+ */
+data class BackupEntry(val fileName: String, val label: String?)

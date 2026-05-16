@@ -108,6 +108,17 @@
     <string name="cloud_restore_confirm_body_p2">Flic-bevegelser gjenopprettes, men knappene og hjulet må pares på nytt på denne telefonen. Bluetooth-parringen ligger i Android, ikke i appen.</string>
     <string name="sync_checking">Sjekker backup-mappen…</string>
     <string name="action_restore">Gjenopprett</string>
+    <string name="action_overwrite">Overskriv</string>
+    <string name="cloud_backup_long_press_hint">Hold inne Sikkerhetskopi for et navngitt øyeblikksbilde, eller Gjenopprett for å velge.</string>
+    <string name="cloud_backup_name_title">Navngi denne sikkerhetskopien</string>
+    <string name="cloud_backup_name_label">Sikkerhetskopinavn</string>
+    <string name="cloud_backup_name_hint">Bokstaver, tall, mellomrom, bindestrek eller understrek.</string>
+    <string name="cloud_backup_name_preview">Lagres som %1$s</string>
+    <string name="cloud_backup_overwrite_title">Overskrive "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Det finnes allerede en sikkerhetskopi med dette navnet.</string>
+    <string name="cloud_restore_picker_title">Gjenopprett fra</string>
+    <string name="cloud_restore_picker_default">Standard sikkerhetskopi</string>
+    <string name="cloud_restore_picker_empty">Ingen sikkerhetskopier i mappen.</string>
 
     <string name="section_recording">Opptak</string>
     <string name="section_connection">Tilkobling</string>

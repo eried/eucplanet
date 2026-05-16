@@ -166,6 +166,17 @@
     <string name="cloud_restore_confirm_body_p2">Жести Flic відновлюються, але кнопки й моноколесо доведеться знову спарувати на цьому телефоні. Їхні Bluetooth-прив\'язки зберігаються в Android, а не в додатку.</string>
     <string name="sync_checking">Перевіряємо папку копій…</string>
     <string name="action_restore">Відновити</string>
+    <string name="action_overwrite">Перезаписати</string>
+    <string name="cloud_backup_long_press_hint">Утримуйте Резервна копія, щоб зберегти іменований знімок, або Відновити, щоб вибрати з кількох.</string>
+    <string name="cloud_backup_name_title">Назвати резервну копію</string>
+    <string name="cloud_backup_name_label">Назва резервної копії</string>
+    <string name="cloud_backup_name_hint">Літери, цифри, пробіли, дефіс або підкреслення.</string>
+    <string name="cloud_backup_name_preview">Зберегти як %1$s</string>
+    <string name="cloud_backup_overwrite_title">Перезаписати "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує.</string>
+    <string name="cloud_restore_picker_title">Відновити з</string>
+    <string name="cloud_restore_picker_default">Резервна копія за замовчуванням</string>
+    <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Запис</string>

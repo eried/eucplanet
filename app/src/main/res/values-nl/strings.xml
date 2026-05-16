@@ -166,6 +166,17 @@
     <string name="cloud_restore_confirm_body_p2">Flic-gebaren worden teruggezet, maar de knoppen en het wiel moeten opnieuw gekoppeld worden op deze telefoon. Hun Bluetooth-koppelingen leven in Android, niet in de app.</string>
     <string name="sync_checking">Back-upmap controleren…</string>
     <string name="action_restore">Terugzetten</string>
+    <string name="action_overwrite">Overschrijven</string>
+    <string name="cloud_backup_long_press_hint">Houd Back-up ingedrukt voor een benoemde momentopname, of Terugzetten om er een te kiezen.</string>
+    <string name="cloud_backup_name_title">Naam voor deze back-up</string>
+    <string name="cloud_backup_name_label">Back-upnaam</string>
+    <string name="cloud_backup_name_hint">Letters, cijfers, spaties, koppelteken of underscore.</string>
+    <string name="cloud_backup_name_preview">Wordt opgeslagen als %1$s</string>
+    <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
+    <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
+    <string name="cloud_restore_picker_title">Terugzetten van</string>
+    <string name="cloud_restore_picker_default">Standaard back-up</string>
+    <string name="cloud_restore_picker_empty">Geen back-ups in de map.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Opname</string>

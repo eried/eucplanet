@@ -108,6 +108,17 @@
     <string name="cloud_restore_confirm_body_p2">Жесты Flic восстановятся, но кнопки и колесо придётся снова спарить на этом телефоне. Bluetooth-привязки хранятся в Android, а не в приложении.</string>
     <string name="sync_checking">Проверка папки копий…</string>
     <string name="action_restore">Восстановить</string>
+    <string name="action_overwrite">Перезаписать</string>
+    <string name="cloud_backup_long_press_hint">Удерживайте Резервная копия для именованного снимка, или Восстановить для выбора.</string>
+    <string name="cloud_backup_name_title">Имя резервной копии</string>
+    <string name="cloud_backup_name_label">Имя</string>
+    <string name="cloud_backup_name_hint">Буквы, цифры, пробелы, дефис или подчёркивание.</string>
+    <string name="cloud_backup_name_preview">Сохранить как %1$s</string>
+    <string name="cloud_backup_overwrite_title">Перезаписать "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже существует.</string>
+    <string name="cloud_restore_picker_title">Восстановить из</string>
+    <string name="cloud_restore_picker_default">Резервная копия по умолчанию</string>
+    <string name="cloud_restore_picker_empty">Резервных копий в папке нет.</string>
 
     <string name="section_recording">Запись поездок</string>
     <string name="section_connection">Подключение</string>

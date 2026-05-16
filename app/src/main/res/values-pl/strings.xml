@@ -166,6 +166,17 @@
     <string name="cloud_restore_confirm_body_p2">Gesty Flic są przywracane, ale przyciski i koło trzeba ponownie sparować na tym telefonie. Ich powiązania Bluetooth żyją w Androidzie, a nie w aplikacji.</string>
     <string name="sync_checking">Sprawdzanie folderu kopii…</string>
     <string name="action_restore">Przywróć</string>
+    <string name="action_overwrite">Nadpisz</string>
+    <string name="cloud_backup_long_press_hint">Przytrzymaj Kopia, aby zapisać nazwany snapshot, lub Przywróć, aby wybrać.</string>
+    <string name="cloud_backup_name_title">Nazwa kopii</string>
+    <string name="cloud_backup_name_label">Nazwa kopii</string>
+    <string name="cloud_backup_name_hint">Litery, cyfry, spacje, myślnik lub podkreślnik.</string>
+    <string name="cloud_backup_name_preview">Zapisze jako %1$s</string>
+    <string name="cloud_backup_overwrite_title">Nadpisać "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Kopia o tej nazwie już istnieje w folderze.</string>
+    <string name="cloud_restore_picker_title">Przywróć z</string>
+    <string name="cloud_restore_picker_default">Domyślna kopia</string>
+    <string name="cloud_restore_picker_empty">Brak kopii w folderze.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Nagrywanie</string>

@@ -166,6 +166,17 @@
     <string name="cloud_restore_confirm_body_p2">Os gestos do Flic são restaurados, mas os botões e a roda precisam ser pareados novamente neste celular. Os vínculos Bluetooth ficam no Android, não no app.</string>
     <string name="sync_checking">Verificando pasta de backup…</string>
     <string name="action_restore">Restaurar</string>
+    <string name="action_overwrite">Sobrescrever</string>
+    <string name="cloud_backup_long_press_hint">Mantenha pressionado Backup para um snapshot com nome, ou Restaurar para escolher.</string>
+    <string name="cloud_backup_name_title">Nome do backup</string>
+    <string name="cloud_backup_name_label">Nome do backup</string>
+    <string name="cloud_backup_name_hint">Letras, números, espaços, hífen ou sublinhado.</string>
+    <string name="cloud_backup_name_preview">Será salvo como %1$s</string>
+    <string name="cloud_backup_overwrite_title">Sobrescrever "%1$s"?</string>
+    <string name="cloud_backup_overwrite_body">Já existe um backup com esse nome na pasta.</string>
+    <string name="cloud_restore_picker_title">Restaurar de</string>
+    <string name="cloud_restore_picker_default">Backup padrão</string>
+    <string name="cloud_restore_picker_empty">Nenhum backup na pasta.</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Gravação</string>
