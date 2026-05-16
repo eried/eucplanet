@@ -79,6 +79,7 @@ fun AutomationsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // --- Lights Section ---
+        BringIntoViewSection(expanded = settings.autoLightsEnabled) {
         Text(stringResource(R.string.auto_lights_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
@@ -95,7 +96,6 @@ fun AutomationsContent(
         }
 
         if (settings.autoLightsEnabled) {
-            BringIntoViewOnFirstShow()
             if (autoLightsSuspended) {
                 Card(colors = CardDefaults.cardColors(containerColor = AccentOrange.copy(alpha = 0.15f))) {
                     Row(
@@ -184,10 +184,12 @@ fun AutomationsContent(
                 HintText(stringResource(R.string.auto_waiting_gps), small = true)
             }
         }
+        }   // end Lights BringIntoViewSection
 
         Spacer(Modifier.height(8.dp))
 
         // --- Volume Section ---
+        BringIntoViewSection(expanded = settings.autoVolumeEnabled) {
         Text(stringResource(R.string.auto_volume_title), style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary)
 
@@ -204,7 +206,6 @@ fun AutomationsContent(
         }
 
         if (settings.autoVolumeEnabled) {
-            BringIntoViewOnFirstShow()
             var points by remember(settings.autoVolumeCurve) {
                 mutableStateOf(parseVolumeCurve(settings.autoVolumeCurve))
             }
@@ -229,6 +230,7 @@ fun AutomationsContent(
                 }
             )
         }
+        }   // end Volume BringIntoViewSection
 
         Spacer(Modifier.height(32.dp))
     }

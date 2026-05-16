@@ -671,17 +671,16 @@ private fun GeneralTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SectionHeader(stringResource(R.string.section_recording))
+        BringIntoViewSection(expanded = settings.autoRecord) {
         SwitchSetting(stringResource(R.string.auto_record_on_start), settings.autoRecord) { viewModel.updateAutoRecord(it) }
         HintText(stringResource(R.string.auto_record_caption), small = true)
         if (settings.autoRecord) {
-            BringIntoViewOnFirstShow()
             SwitchSetting(
                 stringResource(R.string.auto_record_start_in_motion),
                 settings.autoRecordStartInMotion
             ) { viewModel.updateAutoRecordStartInMotion(it) }
             HintText(stringResource(R.string.auto_record_start_in_motion_caption), small = true)
             if (settings.autoRecordStartInMotion) {
-                BringIntoViewOnFirstShow()
                 val idleSec = settings.autoRecordStopIdleSeconds
                 SliderSetting(
                     label = stringResource(R.string.auto_record_stop_idle_seconds),
@@ -698,6 +697,7 @@ private fun GeneralTab(
                 )
             }
         }
+        }   // end autoRecord BringIntoViewSection
 
         SectionHeader(stringResource(R.string.section_connection))
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
@@ -937,12 +937,12 @@ private fun VoiceTab(
 
         SectionHeader(stringResource(R.string.section_announcements))
 
+        BringIntoViewSection(expanded = settings.voiceEnabled) {
         SwitchSetting(stringResource(R.string.voice_enabled), settings.voiceEnabled) {
             viewModel.updateVoiceEnabled(it)
         }
 
         if (settings.voiceEnabled) {
-            BringIntoViewOnFirstShow()
             SwitchSetting(stringResource(R.string.voice_only_when_connected), settings.voiceOnlyWhenConnected) {
                 viewModel.updateVoiceOnlyWhenConnected(it)
             }
@@ -955,6 +955,7 @@ private fun VoiceTab(
                 onValueChange = { viewModel.updateVoiceInterval((Math.round(it / 10f) * 10).coerceIn(10, 300)) }
             )
         }
+        }   // end voiceEnabled BringIntoViewSection
 
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
@@ -1255,11 +1256,11 @@ private fun FlicTab(
 
         SectionHeader(stringResource(R.string.section_volume_keys))
         HintText(stringResource(R.string.volume_keys_caption), small = true)
+        BringIntoViewSection(expanded = settings.volumeKeysEnabled) {
         SwitchSetting(stringResource(R.string.volume_keys_enable), settings.volumeKeysEnabled) {
             settingsViewModel.updateVolumeKeysEnabled(it)
         }
         if (settings.volumeKeysEnabled) {
-            BringIntoViewOnFirstShow()
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 shape = RoundedCornerShape(12.dp)
@@ -1287,6 +1288,7 @@ private fun FlicTab(
                 }
             }
         }
+        }   // end volumeKeysEnabled BringIntoViewSection
 
     }
 }
@@ -2285,7 +2287,7 @@ private fun EngineSoundSection(
     viewModel: SettingsViewModel,
     parked: Boolean
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    BringIntoViewSection(expanded = settings.engineSoundEnabled) {
     SwitchSetting(
         label = stringResource(R.string.engine_sound_enabled),
         checked = settings.engineSoundEnabled
@@ -2299,7 +2301,6 @@ private fun EngineSoundSection(
     )
 
     if (settings.engineSoundEnabled) {
-        BringIntoViewOnFirstShow()
         // Previews push synthetic telemetry, which would clash with a live ride.
         // Only allow ▶ while the wheel is disconnected or parked.
         EngineTypePicker(
@@ -2923,44 +2924,45 @@ private fun EngineSpeedVolumeCurveEditor(
 }
 
 /**
- * Drop this as the FIRST composable inside any conditional / expand-on-toggle
- * block on the Settings screen. A zero-height Spacer carries a
- * BringIntoViewRequester that fires ~80 ms after composition so the parent
- * scroll reveals the newly-shown content.
+ * Wrap the gating toggle PLUS its conditional content with this. When
+ * [expanded] flips from false to true the wrapper's bounds grow and the
+ * BringIntoViewRequester fires, so the parent scroll moves to put the
+ * wrapper (toggle + new content) into the viewport. Because the wrapper
+ * has real bounds — not the 0-height sentinel the earlier version used —
+ * the system actually has something to scroll to. When the block is taller
+ * than the viewport the BringIntoView responder aligns the TOP edge with
+ * the viewport top, so the rider keeps eyes on the row they just toggled.
  *
- * The trick: a sentinel of zero size at the top of the new content is
- * already "visible" the moment the toggle row sits at the bottom of the
- * viewport, so `bringIntoView()` without args doesn't move anything.
- * Asking instead for a tall rect *below* the sentinel forces the parent
- * scroll to reveal that much of the freshly-expanded content.
+ * Use a single instance per gating toggle. Pick [spacing] to match the
+ * surrounding column's `verticalArrangement` so the wrapped block sits
+ * visually identical to a flat sequence of composables.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun BringIntoViewOnFirstShow() {
+internal fun BringIntoViewSection(
+    expanded: Boolean,
+    spacing: androidx.compose.ui.unit.Dp = 16.dp,
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
+) {
     val requester = remember { BringIntoViewRequester() }
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(120)
-        // Ask the parent scroll for a window that extends UP past the gating
-        // toggle (≈ one row + hint) AND DOWN over the freshly-expanded
-        // content. The system prefers fitting the rect's TOP into the
-        // viewport when the rect is taller than the screen, which keeps
-        // the row labelled "Motor sound" / "Volume keys" / etc. visible
-        // while the new content scrolls into view below it.
-        val upPx = with(density) { 80.dp.toPx() }
-        val downPx = with(density) { 360.dp.toPx() }
-        runCatching {
-            requester.bringIntoView(
-                androidx.compose.ui.geometry.Rect(0f, -upPx, 1f, downPx)
-            )
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(120)
+            runCatching { requester.bringIntoView() }
         }
     }
-    Spacer(
-        modifier = Modifier
-            .height(0.dp)
-            .bringIntoViewRequester(requester)
+    Column(
+        modifier = Modifier.bringIntoViewRequester(requester),
+        verticalArrangement = Arrangement.spacedBy(spacing),
+        content = content
     )
 }
+
+/** Backwards-compat shim. New callers should wrap with [BringIntoViewSection];
+ *  this no-op stub keeps existing inline sentinels compiling until they're
+ *  refactored. */
+@Composable
+internal fun BringIntoViewOnFirstShow() { /* no-op */ }
 
 // --- Long-press backup / restore helpers --------------------------------
 

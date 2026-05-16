@@ -77,6 +77,7 @@ fun ExternalGpsSection(
         // app skips the external connect entirely and no dashboard dot
         // appears (the dashboard's gpsExtraSpeed flow gates on the same
         // setting).
+        BringIntoViewSection(expanded = additionalEnabled, spacing = 8.dp) {
         ToggleRow(
             label = stringResource(R.string.gps_log_additional),
             checked = additionalEnabled,
@@ -84,8 +85,7 @@ fun ExternalGpsSection(
         )
         HintText(stringResource(R.string.gps_log_additional_desc), small = true)
 
-        if (!additionalEnabled) return@Column
-        BringIntoViewOnFirstShow()
+        if (!additionalEnabled) return@BringIntoViewSection
 
         ToggleRow(
             label = stringResource(R.string.gps_prioritize_external),
@@ -204,6 +204,7 @@ fun ExternalGpsSection(
                 }
             )
         }
+        }   // end Additional GPS BringIntoViewSection
     }
 
     if (autoDetectPhase !is ExternalGpsViewModel.AutoDetectPhase.Idle) {
