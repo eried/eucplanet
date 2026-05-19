@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.diagnostics.DiagnosticCommand
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import javax.inject.Inject
@@ -25,6 +26,19 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     override val capabilities = WheelCapabilities.KINGSONG
 
     @Volatile private var detectedModel: KingsongModel? = null
+
+    /**
+     * Merged telemetry snapshot built up across the four-frame KingSong cycle
+     * (0xA9 realtime + 0xB9 trip + 0xF5 PWM + 0xF6 speed limit). Each frame
+     * carries only the fields it owns; without merging, every non-A9 frame
+     * would emit a zero-filled WheelData and flicker the dashboard between
+     * live values and dashes ~3x per second (FlyboyEUC KS-16X tester report).
+     */
+    @Volatile private var lastTelemetry: WheelData = WheelData()
+    /** Latest temperature from the 0xA9 frame (board or generic sensor). */
+    @Volatile private var lastTempA9: Float = 0f
+    /** Latest temperature from the 0xB9 frame (second sensor, usually motor). */
+    @Volatile private var lastTempB9: Float = 0f
 
     /**
      * Pending echo for a `0xA4` settings push. The KingSong handshake expects
@@ -109,11 +123,33 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                     "KingSong realtime len=${body.size} body=${body.joinToString(" ") { "%02x".format(it) }}"
                 )
                 val telem = KingsongParser.parseLiveTelemetry(rawBytes, detectedModel)
-                if (telem != null) listOf(DecodeResult.Telemetry(telem)) else emptyList()
+                    ?: return emptyList()
+                lastTempA9 = telem.maxTemperature
+                val combinedTemps = listOf(lastTempA9, lastTempB9).filter { it != 0f }
+                lastTelemetry = telem.copy(
+                    // Carry forward fields A9 doesn't ship so the dashboard
+                    // doesn't flicker between live values and zeros while the
+                    // F5 / F6 / B9 frames cycle through.
+                    pwm = lastTelemetry.pwm,
+                    tripDistance = lastTelemetry.tripDistance,
+                    dynamicSpeedLimit = lastTelemetry.dynamicSpeedLimit,
+                    temperatures = combinedTemps,
+                    maxTemperature = combinedTemps.maxOrNull() ?: 0f
+                )
+                listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xB9 -> {
-                val trip = KingsongParser.parseTripFrame(rawBytes)
-                if (trip != null) listOf(DecodeResult.Telemetry(trip)) else emptyList()
+                val trip = KingsongParser.parseTripFrame(rawBytes) ?: return emptyList()
+                lastTempB9 = trip.maxTemperature
+                val combinedTemps = listOf(lastTempA9, lastTempB9).filter { it != 0f }
+                lastTelemetry = lastTelemetry.copy(
+                    tripDistance = trip.tripDistance,
+                    dynamicSpeedLimit = trip.dynamicSpeedLimit,
+                    temperatures = combinedTemps,
+                    maxTemperature = combinedTemps.maxOrNull() ?: 0f,
+                    timestamp = trip.timestamp
+                )
+                listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xBB -> {
                 val name = KingsongParser.parseModelName(rawBytes) ?: return emptyList()
@@ -137,12 +173,17 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 listOf(DecodeResult.ModelName(serial, detectedModel))
             }
             0xF5 -> {
-                val cpu = KingsongParser.parseCpuPwm(rawBytes)
-                if (cpu != null) listOf(DecodeResult.Telemetry(cpu)) else emptyList()
+                val cpu = KingsongParser.parseCpuPwm(rawBytes) ?: return emptyList()
+                lastTelemetry = lastTelemetry.copy(pwm = cpu.pwm, timestamp = cpu.timestamp)
+                listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xF6 -> {
-                val limit = KingsongParser.parseDynamicSpeedLimit(rawBytes)
-                if (limit != null) listOf(DecodeResult.Telemetry(limit)) else emptyList()
+                val limit = KingsongParser.parseDynamicSpeedLimit(rawBytes) ?: return emptyList()
+                lastTelemetry = lastTelemetry.copy(
+                    dynamicSpeedLimit = limit.dynamicSpeedLimit,
+                    timestamp = limit.timestamp
+                )
+                listOf(DecodeResult.Telemetry(lastTelemetry))
             }
             0xA4, 0xB5 -> {
                 val settings = KingsongParser.parseAlarmsAndMaxSpeed(rawBytes) ?: return emptyList()
@@ -158,6 +199,9 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         detectedModel = null
         pendingEcho = null
+        lastTelemetry = WheelData()
+        lastTempA9 = 0f
+        lastTempB9 = 0f
     }
 
     override fun inspectMessageTypes(): List<String> = listOf("KingSong realtime")
