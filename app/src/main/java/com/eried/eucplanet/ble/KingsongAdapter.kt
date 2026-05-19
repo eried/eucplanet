@@ -46,16 +46,28 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
         KingsongCommands.queryLimits()
     )
 
+    // KingSong is push-only: once notifications are enabled the wheel
+    // continuously streams 0xA9 realtime + 0xB9 trip frames at its own
+    // cadence. We must NOT periodically write 0x98 (queryLimits) to it —
+    // WheelLog confirms the only outgoing 0x98 happens once during init when
+    // local alarm values are still zero. Repeated 0x98 polls have been
+    // observed to cause KS-16X to flash lights / chirp because some KS
+    // firmwares interpret repeated alarm-limit reads as a re-configure
+    // signal. Same push-only model as BegodeAdapter / VeteranAdapter.
+    //
+    // The only thing we ever want to send during the realtime loop is an
+    // echo of an unsolicited 0xA4 settings frame that KingSong expects us
+    // to bounce back — see [pendingEcho] / [onRawNotification].
     override fun pollRealtime(): ByteArray {
         val echo = pendingEcho
         if (echo != null) {
             pendingEcho = null
             return echo
         }
-        return KingsongCommands.queryLimits()
+        return ByteArray(0)
     }
 
-    override fun pollSettings(): ByteArray = KingsongCommands.queryLimits()
+    override fun pollSettings(): ByteArray = ByteArray(0)
 
     override fun horn(): ByteArray = KingsongCommands.horn()
     override fun setLight(on: Boolean): ByteArray = KingsongCommands.setLight(on)

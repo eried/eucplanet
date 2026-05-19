@@ -189,6 +189,11 @@ class BleConnectionManager @Inject constructor(
     }
 
     fun writeCommand(data: ByteArray) {
+        // Push-only adapters (Begode, Veteran, KingSong) return an empty
+        // array from poll* to signal "nothing to send; just wait for the
+        // wheel's notifications". Drop those on the floor instead of
+        // burning a GATT write that some BLE stacks log as an error.
+        if (data.isEmpty()) return
         Log.d(TAG, "Queuing write: ${data.joinToString(" ") { "%02x".format(it) }}")
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.tx(data)
         writeChannel.trySend(data)
