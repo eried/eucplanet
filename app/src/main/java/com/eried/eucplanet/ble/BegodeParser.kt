@@ -187,12 +187,19 @@ class BegodeParser {
         val rawTemp = ByteUtils.getInt16BE(frame, 12)
         val tempC = rawTemp / 340f + 36.53f
 
-        // Hardware PWM at 14..15 is meaningful only on Freestyl3r CF FW;
-        // otherwise it's noise. We emit it as-is and let the UI live with
-        // a near-zero reading on stock wheels. Spec 4.1 says raw * 10 for
-        // percent; since we want centi-percent we multiply by 100 to keep
-        // parity with InMotion's pwm-as-percent convention.
-        val pwmPct = if (!hasExtras) ByteUtils.getInt16BE(frame, 14) / 100f else lastPwmPct
+        // Hardware PWM at offset 14 only carries a real reading on Freestyl3r
+        // CF firmware (raw * 10 ⇒ percent). On stock Begode firmware it is
+        // zero. WheelLog falls through to a derived PWM in that case using
+        // the wheel's speed, voltage and per-model motor constants — we
+        // mirror that fallback in [derivedPwmPct] below so Master / Mten3 /
+        // EX30 / E20 riders see something other than 0.
+        val hardwarePwmRaw = ByteUtils.getInt16BE(frame, 14)
+        val hardwarePwmPct = hardwarePwmRaw / 10f
+        val pwmPct = when {
+            hasExtras -> lastPwmPct
+            hardwarePwmPct != 0f -> hardwarePwmPct
+            else -> derivedPwmPct(model, voltage, speed)
+        }
 
         val battPct = batteryPercentFromRawCv(rawCv)
 
@@ -289,17 +296,30 @@ class BegodeParser {
      * After the first 0x07 we trust these over the derived values from 0x00.
      */
     private fun parseExtras(frame: ByteArray): WheelData? {
-        hasExtras = true
         // WheelLog inverts the sign here (`setCurrent((-1) * batteryCurrent)`)
         // so positive current means motoring and negative means regen — the
         // convention used everywhere else in the app. Without the flip the
         // dashboard reads backwards during acceleration vs braking.
         val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
         val motorTempC = ByteUtils.getInt16BE(frame, 6).toFloat()
-        val truePwm = ByteUtils.getInt16BE(frame, 8) / 100f
+        // 0x07 offset 8 carries true PWM as a signed short already in PERCENT
+        // (raw 50 = 50 % PWM). WheelLog confirms: `wd.setOutput(hwPWMb * 100);
+        // mCalculatedPwm = mOutput/10000.0; getCalculatedPwm = mCalculatedPwm
+        // * 100.0` collapses to raw == percent. Our previous `/ 100f` was
+        // dividing again and producing 0.x % for every reading.
+        val truePwmRaw = ByteUtils.getInt16BE(frame, 8)
+        val truePwm = truePwmRaw.toFloat()
 
+        // Only latch onto the 0x07 PWM path when the field is actually
+        // populated — matches WheelLog's `Math.abs(hwPWMb) > 0` arming check.
+        // Some Begode firmwares emit 0x07 frames with offset 8 = 0 at idle,
+        // and the old unconditional latch silently locked us out of the
+        // 0x00 / derived PWM fallbacks forever after.
+        if (truePwmRaw != 0) {
+            hasExtras = true
+            lastPwmPct = truePwm
+        }
         lastPhaseCurrent = battCurrent
-        lastPwmPct = truePwm
 
         // Pick the hottest of (motor, IMU) so the dashboard's max-temp ring
         // shows whichever is more concerning at this moment.
@@ -317,6 +337,54 @@ class BegodeParser {
             lightOn = lastLightOn,
             timestamp = System.currentTimeMillis()
         )
+    }
+
+    /**
+     * Stock Begode firmware doesn't populate either the 0x07 true-PWM field
+     * or the 0x00 hardware-PWM field, so without a fallback the dashboard
+     * reads 0 % forever on Master / Mten3 / EX30 / E20 and friends. WheelLog
+     * covers this case by deriving:
+     *
+     *   pwm = speed / (rotationSpeed / rotationVoltage * voltage * powerFactor)
+     *
+     * with per-model `rotationSpeed` (km/h at full PWM) and `rotationVoltage`
+     * (V at full PWM) constants from `DialogHelper.kt:90-114`. Default
+     * `powerFactor` is 0.9.
+     *
+     * Returns a value in 0..100 (percent). Models we don't have explicit
+     * numbers for fall back to WheelLog's stock defaults (50, 84), which is
+     * qualitatively correct but quantitatively over-reads on high-voltage
+     * wheels — better to refine via a labelled capture than to ship 0 %.
+     */
+    private fun derivedPwmPct(model: BegodeModel?, voltage: Float, speedKmh: Float): Float {
+        if (voltage <= 0f) return 0f
+        val (rotSpeed, rotVoltage) = rotationConstantsFor(model)
+        val powerFactor = 0.9f
+        val denom = (rotSpeed / rotVoltage) * voltage * powerFactor
+        if (denom <= 0f) return 0f
+        return (kotlin.math.abs(speedKmh) / denom * 100f).coerceIn(0f, 100f)
+    }
+
+    /** WheelLog `DialogHelper.kt:90-114` Begode rotation constants by model. */
+    private fun rotationConstantsFor(model: BegodeModel?): Pair<Float, Float> = when (model) {
+        BegodeModel.MTEN4    -> 56.0f to 84.0f
+        BegodeModel.MTEN5    -> 79.0f to 100.8f
+        BegodeModel.MCM5_V1  -> 44.0f to 67.2f
+        BegodeModel.MCM5_V2  -> 64.0f to 84.0f
+        BegodeModel.MSX      -> 95.0f to 100.8f
+        BegodeModel.MSP      -> 100.5f to 100.8f
+        BegodeModel.HERO     -> 105.0f to 100.8f
+        BegodeModel.EX       -> 79.0f to 100.8f
+        BegodeModel.EX_N     -> 107.1f to 100.8f
+        BegodeModel.EX2      -> 107.1f to 100.8f
+        BegodeModel.EX30     -> 110.0f to 134.4f
+        BegodeModel.RS       -> 105.0f to 100.8f
+        BegodeModel.RS_HT    -> 79.0f to 100.8f
+        BegodeModel.T3       -> 66.5f to 84.0f
+        BegodeModel.T4       -> 66.5f to 84.0f
+        BegodeModel.MASTER   -> 113.0f to 134.4f
+        BegodeModel.MASTER_PRO -> 113.0f to 134.4f
+        else -> 50.0f to 84.0f   // WheelLog AppConfig defaults — generic fallback
     }
 
     /**
