@@ -586,6 +586,4 @@
     <string name="engine_preset_sampled_car_cruise">Carro em viagem</string>
     <string name="engine_preset_sampled_broken_exhaust">Escapamento quebrado</string>
     <string name="engine_preset_sampled_quad_atv">Quadriciclo</string>
-    <string name="reverse_speed_direction">Inverter direção da velocidade</string>
-    <string name="reverse_speed_direction_desc">Inverte o sinal da velocidade reportada pela roda. Útil para Begode ou Veteran cuja fiação do motor ou montagem do sensor faz andar para frente aparecer como negativo</string>
 </resources>

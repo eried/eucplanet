@@ -586,6 +586,4 @@
     <string name="engine_preset_sampled_car_cruise">Auto en ruta</string>
     <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
     <string name="engine_preset_sampled_quad_atv">Cuatrimoto</string>
-    <string name="reverse_speed_direction">Invertir dirección de velocidad</string>
-    <string name="reverse_speed_direction_desc">Invierte el signo de la velocidad reportada por la rueda. Útil en Begode o Veteran cuyo cableado del motor o sensor hace que andar adelante muestre velocidad negativa</string>
 </resources>

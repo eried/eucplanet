@@ -855,20 +855,6 @@ private fun SpeedTab(
             onValueChange = { viewModel.updateSpeedCalibrationOffsetPct(it) }
         )
 
-        // Reverse-speed-direction is a Begode / Veteran-specific fix for
-        // wheels whose motor wiring or sensor mount inverts the rotation
-        // direction, making forward riding report negative speed. WheelLog
-        // exposes the same toggle as `gotwayNegative`. Hidden for other
-        // protocol families because their firmwares don't suffer from this.
-        val familyId by viewModel.currentFamilyId.collectAsState()
-        if (familyId == "begode" || familyId == "veteran") {
-            SwitchSetting(
-                label = stringResource(R.string.reverse_speed_direction),
-                checked = settings.reverseSpeedDirection
-            ) { viewModel.updateReverseSpeedDirection(it) }
-            HintText(stringResource(R.string.reverse_speed_direction_desc), small = true)
-        }
-
         SectionHeader(stringResource(R.string.section_speed_limits))
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),

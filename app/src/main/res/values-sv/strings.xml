@@ -550,6 +550,4 @@
     <string name="engine_preset_sampled_car_cruise">Bil på väg</string>
     <string name="engine_preset_sampled_broken_exhaust">Trasig avgas</string>
     <string name="engine_preset_sampled_quad_atv">Fyrhjuling</string>
-    <string name="reverse_speed_direction">Byt riktning för hastighet</string>
-    <string name="reverse_speed_direction_desc">Vänd tecknet på hjulets rapporterade hastighet. Användbart för Begode eller Veteran där motorns kablar eller sensorinfästning gör att framåt visas som negativt</string>
 </resources>

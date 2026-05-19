@@ -550,6 +550,4 @@
     <string name="engine_preset_sampled_car_cruise">汽车巡航</string>
     <string name="engine_preset_sampled_broken_exhaust">破损排气</string>
     <string name="engine_preset_sampled_quad_atv">四轮越野车</string>
-    <string name="reverse_speed_direction">反转速度方向</string>
-    <string name="reverse_speed_direction_desc">翻转车轮上报速度的符号。适用于电机接线或传感器安装方向相反、向前骑行读数却为负的 Begode 或 Veteran 车型</string>
 </resources>

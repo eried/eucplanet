@@ -550,6 +550,4 @@
     <string name="engine_preset_sampled_car_cruise">Bil på tur</string>
     <string name="engine_preset_sampled_broken_exhaust">Defekt udstødning</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
-    <string name="reverse_speed_direction">Vend hastighedsretning</string>
-    <string name="reverse_speed_direction_desc">Vend fortegnet på hjulets rapporterede hastighed. Nyttigt for Begode eller Veteran hvor motorens ledningsføring eller sensorens placering får frem til at vises som negativt</string>
 </resources>

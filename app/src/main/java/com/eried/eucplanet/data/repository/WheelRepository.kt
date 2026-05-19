@@ -189,23 +189,6 @@ class WheelRepository @Inject constructor(
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
     /**
-     * +1 by default; -1 when the rider has flipped the per-wheel "Reverse
-     * speed direction" toggle (Begode / Veteran with inverted motor wiring).
-     * Multiplied into the speed at the same site as the calibration so every
-     * downstream consumer (dial, voice, alarms, recording) sees the flipped
-     * value.
-     */
-    @Volatile private var speedDirectionSign: Float = 1f
-
-    /**
-     * Family id of the currently active adapter — observed by the Settings
-     * screen so the "Reverse speed direction" toggle only shows up for
-     * protocols that need it (Begode / Veteran).
-     */
-    private val _currentFamilyId = MutableStateFlow<String?>(null)
-    val currentFamilyId: StateFlow<String?> = _currentFamilyId.asStateFlow()
-
-    /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
      * volume keys, and the dashboard. A misfire while moving locks the wheel
      * mid-ride and causes an instant motor cutout, so every lock-direction
@@ -253,7 +236,6 @@ class WheelRepository @Inject constructor(
             settingsRepository.settings.collect { s ->
                 val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
-                speedDirectionSign = if (s.reverseSpeedDirection) -1f else 1f
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
                     persistWheelProfile(wheelName, s)
@@ -267,7 +249,6 @@ class WheelRepository @Inject constructor(
                 when (state) {
                     ConnectionState.CONNECTED -> {
                         reconcileNextSettings = true
-                        _currentFamilyId.value = wheelAdapter.familyId
                         startInitSequence()
                         // Restore the per-wheel saved parameters (tiltback,
                         // alarm, safety, calibration). Profile is keyed by
@@ -288,7 +269,6 @@ class WheelRepository @Inject constructor(
                         _modelName.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
-                        _currentFamilyId.value = null
                         _wheelData.value = _wheelData.value.copy(totalDistance = 0f)
                         // History is preserved across disconnects (cleared only on new wheel)
                     }
@@ -318,8 +298,7 @@ class WheelRepository @Inject constructor(
                     alarmSpeedKmh = existing.alarmSpeedKmh,
                     safetyTiltbackKmh = existing.safetyTiltbackKmh,
                     safetyAlarmKmh = existing.safetyAlarmKmh,
-                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct,
-                    reverseSpeedDirection = existing.reverseSpeedDirection
+                    speedCalibrationOffsetPct = existing.speedCalibrationOffsetPct
                 )
             )
         } else {
@@ -340,7 +319,6 @@ class WheelRepository @Inject constructor(
                     safetyTiltbackKmh = s.safetyTiltbackKmh,
                     safetyAlarmKmh = s.safetyAlarmKmh,
                     speedCalibrationOffsetPct = s.speedCalibrationOffsetPct,
-                    reverseSpeedDirection = s.reverseSpeedDirection,
                     lastConnectedAt = System.currentTimeMillis()
                 )
             )
@@ -741,7 +719,7 @@ class WheelRepository @Inject constructor(
                 // truth elsewhere in the app.
                 val cal = speedCalibrationMultiplier
                 _wheelData.value = result.data.copy(
-                    speed = result.data.speed * cal * speedDirectionSign,
+                    speed = kotlin.math.abs(result.data.speed * cal),
                     totalDistance = totalKm,
                     lightOn = if (isP6) previous.lightOn else result.data.lightOn
                 )

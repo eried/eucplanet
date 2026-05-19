@@ -566,6 +566,4 @@
     <string name="engine_preset_sampled_car_cruise">Auto auf Reise</string>
     <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
-    <string name="reverse_speed_direction">Geschwindigkeitsrichtung umkehren</string>
-    <string name="reverse_speed_direction_desc">Kehrt das Vorzeichen der vom Rad gemeldeten Geschwindigkeit um. Nützlich für Begode oder Veteran, bei denen die Motorverdrahtung oder Sensor-Montage Vorwärtsfahren als negativ anzeigt</string>
 </resources>

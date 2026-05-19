@@ -34,6 +34,10 @@ class BegodeParser {
     @Volatile private var lastTripKm: Float = 0f
     @Volatile private var lastPwmPct: Float = 0f
     @Volatile private var lastLightOn: Boolean = false
+    /** Begode firmware has no discrete park/drive state, so we derive it from
+     *  speed in parseLiveA and surface it as pcMode so the dashboard's P/D
+     *  cluster lights up while moving. 3 = idle (stopped), 1 = drive. */
+    @Volatile private var lastPcMode: Int = 3
 
     /** True once we have ever seen a 0x07 extras frame; from then on, we trust 0x07 PWM/current over 0x00 derivations. */
     @Volatile private var hasExtras: Boolean = false
@@ -60,6 +64,7 @@ class BegodeParser {
         lastTripKm = 0f
         lastPwmPct = 0f
         lastLightOn = false
+        lastPcMode = 3
         hasExtras = false
         wheelInMiles = false
     }
@@ -210,6 +215,7 @@ class BegodeParser {
         lastTempC = tempC
         lastTripKm = tripKm
         if (!hasExtras) lastPwmPct = pwmPct
+        lastPcMode = if (kotlin.math.abs(speed) > 0.5f) 1 else 3
 
         return WheelData(
             speed = speed,
@@ -221,6 +227,7 @@ class BegodeParser {
             maxTemperature = tempC,
             tripDistance = tripKm,
             lightOn = lastLightOn,
+            pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -260,35 +267,16 @@ class BegodeParser {
     }
 
     /**
-     * BMS summary (spec 4.7 frame 0x01). When present, the pack voltage on
-     * this frame is authoritative and bypasses the per-pack scaler — useful
-     * for users who have refit non-standard packs.
+     * BMS summary (spec 4.7 frame 0x01). WheelLog only applies this frame's
+     * voltage when the rider explicitly enables `autoVoltage`, because BMS
+     * voltage on stock Begode firmware disagrees with the Live A scaled
+     * reading (different reference point) and produces voltage / battery
+     * flicker on Master and other high-voltage packs. We follow that default
+     * and drop the frame entirely — Live A is the source of truth — until we
+     * surface per-cell BMS in a dedicated UI that justifies a user opt-in.
      */
-    private fun parseBmsSummary(frame: ByteArray, model: BegodeModel?): WheelData? {
-        // Pack voltage at offset 6 in 0.1 V; multiply by 10 to get centivolts.
-        val packV = ByteUtils.getUint16BE(frame, 6) / 10f
-        if (packV <= 0f) return null
-        lastVoltage = packV
-        // Re-derive battery % from the authoritative voltage, expressed back
-        // in 84-V-equivalent centivolts so the curve in [batteryPercentFromRawCv]
-        // applies unchanged.
-        val ratio = voltageRatioFor(model)
-        val equivalentCv = ((packV / ratio) * 100f).toInt()
-        lastBatteryPct = batteryPercentFromRawCv(equivalentCv)
-
-        return WheelData(
-            speed = lastSpeedKmh,
-            voltage = lastVoltage,
-            current = lastPhaseCurrent,
-            batteryPercent = lastBatteryPct,
-            pwm = lastPwmPct,
-            temperatures = listOf(lastTempC),
-            maxTemperature = lastTempC,
-            tripDistance = lastTripKm,
-            lightOn = lastLightOn,
-            timestamp = System.currentTimeMillis()
-        )
-    }
+    @Suppress("UNUSED_PARAMETER")
+    private fun parseBmsSummary(frame: ByteArray, model: BegodeModel?): WheelData? = null
 
     /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
@@ -335,6 +323,7 @@ class BegodeParser {
             maxTemperature = temps.max(),
             tripDistance = lastTripKm,
             lightOn = lastLightOn,
+            pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
         )
     }

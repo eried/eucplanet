@@ -59,7 +59,6 @@ object SettingsJson {
         put("safetyTiltbackKmh", s.safetyTiltbackKmh)
         put("safetyAlarmKmh", s.safetyAlarmKmh)
         put("speedCalibrationOffsetPct", s.speedCalibrationOffsetPct)
-        put("reverseSpeedDirection", s.reverseSpeedDirection)
         put("autoConnect", s.autoConnect)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
@@ -192,7 +191,6 @@ object SettingsJson {
         safetyTiltbackKmh = j.optDouble("safetyTiltbackKmh", base.safetyTiltbackKmh.toDouble()).toFloat(),
         safetyAlarmKmh = j.optDouble("safetyAlarmKmh", base.safetyAlarmKmh.toDouble()).toFloat(),
         speedCalibrationOffsetPct = j.optDouble("speedCalibrationOffsetPct", base.speedCalibrationOffsetPct.toDouble()).toFloat(),
-        reverseSpeedDirection = j.optBoolean("reverseSpeedDirection", base.reverseSpeedDirection),
         autoConnect = j.optBoolean("autoConnect", base.autoConnect),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),

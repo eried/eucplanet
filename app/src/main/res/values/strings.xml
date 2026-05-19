@@ -221,8 +221,6 @@
     <string name="section_speed_calibration">Speed calibration</string>
     <string name="speed_calibration_label">Speed offset</string>
     <string name="speed_calibration_caption">Applies a percentage to the speed coming from the wheel. Alarms, voice and the trip log all use the calibrated value.</string>
-<string name="reverse_speed_direction">Reverse speed direction</string>
-    <string name="reverse_speed_direction_desc">Flip the sign of the wheel reported speed. Useful for Begode or Veteran wheels whose motor wiring or sensor mount makes forward riding read as negative</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>
     <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>

@@ -94,6 +94,9 @@ class BleConnectionManager @Inject constructor(
         // Hold on to the name so the auto-reconnect path keeps the same hint —
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "Connect requested: name=${currentName ?: "(unknown)"} address=$address"
+        )
         shouldReconnect = true
         _connectionState.value = ConnectionState.CONNECTING
 
@@ -124,6 +127,9 @@ class BleConnectionManager @Inject constructor(
             return
         }
         Log.i(TAG, "Connecting to virtual wheel: ${wheel.displayName}")
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "Connect requested: virtual id=$id name=${wheel.bleName.ifEmpty { "(none)" }} display=\"${wheel.displayName}\""
+        )
         wheel.reset()
         virtualWheel = wheel
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
@@ -152,6 +158,9 @@ class BleConnectionManager @Inject constructor(
             // gets, where notifications start landing once the GATT subscription is up.
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connected (virtual): name=${currentName ?: "(none)"} adapter=${wheelAdapter.familyId}"
+            )
         }
 
         // Push-only wheels (Begode, Veteran, push KingSong frames) stream
@@ -288,6 +297,9 @@ class BleConnectionManager @Inject constructor(
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i(TAG, "Disconnected from GATT (status=$status, shouldReconnect=$shouldReconnect)")
+                    com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                        "Disconnected: name=${currentName ?: "(unknown)"} status=$status reconnect=$shouldReconnect"
+                    )
                     rxCharacteristic = null
                     writeReady = false
                     // Reset adapter framing state for the next connection
@@ -352,6 +364,9 @@ class BleConnectionManager @Inject constructor(
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
             Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
+            )
         }
 
         override fun onCharacteristicWrite(

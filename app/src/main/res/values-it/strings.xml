@@ -586,6 +586,4 @@
     <string name="engine_preset_sampled_car_cruise">Auto in viaggio</string>
     <string name="engine_preset_sampled_broken_exhaust">Marmitta rotta</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
-    <string name="reverse_speed_direction">Inverti direzione della velocità</string>
-    <string name="reverse_speed_direction_desc">Inverte il segno della velocità riportata dal monoruota. Utile per Begode o Veteran in cui il cablaggio del motore o il montaggio del sensore fa leggere come negativa la marcia in avanti</string>
 </resources>

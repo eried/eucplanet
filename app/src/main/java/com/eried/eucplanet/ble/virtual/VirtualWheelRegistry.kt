@@ -12,7 +12,7 @@ object VirtualWheelRegistry {
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
         "V14" to ::V14VirtualWheel,
         "P6" to ::P6VirtualWheel,
-        "MASTER_REV" to ::BegodeMasterReverseVirtualWheel
+        "MASTER" to ::BegodeMasterVirtualWheel
     )
 
     fun all(): List<VirtualWheelInfo> =

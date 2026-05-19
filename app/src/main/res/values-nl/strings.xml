@@ -586,6 +586,4 @@
     <string name="engine_preset_sampled_car_cruise">Auto onderweg</string>
     <string name="engine_preset_sampled_broken_exhaust">Kapotte uitlaat</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
-    <string name="reverse_speed_direction">Snelheidsrichting omdraaien</string>
-    <string name="reverse_speed_direction_desc">Keer het teken om van de snelheid die het wiel rapporteert. Handig voor Begode of Veteran waarbij de motorbedrading of sensormontage vooruit als negatief weergeeft</string>
 </resources>

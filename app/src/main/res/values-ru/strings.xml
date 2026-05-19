@@ -602,6 +602,4 @@
     <string name="engine_preset_sampled_car_cruise">Авто в пути</string>
     <string name="engine_preset_sampled_broken_exhaust">Дырявый глушитель</string>
     <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
-    <string name="reverse_speed_direction">Инвертировать направление скорости</string>
-    <string name="reverse_speed_direction_desc">Переворачивает знак скорости, передаваемой моноколесом. Полезно для Begode и Veteran с инвертированной проводкой двигателя или датчика, когда движение вперёд показано как отрицательное</string>
 </resources>
