@@ -39,6 +39,17 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
      */
     @Volatile private var lightOn: Boolean = false
 
+    /**
+     * Lazy V/N probe state, mirroring WheelLog's GotwayAdapter.decode():
+     * we ask the wheel for its firmware banner once at connect; if the
+     * banner doesn't arrive (or the wheel only volunteers model), we
+     * re-queue the probe each time a notification arrives until the
+     * relevant field is filled. Self-disables once both are populated.
+     */
+    @Volatile private var detectedFirmware: String? = null
+    @Volatile private var detectedModelName: String? = null
+    @Volatile private var pendingProbe: ByteArray? = null
+
     private val parser = BegodeParser()
 
     override fun bleProfile(): BleProfile = BleProfile.HM10
@@ -48,10 +59,22 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
         return null
     }
 
-    // Begode wheels stream telemetry unsolicited — no init handshake, no poll
-    // loop. Spec 5: settings arrive embedded in 0x04 frames at all times.
-    override fun initSequence(): List<ByteArray> = emptyList()
-    override fun pollRealtime(): ByteArray = ByteArray(0)
+    // Begode streams telemetry unsolicited (spec 5), but the firmware and
+    // model-name banners only arrive in response to ASCII "V" / "N" queries.
+    // WheelLog asks for them lazily inside its decode callback; we mirror
+    // that with a one-shot V at connect plus an N re-queue triggered by
+    // [onRawNotification] until both banners populate.
+    override fun initSequence(): List<ByteArray> = listOf(BegodeCommands.queryFirmware())
+
+    override fun pollRealtime(): ByteArray {
+        val pending = pendingProbe
+        if (pending != null) {
+            pendingProbe = null
+            return pending
+        }
+        return ByteArray(0)
+    }
+
     override fun pollSettings(): ByteArray = ByteArray(0)
 
     override fun horn(): ByteArray = BegodeCommands.horn()
@@ -95,13 +118,82 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
 
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
-        return parser.feed(rawBytes, detectedModel)
+        val results = mutableListOf<DecodeResult>()
+
+        // Detect the ASCII firmware / model banner that the wheel emits in
+        // response to a "V" or "N" query. These arrive as raw text on the
+        // same notify pipe as 55-AA telemetry frames, so we sniff them
+        // *before* handing the chunk to the binary parser. Recognised
+        // prefixes match WheelLog: GW/CFW/BF/JN/NAME-style banners.
+        val ascii = tryParseBanner(rawBytes)
+        if (ascii != null) {
+            if (ascii.firmware != null && detectedFirmware == null) {
+                detectedFirmware = ascii.firmware
+                results += DecodeResult.Firmware(
+                    display = ascii.firmware,
+                    mainBoard = ascii.firmware,
+                    driverBoard = "",
+                    ble = ""
+                )
+            }
+            if (ascii.model != null && detectedModelName == null) {
+                detectedModelName = ascii.model
+                val resolved = BegodeModel.fromReportedName(ascii.model)
+                if (resolved != null) detectedModel = resolved
+                results += DecodeResult.ModelName(ascii.model, resolved)
+            }
+        } else {
+            results += parser.feed(rawBytes, detectedModel)
+        }
+
+        // Re-queue the next probe lazily, matching WheelLog: once firmware
+        // arrives we move on to the model query; once both are filled we
+        // stop asking.
+        if (detectedFirmware == null) {
+            pendingProbe = BegodeCommands.queryFirmware()
+        } else if (detectedModelName == null) {
+            pendingProbe = BegodeCommands.queryModelName()
+        }
+
+        return results
     }
 
     override fun onDisconnect() {
         parser.reset()
         detectedModel = null
+        detectedFirmware = null
+        detectedModelName = null
+        pendingProbe = null
         lightOn = false
+    }
+
+    /**
+     * Best-effort ASCII banner detector. Begode firmwares answer the `V`
+     * query with strings like `"GW135 5.4"` or `"BF V5.3 CFW"`, and the `N`
+     * query with `"NAME=MSP"` or just the model token. Anything that doesn't
+     * look like printable ASCII is passed to the binary parser instead.
+     */
+    private data class Banner(val firmware: String?, val model: String?)
+
+    private fun tryParseBanner(rawBytes: ByteArray): Banner? {
+        if (rawBytes.isEmpty()) return null
+        // Reject obvious binary frames quickly.
+        if (rawBytes[0] == 0x55.toByte() && rawBytes.getOrNull(1) == 0xAA.toByte()) return null
+        // Only treat as text when every byte is printable ASCII or whitespace.
+        if (!rawBytes.all { it == 0x0A.toByte() || it == 0x0D.toByte() || it == 0x09.toByte() || (it in 0x20..0x7E) }) {
+            return null
+        }
+        val text = rawBytes.toString(Charsets.US_ASCII).trim()
+        if (text.isEmpty()) return null
+        return when {
+            text.startsWith("GW") -> Banner(firmware = text, model = null)
+            text.startsWith("BF") -> Banner(firmware = text, model = null)
+            text.startsWith("JN") -> Banner(firmware = text, model = null)
+            text.startsWith("CF") -> Banner(firmware = text, model = null)
+            text.startsWith("NAME=") -> Banner(firmware = null, model = text.removePrefix("NAME=").trim())
+            text.startsWith("NAME") -> Banner(firmware = null, model = text.removePrefix("NAME").trim().removePrefix("=").trim())
+            else -> null
+        }
     }
 
     /**
