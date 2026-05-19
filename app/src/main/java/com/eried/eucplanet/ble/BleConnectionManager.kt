@@ -116,6 +116,8 @@ class BleConnectionManager @Inject constructor(
      * raw-byte responses a real wheel would emit, so the parser/adapter/repository
      * pipeline runs unchanged. Disconnect by calling [disconnect] as usual.
      */
+    @Volatile private var virtualTickJob: kotlinx.coroutines.Job? = null
+
     private fun connectVirtual(id: String) {
         val wheel = VirtualWheelRegistry.create(id) ?: run {
             Log.e(TAG, "Unknown virtual wheel id: $id")
@@ -125,8 +127,20 @@ class BleConnectionManager @Inject constructor(
         wheel.reset()
         virtualWheel = wheel
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
+        currentName = wheel.bleName.takeIf { it.isNotEmpty() }
         shouldReconnect = false
         _connectionState.value = ConnectionState.CONNECTING
+
+        // Route the adapter dispatcher to the right family BEFORE the on-connect
+        // responses get parsed — same path real BLE follows via the connect()
+        // method above. Without this, a Begode virtual wheel would feed bytes
+        // through the InMotion V2 adapter (default) and get dropped.
+        if (currentName != null) {
+            wheelAdapter.notifyConnectingTo(currentName)?.let {
+                _decodedResults.tryEmit(it)
+            }
+        }
+
         scope.launch {
             // Brief delays so the UI's connection-state animations actually animate.
             delay(150)
@@ -138,6 +152,22 @@ class BleConnectionManager @Inject constructor(
             // gets, where notifications start landing once the GATT subscription is up.
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
+        }
+
+        // Push-only wheels (Begode, Veteran, push KingSong frames) stream
+        // telemetry without being polled. Drive that with a coroutine that
+        // calls onTick every 100 ms and emits whatever the simulator hands
+        // back. onTick defaults to emptyList() so request/response sims like
+        // V14 / P6 stay silent here.
+        virtualTickJob?.cancel()
+        val tickStart = System.currentTimeMillis()
+        virtualTickJob = scope.launch {
+            while (true) {
+                delay(100)
+                val w = virtualWheel ?: break
+                val elapsed = System.currentTimeMillis() - tickStart
+                for (resp in w.onTick(elapsed)) emitVirtualResponse(resp)
+            }
         }
     }
 
@@ -157,6 +187,8 @@ class BleConnectionManager @Inject constructor(
 
         // Virtual wheel: just drop the reference; no GATT to tear down.
         if (virtualWheel != null) {
+            virtualTickJob?.cancel()
+            virtualTickJob = null
             wheelAdapter.onDisconnect()
             virtualWheel = null
             _connectionState.value = ConnectionState.DISCONNECTED

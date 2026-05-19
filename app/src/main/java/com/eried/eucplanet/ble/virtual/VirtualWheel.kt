@@ -23,6 +23,14 @@ interface VirtualWheel {
     val id: String
 
     /**
+     * BLE-advertised name handed to the [com.eried.eucplanet.ble.WheelAdapter]
+     * so the adapter dispatcher routes the simulated wheel to the right family
+     * (e.g. "Master_VIRTUAL" → Begode). If empty, the dispatcher falls back to
+     * its InMotion V2 default which is correct for V14 / P6 simulators.
+     */
+    val bleName: String get() = ""
+
+    /**
      * Notification payloads to emit in order on connect, before the polling
      * loop starts. Most simulators leave this empty and respond inside
      * [onWrite] when the app sends getCarType / getVersions / etc.

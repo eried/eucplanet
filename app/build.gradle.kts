@@ -27,7 +27,7 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 94
+        versionCode = 95
         versionName = "0.7.1"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")

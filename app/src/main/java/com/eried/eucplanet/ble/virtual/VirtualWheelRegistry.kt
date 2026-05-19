@@ -11,7 +11,8 @@ object VirtualWheelRegistry {
     /** Builds a fresh wheel each time so internal state is reset on every connect. */
     private val factories: Map<String, () -> VirtualWheel> = mapOf(
         "V14" to ::V14VirtualWheel,
-        "P6" to ::P6VirtualWheel
+        "P6" to ::P6VirtualWheel,
+        "MASTER_REV" to ::BegodeMasterReverseVirtualWheel
     )
 
     fun all(): List<VirtualWheelInfo> =
