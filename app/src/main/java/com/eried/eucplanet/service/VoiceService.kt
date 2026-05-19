@@ -400,12 +400,7 @@ class VoiceService @Inject constructor(
                 // formatting. The "kilometers / miles" wording in
                 // voice_trip_fmt also switches via the imperial variant.
                 val imperial = settings.imperialUnits
-                // Speed magnitude only — parser keeps the sign so things like
-                // RevDetector and the rev-counting engine sound see direction
-                // changes, but the rider doesn't want to hear "negative 28"
-                // when riding forward on a wheel whose firmware emits signed
-                // speed (Begode legacy Mten / Master).
-                val displaySpeed = com.eried.eucplanet.util.Units.speed(kotlin.math.abs(data.speed), imperial)
+                val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperial)
                 val displayTemp = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, imperial)
                 val displayTrip = com.eried.eucplanet.util.Units.distance(data.tripDistance, imperial)
                 when (item) {

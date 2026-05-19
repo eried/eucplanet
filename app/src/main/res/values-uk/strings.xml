@@ -586,4 +586,6 @@
     <string name="engine_preset_sampled_car_cruise">Авто в дорозі</string>
     <string name="engine_preset_sampled_broken_exhaust">Розбитий вихлоп</string>
     <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
+    <string name="reverse_speed_direction">Інвертувати напрямок швидкості</string>
+    <string name="reverse_speed_direction_desc">Інвертувати знак показаної моноколесом швидкості. Корисно для Begode або Veteran, у яких проводка двигуна чи положення давача дає відємну швидкість під час руху вперед</string>
 </resources>

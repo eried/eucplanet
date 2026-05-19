@@ -42,6 +42,17 @@ data class AppSettings(
      */
     val speedCalibrationOffsetPct: Float = 0f,
 
+    /**
+     * Flip the sign of the connected wheel's reported speed. Used for
+     * Begode / Veteran wheels whose motor wiring or sensor mount is rotated
+     * so forward riding reports negative speed (and the rider hears
+     * "negative N km/h"). Stored both here (current session) and in the
+     * per-wheel [com.eried.eucplanet.data.model.WheelProfile] so a reconnect
+     * to the same wheel restores the rider's pick. Hidden in the UI for
+     * protocols that don't suffer from this (InMotion / KingSong / Ninebot).
+     */
+    val reverseSpeedDirection: Boolean = false,
+
     // Voice
     val voiceEnabled: Boolean = true,
     // Independent toggle for the periodic (every N seconds) status announcements. When false,

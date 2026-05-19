@@ -550,4 +550,6 @@
     <string name="engine_preset_sampled_car_cruise">Voiture en croisière</string>
     <string name="engine_preset_sampled_broken_exhaust">Échappement cassé</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
+    <string name="reverse_speed_direction">Inverser le sens de la vitesse</string>
+    <string name="reverse_speed_direction_desc">Inverse le signe de la vitesse rapportée par la roue. Utile pour les Begode ou Veteran dont le câblage moteur ou le montage du capteur affiche la marche avant en négatif</string>
 </resources>

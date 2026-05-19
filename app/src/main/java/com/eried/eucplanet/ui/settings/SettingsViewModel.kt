@@ -190,6 +190,13 @@ class SettingsViewModel @Inject constructor(
         val rounded = (kotlin.math.round(v * 10f) / 10f).coerceIn(-15f, 15f)
         copy(speedCalibrationOffsetPct = rounded)
     }
+    fun updateReverseSpeedDirection(v: Boolean) = update { copy(reverseSpeedDirection = v) }
+
+    /** Adapter family of the currently-connected wheel (e.g. "begode",
+     *  "veteran", "kingsong"); null when nothing is connected. The Settings
+     *  screen reads this to decide whether to expose protocol-specific
+     *  toggles like "Reverse speed direction". */
+    val currentFamilyId: StateFlow<String?> = wheelRepository.currentFamilyId
     fun updateRaceboxMapX(v: String) = update { copy(raceboxMapX = v) }
     fun updateRaceboxMapY(v: String) = update { copy(raceboxMapY = v) }
     fun updateRaceboxMapZ(v: String) = update { copy(raceboxMapZ = v) }

@@ -567,4 +567,6 @@
     <string name="engine_preset_sampled_car_cruise">Bil på tur</string>
     <string name="engine_preset_sampled_broken_exhaust">Ødelagt eksos</string>
     <string name="engine_preset_sampled_quad_atv">Firehjuling</string>
+    <string name="reverse_speed_direction">Snu hastighetsretning</string>
+    <string name="reverse_speed_direction_desc">Snu fortegnet på hastigheten hjulet rapporterer. Nyttig for Begode eller Veteran der motorledningene eller sensorplasseringen får forover til å vises som negativt</string>
 </resources>

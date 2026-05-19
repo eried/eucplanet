@@ -36,6 +36,17 @@ data class WheelProfile(
     @ColumnInfo(defaultValue = "0")
     val speedCalibrationOffsetPct: Float = 0f,
 
+    /**
+     * Multiply the wheel's reported speed by -1 before publishing it
+     * downstream. Useful for Begode / Veteran units whose motor phase
+     * wiring or sensor mount is rotated so that forward riding reports
+     * negative speed (and a backward-emitting voice cue). WheelLog ships
+     * the same toggle as `gotwayNegative`. Hidden in the UI for protocols
+     * that don't suffer from this (InMotion / KingSong / Ninebot).
+     */
+    @ColumnInfo(defaultValue = "0")
+    val reverseSpeedDirection: Boolean = false,
+
     /** Wall-clock of the last connect to this wheel. Used to keep the most
      *  recently used profile easy to find if we ever expose a profile list. */
     val lastConnectedAt: Long = System.currentTimeMillis()
