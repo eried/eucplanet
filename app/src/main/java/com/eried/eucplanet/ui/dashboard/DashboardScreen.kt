@@ -195,7 +195,10 @@ fun DashboardScreen(
     // 50GB" -> "V14 50GB"). Brand tokens baked into the model id (e.g. KS-S22)
     // aren't a leading "<brand> " word, so they're left intact.
     val modelNameShort = modelName?.let { m ->
-        connectedBrand?.let { b -> m.removePrefix("$b ") } ?: m
+        val stripped = connectedBrand?.let { b -> m.removePrefix("$b ") } ?: m
+        // If the name was only the brand word, stripping leaves nothing —
+        // fall back to the original so the bar never goes blank.
+        stripped.ifBlank { m }
     }
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
