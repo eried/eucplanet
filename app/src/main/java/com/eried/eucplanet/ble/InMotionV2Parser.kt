@@ -127,7 +127,10 @@ object InMotionV2Parser {
      * Parse CarType response (command 0x02, data[0]=0x01).
      */
     fun parseCarType(data: ByteArray): CarInfo? {
-        if (data.size < 8) return null
+        // Only the first three bytes are read (mainSeries / series / type).
+        // The V14 carType payload is just 6 bytes — an earlier `< 8` guard
+        // wrongly rejected it, so the model never resolved on real V14s.
+        if (data.size < 3) return null
         val mainSeries = data[0].toInt() and 0xFF
         val series = data[1].toInt() and 0xFF
         val type = data[2].toInt() and 0xFF
