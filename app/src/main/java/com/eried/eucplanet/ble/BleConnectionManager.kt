@@ -377,11 +377,11 @@ class BleConnectionManager @Inject constructor(
                     gatt.writeDescriptor(descriptor)
                 }
                 // Safety net: if the stack never delivers onDescriptorWrite,
-                // force the connection through so we can't hang in CONNECTING.
+                // force the connection through so we can't hang in INITIALIZING.
                 scope.launch {
                     kotlinx.coroutines.delay(4000L)
-                    if (_connectionState.value == ConnectionState.CONNECTING) {
-                        Log.w(TAG, "CCCD onDescriptorWrite not seen — forcing connect")
+                    if (_connectionState.value == ConnectionState.INITIALIZING) {
+                        Log.w(TAG, "CCCD onDescriptorWrite not seen, forcing connect")
                         markReadyAndConnected()
                     }
                 }
@@ -436,11 +436,13 @@ class BleConnectionManager @Inject constructor(
      * Idempotent transition into CONNECTED. Called once the CCCD
      * notification-enable write has completed (onDescriptorWrite), or by the
      * no-CCCD / watchdog fallbacks in onServicesDiscovered. Guarded on the
-     * CONNECTING state so the watchdog and the real callback cannot double-fire
-     * it, and so a late callback after a disconnect is a no-op.
+     * INITIALIZING state — onConnectionStateChange sets that the moment GATT
+     * connects, and the flow stays there until this runs — so the watchdog and
+     * the real callback cannot double-fire it, and a late callback after a
+     * disconnect is a no-op.
      */
     private fun markReadyAndConnected() {
-        if (_connectionState.value != ConnectionState.CONNECTING) return
+        if (_connectionState.value != ConnectionState.INITIALIZING) return
         writeReady = true
         _connectionState.value = ConnectionState.CONNECTED
         Log.i(TAG, "Connected (adapter=${wheelAdapter.familyId})")
