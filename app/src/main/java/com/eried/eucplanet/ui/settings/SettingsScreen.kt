@@ -1435,11 +1435,6 @@ private fun WatchTab(
             stringResource(R.string.watch_update_rate),
             style = MaterialTheme.typography.bodyLarge
         )
-        Text(
-            stringResource(R.string.watch_update_rate_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
         val updateRateOptions = listOf(
             "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
             "NORMAL" to stringResource(R.string.watch_update_normal),
@@ -1466,6 +1461,13 @@ private fun WatchTab(
                 }
             }
         }
+        // Supporting text after the control — it describes a consequence of
+        // the choice (battery cost), so it reads as a footnote, not a header.
+        Text(
+            stringResource(R.string.watch_update_rate_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         SectionHeader(stringResource(R.string.section_watch_display))
 
@@ -2130,7 +2132,7 @@ private fun SliderSetting(
     onValueChange: (Float) -> Unit
 ) {
     // Endpoint-label mode (minLabel/maxLabel) replaces the label + value header
-    // with fixed captions under the slider's two ends — no live readout.
+    // with fixed captions above the slider's two ends; no live readout.
     val endpointMode = minLabel != null || maxLabel != null
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -2149,15 +2151,6 @@ private fun SliderSetting(
                     )
                 }
             }
-            val computedSteps = steps
-                ?: ((range.endInclusive - range.start) - 1).toInt().coerceAtLeast(0)
-            Slider(
-                value = value.coerceIn(range),
-                onValueChange = onValueChange,
-                valueRange = range,
-                steps = computedSteps,
-                enabled = enabled
-            )
             if (endpointMode) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -2175,6 +2168,15 @@ private fun SliderSetting(
                     )
                 }
             }
+            val computedSteps = steps
+                ?: ((range.endInclusive - range.start) - 1).toInt().coerceAtLeast(0)
+            Slider(
+                value = value.coerceIn(range),
+                onValueChange = onValueChange,
+                valueRange = range,
+                steps = computedSteps,
+                enabled = enabled
+            )
         }
     }
 }
