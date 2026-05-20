@@ -480,6 +480,10 @@
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Klokke</string>
     <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt</string>
+    <string name="wheel_name_display">Hjulnavn</string>
+    <string name="wheel_name_none">Ingen</string>
+    <string name="wheel_name_model">Modell</string>
+    <string name="wheel_name_brand">Merke</string>
     <string name="discard_trip_pending_label">Turen blir sikkerhetskopiert snart</string>
     <string name="experimental_banner">Foreløpig støttet hjul. Trykk for å rapportere problemer.</string>
     <string name="experimental_dialog_body">Støtten for dette hjulet er foreløpig. Bare V14-familien og P6 er verifisert av forfatteren. Bruk det med forsiktighet.\n\nÅ trykke på dette banneret rapporterer en sak, slik at forfatteren kan fikse det som ikke fungerer.</string>

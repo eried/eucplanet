@@ -190,6 +190,10 @@
     <string name="auto_record_stop_idle_seconds">Ferma dopo inattività di</string>
     <string name="auto_connect_on_start">Connessione automatica all\'avvio</string>
     <string name="auto_connect_caption">Si riconnette automaticamente all\'ultima ruota accoppiata</string>
+    <string name="wheel_name_display">Nome ruota</string>
+    <string name="wheel_name_none">Nessuno</string>
+    <string name="wheel_name_model">Modello</string>
+    <string name="wheel_name_brand">Marca</string>
     <string name="last_device">Ultimo dispositivo: %1$s</string>
     <string name="section_application">Applicazione</string>
     <string name="back_button_action">Scorrendo indietro</string>

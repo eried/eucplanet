@@ -17,6 +17,13 @@ data class AppSettings(
     val lastDeviceName: String? = null,
     val autoConnect: Boolean = true,
 
+    /**
+     * What the dashboard shows as the connected wheel's name: "MODEL" (the
+     * detected model, falling back to the raw BLE advertised name), "BRAND"
+     * (the wheel's brand) or "NONE" (no name — the bar just says "Connected").
+     */
+    val wheelNameDisplay: String = "MODEL",
+
     // What happens when the user swipes back from the main dashboard. Values:
     //   "ASK"        — show the exit dialog (legacy behavior, default)
     //   "BACKGROUND" — silently send the activity to background, service keeps running

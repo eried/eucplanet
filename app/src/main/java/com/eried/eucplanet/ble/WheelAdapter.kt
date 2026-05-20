@@ -192,6 +192,20 @@ interface WheelAdapter {
     val familyDisplayName: String get() = familyId
 
     /**
+     * Brand the connected wheel belongs to, e.g. "InMotion" / "Begode".
+     * Derived from [familyId] so every family resolves the same way, with no
+     * model detection — the dashboard can show it as the wheel name directly.
+     */
+    val brand: String get() = when (familyId) {
+        "begode" -> "Begode"
+        "kingsong" -> "KingSong"
+        "veteran" -> "Veteran"
+        "ninebot" -> "Ninebot"
+        "inmotion_v1", "inmotion_v2" -> "InMotion"
+        else -> familyDisplayName
+    }
+
+    /**
      * Service Mode "Inspect" tab subscribes to NOTE entries whose text starts
      * with one of these prefixes. Adapters that log realtime / detail bodies
      * via DiagnosticsLogger.note() should list those prefixes here so the

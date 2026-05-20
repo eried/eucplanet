@@ -706,6 +706,37 @@ private fun GeneralTab(
         SwitchSetting(stringResource(R.string.auto_connect_on_start), settings.autoConnect) { viewModel.updateAutoConnect(it) }
         HintText(stringResource(R.string.auto_connect_caption), small = true)
 
+        Text(
+            stringResource(R.string.wheel_name_display),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        val wheelNameOptions = listOf(
+            "NONE" to stringResource(R.string.wheel_name_none),
+            "MODEL" to stringResource(R.string.wheel_name_model),
+            "BRAND" to stringResource(R.string.wheel_name_brand)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            wheelNameOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.wheelNameDisplay,
+                    onClick = { viewModel.updateWheelNameDisplay(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size)
+                ) {
+                    Text(
+                        label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
         settings.lastDeviceName?.let {
             Text(
                 stringResource(R.string.last_device, it),

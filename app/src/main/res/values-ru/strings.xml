@@ -486,6 +486,10 @@
 
     <!-- Auto-connect caption -->
     <string name="auto_connect_caption">Автоматически переподключается к последнему сопряжённому колесу</string>
+    <string name="wheel_name_display">Название колеса</string>
+    <string name="wheel_name_none">Нет</string>
+    <string name="wheel_name_model">Модель</string>
+    <string name="wheel_name_brand">Бренд</string>
 
     <!-- Trip pending backup -->
     <string name="discard_trip_pending_label">Поездка скоро будет сохранена в копию</string>

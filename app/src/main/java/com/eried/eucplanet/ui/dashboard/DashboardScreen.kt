@@ -128,7 +128,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.util.prettyWheelName
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -189,6 +188,8 @@ fun DashboardScreen(
     )
     val modelName by viewModel.modelName.collectAsState()
     val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
+    val connectedBrand by viewModel.connectedBrand.collectAsState()
+    val wheelNameDisplay by viewModel.wheelNameDisplay.collectAsState()
     val firmwareVersion by viewModel.firmwareVersion.collectAsState()
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
@@ -277,7 +278,7 @@ fun DashboardScreen(
     }
 
     if (showDisconnectDialog) {
-        val wheelLabel = modelName ?: prettyWheelName(connectedDeviceName)
+        val wheelLabel = modelName ?: connectedDeviceName
             ?: stringResource(R.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
@@ -342,8 +343,11 @@ fun DashboardScreen(
                         val disconnectedLabel = stringResource(R.string.connection_disconnected)
                         Text(
                             text = when (connectionState) {
-                                ConnectionState.CONNECTED ->
-                                    modelName ?: prettyWheelName(connectedDeviceName) ?: connectedLabel
+                                ConnectionState.CONNECTED -> when (wheelNameDisplay) {
+                                    "NONE" -> connectedLabel
+                                    "BRAND" -> connectedBrand ?: connectedDeviceName ?: connectedLabel
+                                    else -> modelName ?: connectedDeviceName ?: connectedLabel
+                                }
                                 ConnectionState.CONNECTING -> connectingLabel
                                 ConnectionState.INITIALIZING -> initLabel
                                 ConnectionState.SCANNING -> scanningLabel

@@ -264,6 +264,14 @@ class DashboardViewModel @Inject constructor(
     /** Connected wheel's BLE name (with " (virtual)" for simulators), shown in the top bar. */
     val connectedDeviceName: StateFlow<String?> = wheelRepository.connectedDeviceName
 
+    /** Connected wheel's brand (InMotion / Begode / ...). */
+    val connectedBrand: StateFlow<String?> = wheelRepository.connectedBrand
+
+    /** How the top bar labels the connected wheel: MODEL / BRAND / NONE. */
+    val wheelNameDisplay: StateFlow<String> = settingsRepository.settings
+        .map { it.wheelNameDisplay }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "MODEL")
+
     val firmwareVersion: StateFlow<String?> = wheelRepository.firmwareVersion
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory

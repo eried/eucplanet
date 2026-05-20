@@ -479,6 +479,10 @@
     <string name="alarm_vibrate_target_phone">Telefon</string>
     <string name="alarm_vibrate_target_watch">Uhr</string>
     <string name="auto_connect_caption">Verbindet sich automatisch wieder mit dem zuletzt gekoppelten Rad</string>
+    <string name="wheel_name_display">Radname</string>
+    <string name="wheel_name_none">Keine</string>
+    <string name="wheel_name_model">Modell</string>
+    <string name="wheel_name_brand">Marke</string>
     <string name="discard_trip_pending_label">Fahrt wird gleich gesichert</string>
     <string name="experimental_banner">Vorläufig unterstütztes Rad. Tippe, um Probleme zu melden.</string>
     <string name="experimental_dialog_body">Die Unterstützung für dieses Rad ist vorläufig. Nur die V14-Familie und das P6 sind vom Autor verifiziert. Mit Vorsicht verwenden.\n\nWenn du auf dieses Banner tippst, wird ein Problem gemeldet, damit der Autor beheben kann, was nicht funktioniert.</string>

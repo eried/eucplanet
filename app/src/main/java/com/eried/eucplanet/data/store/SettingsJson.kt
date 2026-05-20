@@ -60,6 +60,7 @@ object SettingsJson {
         put("safetyAlarmKmh", s.safetyAlarmKmh)
         put("speedCalibrationOffsetPct", s.speedCalibrationOffsetPct)
         put("autoConnect", s.autoConnect)
+        put("wheelNameDisplay", s.wheelNameDisplay)
         put("voiceEnabled", s.voiceEnabled)
         put("voicePeriodicEnabled", s.voicePeriodicEnabled)
         put("voiceOnlyWhenConnected", s.voiceOnlyWhenConnected)
@@ -196,6 +197,7 @@ object SettingsJson {
         safetyAlarmKmh = j.optDouble("safetyAlarmKmh", base.safetyAlarmKmh.toDouble()).toFloat(),
         speedCalibrationOffsetPct = j.optDouble("speedCalibrationOffsetPct", base.speedCalibrationOffsetPct.toDouble()).toFloat(),
         autoConnect = j.optBoolean("autoConnect", base.autoConnect),
+        wheelNameDisplay = j.optString("wheelNameDisplay", base.wheelNameDisplay),
         voiceEnabled = j.optBoolean("voiceEnabled", base.voiceEnabled),
         voicePeriodicEnabled = j.optBoolean("voicePeriodicEnabled", base.voicePeriodicEnabled),
         voiceOnlyWhenConnected = j.optBoolean("voiceOnlyWhenConnected", base.voiceOnlyWhenConnected),

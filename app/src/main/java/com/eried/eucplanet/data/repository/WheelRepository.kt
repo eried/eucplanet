@@ -124,6 +124,9 @@ class WheelRepository @Inject constructor(
     /** Connected wheel's BLE name (with " (virtual)" for simulators), or null. */
     val connectedDeviceName: StateFlow<String?> = bleManager.connectedDeviceName
 
+    /** Connected wheel's brand (InMotion / Begode / ...), or null. */
+    val connectedBrand: StateFlow<String?> = bleManager.connectedBrand
+
     // --- Persistent metric history (survives navigation, cleared on disconnect) ---
     private val battHist = mutableListOf<MetricSample>()
     private val tempHist = mutableListOf<MetricSample>()

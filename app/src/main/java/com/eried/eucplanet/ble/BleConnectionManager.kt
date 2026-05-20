@@ -62,6 +62,10 @@ class BleConnectionManager @Inject constructor(
     private val _connectedDeviceName = MutableStateFlow<String?>(null)
     val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
 
+    /** Brand of the connected wheel, from the active adapter. Set on connect. */
+    private val _connectedBrand = MutableStateFlow<String?>(null)
+    val connectedBrand: StateFlow<String?> = _connectedBrand.asStateFlow()
+
     private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
@@ -124,6 +128,7 @@ class BleConnectionManager @Inject constructor(
         wheelAdapter.notifyConnectingTo(currentName)?.let {
             _decodedResults.tryEmit(it)
         }
+        _connectedBrand.value = wheelAdapter.brand
 
         val device: BluetoothDevice = bluetoothManager.adapter.getRemoteDevice(address)
         gatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
@@ -162,6 +167,7 @@ class BleConnectionManager @Inject constructor(
                 _decodedResults.tryEmit(it)
             }
         }
+        _connectedBrand.value = wheelAdapter.brand
 
         scope.launch {
             // Brief delays so the UI's connection-state animations actually animate.
