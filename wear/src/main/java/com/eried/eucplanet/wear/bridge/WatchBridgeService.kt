@@ -30,6 +30,17 @@ class WatchBridgeService : WearableListenerService() {
             .filter { it.uri.path == WatchPaths.STATE }
             .forEach { item ->
                 val map = DataMapItem.fromDataItem(item).dataMap
+                // Per-unit codes. A phone build older than the units rework
+                // doesn't send these keys; fall back to the legacy K_IMPERIAL
+                // boolean so an old-phone + new-watch pairing still shows the
+                // rider's coarse metric/imperial choice.
+                val legacyImperial = map.getBoolean(WatchKeys.IMPERIAL, false)
+                val speedUnit = map.getString(WatchKeys.UNIT_SPEED)
+                    ?: if (legacyImperial) "mph" else "kmh"
+                val distanceUnit = map.getString(WatchKeys.UNIT_DISTANCE)
+                    ?: if (legacyImperial) "mi" else "km"
+                val tempUnit = map.getString(WatchKeys.UNIT_TEMP)
+                    ?: if (legacyImperial) "F" else "C"
                 WatchStateRepository.update(
                     WatchState(
                         connected = map.getBoolean(WatchKeys.CONNECTED, false),
@@ -47,7 +58,9 @@ class WatchBridgeService : WearableListenerService() {
                         maxSpeedKmh = map.getFloat(WatchKeys.MAX_SPEED, 0f),
                         hasHorn = map.getBoolean(WatchKeys.HAS_HORN, false),
                         hasLight = map.getBoolean(WatchKeys.HAS_LIGHT, false),
-                        imperialUnits = map.getBoolean(WatchKeys.IMPERIAL, false),
+                        speedUnit = speedUnit,
+                        distanceUnit = distanceUnit,
+                        tempUnit = tempUnit,
                         accentKey = map.getString(WatchKeys.ACCENT, "default") ?: "default",
                         keepScreenOn = map.getBoolean(WatchKeys.OPT_KEEP_ON, true),
                         showWheelBattery = map.getBoolean(WatchKeys.OPT_SHOW_WHEEL_BATT, true),
@@ -69,7 +82,11 @@ class WatchBridgeService : WearableListenerService() {
                         screen1Hold = map.getString(WatchKeys.SCREEN1_HOLD, "NONE") ?: "NONE",
                         screen2Click = map.getString(WatchKeys.SCREEN2_CLICK, "LIGHT_TOGGLE") ?: "LIGHT_TOGGLE",
                         screen2Hold = map.getString(WatchKeys.SCREEN2_HOLD, "NONE") ?: "NONE",
-                        hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false)
+                        hapticOnAction = map.getBoolean(WatchKeys.HAPTIC_ON_ACTION, false),
+                        // Absent on older phone builds → NaN keeps the watch
+                        // GPS readout hidden rather than rendering a fake 0.
+                        gpsSpeedKmh = map.getFloat(WatchKeys.GPS_SPEED, Float.NaN),
+                        gpsSource = map.getString(WatchKeys.GPS_SOURCE, "") ?: ""
                     )
                 )
             }

@@ -57,7 +57,11 @@ data class TripDataPoint(
     /** Phone-derived GPS speed in km/h, parsed from the legacy `GPS speed` column. 0 if absent. */
     val gpsSpeed: Float = 0f,
     /** External-GPS-box speed in km/h (RaceBox). NaN when the row's column was empty. */
-    val extGpsSpeed: Float = Float.NaN
+    val extGpsSpeed: Float = Float.NaN,
+    /** Wheel current in amps, signed (negative = regen braking). NaN when the trip's CSV predates the column or the cell is blank. */
+    val current: Float = Float.NaN,
+    /** PWM / motor load in percent. NaN when the trip's CSV predates the column or the cell is blank. */
+    val pwm: Float = Float.NaN
 )
 
 @HiltViewModel
@@ -74,9 +78,17 @@ class RecordingViewModel @Inject constructor(
 
     val recording: StateFlow<Boolean> = tripRepository.recording
 
-    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
-        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, false)
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "kmh")
+
+    val distanceUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "km")
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, "C")
 
     /**
      * Id of the just-stopped trip waiting in the 10s discard-grace window. The trip
@@ -388,6 +400,8 @@ class RecordingViewModel @Inject constructor(
             // EUC Planet extensions; -1 when the column is absent (older trip files).
             val iGpsSpeed = headers.indexOfFirst { it == "gps speed" }
             val iExtGps = headers.indexOfFirst { it.startsWith("ext gps") || it.startsWith("ext_gps") || it == "external gps speed" }
+            val iCurrent = headers.indexOfFirst { it == "current" }
+            val iPwm = headers.indexOfFirst { it == "pwm" }
 
             var line = reader.readLine()
             while (line != null) {
@@ -399,6 +413,14 @@ class RecordingViewModel @Inject constructor(
                             ?.takeIf { it.isNotEmpty() }
                             ?.toFloatOrNull()
                             ?: Float.NaN
+                        // Current / PWM are EUC Planet extensions; absent column or
+                        // blank cell both map to NaN ("not recorded").
+                        val current = if (iCurrent >= 0)
+                            parts.getOrNull(iCurrent)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
+                        val pwm = if (iPwm >= 0)
+                            parts.getOrNull(iPwm)?.trim()?.takeIf { it.isNotEmpty() }?.toFloatOrNull() ?: Float.NaN
+                        else Float.NaN
                         points.add(
                             TripDataPoint(
                                 date = parts[0],
@@ -411,7 +433,9 @@ class RecordingViewModel @Inject constructor(
                                 longitude = parts.getOrNull(iLon)?.toDoubleOrNull() ?: 0.0,
                                 totalMileage = parts.getOrNull(iMileage)?.toFloatOrNull() ?: 0f,
                                 gpsSpeed = if (iGpsSpeed >= 0) parts.getOrNull(iGpsSpeed)?.toFloatOrNull() ?: 0f else 0f,
-                                extGpsSpeed = extSpeed
+                                extGpsSpeed = extSpeed,
+                                current = current,
+                                pwm = pwm
                             )
                         )
                     }

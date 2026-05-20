@@ -47,7 +47,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var settingsRepository: SettingsRepository
 
     @Volatile
-    private var imperialCached: Boolean = false
+    private var speedUnitCached: String = "kmh"
     @Inject lateinit var voiceService: VoiceService
     @Inject lateinit var tripRepository: TripRepository
     @Inject lateinit var automationManager: AutomationManager
@@ -109,9 +109,9 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             settingsRepository.settings.collect { s ->
-                // Notification builder reads imperial without suspending —
+                // Notification builder reads the speed unit without suspending —
                 // mirror the latest value here every settings update.
-                imperialCached = s.imperialUnits
+                speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 engineSoundEngine.applySettings(s)
                 engineSoundEngine.setConnected(
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
@@ -355,8 +355,8 @@ class WheelService : LifecycleService() {
         )
 
         val text = if (data != null && data.speed > 0) {
-            val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperialCached)
-            val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, imperialCached)
+            val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, speedUnitCached)
+            val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, speedUnitCached)
             "%.1f %s | %d%% | %.1f V".format(displaySpeed, speedUnit, data.batteryPercent, data.voltage)
         } else {
             val state = wheelRepository.connectionState.value

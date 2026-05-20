@@ -48,6 +48,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -133,20 +134,30 @@ fun TripDetailScreen(
                 val seconds = duration % 60
                 val maxSpeedRaw = dataPoints.maxOfOrNull { it.speed } ?: 0f
                 val avgSpeedRaw = dataPoints.map { it.speed }.average().toFloat()
-                val minBattery = dataPoints.minOfOrNull { it.battery } ?: 0
+                // Avg moving speed: mean over genuinely-moving samples (> 1 km/h),
+                // so idling/waiting time doesn't drag the average down.
+                val movingSpeeds = dataPoints.map { it.speed }.filter { it > 1f }
+                val avgMovingRaw = if (movingSpeeds.isNotEmpty())
+                    movingSpeeds.average().toFloat() else 0f
                 val maxTempRaw = dataPoints.maxOfOrNull { it.temperature } ?: 0f
+                // Smart battery/voltage stats over a validity mask that drops
+                // wheel-off / disconnect garbage (see computeBatteryStats).
+                val batteryStats = remember(dataPoints) { computeBatteryStats(dataPoints) }
                 // Convert summary numbers to the user's selected units. The raw stored
                 // values stay metric; only the rendered card text changes.
-                val imperial by viewModel.imperialUnits.collectAsState()
-                val speedUnit = com.eried.eucplanet.util.Units.speedUnit(
-                    androidx.compose.ui.platform.LocalContext.current, imperial
+                val speedUnit by viewModel.speedUnit.collectAsState()
+                val distanceUnit by viewModel.distanceUnit.collectAsState()
+                val tempUnit by viewModel.tempUnit.collectAsState()
+                val speedUnitLabel = com.eried.eucplanet.util.Units.speedUnit(
+                    androidx.compose.ui.platform.LocalContext.current, speedUnit
                 )
-                val distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
-                val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
-                val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, imperial)
-                val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, imperial)
-                val tripDistance = com.eried.eucplanet.util.Units.distance(trip.distanceKm, imperial)
-                val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, imperial)
+                val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+                val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+                val maxSpeed = com.eried.eucplanet.util.Units.speed(maxSpeedRaw, speedUnit)
+                val avgSpeed = com.eried.eucplanet.util.Units.speed(avgSpeedRaw, speedUnit)
+                val avgMoving = com.eried.eucplanet.util.Units.speed(avgMovingRaw, speedUnit)
+                val tripDistance = com.eried.eucplanet.util.Units.distance(trip.distanceKm, distanceUnit)
+                val maxTemp = com.eried.eucplanet.util.Units.temperature(maxTempRaw, tempUnit)
 
                 Text(
                     dateFormat.format(Date(trip.startTime)),
@@ -161,7 +172,7 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnit), AccentBlue, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), AccentBlue, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), AccentBlue, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
@@ -172,20 +183,71 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnit), AccentOrange, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnit), AccentGreen, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), AccentOrange, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), AccentGreen, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), AccentGreen, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
 
+                // Battery / Voltage / Max temp. Battery and voltage are computed
+                // over the valid-point mask so disconnect garbage is excluded;
+                // both are compact 1/3-width cards to keep the grid uniform.
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_min_battery), "$minBattery%",
-                        if (minBattery < 20) AccentRed else AccentGreen, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_max_temp), "%.0f%s".format(maxTemp, tempUnit),
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_battery,
+                            batteryStats.batteryConsumption),
+                        stringResource(R.string.recording_summary_battery_fmt,
+                            batteryStats.batteryMax, batteryStats.batteryMin),
+                        if (batteryStats.batteryMin < 20) AccentRed else AccentGreen,
+                        Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_voltage),
+                        stringResource(R.string.recording_summary_voltage_fmt,
+                            batteryStats.voltageMax, batteryStats.voltageMin),
+                        AccentPurple,
+                        Modifier.weight(1f)
+                    )
+                    SummaryCard(stringResource(R.string.recording_summary_max_temp),
+                        "%.0f%s".format(maxTemp, tempUnitLabel),
                         if (maxTempRaw > 60) AccentRed else AccentOrange, Modifier.weight(1f))
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Max PWM / current / power, computed over the same valid-point
+                // mask as the battery stats. Old trips have no PWM/current data
+                // (the maxima stay NaN); those cards still render with "--".
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_pwm),
+                        if (batteryStats.maxPwm.isNaN()) "--"
+                        else "%.0f%%".format(batteryStats.maxPwm),
+                        if (!batteryStats.maxPwm.isNaN() && batteryStats.maxPwm > 80) AccentRed
+                        else AccentOrange,
+                        Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_current),
+                        if (batteryStats.maxCurrent.isNaN()) "--"
+                        else "%.1f A".format(batteryStats.maxCurrent),
+                        AccentBlue,
+                        Modifier.weight(1f)
+                    )
+                    SummaryCard(
+                        stringResource(R.string.recording_summary_max_power),
+                        if (batteryStats.maxPower.isNaN()) "--"
+                        else "%.0f W".format(batteryStats.maxPower),
+                        AccentPurple,
+                        Modifier.weight(1f)
+                    )
                 }
 
                 // Route map
@@ -218,14 +280,19 @@ fun TripDetailScreen(
                 // purple, also unit-converted so the two lines share an axis.
                 val extSpeedSeries = dataPoints.map {
                     if (it.extGpsSpeed.isNaN()) Float.NaN
-                    else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, imperial)
+                    else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
                 }
                 val speedOverlays = if (extSpeedSeries.any { !it.isNaN() }) {
                     listOf(ChartOverlay(extSpeedSeries, AccentPurple))
                 } else emptyList()
-                ChartCard(stringResource(R.string.recording_chart_speed, speedUnit),
-                    dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, imperial) },
-                    AccentGreen, unitLabel = speedUnit, minSpan = GraphScale.SPAN_SPEED_KMH,
+                val speedMinSpan = when (speedUnit) {
+                    "mph" -> GraphScale.SPAN_SPEED_MPH
+                    "ms" -> GraphScale.SPAN_SPEED_MS
+                    else -> GraphScale.SPAN_SPEED_KMH
+                }
+                ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
+                    dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
+                    AccentGreen, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
                     overlays = speedOverlays)
 
                 Spacer(Modifier.height(12.dp))
@@ -237,15 +304,34 @@ fun TripDetailScreen(
                 Spacer(Modifier.height(12.dp))
 
                 // Temperature chart \u2014 convert each data point to \u00B0F when imperial.
-                ChartCard(stringResource(R.string.recording_chart_temp, tempUnit),
-                    dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, imperial) },
-                    AccentOrange, unitLabel = tempUnit, minSpan = GraphScale.SPAN_TEMPERATURE_C)
+                ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
+                    dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
+                    AccentOrange, unitLabel = tempUnitLabel, minSpan = GraphScale.SPAN_TEMPERATURE_C)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Voltage chart
                 ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
                     AccentRed, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
+
+                // Current chart — only when this trip actually recorded current.
+                // Uses the regen two-colour split: above zero in the chart colour,
+                // below zero (regen braking) in green. NaN points break the line.
+                if (dataPoints.any { !it.current.isNaN() }) {
+                    Spacer(Modifier.height(12.dp))
+                    ChartCard(stringResource(R.string.recording_chart_current),
+                        dataPoints.map { it.current },
+                        AccentBlue, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                        regenColor = AccentGreen)
+                }
+
+                // PWM chart — single-colour, only when this trip recorded PWM.
+                if (dataPoints.any { !it.pwm.isNaN() }) {
+                    Spacer(Modifier.height(12.dp))
+                    ChartCard(stringResource(R.string.recording_chart_pwm),
+                        dataPoints.map { it.pwm },
+                        AccentOrange, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD)
+                }
 
                 Spacer(Modifier.height(16.dp))
             }
@@ -420,6 +506,18 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
  */
 data class ChartOverlay(val values: List<Float>, val color: Color)
 
+/**
+ * Single-metric line chart card.
+ *
+ * NaN values in [values] are treated as gaps (the line breaks), so a trip CSV
+ * that predates a column or has empty cells doesn't pull the curve to zero.
+ *
+ * When [regenColor] is non-null and the data crosses zero, the chart switches
+ * to a bipolar two-colour split: the area + line above the zero baseline use
+ * [color], everything below zero (regen braking, for the current chart) uses
+ * [regenColor]. This mirrors the MetricGraph zero-baseline split on the
+ * dashboard. Single-polarity data (no zero crossing) just draws the plain line.
+ */
 @Composable
 private fun ChartCard(
     title: String,
@@ -427,17 +525,18 @@ private fun ChartCard(
     color: Color,
     unitLabel: String,
     minSpan: Float,
-    overlays: List<ChartOverlay> = emptyList()
+    overlays: List<ChartOverlay> = emptyList(),
+    regenColor: Color? = null
 ) {
     if (values.isEmpty()) return
 
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
-    // Filter NaN out of overlay reductions because external GPS uses NaN as
-    // "no data this row" — those rows shouldn't push the bounds.
-    val allMins = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + values
-    val allMaxs = allMins  // same set covers both extremes
-    val dataMin = allMins.minOrNull() ?: 0f
-    val dataMax = allMaxs.maxOrNull() ?: 0f
+    // Filter NaN out of all reductions because NaN means "no data this row" —
+    // those rows shouldn't push the bounds.
+    val finiteValues = values.filter { !it.isNaN() }
+    val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
+    val dataMin = allFinite.minOrNull() ?: 0f
+    val dataMax = allFinite.maxOrNull() ?: 0f
     val bounds = GraphScale.pad(dataMin, dataMax, minSpan)
     val textMeasurer = rememberTextMeasurer()
     val tooltipBg = MaterialTheme.colorScheme.surface
@@ -517,14 +616,58 @@ private fun ChartCard(
                     )
                 }
 
-                val path = Path()
+                // Main series. NaN values break the line into segments so empty
+                // CSV cells don't draw spurious connectors through the chart.
+                val segments = mutableListOf<Path>()
+                var segment: Path? = null
                 values.forEachIndexed { idx, value ->
+                    if (value.isNaN()) {
+                        segment = null
+                        return@forEachIndexed
+                    }
                     val x = idx * stepX
                     val y = h - ((value - bounds.min) / range) * h
-                    if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    val seg = segment
+                    if (seg == null) {
+                        val p = Path()
+                        p.moveTo(x, y)
+                        segments.add(p)
+                        segment = p
+                    } else {
+                        seg.lineTo(x, y)
+                    }
                 }
 
-                drawPath(path, color = color, style = Stroke(width = 2f))
+                val regen = regenColor
+                val zeroCrosses = bounds.min < 0f && bounds.max > 0f
+                if (regen != null && zeroCrosses) {
+                    // Bipolar split at the zero baseline. Build the filled area
+                    // per segment (curve closed down to the zero line), then
+                    // clip above/below zero into the two colours.
+                    val zeroY = h - ((0f - bounds.min) / range) * h
+                    segments.forEach { seg ->
+                        val fill = Path()
+                        fill.addPath(seg)
+                        val b = seg.getBounds()
+                        fill.lineTo(b.right, zeroY)
+                        fill.lineTo(b.left, zeroY)
+                        fill.close()
+                        clipRect(top = 0f, bottom = zeroY) {
+                            drawPath(fill, color = color.copy(alpha = 0.18f))
+                            drawPath(seg, color = color, style = Stroke(width = 2f))
+                        }
+                        clipRect(top = zeroY, bottom = h) {
+                            drawPath(fill, color = regen.copy(alpha = 0.18f))
+                            drawPath(seg, color = regen, style = Stroke(width = 2f))
+                        }
+                    }
+                    drawLine(color.copy(alpha = 0.4f), Offset(0f, zeroY), Offset(w, zeroY),
+                        strokeWidth = 1.5f)
+                } else {
+                    segments.forEach { seg ->
+                        drawPath(seg, color = color, style = Stroke(width = 2f))
+                    }
+                }
 
                 val tx = touchX
                 if (tx != null) {
@@ -533,7 +676,16 @@ private fun ChartCard(
                     val leftIdx = floatIdx.toInt().coerceIn(0, values.size - 1)
                     val rightIdx = (leftIdx + 1).coerceAtMost(values.size - 1)
                     val frac = floatIdx - leftIdx
-                    val interpValue = values[leftIdx] + (values[rightIdx] - values[leftIdx]) * frac
+                    // Tooltip skips NaN gaps: if either bracketing sample is NaN,
+                    // fall back to the nearest finite one so the readout stays sane.
+                    val lv = values[leftIdx]
+                    val rv = values[rightIdx]
+                    val interpValue = when {
+                        lv.isNaN() && rv.isNaN() -> return@Canvas
+                        lv.isNaN() -> rv
+                        rv.isNaN() -> lv
+                        else -> lv + (rv - lv) * frac
+                    }
                     val cursorY = h - ((interpValue - bounds.min) / range) * h
 
                     drawLine(color.copy(alpha = 0.5f), Offset(cursorX, 0f), Offset(cursorX, h), strokeWidth = 1.5f)
@@ -562,4 +714,111 @@ private fun ChartCard(
             }
         }
     }
+}
+
+/**
+ * Smart battery / voltage summary for a trip, computed over a validity mask.
+ *
+ * All values are RAW metric units (battery %, voltage V). Display-side unit
+ * conversion happens in the screen, consistent with the rest of the summary.
+ */
+data class TripBatteryStats(
+    val batteryMax: Int,
+    val batteryMin: Int,
+    val batteryConsumption: Int,
+    val voltageMax: Float,
+    val voltageMin: Float,
+    /** Peak PWM / motor load (%) over valid non-NaN points. NaN when the trip has no PWM data. */
+    val maxPwm: Float,
+    /** Peak signed current (A) over valid non-NaN points. NaN when the trip has no current data. */
+    val maxCurrent: Float,
+    /** Peak instantaneous power (W = voltage * current) over valid points with non-NaN current. NaN when no current data. */
+    val maxPower: Float
+)
+
+/**
+ * Computes battery and voltage extremes over a validity mask, walking the
+ * trip's data points in time order.
+ *
+ * A point is invalid when:
+ *  - `battery <= 0` or `voltage <= 0f` (wheel powered off / disconnected), or
+ *  - `battery` dropped more than 10 percentage points below the last valid
+ *    sample. At the ~1 Hz record rate a drop that large is physically
+ *    impossible, so it is a disconnect / glitch artifact. Upward jumps (regen)
+ *    are always accepted; `lastValidBattery` only advances on valid points.
+ *
+ * Battery max/min and voltage max/min are reduced over the valid points only,
+ * so disconnect garbage (e.g. a sudden 30% reading) is excluded from both.
+ *
+ * The same valid-point mask also feeds the peak PWM / current / power maxima.
+ * Those columns are NaN on trips that predate them, so NaN samples are skipped;
+ * when a trip has no data at all for a column the corresponding peak stays NaN
+ * and the screen renders a "--" placeholder.
+ *
+ * Degenerate fallback: when no point is valid, the raw min/max over all points
+ * is used so the card still shows something instead of crashing.
+ */
+private fun computeBatteryStats(points: List<TripDataPoint>): TripBatteryStats {
+    if (points.isEmpty()) {
+        return TripBatteryStats(0, 0, 0, 0f, 0f, Float.NaN, Float.NaN, Float.NaN)
+    }
+
+    val validBatteries = mutableListOf<Int>()
+    val validVoltages = mutableListOf<Float>()
+    var lastValidBattery: Int? = null
+    // Peak PWM / current / power over the same validity mask. Tracked as a
+    // running max so a single walk feeds every maximum; NaN samples are skipped.
+    var maxPwm = Float.NaN
+    var maxCurrent = Float.NaN
+    var maxPower = Float.NaN
+
+    for (p in points) {
+        val valid = p.battery > 0 &&
+            p.voltage > 0f &&
+            (lastValidBattery == null || p.battery >= lastValidBattery!! - 10)
+        if (valid) {
+            validBatteries.add(p.battery)
+            validVoltages.add(p.voltage)
+            lastValidBattery = p.battery
+            if (!p.pwm.isNaN()) {
+                maxPwm = if (maxPwm.isNaN()) p.pwm else maxOf(maxPwm, p.pwm)
+            }
+            if (!p.current.isNaN()) {
+                maxCurrent = if (maxCurrent.isNaN()) p.current else maxOf(maxCurrent, p.current)
+                val power = p.voltage * p.current
+                maxPower = if (maxPower.isNaN()) power else maxOf(maxPower, power)
+            }
+        }
+    }
+
+    if (validBatteries.isEmpty()) {
+        // Degenerate trip: fall back to raw extremes, don't crash.
+        val rawBatMax = points.maxOf { it.battery }
+        val rawBatMin = points.minOf { it.battery }
+        val rawVoltMax = points.maxOf { it.voltage }
+        val rawVoltMin = points.minOf { it.voltage }
+        return TripBatteryStats(
+            batteryMax = rawBatMax,
+            batteryMin = rawBatMin,
+            batteryConsumption = (rawBatMax - rawBatMin).coerceAtLeast(0),
+            voltageMax = rawVoltMax,
+            voltageMin = rawVoltMin,
+            maxPwm = maxPwm,
+            maxCurrent = maxCurrent,
+            maxPower = maxPower
+        )
+    }
+
+    val batMax = validBatteries.max()
+    val batMin = validBatteries.min()
+    return TripBatteryStats(
+        batteryMax = batMax,
+        batteryMin = batMin,
+        batteryConsumption = (batMax - batMin).coerceAtLeast(0),
+        voltageMax = validVoltages.max(),
+        voltageMin = validVoltages.min(),
+        maxPwm = maxPwm,
+        maxCurrent = maxCurrent,
+        maxPower = maxPower
+    )
 }

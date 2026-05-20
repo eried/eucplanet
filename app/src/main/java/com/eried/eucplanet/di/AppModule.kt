@@ -32,6 +32,10 @@ object AppModule {
     fun provideSettingsStore(@ApplicationContext context: Context): SettingsStore {
         val store = SettingsStore(context)
         copyLegacyRoomSettingsIfPresent(context, store)
+        // After the legacy migration: if DataStore is still empty this is a
+        // genuine fresh install — seed unit defaults from the device locale.
+        // No-op for upgrading and existing users (their blob is already set).
+        runBlocking { store.seedDefaultsIfAbsent() }
         return store
     }
 

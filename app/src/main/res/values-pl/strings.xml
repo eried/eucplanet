@@ -105,6 +105,8 @@
     <string name="section_watch_display">Ekran</string>
     <string name="watch_keep_on">Nie wygaszaj ekranu</string>
     <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta</string>
+    <string name="faster_refresh">Refresh faster</string>
+    <string name="faster_refresh_desc">Update live data more smoothly and responsively</string>
     <string name="watch_auto_start">Auto-start na zegarku</string>
     <string name="watch_auto_start_desc">Otwórz aplikację na zegarku razem z aplikacją na telefonie</string>
     <string name="watch_close_on_exit">Auto-zatrzymanie na zegarku</string>
@@ -193,7 +195,25 @@
     <string name="back_button_action_ask">Pytaj</string>
     <string name="back_button_action_background">W tle</string>
     <string name="back_button_action_stop">Zatrzymaj wszystko</string>
-    <string name="imperial_units">Jednostki imperialne</string>
+    <string name="units_label">Units</string>
+    <string name="units_metric">Metric</string>
+    <string name="units_imperial">Imperial</string>
+    <string name="units_custom">Custom</string>
+    <string name="units_temperature">Temperature</string>
+    <string name="units_speed">Speed</string>
+    <string name="units_distance">Distance</string>
+    <string name="units_speed_kmh">km/h</string>
+    <string name="units_speed_mph">mph</string>
+    <string name="units_speed_ms">m/s</string>
+    <string name="units_speed_kn">Knots</string>
+    <string name="units_distance_km">Kilometers</string>
+    <string name="units_distance_mi">Miles</string>
+    <string name="units_distance_m">Meters</string>
+    <string name="units_distance_ft">Feet</string>
+    <string name="units_distance_mil">Norwegian mile</string>
+    <string name="units_temp_c">Celsius</string>
+    <string name="units_temp_f">Fahrenheit</string>
+    <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Nie wygaszaj ekranu</string>
     <string name="language">Język</string>
     <string name="theme">Motyw</string>
@@ -217,6 +237,8 @@
     <string name="speed_legal_tiltback">Tiltback legalny</string>
     <string name="speed_legal_alarm">Alarm legalny</string>
     <string name="unit_kmh">km/h</string>
+    <string name="unit_ms">m/s</string>
+    <string name="unit_kn">kn</string>
 
     <!-- Settings: Voice -->
     <string name="section_announcements">Komunikaty</string>
@@ -301,6 +323,7 @@
     <string name="voice_load_fmt">obciążenie %1$s procent</string>
     <string name="voice_trip_fmt">trasa %1$s kilometrów</string>
     <string name="voice_trip_miles_fmt">trasa %1$s mil</string>
+    <string name="voice_trip_meters_fmt">trip %1$s meters</string>
     <string name="voice_time_fmt">czas %1$s</string>
     <string name="voice_recording_on">nagrywanie</string>
     <string name="voice_recording_off">brak nagrywania</string>
@@ -423,11 +446,21 @@
     <string name="recording_summary_top_speed">Maks. prędkość</string>
     <string name="recording_summary_avg_speed">Śr. prędkość</string>
     <string name="recording_summary_min_battery">Min. bateria</string>
+    <string name="recording_summary_battery">Battery (-%1$d%%)</string>
+    <string name="recording_summary_voltage">Voltage</string>
+    <string name="recording_summary_avg_moving">Avg Moving</string>
+    <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
+    <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
+    <string name="recording_summary_max_pwm">Max PWM</string>
+    <string name="recording_summary_max_current">Max Current</string>
+    <string name="recording_summary_max_power">Max Power</string>
     <string name="recording_summary_max_temp">Maks. temp.</string>
     <string name="recording_chart_speed">Prędkość (%1$s)</string>
     <string name="recording_chart_battery">Bateria (%%)</string>
     <string name="recording_chart_temp">Temperatura (%1$s)</string>
     <string name="recording_chart_voltage">Napięcie (V)</string>
+    <string name="recording_chart_current">Current (A)</string>
+    <string name="recording_chart_pwm">PWM (%)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Światła</string>

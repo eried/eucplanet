@@ -398,19 +398,25 @@ class VoiceService @Inject constructor(
             if (enabled) {
                 // Convert each value to the user's display unit before
                 // formatting. The "kilometers / miles" wording in
-                // voice_trip_fmt also switches via the imperial variant.
-                val imperial = settings.imperialUnits
-                val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, imperial)
-                val displayTemp = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, imperial)
-                val displayTrip = com.eried.eucplanet.util.Units.distance(data.tripDistance, imperial)
+                // voice_trip_fmt also switches via the distance-imperial variant.
+                val speedUnit = com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings)
+                val distanceUnit = com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings)
+                val tempUnit = com.eried.eucplanet.util.Units.effectiveTempUnit(settings)
+                val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, speedUnit)
+                val displayTemp = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, tempUnit)
+                val displayTrip = com.eried.eucplanet.util.Units.distance(data.tripDistance, distanceUnit)
                 when (item) {
                     "Speed" -> parts.add(context.getString(R.string.voice_speed_fmt, "%.0f".format(displaySpeed)))
                     "Battery" -> parts.add(context.getString(R.string.voice_battery_fmt, data.batteryPercent))
                     "Temp" -> parts.add(context.getString(R.string.voice_temp_fmt, "%.0f".format(displayTemp)))
                     "PWM" -> parts.add(context.getString(R.string.voice_load_fmt, "%.0f".format(data.pwm)))
                     "Distance" -> parts.add(context.getString(
-                        if (imperial) R.string.voice_trip_miles_fmt else R.string.voice_trip_fmt,
-                        "%.1f".format(displayTrip)
+                        when (distanceUnit) {
+                            "mi" -> R.string.voice_trip_miles_fmt
+                            "m" -> R.string.voice_trip_meters_fmt
+                            else -> R.string.voice_trip_fmt
+                        },
+                        if (distanceUnit == "m") "%.0f".format(displayTrip) else "%.1f".format(displayTrip)
                     ))
                     "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
                     "Time" -> parts.add(context.getString(R.string.voice_time_fmt,

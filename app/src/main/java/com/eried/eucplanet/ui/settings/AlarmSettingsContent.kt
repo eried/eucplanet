@@ -75,26 +75,25 @@ import com.eried.eucplanet.ui.theme.AccentOrange
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.util.Units
 
-private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, imperial: Boolean): Float =
+private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speed(valueInternal, imperial)
-        AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, imperial)
+        AlarmMetric.SPEED -> Units.speed(valueInternal, speedUnit)
+        AlarmMetric.TEMPERATURE -> Units.temperature(valueInternal, tempUnit)
         else -> valueInternal
     }
 
-private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, imperial: Boolean): Float =
+private fun internalThreshold(metric: AlarmMetric, valueDisplayed: Float, speedUnit: String, tempUnit: String): Float =
     when {
-        !imperial -> valueDisplayed
-        metric == AlarmMetric.SPEED -> valueDisplayed / 0.621371f
-        metric == AlarmMetric.TEMPERATURE -> (valueDisplayed - 32f) * 5f / 9f
+        metric == AlarmMetric.SPEED -> Units.speedToKmh(valueDisplayed, speedUnit)
+        metric == AlarmMetric.TEMPERATURE -> Units.temperatureToCelsius(valueDisplayed, tempUnit)
         else -> valueDisplayed
     }
 
 @androidx.compose.runtime.Composable
-private fun displayUnit(metric: AlarmMetric, imperial: Boolean): String =
+private fun displayUnit(metric: AlarmMetric, speedUnit: String, tempUnit: String): String =
     when (metric) {
-        AlarmMetric.SPEED -> Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
-        AlarmMetric.TEMPERATURE -> Units.tempUnit(imperial)
+        AlarmMetric.SPEED -> Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
+        AlarmMetric.TEMPERATURE -> Units.tempUnit(tempUnit)
         else -> metric.unit
     }
 
@@ -103,7 +102,9 @@ fun AlarmSettingsContent(
     viewModel: AlarmViewModel = hiltViewModel()
 ) {
     val rules by viewModel.rules.collectAsState()
-    val imperial by viewModel.imperialUnits.collectAsState()
+    // Alarm thresholds only span speed and temperature; distance has no alarm metric.
+    val speedUnit by viewModel.speedUnit.collectAsState()
+    val tempUnit by viewModel.tempUnit.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
@@ -125,7 +126,8 @@ fun AlarmSettingsContent(
         rules.forEachIndexed { index, rule ->
             AlarmRuleCard(
                 rule = rule,
-                imperial = imperial,
+                speedUnit = speedUnit,
+                tempUnit = tempUnit,
                 isFirst = index == 0,
                 isLast = index == rules.lastIndex,
                 onToggle = { viewModel.updateRule(rule.copy(enabled = it)) },
@@ -149,7 +151,8 @@ fun AlarmSettingsContent(
     if (showEditor) {
         AlarmRuleEditorDialog(
             rule = editingRule,
-            imperial = imperial,
+            speedUnit = speedUnit,
+            tempUnit = tempUnit,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -165,8 +168,8 @@ fun AlarmSettingsContent(
     deleteCandidate?.let { rule ->
         val metric = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { AlarmMetric.SPEED }
         val comp = AlarmComparator.parse(rule.comparator)
-        val shownThresh = displayThreshold(metric, rule.threshold, imperial).toInt()
-        val shownUnit = displayUnit(metric, imperial)
+        val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).toInt()
+        val shownUnit = displayUnit(metric, speedUnit, tempUnit)
         val metricLabel = stringResource(metric.labelRes)
         val label = rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" }
         AlertDialog(
@@ -189,7 +192,8 @@ fun AlarmSettingsContent(
 @Composable
 private fun AlarmRuleCard(
     rule: AlarmRule,
-    imperial: Boolean,
+    speedUnit: String,
+    tempUnit: String,
     isFirst: Boolean,
     isLast: Boolean,
     onToggle: (Boolean) -> Unit,
@@ -225,8 +229,8 @@ private fun AlarmRuleCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    val shownThresh = displayThreshold(metric, rule.threshold, imperial).toInt()
-                    val shownUnit = displayUnit(metric, imperial)
+                    val shownThresh = displayThreshold(metric, rule.threshold, speedUnit, tempUnit).toInt()
+                    val shownUnit = displayUnit(metric, speedUnit, tempUnit)
                     val metricLabel = stringResource(metric.labelRes)
                     Text(
                         rule.name.ifBlank { "$metricLabel ${comp.symbol} ${shownThresh}${shownUnit}" },
@@ -284,7 +288,8 @@ private fun AlarmRuleCard(
 @Composable
 private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
-    imperial: Boolean,
+    speedUnit: String,
+    tempUnit: String,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -316,19 +321,23 @@ private fun AlarmRuleEditorDialog(
     val selectedMetric = try { AlarmMetric.valueOf(metric) } catch (_: Exception) { AlarmMetric.SPEED }
     val thresholdRangeInternal = when (selectedMetric) {
         // Speed cap depends on the user's unit: high-performance wheels run
-        // way past 100 km/h, so the range reads 5..150 km/h or 5..100 mph
-        // (the mph ceiling is internally ~161 km/h).
-        AlarmMetric.SPEED -> if (imperial) (5f / 0.621371f)..(100f / 0.621371f) else 5f..150f
+        // way past 100 km/h, so the range reads 5..150 km/h, 5..100 mph or
+        // 1..40 m/s (each ceiling expressed back in km/h for the internal range).
+        AlarmMetric.SPEED -> when (speedUnit) {
+            "mph" -> Units.speedToKmh(5f, "mph")..Units.speedToKmh(100f, "mph")
+            "ms" -> Units.speedToKmh(1f, "ms")..Units.speedToKmh(40f, "ms")
+            else -> 5f..150f
+        }
         AlarmMetric.BATTERY -> 0f..100f
         AlarmMetric.TEMPERATURE -> 20f..80f
         AlarmMetric.PWM -> 10f..100f
         AlarmMetric.VOLTAGE -> 20f..300f
         AlarmMetric.CURRENT -> 1f..50f
     }
-    val displayedThreshold = displayThreshold(selectedMetric, threshold, imperial)
-    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, imperial)..
-        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, imperial)
-    val displayedUnit = displayUnit(selectedMetric, imperial)
+    val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
+    val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
+        displayThreshold(selectedMetric, thresholdRangeInternal.endInclusive, speedUnit, tempUnit)
+    val displayedUnit = displayUnit(selectedMetric, speedUnit, tempUnit)
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -407,7 +416,7 @@ private fun AlarmRuleEditorDialog(
                             // Step in display units so users get a clean 1 mph
                             // or 1 km/h nudge regardless of unit system.
                             val newDisp = (displayedThreshold - 1f).coerceIn(displayedRange)
-                            threshold = internalThreshold(selectedMetric, newDisp, imperial)
+                            threshold = internalThreshold(selectedMetric, newDisp, speedUnit, tempUnit)
                                 .coerceIn(thresholdRangeInternal)
                         },
                         enabled = displayedThreshold > displayedRange.start + 0.001f,
@@ -429,7 +438,7 @@ private fun AlarmRuleEditorDialog(
                     IconButton(
                         onClick = {
                             val newDisp = (displayedThreshold + 1f).coerceIn(displayedRange)
-                            threshold = internalThreshold(selectedMetric, newDisp, imperial)
+                            threshold = internalThreshold(selectedMetric, newDisp, speedUnit, tempUnit)
                                 .coerceIn(thresholdRangeInternal)
                         },
                         enabled = displayedThreshold < displayedRange.endInclusive - 0.001f,
@@ -445,7 +454,7 @@ private fun AlarmRuleEditorDialog(
                 Slider(
                     value = displayedThreshold.coerceIn(displayedRange),
                     onValueChange = {
-                        threshold = internalThreshold(selectedMetric, it, imperial)
+                        threshold = internalThreshold(selectedMetric, it, speedUnit, tempUnit)
                             .coerceIn(thresholdRangeInternal)
                     },
                     valueRange = displayedRange,

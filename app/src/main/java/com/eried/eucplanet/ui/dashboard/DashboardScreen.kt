@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -118,6 +119,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Dp
@@ -185,8 +187,11 @@ fun DashboardScreen(
         speed = emptyList()
     )
     val modelName by viewModel.modelName.collectAsState()
+    val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
     val firmwareVersion by viewModel.firmwareVersion.collectAsState()
-    val imperial by viewModel.imperialUnits.collectAsState()
+    val speedUnit by viewModel.speedUnit.collectAsState()
+    val distanceUnit by viewModel.distanceUnit.collectAsState()
+    val tempUnit by viewModel.tempUnit.collectAsState()
     val accentKey by viewModel.accentKey.collectAsState()
     val showGaugeColorBand by viewModel.showGaugeColorBand.collectAsState()
     val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
@@ -335,14 +340,17 @@ fun DashboardScreen(
                         val disconnectedLabel = stringResource(R.string.connection_disconnected)
                         Text(
                             text = when (connectionState) {
-                                ConnectionState.CONNECTED -> modelName ?: connectedLabel
+                                ConnectionState.CONNECTED ->
+                                    connectedDeviceName ?: modelName ?: connectedLabel
                                 ConnectionState.CONNECTING -> connectingLabel
                                 ConnectionState.INITIALIZING -> initLabel
                                 ConnectionState.SCANNING -> scanningLabel
                                 ConnectionState.DISCONNECTED -> disconnectedLabel
                             },
                             style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                     }
                 },
@@ -470,10 +478,20 @@ fun DashboardScreen(
                 val candidateW = maxWidth * widthFraction
                 val maxByHeight = maxHeight * ratio
                 val dialW = minOf(candidateW, maxByHeight)
+                // Smoothly glide the displayed speed between telemetry pushes
+                // (~4-5 Hz) so the dial arc and the big number track
+                // continuously instead of snapping. ~250 ms linear ≈ one
+                // update interval: no lag, no stutter. When telemetry goes
+                // stale and speed is forced to 0, the animation to 0 is fine.
+                val animatedSpeed by animateFloatAsState(
+                    targetValue = wheelData.speed.absoluteValue * cheatSpeedMult,
+                    animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+                    label = "dashSpeed"
+                )
                 SpeedGauge(
-                    speed = wheelData.speed.absoluteValue * cheatSpeedMult,
+                    speed = animatedSpeed,
                     maxSpeed = gaugeMax,
-                    imperial = imperial,
+                    speedUnit = speedUnit,
                     overrideColor = if (useAccent) primary else null,
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
@@ -583,8 +601,8 @@ fun DashboardScreen(
             // to a single decorative placeholder glyph.)
             val placeholder = "—"
 
-            val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, imperial)
-            val tempUnit = com.eried.eucplanet.util.Units.tempUnit(imperial)
+            val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, tempUnit)
+            val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
             val showWatts = currentMode == "WATTS"
             val ampsLabel = stringResource(R.string.stat_amps)
             val wattsLabel = stringResource(R.string.stat_watts)
@@ -594,8 +612,8 @@ fun DashboardScreen(
                 showWatts -> "%.0fW".format(currentValue)
                 else -> "%.1fA".format(currentValue)
             }
-            val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, imperial)
-            val distUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+            val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, distanceUnit)
+            val distUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
 
             // A connected wheel that hasn't sent telemetry yet leaves these
             // fields at the WheelData defaults (0). Showing "0%" or "0.0V"
@@ -616,7 +634,7 @@ fun DashboardScreen(
                 // next valid frame.
                 val tempUnknown = wheelData.maxTemperature <= 0f
                 StatCard(stringResource(R.string.stat_temp),
-                    if (live && !tempUnknown) "%.0f%s".format(tempValue, tempUnit) else placeholder,
+                    if (live && !tempUnknown) "%.0f%s".format(tempValue, tempUnitLabel) else placeholder,
                     tempColor, history.temperature, Modifier.weight(1f),
                     onClick = { onNavigateToMetric("TEMPERATURE") })
             }
@@ -873,10 +891,9 @@ fun DashboardScreen(
             val diagEnabled by com.eried.eucplanet.diagnostics.DiagnosticsLogger.enabled.collectAsState()
             WheelInfoBox(
                 odoKm = wheelData.totalDistance,
-                imperial = imperial,
-                modelName = modelName,
+                distanceUnit = distanceUnit,
                 firmwareVersion = firmwareVersion,
-                versionName = if (versionRevision > 0) "$versionName.$versionRevision" else versionName,
+                versionName = if (versionRevision > 0) "$versionName-$versionRevision" else versionName,
                 diagnosticsActive = diagEnabled,
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
@@ -892,7 +909,7 @@ fun DashboardScreen(
 
             if (showSourcesSheet) {
                 com.eried.eucplanet.ui.dashboard.sources.DataSourcesSheet(
-                    imperial = imperial,
+                    speedUnit = speedUnit,
                     onDismiss = { showSourcesSheet = false }
                 )
             }
@@ -1011,8 +1028,16 @@ fun DashboardScreen(
                                     append("v")
                                     append(versionName)
                                     if (versionRevision > 0) {
-                                        append(".")
+                                        append("-")
                                         append(versionRevision)
+                                    }
+                                    // Branch tag, baked in at build time. Hidden
+                                    // for main / detached HEAD / unknown.
+                                    val branch = com.eried.eucplanet.BuildConfig.GIT_BRANCH
+                                    if (branch.isNotEmpty() && branch != "main" && branch != "HEAD") {
+                                        append(" (")
+                                        append(branch)
+                                        append(")")
                                     }
                                     append(" · ")
                                     append(com.eried.eucplanet.BuildConfig.BUILD_STAMP)
@@ -1156,6 +1181,8 @@ fun DashboardScreen(
                                                 // entries are proper nouns + short context.
                                                 val credits = listOf(
                                                     "Gio (Wheel In Motion)" to "Promotion, suggestions and P6 testing. Stitched scalp, intact enthusiasm.",
+                                                    "FlyboyEUC (Adam)" to "Mten3, E20 and EX30 testing.",
+                                                    "Soolek" to "KS-16X testing.",
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
@@ -1437,7 +1464,7 @@ fun DashboardScreen(
 private fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
-    imperial: Boolean,
+    speedUnit: String,
     overrideColor: Color? = null,
     showColorBand: Boolean = false,
     orangeThresholdPct: Int = 65,
@@ -1468,12 +1495,12 @@ private fun SpeedGauge(
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
 
-    val displaySpeed = com.eried.eucplanet.util.Units.speed(speed, imperial)
-    val displayMax = com.eried.eucplanet.util.Units.speed(maxSpeed, imperial)
+    val displaySpeed = com.eried.eucplanet.util.Units.speed(speed, speedUnit)
+    val displayMax = com.eried.eucplanet.util.Units.speed(maxSpeed, speedUnit)
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
+    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
 
     Canvas(modifier = modifier) {
         val dim = size.minDimension
@@ -1774,13 +1801,12 @@ private fun StatCard(
     }
 }
 
-// --- Bottom info box: ODO + model + firmware ---
+// --- Bottom info box: ODO + firmware ---
 
 @Composable
 private fun WheelInfoBox(
     odoKm: Float,
-    imperial: Boolean,
-    modelName: String?,
+    distanceUnit: String,
     firmwareVersion: String?,
     versionName: String,
     diagnosticsActive: Boolean,
@@ -1796,17 +1822,16 @@ private fun WheelInfoBox(
             modifier = Modifier.align(Alignment.CenterStart),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            val odoValue = com.eried.eucplanet.util.Units.distance(odoKm, imperial)
-            val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+            val odoValue = com.eried.eucplanet.util.Units.distance(odoKm, distanceUnit)
+            val odoUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
             Text(stringResource(R.string.stat_odo), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium, letterSpacing = 0.5.sp)
             Text("%.0f %s".format(odoValue, odoUnit), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface)
         }
 
-        // Center: model · firmware
-        val infoText = listOfNotNull(modelName, firmwareVersion?.let { "v$it" })
-            .joinToString(" · ")
+        // Center: firmware version (the wheel name is shown in the top bar)
+        val infoText = firmwareVersion?.let { "v$it" }.orEmpty()
         if (infoText.isNotBlank()) {
             Text(
                 infoText,

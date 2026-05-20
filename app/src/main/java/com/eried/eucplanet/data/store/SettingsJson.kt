@@ -116,6 +116,9 @@ object SettingsJson {
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
         put("imperialUnits", s.imperialUnits)
+        put("unitSpeed", s.unitSpeed)
+        put("unitDistance", s.unitDistance)
+        put("unitTemp", s.unitTemp)
         put("phoneKeepScreenOn", s.phoneKeepScreenOn)
         put("volumeKeysEnabled", s.volumeKeysEnabled)
         put("volumeUpClick", s.volumeUpClick)
@@ -147,6 +150,7 @@ object SettingsJson {
         put("watchScreen2Click", s.watchScreen2Click)
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
+        put("fasterRefresh", s.fasterRefresh)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -251,6 +255,9 @@ object SettingsJson {
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
         imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
+        unitSpeed = j.optString("unitSpeed", base.unitSpeed),
+        unitDistance = j.optString("unitDistance", base.unitDistance),
+        unitTemp = j.optString("unitTemp", base.unitTemp),
         phoneKeepScreenOn = j.optBoolean("phoneKeepScreenOn", base.phoneKeepScreenOn),
         volumeKeysEnabled = j.optBoolean("volumeKeysEnabled", base.volumeKeysEnabled),
         volumeUpClick = j.optString("volumeUpClick", base.volumeUpClick),
@@ -282,6 +289,7 @@ object SettingsJson {
         watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
         watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
         watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
+        fasterRefresh = j.optBoolean("fasterRefresh", base.fasterRefresh),
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

@@ -20,7 +20,15 @@ class MetricDetailViewModel @Inject constructor(
 ) : ViewModel() {
     val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
-    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "kmh")
+
+    val distanceUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "km")
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 }

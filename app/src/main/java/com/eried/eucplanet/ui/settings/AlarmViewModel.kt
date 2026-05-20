@@ -29,9 +29,17 @@ class AlarmViewModel @Inject constructor(
     settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "kmh")
+
+    val distanceUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "km")
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
 
     private val vibratorHelper = VibratorHelper(context)

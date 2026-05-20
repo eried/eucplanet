@@ -12,6 +12,7 @@ object GraphScale {
     const val SPAN_BATTERY = 20f
     const val SPAN_SPEED_KMH = 10f
     const val SPAN_SPEED_MPH = 6f
+    const val SPAN_SPEED_MS = 3f
     const val SPAN_CURRENT = 10f
     const val SPAN_LOAD = 20f
 

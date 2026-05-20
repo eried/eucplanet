@@ -162,9 +162,20 @@ class DashboardViewModel @Inject constructor(
         .map { it.safetyTiltbackKmh }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.safetyTiltbackKmh)
 
-    val imperialUnits: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.imperialUnits }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.imperialUnits)
+    val speedUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.util.Units.effectiveSpeedUnit(initialSettings))
+
+    val distanceUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveDistanceUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.util.Units.effectiveDistanceUnit(initialSettings))
+
+    val tempUnit: StateFlow<String> = settingsRepository.settings
+        .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly,
+            com.eried.eucplanet.util.Units.effectiveTempUnit(initialSettings))
 
     /** What the dashboard's BackHandler should do — "ASK" / "BACKGROUND" / "STOP_ALL". */
     val backButtonAction: StateFlow<String> = settingsRepository.settings
@@ -249,6 +260,9 @@ class DashboardViewModel @Inject constructor(
     }
 
     val modelName: StateFlow<String?> = wheelRepository.modelName
+
+    /** Connected wheel's BLE name (with " (virtual)" for simulators), shown in the top bar. */
+    val connectedDeviceName: StateFlow<String?> = wheelRepository.connectedDeviceName
 
     val firmwareVersion: StateFlow<String?> = wheelRepository.firmwareVersion
 

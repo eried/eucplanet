@@ -56,6 +56,32 @@ class SettingsStore(private val context: Context) {
         }
     }
 
+    /**
+     * Genuine first-run hook. Runs after the legacy-Room migration: if
+     * DataStore is STILL empty here, this is a fresh install (no old Room
+     * row, no prior DataStore blob). Seed the three per-unit fields from the
+     * device locale so imperial-locale users start in imperial; everyone else
+     * starts metric. Existing users never reach this branch — their blob is
+     * already present — so they are never flipped.
+     */
+    suspend fun seedDefaultsIfAbsent() {
+        dataStore.edit { prefs ->
+            if (prefs[KEY_JSON] == null) {
+                val imperial = isImperialLocale()
+                val seeded = AppSettings(
+                    unitSpeed = if (imperial) "mph" else "kmh",
+                    unitDistance = if (imperial) "mi" else "km",
+                    unitTemp = if (imperial) "F" else "C"
+                )
+                prefs[KEY_JSON] = SettingsJson.toJson(seeded).toString()
+            }
+        }
+    }
+
+    /** US, Liberia and Myanmar are the three imperial-system countries. */
+    private fun isImperialLocale(): Boolean =
+        java.util.Locale.getDefault().country in setOf("US", "LR", "MM")
+
     private fun readSettings(prefs: Preferences): AppSettings {
         val json = prefs[KEY_JSON] ?: return AppSettings()
         return runCatching {

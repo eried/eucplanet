@@ -49,6 +49,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -85,7 +86,8 @@ fun MetricDetailScreen(
 ) {
     val fullHistory by viewModel.fullHistory.collectAsState()
     val wheelData by viewModel.wheelData.collectAsState()
-    val imperial by viewModel.imperialUnits.collectAsState()
+    val speedUnit by viewModel.speedUnit.collectAsState()
+    val tempUnit by viewModel.tempUnit.collectAsState()
 
     val rawSamples: List<MetricSample> = when (metricType) {
         MetricType.BATTERY -> fullHistory.battery
@@ -97,8 +99,8 @@ fun MetricDetailScreen(
     }
 
     fun convert(v: Float): Float = when (metricType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, imperial)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, imperial)
+        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(v, tempUnit)
+        MetricType.SPEED -> com.eried.eucplanet.util.Units.speed(v, speedUnit)
         else -> v
     }
 
@@ -107,8 +109,8 @@ fun MetricDetailScreen(
     } else rawSamples
 
     val unitLabel = when (metricType) {
-        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(imperial)
-        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, imperial)
+        MetricType.TEMPERATURE -> com.eried.eucplanet.util.Units.tempUnit(tempUnit)
+        MetricType.SPEED -> com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
         else -> metricType.unit
     }
 
@@ -116,7 +118,7 @@ fun MetricDetailScreen(
         MetricType.BATTERY -> wheelData.batteryPercent.toFloat()
         MetricType.TEMPERATURE -> wheelData.maxTemperature
         MetricType.VOLTAGE -> wheelData.voltage
-        MetricType.CURRENT -> kotlin.math.abs(wheelData.current)
+        MetricType.CURRENT -> wheelData.current
         MetricType.LOAD -> kotlin.math.abs(wheelData.pwm)
         MetricType.SPEED -> kotlin.math.abs(wheelData.speed)
     })
@@ -182,7 +184,11 @@ fun MetricDetailScreen(
                     MetricType.CURRENT -> { min, max -> GraphScale.absolute(min, max, 1f) }
                     MetricType.VOLTAGE -> { min, max -> GraphScale.pad(min, max, GraphScale.SPAN_VOLTAGE) }
                     MetricType.SPEED -> { min, max ->
-                        GraphScale.pad(min, max, if (imperial) GraphScale.SPAN_SPEED_MPH else GraphScale.SPAN_SPEED_KMH)
+                        GraphScale.pad(min, max, when (speedUnit) {
+                            "mph" -> GraphScale.SPAN_SPEED_MPH
+                            "ms" -> GraphScale.SPAN_SPEED_MS
+                            else -> GraphScale.SPAN_SPEED_KMH
+                        })
                     }
                 }
 
@@ -276,6 +282,7 @@ private fun MetricGraph(
     color: Color,
     boundsFor: (dataMin: Float, dataMax: Float) -> GraphBounds,
     unitLabel: String,
+    regenColor: Color = AccentGreen,
     modifier: Modifier = Modifier
 ) {
     val textMeasurer = rememberTextMeasurer()
@@ -455,14 +462,37 @@ private fun MetricGraph(
                 if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
 
-            // Filled area
-            val fillPath = androidx.compose.ui.graphics.Path()
-            fillPath.addPath(path)
-            fillPath.lineTo(w, h)
-            fillPath.lineTo(0f, h)
-            fillPath.close()
-            drawPath(fillPath, color = color.copy(alpha = 0.1f))
-            drawPath(path, color = color, style = Stroke(width = 2.5f))
+            // Filled area. When the metric is bipolar — current crossing zero,
+            // i.e. regen braking — the fill and line split at the zero baseline
+            // and everything below zero is drawn in [regenColor] so the regen
+            // stretches stand out. Single-polarity metrics keep the plain
+            // curve-to-bottom fill.
+            val graphMax = graphMin + graphRange
+            if (graphMin < 0f && graphMax > 0f) {
+                val zeroY = h - ((0f - graphMin) / graphRange) * h
+                val fillPath = androidx.compose.ui.graphics.Path()
+                fillPath.addPath(path)
+                fillPath.lineTo(w, zeroY)
+                fillPath.lineTo(0f, zeroY)
+                fillPath.close()
+                clipRect(top = 0f, bottom = zeroY) {
+                    drawPath(fillPath, color = color.copy(alpha = 0.18f))
+                    drawPath(path, color = color, style = Stroke(width = 2.5f))
+                }
+                clipRect(top = zeroY, bottom = h) {
+                    drawPath(fillPath, color = regenColor.copy(alpha = 0.18f))
+                    drawPath(path, color = regenColor, style = Stroke(width = 2.5f))
+                }
+                drawLine(gridColor, Offset(0f, zeroY), Offset(w, zeroY), strokeWidth = 1.5f)
+            } else {
+                val fillPath = androidx.compose.ui.graphics.Path()
+                fillPath.addPath(path)
+                fillPath.lineTo(w, h)
+                fillPath.lineTo(0f, h)
+                fillPath.close()
+                drawPath(fillPath, color = color.copy(alpha = 0.1f))
+                drawPath(path, color = color, style = Stroke(width = 2.5f))
+            }
 
             // Touch crosshair — vertical line follows finger, dot interpolates on the curve
             val tx = touchX

@@ -136,7 +136,25 @@
     <string name="back_button_action_ask">Спрашивать</string>
     <string name="back_button_action_background">В фоне</string>
     <string name="back_button_action_stop">Остановить всё</string>
-    <string name="imperial_units">Имперские единицы</string>
+    <string name="units_label">Units</string>
+    <string name="units_metric">Metric</string>
+    <string name="units_imperial">Imperial</string>
+    <string name="units_custom">Custom</string>
+    <string name="units_temperature">Temperature</string>
+    <string name="units_speed">Speed</string>
+    <string name="units_distance">Distance</string>
+    <string name="units_speed_kmh">km/h</string>
+    <string name="units_speed_mph">mph</string>
+    <string name="units_speed_ms">m/s</string>
+    <string name="units_speed_kn">Knots</string>
+    <string name="units_distance_km">Kilometers</string>
+    <string name="units_distance_mi">Miles</string>
+    <string name="units_distance_m">Meters</string>
+    <string name="units_distance_ft">Feet</string>
+    <string name="units_distance_mil">Norwegian mile</string>
+    <string name="units_temp_c">Celsius</string>
+    <string name="units_temp_f">Fahrenheit</string>
+    <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Не выключать экран</string>
     <string name="language">Язык</string>
     <string name="theme">Тема</string>
@@ -159,6 +177,8 @@
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
     <string name="speed_legal_alarm">Предупреждение (лег.)</string>
     <string name="unit_kmh">км/ч</string>
+    <string name="unit_ms">m/s</string>
+    <string name="unit_kn">kn</string>
 
     <string name="section_announcements">Озвучка событий</string>
     <string name="section_speech">Голос</string>
@@ -233,6 +253,7 @@
     <string name="voice_load_fmt">нагрузка %1$s процентов</string>
     <string name="voice_trip_fmt">пройдено %1$s километров</string>
     <string name="voice_trip_miles_fmt">пройдено %1$s миль</string>
+    <string name="voice_trip_meters_fmt">trip %1$s meters</string>
     <string name="voice_recording_on">идёт запись</string>
     <string name="voice_recording_off">запись остановлена</string>
     <string name="voice_wheel_locked">Моноколесо заблокировано</string>
@@ -302,11 +323,21 @@
     <string name="recording_summary_top_speed">Макс. скорость</string>
     <string name="recording_summary_avg_speed">Сред. скорость</string>
     <string name="recording_summary_min_battery">Мин. заряд</string>
+    <string name="recording_summary_battery">Battery (-%1$d%%)</string>
+    <string name="recording_summary_voltage">Voltage</string>
+    <string name="recording_summary_avg_moving">Avg Moving</string>
+    <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
+    <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
+    <string name="recording_summary_max_pwm">Max PWM</string>
+    <string name="recording_summary_max_current">Max Current</string>
+    <string name="recording_summary_max_power">Max Power</string>
     <string name="recording_summary_max_temp">Макс. температура</string>
     <string name="recording_chart_speed">Скорость (%1$s)</string>
     <string name="recording_chart_battery">Заряд (%%)</string>
     <string name="recording_chart_temp">Температура (%1$s)</string>
     <string name="recording_chart_voltage">Напряжение (В)</string>
+    <string name="recording_chart_current">Current (A)</string>
+    <string name="recording_chart_pwm">PWM (%)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Фары</string>
@@ -522,6 +553,8 @@
     <string name="watch_button_hold_label">Долгое нажатие</string>
     <string name="watch_keep_on">Не гасить экран</string>
     <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение</string>
+    <string name="faster_refresh">Refresh faster</string>
+    <string name="faster_refresh_desc">Update live data more smoothly and responsively</string>
     <string name="watch_pwm_bar">Полоса</string>
     <string name="watch_pwm_both">Оба</string>
     <string name="watch_pwm_display">Индикатор PWM</string>

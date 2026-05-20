@@ -43,6 +43,17 @@ class BegodeParser {
     @Volatile private var hasExtras: Boolean = false
 
     /**
+     * True once a Freestyl3r (CF) or SmirnoV (BF) firmware banner identifies
+     * this wheel as one that populates a real hardware-PWM value at frame
+     * 0x00 offset 14. Stock Begode (GW) and ExtremeBull (JN) firmware leave
+     * that field unpopulated — usually 0, but some builds (e.g. Mten3) emit a
+     * constant noise value of 1 — so PWM must be derived there instead. Set by
+     * [BegodeAdapter] when it decodes the V-query banner; defaults false so
+     * unknown / un-probed firmware derives, which is the safe choice.
+     */
+    @Volatile var hwPwmFirmware: Boolean = false
+
+    /**
      * Whether the wheel's on-screen display is set to imperial units. Read
      * from Live B settings bitfield bit 0. When set, Begode firmware emits
      * speed/distance/max-speed values pre-scaled to mph/miles on the wire
@@ -66,6 +77,7 @@ class BegodeParser {
         lastLightOn = false
         lastPcMode = 3
         hasExtras = false
+        hwPwmFirmware = false
         wheelInMiles = false
     }
 
@@ -192,17 +204,19 @@ class BegodeParser {
         val rawTemp = ByteUtils.getInt16BE(frame, 12)
         val tempC = rawTemp / 340f + 36.53f
 
-        // Hardware PWM at offset 14 only carries a real reading on Freestyl3r
-        // CF firmware (raw * 10 ⇒ percent). On stock Begode firmware it is
-        // zero. WheelLog falls through to a derived PWM in that case using
-        // the wheel's speed, voltage and per-model motor constants — we
-        // mirror that fallback in [derivedPwmPct] below so Master / Mten3 /
-        // EX30 / E20 riders see something other than 0.
+        // Hardware PWM at offset 14 carries a real reading only on Freestyl3r
+        // (CF) and SmirnoV (BF) firmware. Stock Begode (GW) and ExtremeBull
+        // (JN) firmware leave it unpopulated — usually 0, but some builds
+        // (e.g. Mten3) emit a constant noise value of 1, so a bare "non-zero"
+        // test wrongly latches onto 0.1 %. We therefore trust offset 14 only
+        // when a CF/BF banner has flagged the firmware as HW-PWM capable
+        // ([hwPwmFirmware]); otherwise we derive PWM from speed/voltage like
+        // WheelLog, so Master / Mten3 / EX30 / E20 riders see a real number.
         val hardwarePwmRaw = ByteUtils.getInt16BE(frame, 14)
         val hardwarePwmPct = hardwarePwmRaw / 10f
         val pwmPct = when {
             hasExtras -> lastPwmPct
-            hardwarePwmPct != 0f -> hardwarePwmPct
+            hwPwmFirmware && hardwarePwmPct != 0f -> hardwarePwmPct
             else -> derivedPwmPct(model, voltage, speed)
         }
 

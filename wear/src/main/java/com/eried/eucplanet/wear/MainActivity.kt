@@ -26,7 +26,9 @@ class MainActivity : ComponentActivity() {
         /**
          * Debug-only hook. `adb shell am broadcast -p com.eried.eucplanet \
          *   -a com.eried.eucplanet.wear.DEMO --ef speed 35 --ei battery 78 \
-         *   --ei phone 64 --es accent teal`
+         *   --ei phone 64 --es accent teal --es speedUnit mph`
+         * Unit extras (speedUnit / distanceUnit / tempUnit) take the same
+         * codes as the Data Layer keys; omitting them defaults to metric.
          * fills the watch UI with synthetic state so the dashboard renders
          * without the phone/Data Layer pairing being live. Gated by the
          * debuggable flag so this never ships in a release build.
@@ -50,7 +52,9 @@ class MainActivity : ComponentActivity() {
                     maxSpeedKmh = intent.getFloatExtra("maxSpeed", 70f),
                     hasHorn = intent.getBooleanExtra("horn", true),
                     hasLight = intent.getBooleanExtra("hasLight", true),
-                    imperialUnits = intent.getBooleanExtra("imperial", false),
+                    speedUnit = intent.getStringExtra("speedUnit") ?: "kmh",
+                    distanceUnit = intent.getStringExtra("distanceUnit") ?: "km",
+                    tempUnit = intent.getStringExtra("tempUnit") ?: "C",
                     accentKey = intent.getStringExtra("accent") ?: "default",
                     pwmDisplay = intent.getStringExtra("pwmDisplay") ?: "BOTH",
                     showSpeedUnit = intent.getBooleanExtra("showSpeedUnit", true),

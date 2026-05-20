@@ -136,7 +136,25 @@
     <string name="back_button_action_ask">Spør</string>
     <string name="back_button_action_background">Bakgrunn</string>
     <string name="back_button_action_stop">Stopp alt</string>
-    <string name="imperial_units">Imperiske enheter</string>
+    <string name="units_label">Units</string>
+    <string name="units_metric">Metric</string>
+    <string name="units_imperial">Imperial</string>
+    <string name="units_custom">Custom</string>
+    <string name="units_temperature">Temperature</string>
+    <string name="units_speed">Speed</string>
+    <string name="units_distance">Distance</string>
+    <string name="units_speed_kmh">km/h</string>
+    <string name="units_speed_mph">mph</string>
+    <string name="units_speed_ms">m/s</string>
+    <string name="units_speed_kn">Knots</string>
+    <string name="units_distance_km">Kilometers</string>
+    <string name="units_distance_mi">Miles</string>
+    <string name="units_distance_m">Meters</string>
+    <string name="units_distance_ft">Feet</string>
+    <string name="units_distance_mil">Norwegian mile</string>
+    <string name="units_temp_c">Celsius</string>
+    <string name="units_temp_f">Fahrenheit</string>
+    <string name="units_temp_k">Kelvin</string>
     <string name="phone_keep_screen_on">Hold skjermen på</string>
     <string name="language">Språk</string>
     <string name="theme">Tema</string>
@@ -159,6 +177,8 @@
     <string name="speed_legal_tiltback">Lovlig tiltback</string>
     <string name="speed_legal_alarm">Lovlig alarm</string>
     <string name="unit_kmh">km/t</string>
+    <string name="unit_ms">m/s</string>
+    <string name="unit_kn">kn</string>
 
     <string name="section_announcements">Varsler</string>
     <string name="section_speech">Tale</string>
@@ -233,6 +253,7 @@
     <string name="voice_load_fmt">last %1$s prosent</string>
     <string name="voice_trip_fmt">tur %1$s kilometer</string>
     <string name="voice_trip_miles_fmt">tur %1$s mil</string>
+    <string name="voice_trip_meters_fmt">trip %1$s meters</string>
     <string name="voice_recording_on">tar opp</string>
     <string name="voice_recording_off">tar ikke opp</string>
     <string name="voice_wheel_locked">Hjul låst</string>
@@ -302,11 +323,21 @@
     <string name="recording_summary_top_speed">Toppfart</string>
     <string name="recording_summary_avg_speed">Snittfart</string>
     <string name="recording_summary_min_battery">Min batteri</string>
+    <string name="recording_summary_battery">Battery (-%1$d%%)</string>
+    <string name="recording_summary_voltage">Voltage</string>
+    <string name="recording_summary_avg_moving">Avg Moving</string>
+    <string name="recording_summary_battery_fmt">%1$d→%2$d%%</string>
+    <string name="recording_summary_voltage_fmt">%1$.0f→%2$.0f V</string>
+    <string name="recording_summary_max_pwm">Max PWM</string>
+    <string name="recording_summary_max_current">Max Current</string>
+    <string name="recording_summary_max_power">Max Power</string>
     <string name="recording_summary_max_temp">Maks temp</string>
     <string name="recording_chart_speed">Fart (%1$s)</string>
     <string name="recording_chart_battery">Batteri (%%)</string>
     <string name="recording_chart_temp">Temperatur (%1$s)</string>
     <string name="recording_chart_voltage">Spenning (V)</string>
+    <string name="recording_chart_current">Current (A)</string>
+    <string name="recording_chart_pwm">PWM (%)</string>
 
     <!-- Automations / Auto tab -->
     <string name="auto_lights_title">Lys</string>
@@ -487,6 +518,8 @@
     <string name="watch_button_hold_label">Langt trykk</string>
     <string name="watch_keep_on">Hold skjermen på</string>
     <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen</string>
+    <string name="faster_refresh">Refresh faster</string>
+    <string name="faster_refresh_desc">Update live data more smoothly and responsively</string>
     <string name="watch_pwm_bar">Stolpe</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">PWM-indikator</string>

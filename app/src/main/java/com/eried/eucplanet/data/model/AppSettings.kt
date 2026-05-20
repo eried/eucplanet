@@ -137,7 +137,12 @@ data class AppSettings(
     val autoVolumeBaselinePercent: Int = -1,
 
     // Display units
+    // imperialUnits is legacy: kept only as the migration fallback for the three
+    // per-unit fields below. Never read directly outside the Units.kt resolvers.
     val imperialUnits: Boolean = false,
+    val unitSpeed: String = "",     // "" | "kmh" | "mph" | "ms"   ("" = not migrated)
+    val unitDistance: String = "",  // "" | "km"  | "mi"  | "m"
+    val unitTemp: String = "",      // "" | "C"   | "F"   | "K"
 
     val phoneKeepScreenOn: Boolean = false,
 
@@ -269,6 +274,13 @@ data class AppSettings(
      * fires (tap or hold) so the user gets tactile confirmation.
      */
     val watchHapticOnAction: Boolean = true,
+
+    /**
+     * Opt-in faster wheel polling. When ON the realtime poll loop runs at a
+     * shorter interval so live data on the dashboard and watch updates more
+     * responsively; OFF keeps the default interval to spare battery / BLE.
+     */
+    val fasterRefresh: Boolean = false,
 
     // --- Motor Sound generator ---
     //

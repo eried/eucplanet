@@ -32,20 +32,62 @@ fun accentColorFor(key: String): Color = when (key) {
     else -> AccentTeal
 }
 
+/**
+ * Watch-side mirror of the phone's `com.eried.eucplanet.util.Units`. The wheel
+ * always sends km/h, km and °C over the Data Layer; these convert into the
+ * rider's chosen units. [unit] strings are the same codes the phone resolves:
+ *  - speed:    "kmh" / "mph" / "ms" / "kn"
+ *  - distance: "km" / "mi" / "m" / "ft" / "mil"
+ *  - temperature: "C" / "F" / "K"
+ * Keep the conversion factors in lockstep with the phone's Units.kt.
+ */
 object WatchUnits {
-    fun speed(kmh: Float, imperial: Boolean): Float = if (imperial) kmh * 0.621371f else kmh
-    fun distance(km: Float, imperial: Boolean): Float = if (imperial) km * 0.621371f else km
-    fun temperature(c: Float, imperial: Boolean): Float = if (imperial) c * 9f / 5f + 32f else c
+    fun speed(kmh: Float, unit: String): Float = when (unit) {
+        "mph" -> kmh * 0.621371f
+        "ms" -> kmh / 3.6f
+        "kn" -> kmh / 1.852f
+        else -> kmh
+    }
+
+    fun distance(km: Float, unit: String): Float = when (unit) {
+        "mi" -> km * 0.621371f
+        "m" -> km * 1000f
+        "ft" -> km * 3280.84f
+        "mil" -> km / 10f
+        else -> km
+    }
+
+    fun temperature(c: Float, unit: String): Float = when (unit) {
+        "F" -> c * 9f / 5f + 32f
+        "K" -> c + 273.15f
+        else -> c
+    }
+
     /**
      * Localized speed unit. Norwegian Bokmål uses "km/t", Dutch "km/u",
-     * Russian "км/ч" etc., so we route through string resources rather than
-     * hardcoding "km/h".
+     * Russian "км/ч" etc., so km/h and mph route through string resources;
+     * m/s and knots are technical abbreviations that stay constant.
      */
-    fun speedUnit(context: android.content.Context, imperial: Boolean): String =
-        if (imperial) context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_mph)
-        else context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit)
-    fun distanceUnit(imperial: Boolean): String = if (imperial) "mi" else "km"
-    fun tempUnit(imperial: Boolean): String = if (imperial) "°F" else "°C"
+    fun speedUnit(context: android.content.Context, unit: String): String = when (unit) {
+        "mph" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_mph)
+        "ms" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_ms)
+        "kn" -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit_kn)
+        else -> context.getString(com.eried.eucplanet.wear.R.string.watch_speed_unit)
+    }
+
+    fun distanceUnit(unit: String): String = when (unit) {
+        "mi" -> "mi"
+        "m" -> "m"
+        "ft" -> "ft"
+        "mil" -> "mil"
+        else -> "km"
+    }
+
+    fun tempUnit(unit: String): String = when (unit) {
+        "F" -> "°F"
+        "K" -> "K"
+        else -> "°C"
+    }
 }
 
 internal val GaugeAccentBlue = AccentBlue
@@ -53,3 +95,14 @@ internal val GaugeAccentGreen = AccentGreen
 internal val GaugeAccentYellow = AccentYellow
 internal val GaugeAccentOrange = AccentOrange
 internal val GaugeAccentRed = AccentRed
+internal val GaugeAccentPurple = AccentPurple
+
+/**
+ * Colour for the GPS extra-speed readout, matched to the phone dashboard:
+ * an external GPS box (RaceBox) shows purple, the phone's own GPS shows blue.
+ */
+internal fun gpsSourceColor(source: String): Color = when (source) {
+    "EXTERNAL" -> AccentPurple
+    "PHONE" -> AccentBlue
+    else -> AccentPurple
+}

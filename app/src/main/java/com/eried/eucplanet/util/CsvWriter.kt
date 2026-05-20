@@ -11,11 +11,13 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed`
- * The two trailing GPS-speed columns are EUC Planet extensions; DarknessBot
- * viewers ignore trailing columns. `Ext GPS speed` is populated only while an
- * external BLE GPS box (RaceBox today) is paired and streaming; otherwise it
- * stays empty so the column doesn't pretend to have data it doesn't.
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM`
+ * The trailing GPS-speed, Current and PWM columns are EUC Planet extensions;
+ * DarknessBot viewers ignore trailing columns. `Ext GPS speed` is populated only
+ * while an external BLE GPS box (RaceBox today) is paired and streaming;
+ * otherwise it stays empty so the column doesn't pretend to have data it
+ * doesn't. `Current` (amps, signed) and `PWM` (percent) come straight from the
+ * wheel telemetry.
  */
 class CsvWriter(private val file: File) {
 
@@ -25,7 +27,7 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM")
         writer?.newLine()
     }
 
@@ -52,7 +54,7 @@ class CsvWriter(private val file: File) {
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s,%.1f,%.1f",
                 date,
                 speed,
                 data.voltage,
@@ -63,7 +65,9 @@ class CsvWriter(private val file: File) {
                 lon,
                 data.totalDistance,
                 gpsSpeedKmh,
-                extColumn
+                extColumn,
+                data.current,
+                data.pwm
             )
         )
         w.newLine()

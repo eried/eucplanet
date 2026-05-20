@@ -91,8 +91,8 @@ fun RecordingScreen(
     val importing by viewModel.importing.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val liveTripKm by viewModel.liveTripDistanceKm.collectAsState()
-    val imperial by viewModel.imperialUnits.collectAsState()
-    val distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+    val distanceUnit by viewModel.distanceUnit.collectAsState()
+    val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val gpsFix by viewModel.gpsFix.collectAsState()
     val locationGranted by viewModel.locationPermissionGranted.collectAsState()
 
@@ -359,7 +359,7 @@ fun RecordingScreen(
                         StatItem(stringResource(R.string.recording_stat_trips), "${trips.size}")
                         StatItem(
                             stringResource(R.string.recording_stat_distance),
-                            "%.1f %s".format(com.eried.eucplanet.util.Units.distance(totalKm, imperial), distanceUnit)
+                            "%.1f %s".format(com.eried.eucplanet.util.Units.distance(totalKm, distanceUnit), distanceUnitLabel)
                         )
                         StatItem(stringResource(R.string.recording_stat_time), "${totalHours}h ${totalMins}m")
                     }
@@ -386,7 +386,7 @@ fun RecordingScreen(
                             isRecording = isRecordingTrip,
                             isPending = isPendingTrip,
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
-                            imperial = imperial,
+                            distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
                             onShare = { viewModel.shareTrip(trip) },
                             onDelete = { tripToDelete = trip }
@@ -414,12 +414,12 @@ private fun TripCard(
     isRecording: Boolean,
     isPending: Boolean,
     liveDistanceKm: Float?,
-    imperial: Boolean,
+    distanceUnit: String,
     onView: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val distanceUnit = com.eried.eucplanet.util.Units.distanceUnit(imperial)
+    val distanceUnitLabel = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
     val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
     val disabledColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
 
@@ -467,8 +467,8 @@ private fun TripCard(
                     val km = liveDistanceKm ?: 0f
                     Text(
                         "%.1f %s | %d:%02d".format(
-                            com.eried.eucplanet.util.Units.distance(km, imperial),
-                            distanceUnit, minutes, seconds
+                            com.eried.eucplanet.util.Units.distance(km, distanceUnit),
+                            distanceUnitLabel, minutes, seconds
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = AccentRed
@@ -479,8 +479,8 @@ private fun TripCard(
                     val seconds = duration % 60
                     Text(
                         "%.1f %s | %d:%02d".format(
-                            com.eried.eucplanet.util.Units.distance(trip.distanceKm, imperial),
-                            distanceUnit, minutes, seconds
+                            com.eried.eucplanet.util.Units.distance(trip.distanceKm, distanceUnit),
+                            distanceUnitLabel, minutes, seconds
                         ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

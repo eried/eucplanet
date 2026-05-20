@@ -86,8 +86,11 @@ class AlarmEngine @Inject constructor(
                     if (shouldFire) {
                         Log.i(TAG, "Alarm fired: '${rule.name}' ${rule.metric} ${rule.comparator} ${rule.threshold} (value=$value)")
                         state.lastFireTimeMs = now
-                        val imperial = settingsRepository.get().imperialUnits
-                        executeActions(rule, data, value, imperial)
+                        val s = settingsRepository.get()
+                        executeActions(rule, data, value,
+                            com.eried.eucplanet.util.Units.effectiveSpeedUnit(s),
+                            com.eried.eucplanet.util.Units.effectiveDistanceUnit(s),
+                            com.eried.eucplanet.util.Units.effectiveTempUnit(s))
                     }
                 }
 
@@ -120,7 +123,7 @@ class AlarmEngine @Inject constructor(
             AlarmComparator.LESS_THAN -> value < threshold
         }
 
-    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, imperial: Boolean) {
+    private fun executeActions(rule: AlarmRule, data: WheelData, triggerValue: Float, speedUnit: String, distanceUnit: String, tempUnit: String) {
         // Vibrate fires immediately; beep and voice are sequenced so the beep
         // finishes before the voice speaks.
         if (rule.vibrateEnabled) {
@@ -138,7 +141,7 @@ class AlarmEngine @Inject constructor(
                 }
             }
             if (rule.voiceEnabled && rule.voiceText.isNotBlank()) {
-                val text = expandTemplate(rule.voiceText, rule, data, triggerValue, imperial)
+                val text = expandTemplate(rule.voiceText, rule, data, triggerValue, speedUnit, distanceUnit, tempUnit)
                 voiceService.speak(text)
             }
         }
@@ -149,18 +152,20 @@ class AlarmEngine @Inject constructor(
         rule: AlarmRule,
         data: WheelData,
         triggerValue: Float,
-        imperial: Boolean
+        speedUnit: String,
+        distanceUnit: String,
+        tempUnit: String
     ): String {
         val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).labelRes) } catch (_: Exception) { rule.metric }
         // {value} and {threshold} are converted using the rule's own metric — speed
         // alarm in mph reads mph, temperature alarm in °F reads °F, everything else
         // stays in its native unit (battery %, PWM %, voltage V, current A).
         val metricForThreshold = try { AlarmMetric.valueOf(rule.metric) } catch (_: Exception) { null }
-        val convertedValue = convertForMetric(metricForThreshold, triggerValue, imperial)
-        val convertedThreshold = convertForMetric(metricForThreshold, rule.threshold, imperial)
-        val speedConverted = com.eried.eucplanet.util.Units.speed(data.speed.absoluteValue, imperial)
-        val tempConverted = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, imperial)
-        val tripConverted = com.eried.eucplanet.util.Units.distance(data.tripDistance, imperial)
+        val convertedValue = convertForMetric(metricForThreshold, triggerValue, speedUnit, tempUnit)
+        val convertedThreshold = convertForMetric(metricForThreshold, rule.threshold, speedUnit, tempUnit)
+        val speedConverted = com.eried.eucplanet.util.Units.speed(data.speed.absoluteValue, speedUnit)
+        val tempConverted = com.eried.eucplanet.util.Units.temperature(data.maxTemperature, tempUnit)
+        val tripConverted = com.eried.eucplanet.util.Units.distance(data.tripDistance, distanceUnit)
         return template
             .replace("{speed}", "%.0f".format(speedConverted))
             .replace("{battery}", "${data.batteryPercent}")
@@ -174,10 +179,10 @@ class AlarmEngine @Inject constructor(
             .replace("{threshold}", "%.0f".format(convertedThreshold))
     }
 
-    private fun convertForMetric(metric: AlarmMetric?, valueInternal: Float, imperial: Boolean): Float =
+    private fun convertForMetric(metric: AlarmMetric?, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
         when (metric) {
-            AlarmMetric.SPEED -> com.eried.eucplanet.util.Units.speed(valueInternal, imperial)
-            AlarmMetric.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(valueInternal, imperial)
+            AlarmMetric.SPEED -> com.eried.eucplanet.util.Units.speed(valueInternal, speedUnit)
+            AlarmMetric.TEMPERATURE -> com.eried.eucplanet.util.Units.temperature(valueInternal, tempUnit)
             else -> valueInternal
         }
 }

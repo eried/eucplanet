@@ -4,8 +4,6 @@ import com.eried.eucplanet.ble.InMotionV2Protocol
 import com.eried.eucplanet.ble.InMotionV2Protocol.Command
 import com.eried.eucplanet.ble.InMotionV2Protocol.ControlSubCmd
 import com.eried.eucplanet.util.ByteUtils
-import kotlin.math.PI
-import kotlin.math.sin
 
 /**
  * Software fake of an InMotion V14 (50GB). Reports model "V14 50GB", firmware
@@ -33,6 +31,11 @@ class V14VirtualWheel : VirtualWheel {
     private var lightOn = false
     private var startTimeMs = System.currentTimeMillis()
     private var batteryStart = 80f
+    // Random-walk ride simulation state.
+    private var simSpeed = 0f
+    private var prevSpeed = 0f
+    private var lastBuildMs = 0L
+    private val rnd = java.util.Random()
 
     override fun reset() {
         locked = false
@@ -41,6 +44,9 @@ class V14VirtualWheel : VirtualWheel {
         lightOn = false
         startTimeMs = System.currentTimeMillis()
         batteryStart = 80f
+        simSpeed = 0f
+        prevSpeed = 0f
+        lastBuildMs = 0L
     }
 
     override fun onWrite(data: ByteArray): List<ByteArray> {
@@ -142,15 +148,44 @@ class V14VirtualWheel : VirtualWheel {
     }
 
     private fun buildTelemetry(): ByteArray {
-        val elapsed = System.currentTimeMillis() - startTimeMs
-        // Sine wave 0..30 km/h with a 10 s period, but locked wheel = 0
-        val speedKmh = if (locked) 0f else (15f * (1f + sin(elapsed / 1000.0 * 2 * PI / 10).toFloat()))
+        val now = System.currentTimeMillis()
+        val elapsed = now - startTimeMs
+        // dt since the last frame so the random walk behaves the same whatever
+        // rate the app polls realtime at.
+        val dtSec = if (lastBuildMs == 0L) 0.2f
+                    else ((now - lastBuildMs) / 1000f).coerceIn(0.02f, 1f)
+        lastBuildMs = now
+
+        // Speed: an organic random walk — a random drift plus a gentle pull
+        // back toward a mid cruising speed — instead of a clean sine, so the
+        // trace looks like a real, varied ride. Locked wheel stays at 0.
+        if (locked) {
+            simSpeed = 0f
+        } else {
+            val drift = (rnd.nextFloat() - 0.5f) * 26f * dtSec
+            val pull = (16f - simSpeed) * 0.35f * dtSec
+            simSpeed = (simSpeed + drift + pull).coerceIn(0f, 36f)
+        }
+        val speedKmh = simSpeed
+        val accel = (speedKmh - prevSpeed) / dtSec   // km/h per second
+        prevSpeed = speedKmh
+
         // Battery slowly decays, ~1 % per minute
         val batteryPct = (batteryStart - elapsed / 60_000f).coerceAtLeast(20f)
         val voltage = 84f - (80f - batteryPct) * 0.1f  // roughly 76 V at 0 %, 84 V at 80 %
 
-        val current = if (speedKmh > 1f) 8f else 0.5f
-        val pwm = if (speedKmh > 1f) 25f + speedKmh else 0f
+        // Current tracks effort: a friction baseline while rolling plus a term
+        // proportional to acceleration, so braking (negative accel) swings the
+        // current negative — regen — with a little noise on top. Idle draws a
+        // trickle.
+        val current = if (speedKmh > 1f) {
+            5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
+        } else {
+            0.3f
+        }
+        val pwm = if (speedKmh > 1f) {
+            (18f + kotlin.math.abs(current) * 1.8f).coerceIn(0f, 95f)
+        } else 0f
 
         val d = ByteArray(80)
         putInt16LE(d, 0,  (voltage * 100).toInt())

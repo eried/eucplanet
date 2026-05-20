@@ -8,6 +8,8 @@
     <string name="watch_light">Light</string>
     <string name="watch_speed_unit">km/h</string>
     <string name="watch_speed_unit_mph">mph</string>
+    <string name="watch_speed_unit_ms" translatable="false">m/s</string>
+    <string name="watch_speed_unit_kn" translatable="false">kn</string>
     <string name="watch_battery_label">Battery</string>
     <string name="watch_voltage_label">Voltage</string>
     <string name="watch_current_label">Current</string>

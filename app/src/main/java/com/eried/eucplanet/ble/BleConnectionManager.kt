@@ -56,6 +56,12 @@ class BleConnectionManager @Inject constructor(
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
+    /** Connected wheel's display label — the BLE advertised name, with
+     *  " (virtual)" appended for simulator wheels. Set on every connect;
+     *  the UI only reads it while [connectionState] is CONNECTED. */
+    private val _connectedDeviceName = MutableStateFlow<String?>(null)
+    val connectedDeviceName: StateFlow<String?> = _connectedDeviceName.asStateFlow()
+
     private val _decodedResults = MutableSharedFlow<DecodeResult>(extraBufferCapacity = 64)
     /** Stream of decoded results from the active wheel adapter. */
     val decodedResults: SharedFlow<DecodeResult> = _decodedResults.asSharedFlow()
@@ -94,6 +100,7 @@ class BleConnectionManager @Inject constructor(
         // Hold on to the name so the auto-reconnect path keeps the same hint —
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
+        _connectedDeviceName.value = currentName
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connect requested: name=${currentName ?: "(unknown)"} address=$address"
         )
@@ -134,6 +141,7 @@ class BleConnectionManager @Inject constructor(
         virtualWheel = wheel
         currentAddress = VirtualWheelRegistry.pseudoAddress(id)
         currentName = wheel.bleName.takeIf { it.isNotEmpty() }
+        _connectedDeviceName.value = "${wheel.displayName} (virtual)"
         shouldReconnect = false
         _connectionState.value = ConnectionState.CONNECTING
 
@@ -347,8 +355,17 @@ class BleConnectionManager @Inject constructor(
                 return
             }
 
-            // Enable notifications on TX
+            // Enable notifications on TX. The CCCD descriptor write is what
+            // actually subscribes us to the wheel's push stream; it completes
+            // asynchronously via onDescriptorWrite. We must NOT go CONNECTED
+            // (which lets the init sequence start writing) until that write
+            // lands — otherwise the init writes race it on the single GATT
+            // operation slot, the subscription is lost, and the wheel's
+            // replies are silently dropped. (KingSong KS-16X: telemetry only
+            // started after a manual write nudged the stack into settling the
+            // CCCD ~30 s after connect.)
             gatt.setCharacteristicNotification(txCharacteristic, true)
+            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
             val descriptor = txCharacteristic.getDescriptor(CCCD_UUID)
             if (descriptor != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -359,14 +376,33 @@ class BleConnectionManager @Inject constructor(
                     @Suppress("DEPRECATION")
                     gatt.writeDescriptor(descriptor)
                 }
+                // Safety net: if the stack never delivers onDescriptorWrite,
+                // force the connection through so we can't hang in CONNECTING.
+                scope.launch {
+                    kotlinx.coroutines.delay(4000L)
+                    if (_connectionState.value == ConnectionState.CONNECTING) {
+                        Log.w(TAG, "CCCD onDescriptorWrite not seen — forcing connect")
+                        markReadyAndConnected()
+                    }
+                }
+            } else {
+                // No CCCD on this characteristic — nothing to wait for.
+                markReadyAndConnected()
             }
+        }
 
-            writeReady = true
-            _connectionState.value = ConnectionState.CONNECTED
-            Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
-            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
-                "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
-            )
+        override fun onDescriptorWrite(
+            gatt: BluetoothGatt,
+            descriptor: BluetoothGattDescriptor,
+            status: Int
+        ) {
+            // The CCCD write completing means the wheel will now actually push
+            // notifications to us — only now is it safe to go CONNECTED and let
+            // the init sequence start writing.
+            if (descriptor.uuid == CCCD_UUID) {
+                Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
+                markReadyAndConnected()
+            }
         }
 
         override fun onCharacteristicWrite(
@@ -394,6 +430,23 @@ class BleConnectionManager @Inject constructor(
         ) {
             processIncomingData(value)
         }
+    }
+
+    /**
+     * Idempotent transition into CONNECTED. Called once the CCCD
+     * notification-enable write has completed (onDescriptorWrite), or by the
+     * no-CCCD / watchdog fallbacks in onServicesDiscovered. Guarded on the
+     * CONNECTING state so the watchdog and the real callback cannot double-fire
+     * it, and so a late callback after a disconnect is a no-op.
+     */
+    private fun markReadyAndConnected() {
+        if (_connectionState.value != ConnectionState.CONNECTING) return
+        writeReady = true
+        _connectionState.value = ConnectionState.CONNECTED
+        Log.i(TAG, "Connected (adapter=${wheelAdapter.familyId})")
+        com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+            "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
+        )
     }
 
     /**

@@ -44,7 +44,9 @@ class WearBridge @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val cheatState: com.eried.eucplanet.cheats.CheatState
+    private val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val externalGpsRepository: com.eried.eucplanet.data.repository.ExternalGpsRepository,
+    private val tripRepository: com.eried.eucplanet.data.repository.TripRepository
 ) {
     companion object {
         private const val TAG = "WearBridge"
@@ -69,8 +71,20 @@ class WearBridge @Inject constructor(
         private const val K_HAS_HORN = "ch"
         private const val K_HAS_LIGHT = "cl"
         private const val K_IMPERIAL = "im"
+        // Resolved per-unit string codes mirroring Units.effective*Unit on the
+        // phone: speed "kmh"/"mph"/"ms"/"kn", distance "km"/"mi"/"m"/"ft"/"mil",
+        // temperature "C"/"F"/"K". An older watch APK ignores these and falls
+        // back to K_IMPERIAL; a newer watch prefers them.
+        private const val K_UNIT_SPEED = "us"
+        private const val K_UNIT_DISTANCE = "ud"
+        private const val K_UNIT_TEMP = "ut"
         private const val K_ACCENT = "ac"
         private const val K_TIMESTAMP = "ts"
+        // GPS extra-speed readout, mirrors the phone dashboard's gpsExtraSpeed.
+        // K_GPS_SPEED is Float.NaN when there is nothing to show; K_GPS_SOURCE
+        // is "EXTERNAL" / "PHONE" / "" matching DashboardViewModel's sourceKey.
+        private const val K_GPS_SPEED = "gs"
+        private const val K_GPS_SOURCE = "gsr"
         // Watch-display option keys mirror WatchKeys.OPT_* on the wear side.
         private const val K_OPT_KEEP_ON = "wko"
         private const val K_OPT_SHOW_WHEEL_BATT = "wsb"
@@ -257,7 +271,13 @@ class WearBridge @Inject constructor(
                 // don't, gate these on WheelAdapter.capabilities. For now true.
                 dataMap.putBoolean(K_HAS_HORN, true)
                 dataMap.putBoolean(K_HAS_LIGHT, true)
-                dataMap.putBoolean(K_IMPERIAL, settings.imperialUnits)
+                // Resolved per-unit codes so the watch can honour knots / m/s /
+                // feet / Kelvin etc. K_IMPERIAL is kept as a coarse fallback for
+                // an out-of-date watch APK that predates these keys.
+                dataMap.putString(K_UNIT_SPEED, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings))
+                dataMap.putString(K_UNIT_DISTANCE, com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings))
+                dataMap.putString(K_UNIT_TEMP, com.eried.eucplanet.util.Units.effectiveTempUnit(settings))
+                dataMap.putBoolean(K_IMPERIAL, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings) == "mph")
                 dataMap.putString(K_ACCENT, settings.accentColor)
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
@@ -279,6 +299,11 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_SCREEN2_CLICK, settings.watchScreen2Click)
                 dataMap.putString(K_SCREEN2_HOLD, settings.watchScreen2Hold)
                 dataMap.putBoolean(K_HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+                // GPS extra speed: computed exactly like DashboardViewModel.
+                // gpsExtraSpeed so the watch mirrors the phone dashboard.
+                val gps = computeGpsExtraSpeed(settings)
+                dataMap.putFloat(K_GPS_SPEED, gps?.first ?: Float.NaN)
+                dataMap.putString(K_GPS_SOURCE, gps?.second ?: "")
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).
@@ -288,6 +313,32 @@ class WearBridge @Inject constructor(
             Wearable.getDataClient(context).putDataItem(request)
         } catch (e: Exception) {
             Log.w(TAG, "publish failed", e)
+        }
+    }
+
+    /**
+     * Snapshot of the dashboard's GPS extra-speed indicator for the watch.
+     *
+     * This is a deliberate, line-for-line mirror of
+     * [com.eried.eucplanet.ui.dashboard.DashboardViewModel.gpsExtraSpeed] —
+     * keep the two in sync if either changes. Returns a `Pair(speedKmh,
+     * sourceKey)` where sourceKey is "EXTERNAL" or "PHONE", or null when the
+     * dashboard would show nothing (feature off, hidden, or no fresh source).
+     */
+    private fun computeGpsExtraSpeed(settings: AppSettings): Pair<Float, String>? {
+        if (!settings.gpsLogAdditional || !settings.gpsShowOnDashboard) return null
+        val externalSample = externalGpsRepository.currentSample.value
+        val location = tripRepository.currentLocation.value
+        val externalFresh = externalSample != null &&
+            System.currentTimeMillis() - externalSample.timestamp < 5_000L
+        return when {
+            settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            location != null && location.hasSpeed() ->
+                (location.speed * 3.6f) to "PHONE"
+            !settings.gpsPrioritizeExternal && externalFresh ->
+                externalSample!!.speedKmh to "EXTERNAL"
+            else -> null
         }
     }
 

@@ -10,6 +10,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.widget.Toast
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -172,14 +173,25 @@ private fun MainScreen(state: WatchState, accent: Color) {
         val nowTickTop = rememberSecondTick()
         val phoneAlive = lastPushTop > 0 && (nowTickTop - lastPushTop) < 3000L
 
+        // Smoothly glide the displayed speed between telemetry pushes (~4-5 Hz)
+        // so the dial arc and the speed number track continuously instead of
+        // snapping. ~250 ms linear ≈ one update interval: no lag, no stutter.
+        // When telemetry goes stale the target drops to 0 and the animation to
+        // zero is fine — we never animate on top of a frozen frame.
+        val animatedSpeed by animateFloatAsState(
+            targetValue = if (phoneAlive) state.speedKmh else 0f,
+            animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+            label = "speed"
+        )
+
         // Full-bleed dial as the background frame. Color-band visibility and
         // its orange/red thresholds follow the phone's Display settings so the
         // two surfaces always agree. Arc collapses to zero when telemetry is
         // stale so a frozen "23 km/h" can't deceive a stopped rider.
         SpeedGauge(
-            speed = if (phoneAlive) state.speedKmh else 0f,
+            speed = animatedSpeed,
             maxSpeed = maxSpeed,
-            imperial = state.imperialUnits,
+            speedUnit = state.speedUnit,
             accent = accent,
             useAccent = state.accentKey != "default",
             showColorBand = state.showGaugeBand,
@@ -187,6 +199,8 @@ private fun MainScreen(state: WatchState, accent: Color) {
             redThresholdPct = state.gaugeRedThresholdPct,
             fullBleed = true,
             drawSpeedText = false,
+            gpsSpeedKmh = if (phoneAlive) state.gpsSpeedKmh else Float.NaN,
+            gpsDotColor = gpsSourceColor(state.gpsSource),
             modifier = Modifier.fillMaxSize()
         )
 
@@ -212,17 +226,17 @@ private fun MainScreen(state: WatchState, accent: Color) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
-                // Don't reveal a unit label until the phone has sent us its imperial flag —
-                // otherwise a watch booted before the phone app would default to km/h and
-                // confuse an mph user. Once phoneSynced flips true, the unit re-appears
-                // (subject to the user's showSpeedUnit setting).
+                // Don't reveal a unit label until the phone has sent us its unit
+                // codes — otherwise a watch booted before the phone app would
+                // default to km/h and confuse an mph user. Once phoneSynced flips
+                // true, the unit re-appears (subject to the showSpeedUnit setting).
                 // Hide the unit also when phone is stale — without telemetry
                 // we can't be honest about the value, so the label would lie.
                 val showUnit = state.showSpeedUnit && state.phoneSynced && phoneAlive
                 if (showUnit) {
                     // Invisible mirror keeps the speed glyph centred.
                     Text(
-                        text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
+                        text = WatchUnits.speedUnit(LocalContext.current, state.speedUnit),
                         fontSize = unitSp,
                         color = Color.Transparent,
                         modifier = Modifier.padding(bottom = (sw * 0.05f).coerceIn(12f, 18f).dp)
@@ -232,9 +246,11 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 val useAccent = state.accentKey != "default"
                 // Band ON → band tier wins (even over custom accent — it's a safety signal).
                 // Band OFF → custom accent wins, else safe-green.
+                // Use the animated speed so the number stays in lockstep with
+                // the gliding gauge arc above.
                 val speedTextColor = if (state.showGaugeBand) {
                     speedBandColor(
-                        state.speedKmh, maxSpeed,
+                        animatedSpeed, maxSpeed,
                         showBand = true,
                         state.gaugeOrangeThresholdPct,
                         state.gaugeRedThresholdPct
@@ -244,7 +260,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 // frozen number that might match their current speed by chance.
                 Text(
                     text = if (phoneAlive)
-                        "%.0f".format(WatchUnits.speed(state.speedKmh, state.imperialUnits))
+                        "%.0f".format(WatchUnits.speed(animatedSpeed, state.speedUnit))
                     else DASH,
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
@@ -253,7 +269,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                 if (showUnit) {
                     Spacer(Modifier.width(3.dp))
                     Text(
-                        text = WatchUnits.speedUnit(LocalContext.current, state.imperialUnits),
+                        text = WatchUnits.speedUnit(LocalContext.current, state.speedUnit),
                         fontSize = unitSp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFF9AA0A6),
@@ -414,16 +430,24 @@ private fun LoadBar(
         else -> safeColor
     }
     val trackColor = Color(0xFF333333)
+    // Glide the bar fill between telemetry pushes (~4-5 Hz) so it grows and
+    // shrinks smoothly instead of jumping. ~250 ms linear matches the speed
+    // gauge animation; the colour tier still flips instantly off the raw pct.
+    val animatedPct by animateFloatAsState(
+        targetValue = pct,
+        animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+        label = "pwmBar"
+    )
     Canvas(modifier = modifier) {
         val radius = size.height / 2f
         drawRoundRect(
             color = trackColor,
             cornerRadius = CornerRadius(radius, radius)
         )
-        if (pct > 0f) {
+        if (animatedPct > 0f) {
             drawRoundRect(
                 color = fillColor,
-                size = Size(size.width * pct / 100f, size.height),
+                size = Size(size.width * animatedPct / 100f, size.height),
                 cornerRadius = CornerRadius(radius, radius)
             )
         }
@@ -712,7 +736,6 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val labelWidth = (sw * 0.22f).coerceIn(60f, 90f).dp
         val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
 
-        val imperial = state.imperialUnits
         // Hide all unit labels until the phone has actually told us which unit
         // system the rider uses — otherwise an mph user sees km/h on launch and
         // assumes the wrong thing.
@@ -724,12 +747,12 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val lastPush by WatchStateRepository.lastPushAtMs.collectAsStateWithLifecycle()
         val nowTick = rememberSecondTick()
         val phoneAlive = lastPush > 0 && (nowTick - lastPush) < 3000L
-        val distUnit = if (unitsKnown && phoneAlive) WatchUnits.distanceUnit(imperial) else ""
-        val tempUnit = if (unitsKnown && phoneAlive) WatchUnits.tempUnit(imperial) else ""
-        val speedUnit = if (unitsKnown && phoneAlive) WatchUnits.speedUnit(LocalContext.current, imperial) else ""
-        val tripDisplay = WatchUnits.distance(state.tripKm, imperial)
-        val tempDisplay = WatchUnits.temperature(state.temperatureC, imperial)
-        val speedDisplay = WatchUnits.speed(state.speedKmh, imperial)
+        val distUnit = if (unitsKnown && phoneAlive) WatchUnits.distanceUnit(state.distanceUnit) else ""
+        val tempUnit = if (unitsKnown && phoneAlive) WatchUnits.tempUnit(state.tempUnit) else ""
+        val speedUnit = if (unitsKnown && phoneAlive) WatchUnits.speedUnit(LocalContext.current, state.speedUnit) else ""
+        val tripDisplay = WatchUnits.distance(state.tripKm, state.distanceUnit)
+        val tempDisplay = WatchUnits.temperature(state.temperatureC, state.tempUnit)
+        val speedDisplay = WatchUnits.speed(state.speedKmh, state.speedUnit)
         val powerW = state.voltage * state.current
 
         Column(

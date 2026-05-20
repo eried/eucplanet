@@ -234,7 +234,30 @@ class SettingsViewModel @Inject constructor(
 
     fun updateVoiceReportOrder(order: String) = update { copy(voiceReportOrder = order) }
 
-    fun updateImperialUnits(v: Boolean) = update { copy(imperialUnits = v) }
+    // Measurement units: speed, distance and temperature are independently
+    // selectable. Metric/Imperial/Custom is a derived label (see Units.unitSystemOf).
+    fun setUnitSpeed(v: String) = update { copy(unitSpeed = v) }
+    fun setUnitDistance(v: String) = update { copy(unitDistance = v) }
+    fun setUnitTemp(v: String) = update { copy(unitTemp = v) }
+
+    /** Sets all three per-unit fields at once from the Metric/Imperial preset. */
+    fun applyUnitPreset(imperial: Boolean) = update {
+        copy(
+            unitSpeed = if (imperial) "mph" else "kmh",
+            unitDistance = if (imperial) "mi" else "km",
+            unitTemp = if (imperial) "F" else "C"
+        )
+    }
+
+    /**
+     * Nudges an exact preset into a genuinely custom combo (knots + Norwegian
+     * mile) in ONE write, so tapping Custom actually lands on Custom. Two
+     * separate setUnit* calls would race — each reads settings independently
+     * and the last write wins — so only one field would stick.
+     */
+    fun applyCustomNudge() = update {
+        copy(unitSpeed = "kn", unitDistance = "mil")
+    }
 
     // Wear OS companion
     fun updateWatchKeepScreenOn(v: Boolean) = update { copy(watchKeepScreenOn = v) }
@@ -258,6 +281,7 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Click(action: String) = update { copy(watchScreen2Click = action) }
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
+    fun updateFasterRefresh(v: Boolean) = update { copy(fasterRefresh = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()

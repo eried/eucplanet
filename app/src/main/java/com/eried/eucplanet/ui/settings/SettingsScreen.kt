@@ -331,7 +331,7 @@ fun SettingsScreen(
     val corpusDisplay = listOf(
         titleDisplay,
         stringResource(R.string.section_display),
-        stringResource(R.string.imperial_units),
+        stringResource(R.string.units_label),
         stringResource(R.string.theme),
         stringResource(R.string.accent_color),
         stringResource(R.string.show_gauge_color_band),
@@ -769,9 +769,7 @@ private fun DisplayTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SwitchSetting(stringResource(R.string.imperial_units), settings.imperialUnits) {
-            viewModel.updateImperialUnits(it)
-        }
+        UnitsSetting(settings = settings, viewModel = viewModel)
 
         SwitchSetting(stringResource(R.string.phone_keep_screen_on), settings.phoneKeepScreenOn) {
             viewModel.updatePhoneKeepScreenOn(it)
@@ -817,6 +815,107 @@ private fun DisplayTab(
     }
 }
 
+/**
+ * Measurement-units control. Top row is a Metric / Imperial / Custom segmented
+ * selector whose selected segment is DERIVED from the three per-unit choices.
+ * Tapping Custom reveals the per-unit rows and, if the saved combo is an exact
+ * preset, nudges speed to knots and distance to Norwegian mile so the Custom
+ * segment genuinely selects.
+ * Tapping Metric or Imperial applies that preset but does NOT hide the rows
+ * once they are on screen. The rows start hidden on a fresh open unless the
+ * saved combo is Custom. Per-unit changes apply immediately.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UnitsSetting(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val currentSystem = Units.unitSystemOf(settings)
+    var expanded by remember {
+        mutableStateOf(currentSystem == Units.UnitSystem.CUSTOM)
+    }
+
+    val systemOptions = listOf(
+        Units.UnitSystem.METRIC to stringResource(R.string.units_metric),
+        Units.UnitSystem.IMPERIAL to stringResource(R.string.units_imperial),
+        Units.UnitSystem.CUSTOM to stringResource(R.string.units_custom)
+    )
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            stringResource(R.string.units_label),
+            style = MaterialTheme.typography.labelLarge
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            systemOptions.forEachIndexed { index, (value, label) ->
+                SegmentedButton(
+                    selected = value == currentSystem,
+                    onClick = {
+                        when (value) {
+                            // Apply the preset but keep the per-unit rows
+                            // visible if they are already on screen — only a
+                            // fresh reopen hides them (see [expanded] init).
+                            Units.UnitSystem.METRIC -> viewModel.applyUnitPreset(false)
+                            Units.UnitSystem.IMPERIAL -> viewModel.applyUnitPreset(true)
+                            Units.UnitSystem.CUSTOM -> {
+                                // Tapping Custom must actually land on Custom.
+                                // If the saved combo is an exact preset, nudge
+                                // speed to knots and distance to Norwegian mile
+                                // so the Custom segment selects; an already-
+                                // custom combo is left as the user saved it.
+                                if (currentSystem != Units.UnitSystem.CUSTOM) {
+                                    viewModel.applyCustomNudge()
+                                }
+                                expanded = true
+                            }
+                        }
+                    },
+                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size)
+                ) { Text(label) }
+            }
+        }
+
+        if (expanded) {
+            BringIntoViewSection(expanded = true, spacing = 8.dp) {
+                SimpleDropdown(
+                    label = stringResource(R.string.units_speed),
+                    currentKey = Units.effectiveSpeedUnit(settings),
+                    options = listOf(
+                        "kmh" to stringResource(R.string.units_speed_kmh),
+                        "mph" to stringResource(R.string.units_speed_mph),
+                        "ms" to stringResource(R.string.units_speed_ms),
+                        "kn" to stringResource(R.string.units_speed_kn)
+                    ),
+                    onSelect = { viewModel.setUnitSpeed(it) }
+                )
+                SimpleDropdown(
+                    label = stringResource(R.string.units_distance),
+                    currentKey = Units.effectiveDistanceUnit(settings),
+                    options = listOf(
+                        "km" to stringResource(R.string.units_distance_km),
+                        "mi" to stringResource(R.string.units_distance_mi),
+                        "m" to stringResource(R.string.units_distance_m),
+                        "ft" to stringResource(R.string.units_distance_ft),
+                        "mil" to stringResource(R.string.units_distance_mil)
+                    ),
+                    onSelect = { viewModel.setUnitDistance(it) }
+                )
+                SimpleDropdown(
+                    label = stringResource(R.string.units_temperature),
+                    currentKey = Units.effectiveTempUnit(settings),
+                    options = listOf(
+                        "C" to stringResource(R.string.units_temp_c),
+                        "F" to stringResource(R.string.units_temp_f),
+                        "K" to stringResource(R.string.units_temp_k)
+                    ),
+                    onSelect = { viewModel.setUnitTemp(it) }
+                )
+            }
+        }
+    }
+}
+
 // --- Speed Tab ---
 
 @Composable
@@ -834,7 +933,7 @@ private fun SpeedTab(
             InfoHint(stringResource(R.string.speed_limits_disconnected))
         }
 
-        val imperial = settings.imperialUnits
+        val speedUnit = Units.effectiveSpeedUnit(settings)
 
         // --- Speed calibration ---
         // Sits ABOVE the speed-limit sliders since the calibrated value is
@@ -860,7 +959,7 @@ private fun SpeedTab(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
             rangeKmh = 10f..maxSpeedCap,
-            imperial = imperial,
+            speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
         )
@@ -868,7 +967,7 @@ private fun SpeedTab(
             label = stringResource(R.string.speed_alarm),
             valueKmh = settings.alarmSpeedKmh,
             rangeKmh = 10f..settings.tiltbackSpeedKmh,
-            imperial = imperial,
+            speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
         )
@@ -879,7 +978,7 @@ private fun SpeedTab(
             label = stringResource(R.string.speed_legal_tiltback),
             valueKmh = settings.safetyTiltbackKmh,
             rangeKmh = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
-            imperial = imperial,
+            speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
         )
@@ -887,7 +986,7 @@ private fun SpeedTab(
             label = stringResource(R.string.speed_legal_alarm),
             valueKmh = settings.safetyAlarmKmh,
             rangeKmh = 10f..settings.safetyTiltbackKmh,
-            imperial = imperial,
+            speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
         )
@@ -1007,8 +1106,12 @@ private fun VoiceTab(
         // Preview must match what the voice actually says — imperial users
         // get the miles variant so the page can't lie about the format.
         val sTripEx = stringResource(
-            if (settings.imperialUnits) R.string.voice_trip_miles_fmt else R.string.voice_trip_fmt,
-            "12.3"
+            when (Units.effectiveDistanceUnit(settings)) {
+                "mi" -> R.string.voice_trip_miles_fmt
+                "m" -> R.string.voice_trip_meters_fmt
+                else -> R.string.voice_trip_fmt
+            },
+            if (Units.effectiveDistanceUnit(settings) == "m") "12300" else "12.3"
         )
         val sRecOn = stringResource(R.string.voice_recording_on)
         val sRecOff = stringResource(R.string.voice_recording_off)
@@ -1327,6 +1430,12 @@ private fun WatchTab(
             description = stringResource(R.string.watch_keep_on_desc),
             checked = settings.watchKeepScreenOn,
             onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
+        )
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.faster_refresh),
+            description = stringResource(R.string.faster_refresh_desc),
+            checked = settings.fasterRefresh,
+            onCheckedChange = { viewModel.updateFasterRefresh(it) }
         )
 
         SectionHeader(stringResource(R.string.section_watch_display))
@@ -1954,21 +2063,21 @@ private fun SpeedSliderSetting(
     label: String,
     valueKmh: Float,
     rangeKmh: ClosedFloatingPointRange<Float>,
-    imperial: Boolean,
+    speedUnit: String,
     enabled: Boolean = true,
     onValueChangeKmh: (Float) -> Unit
 ) {
-    val displayValue = Units.speed(valueKmh, imperial)
-    val displayStart = Units.speed(rangeKmh.start, imperial)
-    val displayEnd = Units.speed(rangeKmh.endInclusive, imperial)
+    val displayValue = Units.speed(valueKmh, speedUnit)
+    val displayStart = Units.speed(rangeKmh.start, speedUnit)
+    val displayEnd = Units.speed(rangeKmh.endInclusive, speedUnit)
     SliderSetting(
         label = label,
         value = displayValue,
         range = displayStart..displayEnd,
-        unit = Units.speedUnit(LocalContext.current, imperial),
+        unit = Units.speedUnit(LocalContext.current, speedUnit),
         enabled = enabled,
         onValueChange = { displayed ->
-            val kmh = if (imperial) displayed / 0.621371f else displayed
+            val kmh = Units.speedToKmh(displayed, speedUnit)
             onValueChangeKmh(kmh.coerceIn(rangeKmh))
         }
     )
@@ -2333,7 +2442,7 @@ private fun EngineSoundSection(
         }
         EngineSpeedVolumeCurveEditor(
             points = enginePoints,
-            useImperial = settings.imperialUnits,
+            speedUnit = Units.effectiveSpeedUnit(settings),
             onPointsChanged = { newPoints ->
                 enginePoints = newPoints
                 viewModel.updateEngineVolumeAutoCurve(com.eried.eucplanet.service.encodeVolumeCurve(newPoints))
@@ -2757,11 +2866,11 @@ private fun ActionDropdown(
 @Composable
 private fun EngineSpeedVolumeCurveEditor(
     points: List<Pair<Float, Float>>,
-    useImperial: Boolean,
+    speedUnit: String,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit
 ) {
     val maxSpeed = 75f
-    val speedUnitLabel = if (useImperial) "mph" else "km/h"
+    val speedUnitLabel = Units.speedUnit(LocalContext.current, speedUnit)
     val minMult = 0f
     val maxMult = 1f
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
@@ -2851,7 +2960,7 @@ private fun EngineSpeedVolumeCurveEditor(
                 val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
                 val speedKmh = maxSpeed * i / 3
-                val displaySpeed = Units.speed(speedKmh, useImperial)
+                val displaySpeed = Units.speed(speedKmh, speedUnit)
                 val label = "${displaySpeed.roundToInt()}"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
@@ -2904,7 +3013,7 @@ private fun EngineSpeedVolumeCurveEditor(
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f))
                 )
                 drawCircle(color = lineColor, radius = 6f, center = Offset(px, py))
-                val displayProbe = Units.speed(currentProbe, useImperial).roundToInt()
+                val displayProbe = Units.speed(currentProbe, speedUnit).roundToInt()
                 val probeLabel = "$displayProbe $speedUnitLabel → ${(probeMult * 100).roundToInt()}%"
                 val probeMeasured = textMeasurer.measure(
                     probeLabel,

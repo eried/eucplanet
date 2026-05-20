@@ -223,7 +223,7 @@ fun AutomationsContent(
 
             SplineCurveEditor(
                 points = normalizedPoints,
-                useImperial = settings.imperialUnits,
+                speedUnit = Units.effectiveSpeedUnit(settings),
                 onPointsChanged = { newPoints ->
                     points = newPoints
                     viewModel.updateAutoVolumeCurve(encodeVolumeCurve(newPoints))
@@ -417,11 +417,11 @@ private fun SunScheduleGraph(
 @Composable
 private fun SplineCurveEditor(
     points: List<Pair<Float, Float>>,
-    useImperial: Boolean,
+    speedUnit: String,
     onPointsChanged: (List<Pair<Float, Float>>) -> Unit
 ) {
     val maxSpeed = 75f
-    val speedUnitLabel = if (useImperial) "mph" else "km/h"
+    val speedUnitLabel = Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
     val minMultiplier = 1f
     val maxMultiplier = 2f
     val multiplierRange = maxMultiplier - minMultiplier
@@ -516,7 +516,7 @@ private fun SplineCurveEditor(
                 val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
                 val speedKmh = maxSpeed * i / 3
-                val displaySpeed = Units.speed(speedKmh, useImperial)
+                val displaySpeed = Units.speed(speedKmh, speedUnit)
                 val label = "${displaySpeed.roundToInt()}"
                 val measured = textMeasurer.measure(label, TextStyle(fontSize = 9.sp, color = labelColor))
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
@@ -571,7 +571,7 @@ private fun SplineCurveEditor(
                 )
                 drawCircle(color = lineColor, radius = 6f, center = Offset(px, py))
 
-                val displayProbe = Units.speed(currentProbe, useImperial).roundToInt()
+                val displayProbe = Units.speed(currentProbe, speedUnit).roundToInt()
                 val probeLabel = "$displayProbe $speedUnitLabel \u2192 ${"%.2f".format(probeMult)}x"
                 val probeMeasured = textMeasurer.measure(
                     probeLabel,

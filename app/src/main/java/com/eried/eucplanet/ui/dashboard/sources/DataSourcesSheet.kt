@@ -73,7 +73,7 @@ import com.eried.eucplanet.util.Units
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DataSourcesSheet(
-    imperial: Boolean,
+    speedUnit: String,
     onDismiss: () -> Unit,
     viewModel: DataSourcesViewModel = hiltViewModel()
 ) {
@@ -149,7 +149,7 @@ fun DataSourcesSheet(
                         DataSource.RACEBOX -> racebox
                         else -> emptyList()
                     },
-                    imperial = imperial
+                    speedUnit = speedUnit
                 )
             } else {
                 val b = compareWith ?: DataSource.PHONE
@@ -161,7 +161,7 @@ fun DataSourcesSheet(
                         snapshots = snapshots,
                         a = selectedSource,
                         b = b,
-                        imperial = imperial
+                        speedUnit = speedUnit
                     )
                 }
             }
@@ -376,10 +376,14 @@ private fun SourceTab(
     source: DataSource,
     snapshot: SourceSnapshot,
     trail: List<Offset>,
-    imperial: Boolean
+    speedUnit: String
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val speedUnit = Units.speedUnit(context, imperial)
+    val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    // Vertical speed, accuracy and inter-fix distance are secondary GPS
+    // fields with their own metric-vs-imperial helpers; an m/s phone
+    // speed setting still reads metric there.
+    val imperial = speedUnit == "mph"
     // 1-second wall-clock tick. Drives the "Last update Xs ago" line so the
     // elapsed time stays accurate without the snapshot re-emitting.
     var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -392,7 +396,7 @@ private fun SourceTab(
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         ValueRow(
             label = stringResource(com.eried.eucplanet.R.string.sources_speed),
-            value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, imperial), speedUnit) },
+            value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, speedUnit), speedUnitLabel) },
             color = source.color
         )
         if (source.hasPosition) {
@@ -694,10 +698,12 @@ private fun CompareTab(
     snapshots: Map<DataSource, SourceSnapshot>,
     a: DataSource,
     b: DataSource,
-    imperial: Boolean
+    speedUnit: String
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val speedUnit = Units.speedUnit(context, imperial)
+    val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    // Inter-fix distance uses its own metric-vs-imperial helper.
+    val imperial = speedUnit == "mph"
     val snapA = snapshots[a] ?: SourceSnapshot()
     val snapB = snapshots[b] ?: SourceSnapshot()
 
@@ -731,9 +737,9 @@ private fun CompareTab(
         // Snapshot speeds come from WheelRepository which already applies
         // the calibration (it's the value on the dial), so use them as-is.
         val speedDeltaCurrent = if (snapA.speedKmh != null && snapB.speedKmh != null)
-            Units.speed(snapB.speedKmh - snapA.speedKmh, imperial) else null
+            Units.speed(snapB.speedKmh - snapA.speedKmh, speedUnit) else null
         val speedDeltaAvg = computeAverageDeltaKmh(speedSeriesA, speedSeriesB)
-            ?.let { Units.speed(it, imperial) }
+            ?.let { Units.speed(it, speedUnit) }
 
         // Proposal math: use the RAW wheel buffer (not the calibrated one)
         // so the result is idempotent. Once the rider tunes calibration
@@ -768,8 +774,8 @@ private fun CompareTab(
             seriesB = speedSeriesB,
             colorA = a.color,
             colorB = b.color,
-            unit = speedUnit,
-            transform = { Units.speed(it, imperial) },
+            unit = speedUnitLabel,
+            transform = { Units.speed(it, speedUnit) },
             deltaCurrent = speedDeltaCurrent,
             deltaAvg = speedDeltaAvg,
             chartHeight = 200.dp,

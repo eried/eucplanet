@@ -30,7 +30,8 @@ import kotlin.math.sin
 fun SpeedGauge(
     speed: Float,
     maxSpeed: Float,
-    imperial: Boolean,
+    /** Rider's speed unit code: "kmh" / "mph" / "ms" / "kn". */
+    speedUnit: String,
     accent: Color,
     /** Matches the phone's overrideColor semantics. When true the accent
      *  paints the speed arc + number; when false (i.e. accentKey == "default"
@@ -50,6 +51,10 @@ fun SpeedGauge(
      *  them as composables (useful when overlaying buttons that need to
      *  share the inner area). */
     drawSpeedText: Boolean = true,
+    /** GPS extra-speed marker: a dot is drawn on the arc at this speed.
+     *  NaN hides it. Colour comes from [gpsDotColor]. */
+    gpsSpeedKmh: Float = Float.NaN,
+    gpsDotColor: Color = Color.Transparent,
     modifier: Modifier = Modifier
 ) {
     // Speed-arc colour rule (matches phone dashboard exactly):
@@ -68,12 +73,12 @@ fun SpeedGauge(
     }
     val textMeasurer = rememberTextMeasurer()
 
-    val displaySpeed = WatchUnits.speed(speed, imperial)
-    val displayMax = WatchUnits.speed(maxSpeed, imperial)
+    val displaySpeed = WatchUnits.speed(speed, speedUnit)
+    val displayMax = WatchUnits.speed(maxSpeed, speedUnit)
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = WatchUnits.speedUnit(LocalContext.current, imperial)
+    val unitLabel = WatchUnits.speedUnit(LocalContext.current, speedUnit)
 
     Canvas(modifier = modifier) {
         val dim = size.minDimension
@@ -141,6 +146,22 @@ fun SpeedGauge(
                 size = Size(arcRadius * 2, arcRadius * 2),
                 style = Stroke(width = arcThickness, cap = StrokeCap.Round)
             )
+        }
+
+        // GPS extra-speed marker: a dot on the arc at the angle matching the
+        // phone / external GPS speed, mirroring the phone dashboard's dot.
+        if (!gpsSpeedKmh.isNaN()) {
+            val gpsFrac = (gpsSpeedKmh / safeMaxSpeed).coerceIn(0f, 1f)
+            val gpsAngle = startAngle + sweepTotal * gpsFrac
+            val gpsRad = Math.toRadians(gpsAngle.toDouble())
+            val dotRadius = arcThickness * 0.45f
+            val dotCenter = Offset(
+                center.x + arcRadius * cos(gpsRad).toFloat(),
+                center.y + arcRadius * sin(gpsRad).toFloat()
+            )
+            // Black halo for contrast against any arc colour, then the dot.
+            drawCircle(color = Color.Black, radius = dotRadius * 1.45f, center = dotCenter)
+            drawCircle(color = gpsDotColor, radius = dotRadius, center = dotCenter)
         }
 
         // Tick marks on outside of arc

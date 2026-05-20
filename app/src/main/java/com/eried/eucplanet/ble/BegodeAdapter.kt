@@ -129,6 +129,12 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
         if (ascii != null) {
             if (ascii.firmware != null && detectedFirmware == null) {
                 detectedFirmware = ascii.firmware
+                // CF (Freestyl3r) and BF (SmirnoV) firmware populate a real
+                // hardware-PWM field at frame 0x00 offset 14; stock GW and
+                // ExtremeBull JN do not (spec 7.3 / 7.4). Tell the parser
+                // which reading to trust vs derive.
+                parser.hwPwmFirmware =
+                    ascii.firmware.startsWith("CF") || ascii.firmware.startsWith("BF")
                 results += DecodeResult.Firmware(
                     display = ascii.firmware,
                     mainBoard = ascii.firmware,

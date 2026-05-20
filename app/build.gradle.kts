@@ -27,13 +27,24 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 97
-        versionName = "0.7.1"
+        versionCode = 99
+        versionName = "0.7.2"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
             .format(Date())
         buildConfigField("String", "BUILD_STAMP", "\"$buildStamp\"")
+
+        // Current git branch, baked in at build time so the About dialog can
+        // show which branch a build came from. Empty when git isn't available;
+        // the UI hides the tag for "main" / detached HEAD.
+        val gitBranch = try {
+            val process = ProcessBuilder("git", "rev-parse", "--abbrev-ref", "HEAD").start()
+            val out = process.inputStream.bufferedReader().use { it.readText().trim() }
+            process.waitFor()
+            if (process.exitValue() == 0) out else ""
+        } catch (e: Exception) { "" }
+        buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
     }
 
     signingConfigs {

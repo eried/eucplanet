@@ -1,91 +1,54 @@
-# external-gps
+# size-optimization
 
-External BLE GPS support (RaceBox) for ground-truth speed verification
-and wheel calibration, plus Compare-tab tooling and the usual polish.
+Shrinks the app from 86 MB to roughly 18 MB with no behaviour change. Two
+independent levers: R8 code shrinking and engine-sound audio re-encoding.
 
 ## What's new
 
-**External GPS (RaceBox Mini / Mini S / Pro)**
-- Pair in Settings → Integration → External GPS.
-- Purple speed dot on the dial + "GPS X.X" readout under the main speed.
-- `Ext GPS speed` column in trip CSVs, purple overlay on the trip chart.
-- **E** indicator top-right: dim when stale, lit when sending, hidden when
-  no external GPS is paired.
-- Post-connect handshake matches the official RaceBox app: MTU 247,
-  high connection priority, MGA-INI-TIME + MGA-INI-POS assistance
-  writes. Without these the GNSS does a cold-start sky search (30 to
-  90 s), which is why riders reported "no fix unless the official
-  RaceBox app was launched first."
-- Auto-(re)connect on app start and after a connection drop, with
-  backoff 1.5 / 5 / 10 / 30 s. Explicit Disconnect from Settings
-  vetoes the loop until the rider taps Reconnect.
+**R8 code shrinking**
+- Release builds now run R8 with `isMinifyEnabled` and `isShrinkResources`.
+  Dead-code elimination strips the ~4,900 unused `material-icons-extended`
+  icons (only 67 are used) plus every unreachable path in Compose, Hilt,
+  Room, ExoPlayer and play-services. DEX drops from 53 MB to 5.6 MB.
+- Obfuscation stays OFF (`-dontobfuscate`). Class and method names are
+  kept, so Service Mode diagnostic dumps and crash traces stay readable
+  without a mapping file.
+- Keep rules added for the Flic2 SDK and for enum `valueOf()` lookups.
 
-**Live data sources sheet (tap the GPS icon)**
-- Phone / Wheel / External tabs + a Compare tab.
-- Compare auto-decalibrates the wheel speed so wheel-vs-GPS delta reflects
-  the real sensor offset, not the residual after the current calibration.
-- A/B selection persists across sheet open/close. Compare auto-picks
-  B (Wheel vs External, falling back to Phone) only when A changed
-  since the last entry; toggling Compare off and on restores the
-  rider's previous picks.
-- **Calibrate wheel** stays enabled whenever the wheel reports motion.
+**Engine-sound audio re-encode**
+- The engine clips were mono drones encoded at 210 to 290 kbps. They are
+  re-encoded to roughly 96 kbps mono Vorbis; the two `.mp3` source clips
+  are converted to `.ogg`. Audio drops from 30 MB to 10.7 MB.
+- Clip durations are preserved to the millisecond, so every engine-sound
+  composition still lines up exactly. No audible change is expected on a
+  phone speaker, but verify by ear.
 
-**Wheel parameters**
-- Speed calibration range widened from ±5 % to ±15 %.
-- Per-wheel profiles (keyed by BLE name) restore tiltback / alarm /
-  calibration automatically on reconnect.
-
-**Dashboard polish**
-- Lock Wheel stays enabled at all speeds; tap while moving shows a
-  "Slow down to lock the wheel" toast. Repository still hard-blocks the
-  actual lock command on every entry path.
-
-**Begode imperial fix**
-- Begode firmware emits mph-scaled bytes when the wheel's screen is set
-  to imperial. EUC Planet now reads the units flag and converts back to
-  km internally so speed reads correctly in either app unit setting.
-
-**Protocol parity pass (v0.6.6)**
-- Cross-referenced our Veteran, InMotion V1, InMotion V2, KingSong,
-  Begode and Ninebot parsers against the WheelLog reference.
-- Veteran: post-Sherman models (Patton, Sherman L, Lynx S, Nosfet
-  Aero/Apex/Aeon, Oryx) now resolve from the wheel-reported firmware
-  major version; ABRAMS nominal voltage corrected.
-- InMotion V1: V10 family now identifies correctly from slow-info
-  (was reading the model byte as packed BCD); serial number now
-  matches the chassis label.
-- InMotion V2 V12 HS/HT/Pro: light and alarm-speed commands routed
-  through the dedicated two-beam / two-tier builders.
-- Ninebot: light and DRL toggles preserve the other DriveFlags bits
-  instead of clobbering them.
-- KingSong: 0xA9 frame distance routes to total odometer (was trip).
-- Begode: battery current sign aligned with the reference.
+Release APK: 86.4 MB to 17.6 MB.
 
 ## Who should test this
 
-- RaceBox owners: pairing, dial overlay, Compare tab, CSV column.
-- Begode riders: flip the wheel display to imperial via the Begode app,
-  then check EUC Planet reads correct speed in both metric and imperial
-  app modes.
-- Everyone else: confirm dashboard / Compare / Lock Wheel still behave
-  normally without an external GPS paired.
+- Everyone: confirm the app installs, opens, connects to a wheel and the
+  dashboard updates normally.
+- Motor-sound users: cycle through the engine presets and the multi-section
+  compositions; confirm every preset still plays cleanly with no gaps,
+  clicks or wrong-pitch sections.
+- If a crash happens, confirm the Service Mode diagnostic dump still shows
+  readable class names (that is the point of keeping obfuscation off).
 
 ## Known gaps
 
-- Full AGPS (MGA-GPS-EPH ephemeris from u-blox AssistNow) is not yet
-  wired up. INI-TIME + INI-POS alone trim cold-start from 90 s to
-  about 15 to 20 s, but a fresh-boot RaceBox still needs sky time
-  before its first fix. AssistNow Online integration is a separate
-  follow-up.
-- Dial upper bound still scales to wheel max; a faster external source
-  will pin at the top.
+- Four `src_fs_*` source clips were already at a low bitrate and were left
+  untouched. Further size could be recovered by trimming the unused head
+  and tail of the long source clips, but that needs offset recomputation
+  and was left out of this branch.
+- The Wear OS module is unchanged; only the phone app is optimized.
 
 ## How to install
 
-Debug-signed CI build. Uninstall any Play Store install first, then
-install this APK. Reinstalling from Play later overwrites this build.
+Release-signed build. Install the APK directly; it replaces any earlier
+EUC Planet install. Reinstalling from Play later overwrites this build.
 
 ## Feedback
 
 Open an issue at https://github.com/eried/eucplanet/issues tagged
-`branch:external-gps`.
+`branch:size-optimization`.
