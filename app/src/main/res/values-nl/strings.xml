@@ -123,7 +123,6 @@
     <string name="watch_prioritize_pwm">PWM voorrang geven</string>
     <string name="watch_prioritize_pwm_desc">Maakt de PWM-balk en het getal groter dan de snelheid</string>
     <string name="watch_dial_rotation">Wijzerplaatrotatie</string>
-    <string name="watch_dial_rotation_range">-90° tot 90°</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Klik</string>

@@ -123,7 +123,6 @@
     <string name="watch_prioritize_pwm">Prioritize PWM</string>
     <string name="watch_prioritize_pwm_desc">Make the PWM bar and number larger than the speed</string>
     <string name="watch_dial_rotation">Dial rotation</string>
-    <string name="watch_dial_rotation_range">-90° to 90°</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Click</string>

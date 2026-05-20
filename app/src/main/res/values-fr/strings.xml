@@ -514,7 +514,6 @@
     <string name="watch_prioritize_pwm">Prioriser le PWM</string>
     <string name="watch_prioritize_pwm_desc">Rend la barre et le chiffre PWM plus grands que la vitesse</string>
     <string name="watch_dial_rotation">Rotation du cadran</string>
-    <string name="watch_dial_rotation_range">-90° à 90°</string>
     <string name="watch_show_watch_battery">Afficher la batterie de la montre</string>
     <string name="watch_show_wheel_battery">Afficher la batterie de la roue</string>
     <string name="flic_action_record_start">Démarrer l\'enregistrement de trajet</string>

@@ -1505,13 +1505,14 @@ private fun WatchTab(
         )
         SliderSetting(
             label = "",
-            // Fixed range on the value side — the live angle is intentionally
-            // not shown; the slider thumb position is the only angle feedback.
-            valueText = stringResource(R.string.watch_dial_rotation_range),
+            // Fixed -90 / 90 captions under the slider ends; the live angle is
+            // intentionally not shown — the thumb position is the feedback.
             value = settings.watchDialRotationDeg.toFloat(),
             range = -90f..90f,
             unit = "°",
             steps = 35,                         // 36 segments → -90,-85,…,+90
+            minLabel = "-90",
+            maxLabel = "90",
             onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
         )
 
@@ -2095,22 +2096,29 @@ private fun SliderSetting(
     format: String = "%.0f",
     valueText: String? = null,
     enabled: Boolean = true,
+    minLabel: String? = null,
+    maxLabel: String? = null,
     onValueChange: (Float) -> Unit
 ) {
+    // Endpoint-label mode (minLabel/maxLabel) replaces the label + value header
+    // with fixed captions under the slider's two ends — no live readout.
+    val endpointMode = minLabel != null || maxLabel != null
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    valueText ?: "${format.format(value)} $unit",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            if (!endpointMode) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        valueText ?: "${format.format(value)} $unit",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
             val computedSteps = steps
                 ?: ((range.endInclusive - range.start) - 1).toInt().coerceAtLeast(0)
@@ -2121,6 +2129,23 @@ private fun SliderSetting(
                 steps = computedSteps,
                 enabled = enabled
             )
+            if (endpointMode) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        minLabel ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        maxLabel ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
     }
 }

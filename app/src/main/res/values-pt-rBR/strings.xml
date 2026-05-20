@@ -123,7 +123,6 @@
     <string name="watch_prioritize_pwm">Priorizar PWM</string>
     <string name="watch_prioritize_pwm_desc">Faz a barra e o número de PWM ficarem maiores que a velocidade</string>
     <string name="watch_dial_rotation">Rotação do mostrador</string>
-    <string name="watch_dial_rotation_range">-90° a 90°</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Clique</string>
