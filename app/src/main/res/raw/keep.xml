@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Engine-sound audio is loaded by name through Resources.getIdentifier(),
+     which the resource shrinker cannot trace. Without this every raw/*.ogg
+     and *.mp3 would be stripped and the motor-sound feature would silently
+     break. raw/license is referenced directly via R.raw.license and is safe. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@raw/engine_*,@raw/src_*,@raw/sfx_*" />
