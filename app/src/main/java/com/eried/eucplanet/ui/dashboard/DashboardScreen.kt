@@ -191,6 +191,12 @@ fun DashboardScreen(
     val connectedBrand by viewModel.connectedBrand.collectAsState()
     val wheelNameDisplay by viewModel.wheelNameDisplay.collectAsState()
     val firmwareVersion by viewModel.firmwareVersion.collectAsState()
+    // Model name with the brand word dropped from the front ("InMotion V14
+    // 50GB" -> "V14 50GB"). Brand tokens baked into the model id (e.g. KS-S22)
+    // aren't a leading "<brand> " word, so they're left intact.
+    val modelNameShort = modelName?.let { m ->
+        connectedBrand?.let { b -> m.removePrefix("$b ") } ?: m
+    }
     val speedUnit by viewModel.speedUnit.collectAsState()
     val distanceUnit by viewModel.distanceUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
@@ -278,7 +284,7 @@ fun DashboardScreen(
     }
 
     if (showDisconnectDialog) {
-        val wheelLabel = modelName ?: connectedDeviceName
+        val wheelLabel = modelNameShort ?: connectedDeviceName
             ?: stringResource(R.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
@@ -346,7 +352,7 @@ fun DashboardScreen(
                                 ConnectionState.CONNECTED -> when (wheelNameDisplay) {
                                     "NONE" -> connectedLabel
                                     "BRAND" -> connectedBrand ?: connectedDeviceName ?: connectedLabel
-                                    else -> modelName ?: connectedDeviceName ?: connectedLabel
+                                    else -> modelNameShort ?: connectedDeviceName ?: connectedLabel
                                 }
                                 ConnectionState.CONNECTING -> connectingLabel
                                 ConnectionState.INITIALIZING -> initLabel
