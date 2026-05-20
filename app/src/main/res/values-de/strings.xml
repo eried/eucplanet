@@ -481,7 +481,7 @@
     <string name="auto_connect_caption">Verbindet sich automatisch wieder mit dem zuletzt gekoppelten Rad</string>
     <string name="wheel_name_display">Radname</string>
     <string name="wheel_name_none">Keine</string>
-    <string name="wheel_name_model">Modell</string>
+    <string name="wheel_name_model">Name</string>
     <string name="wheel_name_brand">Marke</string>
     <string name="discard_trip_pending_label">Fahrt wird gleich gesichert</string>
     <string name="experimental_banner">Vorläufig unterstütztes Rad. Tippe, um Probleme zu melden.</string>

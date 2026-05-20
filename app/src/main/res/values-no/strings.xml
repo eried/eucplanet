@@ -482,7 +482,7 @@
     <string name="auto_connect_caption">Kobler automatisk til det sist parede hjulet på nytt</string>
     <string name="wheel_name_display">Hjulnavn</string>
     <string name="wheel_name_none">Ingen</string>
-    <string name="wheel_name_model">Modell</string>
+    <string name="wheel_name_model">Navn</string>
     <string name="wheel_name_brand">Merke</string>
     <string name="discard_trip_pending_label">Turen blir sikkerhetskopiert snart</string>
     <string name="experimental_banner">Foreløpig støttet hjul. Trykk for å rapportere problemer.</string>

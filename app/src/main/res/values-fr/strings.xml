@@ -131,7 +131,7 @@
     <string name="auto_connect_caption">Se reconnecte automatiquement à la dernière roue appairée</string>
     <string name="wheel_name_display">Nom de la roue</string>
     <string name="wheel_name_none">Aucun</string>
-    <string name="wheel_name_model">Modèle</string>
+    <string name="wheel_name_model">Nom</string>
     <string name="wheel_name_brand">Marque</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="section_application">Application</string>

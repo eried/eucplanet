@@ -71,7 +71,22 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
             // round-trip. The serial fills in later when 0x06 lands.
             return DecodeResult.ModelName("InMotion P6", InMotionV2Model.P6)
         }
-        return null
+        // Coarse model straight from the BLE advertised name: V11/V12/V13
+        // carry "V1x", the V14 advertises as "Adventure-...". The carType
+        // frame (cmd 02/01) refines this to the exact variant ("InMotion
+        // V14 50S") when it decodes; until then this is what the dashboard
+        // shows. No typed model is set here — command dispatch still waits
+        // for carType so V12/V11 sub-variants are never guessed.
+        val n = deviceName?.lowercase() ?: return null
+        val nameModel = when {
+            "adventure" in n -> "InMotion V14 Adventure"
+            "v14" in n -> "InMotion V14"
+            "v13" in n -> "InMotion V13"
+            "v12" in n -> "InMotion V12"
+            "v11" in n -> "InMotion V11"
+            else -> null
+        }
+        return nameModel?.let { DecodeResult.ModelName(it, null) }
     }
 
     override fun initSequence(): List<ByteArray> {

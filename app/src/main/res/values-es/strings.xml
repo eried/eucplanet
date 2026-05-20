@@ -482,7 +482,7 @@
     <string name="auto_connect_caption">Reconecta automáticamente a la última rueda emparejada</string>
     <string name="wheel_name_display">Nombre de la rueda</string>
     <string name="wheel_name_none">Ninguno</string>
-    <string name="wheel_name_model">Modelo</string>
+    <string name="wheel_name_model">Nombre</string>
     <string name="wheel_name_brand">Marca</string>
     <string name="discard_trip_pending_label">El viaje se respaldará en breve</string>
     <string name="experimental_banner">Soporte preliminar para esta rueda. Toca para reportar problemas.</string>

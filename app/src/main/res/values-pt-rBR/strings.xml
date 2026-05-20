@@ -192,7 +192,7 @@
     <string name="auto_connect_caption">Reconecta automaticamente à última roda pareada</string>
     <string name="wheel_name_display">Nome da roda</string>
     <string name="wheel_name_none">Nenhum</string>
-    <string name="wheel_name_model">Modelo</string>
+    <string name="wheel_name_model">Nome</string>
     <string name="wheel_name_brand">Marca</string>
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="section_application">Aplicativo</string>

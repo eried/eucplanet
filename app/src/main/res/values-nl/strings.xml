@@ -192,7 +192,7 @@
     <string name="auto_connect_caption">Verbindt automatisch opnieuw met het laatst gekoppelde wiel</string>
     <string name="wheel_name_display">Wielnaam</string>
     <string name="wheel_name_none">Geen</string>
-    <string name="wheel_name_model">Model</string>
+    <string name="wheel_name_model">Naam</string>
     <string name="wheel_name_brand">Merk</string>
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="section_application">Toepassing</string>

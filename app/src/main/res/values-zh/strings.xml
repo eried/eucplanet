@@ -131,7 +131,7 @@
     <string name="auto_connect_caption">自动重连上次配对的车轮。</string>
     <string name="wheel_name_display">轮子名称</string>
     <string name="wheel_name_none">无</string>
-    <string name="wheel_name_model">型号</string>
+    <string name="wheel_name_model">名称</string>
     <string name="wheel_name_brand">品牌</string>
     <string name="last_device">上次设备:%1$s</string>
     <string name="section_application">应用</string>

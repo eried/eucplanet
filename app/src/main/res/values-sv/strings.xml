@@ -131,7 +131,7 @@
     <string name="auto_connect_caption">Återansluter automatiskt till det senast parade hjulet</string>
     <string name="wheel_name_display">Hjulnamn</string>
     <string name="wheel_name_none">Ingen</string>
-    <string name="wheel_name_model">Modell</string>
+    <string name="wheel_name_model">Namn</string>
     <string name="wheel_name_brand">Märke</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="section_application">Applikation</string>

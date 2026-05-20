@@ -192,7 +192,7 @@
     <string name="auto_connect_caption">Автоматично перепідключається до останнього спареного моноколеса</string>
     <string name="wheel_name_display">Назва колеса</string>
     <string name="wheel_name_none">Немає</string>
-    <string name="wheel_name_model">Модель</string>
+    <string name="wheel_name_model">Назва</string>
     <string name="wheel_name_brand">Бренд</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="section_application">Застосунок</string>

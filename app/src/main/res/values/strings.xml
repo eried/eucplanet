@@ -201,7 +201,7 @@
     <string name="auto_connect_caption">Reconnects to the last paired wheel automatically</string>
     <string name="wheel_name_display">Wheel name</string>
     <string name="wheel_name_none">None</string>
-    <string name="wheel_name_model">Model</string>
+    <string name="wheel_name_model">Name</string>
     <string name="wheel_name_brand">Brand</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="section_application">Application</string>
