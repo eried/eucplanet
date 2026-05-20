@@ -1504,12 +1504,14 @@ private fun WatchTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         SliderSetting(
-            label = stringResource(R.string.watch_dial_rotation_range),
+            label = "",
+            // Fixed range on the value side — the live angle is intentionally
+            // not shown; the slider thumb position is the only angle feedback.
+            valueText = stringResource(R.string.watch_dial_rotation_range),
             value = settings.watchDialRotationDeg.toFloat(),
             range = -90f..90f,
             unit = "°",
             steps = 35,                         // 36 segments → -90,-85,…,+90
-            format = "%.0f",
             onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
         )
 
