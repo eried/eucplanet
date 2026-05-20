@@ -504,7 +504,7 @@
     <string name="sources_heading">Rumbo</string>
     <string name="sources_vertical_speed">Velocidad vertical</string>
     <string name="sources_position">Posición</string>
-    <string name="sources_gforce">Fuerza G</string>
+    <string name="sources_gforce">Fuerzas G</string>
     <string name="sources_g_horizontal">|G| (horizontal)</string>
     <string name="sources_lateral_x">Lateral (X)</string>
     <string name="sources_vertical_y">Vertical (Y)</string>
@@ -622,4 +622,22 @@
     <string name="engine_preset_sampled_car_cruise">Auto en ruta</string>
     <string name="engine_preset_sampled_broken_exhaust">Escape roto</string>
     <string name="engine_preset_sampled_quad_atv">Cuatrimoto</string>
+
+    <string name="external_gps_autodetect_forward_capture">Leyendo el movimiento de marcha…</string>
+    <string name="external_gps_autodetect_lateral_capture">Leyendo el movimiento lateral…</string>
+    <string name="external_gps_autodetect_next">Siguiente</string>
+    <string name="external_gps_autodetect_vertical_capture">Leyendo el movimiento vertical…</string>
+    <string name="external_gps_caption">Enciende tu RaceBox y toca Vincular para buscar. Una vez vinculada, su velocidad alimenta el indicador del panel y una nueva columna al final de cada CSV de viaje.</string>
+    <string name="external_gps_disconnect">Desconectar</string>
+    <string name="external_gps_paired_with">Vinculado con %1$s</string>
+    <string name="external_gps_reconnect">Reconectar</string>
+    <string name="external_gps_state_connected">Conectado</string>
+    <string name="external_gps_state_connecting">Buscando…</string>
+    <string name="external_gps_state_disconnected">Desconectado</string>
+    <string name="external_gps_unpair">Olvidar dispositivo</string>
+    <string name="section_external_gps">GPS adicional</string>
+    <string name="section_speed_calibration">Calibración de velocidad</string>
+    <string name="speed_calibration_caption">Aplica un porcentaje a la velocidad que llega de la rueda. Las alarmas, la voz y el registro de viajes usan el valor calibrado.</string>
+    <string name="speed_calibration_label">Desfase de velocidad</string>
+    <string name="sources_other_metrics">Otras métricas</string>
 </resources>

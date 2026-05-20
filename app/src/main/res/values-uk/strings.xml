@@ -622,4 +622,22 @@
     <string name="engine_preset_sampled_car_cruise">Авто в дорозі</string>
     <string name="engine_preset_sampled_broken_exhaust">Розбитий вихлоп</string>
     <string name="engine_preset_sampled_quad_atv">Квадроцикл</string>
+
+    <string name="external_gps_autodetect_forward_capture">Зчитування руху вперед…</string>
+    <string name="external_gps_autodetect_lateral_capture">Зчитування бокового руху…</string>
+    <string name="external_gps_autodetect_next">Далі</string>
+    <string name="external_gps_autodetect_vertical_capture">Зчитування вертикального руху…</string>
+    <string name="external_gps_caption">Увімкни свій RaceBox і натисни «Підʼєднати» для пошуку. Після сполучення його швидкість надходить на спідометр на панелі та в новий стовпець у кінці CSV кожної поїздки.</string>
+    <string name="external_gps_disconnect">Відключити</string>
+    <string name="external_gps_paired_with">Сполучено з %1$s</string>
+    <string name="external_gps_reconnect">Перепідключити</string>
+    <string name="external_gps_state_connected">Підключено</string>
+    <string name="external_gps_state_connecting">Пошук…</string>
+    <string name="external_gps_state_disconnected">Не підключено</string>
+    <string name="external_gps_unpair">Забути пристрій</string>
+    <string name="section_external_gps">Додатковий GPS</string>
+    <string name="section_speed_calibration">Калібрування швидкості</string>
+    <string name="speed_calibration_caption">Застосовує відсоток до швидкості, що надходить з колеса. Тривоги, голос і журнал поїздок використовують відкалібороване значення.</string>
+    <string name="speed_calibration_label">Поправка швидкості</string>
+    <string name="sources_other_metrics">Інші показники</string>
 </resources>

@@ -586,4 +586,22 @@
     <string name="engine_preset_sampled_car_cruise">Bil på väg</string>
     <string name="engine_preset_sampled_broken_exhaust">Trasig avgas</string>
     <string name="engine_preset_sampled_quad_atv">Fyrhjuling</string>
+
+    <string name="external_gps_autodetect_forward_capture">Läser gångrörelse…</string>
+    <string name="external_gps_autodetect_lateral_capture">Läser sidledsrörelse…</string>
+    <string name="external_gps_autodetect_next">Nästa</string>
+    <string name="external_gps_autodetect_vertical_capture">Läser vertikal rörelse…</string>
+    <string name="external_gps_caption">Slå på din RaceBox och tryck på Para för att söka. När den är parad matar dess hastighet hastighetsmätaren på instrumentpanelen och en ny kolumn i slutet av varje tur-CSV.</string>
+    <string name="external_gps_disconnect">Koppla från</string>
+    <string name="external_gps_paired_with">Parad med %1$s</string>
+    <string name="external_gps_reconnect">Anslut igen</string>
+    <string name="external_gps_state_connected">Ansluten</string>
+    <string name="external_gps_state_connecting">Söker…</string>
+    <string name="external_gps_state_disconnected">Frånkopplad</string>
+    <string name="external_gps_unpair">Glöm enhet</string>
+    <string name="section_external_gps">Extra GPS</string>
+    <string name="section_speed_calibration">Hastighetskalibrering</string>
+    <string name="speed_calibration_caption">Tillämpar en procentsats på hastigheten som kommer från hjulet. Larm, röst och turloggen använder alla det kalibrerade värdet.</string>
+    <string name="speed_calibration_label">Hastighetsjustering</string>
+    <string name="sources_other_metrics">Andra mätvärden</string>
 </resources>

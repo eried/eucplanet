@@ -622,4 +622,22 @@
     <string name="engine_preset_sampled_car_cruise">Auto in viaggio</string>
     <string name="engine_preset_sampled_broken_exhaust">Marmitta rotta</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
+
+    <string name="external_gps_autodetect_forward_capture">Lettura del movimento in avanti…</string>
+    <string name="external_gps_autodetect_lateral_capture">Lettura del movimento laterale…</string>
+    <string name="external_gps_autodetect_next">Avanti</string>
+    <string name="external_gps_autodetect_vertical_capture">Lettura del movimento verticale…</string>
+    <string name="external_gps_caption">Accendi la tua RaceBox e tocca Accoppia per cercare. Una volta accoppiata, la sua velocità alimenta il quadrante della dashboard e una nuova colonna alla fine di ogni CSV del viaggio.</string>
+    <string name="external_gps_disconnect">Disconnetti</string>
+    <string name="external_gps_paired_with">Accoppiato con %1$s</string>
+    <string name="external_gps_reconnect">Riconnetti</string>
+    <string name="external_gps_state_connected">Connesso</string>
+    <string name="external_gps_state_connecting">Ricerca…</string>
+    <string name="external_gps_state_disconnected">Disconnesso</string>
+    <string name="external_gps_unpair">Dimentica dispositivo</string>
+    <string name="section_external_gps">GPS aggiuntivo</string>
+    <string name="section_speed_calibration">Calibrazione velocità</string>
+    <string name="speed_calibration_caption">Applica una percentuale alla velocità che arriva dalla ruota. Allarmi, voce e il registro dei viaggi usano tutti il valore calibrato.</string>
+    <string name="speed_calibration_label">Scostamento velocità</string>
+    <string name="sources_other_metrics">Altre metriche</string>
 </resources>

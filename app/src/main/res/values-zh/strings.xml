@@ -586,4 +586,22 @@
     <string name="engine_preset_sampled_car_cruise">汽车巡航</string>
     <string name="engine_preset_sampled_broken_exhaust">破损排气</string>
     <string name="engine_preset_sampled_quad_atv">四轮越野车</string>
+
+    <string name="external_gps_autodetect_forward_capture">正在读取前进动作…</string>
+    <string name="external_gps_autodetect_lateral_capture">正在读取横向动作…</string>
+    <string name="external_gps_autodetect_next">下一步</string>
+    <string name="external_gps_autodetect_vertical_capture">正在读取垂直动作…</string>
+    <string name="external_gps_caption">打开你的 RaceBox 并点击「配对」开始扫描。配对后,它的速度会接入主屏速度表盘,并在每条行程 CSV 末尾新增一列。</string>
+    <string name="external_gps_disconnect">断开</string>
+    <string name="external_gps_paired_with">已与 %1$s 配对</string>
+    <string name="external_gps_reconnect">重新连接</string>
+    <string name="external_gps_state_connected">已连接</string>
+    <string name="external_gps_state_connecting">搜索中…</string>
+    <string name="external_gps_state_disconnected">已断开</string>
+    <string name="external_gps_unpair">忘记设备</string>
+    <string name="section_external_gps">附加 GPS</string>
+    <string name="section_speed_calibration">速度校准</string>
+    <string name="speed_calibration_caption">对来自车轮的速度应用一个百分比。报警、语音和行程记录都使用校准后的数值。</string>
+    <string name="speed_calibration_label">速度偏移</string>
+    <string name="sources_other_metrics">其他指标</string>
 </resources>

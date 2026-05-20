@@ -602,4 +602,22 @@
     <string name="engine_preset_sampled_car_cruise">Auto auf Reise</string>
     <string name="engine_preset_sampled_broken_exhaust">Kaputter Auspuff</string>
     <string name="engine_preset_sampled_quad_atv">Quad</string>
+
+    <string name="external_gps_autodetect_forward_capture">Gehbewegung wird gelesen…</string>
+    <string name="external_gps_autodetect_lateral_capture">Seitliche Bewegung wird gelesen…</string>
+    <string name="external_gps_autodetect_next">Weiter</string>
+    <string name="external_gps_autodetect_vertical_capture">Vertikale Bewegung wird gelesen…</string>
+    <string name="external_gps_caption">Schalte deine RaceBox ein und tippe auf Koppeln, um zu suchen. Nach dem Koppeln speist ihre Geschwindigkeit den Tacho im Dashboard und eine neue Spalte am Ende jeder Fahrten-CSV.</string>
+    <string name="external_gps_disconnect">Trennen</string>
+    <string name="external_gps_paired_with">Gekoppelt mit %1$s</string>
+    <string name="external_gps_reconnect">Erneut verbinden</string>
+    <string name="external_gps_state_connected">Verbunden</string>
+    <string name="external_gps_state_connecting">Suche…</string>
+    <string name="external_gps_state_disconnected">Getrennt</string>
+    <string name="external_gps_unpair">Gerät entfernen</string>
+    <string name="section_external_gps">Zusätzliches GPS</string>
+    <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
+    <string name="speed_calibration_caption">Wendet einen Prozentsatz auf die vom Rad kommende Geschwindigkeit an. Alarme, Stimme und das Fahrtenprotokoll nutzen alle den kalibrierten Wert.</string>
+    <string name="speed_calibration_label">Geschwindigkeits-Versatz</string>
+    <string name="sources_other_metrics">Weitere Messwerte</string>
 </resources>
