@@ -177,6 +177,7 @@
     <string name="speed_legal_tiltback">Legal-Tiltback</string>
     <string name="speed_legal_alarm">Legal-Alarm</string>
     <string name="unit_kmh">km/h</string>
+    <string name="unit_mph">mph</string>
     <string name="unit_ms">m/s</string>
     <string name="unit_kn">kn</string>
 

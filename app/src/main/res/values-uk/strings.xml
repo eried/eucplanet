@@ -237,6 +237,7 @@
     <string name="speed_legal_tiltback">Tiltback (лег.)</string>
     <string name="speed_legal_alarm">Тривога (лег.)</string>
     <string name="unit_kmh">км/год</string>
+    <string name="unit_mph">миль/год</string>
     <string name="unit_ms">m/s</string>
     <string name="unit_kn">kn</string>
 
