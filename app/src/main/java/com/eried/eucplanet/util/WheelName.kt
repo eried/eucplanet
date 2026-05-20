@@ -3,11 +3,12 @@ package com.eried.eucplanet.util
 /**
  * Turns a raw BLE advertised name into something presentable for the UI.
  *
- * Wheels advertise as `<name>-<serial>` (e.g. "adventure-49271"); the numeric
- * tail is a per-unit serial and only adds noise. This drops a trailing
- * separator + 3-or-more-digit run and capitalises an all-lowercase result.
- * Model identifiers such as V14, EX30 or KS-16X are left intact — their digits
- * have no separator in front, so the pattern never matches them.
+ * Wheels advertise as `<name>-<serial>` (e.g. "Adventure-E0000298",
+ * "adventure-49271"); the serial tail is a per-unit identifier and only adds
+ * noise. This drops the token after the last separator when it looks like a
+ * serial — at least 4 characters and mostly digits — and capitalises an
+ * all-lowercase result. Short model suffixes (V14, 50S, 16X) are too short or
+ * have too few digits to match, so they're kept.
  *
  * The " (virtual)" tag that BleConnectionManager appends for simulator wheels
  * is preserved. Returns null for a null/blank input.
@@ -20,14 +21,30 @@ fun prettyWheelName(raw: String?): String? {
     val virtualTag = " (virtual)"
     val isVirtual = name.endsWith(virtualTag)
     val core = if (isVirtual) name.removeSuffix(virtualTag).trim() else name
-    val stripped = core.replace(Regex("""[\s_-]+\d{3,}$"""), "").trim()
-    val base = stripped.ifEmpty { core }
-    val pretty = if (base == base.lowercase()) {
-        base.split(' ').joinToString(" ") { word ->
+
+    // Drop a trailing per-unit serial: the token after the last separator,
+    // when it is at least 4 chars and has 3+ digits (e.g. "-E0000298",
+    // "-49271", "-1234567"). The digit floor keeps real name words ("Master",
+    // "Sherman") and short model suffixes ("V14", "50S", "16X").
+    val sep = core.lastIndexOfAny(charArrayOf('-', '_', ' '))
+    val base = if (sep > 0) {
+        val tail = core.substring(sep + 1)
+        if (tail.length >= 4 && tail.count { it.isDigit() } >= 3) {
+            core.substring(0, sep).trim()
+        } else {
+            core
+        }
+    } else {
+        core
+    }
+
+    val cleaned = base.ifEmpty { core }
+    val pretty = if (cleaned == cleaned.lowercase()) {
+        cleaned.split(' ').joinToString(" ") { word ->
             word.replaceFirstChar { it.titlecase() }
         }
     } else {
-        base
+        cleaned
     }
     return if (isVirtual) "$pretty$virtualTag" else pretty
 }
