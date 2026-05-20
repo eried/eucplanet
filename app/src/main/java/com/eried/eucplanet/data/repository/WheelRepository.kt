@@ -59,7 +59,7 @@ class WheelRepository @Inject constructor(
         // Realtime poll-and-push intervals for the three watchUpdateRate tiers.
         private const val POLL_INTERVAL_MS = 250L              // "NORMAL" (default)
         private const val FAST_POLL_INTERVAL_MS = 150L         // "FAST"
-        private const val CONSERVATIVE_POLL_INTERVAL_MS = 1000L // "CONSERVATIVE"
+        private const val CONSERVATIVE_POLL_INTERVAL_MS = 750L // "CONSERVATIVE"
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
         // Hard 5-minute window on the metric history buffers. Without this,
         // each list grows unbounded at 1 Hz (memory leak) and the chart's

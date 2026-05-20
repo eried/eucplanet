@@ -277,7 +277,7 @@ data class AppSettings(
 
     /**
      * Live-data update rate for the dashboard and watch. Drives the realtime
-     * poll-and-push loop interval: "CONSERVATIVE" (1000 ms, easiest on phone /
+     * poll-and-push loop interval: "CONSERVATIVE" (750 ms, easiest on phone /
      * watch battery), "NORMAL" (250 ms, the default) or "FAST" (150 ms, most
      * responsive). Stored as a stable key so the millisecond mapping can be
      * retuned later without a settings migration.
