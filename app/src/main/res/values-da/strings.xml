@@ -514,7 +514,7 @@
     <string name="watch_prioritize_pwm">Prioriter PWM</string>
     <string name="watch_prioritize_pwm_desc">Gør PWM-bjælken og -tallet større end farten</string>
     <string name="watch_dial_rotation">Urskivens rotation</string>
-    <string name="watch_dial_rotation_value">%1$d°</string>
+    <string name="watch_dial_rotation_range">-90° til 90°</string>
     <string name="watch_show_watch_battery">Vis ur-batteri</string>
     <string name="watch_show_wheel_battery">Vis hjul-batteri</string>
     <string name="flic_action_record_start">Start turoptagelse</string>

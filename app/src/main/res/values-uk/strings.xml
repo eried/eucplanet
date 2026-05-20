@@ -123,7 +123,7 @@
     <string name="watch_prioritize_pwm">Пріоритет PWM</string>
     <string name="watch_prioritize_pwm_desc">PWM (смуга й число) більший за швидкість</string>
     <string name="watch_dial_rotation">Обертання циферблата</string>
-    <string name="watch_dial_rotation_value">%1$d°</string>
+    <string name="watch_dial_rotation_range">-90° до 90°</string>
 
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Натискання</string>

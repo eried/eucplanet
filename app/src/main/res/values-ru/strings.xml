@@ -566,7 +566,7 @@
     <string name="watch_prioritize_pwm">Приоритет PWM</string>
     <string name="watch_prioritize_pwm_desc">PWM (полоса и число) крупнее, чем скорость</string>
     <string name="watch_dial_rotation">Поворот циферблата</string>
-    <string name="watch_dial_rotation_value">%1$d°</string>
+    <string name="watch_dial_rotation_range">-90° до 90°</string>
     <string name="watch_show_watch_battery">Показывать заряд часов</string>
     <string name="watch_show_wheel_battery">Показывать заряд колеса</string>
     <string name="flic_action_record_start">Начать запись поездки</string>

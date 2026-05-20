@@ -1504,7 +1504,7 @@ private fun WatchTab(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         SliderSetting(
-            label = stringResource(R.string.watch_dial_rotation_value, settings.watchDialRotationDeg),
+            label = stringResource(R.string.watch_dial_rotation_range),
             value = settings.watchDialRotationDeg.toFloat(),
             range = -90f..90f,
             unit = "°",
