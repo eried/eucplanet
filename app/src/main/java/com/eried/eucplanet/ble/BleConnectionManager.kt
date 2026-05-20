@@ -73,6 +73,14 @@ class BleConnectionManager @Inject constructor(
     private var currentName: String? = null
     private var shouldReconnect = true
 
+    /**
+     * Set true while the scan / "Searching" screen is open. The auto-reconnect
+     * holds off until it clears, so the app doesn't pull the rider back to the
+     * previous wheel while they're on that screen choosing one. Cleared when
+     * they leave the screen, at which point a held reconnect resumes.
+     */
+    @Volatile var autoConnectSuppressed: Boolean = false
+
     // Write serialization - only one BLE write at a time
     private val writeChannel = Channel<ByteArray>(Channel.BUFFERED)
     private var writeReady = false
@@ -320,9 +328,21 @@ class BleConnectionManager @Inject constructor(
                     _connectionState.value = ConnectionState.DISCONNECTED
 
                     if (shouldReconnect && status != 0) {
+                        val reconnectAddress = currentAddress
                         scope.launch {
                             delay(2000)
-                            currentAddress?.let { connect(it) }
+                            // Hold the auto-reconnect while the rider is on the
+                            // scan screen choosing a wheel; resume once they
+                            // leave it. Skip if they meanwhile picked another
+                            // wheel or a connection is already underway.
+                            while (autoConnectSuppressed) delay(300)
+                            if (shouldReconnect &&
+                                reconnectAddress != null &&
+                                currentAddress == reconnectAddress &&
+                                _connectionState.value == ConnectionState.DISCONNECTED
+                            ) {
+                                connect(reconnectAddress)
+                            }
                         }
                     }
                 }

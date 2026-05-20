@@ -8,6 +8,7 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.eried.eucplanet.ble.BleConnectionManager
 import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.ble.BleScanner
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -26,8 +27,16 @@ import javax.inject.Inject
 class ScanViewModel @Inject constructor(
     private val bleScanner: BleScanner,
     private val settingsRepository: SettingsRepository,
+    private val bleConnectionManager: BleConnectionManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    init {
+        // While the rider is on the scan screen choosing a wheel, hold the
+        // auto-reconnect so it can't pull them back to the previous one.
+        // Cleared in onCleared, which re-enables (and resumes) it.
+        bleConnectionManager.autoConnectSuppressed = true
+    }
 
     private val _devices = MutableStateFlow<List<BleDevice>>(emptyList())
     val devices: StateFlow<List<BleDevice>> = _devices.asStateFlow()
@@ -125,6 +134,8 @@ class ScanViewModel @Inject constructor(
 
     override fun onCleared() {
         stopScan()
+        // Rider left the scan screen — let the auto-reconnect run again.
+        bleConnectionManager.autoConnectSuppressed = false
         super.onCleared()
     }
 }
