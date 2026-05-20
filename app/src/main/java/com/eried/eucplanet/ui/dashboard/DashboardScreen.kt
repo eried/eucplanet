@@ -128,6 +128,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.util.prettyWheelName
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -276,7 +277,8 @@ fun DashboardScreen(
     }
 
     if (showDisconnectDialog) {
-        val wheelLabel = modelName ?: stringResource(R.string.wheel_generic)
+        val wheelLabel = modelName ?: prettyWheelName(connectedDeviceName)
+            ?: stringResource(R.string.wheel_generic)
         AlertDialog(
             onDismissRequest = { showDisconnectDialog = false },
             title = { Text(stringResource(R.string.disconnect)) },
@@ -341,7 +343,7 @@ fun DashboardScreen(
                         Text(
                             text = when (connectionState) {
                                 ConnectionState.CONNECTED ->
-                                    connectedDeviceName ?: modelName ?: connectedLabel
+                                    modelName ?: prettyWheelName(connectedDeviceName) ?: connectedLabel
                                 ConnectionState.CONNECTING -> connectingLabel
                                 ConnectionState.INITIALIZING -> initLabel
                                 ConnectionState.SCANNING -> scanningLabel
