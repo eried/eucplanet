@@ -105,8 +105,11 @@
     <string name="section_watch_display">Schermo</string>
     <string name="watch_keep_on">Mantieni schermo acceso</string>
     <string name="watch_keep_on_desc">Tieni l\'orologio sveglio mentre l\'app è aperta</string>
-    <string name="faster_refresh">Aggiorna più spesso</string>
-    <string name="faster_refresh_desc">Mostra i dati in tempo reale in modo più fluido e reattivo</string>
+    <string name="watch_update_rate">Frequenza di aggiornamento</string>
+    <string name="watch_update_rate_desc">Aggiornamenti più lenti risparmiano batteria su telefono e orologio</string>
+    <string name="watch_update_conservative">Conservativo</string>
+    <string name="watch_update_normal">Normale</string>
+    <string name="watch_update_fast">Veloce</string>
     <string name="watch_auto_start">Avvio automatico sull\'orologio</string>
     <string name="watch_auto_start_desc">Apri l\'app dell\'orologio insieme a quella del telefono</string>
     <string name="watch_close_on_exit">Arresto automatico sull\'orologio</string>

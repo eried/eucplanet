@@ -1431,12 +1431,41 @@ private fun WatchTab(
             checked = settings.watchKeepScreenOn,
             onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
         )
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.faster_refresh),
-            description = stringResource(R.string.faster_refresh_desc),
-            checked = settings.fasterRefresh,
-            onCheckedChange = { viewModel.updateFasterRefresh(it) }
+        Text(
+            stringResource(R.string.watch_update_rate),
+            style = MaterialTheme.typography.bodyLarge
         )
+        Text(
+            stringResource(R.string.watch_update_rate_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        val updateRateOptions = listOf(
+            "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
+            "NORMAL" to stringResource(R.string.watch_update_normal),
+            "FAST" to stringResource(R.string.watch_update_fast)
+        )
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max)
+        ) {
+            updateRateOptions.forEachIndexed { index, (key, label) ->
+                SegmentedButton(
+                    modifier = Modifier.fillMaxHeight(),
+                    selected = key == settings.watchUpdateRate,
+                    onClick = { viewModel.updateWatchUpdateRate(key) },
+                    shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
+                ) {
+                    Text(
+                        label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
 
         SectionHeader(stringResource(R.string.section_watch_display))
 

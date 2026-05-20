@@ -519,8 +519,11 @@
     <string name="watch_button_hold_label">Langt trykk</string>
     <string name="watch_keep_on">Hold skjermen på</string>
     <string name="watch_keep_on_desc">Hold klokka våken mens appen er åpen</string>
-    <string name="faster_refresh">Oppdater raskere</string>
-    <string name="faster_refresh_desc">Vis sanntidsdata jevnere og mer responsivt</string>
+    <string name="watch_update_rate">Oppdateringsfrekvens</string>
+    <string name="watch_update_rate_desc">Langsommere oppdateringer sparer batteri på telefon og klokke</string>
+    <string name="watch_update_conservative">Sparsom</string>
+    <string name="watch_update_normal">Normal</string>
+    <string name="watch_update_fast">Rask</string>
     <string name="watch_pwm_bar">Stolpe</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">PWM-indikator</string>

@@ -105,8 +105,11 @@
     <string name="section_watch_display">Display</string>
     <string name="watch_keep_on">Keep display on</string>
     <string name="watch_keep_on_desc">Keep the watch awake while the app is open</string>
-    <string name="faster_refresh">Refresh faster</string>
-    <string name="faster_refresh_desc">Update live data more smoothly and responsively</string>
+    <string name="watch_update_rate">Update rate</string>
+    <string name="watch_update_rate_desc">Slower updates save battery on the phone and watch</string>
+    <string name="watch_update_conservative">Conservative</string>
+    <string name="watch_update_normal">Normal</string>
+    <string name="watch_update_fast">Fast</string>
     <string name="watch_auto_start">Auto-start on watch</string>
     <string name="watch_auto_start_desc">Open the watch app together with the phone app</string>
     <string name="watch_close_on_exit">Auto-stop on watch</string>

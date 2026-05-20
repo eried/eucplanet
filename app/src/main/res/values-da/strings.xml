@@ -502,8 +502,11 @@
     <string name="watch_button_hold_label">Langt tryk</string>
     <string name="watch_keep_on">Hold skærmen tændt</string>
     <string name="watch_keep_on_desc">Hold uret vågent, mens appen er åben</string>
-    <string name="faster_refresh">Opdater hurtigere</string>
-    <string name="faster_refresh_desc">Vis live-data mere jævnt og responsivt</string>
+    <string name="watch_update_rate">Opdateringshastighed</string>
+    <string name="watch_update_rate_desc">Langsommere opdateringer sparer batteri på telefon og ur</string>
+    <string name="watch_update_conservative">Konservativ</string>
+    <string name="watch_update_normal">Normal</string>
+    <string name="watch_update_fast">Hurtig</string>
     <string name="watch_pwm_bar">Bjælke</string>
     <string name="watch_pwm_both">Begge</string>
     <string name="watch_pwm_display">PWM-indikator</string>

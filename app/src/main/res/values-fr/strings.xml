@@ -502,8 +502,11 @@
     <string name="watch_button_hold_label">Appui long</string>
     <string name="watch_keep_on">Garder l\'écran allumé</string>
     <string name="watch_keep_on_desc">Garde la montre éveillée tant que l\'appli est ouverte</string>
-    <string name="faster_refresh">Rafraîchir plus vite</string>
-    <string name="faster_refresh_desc">Affiche les données en direct de façon plus fluide et réactive</string>
+    <string name="watch_update_rate">Fréquence de mise à jour</string>
+    <string name="watch_update_rate_desc">Des mises à jour plus lentes économisent la batterie du téléphone et de la montre</string>
+    <string name="watch_update_conservative">Économe</string>
+    <string name="watch_update_normal">Normale</string>
+    <string name="watch_update_fast">Rapide</string>
     <string name="watch_pwm_bar">Barre</string>
     <string name="watch_pwm_both">Les deux</string>
     <string name="watch_pwm_display">Indicateur PWM</string>

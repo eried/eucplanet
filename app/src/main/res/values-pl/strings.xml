@@ -105,8 +105,11 @@
     <string name="section_watch_display">Ekran</string>
     <string name="watch_keep_on">Nie wygaszaj ekranu</string>
     <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta</string>
-    <string name="faster_refresh">Szybsze odświeżanie</string>
-    <string name="faster_refresh_desc">Płynniejsze i bardziej responsywne dane na żywo</string>
+    <string name="watch_update_rate">Częstotliwość odświeżania</string>
+    <string name="watch_update_rate_desc">Wolniejsze odświeżanie oszczędza baterię telefonu i zegarka</string>
+    <string name="watch_update_conservative">Oszczędny</string>
+    <string name="watch_update_normal">Normalny</string>
+    <string name="watch_update_fast">Szybki</string>
     <string name="watch_auto_start">Auto-start na zegarku</string>
     <string name="watch_auto_start_desc">Otwórz aplikację na zegarku razem z aplikacją na telefonie</string>
     <string name="watch_close_on_exit">Auto-zatrzymanie na zegarku</string>

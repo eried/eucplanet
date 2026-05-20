@@ -105,8 +105,11 @@
     <string name="section_watch_display">Weergave</string>
     <string name="watch_keep_on">Scherm aan houden</string>
     <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is</string>
-    <string name="faster_refresh">Sneller verversen</string>
-    <string name="faster_refresh_desc">Live gegevens vloeiender en sneller weergeven</string>
+    <string name="watch_update_rate">Verversingssnelheid</string>
+    <string name="watch_update_rate_desc">Langzamere updates besparen batterij op telefoon en horloge</string>
+    <string name="watch_update_conservative">Zuinig</string>
+    <string name="watch_update_normal">Normaal</string>
+    <string name="watch_update_fast">Snel</string>
     <string name="watch_auto_start">Automatisch starten op horloge</string>
     <string name="watch_auto_start_desc">Open de horloge-app samen met de telefoon-app</string>
     <string name="watch_close_on_exit">Automatisch stoppen op horloge</string>

@@ -518,8 +518,11 @@
     <string name="watch_button_hold_label">Langer Druck</string>
     <string name="watch_keep_on">Display anlassen</string>
     <string name="watch_keep_on_desc">Hält die Uhr wach, solange die App offen ist</string>
-    <string name="faster_refresh">Schneller aktualisieren</string>
-    <string name="faster_refresh_desc">Live-Daten flüssiger und reaktionsschneller anzeigen</string>
+    <string name="watch_update_rate">Aktualisierungsrate</string>
+    <string name="watch_update_rate_desc">Langsamere Aktualisierungen sparen Akku auf Telefon und Uhr</string>
+    <string name="watch_update_conservative">Sparsam</string>
+    <string name="watch_update_normal">Normal</string>
+    <string name="watch_update_fast">Schnell</string>
     <string name="watch_pwm_bar">Balken</string>
     <string name="watch_pwm_both">Beide</string>
     <string name="watch_pwm_display">PWM-Anzeige</string>

@@ -276,11 +276,13 @@ data class AppSettings(
     val watchHapticOnAction: Boolean = true,
 
     /**
-     * Opt-in faster wheel polling. When ON the realtime poll loop runs at a
-     * shorter interval so live data on the dashboard and watch updates more
-     * responsively; OFF keeps the default interval to spare battery / BLE.
+     * Live-data update rate for the dashboard and watch. Drives the realtime
+     * poll-and-push loop interval: "CONSERVATIVE" (500 ms, easiest on phone /
+     * watch battery), "NORMAL" (250 ms, the default) or "FAST" (150 ms, most
+     * responsive). Stored as a stable key so the millisecond mapping can be
+     * retuned later without a settings migration.
      */
-    val fasterRefresh: Boolean = false,
+    val watchUpdateRate: String = "NORMAL",
 
     // --- Motor Sound generator ---
     //

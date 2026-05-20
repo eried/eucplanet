@@ -150,7 +150,7 @@ object SettingsJson {
         put("watchScreen2Click", s.watchScreen2Click)
         put("watchScreen2Hold", s.watchScreen2Hold)
         put("watchHapticOnAction", s.watchHapticOnAction)
-        put("fasterRefresh", s.fasterRefresh)
+        put("watchUpdateRate", s.watchUpdateRate)
         put("watchCloseOnExit", s.watchCloseOnExit)
         put("watchPrioritizePwm", s.watchPrioritizePwm)
         put("watchDialRotationDeg", s.watchDialRotationDeg)
@@ -289,7 +289,13 @@ object SettingsJson {
         watchScreen2Click = j.optString("watchScreen2Click", base.watchScreen2Click),
         watchScreen2Hold = j.optString("watchScreen2Hold", base.watchScreen2Hold),
         watchHapticOnAction = j.optBoolean("watchHapticOnAction", base.watchHapticOnAction),
-        fasterRefresh = j.optBoolean("fasterRefresh", base.fasterRefresh),
+        watchUpdateRate = when {
+            j.has("watchUpdateRate") -> j.optString("watchUpdateRate", base.watchUpdateRate)
+            // Migrate the legacy boolean: ON used the 150 ms fast poll, OFF the
+            // 250 ms default. The new 500 ms "CONSERVATIVE" tier is opt-in only.
+            j.has("fasterRefresh") -> if (j.optBoolean("fasterRefresh", false)) "FAST" else "NORMAL"
+            else -> base.watchUpdateRate
+        },
         watchCloseOnExit = j.optBoolean("watchCloseOnExit", base.watchCloseOnExit),
         watchPrioritizePwm = j.optBoolean("watchPrioritizePwm", base.watchPrioritizePwm),
         watchDialRotationDeg = j.optInt("watchDialRotationDeg", base.watchDialRotationDeg),

@@ -502,8 +502,11 @@
     <string name="watch_button_hold_label">长按</string>
     <string name="watch_keep_on">保持屏幕常亮</string>
     <string name="watch_keep_on_desc">应用开启期间让手表保持唤醒。</string>
-    <string name="faster_refresh">更快刷新</string>
-    <string name="faster_refresh_desc">更流畅、更灵敏地显示实时数据</string>
+    <string name="watch_update_rate">更新频率</string>
+    <string name="watch_update_rate_desc">较慢的更新可节省手机和手表的电量</string>
+    <string name="watch_update_conservative">节能</string>
+    <string name="watch_update_normal">正常</string>
+    <string name="watch_update_fast">快速</string>
     <string name="watch_pwm_bar">条形图</string>
     <string name="watch_pwm_both">两者</string>
     <string name="watch_pwm_display">PWM 指示器</string>

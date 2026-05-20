@@ -519,8 +519,11 @@
     <string name="watch_button_hold_label">Pulsación larga</string>
     <string name="watch_keep_on">Mantener pantalla encendida</string>
     <string name="watch_keep_on_desc">Mantén el reloj despierto mientras la app esté abierta</string>
-    <string name="faster_refresh">Actualizar más rápido</string>
-    <string name="faster_refresh_desc">Muestra los datos en vivo de forma más fluida y reactiva</string>
+    <string name="watch_update_rate">Frecuencia de actualización</string>
+    <string name="watch_update_rate_desc">Las actualizaciones más lentas ahorran batería en el teléfono y el reloj</string>
+    <string name="watch_update_conservative">Conservador</string>
+    <string name="watch_update_normal">Normal</string>
+    <string name="watch_update_fast">Rápido</string>
     <string name="watch_pwm_bar">Barra</string>
     <string name="watch_pwm_both">Ambos</string>
     <string name="watch_pwm_display">Indicador de PWM</string>

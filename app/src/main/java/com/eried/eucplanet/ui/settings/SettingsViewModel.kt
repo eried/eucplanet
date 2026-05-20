@@ -281,7 +281,7 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Click(action: String) = update { copy(watchScreen2Click = action) }
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
-    fun updateFasterRefresh(v: Boolean) = update { copy(fasterRefresh = v) }
+    fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()

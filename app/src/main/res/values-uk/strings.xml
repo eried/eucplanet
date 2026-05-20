@@ -105,8 +105,11 @@
     <string name="section_watch_display">Екран</string>
     <string name="watch_keep_on">Не вимикати екран</string>
     <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий</string>
-    <string name="faster_refresh">Оновлювати частіше</string>
-    <string name="faster_refresh_desc">Плавніший та чутливіший показ даних у реальному часі</string>
+    <string name="watch_update_rate">Частота оновлення</string>
+    <string name="watch_update_rate_desc">Повільніші оновлення заощаджують заряд телефона та годинника</string>
+    <string name="watch_update_conservative">Економна</string>
+    <string name="watch_update_normal">Звичайна</string>
+    <string name="watch_update_fast">Швидка</string>
     <string name="watch_auto_start">Автозапуск на годиннику</string>
     <string name="watch_auto_start_desc">Відкривати додаток на годиннику разом із додатком на телефоні</string>
     <string name="watch_close_on_exit">Автозупинка на годиннику</string>

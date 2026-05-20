@@ -554,8 +554,11 @@
     <string name="watch_button_hold_label">Долгое нажатие</string>
     <string name="watch_keep_on">Не гасить экран</string>
     <string name="watch_keep_on_desc">Не давать часам засыпать, пока открыто приложение</string>
-    <string name="faster_refresh">Обновлять чаще</string>
-    <string name="faster_refresh_desc">Более плавный и отзывчивый показ данных в реальном времени</string>
+    <string name="watch_update_rate">Частота обновления</string>
+    <string name="watch_update_rate_desc">Более редкие обновления экономят заряд телефона и часов</string>
+    <string name="watch_update_conservative">Экономная</string>
+    <string name="watch_update_normal">Обычная</string>
+    <string name="watch_update_fast">Быстрая</string>
     <string name="watch_pwm_bar">Полоса</string>
     <string name="watch_pwm_both">Оба</string>
     <string name="watch_pwm_display">Индикатор PWM</string>

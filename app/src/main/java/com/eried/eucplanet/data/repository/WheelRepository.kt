@@ -56,9 +56,10 @@ class WheelRepository @Inject constructor(
 ) {
     companion object {
         private const val TAG = "WheelRepo"
-        private const val POLL_INTERVAL_MS = 250L
-        // Shorter poll interval used when the rider opts into "Refresh faster".
-        private const val FAST_POLL_INTERVAL_MS = 150L
+        // Realtime poll-and-push intervals for the three watchUpdateRate tiers.
+        private const val POLL_INTERVAL_MS = 250L              // "NORMAL" (default)
+        private const val FAST_POLL_INTERVAL_MS = 150L         // "FAST"
+        private const val CONSERVATIVE_POLL_INTERVAL_MS = 500L // "CONSERVATIVE"
         private const val HISTORY_SAMPLE_INTERVAL_MS = 1000L
         // Hard 5-minute window on the metric history buffers. Without this,
         // each list grows unbounded at 1 Hz (memory leak) and the chart's
@@ -194,13 +195,12 @@ class WheelRepository @Inject constructor(
     @Volatile private var speedCalibrationMultiplier: Float = 1f
 
     /**
-     * Mirrors AppSettings.fasterRefresh into the hot poll path. When true the
-     * realtime loop delays [FAST_POLL_INTERVAL_MS] instead of [POLL_INTERVAL_MS]
-     * between writes so the dashboard / watch live data updates more often.
-     * Mirrored via the settings-collect flow below so the loop never has to
-     * re-collect the settings flow per cycle.
+     * Realtime poll interval in milliseconds, resolved from
+     * AppSettings.watchUpdateRate and mirrored into the hot poll path so the
+     * loop never re-collects the settings flow per cycle. Unknown values fall
+     * back to [POLL_INTERVAL_MS].
      */
-    @Volatile private var fasterRefresh: Boolean = false
+    @Volatile private var pollIntervalMs: Long = POLL_INTERVAL_MS
 
     /**
      * Riders have lock-toggle bindings on Flic buttons, the watch buttons, the
@@ -250,7 +250,11 @@ class WheelRepository @Inject constructor(
             settingsRepository.settings.collect { s ->
                 val clamped = s.speedCalibrationOffsetPct.coerceIn(-15f, 15f)
                 speedCalibrationMultiplier = 1f + clamped / 100f
-                fasterRefresh = s.fasterRefresh
+                pollIntervalMs = when (s.watchUpdateRate) {
+                    "CONSERVATIVE" -> CONSERVATIVE_POLL_INTERVAL_MS
+                    "FAST" -> FAST_POLL_INTERVAL_MS
+                    else -> POLL_INTERVAL_MS
+                }
                 val wheelName = s.lastDeviceName
                 if (wheelName != null && bleManager.connectionState.value == ConnectionState.CONNECTED) {
                     persistWheelProfile(wheelName, s)
@@ -574,11 +578,11 @@ class WheelRepository @Inject constructor(
                 }
                 realtimeCycle++
             }
-            // Honour the rider's "Refresh faster" opt-in. Read each cycle so a
-            // mid-session toggle takes effect on the next poll. The cycle-count
-            // refresh constants are unchanged — only the wall-clock pacing
-            // between writes shifts.
-            delay(if (fasterRefresh) FAST_POLL_INTERVAL_MS else POLL_INTERVAL_MS)
+            // Pace the loop by the rider's chosen update rate. Read each cycle
+            // so a mid-session change takes effect on the next poll. The
+            // cycle-count refresh constants are unchanged; only the wall-clock
+            // pacing between writes shifts.
+            delay(pollIntervalMs)
         }
     }
 
