@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -385,7 +386,7 @@ fun StudioSidePanel(
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
 ) {
     RotatedFullScreen(LocalStudioRotation.current) {
-        androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
             androidx.compose.foundation.layout.Box(
                 Modifier
                     .fillMaxSize()
@@ -393,18 +394,19 @@ fun StudioSidePanel(
                     .pointerInput(Unit) { detectTapGestures { onDismiss() } }
             )
             Surface(
+                // Wraps its content (capped) rather than filling the height, so
+                // there is empty scrim above and below to tap-dismiss.
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
                     .width(340.dp)
+                    .heightIn(max = maxHeight * 0.92f)
                     .pointerInput(Unit) { detectTapGestures { } },
+                shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 2.dp
             ) {
                 Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
                     content = content
                 )
             }
@@ -426,8 +428,7 @@ fun AddElementSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(bottom = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Add element")
@@ -440,12 +441,12 @@ fun AddElementSheet(
                             if (type == OverlayElementType.IMAGE) onPickImage()
                             else onPick(type)
                         }
-                        .padding(14.dp),
+                        .padding(vertical = 8.dp, horizontal = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(type.icon, contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(16.dp))
+                    Spacer(Modifier.width(12.dp))
                     Column {
                         Text(type.label, fontWeight = FontWeight.SemiBold)
                         Text(
@@ -486,8 +487,8 @@ fun LayoutPickerSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Viewport layout")
@@ -625,8 +626,8 @@ fun LoadPresetSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Load layout")
@@ -741,6 +742,7 @@ fun ViewportConfigSheet(
     index: Int,
     config: ViewportConfig,
     cameras: List<StudioCameraInfo>,
+    inUseKeys: Set<String>,
     onChange: (ViewportConfig) -> Unit,
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
@@ -748,8 +750,8 @@ fun ViewportConfigSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Section ${index + 1} source")
@@ -782,7 +784,7 @@ fun ViewportConfigSheet(
             when (config.source) {
                 ViewportSourceType.CAMERA -> {
                     Text("Camera", fontWeight = FontWeight.SemiBold)
-                    CameraPicker(cameras, config.cameraKey) {
+                    CameraPicker(cameras, config.cameraKey, inUseKeys) {
                         onChange(config.copy(cameraKey = it))
                     }
                 }
@@ -812,11 +814,16 @@ fun ViewportConfigSheet(
     }
 }
 
-/** A row of chips, one per detected camera. Same camera in two panes is fine. */
+/**
+ * A row of chips, one per detected camera. Two cameras can stream at once;
+ * once two distinct ones are in use, the rest are disabled — but an
+ * already-streaming camera stays pickable, since it just reuses that feed.
+ */
 @Composable
 private fun CameraPicker(
     cameras: List<StudioCameraInfo>,
     selectedKey: String,
+    inUseKeys: Set<String>,
     onPick: (String) -> Unit
 ) {
     if (cameras.isEmpty()) {
@@ -827,6 +834,7 @@ private fun CameraPicker(
         )
         return
     }
+    val atLimit = inUseKeys.size >= 2
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(vertical = 4.dp)
@@ -835,18 +843,21 @@ private fun CameraPicker(
             val cam = cameras[i]
             FilterChip(
                 selected = cam.key == selectedKey,
+                enabled = !atLimit || cam.key in inUseKeys,
                 onClick = { onPick(cam.key) },
                 label = { Text(cam.label) },
                 leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
             )
         }
     }
-    Text(
-        "Up to two cameras stream at once; beyond that, extra cameras show a " +
-            "placeholder until you free one up.",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
+    if (atLimit) {
+        Text(
+            "Android limits the number of camera streams, so with two cameras " +
+                "in use the rest are disabled.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 /** Line colour + thickness for the dividers between viewport panes. */
@@ -861,8 +872,8 @@ fun DividerConfigSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Divider lines")
@@ -1047,6 +1058,7 @@ private fun GradientStopRow(
 fun ElementConfigSheet(
     element: OverlayElement,
     cameras: List<StudioCameraInfo>,
+    inUseKeys: Set<String>,
     onChange: (OverlayElement) -> Unit,
     onReplaceImage: () -> Unit,
     onDismiss: () -> Unit
@@ -1054,8 +1066,8 @@ fun ElementConfigSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(element.type.label)
@@ -1147,7 +1159,7 @@ fun ElementConfigSheet(
 
             if (element.type == OverlayElementType.FLOATING_CAMERA) {
                 Text("Camera", fontWeight = FontWeight.SemiBold)
-                CameraPicker(cameras, element.cameraKey) {
+                CameraPicker(cameras, element.cameraKey, inUseKeys) {
                     onChange(element.copy(cameraKey = it))
                 }
                 Spacer(Modifier.height(8.dp))
@@ -1551,8 +1563,8 @@ fun ManageElementsSheet(
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 28.dp)
+                .padding(horizontal = 4.dp)
+                .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader("Manage elements")

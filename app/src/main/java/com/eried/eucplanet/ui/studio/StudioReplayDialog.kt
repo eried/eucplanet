@@ -171,8 +171,7 @@ fun StudioReplayDialog(
                 }
                 IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }) {
                     Icon(
-                        if (picker != 0) Icons.AutoMirrored.Filled.ArrowBack
-                        else Icons.Default.Close,
+                        Icons.Default.Close,
                         contentDescription = if (picker != 0) "Back" else "Close replay"
                     )
                 }

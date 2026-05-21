@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
@@ -587,9 +588,9 @@ fun OverlayStudioScreen(
         if (chromeVisible) {
             val iconRot = -deviceRotation.toFloat()
             Box(Modifier.safeDrawingPadding().fillMaxSize()) {
-                // Back to dashboard — top-left corner.
+                // Exit the studio — top-left corner (X since it is full-screen).
                 StudioRoundButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
+                    icon = Icons.Default.Close,
                     background = Color(0xCC1E1E26),
                     size = 48.dp,
                     iconRotation = iconRot,
@@ -928,6 +929,7 @@ fun OverlayStudioScreen(
                     index = s.index,
                     config = cfg,
                     cameras = hub.cameras,
+                    inUseKeys = requestedCameras.toSet(),
                     onChange = { viewModel.setViewport(s.index, it) },
                     onPickImage = {
                         imageTargetViewport = s.index
@@ -950,6 +952,7 @@ fun OverlayStudioScreen(
                 ElementConfigSheet(
                     element = element,
                     cameras = hub.cameras,
+                    inUseKeys = requestedCameras.toSet(),
                     onChange = viewModel::updateElement,
                     onReplaceImage = {
                         imageTargetId = element.id
