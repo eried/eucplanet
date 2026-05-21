@@ -27,7 +27,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -456,6 +458,10 @@ private fun DividerControls(
     onDrag: (Float) -> Unit,
     dragAxisX: Boolean
 ) {
+    // pointerInput keeps the closure it captured on first composition; without
+    // this the drag would keep calling the original onDrag (built from the
+    // *starting* fraction), so the divider nudged once and then stuck.
+    val latestOnDrag by rememberUpdatedState(onDrag)
     Row(
         Modifier
             .clip(RoundedCornerShape(50))
@@ -468,7 +474,7 @@ private fun DividerControls(
                 .pointerInput(dragAxisX) {
                     detectDragGestures { change, drag ->
                         change.consume()
-                        onDrag(if (dragAxisX) drag.x else drag.y)
+                        latestOnDrag(if (dragAxisX) drag.x else drag.y)
                     }
                 },
             contentAlignment = Alignment.Center
