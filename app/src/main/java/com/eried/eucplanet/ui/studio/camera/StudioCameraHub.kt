@@ -191,6 +191,7 @@ private fun newAnalysis(
 }
 
 /** Bind [cameras], returning the keys that ended up actually streaming. */
+@OptIn(ExperimentalCamera2Interop::class)
 private fun bindCameras(
     provider: ProcessCameraProvider,
     lifecycleOwner: LifecycleOwner,
@@ -210,8 +211,19 @@ private fun bindCameras(
             emptySet()
         }
     }
-    // Two cameras — concurrent camera mode.
-    val concurrent = runCatching {
+    // Two cameras — only when the device lists this exact pair as a supported
+    // concurrent combo. Most phones can co-stream only one front + one back;
+    // forcing an unsupported pair (e.g. two rear lenses) makes the second feed
+    // come back as the first one, so in that case fall back to a single camera.
+    val wantedIds = cameras.map { it.deviceId }.toSet()
+    val pairSupported = runCatching {
+        provider.availableConcurrentCameraInfos.any { combo ->
+            combo.mapNotNull {
+                runCatching { Camera2CameraInfo.from(it).cameraId }.getOrNull()
+            }.toSet().containsAll(wantedIds)
+        }
+    }.getOrDefault(false)
+    val concurrent = if (!pairSupported) null else runCatching {
         val configs = cameras.map { cam ->
             ConcurrentCamera.SingleCameraConfig(
                 selectorFor(cam.deviceId),
@@ -223,8 +235,8 @@ private fun bindCameras(
         cameras.map { it.key }.toSet()
     }.getOrNull()
     if (concurrent != null) return concurrent
-    // Device cannot co-stream — fall back to the first camera only.
-    Log.w(TAG, "Concurrent camera unavailable, using one camera")
+    // Device cannot co-stream this pair — fall back to the first camera only.
+    Log.w(TAG, "Concurrent camera unavailable for this pair, using one camera")
     runCatching { provider.unbindAll() }
     return runCatching {
         val cam = cameras[0]

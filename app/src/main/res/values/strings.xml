@@ -676,10 +676,10 @@
     <string name="studio_recording_saved">Recording saved to gallery</string>
     <string name="studio_recording_failed">Could not save the recording</string>
     <string name="studio_image_failed">Could not load that image</string>
-    <string name="studio_preset_saved">Layout saved</string>
-    <string name="studio_preset_loaded">Layout loaded</string>
-    <string name="studio_preset_failed">Could not save the layout</string>
-    <string name="studio_no_folder">Set a backup folder first to save layouts</string>
+    <string name="studio_preset_saved">Preset saved</string>
+    <string name="studio_preset_loaded">Preset loaded</string>
+    <string name="studio_preset_failed">Could not save the preset</string>
+    <string name="studio_no_folder">Set a backup folder first to save presets</string>
 
     <!-- Navigator -->
     <string name="tab_navigator">Navigator</string>

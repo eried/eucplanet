@@ -204,7 +204,7 @@ fun StudioToolsFlyout(
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
                 FlyoutSection("Preset")
-                FlyoutItem(Icons.Default.Dashboard, "Layout") {
+                FlyoutItem(Icons.Default.Dashboard, "Panes") {
                     onDismiss(); onChangeLayout()
                 }
                 FlyoutItem(Icons.Default.NoteAdd, "New") { onDismiss(); onNew() }
@@ -254,20 +254,20 @@ fun StudioConfirmDialog(
     val action: String
     when (confirm) {
         StudioConfirm.ClearLayout -> {
-            title = "New layout?"
+            title = "New preset?"
             body = "This clears every overlay and resets the screen to a single " +
-                "camera viewport. Saved layouts are not affected."
+                "camera viewport. Saved presets are not affected."
             action = "New"
         }
         is StudioConfirm.LoadUserPreset -> {
-            title = "Load layout?"
-            body = "Loading \"${confirm.name}\" replaces your current layout. " +
+            title = "Load preset?"
+            body = "Loading \"${confirm.name}\" replaces your current preset. " +
                 "Save the current one first if you want to keep it."
             action = "Load"
         }
         is StudioConfirm.LoadBundledPreset -> {
-            title = "Load built-in layout?"
-            body = "Loading \"${confirm.name}\" replaces your current layout. " +
+            title = "Load built-in preset?"
+            body = "Loading \"${confirm.name}\" replaces your current preset. " +
                 "Save the current one first if you want to keep it."
             action = "Load"
         }
@@ -491,7 +491,7 @@ fun LayoutPickerSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Viewport layout")
+            SheetHeader("Camera panes")
             Text(
                 "Pick how the screen is divided. Drag the dividers afterwards to " +
                     "resize each section.",
@@ -579,14 +579,14 @@ fun SavePresetDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-        title = { Text("Save layout") },
+        title = { Text("Save preset") },
         text = {
             Column {
                 if (!folderAvailable) {
                     FolderWarning(onOpenFolderSettings)
                 } else {
                     Text(
-                        "Layouts are saved as individual .json files in your " +
+                        "Presets are saved as individual .json files in your " +
                             "backup folder, under overlays/.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -595,7 +595,7 @@ fun SavePresetDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Layout name") },
+                        label = { Text("Preset name") },
                         singleLine = true
                     )
                 }
@@ -632,7 +632,7 @@ fun LoadPresetSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Load layout")
+            SheetHeader("Load preset")
 
             if (bundledPresets.isNotEmpty()) {
                 SectionLabel("Portrait")
@@ -660,7 +660,7 @@ fun LoadPresetSheet(
             if (!folderAvailable) {
                 FolderWarning(onOpenFolderSettings)
             } else if (presets.isNotEmpty()) {
-                SectionLabel("Your layouts")
+                SectionLabel("Your presets")
                 presets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -676,7 +676,7 @@ fun LoadPresetSheet(
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
             modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-            title = { Text("Delete layout?") },
+            title = { Text("Delete preset?") },
             text = { Text("\"$name\" will be permanently deleted.") },
             confirmButton = {
                 TextButton(onClick = { onDelete(name); confirmDelete = null }) {
@@ -722,7 +722,7 @@ private fun PresetRow(
         if (onDelete != null) {
             Icon(
                 Icons.Default.Delete,
-                contentDescription = "Delete layout",
+                contentDescription = "Delete preset",
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .clip(CircleShape)
@@ -744,7 +744,7 @@ private fun FolderWarning(onOpenFolderSettings: () -> Unit) {
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                "No backup folder is set. Saved layouts need a backup folder so " +
+                "No backup folder is set. Saved presets need a backup folder so " +
                     "each one can be its own file.",
                 style = MaterialTheme.typography.bodySmall
             )
