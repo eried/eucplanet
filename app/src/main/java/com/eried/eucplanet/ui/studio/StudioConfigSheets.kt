@@ -70,6 +70,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -305,13 +306,25 @@ val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
  * child is measured in a width/height-swapped frame, so it occupies exactly
  * the host's box (no overflow) and touch input still lands right.
  */
+@Composable
 fun Modifier.rotateLayout(rotation: Int): Modifier {
-    val r = ((rotation % 360) + 360) % 360
-    return when (r) {
-        0 -> this
-        180 -> this.rotate(180f)
-        else -> this.then(SwapSizeModifier).rotate(-r.toFloat())
+    val target = ((rotation % 360) + 360) % 360
+    // Fade out, swap orientation while invisible, fade back in — a device
+    // rotation eases the chrome over instead of snapping it around.
+    val shown = remember { androidx.compose.runtime.mutableIntStateOf(target) }
+    val fade = remember { androidx.compose.animation.core.Animatable(1f) }
+    LaunchedEffect(target) {
+        if (shown.intValue == target) return@LaunchedEffect
+        fade.animateTo(0f, androidx.compose.animation.core.tween(90))
+        shown.intValue = target
+        fade.animateTo(1f, androidx.compose.animation.core.tween(140))
     }
+    val oriented = when (shown.intValue) {
+        0 -> Modifier
+        180 -> Modifier.rotate(180f)
+        else -> Modifier.then(SwapSizeModifier).rotate(-shown.intValue.toFloat())
+    }
+    return this.then(oriented).graphicsLayer { alpha = fade.value }
 }
 
 /**
@@ -363,10 +376,8 @@ private object SwapSizeModifier : androidx.compose.ui.layout.LayoutModifier {
  */
 @Composable
 fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
-    if (rotation % 360 == 0) {
-        content()
-        return
-    }
+    // Always routed through rotateLayout so the fade-on-rotation applies even
+    // for transitions to and from the upright (0 degree) orientation.
     androidx.compose.foundation.layout.Box(
         Modifier.fillMaxSize().rotateLayout(rotation)
     ) {
