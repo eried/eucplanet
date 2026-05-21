@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
 import com.eried.eucplanet.ui.dashboard.MetricType
+import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.recording.TripDetailScreen
@@ -36,6 +37,7 @@ sealed class Screen(val route: String) {
     }
     data object Recording : Screen("recording")
     data object OverlayStudio : Screen("overlay_studio")
+    data object RouteBuilder : Screen("route_builder")
     data object Flic : Screen("flic")
     data object TripDetail : Screen("trip_detail/{tripId}") {
         fun createRoute(tripId: Long) = "trip_detail/$tripId"
@@ -77,6 +79,7 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
                 onNavigateToStudio = { navController.navigateSingle(Screen.OverlayStudio.route) },
+                onNavigateToNavigator = { navController.navigateSingle(Screen.RouteBuilder.route) },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Settings.createRoute(7)) },
                 onNavigateToTripDetail = { tripId ->
                     navController.navigateSingle(Screen.TripDetail.createRoute(tripId))
@@ -117,6 +120,11 @@ fun NavGraph(navController: NavHostController) {
                 onOpenBackupSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(4))
                 }
+            )
+        }
+        composable(Screen.RouteBuilder.route) {
+            RouteBuilderScreen(
+                onExit = { navController.popSingle() }
             )
         }
         composable(Screen.Recording.route) {

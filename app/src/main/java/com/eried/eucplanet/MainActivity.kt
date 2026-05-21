@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -152,7 +153,12 @@ class MainActivity : AppCompatActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    NavGraph(navController = navController)
+                    // The navigation popup floats above the whole nav graph so
+                    // turn cues stay visible on any screen while guiding.
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        NavGraph(navController = navController)
+                        com.eried.eucplanet.ui.navigator.NavigationOverlay()
+                    }
                 }
             }
         }

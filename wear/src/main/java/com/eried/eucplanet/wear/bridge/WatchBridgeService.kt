@@ -86,7 +86,12 @@ class WatchBridgeService : WearableListenerService() {
                         // Absent on older phone builds → NaN keeps the watch
                         // GPS readout hidden rather than rendering a fake 0.
                         gpsSpeedKmh = map.getFloat(WatchKeys.GPS_SPEED, Float.NaN),
-                        gpsSource = map.getString(WatchKeys.GPS_SOURCE, "") ?: ""
+                        gpsSource = map.getString(WatchKeys.GPS_SOURCE, "") ?: "",
+                        navActive = map.getBoolean(WatchKeys.NAV_ACTIVE, false),
+                        navAngle = map.getFloat(WatchKeys.NAV_ANGLE, 0f),
+                        navPrimary = map.getString(WatchKeys.NAV_PRIMARY, "") ?: "",
+                        navDistance = map.getString(WatchKeys.NAV_DISTANCE, "") ?: "",
+                        navArrived = map.getBoolean(WatchKeys.NAV_ARRIVED, false)
                     )
                 )
             }

@@ -680,4 +680,140 @@
     <string name="studio_preset_loaded">Layout loaded</string>
     <string name="studio_preset_failed">Could not save the layout</string>
     <string name="studio_no_folder">Set a backup folder first to save layouts</string>
+
+    <!-- Navigator -->
+    <string name="tab_navigator">Navigator</string>
+    <string name="nav_open">Open navigator</string>
+    <string name="nav_title">Route builder</string>
+    <string name="nav_search_hint">Search address or place</string>
+    <string name="nav_searching">Searching…</string>
+    <string name="nav_no_results">No matches found</string>
+    <string name="nav_mode_cycling">Bike</string>
+    <string name="nav_mode_driving">Car</string>
+    <string name="nav_mode_walking">Walk</string>
+    <string name="nav_mode_straight">Direct</string>
+    <string name="nav_menu">Menu</string>
+    <string name="nav_menu_save">Save route (GPX)</string>
+    <string name="nav_menu_load">Load route (GPX)</string>
+    <string name="nav_menu_clear">Clear route</string>
+    <string name="nav_menu_start_nav">Start navigation</string>
+    <string name="nav_menu_start_hunt">Start Treasure Hunt</string>
+    <string name="nav_menu_exit">Back to dashboard</string>
+    <string name="nav_waypoints">Stops</string>
+    <string name="nav_waypoint_default">Pin %1$d</string>
+    <string name="nav_role_start">Start</string>
+    <string name="nav_role_current_location">Current location</string>
+    <string name="nav_role_destination">Destination</string>
+    <string name="nav_max_stops">Up to a destination and 8 stops</string>
+    <string name="nav_pin_set_my_location">Set to my location</string>
+    <string name="nav_pin_remove">Remove</string>
+    <string name="nav_pin_center">Center</string>
+    <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
+    <string name="nav_start_short">Start navigation</string>
+    <string name="nav_stops_left">%1$d stops left</string>
+    <string name="nav_last_stop">Last stop</string>
+    <string name="nav_need_destination">Add a destination first</string>
+    <string name="nav_map_style">Map style</string>
+    <string name="nav_map_dark">Dark map</string>
+    <string name="nav_map_light">Light map</string>
+    <string name="nav_map_satellite">Satellite map</string>
+    <string-array name="nav_stop_ordinals">
+        <item>First stop</item>
+        <item>Second stop</item>
+        <item>Third stop</item>
+        <item>Fourth stop</item>
+        <item>Fifth stop</item>
+        <item>Sixth stop</item>
+        <item>Seventh stop</item>
+        <item>Eighth stop</item>
+    </string-array>
+    <string name="nav_my_location">My location</string>
+    <string name="nav_no_location">Waiting for a GPS fix…</string>
+    <string name="nav_route_distance">Route distance: %1$s</string>
+    <string name="nav_empty_hint">Tap the map, search, or load a GPX file.</string>
+    <string name="nav_need_two">Add at least two stops to navigate.</string>
+    <string name="nav_routing">Finding the route…</string>
+    <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
+    <string name="nav_saved">Route saved</string>
+    <string name="nav_save_failed">Could not save the route</string>
+    <string name="nav_load_failed">Could not read that GPX file</string>
+    <string name="nav_loaded">Route loaded</string>
+    <string name="nav_cleared">Route cleared</string>
+    <string name="nav_remove_stop">Remove stop</string>
+    <string name="nav_drag_stop">Reorder</string>
+    <string name="nav_default_route_name">My route</string>
+
+    <!-- Navigation overlay -->
+    <string name="nav_start_riding">Start riding</string>
+    <string name="nav_arrived">You have arrived</string>
+    <string name="nav_arrived_goal">Reached goal %1$d</string>
+    <string name="nav_end_title">End navigation?</string>
+    <string name="nav_end_body">Stop guidance for the active route?</string>
+    <string name="nav_end_confirm">End</string>
+    <string name="nav_minimize">Minimize</string>
+    <string name="nav_expand">Expand</string>
+    <string name="nav_close">End navigation</string>
+    <string name="nav_off_route">Off route</string>
+    <string name="nav_recalculating">Recalculating…</string>
+    <string name="nav_turn_left">Turn left</string>
+    <string name="nav_turn_right">Turn right</string>
+    <string name="nav_turn_slight_left">Bear left</string>
+    <string name="nav_turn_slight_right">Bear right</string>
+    <string name="nav_turn_sharp_left">Sharp left</string>
+    <string name="nav_turn_sharp_right">Sharp right</string>
+    <string name="nav_continue">Continue straight</string>
+    <string name="nav_uturn">Make a U-turn</string>
+    <string name="nav_depart">Head out</string>
+    <string name="nav_goal_label">Goal %1$d of %2$d</string>
+
+    <!-- Treasure Hunt directions -->
+    <string name="nav_dir_ahead">ahead</string>
+    <string name="nav_dir_left">on your left</string>
+    <string name="nav_dir_right">on your right</string>
+    <string name="nav_dir_slight_left">slightly left</string>
+    <string name="nav_dir_slight_right">slightly right</string>
+    <string name="nav_dir_behind">behind you</string>
+    <string name="nav_hunt_primary">Goal %1$d %2$s</string>
+    <string name="nav_prox_hot">Red hot</string>
+    <string name="nav_prox_warm">Warmer</string>
+    <string name="nav_prox_cold">Colder</string>
+
+    <!-- Distance formats -->
+    <string name="nav_dist_m">%1$d m</string>
+    <string name="nav_dist_km">%1$s km</string>
+    <string name="nav_dist_ft">%1$d ft</string>
+    <string name="nav_dist_mi">%1$s mi</string>
+
+    <!-- Spoken navigation -->
+    <string name="voice_nav_start_riding">Start riding</string>
+    <string name="voice_nav_wrong_way">Wroooong way!</string>
+    <string name="voice_nav_prepare">In %1$s, %2$s</string>
+    <string name="voice_nav_now">%1$s now</string>
+    <string name="voice_nav_arrived">You have arrived at your destination</string>
+    <string name="voice_nav_goal_reached">Goal reached</string>
+    <string name="voice_nav_hunt">Goal %1$d is %2$s %3$s</string>
+    <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_prox_warmer">getting warmer</string>
+    <string name="voice_prox_colder">getting colder</string>
+    <string name="voice_prox_hot">you are very close</string>
+    <string name="voice_dist_m">%1$d meters</string>
+    <string name="voice_dist_km">%1$s kilometers</string>
+    <string name="voice_dist_ft">%1$d feet</string>
+    <string name="voice_dist_mi">%1$s miles</string>
+
+    <!-- Navigation settings -->
+    <string name="nav_setting_voice">Voice guidance</string>
+    <string name="nav_setting_voice_desc">Speak turn and Treasure Hunt instructions</string>
+    <string name="nav_setting_arrival_radius">Arrival radius</string>
+    <string name="nav_setting_arrival_radius_desc">How close counts as reaching a stop</string>
+    <string name="nav_setting_offroute">Off-route tolerance</string>
+    <string name="nav_setting_offroute_desc">How far off the route before \"wrong way\" triggers</string>
+    <string name="nav_setting_default_mode">Default travel mode</string>
+    <string name="nav_setting_open_builder">Open route builder</string>
+    <string name="nav_setting_endpoints">Routing services</string>
+    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server.</string>
+    <string name="nav_setting_geocoder_url">Address search URL</string>
+    <string name="nav_setting_router_url">Routing URL</string>
+    <string name="watch_show_navigation">Show navigation</string>
+    <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
 </resources>

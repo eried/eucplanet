@@ -39,6 +39,8 @@ class WheelService : LifecycleService() {
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
         const val ACTION_START_RECORDING = "com.eried.eucplanet.START_RECORDING"
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
+        const val ACTION_START_NAVIGATION = "com.eried.eucplanet.START_NAVIGATION"
+        const val ACTION_STOP_NAVIGATION = "com.eried.eucplanet.STOP_NAVIGATION"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
     }
@@ -53,6 +55,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -208,6 +211,26 @@ class WheelService : LifecycleService() {
         } else {
             Log.w(TAG, "Location permission not granted — GPS tracking disabled")
         }
+
+        // Surface the next maneuver in the ongoing notification while navigating.
+        // Throttled to 1 Hz so a per-GPS-fix NavState stream doesn't spam
+        // notify(), but an active<->inactive flip always refreshes immediately
+        // so the text reverts the moment navigation starts or ends.
+        lifecycleScope.launch {
+            var lastNavActive = false
+            var lastNavNotifyMs = 0L
+            navigationEngine.navState.collect { nav ->
+                val now = System.currentTimeMillis()
+                if (nav.active != lastNavActive || now - lastNavNotifyMs >= 1000L) {
+                    lastNavActive = nav.active
+                    lastNavNotifyMs = now
+                    val manager = getSystemService(NotificationManager::class.java)
+                    manager.notify(
+                        NOTIFICATION_ID, buildNotification(wheelRepository.wheelData.value)
+                    )
+                }
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -229,6 +252,14 @@ class WheelService : LifecycleService() {
             }
             ACTION_STOP_RECORDING -> {
                 lifecycleScope.launch { tripRepository.stopRecording() }
+            }
+            ACTION_START_NAVIGATION -> {
+                // The engine drives navigation; the service just guarantees GPS
+                // keeps flowing and the process stays alive while guiding.
+                tripRepository.startLocationUpdates()
+            }
+            ACTION_STOP_NAVIGATION -> {
+                navigationEngine.stop()
             }
         }
 
@@ -354,7 +385,15 @@ class WheelService : LifecycleService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val text = if (data != null && data.speed > 0) {
+        val nav = navigationEngine.navState.value
+        val text = if (nav.active) {
+            // Navigation takes over the notification text so a pocketed phone
+            // still shows the next move.
+            listOf(nav.primaryText, nav.distanceText)
+                .filter { it.isNotBlank() }
+                .joinToString("  ·  ")
+                .ifBlank { getString(R.string.nav_title) }
+        } else if (data != null && data.speed > 0) {
             val displaySpeed = com.eried.eucplanet.util.Units.speed(data.speed, speedUnitCached)
             val speedUnit = com.eried.eucplanet.util.Units.speedUnit(this, speedUnitCached)
             "%.1f %s | %d%% | %.1f V".format(displaySpeed, speedUnit, data.batteryPercent, data.voltage)

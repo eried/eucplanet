@@ -219,6 +219,30 @@ data class AppSettings(
     /** Show the extra-GPS speed indicator on the dashboard speed dial. */
     val gpsShowOnDashboard: Boolean = true,
 
+    // --- Navigator ---
+    // In-app navigation: the route builder, live turn-by-turn guidance and the
+    // Treasure Hunt proximity-hint mode.
+    /** Speak turn-by-turn / Treasure Hunt instructions through TTS. */
+    val navVoiceEnabled: Boolean = true,
+    /** Radius (meters) within which a waypoint / goal counts as "reached". */
+    val navArrivalRadiusM: Int = 25,
+    /** Perpendicular distance (meters) off the route before "wrong way" triggers. */
+    val navOffRouteToleranceM: Int = 40,
+    /** Default travel mode for new routes: CYCLING / DRIVING / WALKING / STRAIGHT. */
+    val navDefaultTravelMode: String = "CYCLING",
+    /** Geocoder (address search) endpoint — overridable for self-hosting. */
+    val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
+    /** Routing endpoint — overridable for self-hosting. */
+    val navRouterUrl: String = "https://routing.openstreetmap.de",
+    /**
+     * The route currently loaded in the builder and used by live navigation,
+     * persisted as JSON ([com.eried.eucplanet.data.model.NavRoute.toJson]) so it
+     * survives an app restart. Null when no route is set.
+     */
+    val navCurrentRouteJson: String? = null,
+    /** Route Builder map style: DARK / LIGHT / SATELLITE. */
+    val navMapType: String = "DARK",
+
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,
     val watchAutoStart: Boolean = true,
@@ -290,6 +314,12 @@ data class AppSettings(
      * retuned later without a settings migration.
      */
     val watchUpdateRate: String = "NORMAL",
+    /**
+     * Mirror the live navigation popup (turn arrow + distance) on the paired
+     * watch. Off by default so the watch dial stays the primary glance
+     * surface unless the rider explicitly opts in.
+     */
+    val watchShowNavigation: Boolean = false,
 
     // --- Motor Sound generator ---
     //

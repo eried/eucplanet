@@ -174,6 +174,15 @@ object SettingsJson {
         put("gpsLogAdditional", s.gpsLogAdditional)
         put("gpsPrioritizeExternal", s.gpsPrioritizeExternal)
         put("gpsShowOnDashboard", s.gpsShowOnDashboard)
+        put("navVoiceEnabled", s.navVoiceEnabled)
+        put("navArrivalRadiusM", s.navArrivalRadiusM)
+        put("navOffRouteToleranceM", s.navOffRouteToleranceM)
+        put("navDefaultTravelMode", s.navDefaultTravelMode)
+        put("navGeocoderUrl", s.navGeocoderUrl)
+        put("navRouterUrl", s.navRouterUrl)
+        put("navCurrentRouteJson", s.navCurrentRouteJson)
+        put("navMapType", s.navMapType)
+        put("watchShowNavigation", s.watchShowNavigation)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -319,7 +328,16 @@ object SettingsJson {
         raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),
         gpsLogAdditional = j.optBoolean("gpsLogAdditional", base.gpsLogAdditional),
         gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
-        gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard)
+        gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard),
+        navVoiceEnabled = j.optBoolean("navVoiceEnabled", base.navVoiceEnabled),
+        navArrivalRadiusM = j.optInt("navArrivalRadiusM", base.navArrivalRadiusM),
+        navOffRouteToleranceM = j.optInt("navOffRouteToleranceM", base.navOffRouteToleranceM),
+        navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
+        navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
+        navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
+        navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
+        navMapType = j.optString("navMapType", base.navMapType),
+        watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

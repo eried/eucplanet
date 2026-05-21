@@ -18,6 +18,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
@@ -62,6 +63,8 @@ import androidx.compose.material.icons.filled.GpsNotFixed
 import androidx.compose.material.icons.filled.GpsOff
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.RadioButtonChecked
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.RecordVoiceOver
@@ -129,6 +132,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.arrowAngleDeg
+import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -146,6 +151,7 @@ fun DashboardScreen(
     onNavigateToSettings: (Int?) -> Unit,
     onNavigateToRecording: () -> Unit,
     onNavigateToStudio: () -> Unit = {},
+    onNavigateToNavigator: () -> Unit = {},
     onNavigateToFlic: () -> Unit = {},
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
@@ -211,6 +217,10 @@ fun DashboardScreen(
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
     val hasFlic by viewModel.hasFlicConfigured.collectAsState()
+    // Navigation state — drives the dashboard's navigator button (the singleton
+    // engine behind this VM is shared with the floating navigation overlay).
+    val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
+    val navState by navOverlayVm.navState.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
@@ -595,6 +605,33 @@ fun DashboardScreen(
                         .clickable(
                             onClickLabel = stringResource(R.string.studio_open)
                         ) { onNavigateToStudio() }
+                )
+                // Navigator entry point — bottom-left, a bare icon styled to
+                // match the P / D indicators above it (same left column). While
+                // guidance runs it turns into a green arrow rotating toward the
+                // next point; otherwise it follows the rider's accent colour.
+                // Tapping it during guidance re-opens the navigation popup so
+                // the rider can act on it; otherwise it opens the route builder.
+                val navActive = navState.active
+                val navBtnAngle by animateFloatAsState(
+                    if (navActive) navState.arrowAngleDeg() else 0f,
+                    label = "navBtnArrow"
+                )
+                Icon(
+                    imageVector = if (navActive) Icons.Default.Navigation
+                    else Icons.Default.Map,
+                    contentDescription = stringResource(R.string.nav_open),
+                    tint = if (navActive) AccentGreen
+                    else if (useAccent) primary else AccentBlue,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = 4.dp, bottom = 10.dp)
+                        .size(32.dp)
+                        .clickable {
+                            if (navActive) navOverlayVm.requestPopup()
+                            else onNavigateToNavigator()
+                        }
+                        .rotate(if (navActive) navBtnAngle else 0f)
                 )
             }
 
