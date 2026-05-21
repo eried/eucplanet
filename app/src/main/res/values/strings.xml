@@ -712,6 +712,7 @@
     <string name="nav_pin_center">Center</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
+    <string name="nav_stop_short">Stop navigation</string>
     <string name="nav_stops_left">%1$d stops left</string>
     <string name="nav_last_stop">Last stop</string>
     <string name="nav_need_destination">Add a destination first</string>

@@ -475,6 +475,14 @@ class RouteBuilderViewModel @Inject constructor(
     /** Drops a saved preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)
 
+    /** True while guidance is running — the screen locks editing then. */
+    val navRunning: StateFlow<Boolean> = navigationEngine.navState
+        .map { it.active }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, navigationEngine.isActive)
+
+    /** Ends the running guidance session (the on-map "Stop navigation" action). */
+    fun stopNavigation() = navigationEngine.stop()
+
     fun geometryJson(): String {
         val arr = JSONArray()
         _route.value?.geometry?.forEach { p ->

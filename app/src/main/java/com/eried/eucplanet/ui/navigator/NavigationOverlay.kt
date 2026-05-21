@@ -232,21 +232,16 @@ private fun CenterPopup(
                     color = ink.copy(alpha = 0.7f),
                     modifier = Modifier.weight(1f)
                 )
-                // Opens the full map screen (read-only while guiding).
-                Box(
-                    modifier = Modifier
-                        .size(34.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(ink.copy(alpha = 0.12f))
-                        .clickable { onOpenMap() },
-                    contentAlignment = Alignment.Center
+                // Minimizes the popup and opens the full map screen.
+                IconButton(
+                    onClick = { onMinimize(); onOpenMap() },
+                    modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
                         Icons.Default.Map, stringResource(R.string.nav_map_style),
-                        tint = ink, modifier = Modifier.size(20.dp)
+                        tint = ink, modifier = Modifier.size(22.dp)
                     )
                 }
-                Spacer(Modifier.width(6.dp))
                 IconButton(onClick = onMinimize, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.Remove, stringResource(R.string.nav_minimize),

@@ -130,6 +130,8 @@ fun RouteBuilderScreen(
     val mapType by viewModel.mapType.collectAsState()
     val homePlace by viewModel.home.collectAsState()
     val workPlace by viewModel.work.collectAsState()
+    // While guidance runs the map is read-only: no search, no stop editing.
+    val navRunning by viewModel.navRunning.collectAsState()
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
@@ -263,6 +265,7 @@ fun RouteBuilderScreen(
                             viewModel.search(it)
                         },
                         placeholder = { Text(stringResource(R.string.nav_search_hint)) },
+                        enabled = !navRunning,
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
                             if (searchText.isNotEmpty()) {
@@ -324,9 +327,15 @@ fun RouteBuilderScreen(
                         setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
                         addJavascriptInterface(
                             NavJsBridge(
-                                mapClick = { lat, lng -> viewModel.addWaypoint(lat, lng) },
+                                mapClick = { lat, lng ->
+                                    if (!viewModel.navRunning.value) {
+                                        viewModel.addWaypoint(lat, lng)
+                                    }
+                                },
                                 markerDragged = { i, lat, lng ->
-                                    viewModel.moveWaypoint(i, lat, lng)
+                                    if (!viewModel.navRunning.value) {
+                                        viewModel.moveWaypoint(i, lat, lng)
+                                    }
                                 },
                                 selfTap = { viewModel.notifyTapOnSelf() }
                             ),
@@ -355,7 +364,7 @@ fun RouteBuilderScreen(
             )
 
             // --- Search results overlay ---
-            if (searchFocused || searching || searchResults.isNotEmpty()) {
+            if (!navRunning && (searchFocused || searching || searchResults.isNotEmpty())) {
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -520,7 +529,9 @@ fun RouteBuilderScreen(
                         }
                     },
                     onStartNavigation = startNav,
-                    canStartNavigation = userLocation != null && waypoints.isNotEmpty()
+                    onStopNavigation = viewModel::stopNavigation,
+                    canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
+                    navRunning = navRunning
                 )
             }
 
@@ -607,7 +618,9 @@ private fun BottomPanel(
     onReorder: (Int, Int) -> Unit,
     onCenterPin: (Int) -> Unit,
     onStartNavigation: () -> Unit,
+    onStopNavigation: () -> Unit,
     canStartNavigation: Boolean,
+    navRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -687,6 +700,7 @@ private fun BottomPanel(
                             SegmentedButton(
                                 selected = travelMode == mode,
                                 onClick = { onModeChange(mode) },
+                                enabled = !navRunning,
                                 shape = SegmentedButtonDefaults.itemShape(index, modes.size),
                                 icon = {}
                             ) {
@@ -700,10 +714,15 @@ private fun BottomPanel(
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(
-                        onClick = onStartNavigation,
-                        enabled = canStartNavigation
+                        onClick = if (navRunning) onStopNavigation else onStartNavigation,
+                        enabled = navRunning || canStartNavigation
                     ) {
-                        Text(stringResource(R.string.nav_start_short))
+                        Text(
+                            stringResource(
+                                if (navRunning) R.string.nav_stop_short
+                                else R.string.nav_start_short
+                            )
+                        )
                     }
                 }
 
@@ -724,7 +743,7 @@ private fun BottomPanel(
                     ) {
                         ReorderableColumn(
                             list = waypoints,
-                            onSettle = onReorder,
+                            onSettle = if (navRunning) { _, _ -> } else onReorder,
                             onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
                             modifier = Modifier.fillMaxWidth()
                         ) { index, waypoint, _ ->
@@ -778,8 +797,11 @@ private fun BottomPanel(
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
-                                        // Quick-access remove, always visible.
-                                        IconButton(onClick = { onRemove(index) }) {
+                                        // Quick-access remove — locked while guiding.
+                                        IconButton(
+                                            onClick = { onRemove(index) },
+                                            enabled = !navRunning
+                                        ) {
                                             Icon(
                                                 Icons.Default.Delete,
                                                 contentDescription =
