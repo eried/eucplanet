@@ -575,6 +575,9 @@ private fun BuilderMenu(
             text = { Text(stringResource(R.string.nav_menu_clear)) },
             onClick = { onDismiss(); onClear() }
         )
+        if (hasHome || hasWork) {
+            HorizontalDivider()
+        }
         if (hasHome) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_clear_home)) },
