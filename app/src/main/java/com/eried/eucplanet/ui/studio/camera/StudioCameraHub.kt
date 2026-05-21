@@ -3,9 +3,11 @@ package com.eried.eucplanet.ui.studio.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ConcurrentCamera
@@ -32,12 +34,17 @@ import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-/** A camera the device exposes, with a portable logical [key] (BACK / FRONT…). */
+/**
+ * A camera the device exposes. [deviceId] is the logical camera CameraX binds;
+ * [physicalId] (when set) pins a specific physical lens behind it — that is how
+ * the ultrawide / telephoto are reached, since CameraX only lists the logicals.
+ */
 data class StudioCameraInfo(
     val key: String,
     val label: String,
     val front: Boolean,
-    val deviceId: String
+    val deviceId: String,
+    val physicalId: String? = null
 )
 
 /**
@@ -94,7 +101,7 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
         val provider = runCatching { awaitCameraProvider(context) }.getOrNull()
             ?: return@LaunchedEffect
         hub.provider = provider
-        hub.cameras = enumerateCameras(provider)
+        hub.cameras = enumerateCameras(provider, context)
         hub.maxConcurrent = runCatching {
             if (provider.availableConcurrentCameraInfos.isNotEmpty()) 2 else 1
         }.getOrDefault(1)
@@ -131,26 +138,49 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
 }
 
 @OptIn(ExperimentalCamera2Interop::class)
-private fun enumerateCameras(provider: ProcessCameraProvider): List<StudioCameraInfo> {
-    var backCount = 0
-    var frontCount = 0
+private fun enumerateCameras(
+    provider: ProcessCameraProvider,
+    context: Context
+): List<StudioCameraInfo> {
+    val cm = context.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+    val out = mutableListOf<StudioCameraInfo>()
     var index = 0
-    return provider.availableCameraInfos.mapNotNull { info ->
+    provider.availableCameraInfos.forEach { info ->
         val deviceId = runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
-            ?: return@mapNotNull null
+            ?: return@forEach
         val front = info.lensFacing == CameraSelector.LENS_FACING_FRONT
-        // The system's front/back lens flag is unreliable on some phones, so
-        // every camera the device exposes is simply numbered in discovery order.
-        index++
-        val key: String = if (front) {
-            frontCount++
-            if (frontCount == 1) "FRONT" else "FRONT$frontCount"
+        // A logical multi-camera hides its real lenses (ultrawide / tele) as
+        // physical sub-cameras — list each one so the rider can pick it.
+        val physicalIds = runCatching {
+            cm?.getCameraCharacteristics(deviceId)?.physicalCameraIds?.toList()
+        }.getOrNull().orEmpty()
+        if (physicalIds.isEmpty()) {
+            index++
+            out.add(
+                StudioCameraInfo(
+                    key = if (front) "FRONT" else "BACK",
+                    label = "Camera $index",
+                    front = front,
+                    deviceId = deviceId,
+                    physicalId = null
+                )
+            )
         } else {
-            backCount++
-            if (backCount == 1) "BACK" else "BACK$backCount"
+            physicalIds.forEach { pid ->
+                index++
+                out.add(
+                    StudioCameraInfo(
+                        key = (if (front) "FRONT" else "BACK") + "_" + pid,
+                        label = "Camera $index",
+                        front = front,
+                        deviceId = deviceId,
+                        physicalId = pid
+                    )
+                )
+            }
         }
-        StudioCameraInfo(key, "Camera $index", front, deviceId)
     }
+    return out
 }
 
 @OptIn(ExperimentalCamera2Interop::class)
@@ -159,12 +189,13 @@ private fun selectorFor(deviceId: String): CameraSelector =
         infos.filter { Camera2CameraInfo.from(it).cameraId == deviceId }
     }.build()
 
+@OptIn(ExperimentalCamera2Interop::class)
 private fun newAnalysis(
     cam: StudioCameraInfo,
     hub: StudioCameraHub,
     executor: Executor
 ): ImageAnalysis {
-    val analysis = ImageAnalysis.Builder()
+    val builder = ImageAnalysis.Builder()
         .setResolutionSelector(
             ResolutionSelector.Builder()
                 .setResolutionStrategy(
@@ -177,7 +208,11 @@ private fun newAnalysis(
         )
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-        .build()
+    // Pin the exact physical lens when this camera is a sub-camera.
+    if (cam.physicalId != null) {
+        runCatching { Camera2Interop.Extender(builder).setPhysicalCameraId(cam.physicalId) }
+    }
+    val analysis = builder.build()
     analysis.setAnalyzer(executor) { proxy ->
         try {
             hub.frames[cam.key] = proxy.toUprightBitmap().asImageBitmap()
