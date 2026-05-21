@@ -149,35 +149,28 @@ private fun enumerateCameras(
         val deviceId = runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
             ?: return@forEach
         val front = info.lensFacing == CameraSelector.LENS_FACING_FRONT
-        // A logical multi-camera hides its real lenses (ultrawide / tele) as
-        // physical sub-cameras — list each one so the rider can pick it.
+        val base = if (front) "FRONT" else "BACK"
+        // The logical camera itself — auto-switching, and the default key
+        // existing presets / new viewports refer to.
+        index++
+        out.add(
+            StudioCameraInfo(base, "$index", front, deviceId, physicalId = null)
+        )
+        // Plus each physical lens behind it (ultrawide / tele / extra sensors).
         val physicalIds = runCatching {
             cm?.getCameraCharacteristics(deviceId)?.physicalCameraIds?.toList()
         }.getOrNull().orEmpty()
-        if (physicalIds.isEmpty()) {
+        physicalIds.forEach { pid ->
             index++
             out.add(
                 StudioCameraInfo(
-                    key = if (front) "FRONT" else "BACK",
-                    label = "Camera $index",
+                    key = base + "_" + pid,
+                    label = "$index",
                     front = front,
                     deviceId = deviceId,
-                    physicalId = null
+                    physicalId = pid
                 )
             )
-        } else {
-            physicalIds.forEach { pid ->
-                index++
-                out.add(
-                    StudioCameraInfo(
-                        key = (if (front) "FRONT" else "BACK") + "_" + pid,
-                        label = "Camera $index",
-                        front = front,
-                        deviceId = deviceId,
-                        physicalId = pid
-                    )
-                )
-            }
         }
     }
     return out

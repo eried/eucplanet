@@ -870,7 +870,9 @@ private fun CameraPicker(
         )
         return
     }
-    val atLimit = inUseKeys.size >= 2
+    // Count cameras used by OTHER panes only — this pane's own camera does not
+    // count, so picking the 2nd of two panes is fine; the limit bites at a 3rd.
+    val atLimit = inUseKeys.count { it != selectedKey } >= 2
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(vertical = 4.dp)
