@@ -76,16 +76,18 @@ class NavigationEngine @Inject constructor(
         private const val PREPARE_DIST_M = 200.0
         private const val EXECUTE_DIST_M = 30.0
 
-        // Off-route handling.
-        private const val OFF_ROUTE_GRACE_MS = 3_000L
-        private const val WRONG_WAY_COOLDOWN_MS = 14_000L
-        private const val REROUTE_AFTER_MS = 12_000L
+        // Off-route handling — deliberately unhurried so a brief GPS wobble or
+        // a cut corner does not nag the rider.
+        private const val OFF_ROUTE_GRACE_MS = 8_000L
+        private const val WRONG_WAY_VOICE_AFTER_MS = 14_000L
+        private const val WRONG_WAY_COOLDOWN_MS = 35_000L
+        private const val REROUTE_AFTER_MS = 22_000L
 
         // How long the "arrived" banner lingers before the popup self-clears.
         private const val ARRIVAL_DISMISS_MS = 9_000L
 
         // Treasure Hunt voice cadence + proximity hysteresis.
-        private const val HUNT_VOICE_INTERVAL_MS = 20_000L
+        private const val HUNT_VOICE_INTERVAL_MS = 45_000L
         private const val PROX_BAND_M = 4.0
     }
 
@@ -179,7 +181,7 @@ class NavigationEngine @Inject constructor(
                 waiting = true,
                 primaryText = context.getString(R.string.nav_start_riding),
                 goalIndex = 1,
-                goalCount = route.waypoints.size.coerceAtLeast(1)
+                goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
             )
 
             if (voiceEnabled) {
@@ -237,7 +239,8 @@ class NavigationEngine @Inject constructor(
         backOnRouteSinceMs = 0L
         lastWrongWayMs = 0L
         rerouteInFlight = false
-        currentGoal = 0
+        // 1, not 0 — waypoint 0 is the rider's start point, never a goal.
+        currentGoal = 1
         lastGoalDistM = Double.NaN
         lastProximity = null
         lastHuntVoiceMs = 0L
@@ -333,8 +336,8 @@ class NavigationEngine @Inject constructor(
             distanceText = NavFormat.distance(context, distToTurn, imperial),
             nextStreet = next?.streetName ?: "",
             offRoute = _navState.value.offRoute,
-            goalIndex = (reached + 1).coerceIn(1, route.waypoints.size),
-            goalCount = route.waypoints.size
+            goalIndex = (reached + 1).coerceIn(1, (route.waypoints.size - 1).coerceAtLeast(1)),
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
         )
     }
 
@@ -382,7 +385,11 @@ class NavigationEngine @Inject constructor(
         if (offFor < OFF_ROUTE_GRACE_MS) return
 
         if (!_navState.value.offRoute) _navState.value = _navState.value.copy(offRoute = true)
-        if (voiceEnabled && now - lastWrongWayMs > WRONG_WAY_COOLDOWN_MS) {
+        // The spoken "wrong way" waits well past the visual flag, so a short
+        // detour clears itself before the rider is ever told off.
+        if (voiceEnabled && offFor > WRONG_WAY_VOICE_AFTER_MS &&
+            now - lastWrongWayMs > WRONG_WAY_COOLDOWN_MS
+        ) {
             lastWrongWayMs = now
             voiceService.announceEvent(context.getString(R.string.voice_nav_wrong_way))
         }
@@ -396,6 +403,9 @@ class NavigationEngine @Inject constructor(
     /** Re-routes from the current position through the not-yet-reached waypoints. */
     private fun reroute(route: NavRoute, from: GeoPoint) {
         rerouteInFlight = true
+        if (voiceEnabled) {
+            voiceService.announceEvent(context.getString(R.string.nav_recalculating))
+        }
         rerouteJob = scope.launch {
             try {
                 val reached = GeoMath.nearestOnPolyline(from, route.geometry)?.alongM ?: 0.0
@@ -446,8 +456,8 @@ class NavigationEngine @Inject constructor(
             primaryText = context.getString(R.string.nav_continue),
             distanceText = NavFormat.distance(context, dist, imperial),
             nextStreet = "",
-            goalIndex = route.waypoints.size,
-            goalCount = route.waypoints.size
+            goalIndex = (route.waypoints.size - 1).coerceAtLeast(1),
+            goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
         )
     }
 
@@ -494,29 +504,29 @@ class NavigationEngine @Inject constructor(
             arrow = GeoMath.arrowFor(rel),
             relativeBearingDeg = rel.toFloat(),
             primaryText = context.getString(
-                R.string.nav_hunt_primary, currentGoal + 1, directionText(rel)
+                R.string.nav_hunt_primary, goalLabel(currentGoal), directionText(rel)
             ),
             distanceText = NavFormat.distance(context, dist, imperial),
             nextStreet = "",
             proximity = proximity,
             goalIndex = currentGoal,
-            goalCount = goals.size
+            goalCount = (goals.size - 1).coerceAtLeast(1)
         )
 
         // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL while moving.
         if (voiceEnabled && now - lastHuntVoiceMs > HUNT_VOICE_INTERVAL_MS) {
             lastHuntVoiceMs = now
-            speakHunt(currentGoal + 1, dist, rel, proximity)
+            speakHunt(currentGoal, dist, rel, proximity)
         }
 
         lastGoalDistM = dist
         lastProximity = proximity
     }
 
-    private fun speakHunt(goalNumber: Int, dist: Double, rel: Double, proximity: Proximity) {
+    private fun speakHunt(waypointIndex: Int, dist: Double, rel: Double, proximity: Proximity) {
         val base = context.getString(
             R.string.voice_nav_hunt,
-            goalNumber,
+            goalLabel(waypointIndex),
             NavFormat.spokenDistance(context, dist, imperial),
             directionText(rel)
         )
@@ -569,6 +579,15 @@ class NavigationEngine @Inject constructor(
             TurnType.CONTINUE, TurnType.ROUNDABOUT -> R.string.nav_continue
         }
     )
+
+    /** "Next stop" for an intermediate waypoint, "Destination" for the last. */
+    private fun goalLabel(waypointIndex: Int): String {
+        val last = (activeRoute?.waypoints?.size ?: 0) - 1
+        return context.getString(
+            if (waypointIndex >= last) R.string.nav_label_destination
+            else R.string.nav_label_next_stop
+        )
+    }
 
     /** Heading-relative direction word for Treasure Hunt ("on your left", etc.). */
     private fun directionText(relBearing: Double): String {

@@ -775,7 +775,9 @@
     <string name="nav_dir_slight_left">slightly left</string>
     <string name="nav_dir_slight_right">slightly right</string>
     <string name="nav_dir_behind">behind you</string>
-    <string name="nav_hunt_primary">Goal %1$d %2$s</string>
+    <string name="nav_hunt_primary">%1$s %2$s</string>
+    <string name="nav_label_next_stop">Next stop</string>
+    <string name="nav_label_destination">Destination</string>
     <string name="nav_prox_hot">Red hot</string>
     <string name="nav_prox_warm">Warmer</string>
     <string name="nav_prox_cold">Colder</string>
@@ -792,8 +794,8 @@
     <string name="voice_nav_prepare">In %1$s, %2$s</string>
     <string name="voice_nav_now">%1$s now</string>
     <string name="voice_nav_arrived">You have arrived at your destination</string>
-    <string name="voice_nav_goal_reached">Goal reached</string>
-    <string name="voice_nav_hunt">Goal %1$d is %2$s %3$s</string>
+    <string name="voice_nav_goal_reached">Stop reached</string>
+    <string name="voice_nav_hunt">%1$s is %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
     <string name="voice_prox_warmer">getting warmer</string>
     <string name="voice_prox_colder">getting colder</string>

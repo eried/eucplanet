@@ -17,10 +17,10 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 
 ## Navigation
 
-- [ ] **1. "Wrong way" timing** — say "Wrooooong waaay" much later / less
+- [x] **1. "Wrong way" timing** — say "Wrooooong waaay" much later / less
   eagerly than it does now.
 
-- [ ] **2. Recalculation logic** — confirm the app recalculates the route when
+- [x] **2. Recalculation logic** — confirm the app recalculates the route when
   the user goes far from the original path or repeatedly travels the wrong way.
   Right now it seems not to: routing makes no sense — it announces the next
   goal, then "goal reached", then "wrong way", as if it is not travelling with
@@ -37,13 +37,13 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
   tolerance, and similar distance values display in the app's configured units
   (feet/meters, etc.), not a hardcoded unit.
 
-- [ ] **5. Rename "Goal" in voice** — when there is more than one stop, call it
+- [x] **5. Rename "Goal" in voice** — when there is more than one stop, call it
   "Next stop"; call the final one "Destination" in the voice announcements.
 
-- [ ] **6. Start point is not a goal** — the first point (where the user
+- [x] **6. Start point is not a goal** — the first point (where the user
   starts) should not be announced/treated as a goal.
 
-- [ ] **7. Announce recalculating** — say "Recalculating" when the route is
+- [x] **7. Announce recalculating** — say "Recalculating" when the route is
   recalculating.
 
 - [ ] **8. Home / Work presets** — add Home and Work presets, settable from the
@@ -78,3 +78,8 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 - [ ] **14. Current-location marker z-order** — in the stop's navigation
   editor, draw the current-location marker on top of the navigation lines and
   make it bigger.
+
+- [ ] **15. Section-source button hidden by rounded corners** — on the Pixel
+  Pro the rounded screen corners hide the "Section N source" button. Move it
+  down and restyle it as a label with the top-left and bottom-left corners very
+  rounded and the right corners square.
