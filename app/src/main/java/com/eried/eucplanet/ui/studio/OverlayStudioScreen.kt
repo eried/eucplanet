@@ -694,6 +694,7 @@ fun OverlayStudioScreen(
 
         // Replay panel — always on while in replay mode; its X returns to live.
         if (replayMode) {
+          RotatedFullScreen(deviceRotation) {
             Box(Modifier.safeDrawingPadding().fillMaxSize()) {
                 StudioReplayDialog(
                     trips = trips,
@@ -735,10 +736,12 @@ fun OverlayStudioScreen(
                         .alpha(if (replayDimmed) 0.4f else 1f)
                 )
             }
+          }
         }
 
         // Replay clip render progress.
         if (rendering) {
+          RotatedFullScreen(deviceRotation) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -791,6 +794,7 @@ fun OverlayStudioScreen(
                     }
                 }
             }
+          }
         }
 
         // Confirm before throwing away an in-progress render.

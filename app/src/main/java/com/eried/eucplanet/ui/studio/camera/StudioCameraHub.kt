@@ -134,22 +134,22 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
 private fun enumerateCameras(provider: ProcessCameraProvider): List<StudioCameraInfo> {
     var backCount = 0
     var frontCount = 0
+    var index = 0
     return provider.availableCameraInfos.mapNotNull { info ->
         val deviceId = runCatching { Camera2CameraInfo.from(info).cameraId }.getOrNull()
             ?: return@mapNotNull null
         val front = info.lensFacing == CameraSelector.LENS_FACING_FRONT
-        val key: String
-        val label: String
-        if (front) {
+        // The system's front/back lens flag is unreliable on some phones, so
+        // every camera the device exposes is simply numbered in discovery order.
+        index++
+        val key: String = if (front) {
             frontCount++
-            key = if (frontCount == 1) "FRONT" else "FRONT$frontCount"
-            label = if (frontCount == 1) "Front camera" else "Front camera $frontCount"
+            if (frontCount == 1) "FRONT" else "FRONT$frontCount"
         } else {
             backCount++
-            key = if (backCount == 1) "BACK" else "BACK$backCount"
-            label = if (backCount == 1) "Back camera" else "Back camera $backCount"
+            if (backCount == 1) "BACK" else "BACK$backCount"
         }
-        StudioCameraInfo(key, label, front, deviceId)
+        StudioCameraInfo(key, "Camera $index", front, deviceId)
     }
 }
 

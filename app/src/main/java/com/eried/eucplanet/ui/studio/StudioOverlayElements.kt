@@ -159,7 +159,11 @@ private fun StudioElementBox(
                 .widthIn(max = containerW * element.width)
                 .then(
                     if (editable) Modifier.pointerInput(element.id) {
-                        detectDragGestures { change, drag ->
+                        detectDragGestures(
+                            // A drag grabs — and selects — whatever it lands on,
+                            // so you never silently move an unselected element.
+                            onDragStart = { onSelect() }
+                        ) { change, drag ->
                             change.consume()
                             val e = live
                             // Elements may sit partly / fully off-screen; the
@@ -179,30 +183,31 @@ private fun StudioElementBox(
                         detectTapGestures(onTap = { onSelect() })
                     } else Modifier
                 )
-                .then(
-                    // Dashed marquee so the selection reads clearly over any
-                    // background without hiding the element's own edges.
-                    if (selected) Modifier.drawBehind {
-                        drawRoundRect(
-                            color = accent,
-                            cornerRadius = CornerRadius(5.dp.toPx()),
-                            style = Stroke(
-                                width = 2.dp.toPx(),
-                                pathEffect = PathEffect.dashPathEffect(
-                                    floatArrayOf(14f, 9f), 0f
+        ) {
+            // The dashed marquee shares the element's rotation so it always
+            // frames the content squarely, whatever angle the element is at.
+            Box(
+                Modifier
+                    .graphicsLayer { rotationZ = element.rotationDeg }
+                    .then(
+                        if (selected) Modifier.drawBehind {
+                            drawRoundRect(
+                                color = accent,
+                                cornerRadius = CornerRadius(5.dp.toPx()),
+                                style = Stroke(
+                                    width = 2.dp.toPx(),
+                                    pathEffect = PathEffect.dashPathEffect(
+                                        floatArrayOf(14f, 9f), 0f
+                                    )
                                 )
                             )
-                        )
-                    } else Modifier
-                )
-        ) {
-            // Opacity/rotation only affect the content, not the edit chrome.
-            Box(
-                Modifier.graphicsLayer {
-                    alpha = element.opacity.coerceIn(0f, 1f)
-                    rotationZ = element.rotationDeg
-                }
-            ) { content() }
+                        } else Modifier
+                    )
+            ) {
+                Box(
+                    Modifier.graphicsLayer { alpha = element.opacity.coerceIn(0f, 1f) }
+                ) { content() }
+            }
         }
 
         if (selected) {
