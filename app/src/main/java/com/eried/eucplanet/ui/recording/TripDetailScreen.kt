@@ -425,7 +425,7 @@ private fun RouteMapView(
         // Map-layer selector — cycles light / dark / satellite.
         androidx.compose.foundation.layout.Box(
             Modifier
-                .align(Alignment.TopEnd)
+                .align(Alignment.BottomEnd)
                 .padding(8.dp)
                 .size(40.dp)
                 .clip(RoundedCornerShape(10.dp))

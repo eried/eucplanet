@@ -119,15 +119,16 @@ class StudioVideoEncoder(
                     heights.lower, heights.upper
                 ) / hAlign) * hAlign
             }
-            val bitRate = (encodeW.toLong() * encodeH * 5)
-                .coerceIn(3_000_000L, 18_000_000L).toInt()
+            // Higher bitrate (x9) keeps fast on-screen motion sharp at 60 fps.
+            val bitRate = (encodeW.toLong() * encodeH * 9)
+                .coerceIn(6_000_000L, 32_000_000L).toInt()
             val format = MediaFormat.createVideoFormat(VIDEO_MIME, encodeW, encodeH).apply {
                 setInteger(
                     MediaFormat.KEY_COLOR_FORMAT,
                     MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
                 )
                 setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
-                setInteger(MediaFormat.KEY_FRAME_RATE, 30)
+                setInteger(MediaFormat.KEY_FRAME_RATE, 60)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
             }
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)

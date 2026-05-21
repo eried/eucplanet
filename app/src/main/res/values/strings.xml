@@ -791,7 +791,7 @@
 
     <!-- Spoken navigation -->
     <string name="voice_nav_start_riding">Start riding</string>
-    <string name="voice_nav_wrong_way">Wroooong way!</string>
+    <string name="voice_nav_wrong_way">Wroooooooooooong waaaaaay!</string>
     <string name="voice_nav_prepare">In %1$s, %2$s</string>
     <string name="voice_nav_now">%1$s now</string>
     <string name="voice_nav_arrived">You have arrived at your destination</string>

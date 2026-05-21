@@ -38,6 +38,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
     transform:rotate(45deg);color:#000;font-weight:700;
     font-family:sans-serif;font-size:13px;
   }
+  .user-dot{
+    width:24px;height:24px;border-radius:50%;box-sizing:border-box;
+    background:#2196F3;border:3px solid #000;
+    box-shadow:0 1px 5px rgba(0,0,0,0.75);
+  }
 </style>
 </head><body>
 <div id="map"></div>
@@ -190,14 +195,17 @@ internal const val ROUTE_BUILDER_HTML: String = """
   window.nativeSetUser = function(lat, lng){
     var p = [lat, lng];
     if (!userMarker){
-      userMarker = L.circleMarker(p, {
-        radius:11, color:'#fff', weight:3, fillColor:'#2196F3', fillOpacity:1
+      // A real marker (not a circle path): it sits in Leaflet's marker pane,
+      // always above the route lines, and zIndexOffset keeps it above stops.
+      userMarker = L.marker(p, {
+        icon: L.divIcon({className:'user-dot', iconSize:[24,24], iconAnchor:[12,12]}),
+        zIndexOffset: 1000,
+        interactive: false,
+        keyboard: false
       }).addTo(map);
     } else {
       userMarker.setLatLng(p);
     }
-    // Keep the rider's dot above the route lines, redrawn each fix.
-    userMarker.bringToFront();
   };
 
   window.nativeRecenter = function(lat, lng, zoom){

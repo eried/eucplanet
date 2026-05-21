@@ -1018,7 +1018,9 @@ fun OverlayStudioScreen(
     }
 }
 
-private const val FRAME_INTERVAL_MS = 33L
+// 60 fps target — the capture loop runs as fast as the device allows up to
+// this; pts are wall-clock, so a slower device still plays back at real speed.
+private const val FRAME_INTERVAL_MS = 16L
 
 /**
  * Default element for [type], dropped near the top-left of the layout. New
