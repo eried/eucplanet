@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -129,7 +130,8 @@ fun StudioReplayDialog(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        // Capped so the panel does not stretch edge-to-edge in landscape.
+        modifier = modifier.fillMaxWidth().widthIn(max = 620.dp),
         shape = RoundedCornerShape(16.dp),
         color = Color(0xF21A1A20),
         contentColor = Color.White,

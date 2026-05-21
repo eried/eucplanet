@@ -50,6 +50,7 @@ class StudioVideoEncoder(
     private var encodeH = 0
     private var startNs = 0L
     private var lastPtsUs = -1L
+    private var inputSurface: android.view.Surface? = null
 
     // --- Muxer (shared) ---
     private val muxerLock = Any()
@@ -120,13 +121,14 @@ class StudioVideoEncoder(
             val format = MediaFormat.createVideoFormat(VIDEO_MIME, encodeW, encodeH).apply {
                 setInteger(
                     MediaFormat.KEY_COLOR_FORMAT,
-                    MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
+                    MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
                 )
                 setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
                 setInteger(MediaFormat.KEY_FRAME_RATE, 30)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
             }
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+            inputSurface = enc.createInputSurface()
             enc.start()
             muxer = MediaMuxer(
                 pfd!!.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
@@ -147,19 +149,24 @@ class StudioVideoEncoder(
 
     /** Encode one studio frame. The bitmap may be any size; it is scaled to fit. */
     fun submitFrame(frame: Bitmap) {
-        val c = codec ?: return
+        val surface = inputSurface ?: return
         if (failed || !started) return
         try {
             drainVideo(false)
-            val index = c.dequeueInputBuffer(10_000)
-            if (index < 0) return
-            val image = c.getInputImage(index)
-            if (image == null) {
-                failed = true
-                return
+            // Draw straight onto the encoder's input Surface — the GPU does the
+            // colour conversion, so there is no slow CPU per-pixel YUV loop.
+            val canvas = surface.lockHardwareCanvas() ?: return
+            try {
+                canvas.drawColor(android.graphics.Color.BLACK)
+                canvas.drawBitmap(
+                    frame,
+                    Rect(0, 0, frame.width, frame.height),
+                    Rect(0, 0, canvas.width, canvas.height),
+                    null
+                )
+            } finally {
+                surface.unlockCanvasAndPost(canvas)
             }
-            fillImage(frame, image)
-            c.queueInputBuffer(index, 0, encodeW * encodeH * 3 / 2, nextPtsUs(), 0)
         } catch (e: Exception) {
             Log.e(TAG, "submitFrame failed", e)
             failed = true
@@ -357,12 +364,7 @@ class StudioVideoEncoder(
         val c = codec
         if (c != null && started && !failed) {
             try {
-                val index = c.dequeueInputBuffer(10_000)
-                if (index >= 0) {
-                    c.queueInputBuffer(
-                        index, 0, 0, nextPtsUs(), MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                    )
-                }
+                c.signalEndOfInputStream()
                 drainVideo(true)
             } catch (e: Exception) {
                 Log.e(TAG, "finish drain failed", e)
@@ -397,6 +399,8 @@ class StudioVideoEncoder(
         runCatching { audioCodec?.stop() }
         runCatching { audioCodec?.release() }
         audioCodec = null
+        runCatching { inputSurface?.release() }
+        inputSurface = null
         runCatching { codec?.stop() }
         runCatching { codec?.release() }
         codec = null
