@@ -67,6 +67,7 @@ import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.VideoCameraBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -144,6 +145,7 @@ fun DashboardScreen(
     onNavigateToScan: () -> Unit,
     onNavigateToSettings: (Int?) -> Unit,
     onNavigateToRecording: () -> Unit,
+    onNavigateToStudio: () -> Unit = {},
     onNavigateToFlic: () -> Unit = {},
     onNavigateToTripDetail: (Long) -> Unit = {},
     onNavigateToMetric: (String) -> Unit = {},
@@ -579,6 +581,21 @@ fun DashboardScreen(
                         )
                     }
                 }
+                // Overlay Studio — same indicator styling as the GPS / P-D
+                // glyphs (no chrome, accent colour), mirroring the GPS column
+                // in the dial's bottom-right corner.
+                DashIndicatorIcon(
+                    icon = Icons.Default.VideoCameraBack,
+                    active = true,
+                    activeColor = if (useAccent) primary else AccentGreen,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 4.dp)
+                        .padding(bottom = 8.dp)
+                        .clickable(
+                            onClickLabel = stringResource(R.string.studio_open)
+                        ) { onNavigateToStudio() }
+                )
             }
 
             Spacer(Modifier.height(16.dp))

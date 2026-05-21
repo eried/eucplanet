@@ -1,0 +1,247 @@
+package com.eried.eucplanet.ui.studio
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.OverlayElement
+import com.eried.eucplanet.data.model.OverlayPreset
+import com.eried.eucplanet.data.model.ViewportConfig
+import com.eried.eucplanet.data.model.ViewportLayout
+import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.store.OverlayPresetStore
+import com.eried.eucplanet.util.Units
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
+
+/** One telemetry tick plus the wall-clock time it arrived, for graph elements. */
+data class StudioSample(val timeMs: Long, val data: WheelData)
+
+/** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
+enum class PresetSaveResult { SAVED, NO_FOLDER, FAILED }
+
+/**
+ * Holds the working Overlay Studio layout and feeds the studio screen its live
+ * telemetry. The layout is a single [OverlayPreset] mutated through the `update`
+ * helpers; every change is debounce-persisted to the throwaway draft file so
+ * reopening the studio restores exactly what the rider was building.
+ */
+@HiltViewModel
+class OverlayStudioViewModel @Inject constructor(
+    private val wheelRepository: WheelRepository,
+    private val settingsRepository: SettingsRepository,
+    private val presetStore: OverlayPresetStore
+) : ViewModel() {
+
+    companion object {
+        /** Keep this many seconds of telemetry for graph elements. */
+        private const val HISTORY_SECONDS = 360
+        private const val DRAFT_DEBOUNCE_MS = 600L
+    }
+
+    private val initialSettings = runBlocking(Dispatchers.IO) { settingsRepository.get() }
+
+    // --- Working layout ------------------------------------------------------
+    private val _preset = MutableStateFlow(OverlayPreset())
+    val preset: StateFlow<OverlayPreset> = _preset.asStateFlow()
+
+    private val _selectedElementId = MutableStateFlow<String?>(null)
+    val selectedElementId: StateFlow<String?> = _selectedElementId.asStateFlow()
+
+    // --- Live telemetry ------------------------------------------------------
+    val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
+
+    val connected: StateFlow<Boolean> = wheelRepository.connectionState
+        .map { it == ConnectionState.CONNECTED }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val wheelName: StateFlow<String> = combine(
+        wheelRepository.modelName,
+        wheelRepository.connectedBrand,
+        wheelRepository.connectedDeviceName
+    ) { model, brand, device ->
+        model ?: brand ?: device ?: ""
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    val speedUnit: String = Units.effectiveSpeedUnit(initialSettings)
+    val distanceUnit: String = Units.effectiveDistanceUnit(initialSettings)
+    val tempUnit: String = Units.effectiveTempUnit(initialSettings)
+
+    private val _history = MutableStateFlow<List<StudioSample>>(emptyList())
+    val history: StateFlow<List<StudioSample>> = _history.asStateFlow()
+
+    // --- Preset folder / saved presets --------------------------------------
+    private val _folderAvailable = MutableStateFlow(false)
+    val folderAvailable: StateFlow<Boolean> = _folderAvailable.asStateFlow()
+
+    private val _savedPresets = MutableStateFlow<List<String>>(emptyList())
+    val savedPresets: StateFlow<List<String>> = _savedPresets.asStateFlow()
+
+    /** Read-only starter presets shipped with the app. */
+    private val _bundledPresets = MutableStateFlow<List<String>>(emptyList())
+    val bundledPresets: StateFlow<List<String>> = _bundledPresets.asStateFlow()
+
+    private var draftSaveJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            _preset.value = presetStore.loadDraft()
+        }
+        viewModelScope.launch {
+            _bundledPresets.value = presetStore.listBundledPresets()
+        }
+        viewModelScope.launch {
+            wheelRepository.wheelData.collect { data ->
+                val now = System.currentTimeMillis()
+                val cutoff = now - HISTORY_SECONDS * 1000L
+                _history.value = (_history.value + StudioSample(now, data))
+                    .dropWhile { it.timeMs < cutoff }
+            }
+        }
+        refreshFolderState()
+    }
+
+    /** Re-check whether a backup folder is configured and list saved presets. */
+    fun refreshFolderState() {
+        viewModelScope.launch {
+            _folderAvailable.value = presetStore.presetFolderAvailable()
+            _savedPresets.value = if (_folderAvailable.value) presetStore.listPresets()
+            else emptyList()
+        }
+    }
+
+    // --- Layout mutators -----------------------------------------------------
+
+    private fun mutate(transform: (OverlayPreset) -> OverlayPreset) {
+        _preset.value = transform(_preset.value)
+        scheduleDraftSave()
+    }
+
+    fun setLayout(layout: ViewportLayout) = mutate { it.withLayout(layout) }
+
+    fun setDividers(dividers: List<Float>) = mutate { it.copy(dividers = dividers) }
+
+    fun setViewport(index: Int, config: ViewportConfig) = mutate { p ->
+        p.copy(viewports = p.viewports.toMutableList().also {
+            if (index in it.indices) it[index] = config
+        })
+    }
+
+    fun setDividerStyle(color: Long, thickness: Float) = mutate { p ->
+        p.copy(dividerColor = color, dividerThickness = thickness)
+    }
+
+    fun addElement(element: OverlayElement) {
+        mutate { it.copy(elements = it.elements + element) }
+        _selectedElementId.value = element.id
+    }
+
+    fun updateElement(element: OverlayElement) = mutate { p ->
+        p.copy(elements = p.elements.map { if (it.id == element.id) element else it })
+    }
+
+    fun removeElement(id: String) {
+        mutate { p -> p.copy(elements = p.elements.filterNot { it.id == id }) }
+        if (_selectedElementId.value == id) _selectedElementId.value = null
+    }
+
+    /** Raise an element to the top of the draw order (used when it is tapped). */
+    fun bringToFront(id: String) = mutate { p ->
+        val el = p.elements.firstOrNull { it.id == id } ?: return@mutate p
+        p.copy(elements = p.elements.filterNot { it.id == id } + el)
+    }
+
+    /** Move an element within the draw order — drives the Manage-elements list. */
+    fun moveElement(from: Int, to: Int) = mutate { p ->
+        if (from !in p.elements.indices || to !in p.elements.indices || from == to) {
+            return@mutate p
+        }
+        p.copy(elements = p.elements.toMutableList().apply { add(to, removeAt(from)) })
+    }
+
+    fun selectElement(id: String?) { _selectedElementId.value = id }
+
+    fun selectedElement(): OverlayElement? =
+        _preset.value.elements.firstOrNull { it.id == _selectedElementId.value }
+
+    // --- Preset files --------------------------------------------------------
+
+    fun savePresetAs(name: String, onResult: (PresetSaveResult) -> Unit) {
+        viewModelScope.launch {
+            if (!presetStore.presetFolderAvailable()) {
+                onResult(PresetSaveResult.NO_FOLDER)
+                return@launch
+            }
+            val ok = presetStore.savePreset(name, _preset.value)
+            if (ok) refreshFolderState()
+            onResult(if (ok) PresetSaveResult.SAVED else PresetSaveResult.FAILED)
+        }
+    }
+
+    fun loadPreset(name: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val loaded = presetStore.loadPreset(name)
+            if (loaded != null) {
+                _preset.value = loaded
+                _selectedElementId.value = null
+                scheduleDraftSave()
+            }
+            onResult(loaded != null)
+        }
+    }
+
+    fun loadBundledPreset(name: String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val loaded = presetStore.loadBundledPreset(name)
+            if (loaded != null) {
+                // Bundled presets are templates — drop the name so a later save
+                // does not silently shadow the read-only original.
+                _preset.value = loaded.copy(name = "")
+                _selectedElementId.value = null
+                scheduleDraftSave()
+            }
+            onResult(loaded != null)
+        }
+    }
+
+    fun deletePreset(name: String) {
+        viewModelScope.launch {
+            presetStore.deletePreset(name)
+            refreshFolderState()
+        }
+    }
+
+    /** Wipe the working layout back to a single empty camera viewport. */
+    fun clearLayout() {
+        _preset.value = OverlayPreset()
+        _selectedElementId.value = null
+        scheduleDraftSave()
+    }
+
+    private fun scheduleDraftSave() {
+        draftSaveJob?.cancel()
+        draftSaveJob = viewModelScope.launch {
+            delay(DRAFT_DEBOUNCE_MS)
+            presetStore.saveDraft(_preset.value)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Flush the draft synchronously so nothing in flight is lost.
+        runBlocking { presetStore.saveDraft(_preset.value) }
+    }
+}

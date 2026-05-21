@@ -664,4 +664,20 @@
     <string name="service_mode_link">Visit eucplanet.ried.no/service for more information.</string>
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
+
+    <!-- Overlay Studio -->
+    <string name="studio_open">Open Overlay Studio</string>
+    <string name="studio_not_connected">Not connected</string>
+    <string name="studio_stop">Stop</string>
+    <string name="studio_grant">Grant access</string>
+    <string name="studio_camera_permission">Camera access is needed for the viewports</string>
+    <string name="studio_photo_saved">Photo saved to gallery</string>
+    <string name="studio_photo_failed">Could not save the photo</string>
+    <string name="studio_recording_saved">Recording saved to gallery</string>
+    <string name="studio_recording_failed">Could not save the recording</string>
+    <string name="studio_image_failed">Could not load that image</string>
+    <string name="studio_preset_saved">Layout saved</string>
+    <string name="studio_preset_loaded">Layout loaded</string>
+    <string name="studio_preset_failed">Could not save the layout</string>
+    <string name="studio_no_folder">Set a backup folder first to save layouts</string>
 </resources>

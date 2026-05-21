@@ -24,6 +24,7 @@ import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.recording.TripDetailScreen
 import com.eried.eucplanet.ui.scan.ScanScreen
 import com.eried.eucplanet.ui.settings.FlicScreen
+import com.eried.eucplanet.ui.studio.OverlayStudioScreen
 import com.eried.eucplanet.ui.settings.SettingsScreen
 import com.eried.eucplanet.util.MultipleEventsCutter
 
@@ -34,6 +35,7 @@ sealed class Screen(val route: String) {
         fun createRoute(tab: Int?) = if (tab == null) "settings" else "settings?tab=$tab"
     }
     data object Recording : Screen("recording")
+    data object OverlayStudio : Screen("overlay_studio")
     data object Flic : Screen("flic")
     data object TripDetail : Screen("trip_detail/{tripId}") {
         fun createRoute(tripId: Long) = "trip_detail/$tripId"
@@ -74,6 +76,7 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigateSingle(Screen.Settings.createRoute(tab))
                 },
                 onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
+                onNavigateToStudio = { navController.navigateSingle(Screen.OverlayStudio.route) },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Settings.createRoute(7)) },
                 onNavigateToTripDetail = { tripId ->
                     navController.navigateSingle(Screen.TripDetail.createRoute(tripId))
@@ -106,6 +109,14 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Flic.route) {
             FlicScreen(
                 onBack = { navController.popSingle() }
+            )
+        }
+        composable(Screen.OverlayStudio.route) {
+            OverlayStudioScreen(
+                onBack = { navController.popSingle() },
+                onOpenBackupSettings = {
+                    navController.navigateSingle(Screen.Settings.createRoute(4))
+                }
             )
         }
         composable(Screen.Recording.route) {

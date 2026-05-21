@@ -156,4 +156,9 @@ dependencies {
 
     // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
     implementation(libs.play.services.wearable)
+
+    // CameraX — Overlay Studio camera viewports
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
 }

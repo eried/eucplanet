@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "name": "Minimal",
+  "layout": "SINGLE",
+  "dividers": [],
+  "viewports": [
+    { "source": "CAMERA", "cameraKey": "BACK", "solidColor": 4278194196 }
+  ],
+  "elements": [
+    {
+      "id": "wheel-name",
+      "type": "WHEEL_NAME",
+      "x": 0.05, "y": 0.04, "width": 0.5,
+      "foreground": 4294967295, "background": 1711276032
+    },
+    {
+      "id": "speed-value",
+      "type": "DATA_VALUE",
+      "x": 0.05, "y": 0.8, "width": 0.5,
+      "metric": "SPEED", "showLabel": false,
+      "foreground": 4294967295, "background": 1711276032, "accent": 4283417591
+    }
+  ]
+}
