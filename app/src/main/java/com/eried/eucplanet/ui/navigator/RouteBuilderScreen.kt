@@ -850,6 +850,7 @@ private fun BottomPanel(
                                             text = { Text(stringResource(R.string.nav_pin_center)) },
                                             onClick = { rowMenu = false; onCenterPin(index) }
                                         )
+                                        HorizontalDivider()
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.nav_save_home)) },
                                             onClick = { rowMenu = false; onSaveHome(index) }
