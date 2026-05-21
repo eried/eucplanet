@@ -80,6 +80,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -209,10 +210,12 @@ fun StudioToolsFlyout(
             }
             Spacer(Modifier.width(4.dp))
             Column(Modifier.width(154.dp)) {
-                FlyoutSection("Studio")
+                FlyoutSection("Mode")
                 FlyoutItem(Icons.Default.History, "Replay mode") {
                     onDismiss(); onReplayMode()
                 }
+                HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                FlyoutSection("Elements")
                 FlyoutItem(Icons.Default.Layers, "Manage", enabled = hasElements) {
                     onDismiss(); onManageElements()
                 }
@@ -287,39 +290,71 @@ private fun FlyoutItem(
     )
 }
 
+/** Physical device rotation (0/90/180/270) for orienting studio chrome. */
+val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
+
+/**
+ * Renders [content] in a frame rotated to face a rider holding the phone
+ * sideways. The frame is sized to the rotated screen, so layout, scrolling and
+ * touch input all work correctly in the rotated space.
+ */
+@Composable
+fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
+    if (rotation % 360 == 0) {
+        content()
+        return
+    }
+    val landscape = rotation == 90 || rotation == 270
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        val frame =
+            if (landscape) Modifier.size(width = maxHeight, height = maxWidth)
+            else Modifier.size(width = maxWidth, height = maxHeight)
+        androidx.compose.foundation.layout.Box(
+            modifier = frame.graphicsLayer { rotationZ = -rotation.toFloat() }
+        ) {
+            content()
+        }
+    }
+}
+
 /**
  * A right-docked, full-height panel — the studio's editing surfaces (Add
  * element, element properties, viewport, presets) live here instead of bottom
- * sheets, so they read the same in portrait and landscape. Tapping the scrim
- * dismisses it; the content scrolls itself.
+ * sheets. It rotates with [LocalStudioRotation] so it stays upright for a
+ * rider holding the phone sideways. Tapping the scrim dismisses it.
  */
 @Composable
 fun StudioSidePanel(
     onDismiss: () -> Unit,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
 ) {
-    androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
-        androidx.compose.foundation.layout.Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color(0x99000000))
-                .pointerInput(Unit) { detectTapGestures { onDismiss() } }
-        )
-        Surface(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .width(340.dp)
-                .pointerInput(Unit) { detectTapGestures { } },
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 2.dp
-        ) {
-            Column(
+    RotatedFullScreen(LocalStudioRotation.current) {
+        androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+            androidx.compose.foundation.layout.Box(
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-                content = content
+                    .background(Color(0x99000000))
+                    .pointerInput(Unit) { detectTapGestures { onDismiss() } }
             )
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+                    .width(340.dp)
+                    .pointerInput(Unit) { detectTapGestures { } },
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    content = content
+                )
+            }
         }
     }
 }

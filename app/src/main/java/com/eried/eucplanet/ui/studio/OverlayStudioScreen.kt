@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,6 +69,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -744,7 +746,12 @@ fun OverlayStudioScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(36.dp)
                 ) {
-                    Text("Rendering replay clip", color = Color.White)
+                    Text(
+                        "Rendering replay clip",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(Modifier.height(18.dp))
                     val barWidth = 240.dp
                     Box(
@@ -769,7 +776,7 @@ fun OverlayStudioScreen(
                     )
                     Spacer(Modifier.height(22.dp))
                     Text(
-                        "Keep this screen open — don't switch apps or lock the " +
+                        "Keep this screen open. Do not switch apps or lock the " +
                             "phone while the clip renders.",
                         color = Color.White.copy(alpha = 0.55f),
                         textAlign = TextAlign.Center,
@@ -820,6 +827,8 @@ fun OverlayStudioScreen(
     }
 
     // --- Sheets ------------------------------------------------------------
+    // Provided so the side panels rotate to face a sideways-held phone.
+    CompositionLocalProvider(LocalStudioRotation provides deviceRotation) {
     when (val s = sheet) {
         StudioSheet.None -> {}
         StudioSheet.ManageElements -> ManageElementsSheet(
@@ -949,6 +958,7 @@ fun OverlayStudioScreen(
                 )
             }
         }
+    }
     }
 
     // --- Confirmation dialogs for destructive / layout-replacing actions ----
