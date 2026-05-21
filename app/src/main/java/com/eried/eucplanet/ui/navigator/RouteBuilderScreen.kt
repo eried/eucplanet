@@ -301,7 +301,11 @@ fun RouteBuilderScreen(
                                 )
                             },
                             onClear = viewModel::clear,
-                            onStart = startNav
+                            onStart = startNav,
+                            hasHome = homePlace != null,
+                            hasWork = workPlace != null,
+                            onClearHome = viewModel::clearHome,
+                            onClearWork = viewModel::clearWork
                         )
                     }
                 }
@@ -427,45 +431,26 @@ fun RouteBuilderScreen(
                             if (i > 0) HorizontalDivider(
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                             )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                            TextButton(
+                                onClick = {
+                                    searchText = ""
+                                    viewModel.pickSearchResult(result)
+                                },
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                TextButton(
-                                    onClick = {
-                                        searchText = ""
-                                        viewModel.pickSearchResult(result)
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Place, null,
-                                        modifier = Modifier.size(18.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(
-                                        result.name,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                                IconButton(onClick = { viewModel.saveAsHome(result) }) {
-                                    Icon(
-                                        Icons.Default.Home, "Save as Home",
-                                        modifier = Modifier.size(18.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                IconButton(onClick = { viewModel.saveAsWork(result) }) {
-                                    Icon(
-                                        Icons.Default.Work, "Save as Work",
-                                        modifier = Modifier.size(18.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                Icon(
+                                    Icons.Default.Place, null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    result.name,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }
@@ -516,6 +501,8 @@ fun RouteBuilderScreen(
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
                     waypoints = waypoints,
+                    home = homePlace,
+                    work = workPlace,
                     routeDistanceM = route?.totalDistanceM,
                     routing = routing,
                     imperial = imperial,
@@ -568,7 +555,11 @@ private fun BuilderMenu(
     onSave: () -> Unit,
     onLoad: () -> Unit,
     onClear: () -> Unit,
-    onStart: () -> Unit
+    onStart: () -> Unit,
+    hasHome: Boolean,
+    hasWork: Boolean,
+    onClearHome: () -> Unit,
+    onClearWork: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         // "Start navigation" is omitted here — it is already a primary button.
@@ -584,6 +575,18 @@ private fun BuilderMenu(
             text = { Text(stringResource(R.string.nav_menu_clear)) },
             onClick = { onDismiss(); onClear() }
         )
+        if (hasHome) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_clear_home)) },
+                onClick = { onDismiss(); onClearHome() }
+            )
+        }
+        if (hasWork) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_clear_work)) },
+                onClick = { onDismiss(); onClearWork() }
+            )
+        }
     }
 }
 
@@ -613,6 +616,8 @@ private fun BottomPanel(
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
     waypoints: List<com.eried.eucplanet.data.model.Waypoint>,
+    home: com.eried.eucplanet.data.model.Waypoint?,
+    work: com.eried.eucplanet.data.model.Waypoint?,
     routeDistanceM: Double?,
     routing: Boolean,
     imperial: Boolean,
@@ -791,6 +796,25 @@ private fun BottomPanel(
                                                 color = MaterialTheme.colorScheme.primary
                                             )
                                             Spacer(Modifier.width(8.dp))
+                                            // Home / Work badge when this stop is a saved preset.
+                                            fun samePlace(p: com.eried.eucplanet.data.model.Waypoint?) =
+                                                p != null &&
+                                                    kotlin.math.abs(waypoint.lat - p.lat) < 1e-4 &&
+                                                    kotlin.math.abs(waypoint.lng - p.lng) < 1e-4
+                                            val placeIcon = when {
+                                                samePlace(home) -> Icons.Default.Home
+                                                samePlace(work) -> Icons.Default.Work
+                                                else -> null
+                                            }
+                                            if (placeIcon != null) {
+                                                Icon(
+                                                    placeIcon,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(16.dp),
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                                Spacer(Modifier.width(6.dp))
+                                            }
                                             Text(
                                                 waypointLabel(
                                                     index, waypoints.size, waypoint.name

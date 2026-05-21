@@ -470,11 +470,18 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
-    fun saveAsHome(r: GeoResult) =
-        savePreset(Waypoint(r.lat, r.lng, RoutingService.placeLabel(r.name)), home = true)
+    fun clearHome() = clearPreset(home = true)
+    fun clearWork() = clearPreset(home = false)
 
-    fun saveAsWork(r: GeoResult) =
-        savePreset(Waypoint(r.lat, r.lng, RoutingService.placeLabel(r.name)), home = false)
+    private fun clearPreset(home: Boolean) {
+        if (home) _home.value = null else _work.value = null
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(
+                if (home) s.copy(navHomeJson = "") else s.copy(navWorkJson = "")
+            )
+        }
+    }
 
     /** Drops a saved preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)

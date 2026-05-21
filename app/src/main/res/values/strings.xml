@@ -698,6 +698,8 @@
     <string name="nav_menu_save">Save route (GPX)</string>
     <string name="nav_menu_load">Load route (GPX)</string>
     <string name="nav_menu_clear">Clear route</string>
+    <string name="nav_clear_home">Clear Home</string>
+    <string name="nav_clear_work">Clear Work</string>
     <string name="nav_menu_start_nav">Start navigation</string>
     <string name="nav_menu_start_hunt">Start Treasure Hunt</string>
     <string name="nav_menu_exit">Back to dashboard</string>
