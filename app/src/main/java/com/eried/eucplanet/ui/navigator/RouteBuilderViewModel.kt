@@ -475,6 +475,15 @@ class RouteBuilderViewModel @Inject constructor(
     /** Drops a saved preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)
 
+    /** Saves a stop already on the route as the Home / Work preset. */
+    fun saveWaypointAsHome(index: Int) {
+        _waypoints.value.getOrNull(index)?.let { savePreset(it, home = true) }
+    }
+
+    fun saveWaypointAsWork(index: Int) {
+        _waypoints.value.getOrNull(index)?.let { savePreset(it, home = false) }
+    }
+
     /** True while guidance is running — the screen locks editing then. */
     val navRunning: StateFlow<Boolean> = navigationEngine.navState
         .map { it.active }

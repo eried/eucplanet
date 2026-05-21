@@ -710,6 +710,8 @@
     <string name="nav_pin_set_my_location">Set to my location</string>
     <string name="nav_pin_remove">Remove</string>
     <string name="nav_pin_center">Center</string>
+    <string name="nav_save_home">Save as Home</string>
+    <string name="nav_save_work">Save as Work</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_stop_short">Stop navigation</string>

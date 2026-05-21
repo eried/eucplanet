@@ -1104,11 +1104,24 @@ private fun VoiceTab(
         }
         }   // end voiceEnabled BringIntoViewSection
 
-        // Navigation turn-by-turn voice guidance lives here too — it is voice.
-        SwitchSetting(
-            stringResource(R.string.nav_setting_voice),
-            settings.navVoiceEnabled
-        ) { viewModel.updateNavVoiceEnabled(it) }
+        // Navigation turn-by-turn voice guidance lives here too — it is voice,
+        // and gets a preview button like the other announcement rows.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.nav_setting_voice),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val navSample = stringResource(R.string.nav_arrived)
+            PlayButton(onClick = { viewModel.testSpeak(navSample) })
+            Switch(
+                checked = settings.navVoiceEnabled,
+                onCheckedChange = { viewModel.updateNavVoiceEnabled(it) }
+            )
+        }
 
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 

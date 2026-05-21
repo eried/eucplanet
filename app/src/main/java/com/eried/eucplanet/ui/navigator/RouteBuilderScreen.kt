@@ -528,6 +528,8 @@ fun RouteBuilderScreen(
                             )
                         }
                     },
+                    onSaveHome = viewModel::saveWaypointAsHome,
+                    onSaveWork = viewModel::saveWaypointAsWork,
                     onStartNavigation = startNav,
                     onStopNavigation = viewModel::stopNavigation,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
@@ -617,6 +619,8 @@ private fun BottomPanel(
     onRemove: (Int) -> Unit,
     onReorder: (Int, Int) -> Unit,
     onCenterPin: (Int) -> Unit,
+    onSaveHome: (Int) -> Unit,
+    onSaveWork: (Int) -> Unit,
     onStartNavigation: () -> Unit,
     onStopNavigation: () -> Unit,
     canStartNavigation: Boolean,
@@ -818,6 +822,14 @@ private fun BottomPanel(
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.nav_pin_center)) },
                                             onClick = { rowMenu = false; onCenterPin(index) }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.nav_save_home)) },
+                                            onClick = { rowMenu = false; onSaveHome(index) }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.nav_save_work)) },
+                                            onClick = { rowMenu = false; onSaveWork(index) }
                                         )
                                     }
                                 }
