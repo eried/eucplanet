@@ -186,18 +186,20 @@ private fun selectorFor(deviceId: String): CameraSelector =
 private fun newAnalysis(
     cam: StudioCameraInfo,
     hub: StudioCameraHub,
-    executor: Executor
+    executor: Executor,
+    concurrent: Boolean
 ): ImageAnalysis {
+    // Concurrent (two cameras at once) caps each stream at ~720p — requesting
+    // higher makes the capture session fail to configure. So in that mode the
+    // fallback only ever goes *lower*, never higher.
+    val strategy = ResolutionStrategy(
+        Size(1280, 720),
+        if (concurrent) ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER
+        else ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+    )
     val builder = ImageAnalysis.Builder()
         .setResolutionSelector(
-            ResolutionSelector.Builder()
-                .setResolutionStrategy(
-                    ResolutionStrategy(
-                        Size(1280, 720),
-                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
-                    )
-                )
-                .build()
+            ResolutionSelector.Builder().setResolutionStrategy(strategy).build()
         )
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
@@ -231,7 +233,8 @@ private fun bindCameras(
         return runCatching {
             val cam = cameras[0]
             provider.bindToLifecycle(
-                lifecycleOwner, selectorFor(cam.deviceId), newAnalysis(cam, hub, executor)
+                lifecycleOwner, selectorFor(cam.deviceId),
+                newAnalysis(cam, hub, executor, concurrent = false)
             )
             setOf(cam.key)
         }.getOrElse {
@@ -257,7 +260,9 @@ private fun bindCameras(
         val configs = cameras.map { cam ->
             ConcurrentCamera.SingleCameraConfig(
                 selectorFor(cam.deviceId),
-                UseCaseGroup.Builder().addUseCase(newAnalysis(cam, hub, executor)).build(),
+                UseCaseGroup.Builder()
+                    .addUseCase(newAnalysis(cam, hub, executor, concurrent = true))
+                    .build(),
                 lifecycleOwner
             )
         }
@@ -271,7 +276,8 @@ private fun bindCameras(
     return runCatching {
         val cam = cameras[0]
         provider.bindToLifecycle(
-            lifecycleOwner, selectorFor(cam.deviceId), newAnalysis(cam, hub, executor)
+            lifecycleOwner, selectorFor(cam.deviceId),
+            newAnalysis(cam, hub, executor, concurrent = false)
         )
         setOf(cam.key)
     }.getOrElse { emptySet() }
