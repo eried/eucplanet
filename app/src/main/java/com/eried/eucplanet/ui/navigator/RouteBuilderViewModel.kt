@@ -234,13 +234,7 @@ class RouteBuilderViewModel @Inject constructor(
     private fun setMapType(type: String) {
         if (_mapType.value == type) return
         _mapType.value = type
-        _messages.tryEmit(
-            when (type) {
-                "LIGHT" -> R.string.nav_map_light
-                "SATELLITE" -> R.string.nav_map_satellite
-                else -> R.string.nav_map_dark
-            }
-        )
+        // No toast on a map-style change — the change is its own feedback.
         viewModelScope.launch {
             val s = settingsRepository.get()
             settingsRepository.update(s.copy(navMapType = type))
