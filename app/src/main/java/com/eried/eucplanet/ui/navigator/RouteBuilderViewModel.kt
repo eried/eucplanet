@@ -119,6 +119,9 @@ class RouteBuilderViewModel @Inject constructor(
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
             _mapType.value = s.navMapType.ifBlank { "LIGHT" }
+            defaultRadiusM = s.navArrivalRadiusM
+            _home.value = placeFromJson(s.navHomeJson)
+            _work.value = placeFromJson(s.navWorkJson)
             // Re-open whatever route was last in the builder.
             NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
                 if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
@@ -429,15 +432,54 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Map data ----------------------------------------------------------------
 
+    /** Default arrival radius (metres) for waypoints with no custom value. */
+    private var defaultRadiusM: Int = 40
+
     fun waypointsJson(): String {
         val arr = JSONArray()
         _waypoints.value.forEach { w ->
             arr.put(JSONObject().apply {
                 put("lat", w.lat); put("lng", w.lng); put("name", w.name)
+                put("radius", w.radiusM ?: defaultRadiusM.toDouble())
             })
         }
         return arr.toString()
     }
+
+    // --- Home / Work presets -------------------------------------------------
+
+    private val _home = MutableStateFlow<Waypoint?>(null)
+    val home: StateFlow<Waypoint?> = _home.asStateFlow()
+    private val _work = MutableStateFlow<Waypoint?>(null)
+    val work: StateFlow<Waypoint?> = _work.asStateFlow()
+
+    private fun placeFromJson(s: String): Waypoint? = runCatching {
+        if (s.isBlank()) null
+        else JSONObject(s).let { Waypoint(it.getDouble("lat"), it.getDouble("lng"), it.optString("name")) }
+    }.getOrNull()
+
+    private fun placeToJson(w: Waypoint): String =
+        JSONObject().put("lat", w.lat).put("lng", w.lng).put("name", w.name).toString()
+
+    private fun savePreset(w: Waypoint, home: Boolean) {
+        if (home) _home.value = w else _work.value = w
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(
+                if (home) s.copy(navHomeJson = placeToJson(w))
+                else s.copy(navWorkJson = placeToJson(w))
+            )
+        }
+    }
+
+    fun saveAsHome(r: GeoResult) =
+        savePreset(Waypoint(r.lat, r.lng, RoutingService.placeLabel(r.name)), home = true)
+
+    fun saveAsWork(r: GeoResult) =
+        savePreset(Waypoint(r.lat, r.lng, RoutingService.placeLabel(r.name)), home = false)
+
+    /** Drops a saved preset onto the map as the next waypoint. */
+    fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)
 
     fun geometryJson(): String {
         val arr = JSONArray()

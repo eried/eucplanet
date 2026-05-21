@@ -177,6 +177,8 @@ object SettingsJson {
         put("navVoiceEnabled", s.navVoiceEnabled)
         put("navArrivalRadiusM", s.navArrivalRadiusM)
         put("navOffRouteToleranceM", s.navOffRouteToleranceM)
+        put("navHomeJson", s.navHomeJson)
+        put("navWorkJson", s.navWorkJson)
         put("navDefaultTravelMode", s.navDefaultTravelMode)
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
@@ -332,6 +334,8 @@ object SettingsJson {
         navVoiceEnabled = j.optBoolean("navVoiceEnabled", base.navVoiceEnabled),
         navArrivalRadiusM = j.optInt("navArrivalRadiusM", base.navArrivalRadiusM),
         navOffRouteToleranceM = j.optInt("navOffRouteToleranceM", base.navOffRouteToleranceM),
+        navHomeJson = j.optString("navHomeJson", base.navHomeJson),
+        navWorkJson = j.optString("navWorkJson", base.navWorkJson),
         navDefaultTravelMode = j.optString("navDefaultTravelMode", base.navDefaultTravelMode),
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),

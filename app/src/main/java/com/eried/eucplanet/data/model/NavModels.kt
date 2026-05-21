@@ -21,7 +21,9 @@ data class Waypoint(
     val lat: Double,
     val lng: Double,
     /** Human-readable label (an address, a search result, or "Pin 2"). */
-    val name: String = ""
+    val name: String = "",
+    /** Custom arrival radius in metres; null falls back to the global default. */
+    val radiusM: Double? = null
 ) {
     fun point() = GeoPoint(lat, lng)
 }

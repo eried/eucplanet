@@ -225,11 +225,15 @@ data class AppSettings(
     /** Speak turn-by-turn / Treasure Hunt instructions through TTS. */
     val navVoiceEnabled: Boolean = true,
     /** Radius (meters) within which a waypoint / goal counts as "reached". */
-    val navArrivalRadiusM: Int = 25,
+    val navArrivalRadiusM: Int = 40,
     /** Perpendicular distance (meters) off the route before "wrong way" triggers. */
     val navOffRouteToleranceM: Int = 40,
     /** Default travel mode for new routes: CYCLING / DRIVING / WALKING / STRAIGHT. */
     val navDefaultTravelMode: String = "CYCLING",
+    /** Saved Home place as JSON {name,lat,lng}; blank when unset. */
+    val navHomeJson: String = "",
+    /** Saved Work place as JSON {name,lat,lng}; blank when unset. */
+    val navWorkJson: String = "",
     /** Geocoder (address search) endpoint — overridable for self-hosting. */
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
     /** Routing endpoint — overridable for self-hosting. */

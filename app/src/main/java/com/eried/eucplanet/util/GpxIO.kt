@@ -42,6 +42,7 @@ object GpxIO {
         var pendingLat = 0.0
         var pendingLng = 0.0
         var pendingName = ""
+        var pendingRadius: Double? = null
         var pendingKind = ""   // "wpt", "rtept", "trkpt"
         var nameTarget = ""    // which element a following <name> belongs to
 
@@ -53,6 +54,7 @@ object GpxIO {
                         pendingLat = parser.getAttributeValue(null, "lat")?.toDoubleOrNull() ?: 0.0
                         pendingLng = parser.getAttributeValue(null, "lon")?.toDoubleOrNull() ?: 0.0
                         pendingName = ""
+                        pendingRadius = null
                         nameTarget = pendingKind
                     }
                     "metadata", "rte", "trk" -> nameTarget = parser.name.lowercase(Locale.US)
@@ -63,10 +65,18 @@ object GpxIO {
                             "wpt", "rtept", "trkpt" -> pendingName = text
                         }
                     }
+                    "radius" -> {
+                        val r = parser.nextText().trim().toDoubleOrNull()
+                        if (r != null && (nameTarget == "wpt" || nameTarget == "rtept")) {
+                            pendingRadius = r
+                        }
+                    }
                 }
                 XmlPullParser.END_TAG -> when (parser.name.lowercase(Locale.US)) {
                     "wpt", "rtept" -> {
-                        waypoints.add(Waypoint(pendingLat, pendingLng, pendingName))
+                        waypoints.add(
+                            Waypoint(pendingLat, pendingLng, pendingName, pendingRadius)
+                        )
                         pendingKind = ""
                     }
                     "trkpt" -> {
@@ -95,6 +105,9 @@ object GpxIO {
                 route.waypoints.forEach { p ->
                     w.write("    <rtept lat=\"${fmt(p.lat)}\" lon=\"${fmt(p.lng)}\">")
                     if (p.name.isNotBlank()) w.write("<name>${esc(p.name)}</name>")
+                    p.radiusM?.let {
+                        w.write("<extensions><radius>${fmt(it)}</radius></extensions>")
+                    }
                     w.write("</rtept>\n")
                 }
                 w.write("  </rte>\n")

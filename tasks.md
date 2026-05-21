@@ -27,7 +27,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
   the user or recalculating. Make guidance much less active/chatty and make
   recalculation actually track the user.
 
-- [ ] **3. Arrival radius + on-map circles + per-point override** — make the
+- [x] **3. Arrival radius + on-map circles + per-point override** — make the
   default arrival radius (target-to-reach) bigger. Show it on the map as a
   faint dotted circle around each marker. Investigate saving the radius into
   the GPX so each point can have its own custom radius; the value in Settings
@@ -46,7 +46,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 - [x] **7. Announce recalculating** — say "Recalculating" when the route is
   recalculating.
 
-- [ ] **8. Home / Work presets** — add Home and Work presets, settable from the
+- [x] **8. Home / Work presets** — add Home and Work presets, settable from the
   map or the list of goals. When searching, suggest these presets.
 
 ## Trip recorder / details
@@ -58,7 +58,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 - [x] **10. Share dialog title** — in Trip Details, the share dialog should not
   show the "Trip" title.
 
-- [ ] **11. Map layer selector in Trip Details** — the map in Trip Details
+- [x] **11. Map layer selector in Trip Details** — the map in Trip Details
   should have a layer selector (satellite, etc.), like the one in the
   Navigation editor.
 
@@ -69,7 +69,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 
 ## Navigation UI
 
-- [ ] **13. Mini-map on navigation popups** — while navigation is running, the
+- [x] **13. Mini-map on navigation popups** — while navigation is running, the
   arrow popups should have a small map near the minimize button that reopens
   the map screen. Because navigation is running, search and the stop editor are
   disabled on that map; the user can still tap "Stop navigation" or change the
@@ -83,3 +83,9 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
   Pro the rounded screen corners hide the "Section N source" button. Move it
   down and restyle it as a label with the top-left and bottom-left corners very
   rounded and the right corners square.
+
+- [x] **16. "Last stop" wrong with 2 stops** — with a start + 2 stops the
+  popup shows "last stop" when it should not; check the goal-count logic.
+
+- [x] **17. Remove "Start navigation" from the overflow menu** — it is
+  already a primary button; drop the redundant menu item.

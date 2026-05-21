@@ -15,12 +15,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -395,27 +400,51 @@ private fun RouteMapView(
     }
 
     var webView by remember { mutableStateOf<WebView?>(null) }
+    val mapTypes = listOf("LIGHT", "DARK", "SAT")
+    var mapType by rememberSaveable { mutableStateOf("LIGHT") }
 
-    AndroidView(
-        factory = { ctx ->
-            WebView(ctx).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                webViewClient = WebViewClient()
-                setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
-                loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
-                webView = this
-            }
-        },
-        update = { wv ->
-            webView = wv
-        },
-        modifier = modifier.clip(RoundedCornerShape(12.dp))
-    )
+    androidx.compose.foundation.layout.Box(modifier.clip(RoundedCornerShape(12.dp))) {
+        AndroidView(
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    webViewClient = WebViewClient()
+                    setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
+                    loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+                    webView = this
+                }
+            },
+            update = { wv -> webView = wv },
+            modifier = Modifier.fillMaxSize()
+        )
+        // Map-layer selector — cycles light / dark / satellite.
+        androidx.compose.foundation.layout.Box(
+            Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+                .size(40.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+                .clickable {
+                    mapType = mapTypes[(mapTypes.indexOf(mapType) + 1) % mapTypes.size]
+                    webView?.evaluateJavascript(
+                        "if(window.setMapType)setMapType('$mapType');", null
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                androidx.compose.material.icons.Icons.Default.Layers,
+                contentDescription = "Map style",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
 
     // Push live GPS updates into the map via a JS hook defined in the HTML.
     LaunchedEffect(isLive, liveLat, liveLon, webView) {
@@ -453,9 +482,18 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
 <script>
   var coords=[$coordsJson];
   var map=L.map('map',{zoomControl:false,attributionControl:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
-    maxZoom:19, subdomains:'abcd'
-  }).addTo(map);
+  var baseLayer=null;
+  var tileUrls={
+    LIGHT:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+    DARK:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+    SAT:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+  };
+  window.setMapType=function(t){
+    if(baseLayer) map.removeLayer(baseLayer);
+    baseLayer=L.tileLayer(tileUrls[t]||tileUrls.LIGHT,{maxZoom:19,subdomains:'abcd'}).addTo(map);
+    baseLayer.bringToBack();
+  };
+  window.setMapType('LIGHT');
 
   var hasRoute = coords.length >= 2;
   var start=null, end=null, overlap=null, line=null;

@@ -43,7 +43,11 @@ import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -124,8 +128,11 @@ fun RouteBuilderScreen(
     val userLocation by viewModel.currentLocation.collectAsState()
     val imperial by viewModel.imperialUnits.collectAsState()
     val mapType by viewModel.mapType.collectAsState()
+    val homePlace by viewModel.home.collectAsState()
+    val workPlace by viewModel.work.collectAsState()
 
     var searchText by rememberSaveable { mutableStateOf("") }
+    var searchFocused by remember { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
@@ -266,7 +273,10 @@ fun RouteBuilderScreen(
                             }
                         },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth().padding(end = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 8.dp)
+                            .onFocusChanged { searchFocused = it.isFocused }
                     )
                 },
                 actions = {
@@ -345,7 +355,7 @@ fun RouteBuilderScreen(
             )
 
             // --- Search results overlay ---
-            if (searching || searchResults.isNotEmpty()) {
+            if (searchFocused || searching || searchResults.isNotEmpty()) {
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -355,7 +365,45 @@ fun RouteBuilderScreen(
                     color = MaterialTheme.colorScheme.surface,
                     tonalElevation = 4.dp
                 ) {
-                    Column(modifier = Modifier.heightIn(max = 240.dp).verticalScroll(rememberScrollState())) {
+                    Column(modifier = Modifier.heightIn(max = 280.dp).verticalScroll(rememberScrollState())) {
+                        // Saved Home / Work presets — tap to drop as the next stop.
+                        val presets = listOfNotNull(
+                            homePlace?.let { "Home" to it },
+                            workPlace?.let { "Work" to it }
+                        )
+                        presets.forEach { (label, place) ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        searchText = ""
+                                        viewModel.addPreset(place)
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    if (label == "Home") Icons.Default.Home
+                                    else Icons.Default.Work,
+                                    null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(label, fontWeight = FontWeight.SemiBold)
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    place.name,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                            )
+                        }
                         if (searching) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -371,10 +419,7 @@ fun RouteBuilderScreen(
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                             )
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .padding(0.dp),
+                                modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 TextButton(
@@ -382,7 +427,7 @@ fun RouteBuilderScreen(
                                         searchText = ""
                                         viewModel.pickSearchResult(result)
                                     },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.weight(1f)
                                 ) {
                                     Icon(
                                         Icons.Default.Place, null,
@@ -396,6 +441,20 @@ fun RouteBuilderScreen(
                                         overflow = TextOverflow.Ellipsis,
                                         style = MaterialTheme.typography.bodyMedium,
                                         modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                IconButton(onClick = { viewModel.saveAsHome(result) }) {
+                                    Icon(
+                                        Icons.Default.Home, "Save as Home",
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                IconButton(onClick = { viewModel.saveAsWork(result) }) {
+                                    Icon(
+                                        Icons.Default.Work, "Save as Work",
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -499,12 +558,7 @@ private fun BuilderMenu(
     onStart: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_start_nav)) },
-            enabled = canStart,
-            onClick = { onDismiss(); onStart() }
-        )
-        HorizontalDivider()
+        // "Start navigation" is omitted here — it is already a primary button.
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_menu_save)) },
             onClick = { onDismiss(); onSave() }

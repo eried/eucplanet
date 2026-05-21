@@ -157,7 +157,15 @@ class MainActivity : AppCompatActivity() {
                     // turn cues stay visible on any screen while guiding.
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)
-                        com.eried.eucplanet.ui.navigator.NavigationOverlay()
+                        com.eried.eucplanet.ui.navigator.NavigationOverlay(
+                            onOpenMap = {
+                                runCatching {
+                                    navController.navigate("route_builder") {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }

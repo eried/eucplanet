@@ -135,6 +135,14 @@ internal const val ROUTE_BUILDER_HTML: String = """
     markers.forEach(function(m){ map.removeLayer(m); });
     markers = [];
     wps.forEach(function(w, i){
+      // Faint dotted ring showing the arrival radius around each stop.
+      var ring = L.circle([w.lat, w.lng], {
+        radius: w.radius || 40,
+        color:'#ffffff', weight:1, opacity:0.55,
+        fill:false, dashArray:'3 7', interactive:false
+      });
+      ring.addTo(map);
+      markers.push(ring);
       var m = L.marker([w.lat, w.lng], {
         draggable:true,
         icon: iconFor(i + 1, colorFor(i, wps.length))

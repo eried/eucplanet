@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AlertDialog
@@ -82,6 +83,7 @@ private const val POPUP_TIMEOUT_MS = 5_000L
  */
 @Composable
 fun NavigationOverlay(
+    onOpenMap: () -> Unit = {},
     viewModel: NavigationOverlayViewModel = hiltViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
@@ -137,6 +139,7 @@ fun NavigationOverlay(
             modifier = Modifier.align(Alignment.Center)
         ) {
             CenterPopup(
+                onOpenMap = onOpenMap,
                 state = state,
                 onMinimize = { viewModel.setMinimized(true) },
                 onClose = { showEndConfirm = true }
@@ -168,6 +171,7 @@ fun NavigationOverlay(
 @Composable
 private fun CenterPopup(
     state: NavState,
+    onOpenMap: () -> Unit,
     onMinimize: () -> Unit,
     onClose: () -> Unit
 ) {
@@ -209,20 +213,40 @@ private fun CenterPopup(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val stopsLeft = state.goalCount - state.goalIndex
                 Text(
                     when {
                         // A 1-stop route has no "Last stop" line — it is just
                         // noise; the count only earns its place from 2 stops up.
                         state.arrived || state.goalCount <= 1 -> ""
-                        stopsLeft >= 2 -> stringResource(R.string.nav_stops_left, stopsLeft)
-                        else -> stringResource(R.string.nav_last_stop)
+                        // "Last stop" only when the current goal really is the
+                        // final one — otherwise show how many remain to visit.
+                        state.goalIndex >= state.goalCount ->
+                            stringResource(R.string.nav_last_stop)
+                        else -> stringResource(
+                            R.string.nav_stops_left,
+                            state.goalCount - state.goalIndex + 1
+                        )
                     },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = ink.copy(alpha = 0.7f),
                     modifier = Modifier.weight(1f)
                 )
+                // Opens the full map screen (read-only while guiding).
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(ink.copy(alpha = 0.12f))
+                        .clickable { onOpenMap() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Map, stringResource(R.string.nav_map_style),
+                        tint = ink, modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(Modifier.width(6.dp))
                 IconButton(onClick = onMinimize, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Default.Remove, stringResource(R.string.nav_minimize),

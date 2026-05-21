@@ -306,8 +306,9 @@ class NavigationEngine @Inject constructor(
 
         val hit = GeoMath.nearestOnPolyline(point, route.geometry) ?: return
         val distToEnd = (route.totalDistanceM - hit.alongM).coerceAtLeast(0.0)
+        val finalRadius = route.waypoints.lastOrNull()?.radiusM ?: arrivalRadiusM
 
-        if (!arrivalHandled && distToEnd <= arrivalRadiusM) {
+        if (!arrivalHandled && distToEnd <= finalRadius) {
             handleArrival()
             return
         }
@@ -440,9 +441,10 @@ class NavigationEngine @Inject constructor(
 
     /** Degraded guidance for routes without maneuvers: home toward the last waypoint. */
     private fun guideHoming(route: NavRoute, point: GeoPoint, heading: Double) {
-        val target = route.waypoints.lastOrNull()?.point() ?: return
+        val lastWp = route.waypoints.lastOrNull() ?: return
+        val target = lastWp.point()
         val dist = GeoMath.distanceM(point, target)
-        if (!arrivalHandled && dist <= arrivalRadiusM) {
+        if (!arrivalHandled && dist <= (lastWp.radiusM ?: arrivalRadiusM)) {
             handleArrival()
             return
         }
@@ -472,7 +474,7 @@ class NavigationEngine @Inject constructor(
         var target = goals[currentGoal]
         var dist = GeoMath.distanceM(point, target.point())
 
-        if (dist <= arrivalRadiusM) {
+        if (dist <= (target.radiusM ?: arrivalRadiusM)) {
             // Reached this goal — advance.
             currentGoal++
             lastGoalDistM = Double.NaN
