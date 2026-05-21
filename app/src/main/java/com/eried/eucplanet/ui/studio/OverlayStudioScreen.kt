@@ -509,6 +509,8 @@ fun OverlayStudioScreen(
         }
     }
 
+    // Everything in the studio chrome rotates to face a sideways-held phone.
+    CompositionLocalProvider(LocalStudioRotation provides deviceRotation) {
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -795,6 +797,7 @@ fun OverlayStudioScreen(
         if (showCancelConfirm) {
             AlertDialog(
                 onDismissRequest = { showCancelConfirm = false },
+                modifier = Modifier.rotateLayout(LocalStudioRotation.current),
                 title = { Text("Cancel rendering?") },
                 text = { Text("The replay clip will not be saved.") },
                 confirmButton = {
@@ -828,8 +831,6 @@ fun OverlayStudioScreen(
     }
 
     // --- Sheets ------------------------------------------------------------
-    // Provided so the side panels rotate to face a sideways-held phone.
-    CompositionLocalProvider(LocalStudioRotation provides deviceRotation) {
     when (val s = sheet) {
         StudioSheet.None -> {}
         StudioSheet.ManageElements -> ManageElementsSheet(
@@ -960,7 +961,6 @@ fun OverlayStudioScreen(
             }
         }
     }
-    }
 
     // --- Confirmation dialogs for destructive / layout-replacing actions ----
     confirm?.let { pending ->
@@ -995,6 +995,7 @@ fun OverlayStudioScreen(
             },
             onDismiss = { confirm = null }
         )
+    }
     }
 }
 

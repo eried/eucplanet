@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -300,7 +301,10 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
             icon,
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.padding(7.dp).size(18.dp)
+            modifier = Modifier
+                .padding(7.dp)
+                .size(18.dp)
+                .rotate(-LocalStudioRotation.current.toFloat())
         )
     }
 }
@@ -476,7 +480,8 @@ private fun DividerControls(
             contentAlignment = Alignment.Center
         ) {
             Icon(Icons.Default.Build, contentDescription = "Divider options", tint = Color.White,
-                modifier = Modifier.size(17.dp))
+                modifier = Modifier.size(17.dp)
+                    .rotate(-LocalStudioRotation.current.toFloat()))
         }
     }
 }

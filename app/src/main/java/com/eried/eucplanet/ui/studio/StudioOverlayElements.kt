@@ -258,7 +258,8 @@ private fun StudioElementBox(
                     Icons.Default.OpenInFull,
                     contentDescription = "Resize",
                     tint = Color.White,
-                    modifier = Modifier.size(16.dp).rotate(90f)
+                    modifier = Modifier.size(16.dp)
+                        .rotate(90f - LocalStudioRotation.current.toFloat())
                 )
             }
         }
@@ -280,7 +281,11 @@ private fun ChromeButton(
             .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
+        Icon(
+            icon, contentDescription = null, tint = tint,
+            modifier = Modifier.size(16.dp)
+                .rotate(-LocalStudioRotation.current.toFloat())
+        )
     }
 }
 

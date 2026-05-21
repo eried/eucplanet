@@ -273,6 +273,7 @@ fun StudioConfirmDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text(title) },
         text = { Text(body) },
         confirmButton = { TextButton(onClick = onConfirm) { Text(action) } },
@@ -397,7 +398,12 @@ fun AddElementSheet(
     onDismiss: () -> Unit
 ) {
     StudioSidePanel(onDismiss = onDismiss) {
-        Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 28.dp)) {
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 28.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             SheetHeader("Add element")
             OverlayElementType.entries.forEach { type ->
                 Row(
@@ -452,7 +458,12 @@ fun LayoutPickerSheet(
     onDismiss: () -> Unit
 ) {
     StudioSidePanel(onDismiss = onDismiss) {
-        Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 28.dp)) {
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 28.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             SheetHeader("Viewport layout")
             Text(
                 "Pick how the screen is divided. Drag the dividers afterwards to " +
@@ -540,6 +551,7 @@ fun SavePresetDialog(
     var name by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text("Save layout") },
         text = {
             Column {
@@ -1314,6 +1326,7 @@ private fun ColorPickerDialog(
     val color = Color.hsv(hue.coerceIn(0f, 360f), sat, value, alpha)
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.rotateLayout(LocalStudioRotation.current),
         title = { Text("Custom colour") },
         text = {
             Column {
