@@ -1,91 +1,63 @@
-# external-gps
+# feature/navigator
 
-External BLE GPS support (RaceBox) for ground-truth speed verification
-and wheel calibration, plus Compare-tab tooling and the usual polish.
+In-app navigation for unicycle riders: a route builder with a map, live
+turn-by-turn guidance, and a playful Treasure Hunt proximity mode — plus an
+optional mirror of the navigation popup on the Wear OS watch.
 
 ## What's new
 
-**External GPS (RaceBox Mini / Mini S / Pro)**
-- Pair in Settings → Integration → External GPS.
-- Purple speed dot on the dial + "GPS X.X" readout under the main speed.
-- `Ext GPS speed` column in trip CSVs, purple overlay on the trip chart.
-- **E** indicator top-right: dim when stale, lit when sending, hidden when
-  no external GPS is paired.
-- Post-connect handshake matches the official RaceBox app: MTU 247,
-  high connection priority, MGA-INI-TIME + MGA-INI-POS assistance
-  writes. Without these the GNSS does a cold-start sky search (30 to
-  90 s), which is why riders reported "no fix unless the official
-  RaceBox app was launched first."
-- Auto-(re)connect on app start and after a connection drop, with
-  backoff 1.5 / 5 / 10 / 30 s. Explicit Disconnect from Settings
-  vetoes the loop until the rider taps Reconnect.
+**Route Builder (map button on the dashboard dial, center-left)**
+- Full-screen Leaflet map (WebView, reusing the existing trip-map approach —
+  no MapLibre, no 16 KB page-size issue).
+- Tap the map to drop destinations; drag pins to move them; drag the stop
+  list to reorder.
+- Address / place search via Nominatim (OpenStreetMap).
+- Auto-routing for **Cycle / Car / Walk** via Valhalla, or **Direct**
+  straight lines with no network. Falls back to straight lines if the
+  routing service is unreachable.
+- "My location" to drop the rider's current position as the start.
+- Save / load routes as **GPX**, clear, and exit — from the top-left
+  hamburger menu.
 
-**Live data sources sheet (tap the GPS icon)**
-- Phone / Wheel / External tabs + a Compare tab.
-- Compare auto-decalibrates the wheel speed so wheel-vs-GPS delta reflects
-  the real sensor offset, not the residual after the current calibration.
-- A/B selection persists across sheet open/close. Compare auto-picks
-  B (Wheel vs External, falling back to Phone) only when A changed
-  since the last entry; toggling Compare off and on restores the
-  rider's previous picks.
-- **Calibrate wheel** stays enabled whenever the wheel reports motion.
+**Live turn-by-turn navigation**
+- A floating popup over the whole app: a big direction arrow, the next move,
+  and the distance to it. Minimize to a pill, or end (with confirmation).
+- Voice cues — "Start riding", "In 200 meters, turn left", "Wroooong way!",
+  "You have arrived" — gated by the Navigator voice setting.
+- Heading is derived from the rider's recent *moving* GPS trace (not the
+  phone compass), so left/right is relative to actual travel direction.
+- Off-route detection with automatic re-routing.
+- The next maneuver also shows in the foreground-service notification.
 
-**Wheel parameters**
-- Speed calibration range widened from ±5 % to ±15 %.
-- Per-wheel profiles (keyed by BLE name) restore tiltback / alarm /
-  calibration automatically on reconnect.
+**Treasure Hunt mode**
+- Set one or more goals; instead of street-by-street directions the app
+  points the way (left / right / ahead / behind) with the distance and
+  warmer / colder proximity cues.
 
-**Dashboard polish**
-- Lock Wheel stays enabled at all speeds; tap while moving shows a
-  "Slow down to lock the wheel" toast. Repository still hard-blocks the
-  actual lock command on every entry path.
+**Wear OS mirror**
+- Optional, **off by default** — enable under Settings → Watch → "Show
+  navigation". The watch shows a simplified popup (big arrow + text) that
+  tracks the phone: minimizing the phone popup hides it on the watch too.
+  The wrist buzzes on each new instruction.
 
-**Begode imperial fix**
-- Begode firmware emits mph-scaled bytes when the wheel's screen is set
-  to imperial. EUC Planet now reads the units flag and converts back to
-  km internally so speed reads correctly in either app unit setting.
+**Settings → Navigator**
+- Voice guidance toggle, default travel mode, arrival radius, off-route
+  tolerance, and (advanced) configurable routing/geocoding endpoints.
 
-**Protocol parity pass (v0.6.6)**
-- Cross-referenced our Veteran, InMotion V1, InMotion V2, KingSong,
-  Begode and Ninebot parsers against the WheelLog reference.
-- Veteran: post-Sherman models (Patton, Sherman L, Lynx S, Nosfet
-  Aero/Apex/Aeon, Oryx) now resolve from the wheel-reported firmware
-  major version; ABRAMS nominal voltage corrected.
-- InMotion V1: V10 family now identifies correctly from slow-info
-  (was reading the model byte as packed BCD); serial number now
-  matches the chassis label.
-- InMotion V2 V12 HS/HT/Pro: light and alarm-speed commands routed
-  through the dedicated two-beam / two-tier builders.
-- Ninebot: light and DRL toggles preserve the other DriveFlags bits
-  instead of clobbering them.
-- KingSong: 0xA9 frame distance routes to total odometer (was trip).
-- Begode: battery current sign aligned with the reference.
+## Privacy note
 
-## Who should test this
-
-- RaceBox owners: pairing, dial overlay, Compare tab, CSV column.
-- Begode riders: flip the wheel display to imperial via the Begode app,
-  then check EUC Planet reads correct speed in both metric and imperial
-  app modes.
-- Everyone else: confirm dashboard / Compare / Lock Wheel still behave
-  normally without an external GPS paired.
-
-## Known gaps
-
-- Full AGPS (MGA-GPS-EPH ephemeris from u-blox AssistNow) is not yet
-  wired up. INI-TIME + INI-POS alone trim cold-start from 90 s to
-  about 15 to 20 s, but a fresh-boot RaceBox still needs sky time
-  before its first fix. AssistNow Online integration is a separate
-  follow-up.
-- Dial upper bound still scales to wheel max; a faster external source
-  will pin at the top.
+The Navigator is the only part of the app that makes outbound requests, and
+only while the rider is actively building a route or navigating. It contacts
+just the configured OpenStreetMap-based services (Nominatim + Valhalla, both
+free and key-less; map tiles from CartoDB). No accounts, no telemetry. The
+endpoints are configurable for riders who want to self-host.
 
 ## How to install
 
-Debug-signed CI build. Uninstall any Play Store install first, then
-install this APK. Reinstalling from Play later overwrites this build.
+Debug-signed CI build. Uninstall any Play Store install first, then install
+this APK. Reinstalling from Play later overwrites this build.
 
 ## Feedback
 
 Open an issue at https://github.com/eried/eucplanet/issues tagged
-`branch:external-gps`.
+`branch:navigator`.

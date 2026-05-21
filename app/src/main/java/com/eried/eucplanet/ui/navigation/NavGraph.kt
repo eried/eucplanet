@@ -19,6 +19,7 @@ import androidx.navigation.navArgument
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
 import com.eried.eucplanet.ui.dashboard.MetricType
+import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.recording.TripDetailScreen
@@ -34,6 +35,7 @@ sealed class Screen(val route: String) {
         fun createRoute(tab: Int?) = if (tab == null) "settings" else "settings?tab=$tab"
     }
     data object Recording : Screen("recording")
+    data object RouteBuilder : Screen("route_builder")
     data object Flic : Screen("flic")
     data object TripDetail : Screen("trip_detail/{tripId}") {
         fun createRoute(tripId: Long) = "trip_detail/$tripId"
@@ -74,6 +76,7 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigateSingle(Screen.Settings.createRoute(tab))
                 },
                 onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
+                onNavigateToNavigator = { navController.navigateSingle(Screen.RouteBuilder.route) },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Settings.createRoute(7)) },
                 onNavigateToTripDetail = { tripId ->
                     navController.navigateSingle(Screen.TripDetail.createRoute(tripId))
@@ -106,6 +109,11 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Flic.route) {
             FlicScreen(
                 onBack = { navController.popSingle() }
+            )
+        }
+        composable(Screen.RouteBuilder.route) {
+            RouteBuilderScreen(
+                onExit = { navController.popSingle() }
             )
         }
         composable(Screen.Recording.route) {

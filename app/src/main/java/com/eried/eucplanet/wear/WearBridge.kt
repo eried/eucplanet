@@ -7,6 +7,7 @@ import android.os.BatteryManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.google.android.gms.tasks.Tasks
@@ -44,6 +45,7 @@ class WearBridge @Inject constructor(
     @ApplicationContext private val context: Context,
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
+    private val navigationEngine: com.eried.eucplanet.nav.NavigationEngine,
     private val cheatState: com.eried.eucplanet.cheats.CheatState
 ) {
     companion object {
@@ -92,6 +94,14 @@ class WearBridge @Inject constructor(
         private const val K_SCREEN2_CLICK = "b2c"
         private const val K_SCREEN2_HOLD = "b2h"
         private const val K_HAPTIC_ON_ACTION = "hap"
+        // Navigation mirror — only populated when the rider opted in via the
+        // Watch settings. K_NAV_ACTIVE already folds in that toggle and the
+        // phone popup's minimized state, so the watch just shows/hides on it.
+        private const val K_NAV_ACTIVE = "na"
+        private const val K_NAV_ANGLE = "ng"
+        private const val K_NAV_PRIMARY = "np"
+        private const val K_NAV_DISTANCE = "nd"
+        private const val K_NAV_ARRIVED = "nar"
 
         private const val PATH_WAKE = "/euc/wake"
         private const val PATH_QUIT = "/euc/quit"
@@ -279,6 +289,17 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_SCREEN2_CLICK, settings.watchScreen2Click)
                 dataMap.putString(K_SCREEN2_HOLD, settings.watchScreen2Hold)
                 dataMap.putBoolean(K_HAPTIC_ON_ACTION, settings.watchHapticOnAction)
+                // Navigation popup mirror. navShow folds in the rider's watch
+                // opt-in and the phone popup's minimized state; when it is off
+                // the payload fields are zeroed so a stale instruction can't
+                // linger on the watch or trigger a phantom wrist buzz.
+                val nav = navigationEngine.navState.value
+                val navShow = nav.active && !nav.minimized && settings.watchShowNavigation
+                dataMap.putBoolean(K_NAV_ACTIVE, navShow)
+                dataMap.putFloat(K_NAV_ANGLE, if (navShow) nav.arrowAngleDeg() else 0f)
+                dataMap.putString(K_NAV_PRIMARY, if (navShow) nav.primaryText else "")
+                dataMap.putString(K_NAV_DISTANCE, if (navShow) nav.distanceText else "")
+                dataMap.putBoolean(K_NAV_ARRIVED, navShow && nav.arrived)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).

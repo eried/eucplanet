@@ -84,6 +84,17 @@ object WatchKeys {
 
     /** Global toggle: vibrate the watch briefly when an action fires. */
     const val HAPTIC_ON_ACTION = "hap"
+
+    // --- Navigation mirror (phone popup → watch). NAV_ACTIVE already folds in
+    //     the rider's opt-in toggle and the phone popup's minimized state. ---
+    const val NAV_ACTIVE = "na"
+    /** Arrow rotation in degrees, 0 = straight up. */
+    const val NAV_ANGLE = "ng"
+    /** Pre-formatted instruction line, e.g. "Turn left". */
+    const val NAV_PRIMARY = "np"
+    /** Pre-formatted distance line, e.g. "200 m". */
+    const val NAV_DISTANCE = "nd"
+    const val NAV_ARRIVED = "nar"
 }
 
 object WatchControl {
@@ -168,5 +179,14 @@ data class WatchState(
     val screen1Hold: String = "NONE",
     val screen2Click: String = "LIGHT_TOGGLE",
     val screen2Hold: String = "NONE",
-    val hapticOnAction: Boolean = false
+    val hapticOnAction: Boolean = false,
+    // --- Navigation popup mirror ---
+    /** True when the phone popup is active, not minimized, and the rider
+     *  enabled "Show navigation" for the watch. */
+    val navActive: Boolean = false,
+    /** Arrow rotation, degrees (0 = up). */
+    val navAngle: Float = 0f,
+    val navPrimary: String = "",
+    val navDistance: String = "",
+    val navArrived: Boolean = false
 )

@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
@@ -315,6 +316,7 @@ fun SettingsScreen(
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
+    val titleNavigator = stringResource(R.string.tab_navigator)
 
     val corpusGeneral = listOf(
         titleGeneral,
@@ -411,6 +413,15 @@ fun SettingsScreen(
         stringResource(R.string.volume_keys_enable)
     ).joinToString(" ")
 
+    val corpusNavigator = listOf(
+        titleNavigator,
+        stringResource(R.string.nav_setting_voice),
+        stringResource(R.string.nav_setting_default_mode),
+        stringResource(R.string.nav_setting_arrival_radius),
+        stringResource(R.string.nav_setting_offroute),
+        stringResource(R.string.nav_setting_endpoints)
+    ).joinToString(" ")
+
     val corpusWatch = listOf(
         titleWatch,
         stringResource(R.string.section_watch_general),
@@ -449,6 +460,9 @@ fun SettingsScreen(
         },
         SectionDef("auto", titleAuto, Icons.Default.AutoAwesome, corpusAuto) {
             AutomationsContent()
+        },
+        SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
+            NavigatorSettingsContent()
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()
@@ -1387,6 +1401,13 @@ private fun WatchTab(
             description = stringResource(R.string.watch_show_speed_unit_desc),
             checked = settings.watchShowSpeedUnit,
             onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
+        )
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.watch_show_navigation),
+            description = stringResource(R.string.watch_show_navigation_desc),
+            checked = settings.watchShowNavigation,
+            onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
 
         Text(

@@ -258,6 +258,15 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchScreen2Click(action: String) = update { copy(watchScreen2Click = action) }
     fun updateWatchScreen2Hold(action: String) = update { copy(watchScreen2Hold = action) }
     fun updateWatchHapticOnAction(v: Boolean) = update { copy(watchHapticOnAction = v) }
+    fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+
+    // Navigator
+    fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
+    fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
+    fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
+    fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
+    fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
+    fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }
 
     private val _ttsSwitchPrompt = MutableStateFlow<String?>(null)
     val ttsSwitchPrompt: StateFlow<String?> = _ttsSwitchPrompt.asStateFlow()

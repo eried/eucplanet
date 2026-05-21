@@ -35,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.ElectricScooter
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
@@ -106,12 +107,97 @@ fun WatchApp() {
     val accent = accentColorFor(state.accentKey)
     MaterialTheme {
         Scaffold(timeText = {}) {
-            val hPager = rememberPagerState(pageCount = { 2 })
-            HorizontalPager(state = hPager, modifier = Modifier.fillMaxSize()) { page ->
-                when (page) {
-                    0 -> MainScreen(state, accent)
-                    1 -> DetailsScreen(state, accent)
+            Box(modifier = Modifier.fillMaxSize()) {
+                val hPager = rememberPagerState(pageCount = { 2 })
+                HorizontalPager(state = hPager, modifier = Modifier.fillMaxSize()) { page ->
+                    when (page) {
+                        0 -> MainScreen(state, accent)
+                        1 -> DetailsScreen(state, accent)
+                    }
                 }
+                // Navigation popup mirrors the phone: shown only while the phone
+                // popup is up (minimizing on the phone clears it here too).
+                if (state.navActive) {
+                    NavWatchOverlay(state, accent)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The watch's simplified navigation popup: a full-screen card with the big
+ * direction arrow and two text lines pushed down from the phone. The wrist
+ * buzzes whenever the instruction changes.
+ */
+@Composable
+private fun NavWatchOverlay(state: WatchState, accent: Color) {
+    val context = LocalContext.current
+    val angle by animateFloatAsState(
+        targetValue = if (state.navArrived) 0f else state.navAngle,
+        animationSpec = tween(durationMillis = 350),
+        label = "navArrow"
+    )
+    var lastPrimary by remember { mutableStateOf("") }
+    var lastVibrateAt by remember { mutableStateOf(0L) }
+    LaunchedEffect(state.navPrimary) {
+        val now = System.currentTimeMillis()
+        if (state.navPrimary.isNotBlank() && lastPrimary.isNotBlank() &&
+            state.navPrimary != lastPrimary && now - lastVibrateAt > 1500L
+        ) {
+            vibrate(context, 160L)
+            lastVibrateAt = now
+        }
+        lastPrimary = state.navPrimary
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            // Consume every gesture so a swipe can't reach the pager behind
+            // the popup while navigation is showing.
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    while (true) {
+                        awaitPointerEvent().changes.forEach { it.consume() }
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Navigation,
+                contentDescription = null,
+                tint = accent,
+                modifier = Modifier
+                    .size(74.dp)
+                    .rotate(angle)
+            )
+            Spacer(Modifier.height(8.dp))
+            if (state.navPrimary.isNotBlank()) {
+                Text(
+                    text = state.navPrimary,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    fontSize = 17.sp,
+                    maxLines = 2
+                )
+            }
+            if (state.navDistance.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = state.navDistance,
+                    color = accent,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
             }
         }
     }
