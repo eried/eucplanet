@@ -1,6 +1,9 @@
 package com.eried.eucplanet.ui.studio
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -11,12 +14,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
@@ -130,86 +135,106 @@ fun StudioReplayDialog(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        // Capped so the panel does not stretch edge-to-edge in landscape.
-        modifier = modifier.fillMaxWidth().widthIn(max = 620.dp),
+        // widthIn before fillMaxWidth so the cap actually applies — keeps the
+        // panel from stretching edge-to-edge in landscape.
+        modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = Color(0xF21A1A20),
         contentColor = Color.White,
         shadowElevation = 12.dp
     ) {
         Column(Modifier.padding(14.dp)) {
+            // 0 = transport, 1 = trip list, 2 = speed list — inline pickers so
+            // they rotate with the panel instead of escaping as popups.
+            var picker by remember { mutableStateOf(0) }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.History, contentDescription = null, tint = StudioControlAccent)
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    "Replay",
+                    when (picker) {
+                        1 -> "Choose a trip"
+                        2 -> "Replay speed"
+                        else -> "Replay"
+                    },
                     modifier = Modifier.weight(1f),
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleMedium
                 )
-                IconButton(onClick = onToggleDim) {
-                    Icon(
-                        Icons.Default.Opacity,
-                        contentDescription = "Fade the panel",
-                        tint = if (dimmed) StudioControlAccent else Color.White
-                    )
+                if (picker == 0) {
+                    IconButton(onClick = onToggleDim) {
+                        Icon(
+                            Icons.Default.Opacity,
+                            contentDescription = "Fade the panel",
+                            tint = if (dimmed) StudioControlAccent else Color.White
+                        )
+                    }
                 }
-                IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, contentDescription = "Close replay")
+                IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }) {
+                    Icon(
+                        if (picker != 0) Icons.AutoMirrored.Filled.ArrowBack
+                        else Icons.Default.Close,
+                        contentDescription = if (picker != 0) "Back" else "Close replay"
+                    )
                 }
             }
 
+          when (picker) {
+            1 -> Column(
+                Modifier.heightIn(max = 200.dp).verticalScroll(rememberScrollState())
+            ) {
+                if (trips.isEmpty()) {
+                    Text(
+                        "No recorded trips yet",
+                        color = Color.White.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+                trips.forEach { t ->
+                    Text(
+                        tripLabel(t),
+                        maxLines = 1,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPickTrip(t); picker = 0 }
+                            .padding(vertical = 12.dp, horizontal = 4.dp)
+                    )
+                }
+            }
+            2 -> Column {
+                replaySpeeds.forEach { s ->
+                    Text(
+                        speedLabel(s),
+                        color = if (s == speed) StudioControlAccent else Color.White,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSpeed(s); picker = 0 }
+                            .padding(vertical = 12.dp, horizontal = 4.dp)
+                    )
+                }
+            }
+            else -> {
             // Trip picker + speed combo, side by side.
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                var tripMenu by remember { mutableStateOf(false) }
-                Box(Modifier.weight(1f)) {
-                    OutlinedButton(
-                        onClick = { tripMenu = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            selectedTrip?.let { tripLabel(it) } ?: "Choose a trip",
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1
-                        )
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                    }
-                    DropdownMenu(expanded = tripMenu, onDismissRequest = { tripMenu = false }) {
-                        if (trips.isEmpty()) {
-                            DropdownMenuItem(
-                                text = { Text("No recorded trips yet") },
-                                onClick = { tripMenu = false },
-                                enabled = false
-                            )
-                        }
-                        trips.forEach { t ->
-                            DropdownMenuItem(
-                                text = { Text(tripLabel(t)) },
-                                onClick = { tripMenu = false; onPickTrip(t) }
-                            )
-                        }
-                    }
+                OutlinedButton(
+                    onClick = { picker = 1 },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        selectedTrip?.let { tripLabel(it) } ?: "Choose a trip",
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                 }
-                var speedMenu by remember { mutableStateOf(false) }
-                Box {
-                    OutlinedButton(
-                        onClick = { speedMenu = true },
-                        enabled = selectedTrip != null
-                    ) {
-                        Text(speedLabel(speed))
-                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Replay speed")
-                    }
-                    DropdownMenu(expanded = speedMenu, onDismissRequest = { speedMenu = false }) {
-                        replaySpeeds.forEach { s ->
-                            DropdownMenuItem(
-                                text = { Text(speedLabel(s)) },
-                                onClick = { speedMenu = false; onSpeed(s) }
-                            )
-                        }
-                    }
+                OutlinedButton(
+                    onClick = { picker = 2 },
+                    enabled = selectedTrip != null
+                ) {
+                    Text(speedLabel(speed))
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Replay speed")
                 }
             }
 
@@ -277,6 +302,8 @@ fun StudioReplayDialog(
                     color = Color.White.copy(alpha = 0.7f)
                 )
             }
+            }
+          }
         }
     }
 }

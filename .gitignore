@@ -23,6 +23,10 @@ release/
 
 # Scratch files (analysis, screenshots, ad-hoc)
 .tmp_*
+/.s*.png
+/.u.xml
+/.test.*
+/.apng_test.png
 *.btsnoop
 *.cfa
 *.log

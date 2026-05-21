@@ -309,25 +309,51 @@ fun Modifier.rotateLayout(rotation: Int): Modifier {
     return when (r) {
         0 -> this
         180 -> this.rotate(180f)
-        else -> this
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(
-                    androidx.compose.ui.unit.Constraints(
-                        minWidth = constraints.minHeight,
-                        maxWidth = constraints.maxHeight,
-                        minHeight = constraints.minWidth,
-                        maxHeight = constraints.maxWidth
-                    )
-                )
-                layout(placeable.height, placeable.width) {
-                    placeable.place(
-                        (placeable.height - placeable.width) / 2,
-                        (placeable.width - placeable.height) / 2
-                    )
-                }
-            }
-            .rotate(-r.toFloat())
+        else -> this.then(SwapSizeModifier).rotate(-r.toFloat())
     }
+}
+
+/**
+ * Measures the child in a width/height-swapped frame and reports the swapped
+ * size — including for intrinsic queries, so a host like DropdownMenu that
+ * sizes itself by intrinsics wraps the rotated content with no empty gap.
+ */
+private object SwapSizeModifier : androidx.compose.ui.layout.LayoutModifier {
+    override fun androidx.compose.ui.layout.MeasureScope.measure(
+        measurable: androidx.compose.ui.layout.Measurable,
+        constraints: androidx.compose.ui.unit.Constraints
+    ): androidx.compose.ui.layout.MeasureResult {
+        val placeable = measurable.measure(
+            androidx.compose.ui.unit.Constraints(
+                minWidth = constraints.minHeight,
+                maxWidth = constraints.maxHeight,
+                minHeight = constraints.minWidth,
+                maxHeight = constraints.maxWidth
+            )
+        )
+        return layout(placeable.height, placeable.width) {
+            placeable.place(
+                (placeable.height - placeable.width) / 2,
+                (placeable.width - placeable.height) / 2
+            )
+        }
+    }
+
+    override fun androidx.compose.ui.layout.IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: androidx.compose.ui.layout.IntrinsicMeasurable, height: Int
+    ): Int = measurable.minIntrinsicHeight(height)
+
+    override fun androidx.compose.ui.layout.IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: androidx.compose.ui.layout.IntrinsicMeasurable, height: Int
+    ): Int = measurable.maxIntrinsicHeight(height)
+
+    override fun androidx.compose.ui.layout.IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: androidx.compose.ui.layout.IntrinsicMeasurable, width: Int
+    ): Int = measurable.minIntrinsicWidth(width)
+
+    override fun androidx.compose.ui.layout.IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: androidx.compose.ui.layout.IntrinsicMeasurable, width: Int
+    ): Int = measurable.maxIntrinsicWidth(width)
 }
 
 /**
