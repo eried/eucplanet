@@ -95,6 +95,7 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     data: StudioElementData,
     editable: Boolean,
     selectedId: String?,
+    replayMode: Boolean = false,
     onSelect: (String) -> Unit,
     onConfigure: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -104,7 +105,13 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     val containerH = maxHeight
     val widthPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
     val heightPx = constraints.maxHeight.toFloat().coerceAtLeast(1f)
-    elements.forEach { element ->
+    // Floating cameras have no feed during a trip replay, so they are hidden.
+    val shown = if (replayMode) {
+        elements.filterNot { it.type == OverlayElementType.FLOATING_CAMERA }
+    } else {
+        elements
+    }
+    shown.forEach { element ->
         StudioElementBox(
             element = element,
             containerW = containerW,

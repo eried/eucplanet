@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.FolderOff
 import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Layers
@@ -187,11 +188,14 @@ fun StudioToolsFlyout(
     onChangeLayout: () -> Unit,
     onNew: () -> Unit,
     onLoadPreset: () -> Unit,
-    onSavePreset: () -> Unit
+    onSavePreset: () -> Unit,
+    onReplayMode: () -> Unit
 ) {
     // Ordered so the most-used action (Add element) sits at the bottom of the
     // menu — closest to the "..." button and the rider's thumb.
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+        FlyoutItem(Icons.Default.History, "Replay") { onDismiss(); onReplayMode() }
+        HorizontalDivider(Modifier.padding(vertical = 4.dp))
         FlyoutSection("Preset")
         FlyoutItem(Icons.Default.Dashboard, "Layout") { onDismiss(); onChangeLayout() }
         FlyoutItem(Icons.Default.NoteAdd, "New") { onDismiss(); onNew() }

@@ -20,6 +20,7 @@ import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
 import com.eried.eucplanet.ui.dashboard.MetricType
 import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
+import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
 import com.eried.eucplanet.ui.recording.RecordingViewModel
 import com.eried.eucplanet.ui.recording.TripDetailScreen
@@ -36,7 +37,13 @@ sealed class Screen(val route: String) {
         fun createRoute(tab: Int?) = if (tab == null) "settings" else "settings?tab=$tab"
     }
     data object Recording : Screen("recording")
-    data object OverlayStudio : Screen("overlay_studio")
+    data object OverlayStudio : Screen("overlay_studio?tripId={tripId}") {
+        fun createRoute(tripId: Long?) =
+            if (tripId == null) "overlay_studio" else "overlay_studio?tripId=$tripId"
+    }
+    data object EucViewer : Screen("euc_viewer/{tripId}") {
+        fun createRoute(tripId: Long) = "euc_viewer/$tripId"
+    }
     data object RouteBuilder : Screen("route_builder")
     data object Flic : Screen("flic")
     data object TripDetail : Screen("trip_detail/{tripId}") {
@@ -78,7 +85,9 @@ fun NavGraph(navController: NavHostController) {
                     navController.navigateSingle(Screen.Settings.createRoute(tab))
                 },
                 onNavigateToRecording = { navController.navigateSingle(Screen.Recording.route) },
-                onNavigateToStudio = { navController.navigateSingle(Screen.OverlayStudio.route) },
+                onNavigateToStudio = {
+                    navController.navigateSingle(Screen.OverlayStudio.createRoute(null))
+                },
                 onNavigateToNavigator = { navController.navigateSingle(Screen.RouteBuilder.route) },
                 onNavigateToFlic = { navController.navigateSingle(Screen.Settings.createRoute(7)) },
                 onNavigateToTripDetail = { tripId ->
@@ -114,12 +123,29 @@ fun NavGraph(navController: NavHostController) {
                 onBack = { navController.popSingle() }
             )
         }
-        composable(Screen.OverlayStudio.route) {
+        composable(
+            Screen.OverlayStudio.route,
+            arguments = listOf(navArgument("tripId") {
+                type = NavType.LongType
+                defaultValue = -1L
+            })
+        ) { backStackEntry ->
+            val tid = backStackEntry.arguments?.getLong("tripId") ?: -1L
             OverlayStudioScreen(
                 onBack = { navController.popSingle() },
                 onOpenBackupSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(4))
-                }
+                },
+                replayTripId = if (tid >= 0L) tid else null
+            )
+        }
+        composable(
+            Screen.EucViewer.route,
+            arguments = listOf(navArgument("tripId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            EucViewerScreen(
+                tripId = backStackEntry.arguments?.getLong("tripId") ?: -1L,
+                onBack = { navController.popSingle() }
             )
         }
         composable(Screen.RouteBuilder.route) {
@@ -135,6 +161,12 @@ fun NavGraph(navController: NavHostController) {
                 },
                 onOpenBackupSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(4))
+                },
+                onViewOnline = { id ->
+                    navController.navigateSingle(Screen.EucViewer.createRoute(id))
+                },
+                onReplayTrip = { id ->
+                    navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
                 }
             )
         }
@@ -165,6 +197,12 @@ fun NavGraph(navController: NavHostController) {
                 TripDetailScreen(
                     trip = trip,
                     onBack = { navController.popSingle() },
+                    onViewOnline = { id ->
+                        navController.navigateSingle(Screen.EucViewer.createRoute(id))
+                    },
+                    onReplayTrip = { id ->
+                        navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
+                    },
                     viewModel = viewModel
                 )
             }

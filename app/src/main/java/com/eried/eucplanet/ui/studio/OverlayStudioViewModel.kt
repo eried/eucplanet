@@ -7,10 +7,13 @@ import com.eried.eucplanet.data.model.OverlayElement
 import com.eried.eucplanet.data.model.OverlayPreset
 import com.eried.eucplanet.data.model.ViewportConfig
 import com.eried.eucplanet.data.model.ViewportLayout
+import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
 import com.eried.eucplanet.data.store.OverlayPresetStore
+import kotlinx.coroutines.withContext
 import com.eried.eucplanet.util.Units
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +46,8 @@ enum class PresetSaveResult { SAVED, NO_FOLDER, FAILED }
 class OverlayStudioViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
-    private val presetStore: OverlayPresetStore
+    private val presetStore: OverlayPresetStore,
+    private val tripRepository: TripRepository
 ) : ViewModel() {
 
     companion object {
@@ -93,6 +97,24 @@ class OverlayStudioViewModel @Inject constructor(
     /** Read-only starter presets shipped with the app. */
     private val _bundledPresets = MutableStateFlow<List<String>>(emptyList())
     val bundledPresets: StateFlow<List<String>> = _bundledPresets.asStateFlow()
+
+    // --- Replay (recorded trips) --------------------------------------------
+    /** Recorded trips available to replay, newest first. */
+    val trips: StateFlow<List<TripRecord>> = tripRepository.allTrips
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Looks up a single trip by id — used when the studio opens from Share. */
+    suspend fun tripById(id: Long): TripRecord? =
+        withContext(Dispatchers.IO) { tripRepository.getTripById(id) }
+
+    /** Reads a trip's CSV off the main thread and parses it into a timeline. */
+    suspend fun loadReplayTrip(record: TripRecord): ReplayTrip? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val file = tripRepository.getTripFile(record)
+                if (file.exists()) parseTripCsv(file.readText()) else null
+            }.getOrNull()
+        }
 
     private var draftSaveJob: Job? = null
 

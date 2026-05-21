@@ -114,6 +114,7 @@ fun StudioViewportLayer(
     hub: StudioCameraHub,
     hasCameraPermission: Boolean,
     editable: Boolean,
+    replayMode: Boolean = false,
     onDividerChange: (List<Float>) -> Unit,
     onConfigViewport: (Int) -> Unit,
     onConfigDivider: () -> Unit,
@@ -121,6 +122,11 @@ fun StudioViewportLayer(
     onDoubleTapEmpty: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (replayMode) {
+        // Replay shows the overlays only — the viewport background is transparent.
+        Box(modifier.fillMaxSize())
+        return
+    }
     BoxWithConstraints(modifier.fillMaxSize().background(Color.Black)) {
         val w = maxWidth
         val h = maxHeight

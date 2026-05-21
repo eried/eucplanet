@@ -515,7 +515,7 @@
 
     <!-- Recording screen -->
     <string name="action_delete_all">Delete All</string>
-    <string name="action_import">Import single file</string>
+    <string name="action_import">Import</string>
     <string name="action_trip_backup_options">Trips backup options</string>
     <string name="action_export_all">Export all</string>
     <string name="action_share">Share</string>
@@ -687,6 +687,8 @@
     <string name="nav_title">Route builder</string>
     <string name="nav_search_hint">Search address or place</string>
     <string name="nav_searching">Searching…</string>
+    <string name="nav_locating">Finding your location…</string>
+    <string name="nav_skip_locating">Skip</string>
     <string name="nav_no_results">No matches found</string>
     <string name="nav_mode_cycling">Bike</string>
     <string name="nav_mode_driving">Car</string>

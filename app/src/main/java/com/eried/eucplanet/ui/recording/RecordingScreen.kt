@@ -84,6 +84,8 @@ fun RecordingScreen(
     onBack: () -> Unit,
     onViewTrip: ((TripRecord) -> Unit)? = null,
     onOpenBackupSettings: (() -> Unit)? = null,
+    onViewOnline: ((Long) -> Unit)? = null,
+    onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
     val recording by viewModel.recording.collectAsState()
@@ -105,6 +107,7 @@ fun RecordingScreen(
     var showClearDialog by remember { mutableStateOf(false) }
     var showManageMenu by remember { mutableStateOf(false) }
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
+    var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val listState = rememberLazyListState()
 
     // Block back navigation while importing
@@ -145,6 +148,15 @@ fun RecordingScreen(
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.action_cancel)) }
             }
+        )
+    }
+
+    tripToShare?.let { trip ->
+        TripActionDialog(
+            onShareFile = { viewModel.shareTrip(trip) },
+            onViewOnline = { onViewOnline?.invoke(trip.id) },
+            onReplay = { onReplayTrip?.invoke(trip.id) },
+            onDismiss = { tripToShare = null }
         )
     }
 
@@ -388,7 +400,7 @@ fun RecordingScreen(
                             liveDistanceKm = if (isRecordingTrip) liveTripKm else null,
                             distanceUnit = distanceUnit,
                             onView = { onViewTrip?.invoke(trip) },
-                            onShare = { viewModel.shareTrip(trip) },
+                            onShare = { tripToShare = trip },
                             onDelete = { tripToDelete = trip }
                         )
                     }

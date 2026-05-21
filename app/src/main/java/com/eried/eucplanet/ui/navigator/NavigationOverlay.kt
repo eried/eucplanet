@@ -206,7 +206,9 @@ private fun CenterPopup(
                 val stopsLeft = state.goalCount - state.goalIndex
                 Text(
                     when {
-                        state.arrived || state.goalCount <= 0 -> ""
+                        // A 1-stop route has no "Last stop" line — it is just
+                        // noise; the count only earns its place from 2 stops up.
+                        state.arrived || state.goalCount <= 1 -> ""
                         stopsLeft >= 2 -> stringResource(R.string.nav_stops_left, stopsLeft)
                         else -> stringResource(R.string.nav_last_stop)
                     },

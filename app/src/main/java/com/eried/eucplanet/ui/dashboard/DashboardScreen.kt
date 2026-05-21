@@ -70,7 +70,7 @@ import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.VideoCameraBack
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -535,6 +535,15 @@ fun DashboardScreen(
                         .width(dialW)
                         .aspectRatio(ratio)
                         .align(Alignment.Center)
+                )
+                // Only the centre of the dial opens speed history — the empty
+                // corners of the gauge's bounding box no longer steal taps
+                // meant for the P/D, GPS, map and camera glyphs.
+                Box(
+                    Modifier
+                        .size(dialW * 0.5f)
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
                         .clickable { onNavigateToMetric("SPEED") }
                 )
                 // Car-dashboard status cluster, top-left: P (park) / D (drive).
@@ -595,7 +604,7 @@ fun DashboardScreen(
                 // glyphs (no chrome, accent colour), mirroring the GPS column
                 // in the dial's bottom-right corner.
                 DashIndicatorIcon(
-                    icon = Icons.Default.VideoCameraBack,
+                    icon = Icons.Default.PhotoCamera,
                     active = true,
                     activeColor = if (useAccent) primary else AccentGreen,
                     modifier = Modifier
@@ -622,7 +631,7 @@ fun DashboardScreen(
                     else Icons.Default.Map,
                     contentDescription = stringResource(R.string.nav_open),
                     tint = if (navActive) AccentGreen
-                    else if (useAccent) primary else AccentBlue,
+                    else if (useAccent) primary else AccentGreen,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 4.dp, bottom = 10.dp)

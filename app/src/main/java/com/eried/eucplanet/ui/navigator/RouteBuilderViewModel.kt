@@ -118,7 +118,7 @@ class RouteBuilderViewModel @Inject constructor(
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
-            _mapType.value = s.navMapType.ifBlank { "DARK" }
+            _mapType.value = s.navMapType.ifBlank { "LIGHT" }
             // Re-open whatever route was last in the builder.
             NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
                 if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {

@@ -77,9 +77,21 @@ import java.util.Locale
 fun TripDetailScreen(
     trip: TripRecord,
     onBack: () -> Unit,
+    onViewOnline: ((Long) -> Unit)? = null,
+    onReplayTrip: ((Long) -> Unit)? = null,
     viewModel: RecordingViewModel = hiltViewModel()
 ) {
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
+    var showShareDialog by remember { mutableStateOf(false) }
+
+    if (showShareDialog) {
+        TripActionDialog(
+            onShareFile = { viewModel.shareTrip(trip) },
+            onViewOnline = { onViewOnline?.invoke(trip.id) },
+            onReplay = { onReplayTrip?.invoke(trip.id) },
+            onDismiss = { showShareDialog = false }
+        )
+    }
 
     LaunchedEffect(trip.id) {
         dataPoints = viewModel.readTripData(trip)
@@ -97,7 +109,7 @@ fun TripDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.shareTrip(trip) }) {
+                    IconButton(onClick = { showShareDialog = true }) {
                         Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                     }
                 },
@@ -441,7 +453,7 @@ private fun buildMapHtml(coordsJson: String, isLive: Boolean): String = """
 <script>
   var coords=[$coordsJson];
   var map=L.map('map',{zoomControl:false,attributionControl:false});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
     maxZoom:19, subdomains:'abcd'
   }).addTo(map);
 

@@ -129,6 +129,12 @@ fun RouteBuilderScreen(
     var menuOpen by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    // Cover the map until the first GPS fix lands, so the rider never sees it
+    // snap from world view to their location. Skip drops the gate immediately.
+    var locationGateDone by remember { mutableStateOf(false) }
+    LaunchedEffect(userLocation) {
+        if (userLocation != null) locationGateDone = true
+    }
     var pageReady by remember { mutableStateOf(false) }
     var didInitialCenter by remember { mutableStateOf(false) }
 
@@ -457,6 +463,26 @@ fun RouteBuilderScreen(
                     onStartNavigation = startNav,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty()
                 )
+            }
+
+            // Locating gate — hides the world-view-to-location jump.
+            if (!locationGateDone) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator()
+                            Spacer(Modifier.height(16.dp))
+                            Text(stringResource(R.string.nav_locating))
+                            Spacer(Modifier.height(18.dp))
+                            TextButton(onClick = { locationGateDone = true }) {
+                                Text(stringResource(R.string.nav_skip_locating))
+                            }
+                        }
+                    }
+                }
             }
         }
     }

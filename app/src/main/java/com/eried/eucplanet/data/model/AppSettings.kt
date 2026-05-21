@@ -241,7 +241,7 @@ data class AppSettings(
      */
     val navCurrentRouteJson: String? = null,
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
-    val navMapType: String = "DARK",
+    val navMapType: String = "LIGHT",
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,
@@ -316,10 +316,10 @@ data class AppSettings(
     val watchUpdateRate: String = "NORMAL",
     /**
      * Mirror the live navigation popup (turn arrow + distance) on the paired
-     * watch. Off by default so the watch dial stays the primary glance
-     * surface unless the rider explicitly opts in.
+     * watch. On by default; the rider can turn it off to keep the watch dial
+     * as the only glance surface.
      */
-    val watchShowNavigation: Boolean = false,
+    val watchShowNavigation: Boolean = true,
 
     // --- Motor Sound generator ---
     //
