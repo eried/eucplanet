@@ -623,6 +623,7 @@ fun LoadPresetSheet(
     onOpenFolderSettings: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    var confirmDelete by remember { mutableStateOf<String?>(null) }
     StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
@@ -632,9 +633,14 @@ fun LoadPresetSheet(
         ) {
             SheetHeader("Load layout")
 
-            if (bundledPresets.isNotEmpty()) {
+            // Landscape starter presets (name-prefixed "Landscape") get their
+            // own group below the upright ones.
+            val (landscape, portrait) = bundledPresets.partition {
+                it.startsWith("Landscape", ignoreCase = true)
+            }
+            if (portrait.isNotEmpty()) {
                 SectionLabel("Built-in")
-                bundledPresets.forEach { name ->
+                portrait.forEach { name ->
                     PresetRow(
                         name = name,
                         icon = Icons.Default.Inventory2,
@@ -642,26 +648,49 @@ fun LoadPresetSheet(
                         onDelete = null
                     )
                 }
-                SectionLabel("Your layouts")
+            }
+            if (landscape.isNotEmpty()) {
+                SectionLabel("Built-in landscape")
+                landscape.forEach { name ->
+                    PresetRow(
+                        name = name,
+                        icon = Icons.Default.Inventory2,
+                        onClick = { onLoadBundled(name) },
+                        onDelete = null
+                    )
+                }
             }
 
-            when {
-                !folderAvailable -> FolderWarning(onOpenFolderSettings)
-                presets.isEmpty() -> Text(
-                    "No saved layouts yet.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-                else -> presets.forEach { name ->
+            if (!folderAvailable) {
+                FolderWarning(onOpenFolderSettings)
+            } else if (presets.isNotEmpty()) {
+                SectionLabel("Your layouts")
+                presets.forEach { name ->
                     PresetRow(
                         name = name,
                         icon = Icons.Default.Dashboard,
                         onClick = { onLoad(name) },
-                        onDelete = { onDelete(name) }
+                        onDelete = { confirmDelete = name }
                     )
                 }
             }
         }
+    }
+    confirmDelete?.let { name ->
+        AlertDialog(
+            onDismissRequest = { confirmDelete = null },
+            modifier = Modifier.rotateLayout(LocalStudioRotation.current),
+            title = { Text("Delete layout?") },
+            text = { Text("\"$name\" will be permanently deleted.") },
+            confirmButton = {
+                TextButton(onClick = { onDelete(name); confirmDelete = null }) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDelete = null }) { Text("Cancel") }
+            }
+        )
     }
 }
 

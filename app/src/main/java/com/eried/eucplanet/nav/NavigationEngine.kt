@@ -211,6 +211,11 @@ class NavigationEngine @Inject constructor(
         _navState.value = _navState.value.copy(minimized = minimized)
     }
 
+    /** Mirrors whether the centred popup is on screen, for the watch bridge. */
+    fun setCueVisible(visible: Boolean) {
+        _navState.value = _navState.value.copy(cueVisible = visible)
+    }
+
     /**
      * Re-opens the centred popup — used by the dashboard navigator button while
      * guidance is running so the rider can act on it (e.g. end navigation).

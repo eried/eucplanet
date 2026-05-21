@@ -4,11 +4,9 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.Image
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
@@ -27,7 +25,8 @@ import java.util.Locale
  * is no "share your screen" consent dialog.
  *
  * Video: the studio (cameras + overlays) is captured each frame into a [Bitmap]
- * by the caller, converted to YUV and fed to an H.264 [MediaCodec].
+ * by the caller and drawn onto an H.264 [MediaCodec]'s input Surface — the GPU
+ * handles the colour conversion.
  * Audio (optional): the device microphone is read on a background thread and
  * fed to an AAC [MediaCodec]. Both streams are interleaved into one MP4 by a
  * shared [MediaMuxer].
@@ -48,8 +47,6 @@ class StudioVideoEncoder(
     private val videoBufferInfo = MediaCodec.BufferInfo()
     private var encodeW = 0
     private var encodeH = 0
-    private var startNs = 0L
-    private var lastPtsUs = -1L
     private var inputSurface: android.view.Surface? = null
 
     // --- Muxer (shared) ---
@@ -69,10 +66,6 @@ class StudioVideoEncoder(
     private var audioSamples = 0L
 
     private var failed = false
-
-    /** Reused per-frame scratch so we are not allocating bitmaps a second. */
-    private var scaled: Bitmap? = null
-    private var pixels: IntArray? = null
 
     /** True once [start] has successfully set up the video codec + muxer. */
     var started = false
@@ -133,7 +126,6 @@ class StudioVideoEncoder(
             muxer = MediaMuxer(
                 pfd!!.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
             )
-            startNs = System.nanoTime()
             if (withAudio) startAudio()
             started = true
             true
@@ -171,13 +163,6 @@ class StudioVideoEncoder(
             Log.e(TAG, "submitFrame failed", e)
             failed = true
         }
-    }
-
-    private fun nextPtsUs(): Long {
-        val raw = (System.nanoTime() - startNs) / 1000
-        val pts = if (raw <= lastPtsUs) lastPtsUs + 1 else raw
-        lastPtsUs = pts
-        return pts
     }
 
     private fun drainVideo(endOfStream: Boolean) {
@@ -409,63 +394,7 @@ class StudioVideoEncoder(
         muxer = null
         runCatching { pfd?.close() }
         pfd = null
-        scaled?.recycle()
-        scaled = null
-        pixels = null
     }
-
-    // --- Frame conversion ---------------------------------------------------
-
-    /** Scale [frame] into the encoder size and convert ARGB -> YUV420 in [image]. */
-    private fun fillImage(frame: Bitmap, image: Image) {
-        val w = image.width
-        val h = image.height
-        // GraphicsLayer.toImageBitmap() can hand back a HARDWARE bitmap, which a
-        // software Canvas can neither draw nor getPixels — copy it first.
-        val source = if (frame.config == Bitmap.Config.HARDWARE) {
-            frame.copy(Bitmap.Config.ARGB_8888, false) ?: return
-        } else {
-            frame
-        }
-        val target = scaled ?: Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            .also { scaled = it }
-        Canvas(target).drawBitmap(
-            source,
-            Rect(0, 0, source.width, source.height),
-            Rect(0, 0, w, h),
-            null
-        )
-        if (source !== frame) source.recycle()
-        val argb = pixels ?: IntArray(w * h).also { pixels = it }
-        target.getPixels(argb, 0, w, 0, 0, w, h)
-
-        val yP = image.planes[0]
-        val uP = image.planes[1]
-        val vP = image.planes[2]
-        val yBuf = yP.buffer
-        val uBuf = uP.buffer
-        val vBuf = vP.buffer
-        for (j in 0 until h) {
-            val rowYuv = (j shr 1)
-            for (i in 0 until w) {
-                val c = argb[j * w + i]
-                val r = (c shr 16) and 0xFF
-                val g = (c shr 8) and 0xFF
-                val b = c and 0xFF
-                val y = ((66 * r + 129 * g + 25 * b + 128) shr 8) + 16
-                yBuf.put(j * yP.rowStride + i * yP.pixelStride, clamp(y))
-                if (j and 1 == 0 && i and 1 == 0) {
-                    val u = ((-38 * r - 74 * g + 112 * b + 128) shr 8) + 128
-                    val v = ((112 * r - 94 * g - 18 * b + 128) shr 8) + 128
-                    val col = i shr 1
-                    uBuf.put(rowYuv * uP.rowStride + col * uP.pixelStride, clamp(u))
-                    vBuf.put(rowYuv * vP.rowStride + col * vP.pixelStride, clamp(v))
-                }
-            }
-        }
-    }
-
-    private fun clamp(v: Int): Byte = v.coerceIn(0, 255).toByte()
 
     private fun align16(value: Int): Int = (value / 16) * 16
 

@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "name": "Landscape Race",
+  "layout": "SINGLE",
+  "dividers": [],
+  "viewports": [
+    { "source": "CAMERA", "cameraKey": "BACK", "solidColor": 4278194196 }
+  ],
+  "elements": [
+    { "id": "name", "type": "WHEEL_NAME", "x": 0.04, "y": 0.05, "width": 0.4,
+      "rotationDeg": 90, "opacity": 0.95,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "speed-dial", "type": "DATA_DIAL", "x": 0.04, "y": 0.4, "width": 0.4,
+      "rotationDeg": 90, "metric": "SPEED", "gaugeMax": 60,
+      "foreground": 4283417591, "background": 1711276032 },
+    { "id": "pwm", "type": "DATA_BAR", "x": 0.34, "y": 0.08, "width": 0.55,
+      "rotationDeg": 90, "metric": "PWM", "gaugeMax": 100, "showLabel": true,
+      "foreground": 4294954278, "background": 1711276032 },
+    { "id": "battery", "type": "DATA_VALUE", "x": 0.52, "y": 0.06, "width": 0.32,
+      "rotationDeg": 90, "metric": "BATTERY", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "temp", "type": "DATA_VALUE", "x": 0.74, "y": 0.06, "width": 0.32,
+      "rotationDeg": 90, "metric": "TEMP", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "current", "type": "DATA_VALUE", "x": 0.52, "y": 0.52, "width": 0.32,
+      "rotationDeg": 90, "metric": "CURRENT", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "power-graph", "type": "DATA_GRAPH", "x": 0.72, "y": 0.4, "width": 0.5,
+      "rotationDeg": 90, "opacity": 0.9, "metric": "POWER", "graphWindowSec": 90,
+      "foreground": 4293001525, "background": 1711276032 }
+  ]
+}

@@ -209,7 +209,10 @@ data class NavState(
     val goalCount: Int = 0,
     /** Bumped to ask the overlay to re-open the centred popup (e.g. from the
      *  dashboard navigator button). Not a cue — purely a show trigger. */
-    val popupTick: Int = 0
+    val popupTick: Int = 0,
+    /** True while the phone's centred nav popup is on screen; the watch mirror
+     *  follows this so it stays transient like the phone popup. */
+    val cueVisible: Boolean = false
 )
 
 /**

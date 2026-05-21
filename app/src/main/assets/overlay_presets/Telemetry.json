@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "name": "Telemetry",
+  "layout": "SINGLE",
+  "dividers": [],
+  "viewports": [
+    { "source": "CAMERA", "cameraKey": "BACK", "solidColor": 4278194196 }
+  ],
+  "elements": [
+    { "id": "name", "type": "WHEEL_NAME", "x": 0.05, "y": 0.03, "width": 0.5,
+      "opacity": 0.95, "foreground": 4294967295, "background": 1711276032 },
+    { "id": "badge", "type": "APP_BADGE", "x": 0.58, "y": 0.03, "width": 0.38,
+      "opacity": 0.95, "foreground": 4294967295, "background": 1711276032 },
+    { "id": "speed-dial", "type": "DATA_DIAL", "x": 0.28, "y": 0.12, "width": 0.44,
+      "opacity": 0.95, "metric": "SPEED", "gaugeMax": 60,
+      "foreground": 4283417591, "background": 1711276032 },
+    { "id": "battery", "type": "DATA_VALUE", "x": 0.05, "y": 0.45, "width": 0.43,
+      "metric": "BATTERY", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "temp", "type": "DATA_VALUE", "x": 0.52, "y": 0.45, "width": 0.43,
+      "metric": "TEMP", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "voltage", "type": "DATA_VALUE", "x": 0.05, "y": 0.56, "width": 0.43,
+      "metric": "VOLTAGE", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "current", "type": "DATA_VALUE", "x": 0.52, "y": 0.56, "width": 0.43,
+      "metric": "CURRENT", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "pwm-bar", "type": "DATA_BAR", "x": 0.05, "y": 0.68, "width": 0.9,
+      "metric": "PWM", "gaugeMax": 100, "showLabel": true,
+      "foreground": 4294954278, "background": 1711276032 },
+    { "id": "speed-graph", "type": "DATA_GRAPH", "x": 0.05, "y": 0.78, "width": 0.9,
+      "opacity": 0.9, "metric": "SPEED", "graphWindowSec": 120,
+      "foreground": 4283417591, "background": 1711276032 }
+  ]
+}

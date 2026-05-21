@@ -319,7 +319,10 @@ class WearBridge @Inject constructor(
                 // the payload fields are zeroed so a stale instruction can't
                 // linger on the watch or trigger a phantom wrist buzz.
                 val nav = navigationEngine.navState.value
-                val navShow = nav.active && !nav.minimized && settings.watchShowNavigation
+                // cueVisible folds in the phone popup's transient timeout, so
+                // the watch shows nav only while the phone's popup is on screen.
+                val navShow = nav.active && !nav.minimized && nav.cueVisible &&
+                    settings.watchShowNavigation
                 dataMap.putBoolean(K_NAV_ACTIVE, navShow)
                 dataMap.putFloat(K_NAV_ANGLE, if (navShow) nav.arrowAngleDeg() else 0f)
                 dataMap.putString(K_NAV_PRIMARY, if (navShow) nav.primaryText else "")

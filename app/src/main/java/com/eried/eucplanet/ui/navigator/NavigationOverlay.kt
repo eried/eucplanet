@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -107,6 +108,11 @@ fun NavigationOverlay(
             popupShown = false
         }
     }
+
+    // Mirror the popup's on-screen state to the engine so the watch shows nav
+    // only while the phone does, and clear it when this overlay leaves the tree.
+    LaunchedEffect(popupShown) { viewModel.setCueVisible(popupShown) }
+    DisposableEffect(Unit) { onDispose { viewModel.setCueVisible(false) } }
 
     Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         // Timed-out or manually minimized → compact pill at the top. Hidden
