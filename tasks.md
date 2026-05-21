@@ -33,7 +33,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
   the GPX so each point can have its own custom radius; the value in Settings
   then becomes only the default.
 
-- [ ] **4. Units for tolerances** — make sure the arrival radius, off-route
+- [x] **4. Units for tolerances** — make sure the arrival radius, off-route
   tolerance, and similar distance values display in the app's configured units
   (feet/meters, etc.), not a hardcoded unit.
 

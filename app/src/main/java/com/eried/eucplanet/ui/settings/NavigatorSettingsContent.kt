@@ -44,6 +44,11 @@ fun NavigatorSettingsContent(
     val settingsState by viewModel.settings.collectAsState()
     val settings = settingsState ?: return
 
+    // Tolerances are stored in metres; show them in the rider's chosen unit.
+    fun distLabel(meters: Int): String =
+        if (settings.imperialUnits) "${(meters * 3.28084).roundToInt()} ft"
+        else "$meters m"
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -51,7 +56,7 @@ fun NavigatorSettingsContent(
         // --- Arrival radius ---
         SliderRow(
             label = stringResource(R.string.nav_setting_arrival_radius),
-            valueText = "${settings.navArrivalRadiusM} m",
+            valueText = distLabel(settings.navArrivalRadiusM),
             value = settings.navArrivalRadiusM.toFloat(),
             range = 5f..100f,
             steps = 18,
@@ -62,7 +67,7 @@ fun NavigatorSettingsContent(
         // --- Off-route tolerance ---
         SliderRow(
             label = stringResource(R.string.nav_setting_offroute),
-            valueText = "${settings.navOffRouteToleranceM} m",
+            valueText = distLabel(settings.navOffRouteToleranceM),
             value = settings.navOffRouteToleranceM.toFloat(),
             range = 15f..150f,
             steps = 26,
