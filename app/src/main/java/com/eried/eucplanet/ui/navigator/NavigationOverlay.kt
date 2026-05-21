@@ -191,11 +191,15 @@ private fun CenterPopup(
         modifier = Modifier
             .width(340.dp)
             .padding(8.dp)
-            // Swallow gestures so they don't fall through to the app underneath.
+            // Swallow gestures so they don't fall through to the app underneath
+            // — but only on the Final pass, so the popup's own buttons (map,
+            // minimize, close) still receive their taps first.
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
-                        awaitPointerEvent().changes.forEach { it.consume() }
+                        awaitPointerEvent(
+                            androidx.compose.ui.input.pointer.PointerEventPass.Final
+                        ).changes.forEach { if (!it.isConsumed) it.consume() }
                     }
                 }
             },

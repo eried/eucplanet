@@ -447,6 +447,18 @@ class RouteBuilderViewModel @Inject constructor(
         return arr.toString()
     }
 
+    /** Saved Home / Work places as JSON [{lat,lng,kind}] for the map. */
+    fun placesJson(): String {
+        val arr = JSONArray()
+        _home.value?.let {
+            arr.put(JSONObject().put("lat", it.lat).put("lng", it.lng).put("kind", "home"))
+        }
+        _work.value?.let {
+            arr.put(JSONObject().put("lat", it.lat).put("lng", it.lng).put("kind", "work"))
+        }
+        return arr.toString()
+    }
+
     // --- Home / Work presets -------------------------------------------------
 
     private val _home = MutableStateFlow<Waypoint?>(null)
@@ -546,6 +558,9 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_no_location)
             return
         }
+        // Close the builder immediately — before guidance flips on — so the
+        // rider never sees the button flash to "Stop navigation".
+        onStarted()
         viewModelScope.launch {
             // Position 0 is always the rider; the listed pins are destinations.
             val navWps = listOf(Waypoint(loc.latitude, loc.longitude)) + dests
@@ -557,7 +572,6 @@ class RouteBuilderViewModel @Inject constructor(
                     ?: RoutingService.straightLineRoute(routeName, navWps)
             }
             navigationEngine.start(navRoute, mode)
-            onStarted()
         }
     }
 

@@ -135,6 +135,7 @@ fun RouteBuilderScreen(
     val routeClean by viewModel.routeClean.collectAsState()
     var selfMenuOpen by remember { mutableStateOf(false) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
+    var markerMenuIndex by remember { mutableStateOf(-1) }
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
@@ -190,6 +191,16 @@ fun RouteBuilderScreen(
                 "${jsString(viewModel.geometryJson())},${mapRender.fit});",
             null
         )
+    }
+
+    // Keep the saved Home / Work places shown on the map.
+    LaunchedEffect(pageReady, homePlace, workPlace) {
+        val wv = webView ?: return@LaunchedEffect
+        if (pageReady) {
+            wv.evaluateJavascript(
+                "nativeSetPlaces(${jsString(viewModel.placesJson())});", null
+            )
+        }
     }
 
     // Keep the "you are here" dot live.
@@ -349,7 +360,8 @@ fun RouteBuilderScreen(
                                         viewModel.moveWaypoint(i, lat, lng)
                                     }
                                 },
-                                selfTap = { selfMenuOpen = true }
+                                selfTap = { selfMenuOpen = true },
+                                markerTapped = { markerMenuIndex = it }
                             ),
                             "AndroidNav"
                         )
@@ -552,36 +564,55 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // Rider-position menu — set as Home / Work, or add as a stop.
-            if (selfMenuOpen) {
-                androidx.compose.material3.AlertDialog(
-                    onDismissRequest = { selfMenuOpen = false },
-                    title = { Text(stringResource(R.string.nav_self_title)) },
-                    text = {
-                        Column {
-                            TextButton(onClick = {
-                                selfMenuOpen = false; viewModel.saveSelfAsHome()
-                            }) { Text(stringResource(R.string.nav_save_home)) }
-                            TextButton(onClick = {
-                                selfMenuOpen = false; viewModel.saveSelfAsWork()
-                            }) { Text(stringResource(R.string.nav_save_work)) }
-                            if (waypoints.isNotEmpty()) {
-                                TextButton(onClick = {
-                                    selfMenuOpen = false
-                                    userLocation?.let {
-                                        viewModel.addWaypoint(it.latitude, it.longitude)
-                                    }
-                                }) { Text(stringResource(R.string.nav_self_add_stop)) }
+            // Rider-position menu — a simple dropdown near the map centre.
+            Box(modifier = Modifier.align(Alignment.Center)) {
+                DropdownMenu(
+                    expanded = selfMenuOpen,
+                    onDismissRequest = { selfMenuOpen = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.nav_save_home)) },
+                        onClick = { selfMenuOpen = false; viewModel.saveSelfAsHome() }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.nav_save_work)) },
+                        onClick = { selfMenuOpen = false; viewModel.saveSelfAsWork() }
+                    )
+                    if (waypoints.isNotEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_self_add_stop)) },
+                            onClick = {
+                                selfMenuOpen = false
+                                userLocation?.let {
+                                    viewModel.addWaypoint(it.latitude, it.longitude)
+                                }
                             }
-                        }
-                    },
-                    confirmButton = {},
-                    dismissButton = {
-                        TextButton(onClick = { selfMenuOpen = false }) {
-                            Text(stringResource(R.string.action_cancel))
-                        }
+                        )
                     }
-                )
+                }
+            }
+
+            // Stop-marker menu — save that stop as a Home / Work preset.
+            Box(modifier = Modifier.align(Alignment.Center)) {
+                DropdownMenu(
+                    expanded = markerMenuIndex >= 0,
+                    onDismissRequest = { markerMenuIndex = -1 }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.nav_save_home)) },
+                        onClick = {
+                            val i = markerMenuIndex; markerMenuIndex = -1
+                            if (i >= 0) viewModel.saveWaypointAsHome(i)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.nav_save_work)) },
+                        onClick = {
+                            val i = markerMenuIndex; markerMenuIndex = -1
+                            if (i >= 0) viewModel.saveWaypointAsWork(i)
+                        }
+                    )
+                }
             }
 
             // Confirm before discarding an edited multi-stop route.
@@ -944,7 +975,8 @@ private fun BottomPanel(
 private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
-    private val selfTap: () -> Unit
+    private val selfTap: () -> Unit,
+    private val markerTapped: (Int) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
 
@@ -961,6 +993,11 @@ private class NavJsBridge(
     @JavascriptInterface
     fun onSelfTap() {
         main.post { selfTap() }
+    }
+
+    @JavascriptInterface
+    fun onMarkerTapped(index: Int) {
+        main.post { markerTapped(index) }
     }
 }
 

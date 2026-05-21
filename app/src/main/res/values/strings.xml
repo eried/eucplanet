@@ -822,6 +822,7 @@
     <string name="nav_setting_offroute_desc">How far off the route before \"wrong way\" triggers</string>
     <string name="nav_setting_default_mode">Default travel mode</string>
     <string name="nav_setting_open_builder">Open route builder</string>
+    <string name="nav_setting_params">Navigation parameters</string>
     <string name="nav_setting_endpoints">Routing services</string>
     <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server.</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>

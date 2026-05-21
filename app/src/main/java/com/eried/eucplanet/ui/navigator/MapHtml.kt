@@ -43,6 +43,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
     background:#2196F3;border:3px solid #000;
     box-shadow:0 1px 5px rgba(0,0,0,0.75);
   }
+  .place-badge{
+    width:30px;height:30px;border-radius:50%;box-sizing:border-box;
+    border:2px solid #000;display:flex;align-items:center;justify-content:center;
+    font:700 14px sans-serif;color:#fff;box-shadow:0 1px 5px rgba(0,0,0,0.7);
+  }
+  .place-home{ background:#43A047; }
+  .place-work{ background:#5E35B1; }
 </style>
 </head><body>
 <div id="map"></div>
@@ -173,6 +180,9 @@ internal const val ROUTE_BUILDER_HTML: String = """
           if (window.AndroidNav) AndroidNav.onMarkerDragged(idx, ll.lat, ll.lng);
         };
       })(i));
+      m.on('click', (function(idx){
+        return function(){ if (window.AndroidNav) AndroidNav.onMarkerTapped(idx); };
+      })(i));
       m.addTo(map);
       markers.push(m);
     });
@@ -198,6 +208,26 @@ internal const val ROUTE_BUILDER_HTML: String = """
         map.setView(pts[0], 16);
       }
     }
+  };
+
+  // Saved Home / Work places — always shown, not interactive.
+  var placeMarkers = [];
+  window.nativeSetPlaces = function(json){
+    placeMarkers.forEach(function(m){ map.removeLayer(m); });
+    placeMarkers = [];
+    var places = JSON.parse(json);
+    places.forEach(function(p){
+      var letter = p.kind === 'home' ? 'H' : 'W';
+      var m = L.marker([p.lat, p.lng], {
+        icon: L.divIcon({
+          className:'', iconSize:[30,30], iconAnchor:[15,15],
+          html:'<div class="place-badge place-' + p.kind + '">' + letter + '</div>'
+        }),
+        interactive:false, zIndexOffset:500
+      });
+      m.addTo(map);
+      placeMarkers.push(m);
+    });
   };
 
   window.nativeSetUser = function(lat, lng){
