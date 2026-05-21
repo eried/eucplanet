@@ -132,6 +132,9 @@ fun RouteBuilderScreen(
     val workPlace by viewModel.work.collectAsState()
     // While guidance runs the map is read-only: no search, no stop editing.
     val navRunning by viewModel.navRunning.collectAsState()
+    val routeClean by viewModel.routeClean.collectAsState()
+    var selfMenuOpen by remember { mutableStateOf(false) }
+    var clearConfirmOpen by remember { mutableStateOf(false) }
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
@@ -300,8 +303,13 @@ fun RouteBuilderScreen(
                                     )
                                 )
                             },
-                            onClear = viewModel::clear,
+                            onClear = {
+                                if (waypoints.size > 1 && !routeClean) {
+                                    clearConfirmOpen = true
+                                } else viewModel.clear()
+                            },
                             onStart = startNav,
+                            hasStops = waypoints.isNotEmpty(),
                             hasHome = homePlace != null,
                             hasWork = workPlace != null,
                             onClearHome = viewModel::clearHome,
@@ -341,7 +349,7 @@ fun RouteBuilderScreen(
                                         viewModel.moveWaypoint(i, lat, lng)
                                     }
                                 },
-                                selfTap = { viewModel.notifyTapOnSelf() }
+                                selfTap = { selfMenuOpen = true }
                             ),
                             "AndroidNav"
                         )
@@ -543,6 +551,57 @@ fun RouteBuilderScreen(
                     }
                 }
             }
+
+            // Rider-position menu — set as Home / Work, or add as a stop.
+            if (selfMenuOpen) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { selfMenuOpen = false },
+                    title = { Text(stringResource(R.string.nav_self_title)) },
+                    text = {
+                        Column {
+                            TextButton(onClick = {
+                                selfMenuOpen = false; viewModel.saveSelfAsHome()
+                            }) { Text(stringResource(R.string.nav_save_home)) }
+                            TextButton(onClick = {
+                                selfMenuOpen = false; viewModel.saveSelfAsWork()
+                            }) { Text(stringResource(R.string.nav_save_work)) }
+                            if (waypoints.isNotEmpty()) {
+                                TextButton(onClick = {
+                                    selfMenuOpen = false
+                                    userLocation?.let {
+                                        viewModel.addWaypoint(it.latitude, it.longitude)
+                                    }
+                                }) { Text(stringResource(R.string.nav_self_add_stop)) }
+                            }
+                        }
+                    },
+                    confirmButton = {},
+                    dismissButton = {
+                        TextButton(onClick = { selfMenuOpen = false }) {
+                            Text(stringResource(R.string.action_cancel))
+                        }
+                    }
+                )
+            }
+
+            // Confirm before discarding an edited multi-stop route.
+            if (clearConfirmOpen) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { clearConfirmOpen = false },
+                    title = { Text(stringResource(R.string.nav_menu_clear)) },
+                    text = { Text(stringResource(R.string.nav_clear_confirm)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            clearConfirmOpen = false; viewModel.clear()
+                        }) { Text(stringResource(R.string.nav_menu_clear)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { clearConfirmOpen = false }) {
+                            Text(stringResource(R.string.action_cancel))
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -556,6 +615,7 @@ private fun BuilderMenu(
     onLoad: () -> Unit,
     onClear: () -> Unit,
     onStart: () -> Unit,
+    hasStops: Boolean,
     hasHome: Boolean,
     hasWork: Boolean,
     onClearHome: () -> Unit,
@@ -563,18 +623,23 @@ private fun BuilderMenu(
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         // "Start navigation" is omitted here — it is already a primary button.
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_save)) },
-            onClick = { onDismiss(); onSave() }
-        )
+        // Save / Clear only make sense once the route actually has stops.
+        if (hasStops) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_save)) },
+                onClick = { onDismiss(); onSave() }
+            )
+        }
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_menu_load)) },
             onClick = { onDismiss(); onLoad() }
         )
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_clear)) },
-            onClick = { onDismiss(); onClear() }
-        )
+        if (hasStops) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_clear)) },
+                onClick = { onDismiss(); onClear() }
+            )
+        }
         if (hasHome || hasWork) {
             HorizontalDivider()
         }

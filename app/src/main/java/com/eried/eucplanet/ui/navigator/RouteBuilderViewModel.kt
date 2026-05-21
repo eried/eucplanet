@@ -281,6 +281,7 @@ class RouteBuilderViewModel @Inject constructor(
     // --- Routing -----------------------------------------------------------------
 
     private fun scheduleRecompute(fit: Boolean) {
+        _routeClean.value = false
         routeJob?.cancel()
         enrichJob?.cancel()
         val dests = _waypoints.value
@@ -407,6 +408,7 @@ class RouteBuilderViewModel @Inject constructor(
                     }
                 }
                 _messages.tryEmit(R.string.nav_loaded)
+                _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "loadGpx failed", e)
                 _messages.tryEmit(R.string.nav_load_failed)
@@ -421,6 +423,7 @@ class RouteBuilderViewModel @Inject constructor(
                     ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
                 context.contentResolver.openOutputStream(uri)?.use { GpxIO.write(route, it) }
                 _messages.tryEmit(R.string.nav_saved)
+                _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "saveGpx failed", e)
                 _messages.tryEmit(R.string.nav_save_failed)
@@ -482,6 +485,19 @@ class RouteBuilderViewModel @Inject constructor(
             )
         }
     }
+
+    /** Saves the rider's current position as the Home / Work preset. */
+    fun saveSelfAsHome() = currentLocation.value?.let {
+        savePreset(Waypoint(it.latitude, it.longitude), home = true)
+    }
+
+    fun saveSelfAsWork() = currentLocation.value?.let {
+        savePreset(Waypoint(it.latitude, it.longitude), home = false)
+    }
+
+    /** True right after a load or save — Clear route then needs no confirm. */
+    private val _routeClean = MutableStateFlow(false)
+    val routeClean: StateFlow<Boolean> = _routeClean.asStateFlow()
 
     /** Drops a saved preset onto the map as the next waypoint. */
     fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)

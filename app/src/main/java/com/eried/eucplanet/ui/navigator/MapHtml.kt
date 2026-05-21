@@ -78,17 +78,23 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   map.on('click', function(e){
     if (!window.AndroidNav) return;
-    // A tap on (or very near) the "you are here" dot hints instead of
-    // dropping a pin on top of the rider. Measured in screen pixels so it
-    // works the same at every zoom level.
+    var pt = map.latLngToContainerPoint(e.latlng);
+    // A tap on (or very near) the "you are here" dot opens the rider menu
+    // instead of dropping a pin. Measured in screen pixels so it works the
+    // same at every zoom level.
     if (userMarker){
-      var pt = map.latLngToContainerPoint(e.latlng);
       var up = map.latLngToContainerPoint(userMarker.getLatLng());
       var dx = pt.x - up.x, dy = pt.y - up.y;
-      if (Math.sqrt(dx * dx + dy * dy) < 30){
+      if (Math.sqrt(dx * dx + dy * dy) < 32){
         AndroidNav.onSelfTap();
         return;
       }
+    }
+    // A tap close to an existing stop is ignored, so pins never pile up.
+    for (var i = 0; i < markers.length; i++){
+      var mp = map.latLngToContainerPoint(markers[i].getLatLng());
+      var mdx = pt.x - mp.x, mdy = pt.y - mp.y;
+      if (Math.sqrt(mdx * mdx + mdy * mdy) < 38) return;
     }
     AndroidNav.onMapClick(e.latlng.lat, e.latlng.lng);
   });
@@ -140,11 +146,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
     markers.forEach(function(m){ map.removeLayer(m); });
     markers = [];
     wps.forEach(function(w, i){
-      // Faint dotted ring showing the arrival radius around each stop.
+      // Dotted radius area around each stop (the arrival radius from Settings).
+      var ringColor = colorFor(i, wps.length);
       var ring = L.circle([w.lat, w.lng], {
         radius: w.radius || 40,
-        color:'#ffffff', weight:1, opacity:0.55,
-        fill:false, dashArray:'3 7', interactive:false
+        color: ringColor, weight:2, opacity:0.9,
+        fill:true, fillColor: ringColor, fillOpacity:0.10,
+        dashArray:'5 7', interactive:false
       });
       ring.addTo(map);
       markers.push(ring);
