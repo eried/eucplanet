@@ -65,6 +65,10 @@ class OverlayStudioViewModel @Inject constructor(
     private val _selectedElementId = MutableStateFlow<String?>(null)
     val selectedElementId: StateFlow<String?> = _selectedElementId.asStateFlow()
 
+    /** True once the working layout has edits since it was loaded / cleared. */
+    private val _dirty = MutableStateFlow(false)
+    val dirty: StateFlow<Boolean> = _dirty.asStateFlow()
+
     // --- Live telemetry ------------------------------------------------------
     val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
 
@@ -167,8 +171,12 @@ class OverlayStudioViewModel @Inject constructor(
 
     // --- Layout mutators -----------------------------------------------------
 
-    private fun mutate(transform: (OverlayPreset) -> OverlayPreset) {
+    private fun mutate(
+        markDirty: Boolean = true,
+        transform: (OverlayPreset) -> OverlayPreset
+    ) {
         _preset.value = transform(_preset.value)
+        if (markDirty) _dirty.value = true
         scheduleDraftSave()
     }
 
@@ -201,7 +209,7 @@ class OverlayStudioViewModel @Inject constructor(
     }
 
     /** Raise an element to the top of the draw order (used when it is tapped). */
-    fun bringToFront(id: String) = mutate { p ->
+    fun bringToFront(id: String) = mutate(markDirty = false) { p ->
         val el = p.elements.firstOrNull { it.id == id } ?: return@mutate p
         p.copy(elements = p.elements.filterNot { it.id == id } + el)
     }
@@ -239,6 +247,7 @@ class OverlayStudioViewModel @Inject constructor(
             if (loaded != null) {
                 _preset.value = loaded
                 _selectedElementId.value = null
+                _dirty.value = false
                 scheduleDraftSave()
             }
             onResult(loaded != null)
@@ -253,6 +262,7 @@ class OverlayStudioViewModel @Inject constructor(
                 // does not silently shadow the read-only original.
                 _preset.value = loaded.copy(name = "")
                 _selectedElementId.value = null
+                _dirty.value = false
                 scheduleDraftSave()
             }
             onResult(loaded != null)
@@ -270,6 +280,7 @@ class OverlayStudioViewModel @Inject constructor(
     fun clearLayout() {
         _preset.value = OverlayPreset()
         _selectedElementId.value = null
+        _dirty.value = false
         scheduleDraftSave()
     }
 

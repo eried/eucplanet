@@ -128,6 +128,39 @@ fun OverlayStudioScreen(
 
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
+    val dirty by viewModel.dirty.collectAsState()
+
+    // Runs a New / Load action. When the working layout is untouched there is
+    // nothing to lose, so it applies straight away with no confirmation dialog.
+    val applyLayoutChange: (StudioConfirm) -> Unit = { pending ->
+        when (pending) {
+            StudioConfirm.ClearLayout -> viewModel.clearLayout()
+            is StudioConfirm.LoadUserPreset -> viewModel.loadPreset(pending.name) { ok ->
+                scope.launch {
+                    snackbar.showSnackbar(
+                        context.getString(
+                            if (ok) R.string.studio_preset_loaded
+                            else R.string.studio_preset_failed
+                        )
+                    )
+                }
+            }
+            is StudioConfirm.LoadBundledPreset ->
+                viewModel.loadBundledPreset(pending.name) { ok ->
+                    scope.launch {
+                        snackbar.showSnackbar(
+                            context.getString(
+                                if (ok) R.string.studio_preset_loaded
+                                else R.string.studio_preset_failed
+                            )
+                        )
+                    }
+                }
+        }
+    }
+    val requestLayoutChange: (StudioConfirm) -> Unit = { pending ->
+        if (dirty) confirm = pending else applyLayoutChange(pending)
+    }
     var capturing by remember { mutableStateOf(false) }
     var menuOpen by remember { mutableStateOf(false) }
     var imageTargetId by remember { mutableStateOf<String?>(null) }
@@ -678,7 +711,7 @@ fun OverlayStudioScreen(
                         onAddElement = { sheet = StudioSheet.AddElement },
                         onManageElements = { sheet = StudioSheet.ManageElements },
                         onChangeLayout = { sheet = StudioSheet.LayoutPicker },
-                        onNew = { confirm = StudioConfirm.ClearLayout },
+                        onNew = { requestLayoutChange(StudioConfirm.ClearLayout) },
                         onLoadPreset = {
                             viewModel.refreshFolderState()
                             sheet = StudioSheet.LoadPreset
@@ -903,11 +936,11 @@ fun OverlayStudioScreen(
             bundledLandscapePresets = bundledLandscapePresets,
             onLoad = { name ->
                 sheet = StudioSheet.None
-                confirm = StudioConfirm.LoadUserPreset(name)
+                requestLayoutChange(StudioConfirm.LoadUserPreset(name))
             },
             onLoadBundled = { name ->
                 sheet = StudioSheet.None
-                confirm = StudioConfirm.LoadBundledPreset(name)
+                requestLayoutChange(StudioConfirm.LoadBundledPreset(name))
             },
             onDelete = { viewModel.deletePreset(it) },
             onOpenFolderSettings = {
@@ -976,30 +1009,7 @@ fun OverlayStudioScreen(
         StudioConfirmDialog(
             confirm = pending,
             onConfirm = {
-                when (pending) {
-                    StudioConfirm.ClearLayout -> viewModel.clearLayout()
-                    is StudioConfirm.LoadUserPreset -> viewModel.loadPreset(pending.name) { ok ->
-                        scope.launch {
-                            snackbar.showSnackbar(
-                                context.getString(
-                                    if (ok) R.string.studio_preset_loaded
-                                    else R.string.studio_preset_failed
-                                )
-                            )
-                        }
-                    }
-                    is StudioConfirm.LoadBundledPreset ->
-                        viewModel.loadBundledPreset(pending.name) { ok ->
-                            scope.launch {
-                                snackbar.showSnackbar(
-                                    context.getString(
-                                        if (ok) R.string.studio_preset_loaded
-                                        else R.string.studio_preset_failed
-                                    )
-                                )
-                            }
-                        }
-                }
+                applyLayoutChange(pending)
                 confirm = null
             },
             onDismiss = { confirm = null }

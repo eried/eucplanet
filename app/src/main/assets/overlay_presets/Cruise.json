@@ -7,16 +7,16 @@
     { "source": "CAMERA", "cameraKey": "BACK", "solidColor": 4278194196 }
   ],
   "elements": [
-    { "id": "badge", "type": "APP_BADGE", "x": 0.04, "y": 0.06, "width": 0.4,
+    { "id": "badge", "type": "APP_BADGE", "x": 0.13, "y": 0.265, "width": 0.34,
       "rotationDeg": 90, "opacity": 0.95,
       "foreground": 4294967295, "background": 1711276032 },
-    { "id": "speed", "type": "DATA_VALUE", "x": 0.04, "y": 0.5, "width": 0.5,
-      "rotationDeg": 90, "metric": "SPEED", "showLabel": true,
-      "foreground": 4294967295, "background": 1711276032 },
-    { "id": "battery", "type": "DATA_VALUE", "x": 0.62, "y": 0.06, "width": 0.34,
+    { "id": "battery", "type": "DATA_VALUE", "x": 0.48, "y": 0.255, "width": 0.34,
       "rotationDeg": 90, "metric": "BATTERY", "showLabel": true,
       "foreground": 4294967295, "background": 1711276032 },
-    { "id": "speed-graph", "type": "DATA_GRAPH", "x": 0.5, "y": 0.45, "width": 0.46,
+    { "id": "speed", "type": "DATA_VALUE", "x": 0.07, "y": 0.635, "width": 0.42,
+      "rotationDeg": 90, "metric": "SPEED", "showLabel": true,
+      "foreground": 4294967295, "background": 1711276032 },
+    { "id": "speed-graph", "type": "DATA_GRAPH", "x": 0.47, "y": 0.63, "width": 0.42,
       "rotationDeg": 90, "opacity": 0.9, "metric": "SPEED", "graphWindowSec": 120,
       "foreground": 4283417591, "background": 1711276032 }
   ]

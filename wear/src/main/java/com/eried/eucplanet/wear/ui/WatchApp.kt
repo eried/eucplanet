@@ -117,8 +117,12 @@ fun WatchApp() {
                     }
                 }
                 // Navigation popup mirrors the phone: shown only while the phone
-                // popup is up (minimizing on the phone clears it here too).
-                if (state.navActive) {
+                // popup is up. It fades in and out so cues are not jarring.
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = state.navActive,
+                    enter = androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.fadeOut()
+                ) {
                     NavWatchOverlay(state, accent)
                 }
             }
