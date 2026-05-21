@@ -1104,6 +1104,12 @@ private fun VoiceTab(
         }
         }   // end voiceEnabled BringIntoViewSection
 
+        // Navigation turn-by-turn voice guidance lives here too — it is voice.
+        SwitchSetting(
+            stringResource(R.string.nav_setting_voice),
+            settings.navVoiceEnabled
+        ) { viewModel.updateNavVoiceEnabled(it) }
+
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
         val sLock = stringResource(R.string.voice_wheel_locked)

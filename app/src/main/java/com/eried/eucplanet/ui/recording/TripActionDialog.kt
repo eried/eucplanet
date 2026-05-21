@@ -35,7 +35,6 @@ fun TripActionDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Trip") },
         text = {
             Column {
                 TripActionRow(

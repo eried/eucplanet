@@ -183,11 +183,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
     var p = [lat, lng];
     if (!userMarker){
       userMarker = L.circleMarker(p, {
-        radius:7, color:'#fff', weight:2, fillColor:'#2196F3', fillOpacity:1
+        radius:11, color:'#fff', weight:3, fillColor:'#2196F3', fillOpacity:1
       }).addTo(map);
     } else {
       userMarker.setLatLng(p);
     }
+    // Keep the rider's dot above the route lines, redrawn each fix.
+    userMarker.bringToFront();
   };
 
   window.nativeRecenter = function(lat, lng, zoom){

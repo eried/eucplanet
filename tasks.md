@@ -51,11 +51,11 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 
 ## Trip recorder / details
 
-- [ ] **9. "View online" opens external browser** — in the Trip recorder, when
+- [x] **9. "View online" opens external browser** — in the Trip recorder, when
   the user taps "View online", open it in the system browser, not an in-app
   WebView.
 
-- [ ] **10. Share dialog title** — in Trip Details, the share dialog should not
+- [x] **10. Share dialog title** — in Trip Details, the share dialog should not
   show the "Trip" title.
 
 - [ ] **11. Map layer selector in Trip Details** — the map in Trip Details
@@ -64,7 +64,7 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
 
 ## Settings
 
-- [ ] **12. Settings cleanup** — remove "Default travel mode". Move the "Voice
+- [x] **12. Settings cleanup** — remove "Default travel mode". Move the "Voice
   guidance" option into the "Voice & announcements" section.
 
 ## Navigation UI
@@ -75,11 +75,11 @@ recording bug (0) is independent, the rest are navigation + assorted fixes.
   disabled on that map; the user can still tap "Stop navigation" or change the
   mapping mode.
 
-- [ ] **14. Current-location marker z-order** — in the stop's navigation
+- [x] **14. Current-location marker z-order** — in the stop's navigation
   editor, draw the current-location marker on top of the navigation lines and
   make it bigger.
 
-- [ ] **15. Section-source button hidden by rounded corners** — on the Pixel
+- [x] **15. Section-source button hidden by rounded corners** — on the Pixel
   Pro the rounded screen corners hide the "Section N source" button. Move it
   down and restyle it as a label with the top-left and bottom-left corners very
   rounded and the right corners square.

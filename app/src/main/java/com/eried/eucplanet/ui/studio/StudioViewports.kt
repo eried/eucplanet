@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -286,23 +288,24 @@ private fun PaneMessage(icon: ImageVector, text: String) {
 
 @Composable
 private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Unit) {
-    // A quarter-circle tucked into the pane's top-right corner — its two
-    // straight edges sit flush with the source frame, only the inner
-    // (bottom-left) corner is rounded.
+    // A tab on the pane's right edge, dropped well below the top so the
+    // phone's rounded screen corner never hides it. Left corners fully
+    // rounded, right corners flush square with the frame edge.
     Box(
         modifier
-            .size(44.dp)
-            .clip(RoundedCornerShape(bottomStart = 44.dp))
-            .background(Color(0x99000000))
+            .padding(top = 68.dp)
+            .height(40.dp)
+            .width(48.dp)
+            .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
+            .background(Color(0xCC000000))
             .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
-        contentAlignment = Alignment.TopEnd
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             icon,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier
-                .padding(7.dp)
                 .size(18.dp)
                 .rotate(-LocalStudioRotation.current.toFloat())
         )

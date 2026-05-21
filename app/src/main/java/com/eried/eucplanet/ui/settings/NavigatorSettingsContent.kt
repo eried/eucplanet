@@ -48,45 +48,6 @@ fun NavigatorSettingsContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // --- Voice guidance ---
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.nav_setting_voice), style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    stringResource(R.string.nav_setting_voice_desc),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Switch(
-                checked = settings.navVoiceEnabled,
-                onCheckedChange = { viewModel.updateNavVoiceEnabled(it) }
-            )
-        }
-
-        // --- Default travel mode ---
-        Text(stringResource(R.string.nav_setting_default_mode), style = MaterialTheme.typography.bodyLarge)
-        val modes = listOf(
-            TravelMode.STRAIGHT to R.string.nav_mode_straight,
-            TravelMode.CYCLING to R.string.nav_mode_cycling,
-            TravelMode.WALKING to R.string.nav_mode_walking,
-            TravelMode.DRIVING to R.string.nav_mode_driving
-        )
-        val currentMode = TravelMode.fromName(settings.navDefaultTravelMode)
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            modes.forEachIndexed { index, (mode, label) ->
-                SegmentedButton(
-                    selected = currentMode == mode,
-                    onClick = { viewModel.updateNavDefaultTravelMode(mode.name) },
-                    shape = SegmentedButtonDefaults.itemShape(index, modes.size)
-                ) { Text(stringResource(label)) }
-            }
-        }
-
         // --- Arrival radius ---
         SliderRow(
             label = stringResource(R.string.nav_setting_arrival_radius),
