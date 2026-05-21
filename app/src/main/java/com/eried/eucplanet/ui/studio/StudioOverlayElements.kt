@@ -207,65 +207,49 @@ private fun StudioElementBox(
                 Box(
                     Modifier.graphicsLayer { alpha = element.opacity.coerceIn(0f, 1f) }
                 ) { content() }
-            }
-        }
 
-        if (selected) {
-            // Config + delete buttons — clamped to stay on-screen even when the
-            // element itself is dragged partly or fully off an edge.
-            val density = LocalDensity.current
-            val rowWpx = with(density) { 72.dp.toPx() }
-            val rowHpx = with(density) { 34.dp.toPx() }
-            val marginPx = with(density) { 6.dp.toPx() }
-            val gapPx = with(density) { 8.dp.toPx() }
-            val elemXpx = widthPx * element.x
-            val elemYpx = heightPx * element.y
-            val elemWpx = widthPx * element.width
-            val rowX = (elemXpx + elemWpx - rowWpx)
-                .coerceIn(marginPx, (widthPx - rowWpx - marginPx).coerceAtLeast(marginPx))
-            val rowY = (elemYpx - rowHpx - gapPx)
-                .coerceIn(marginPx, (heightPx - rowHpx - marginPx).coerceAtLeast(marginPx))
-            Row(
-                Modifier.offset {
-                    IntOffset(
-                        (rowX - elemXpx).roundToInt(),
-                        (rowY - elemYpx).roundToInt()
-                    )
-                },
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                ChromeButton(Icons.Default.Build, accent, onConfigure)
-                ChromeButton(Icons.Default.Close, Color(0xFFE53935), onDelete)
-            }
-            // Resize handle, bottom-right corner of the element.
-            Box(
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .offset(x = 14.dp, y = 14.dp)
-                    .size(30.dp)
-                    .clip(CircleShape)
-                    .background(accent)
-                    .pointerInput(element.id) {
-                        detectDragGestures { change, drag ->
-                            change.consume()
-                            val e = live
-                            onChange(
-                                e.copy(
-                                    width = (e.width + drag.x / widthPx)
-                                        .coerceIn(0.08f, 1.5f)
-                                )
-                            )
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.OpenInFull,
-                    contentDescription = "Resize",
-                    tint = Color.White,
-                    modifier = Modifier.size(16.dp)
-                        .rotate(90f - LocalStudioRotation.current.toFloat())
-                )
+                if (selected) {
+                    // The edit chrome lives inside the rotated layer, so the
+                    // config / delete row and the resize grip track the element
+                    // at whatever angle it sits.
+                    Row(
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(y = (-42).dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        ChromeButton(Icons.Default.Build, accent, onConfigure)
+                        ChromeButton(Icons.Default.Close, Color(0xFFE53935), onDelete)
+                    }
+                    Box(
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 14.dp, y = 14.dp)
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(accent)
+                            .pointerInput(element.id) {
+                                detectDragGestures { change, drag ->
+                                    change.consume()
+                                    val e = live
+                                    onChange(
+                                        e.copy(
+                                            width = (e.width + drag.x / widthPx)
+                                                .coerceIn(0.08f, 1.5f)
+                                        )
+                                    )
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.OpenInFull,
+                            contentDescription = "Resize",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp).rotate(90f)
+                        )
+                    }
+                }
             }
         }
     }
@@ -286,11 +270,7 @@ private fun ChromeButton(
             .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            icon, contentDescription = null, tint = tint,
-            modifier = Modifier.size(16.dp)
-                .rotate(-LocalStudioRotation.current.toFloat())
-        )
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
     }
 }
 
