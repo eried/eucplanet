@@ -180,7 +180,7 @@ private fun newAnalysis(
         .build()
     analysis.setAnalyzer(executor) { proxy ->
         try {
-            hub.frames[cam.key] = proxy.toUprightBitmap(cam.front).asImageBitmap()
+            hub.frames[cam.key] = proxy.toUprightBitmap().asImageBitmap()
         } catch (e: Throwable) {
             Log.w(TAG, "Frame convert failed for ${cam.key}", e)
         } finally {
@@ -260,15 +260,16 @@ private suspend fun awaitCameraProvider(context: Context): ProcessCameraProvider
         )
     }
 
-/** Convert an analysis frame to an upright ARGB bitmap; mirror the front lens. */
-private fun ImageProxy.toUprightBitmap(front: Boolean): Bitmap {
+/**
+ * Convert an analysis frame to an upright ARGB bitmap. The feed is never
+ * mirrored — a recording should show the true scene, not a selfie flip, so
+ * even the front camera comes through un-mirrored.
+ */
+private fun ImageProxy.toUprightBitmap(): Bitmap {
     val raw = toBitmap()
     val rotation = imageInfo.rotationDegrees
-    if (rotation == 0 && !front) return raw
-    val matrix = Matrix().apply {
-        postRotate(rotation.toFloat())
-        if (front) postScale(-1f, 1f)
-    }
+    if (rotation == 0) return raw
+    val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
     val rotated = Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, true)
     if (rotated != raw) raw.recycle()
     return rotated
