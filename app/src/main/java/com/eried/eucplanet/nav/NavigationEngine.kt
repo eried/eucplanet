@@ -263,6 +263,11 @@ class NavigationEngine @Inject constructor(
             recentFixes.removeFirst()
         }
         updateHeading(now)
+        Log.i(
+            TAG,
+            "fix ${"%.5f".format(point.lat)},${"%.5f".format(point.lng)} " +
+                "moving=$moving heading=${heading?.toInt()} mode=$navMode"
+        )
 
         val h = heading
         if (h == null) {
@@ -307,6 +312,12 @@ class NavigationEngine @Inject constructor(
         val hit = GeoMath.nearestOnPolyline(point, route.geometry) ?: return
         val distToEnd = (route.totalDistanceM - hit.alongM).coerceAtLeast(0.0)
         val finalRadius = route.waypoints.lastOrNull()?.radiusM ?: arrivalRadiusM
+        Log.i(
+            TAG,
+            "TBT offBy=${"%.0f".format(hit.distanceM)}m along=${"%.0f".format(hit.alongM)}" +
+                " toEnd=${"%.0f".format(distToEnd)}m tol=${offRouteToleranceM.toInt()}" +
+                " offRoute=${_navState.value.offRoute}"
+        )
 
         if (!arrivalHandled && distToEnd <= finalRadius) {
             handleArrival()
@@ -385,7 +396,10 @@ class NavigationEngine @Inject constructor(
         val offFor = now - offRouteSinceMs
         if (offFor < OFF_ROUTE_GRACE_MS) return
 
-        if (!_navState.value.offRoute) _navState.value = _navState.value.copy(offRoute = true)
+        if (!_navState.value.offRoute) {
+            _navState.value = _navState.value.copy(offRoute = true)
+            Log.i(TAG, "off-route declared (offFor=${offFor}ms)")
+        }
         // The spoken "wrong way" waits well past the visual flag, so a short
         // detour clears itself before the rider is ever told off.
         if (voiceEnabled && offFor > WRONG_WAY_VOICE_AFTER_MS &&
@@ -397,6 +411,7 @@ class NavigationEngine @Inject constructor(
         if (offFor > REROUTE_AFTER_MS && !rerouteInFlight &&
             route.travelMode != TravelMode.STRAIGHT
         ) {
+            Log.i(TAG, "triggering reroute (offFor=${offFor}ms)")
             reroute(route, point)
         }
     }
@@ -473,6 +488,11 @@ class NavigationEngine @Inject constructor(
         }
         var target = goals[currentGoal]
         var dist = GeoMath.distanceM(point, target.point())
+        Log.i(
+            TAG,
+            "HUNT goal=$currentGoal/${goals.size - 1} dist=${"%.0f".format(dist)}m" +
+                " radius=${(target.radiusM ?: arrivalRadiusM).toInt()}"
+        )
 
         if (dist <= (target.radiusM ?: arrivalRadiusM)) {
             // Reached this goal — advance.

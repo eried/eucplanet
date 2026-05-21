@@ -253,7 +253,11 @@ class RouteBuilderViewModel @Inject constructor(
         searchJob = viewModelScope.launch {
             delay(450) // debounce keystrokes (Nominatim asks for <=1 req/s)
             _searching.value = true
-            _searchResults.value = routingService.geocode(query, geocoderUrl)
+            // Bias the search to ~50 km around the rider's current location.
+            val near = currentLocation.value?.let {
+                com.eried.eucplanet.data.model.GeoPoint(it.latitude, it.longitude)
+            }
+            _searchResults.value = routingService.geocode(query, geocoderUrl, near)
             _searching.value = false
             if (_searchResults.value.isEmpty()) _messages.tryEmit(R.string.nav_no_results)
         }

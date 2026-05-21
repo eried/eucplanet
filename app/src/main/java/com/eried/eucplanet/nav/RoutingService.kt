@@ -114,11 +114,21 @@ class RoutingService @Inject constructor() {
      */
     suspend fun geocode(
         query: String,
-        endpoint: String = DEFAULT_GEOCODER
+        endpoint: String = DEFAULT_GEOCODER,
+        near: com.eried.eucplanet.data.model.GeoPoint? = null
     ): List<GeoResult> = withContext(Dispatchers.IO) {
         if (query.isBlank()) return@withContext emptyList()
         try {
-            val url = "$endpoint?q=${enc(query)}&format=jsonv2&limit=6&addressdetails=0"
+            var url = "$endpoint?q=${enc(query)}&format=jsonv2&limit=6&addressdetails=0"
+            if (near != null) {
+                // Restrict results to roughly a 50 km box around the rider.
+                val latD = 0.45
+                val lngD = (0.45 / kotlin.math.cos(Math.toRadians(near.lat))
+                    .coerceAtLeast(0.05))
+                url += "&bounded=1&viewbox=" +
+                    "${near.lng - lngD},${near.lat - latD}," +
+                    "${near.lng + lngD},${near.lat + latD}"
+            }
             val body = httpGet(url) ?: return@withContext emptyList()
             val arr = JSONArray(body)
             (0 until arr.length()).mapNotNull { i ->
