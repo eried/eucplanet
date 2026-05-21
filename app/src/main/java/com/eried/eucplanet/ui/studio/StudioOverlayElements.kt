@@ -447,7 +447,12 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
         val w = maxWidth.value
         // Fill the configured width so the pill stays a fixed size as the live
         // value changes digits — otherwise it jitters and reads as distracting.
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+        val align = when (element.textAlign) {
+            "CENTER" -> Alignment.CenterHorizontally
+            "END" -> Alignment.End
+            else -> Alignment.Start
+        }
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = align) {
             if (element.showLabel) {
                 androidx.compose.material3.Text(
                     text = metric.label.uppercase(),

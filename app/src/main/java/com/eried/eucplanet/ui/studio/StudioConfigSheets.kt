@@ -617,6 +617,7 @@ fun LoadPresetSheet(
     folderAvailable: Boolean,
     presets: List<String>,
     bundledPresets: List<String>,
+    bundledLandscapePresets: List<String>,
     onLoad: (String) -> Unit,
     onLoadBundled: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -633,14 +634,9 @@ fun LoadPresetSheet(
         ) {
             SheetHeader("Load layout")
 
-            // Landscape starter presets (name-prefixed "Landscape") get their
-            // own group below the upright ones.
-            val (landscape, portrait) = bundledPresets.partition {
-                it.startsWith("Landscape", ignoreCase = true)
-            }
-            if (portrait.isNotEmpty()) {
-                SectionLabel("Built-in")
-                portrait.forEach { name ->
+            if (bundledPresets.isNotEmpty()) {
+                SectionLabel("Portrait")
+                bundledPresets.forEach { name ->
                     PresetRow(
                         name = name,
                         icon = Icons.Default.Inventory2,
@@ -649,9 +645,9 @@ fun LoadPresetSheet(
                     )
                 }
             }
-            if (landscape.isNotEmpty()) {
-                SectionLabel("Built-in landscape")
-                landscape.forEach { name ->
+            if (bundledLandscapePresets.isNotEmpty()) {
+                SectionLabel("Landscape")
+                bundledLandscapePresets.forEach { name ->
                     PresetRow(
                         name = name,
                         icon = Icons.Default.Inventory2,
@@ -1118,6 +1114,13 @@ fun ElementConfigSheet(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(8.dp))
+            }
+
+            // Alignment — for free text and for the live value pill, which
+            // fills a fixed width so it can be left / centre / right aligned.
+            if (element.type == OverlayElementType.TEXT ||
+                element.type == OverlayElementType.DATA_VALUE
+            ) {
                 Text("Alignment", fontWeight = FontWeight.SemiBold)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(

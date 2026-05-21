@@ -94,9 +94,14 @@ class OverlayStudioViewModel @Inject constructor(
     private val _savedPresets = MutableStateFlow<List<String>>(emptyList())
     val savedPresets: StateFlow<List<String>> = _savedPresets.asStateFlow()
 
-    /** Read-only starter presets shipped with the app. */
+    /** Read-only upright starter presets shipped with the app. */
     private val _bundledPresets = MutableStateFlow<List<String>>(emptyList())
     val bundledPresets: StateFlow<List<String>> = _bundledPresets.asStateFlow()
+
+    /** Read-only landscape starter presets (their elements are pre-rotated). */
+    private val _bundledLandscapePresets = MutableStateFlow<List<String>>(emptyList())
+    val bundledLandscapePresets: StateFlow<List<String>> =
+        _bundledLandscapePresets.asStateFlow()
 
     // --- Replay (recorded trips) --------------------------------------------
     /** Recorded trips available to replay, newest first. */
@@ -123,7 +128,22 @@ class OverlayStudioViewModel @Inject constructor(
             _preset.value = presetStore.loadDraft()
         }
         viewModelScope.launch {
-            _bundledPresets.value = presetStore.listBundledPresets()
+            // Split starter presets by content: a preset whose elements are
+            // mostly rotated is treated as a landscape layout.
+            val portrait = mutableListOf<String>()
+            val landscape = mutableListOf<String>()
+            presetStore.listBundledPresets().forEach { name ->
+                val els = presetStore.loadBundledPreset(name)?.elements
+                if (els != null && els.isNotEmpty() &&
+                    els.count { it.rotationDeg != 0f } * 2 > els.size
+                ) {
+                    landscape.add(name)
+                } else {
+                    portrait.add(name)
+                }
+            }
+            _bundledPresets.value = portrait
+            _bundledLandscapePresets.value = landscape
         }
         viewModelScope.launch {
             wheelRepository.wheelData.collect { data ->

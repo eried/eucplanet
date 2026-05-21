@@ -124,6 +124,7 @@ fun OverlayStudioScreen(
     val folderAvailable by viewModel.folderAvailable.collectAsState()
     val savedPresets by viewModel.savedPresets.collectAsState()
     val bundledPresets by viewModel.bundledPresets.collectAsState()
+    val bundledLandscapePresets by viewModel.bundledLandscapePresets.collectAsState()
 
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
@@ -899,6 +900,7 @@ fun OverlayStudioScreen(
             folderAvailable = folderAvailable,
             presets = savedPresets,
             bundledPresets = bundledPresets,
+            bundledLandscapePresets = bundledLandscapePresets,
             onLoad = { name ->
                 sheet = StudioSheet.None
                 confirm = StudioConfirm.LoadUserPreset(name)
