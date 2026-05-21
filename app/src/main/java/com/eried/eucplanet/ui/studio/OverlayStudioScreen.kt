@@ -38,8 +38,10 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -183,6 +185,8 @@ fun OverlayStudioScreen(
     // Replay APNG export — offline frame-by-frame render with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
+    var renderCancelRequested by remember { mutableStateOf(false) }
+    var showCancelConfirm by remember { mutableStateOf(false) }
     // Physical device rotation (0/90/180/270) — the layout stays fixed but the
     // control icons counter-rotate so they read upright when held sideways.
     var deviceRotation by remember { mutableStateOf(0) }
@@ -361,6 +365,7 @@ fun OverlayStudioScreen(
     // --- Replay APNG export (offline, frame-by-frame) ----------------------
     LaunchedEffect(rendering) {
         if (!rendering) return@LaunchedEffect
+        renderCancelRequested = false
         val trip = replayTrip
         if (trip == null || replayEndMs <= replayStartMs) {
             rendering = false
@@ -368,11 +373,11 @@ fun OverlayStudioScreen(
         }
         val savedPos = replayPosMs
         renderProgress = 0f
-        val fps = 12
+        val fps = 10
         val frameMs = 1000 / fps
         val span = replayEndMs - replayStartMs
         var frameCount = (span / frameMs).toInt() + 1
-        val maxFrames = 360
+        val maxFrames = 240
         val stepMs: Long = if (frameCount > maxFrames) {
             frameCount = maxFrames
             span / (frameCount - 1)
@@ -382,15 +387,15 @@ fun OverlayStudioScreen(
 
         // Frame 0 — also tells us the capture dimensions.
         replayPosMs = replayStartMs
-        repeat(3) { withFrameNanos {} }
+        repeat(2) { withFrameNanos {} }
         val first = runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }.getOrNull()
         if (first == null) {
             rendering = false
             return@LaunchedEffect
         }
-        // Cap the longest side at 720 px — keeps render time and file size sane.
+        // Cap the longest side at 600 px — keeps render time and file size sane.
         val srcMax = maxOf(first.width, first.height)
-        val scale = if (srcMax > 720) 720f / srcMax else 1f
+        val scale = if (srcMax > 600) 600f / srcMax else 1f
         val ew = (first.width * scale).toInt().coerceAtLeast(2)
         val eh = (first.height * scale).toInt().coerceAtLeast(2)
 
@@ -404,29 +409,45 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
+        var cancelled = false
         val ok = try {
             val apng = StudioApngEncoder(stream, ew, eh, frameCount, frameMs)
             withContext(Dispatchers.IO) { apng.addFrame(first) }
             renderProgress = 1f / frameCount
             for (i in 1 until frameCount) {
+                if (renderCancelRequested) {
+                    cancelled = true
+                    break
+                }
                 replayPosMs = replayStartMs + i * stepMs
-                repeat(3) { withFrameNanos {} }
+                repeat(2) { withFrameNanos {} }
                 val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
                 withContext(Dispatchers.IO) { apng.addFrame(frame) }
                 renderProgress = (i + 1f) / frameCount
             }
-            withContext(Dispatchers.IO) { apng.finish() }
-            true
+            if (!cancelled) {
+                withContext(Dispatchers.IO) { apng.finish() }
+                true
+            } else {
+                false
+            }
         } catch (e: Exception) {
             android.util.Log.e("OverlayStudio", "Replay APNG render failed", e)
             false
         } finally {
-            withContext(Dispatchers.IO) { runCatching { stream.close() } }
+            runCatching { stream.close() }
         }
         pending.finalize(ok)
         replayPosMs = savedPos
         rendering = false
-        snackbar.showSnackbar(if (ok) "Replay clip saved" else "Replay export failed")
+        renderCancelRequested = false
+        snackbar.showSnackbar(
+            when {
+                ok -> "Replay clip saved"
+                cancelled -> "Render cancelled"
+                else -> "Replay export failed"
+            }
+        )
     }
 
     // Keep the screen awake and run immersive while the studio is open.
@@ -463,6 +484,8 @@ fun OverlayStudioScreen(
 
     // Back while recording stops the take instead of leaving the studio.
     BackHandler(enabled = recording) { recording = false }
+    // Back during a replay render asks before throwing the work away.
+    BackHandler(enabled = rendering) { showCancelConfirm = true }
 
     fun openGallery() {
         runCatching {
@@ -714,7 +737,7 @@ fun OverlayStudioScreen(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Color(0xCC000000)),
+                    .background(Color(0xE6000000)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -722,18 +745,62 @@ fun OverlayStudioScreen(
                     modifier = Modifier.padding(36.dp)
                 ) {
                     Text("Rendering replay clip", color = Color.White)
-                    Spacer(Modifier.height(16.dp))
-                    LinearProgressIndicator(
-                        progress = { renderProgress },
-                        modifier = Modifier.width(220.dp)
-                    )
+                    Spacer(Modifier.height(18.dp))
+                    val barWidth = 240.dp
+                    Box(
+                        Modifier
+                            .width(barWidth)
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White.copy(alpha = 0.22f))
+                    ) {
+                        Box(
+                            Modifier
+                                .width(barWidth * renderProgress.coerceIn(0f, 1f))
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFF4FC3F7))
+                        )
+                    }
                     Spacer(Modifier.height(8.dp))
                     Text(
                         "${(renderProgress * 100).toInt()}%",
                         color = Color.White.copy(alpha = 0.7f)
                     )
+                    Spacer(Modifier.height(22.dp))
+                    Text(
+                        "Keep this screen open — don't switch apps or lock the " +
+                            "phone while the clip renders.",
+                        color = Color.White.copy(alpha = 0.55f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.width(280.dp)
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    TextButton(onClick = { showCancelConfirm = true }) {
+                        Text("Cancel")
+                    }
                 }
             }
+        }
+
+        // Confirm before throwing away an in-progress render.
+        if (showCancelConfirm) {
+            AlertDialog(
+                onDismissRequest = { showCancelConfirm = false },
+                title = { Text("Cancel rendering?") },
+                text = { Text("The replay clip will not be saved.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showCancelConfirm = false
+                        renderCancelRequested = true
+                    }) { Text("Cancel render") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showCancelConfirm = false }) {
+                        Text("Keep rendering")
+                    }
+                }
+            )
         }
 
         // Camera permission hint.

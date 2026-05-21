@@ -111,7 +111,9 @@ class StudioApngEncoder(
     }
 
     private fun deflate(input: ByteArray): ByteArray {
-        val deflater = Deflater(Deflater.DEFAULT_COMPRESSION)
+        // BEST_SPEED — the replay render does hundreds of frames, and the
+        // overlays are mostly flat colour so the size cost is small.
+        val deflater = Deflater(Deflater.BEST_SPEED)
         deflater.setInput(input)
         deflater.finish()
         val buf = ByteArray(64 * 1024)

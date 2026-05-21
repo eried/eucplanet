@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,7 +61,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -191,24 +192,33 @@ fun StudioToolsFlyout(
     onSavePreset: () -> Unit,
     onReplayMode: () -> Unit
 ) {
-    // Ordered so the most-used action (Add element) sits at the bottom of the
-    // menu — closest to the "..." button and the rider's thumb.
+    // Two columns: saved Presets on the left, the live studio actions on the
+    // right — keeps the flyout short instead of one long scroll.
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-        FlyoutItem(Icons.Default.History, "Replay") { onDismiss(); onReplayMode() }
-        HorizontalDivider(Modifier.padding(vertical = 4.dp))
-        FlyoutSection("Preset")
-        FlyoutItem(Icons.Default.Dashboard, "Layout") { onDismiss(); onChangeLayout() }
-        FlyoutItem(Icons.Default.NoteAdd, "New") { onDismiss(); onNew() }
-        FlyoutItem(Icons.Default.Image, "Load") { onDismiss(); onLoadPreset() }
-        FlyoutItem(Icons.Default.Save, "Save", enabled = hasElements) {
-            onDismiss(); onSavePreset()
+        Row(modifier = Modifier.padding(horizontal = 4.dp)) {
+            Column(Modifier.width(154.dp)) {
+                FlyoutSection("Preset")
+                FlyoutItem(Icons.Default.Dashboard, "Layout") {
+                    onDismiss(); onChangeLayout()
+                }
+                FlyoutItem(Icons.Default.NoteAdd, "New") { onDismiss(); onNew() }
+                FlyoutItem(Icons.Default.Image, "Load") { onDismiss(); onLoadPreset() }
+                FlyoutItem(Icons.Default.Save, "Save", enabled = hasElements) {
+                    onDismiss(); onSavePreset()
+                }
+            }
+            Spacer(Modifier.width(4.dp))
+            Column(Modifier.width(154.dp)) {
+                FlyoutSection("Studio")
+                FlyoutItem(Icons.Default.History, "Replay mode") {
+                    onDismiss(); onReplayMode()
+                }
+                FlyoutItem(Icons.Default.Layers, "Manage", enabled = hasElements) {
+                    onDismiss(); onManageElements()
+                }
+                FlyoutItem(Icons.Default.Widgets, "Add") { onDismiss(); onAddElement() }
+            }
         }
-        HorizontalDivider(Modifier.padding(vertical = 4.dp))
-        FlyoutSection("Elements")
-        FlyoutItem(Icons.Default.Layers, "Manage", enabled = hasElements) {
-            onDismiss(); onManageElements()
-        }
-        FlyoutItem(Icons.Default.Widgets, "Add") { onDismiss(); onAddElement() }
     }
 }
 
@@ -277,6 +287,43 @@ private fun FlyoutItem(
     )
 }
 
+/**
+ * A right-docked, full-height panel — the studio's editing surfaces (Add
+ * element, element properties, viewport, presets) live here instead of bottom
+ * sheets, so they read the same in portrait and landscape. Tapping the scrim
+ * dismisses it; the content scrolls itself.
+ */
+@Composable
+fun StudioSidePanel(
+    onDismiss: () -> Unit,
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
+) {
+    androidx.compose.foundation.layout.Box(Modifier.fillMaxSize()) {
+        androidx.compose.foundation.layout.Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0x99000000))
+                .pointerInput(Unit) { detectTapGestures { onDismiss() } }
+        )
+        Surface(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight()
+                .width(340.dp)
+                .pointerInput(Unit) { detectTapGestures { } },
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 2.dp
+        ) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                content = content
+            )
+        }
+    }
+}
+
 // --------------------------------------------------------------------------
 // Add element
 // --------------------------------------------------------------------------
@@ -288,7 +335,7 @@ fun AddElementSheet(
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 28.dp)) {
             SheetHeader("Add element")
             OverlayElementType.entries.forEach { type ->
@@ -343,7 +390,7 @@ fun LayoutPickerSheet(
     onPick: (ViewportLayout) -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(Modifier.padding(horizontal = 16.dp).padding(bottom = 28.dp)) {
             SheetHeader("Viewport layout")
             Text(
@@ -476,7 +523,7 @@ fun LoadPresetSheet(
     onOpenFolderSettings: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -599,7 +646,7 @@ fun ViewportConfigSheet(
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -712,7 +759,7 @@ fun DividerConfigSheet(
     onChange: (Long, Float) -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -905,7 +952,7 @@ fun ElementConfigSheet(
     onReplaceImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
@@ -1401,7 +1448,7 @@ fun ManageElementsSheet(
     onDelete: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss) {
         Column(
             Modifier
                 .padding(horizontal = 16.dp)
