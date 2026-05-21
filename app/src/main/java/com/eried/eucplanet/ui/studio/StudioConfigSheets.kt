@@ -81,6 +81,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -191,11 +193,13 @@ fun StudioToolsFlyout(
     onNew: () -> Unit,
     onLoadPreset: () -> Unit,
     onSavePreset: () -> Unit,
-    onReplayMode: () -> Unit
+    onReplayMode: () -> Unit,
+    deviceRotation: Int = 0
 ) {
     // Two columns: saved Presets on the left, the live studio actions on the
-    // right — keeps the flyout short instead of one long scroll.
+    // right. Rotated so it faces a rider holding the phone sideways.
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+        androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
                 FlyoutSection("Preset")
@@ -221,6 +225,7 @@ fun StudioToolsFlyout(
                 }
                 FlyoutItem(Icons.Default.Widgets, "Add") { onDismiss(); onAddElement() }
             }
+        }
         }
     }
 }
@@ -294,9 +299,39 @@ private fun FlyoutItem(
 val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
 
 /**
- * Renders [content] in a frame rotated to face a rider holding the phone
- * sideways. The frame is sized to the rotated screen, so layout, scrolling and
- * touch input all work correctly in the rotated space.
+ * Rotates the content by -[rotation]° with correct layout — for 90/270 the
+ * child is measured in a width/height-swapped frame, so it occupies exactly
+ * the host's box (no overflow) and touch input still lands right.
+ */
+fun Modifier.rotateLayout(rotation: Int): Modifier {
+    val r = ((rotation % 360) + 360) % 360
+    return when (r) {
+        0 -> this
+        180 -> this.rotate(180f)
+        else -> this
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(
+                    androidx.compose.ui.unit.Constraints(
+                        minWidth = constraints.minHeight,
+                        maxWidth = constraints.maxHeight,
+                        minHeight = constraints.minWidth,
+                        maxHeight = constraints.maxWidth
+                    )
+                )
+                layout(placeable.height, placeable.width) {
+                    placeable.place(
+                        (placeable.height - placeable.width) / 2,
+                        (placeable.width - placeable.height) / 2
+                    )
+                }
+            }
+            .rotate(-r.toFloat())
+    }
+}
+
+/**
+ * Renders [content] across the whole screen, rotated to face a rider holding
+ * the phone sideways.
  */
 @Composable
 fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
@@ -304,19 +339,10 @@ fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
         content()
         return
     }
-    val landscape = rotation == 90 || rotation == 270
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    androidx.compose.foundation.layout.Box(
+        Modifier.fillMaxSize().rotateLayout(rotation)
     ) {
-        val frame =
-            if (landscape) Modifier.size(width = maxHeight, height = maxWidth)
-            else Modifier.size(width = maxWidth, height = maxHeight)
-        androidx.compose.foundation.layout.Box(
-            modifier = frame.graphicsLayer { rotationZ = -rotation.toFloat() }
-        ) {
-            content()
-        }
+        content()
     }
 }
 

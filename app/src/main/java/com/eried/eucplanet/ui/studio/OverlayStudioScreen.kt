@@ -683,7 +683,8 @@ fun OverlayStudioScreen(
                             viewModel.refreshFolderState()
                             sheet = StudioSheet.SavePreset
                         },
-                        onReplayMode = { studioMode = StudioMode.REPLAY }
+                        onReplayMode = { studioMode = StudioMode.REPLAY },
+                        deviceRotation = deviceRotation
                     )
                 }
             }
