@@ -244,7 +244,9 @@ private fun bindCameras(
     // forcing an unsupported pair (e.g. two rear lenses) makes the second feed
     // come back as the first one, so in that case fall back to a single camera.
     val wantedIds = cameras.map { it.deviceId }.toSet()
-    val pairSupported = runCatching {
+    // Concurrent mode needs two *distinct* logical cameras; two lenses of the
+    // same logical camera would bind it twice and fail (onConfigureFailed).
+    val pairSupported = wantedIds.size >= 2 && runCatching {
         provider.availableConcurrentCameraInfos.any { combo ->
             combo.mapNotNull {
                 runCatching { Camera2CameraInfo.from(it).cameraId }.getOrNull()

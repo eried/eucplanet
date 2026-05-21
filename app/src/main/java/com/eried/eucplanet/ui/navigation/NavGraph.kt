@@ -58,15 +58,6 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    val appContext = androidx.compose.ui.platform.LocalContext.current
-    fun openEucViewer() {
-        runCatching {
-            appContext.startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://eucviewer.ried.no"))
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        }
-    }
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, dest, args ->
             Log.i("EucNav", "→ ${dest.route} args=$args")
@@ -173,7 +164,9 @@ fun NavGraph(navController: NavHostController) {
                 onOpenBackupSettings = {
                     navController.navigateSingle(Screen.Settings.createRoute(4))
                 },
-                onViewOnline = { openEucViewer() },
+                onViewOnline = { id ->
+                    navController.navigateSingle(Screen.EucViewer.createRoute(id))
+                },
                 onReplayTrip = { id ->
                     navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
                 }
@@ -206,7 +199,9 @@ fun NavGraph(navController: NavHostController) {
                 TripDetailScreen(
                     trip = trip,
                     onBack = { navController.popSingle() },
-                    onViewOnline = { openEucViewer() },
+                    onViewOnline = { id ->
+                        navController.navigateSingle(Screen.EucViewer.createRoute(id))
+                    },
                     onReplayTrip = { id ->
                         navController.navigateSingle(Screen.OverlayStudio.createRoute(id))
                     },
