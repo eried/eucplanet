@@ -520,17 +520,22 @@ fun OverlayStudioScreen(
             // after it would freeze the studio for ~4 s every photo.
             capturing = false
             renderForceOpaque = false
-            val result = snackbar.showSnackbar(
-                message = context.getString(
-                    if (uri != null) R.string.studio_photo_saved
-                    else R.string.studio_photo_failed
-                ),
-                actionLabel =
-                    if (uri != null) context.getString(R.string.action_view) else null,
-                duration = SnackbarDuration.Long
-            )
-            if (uri != null && result == SnackbarResult.ActionPerformed) {
-                openInGallery(context, uri, photoMime)
+            // The snackbar runs on the screen scope, not this effect: clearing
+            // `capturing` above re-keys LaunchedEffect(capturing) and would
+            // cancel the toast the moment it suspended if shown from here.
+            scope.launch {
+                val result = snackbar.showSnackbar(
+                    message = context.getString(
+                        if (uri != null) R.string.studio_photo_saved
+                        else R.string.studio_photo_failed
+                    ),
+                    actionLabel =
+                        if (uri != null) context.getString(R.string.action_view) else null,
+                    duration = SnackbarDuration.Long
+                )
+                if (uri != null && result == SnackbarResult.ActionPerformed) {
+                    openInGallery(context, uri, photoMime)
+                }
             }
         }
     }
