@@ -560,7 +560,7 @@ private class Feed(
     private val rowPool: ExecutorService,
     private val hub: StudioCameraHub,
     displayRotation: Int,
-    listenerHandler: Handler
+    private val listenerHandler: Handler
 ) {
     private val reader: ImageReader
     val surface: Surface
@@ -651,8 +651,20 @@ private class Feed(
     fun close() {
         closed = true
         drainExecutor.shutdownNow()
-        runCatching { reader.close() }
         pending.set(null)
+        // The ImageReader MUST be closed on its own listener thread. Closing it
+        // from another thread frees the in-flight Image's native buffer while
+        // onImage may still be copying from it on the camera thread — a
+        // use-after-free that crashes natively (SIGSEGV in memcpy). Posting the
+        // close serialises it after any running onImage on the same Looper.
+        val posted = runCatching {
+            listenerHandler.post {
+                runCatching { reader.setOnImageAvailableListener(null, null) }
+                runCatching { reader.close() }
+            }
+        }.getOrDefault(false)
+        // Looper already gone — no frame callback can be running, close inline.
+        if (!posted) runCatching { reader.close() }
     }
 }
 
