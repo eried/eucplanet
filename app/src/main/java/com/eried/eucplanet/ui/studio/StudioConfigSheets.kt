@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.FormatColorFill
 import androidx.compose.material.icons.filled.FormatColorReset
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.NoteAdd
@@ -167,6 +168,7 @@ private val OverlayElementType.label: String
         OverlayElementType.DATA_BAR -> "Linear bar"
         OverlayElementType.FLOATING_CAMERA -> "Floating camera"
         OverlayElementType.IMAGE -> "Image / clipart"
+        OverlayElementType.CLOCK -> "Clock"
     }
 
 private val OverlayElementType.icon
@@ -180,6 +182,7 @@ private val OverlayElementType.icon
         OverlayElementType.DATA_BAR -> Icons.Default.BarChart
         OverlayElementType.FLOATING_CAMERA -> Icons.Default.PhotoCamera
         OverlayElementType.IMAGE -> Icons.Default.Image
+        OverlayElementType.CLOCK -> Icons.Default.Schedule
     }
 
 // --------------------------------------------------------------------------
@@ -484,6 +487,7 @@ private fun elementHint(type: OverlayElementType): String = when (type) {
     OverlayElementType.DATA_BAR -> "A linear bar gauge for a value"
     OverlayElementType.FLOATING_CAMERA -> "A small picture-in-picture camera"
     OverlayElementType.IMAGE -> "Your own image, embedded in the preset"
+    OverlayElementType.CLOCK -> "A clock, analog watch or stopwatch"
 }
 
 // --------------------------------------------------------------------------
@@ -1152,6 +1156,36 @@ fun ElementConfigSheet(
                             onClick = { onChange(element.copy(textAlign = key)) },
                             label = { Text(lbl) }
                         )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+
+            if (element.type == OverlayElementType.CLOCK) {
+                Text("Style", fontWeight = FontWeight.SemiBold)
+                listOf(
+                    "DIGITAL" to "Digital", "ANALOG" to "Analog",
+                    "TEXT" to "Text", "STOPWATCH" to "Stopwatch"
+                ).chunked(2).forEach { row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        row.forEach { (key, lbl) ->
+                            FilterChip(
+                                selected = element.clockStyle == key,
+                                onClick = { onChange(element.copy(clockStyle = key)) },
+                                label = { Text(lbl) }
+                            )
+                        }
+                    }
+                }
+                if (element.clockStyle == "TEXT") {
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = element.clockShowDate,
+                            onCheckedChange = { onChange(element.copy(clockShowDate = it)) }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text("Show date line")
                     }
                 }
                 Spacer(Modifier.height(8.dp))

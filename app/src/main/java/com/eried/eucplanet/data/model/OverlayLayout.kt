@@ -86,7 +86,9 @@ enum class OverlayElementType {
     /** A small floating camera window (picture-in-picture). */
     FLOATING_CAMERA,
     /** A user-supplied image / clipart, embedded in the preset. */
-    IMAGE
+    IMAGE,
+    /** A clock / watch — digital, analog, plain text, or a stopwatch. */
+    CLOCK
 }
 
 /**
@@ -139,7 +141,11 @@ data class OverlayElement(
     val chromaKeyEnabled: Boolean = false,
     val chromaKeyColor: Long = 0xFF00FF00L,
     /** 0..1 — how far a pixel may stray from the key colour and still drop out. */
-    val chromaKeyTolerance: Float = 0.14f
+    val chromaKeyTolerance: Float = 0.14f,
+
+    // CLOCK — DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
+    val clockStyle: String = "DIGITAL",
+    val clockShowDate: Boolean = false
 )
 
 /**

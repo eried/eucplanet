@@ -187,6 +187,14 @@ fun OverlayStudioScreen(
         liveWheelData
     }
 
+    // Trip CSVs carry no wheel name, so in replay fall back to the file name
+    // (without the .csv) so the WHEEL_NAME overlay still says something useful.
+    val displayWheelName = if (replayMode && wheelName.isBlank()) {
+        replayRecord?.fileName?.removeSuffix(".csv").orEmpty()
+    } else {
+        wheelName
+    }
+
     // Graph elements read history; in replay there is no live feed, so build it
     // from the trip's own samples up to the current scrub position.
     val elementHistory: List<StudioSample> = if (replayMode) {
@@ -197,6 +205,23 @@ fun OverlayStudioScreen(
     } else {
         history
     }
+
+    // CLOCK elements: a 2 Hz tick drives the live time; in replay the time is
+    // the trip's start epoch plus the scrub position.
+    var clockTick by remember { mutableStateOf(System.currentTimeMillis()) }
+    val studioStartMs = remember { System.currentTimeMillis() }
+    LaunchedEffect(Unit) {
+        while (true) {
+            clockTick = System.currentTimeMillis()
+            delay(500)
+        }
+    }
+    val clockTimeMs = if (replayMode) {
+        (replayTrip?.startEpochMs ?: 0L) + replayPosMs
+    } else {
+        clockTick
+    }
+    val stopwatchMs = if (replayMode) replayPosMs else clockTick - studioStartMs
 
     // Opened from a trip ("Replay in Studio") — jump straight into replay.
     LaunchedEffect(replayTripId) {
@@ -642,13 +667,15 @@ fun OverlayStudioScreen(
                     replayMode = replayMode,
                     data = StudioElementData(
                         wheelData = wheelData,
-                        wheelName = wheelName,
+                        wheelName = displayWheelName,
                         connected = connected,
                         history = elementHistory,
                         cameraHub = hub,
                         speedUnit = viewModel.speedUnit,
                         distanceUnit = viewModel.distanceUnit,
-                        tempUnit = viewModel.tempUnit
+                        tempUnit = viewModel.tempUnit,
+                        clockTimeMs = clockTimeMs,
+                        stopwatchMs = stopwatchMs
                     ),
                     editable = editable,
                     selectedId = selectedId,

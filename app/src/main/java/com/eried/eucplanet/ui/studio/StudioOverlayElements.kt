@@ -76,7 +76,11 @@ data class StudioElementData(
     val cameraHub: com.eried.eucplanet.ui.studio.camera.StudioCameraHub,
     val speedUnit: String,
     val distanceUnit: String,
-    val tempUnit: String
+    val tempUnit: String,
+    /** Wall-clock millis a CLOCK element shows — live now, or the replay row. */
+    val clockTimeMs: Long = System.currentTimeMillis(),
+    /** Elapsed millis for a CLOCK in STOPWATCH style. */
+    val stopwatchMs: Long = 0L
 )
 
 /** Compose [Color] -> the 0xAARRGGBB [Long] stored in [OverlayElement]. */
@@ -287,7 +291,69 @@ private fun ElementContent(element: OverlayElement, data: StudioElementData) {
         OverlayElementType.DATA_BAR -> DataBarElement(element, data)
         OverlayElementType.FLOATING_CAMERA -> FloatingCameraElement(element, data)
         OverlayElementType.IMAGE -> ImageElement(element)
+        OverlayElementType.CLOCK -> ClockElement(element, data)
     }
+}
+
+@Composable
+private fun ClockElement(element: OverlayElement, data: StudioElementData) {
+    val fg = Color(element.foreground)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(Color(element.background), RoundedCornerShape(8.dp))
+            .padding(10.dp)
+    ) {
+        when (element.clockStyle) {
+            "ANALOG" -> {
+                val cal = java.util.Calendar.getInstance()
+                    .apply { timeInMillis = data.clockTimeMs }
+                AnalogClock(
+                    hour = cal.get(java.util.Calendar.HOUR_OF_DAY),
+                    minute = cal.get(java.util.Calendar.MINUTE),
+                    second = cal.get(java.util.Calendar.SECOND),
+                    color = fg
+                )
+            }
+            "STOPWATCH" -> SevenSegmentDisplay(formatStopwatch(data.stopwatchMs), fg)
+            "TEXT" -> BoxWithConstraints {
+                val w = maxWidth.value
+                Column {
+                    androidx.compose.material3.Text(
+                        text = formatClockTime(data.clockTimeMs, "HH:mm:ss"),
+                        color = fg,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = (w * 0.16f).coerceIn(14f, 72f).sp,
+                        maxLines = 1
+                    )
+                    if (element.clockShowDate) {
+                        androidx.compose.material3.Text(
+                            text = formatClockTime(data.clockTimeMs, "EEE d MMM yyyy"),
+                            color = fg.copy(alpha = 0.75f),
+                            fontSize = (w * 0.07f).coerceIn(8f, 30f).sp,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+            else -> SevenSegmentDisplay(
+                formatClockTime(data.clockTimeMs, "HH:mm:ss"), fg
+            )
+        }
+    }
+}
+
+private fun formatClockTime(ms: Long, pattern: String): String =
+    java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
+        .format(java.util.Date(ms))
+
+private fun formatStopwatch(ms: Long): String {
+    val total = (ms / 1000).coerceAtLeast(0)
+    val h = total / 3600
+    val m = (total % 3600) / 60
+    val s = total % 60
+    return if (h > 0) "%d:%02d:%02d".format(h, m, s)
+    else "%02d:%02d".format(m, s)
 }
 
 @Composable

@@ -14,7 +14,11 @@ data class ReplaySample(val offsetMs: Long, val data: WheelData)
  * A recorded trip parsed into a scrubbable telemetry timeline. Pitch and roll
  * are not stored in trip CSVs, so those gauges read 0 during replay.
  */
-class ReplayTrip(val samples: List<ReplaySample>) {
+class ReplayTrip(
+    val samples: List<ReplaySample>,
+    /** Wall-clock epoch of offset 0 — lets the clock overlay show the real time. */
+    val startEpochMs: Long = 0L
+) {
 
     /** Total trip length in milliseconds (0 if the trip had no usable rows). */
     val durationMs: Long = samples.lastOrNull()?.offsetMs ?: 0L
@@ -97,7 +101,7 @@ fun parseTripCsv(text: String): ReplayTrip {
             )
         )
     }
-    return ReplayTrip(out)
+    return ReplayTrip(out, if (firstMs >= 0L) firstMs else 0L)
 }
 
 /** mm:ss for a millisecond offset, used by the replay timeline labels. */
