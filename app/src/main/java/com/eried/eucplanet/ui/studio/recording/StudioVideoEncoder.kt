@@ -3,8 +3,7 @@ package com.eried.eucplanet.ui.studio.recording
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Rect
+import android.graphics.Canvas
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodec
@@ -25,10 +24,10 @@ import java.util.Locale
  * Records the Overlay Studio to an MP4 **without** MediaProjection — so there
  * is no "share your screen" consent dialog.
  *
- * Video: the studio (cameras + overlays) is captured each frame into a [Bitmap]
- * by the caller and drawn straight onto the H.264 [MediaCodec]'s input
- * [Surface] with a hardware [android.graphics.Canvas] — the GPU does the scale
- * and the RGB→YUV colour conversion, so there is no per-pixel CPU work.
+ * Video: the caller draws the studio straight onto the H.264 [MediaCodec]'s
+ * input [Surface] with a hardware [Canvas] (see [submitFrame]) — the GPU does
+ * the scale and the RGB→YUV colour conversion, so there is no per-pixel CPU
+ * work and no read-back.
  * Audio (optional): the device microphone is read on a background thread and
  * fed to an AAC [MediaCodec]. Both streams are interleaved into one MP4 by a
  * shared [MediaMuxer].
@@ -54,7 +53,6 @@ class StudioVideoEncoder(
     private val videoBufferInfo = MediaCodec.BufferInfo()
     private var encodeW = 0
     private var encodeH = 0
-    private val dstRect = Rect()
     private var startNs = 0L
     private var startUs = 0L
     private var submittedFrames = 0
@@ -81,6 +79,10 @@ class StudioVideoEncoder(
     var started = false
         private set
 
+    /** Encoder output dimensions — valid once [start] has returned true. */
+    val encodeWidth: Int get() = encodeW
+    val encodeHeight: Int get() = encodeH
+
     /**
      * Prepare the encoder for a [captureWidth] x [captureHeight] source.
      * Returns false if the device could not give us a video encoder; if only
@@ -88,17 +90,25 @@ class StudioVideoEncoder(
      */
     fun start(captureWidth: Int, captureHeight: Int): Boolean {
         if (captureWidth <= 0 || captureHeight <= 0) return false
-        // Cap the long edge: encoding the full ~1072x2384 screen tops the codec
-        // out near 33 fps. Scaling the pixel count down lets it keep pace with
-        // the capture loop, and the result is still sharp for a phone clip.
-        val longEdge = maxOf(captureWidth, captureHeight)
-        val scale = if (longEdge > MAX_LONG_EDGE) MAX_LONG_EDGE.toFloat() / longEdge else 1f
-        encodeW = align16((captureWidth * scale).toInt())
-        encodeH = align16((captureHeight * scale).toInt())
-        if (encodeW < 16 || encodeH < 16) return false
         return try {
             val enc = MediaCodec.createEncoderByType(VIDEO_MIME)
             codec = enc
+            val hardware = runCatching { enc.codecInfo.isHardwareAccelerated }
+                .getOrDefault(true)
+            Log.i(TAG, "Video codec ${enc.codecInfo.name}, hw=$hardware")
+            // A hardware encoder sails through ~1080p; a software one (emulator,
+            // some budget devices) cannot sustain 60 fps at that size, so cap it
+            // far lower. Scaling the pixel count keeps the encoder off the
+            // critical path.
+            val maxLongEdge = if (hardware) HW_LONG_EDGE else SW_LONG_EDGE
+            val longEdge = maxOf(captureWidth, captureHeight)
+            val scale = if (longEdge > maxLongEdge) maxLongEdge.toFloat() / longEdge else 1f
+            encodeW = align16((captureWidth * scale).toInt())
+            encodeH = align16((captureHeight * scale).toInt())
+            if (encodeW < 16 || encodeH < 16) {
+                cleanup()
+                return false
+            }
             runCatching {
                 val vc = enc.codecInfo.getCapabilitiesForType(VIDEO_MIME).videoCapabilities
                 val wAlign = maxOf(2, vc.widthAlignment)
@@ -127,7 +137,6 @@ class StudioVideoEncoder(
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             inputSurface = enc.createInputSurface()
             enc.start()
-            dstRect.set(0, 0, encodeW, encodeH)
             val tmp = File(context.cacheDir, "studio_rec_${System.nanoTime()}.mp4")
             tempFile = tmp
             muxer = MediaMuxer(tmp.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
@@ -149,30 +158,30 @@ class StudioVideoEncoder(
     // --- Video --------------------------------------------------------------
 
     /**
-     * Encode one studio frame. The bitmap may be any size or config (including
-     * a HARDWARE bitmap straight off a GraphicsLayer); it is scaled to the
-     * encoder size by the GPU as it is drawn onto the input surface.
+     * Encode one studio frame. [draw] renders straight onto the encoder's input
+     * surface — a hardware [Canvas] — so the studio's GraphicsLayer can be
+     * replayed GPU-to-GPU with no intermediate bitmap and no read-back. Returns
+     * false once the encoder has failed and recording should stop.
      */
-    fun submitFrame(frame: Bitmap) {
-        val surface = inputSurface ?: return
-        if (failed || !started) return
-        try {
+    fun submitFrame(draw: (Canvas) -> Unit): Boolean {
+        val surface = inputSurface ?: return false
+        if (failed || !started) return false
+        return try {
             drainVideo(false)
-            // A hardware canvas blits the (often HARDWARE) bitmap GPU-to-GPU and
-            // posts it to the encoder — the timestamp is the wall clock, which
-            // drainVideo rebases to zero so audio and video stay aligned.
+            // The posted buffer's timestamp is the wall clock; drainVideo
+            // rebases it to zero so audio and video stay aligned.
             val canvas = surface.lockHardwareCanvas()
             try {
-                canvas.drawBitmap(
-                    frame, Rect(0, 0, frame.width, frame.height), dstRect, null
-                )
+                draw(canvas)
             } finally {
                 surface.unlockCanvasAndPost(canvas)
             }
             submittedFrames++
+            true
         } catch (e: Exception) {
             Log.e(TAG, "submitFrame failed", e)
             failed = true
+            false
         }
     }
 
@@ -450,7 +459,10 @@ class StudioVideoEncoder(
         private const val AUDIO_MIME = "audio/mp4a-latm"
         private const val SAMPLE_RATE = 44_100
 
-        /** Longest encoded edge — keeps the H.264 encoder ahead of the loop. */
-        private const val MAX_LONG_EDGE = 1920
+        /** Longest encoded edge on a hardware encoder. */
+        private const val HW_LONG_EDGE = 1920
+
+        /** Longest encoded edge on a software encoder — small enough for 60 fps. */
+        private const val SW_LONG_EDGE = 1080
     }
 }

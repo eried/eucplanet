@@ -65,12 +65,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +99,6 @@ import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -118,6 +123,8 @@ fun OverlayStudioScreen(
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val graphicsLayer = rememberGraphicsLayer()
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
 
     val preset by viewModel.preset.collectAsState()
     val selectedId by viewModel.selectedElementId.collectAsState()
@@ -326,45 +333,50 @@ fun OverlayStudioScreen(
         }
     }
 
-    // --- Recording: capture the GraphicsLayer frame-by-frame ---------------
+    // --- Recording: draw the studio layer straight onto the encoder --------
     LaunchedEffect(encoder) {
         val enc = encoder ?: return@LaunchedEffect
-        // Pipeline the recording: the GPU read-back of one frame overlaps with
-        // the ARGB->YUV + H.264 encode of the previous one, so throughput is
-        // max(capture, encode) instead of their sum. A rendezvous hand-off
-        // keeps memory bounded and frames strictly in order.
-        val frames = Channel<android.graphics.Bitmap>(Channel.RENDEZVOUS)
+        // The studio is already a GraphicsLayer living on the GPU. Replay it
+        // directly onto the H.264 encoder's input surface — no toImageBitmap()
+        // render-to-bitmap + GPU read-back, no intermediate bitmap. One GPU
+        // pass per frame instead of render + sync + blit.
+        val drawScope = CanvasDrawScope()
+        var started = false
         try {
-            val encodeJob = launch(Dispatchers.IO) {
-                var started = false
-                try {
-                    for (bmp in frames) {
-                        if (!started) {
-                            started = enc.start(bmp.width, bmp.height)
-                            if (!started) break
-                        }
-                        enc.submitFrame(bmp)
-                    }
-                } finally {
-                    // Unblock a producer still parked on send() if we bail out.
-                    frames.cancel()
-                }
-            }
             while (recording) {
                 val t0 = System.currentTimeMillis()
-                val img = runCatching { graphicsLayer.toImageBitmap() }.getOrNull()
-                if (img != null &&
-                    runCatching { frames.send(img.asAndroidBitmap()) }.isFailure
-                ) {
-                    break // the encoder stopped (finished or failed)
+                val layerSize = graphicsLayer.size
+                if (layerSize.width > 0 && layerSize.height > 0) {
+                    if (!started) {
+                        started = withContext(Dispatchers.IO) {
+                            enc.start(layerSize.width, layerSize.height)
+                        }
+                        if (!started) break
+                    }
+                    val ew = enc.encodeWidth
+                    val eh = enc.encodeHeight
+                    val drawn = enc.submitFrame { androidCanvas ->
+                        drawScope.draw(
+                            density,
+                            layoutDirection,
+                            androidx.compose.ui.graphics.Canvas(androidCanvas),
+                            Size(ew.toFloat(), eh.toFloat())
+                        ) {
+                            scale(
+                                ew / layerSize.width.toFloat(),
+                                eh / layerSize.height.toFloat(),
+                                Offset.Zero
+                            ) {
+                                drawLayer(graphicsLayer)
+                            }
+                        }
+                    }
+                    if (!drawn) break // the encoder failed
                 }
                 val dt = System.currentTimeMillis() - t0
                 if (dt < FRAME_INTERVAL_MS) delay(FRAME_INTERVAL_MS - dt)
             }
-            frames.close()
-            encodeJob.join()
         } finally {
-            frames.close()
             val uri = withContext(NonCancellable + Dispatchers.IO) { enc.finish() }
             // Only clear shared state if a new recording has not already
             // replaced this encoder (guards a fast stop-then-record).
