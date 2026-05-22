@@ -427,51 +427,52 @@ private fun ExportFormatChooser(
             }
         }
 
-        // Chroma key — always shown, so the fill colour for JPG / MP4 is ready
-        // before the rider switches to one of those alpha-less formats.
-        Spacer(Modifier.height(12.dp))
-        Text(
-            stringResource(R.string.studio_export_chroma),
-            style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.6f),
-            modifier = Modifier.padding(bottom = 6.dp)
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            chromaPresets.forEach { (labelRes, argb) ->
-                val selected = argb == prefs.chromaColor
-                Box(
-                    Modifier
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(Color(argb))
-                        .border(
-                            width = if (selected) 3.dp else 1.dp,
-                            color = if (selected) StudioControlAccent
-                            else Color.White.copy(alpha = 0.4f),
-                            shape = CircleShape
-                        )
-                        .clickable { onChromaColor(argb) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (selected) {
-                        // Check contrasts against light or dark swatches.
-                        val light = ((argb ushr 16) and 0xFF) +
-                            ((argb ushr 8) and 0xFF) + (argb and 0xFF) > 0x180
-                        Icon(
-                            Icons.Default.Check,
-                            contentDescription = stringResource(labelRes),
-                            tint = if (light) Color.Black else Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
+        // Chroma key + force-opaque only matter for alpha-less formats (JPG /
+        // MP4): they need a fill colour, and a half-transparent element would
+        // blend oddly with it. For alpha formats both are hidden entirely.
+        val alphaLessChosen = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
+        if (alphaLessChosen) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.studio_export_chroma),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.padding(bottom = 6.dp)
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                chromaPresets.forEach { (labelRes, argb) ->
+                    val selected = argb == prefs.chromaColor
+                    Box(
+                        Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(Color(argb))
+                            .border(
+                                width = if (selected) 3.dp else 1.dp,
+                                color = if (selected) StudioControlAccent
+                                else Color.White.copy(alpha = 0.4f),
+                                shape = CircleShape
+                            )
+                            .clickable { onChromaColor(argb) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selected) {
+                            // Check contrasts against light or dark swatches.
+                            val light = ((argb ushr 16) and 0xFF) +
+                                ((argb ushr 8) and 0xFF) + (argb and 0xFF) > 0x180
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = stringResource(labelRes),
+                                tint = if (light) Color.Black else Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        // Force-opaque toggle — only relevant for alpha-less formats (JPG, MP4)
-        // where a half-transparent element would blend with the chroma fill.
-        val alphaLessChosen = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
-        if (alphaLessChosen) {
+            // Force-opaque — a half-transparent element would blend with the
+            // chroma fill of an alpha-less format.
             Spacer(Modifier.height(12.dp))
             Row(
                 Modifier
