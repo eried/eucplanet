@@ -52,8 +52,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -76,9 +78,9 @@ private fun speedLabel(s: Float): String =
  * point. The point sits on the track at [x]; [down] true points it downward.
  */
 private fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
-    val hw = 17f          // half width
-    val point = 14f       // height of the pointed part
-    val total = 31f       // full height (point + square body)
+    val hw = 21f          // half width
+    val point = 18f       // height of the pointed part
+    val total = 42f       // full height (point + square body)
     val s = if (down) -1f else 1f
     return Path().apply {
         moveTo(x, trackY)
@@ -156,9 +158,9 @@ fun StudioReplayDialog(
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when (picker) {
-                        1 -> "Choose a trip"
-                        2 -> "Replay speed"
-                        else -> "Replay"
+                        1 -> stringResource(R.string.studio_replay_choose_trip)
+                        2 -> stringResource(R.string.studio_replay_speed_title)
+                        else -> stringResource(R.string.studio_replay_title)
                     },
                     modifier = Modifier.weight(1f),
                     fontWeight = FontWeight.Bold,
@@ -168,7 +170,7 @@ fun StudioReplayDialog(
                     IconButton(onClick = onToggleDim) {
                         Icon(
                             Icons.Default.Opacity,
-                            contentDescription = "Fade the panel",
+                            contentDescription = stringResource(R.string.studio_replay_cd_fade),
                             tint = if (dimmed) StudioControlAccent else Color.White
                         )
                     }
@@ -176,7 +178,7 @@ fun StudioReplayDialog(
                 IconButton(onClick = { if (picker != 0) picker = 0 else onClose() }) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = if (picker != 0) "Back" else "Close replay"
+                        contentDescription = if (picker != 0) stringResource(R.string.studio_replay_cd_back) else stringResource(R.string.studio_replay_cd_close)
                     )
                 }
             }
@@ -187,7 +189,7 @@ fun StudioReplayDialog(
             ) {
                 if (trips.isEmpty()) {
                     Text(
-                        "No recorded trips yet",
+                        stringResource(R.string.studio_replay_no_trips),
                         color = Color.White.copy(alpha = 0.5f),
                         modifier = Modifier.padding(12.dp)
                     )
@@ -229,7 +231,7 @@ fun StudioReplayDialog(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        selectedTrip?.let { tripLabel(it, distanceUnit) } ?: "Choose a trip",
+                        selectedTrip?.let { tripLabel(it, distanceUnit) } ?: stringResource(R.string.studio_replay_choose_trip),
                         modifier = Modifier.weight(1f),
                         maxLines = 1
                     )
@@ -240,7 +242,7 @@ fun StudioReplayDialog(
                     enabled = active
                 ) {
                     Text(speedLabel(speed))
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Replay speed")
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.studio_replay_cd_speed))
                 }
             }
 
@@ -250,7 +252,7 @@ fun StudioReplayDialog(
                 IconButton(onClick = onPlayPause, enabled = active) {
                     Icon(
                         if (playing) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (playing) "Pause" else "Play"
+                        contentDescription = if (playing) stringResource(R.string.studio_replay_cd_pause) else stringResource(R.string.studio_replay_cd_play)
                     )
                 }
                 Spacer(Modifier.width(10.dp))
@@ -322,7 +324,7 @@ private fun ReplayTimeline(
     modifier: Modifier = Modifier
 ) {
     val dur = durationMs.coerceAtLeast(1L)
-    BoxWithConstraints(modifier.height(64.dp)) {
+    BoxWithConstraints(modifier.height(82.dp)) {
         val wPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
         fun xOf(ms: Long): Float = ((ms.toFloat() / dur) * wPx).coerceIn(0f, wPx)
         fun msOf(x: Float): Long = ((x / wPx) * dur).toLong().coerceIn(0L, dur)

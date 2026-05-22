@@ -209,7 +209,6 @@ fun OverlayStudioScreen(
     // CLOCK elements: a 2 Hz tick drives the live time; in replay the time is
     // the trip's start epoch plus the scrub position.
     var clockTick by remember { mutableStateOf(System.currentTimeMillis()) }
-    val studioStartMs = remember { System.currentTimeMillis() }
     LaunchedEffect(Unit) {
         while (true) {
             clockTick = System.currentTimeMillis()
@@ -221,7 +220,6 @@ fun OverlayStudioScreen(
     } else {
         clockTick
     }
-    val stopwatchMs = if (replayMode) replayPosMs else clockTick - studioStartMs
 
     // Opened from a trip ("Replay in Studio") — jump straight into replay.
     LaunchedEffect(replayTripId) {
@@ -257,6 +255,25 @@ fun OverlayStudioScreen(
     var recording by remember { mutableStateOf(false) }
     var encoder by remember { mutableStateOf<StudioVideoEncoder?>(null) }
     var micEnabled by remember { mutableStateOf(true) }
+    // STOPWATCH overlay: synced to the recording take. recordingStartMs is the
+    // wall-clock instant the take began; stopwatchNowMs ticks once per frame so
+    // the overlay advances with ss.sss precision while recording.
+    var recordingStartMs by remember { mutableStateOf(0L) }
+    var stopwatchNowMs by remember { mutableStateOf(0L) }
+    LaunchedEffect(recording) {
+        if (!recording) return@LaunchedEffect
+        while (true) {
+            withFrameNanos {}
+            stopwatchNowMs = System.currentTimeMillis()
+        }
+    }
+    // In replay the stopwatch follows the scrub position; live, it runs only
+    // while a take is recording so the clip and the overlay clock stay in sync.
+    val stopwatchMs = when {
+        replayMode -> replayPosMs
+        recording -> (stopwatchNowMs - recordingStartMs).coerceAtLeast(0L)
+        else -> 0L
+    }
     // Replay APNG export — offline frame-by-frame render with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
@@ -562,9 +579,9 @@ fun OverlayStudioScreen(
         renderCancelRequested = false
         snackbar.showSnackbar(
             when {
-                ok -> "Replay clip saved"
-                cancelled -> "Render cancelled"
-                else -> "Replay export failed"
+                ok -> context.getString(R.string.studio_replay_clip_saved)
+                cancelled -> context.getString(R.string.studio_replay_render_cancelled)
+                else -> context.getString(R.string.studio_replay_export_failed)
             }
         )
     }
@@ -749,6 +766,8 @@ fun OverlayStudioScreen(
                                 context,
                                 withAudio = micEnabled && hasAudioPermission
                             )
+                            recordingStartMs = System.currentTimeMillis()
+                            stopwatchNowMs = recordingStartMs
                             recording = true
                         }
                     }
@@ -873,7 +892,7 @@ fun OverlayStudioScreen(
                     modifier = Modifier.padding(36.dp)
                 ) {
                     Text(
-                        "Rendering…",
+                        stringResource(R.string.studio_rendering),
                         color = Color.White,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -897,14 +916,14 @@ fun OverlayStudioScreen(
                     }
                     Spacer(Modifier.height(22.dp))
                     Text(
-                        "Keep this screen open.",
+                        stringResource(R.string.studio_rendering_keep_open),
                         color = Color.White.copy(alpha = 0.55f),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.width(280.dp)
                     )
                     Spacer(Modifier.height(18.dp))
                     TextButton(onClick = { showCancelConfirm = true }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.studio_rendering_cancel))
                     }
                 }
             }
@@ -916,17 +935,17 @@ fun OverlayStudioScreen(
             AlertDialog(
                 onDismissRequest = { showCancelConfirm = false },
                 modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-                title = { Text("Cancel rendering?") },
-                text = { Text("The replay clip will not be saved.") },
+                title = { Text(stringResource(R.string.studio_dlg_cancel_render_title)) },
+                text = { Text(stringResource(R.string.studio_dlg_cancel_render_body)) },
                 confirmButton = {
                     TextButton(onClick = {
                         showCancelConfirm = false
                         renderCancelRequested = true
-                    }) { Text("Cancel render") }
+                    }) { Text(stringResource(R.string.studio_dlg_cancel_render_confirm)) }
                 },
                 dismissButton = {
                     TextButton(onClick = { showCancelConfirm = false }) {
-                        Text("Keep rendering")
+                        Text(stringResource(R.string.studio_dlg_cancel_render_dismiss))
                     }
                 }
             )

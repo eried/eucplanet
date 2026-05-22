@@ -665,7 +665,7 @@
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
 
-    <!-- Overlay Studio -->
+    <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
     <string name="studio_not_connected">Not connected</string>
     <string name="studio_stop">Stop</string>
@@ -680,6 +680,208 @@
     <string name="studio_preset_loaded">Preset loaded</string>
     <string name="studio_preset_failed">Could not save the preset</string>
     <string name="studio_no_folder">Set a backup folder first to save presets</string>
+
+    <!-- Studio: render progress overlay -->
+    <string name="studio_rendering">Rendering…</string>
+    <string name="studio_rendering_keep_open">Keep this screen open.</string>
+    <string name="studio_rendering_cancel">Cancel</string>
+    <string name="studio_dlg_cancel_render_title">Cancel rendering?</string>
+    <string name="studio_dlg_cancel_render_body">The replay clip will not be saved.</string>
+    <string name="studio_dlg_cancel_render_confirm">Cancel render</string>
+    <string name="studio_dlg_cancel_render_dismiss">Keep rendering</string>
+    <string name="studio_replay_clip_saved">Replay clip saved</string>
+    <string name="studio_replay_render_cancelled">Render cancelled</string>
+    <string name="studio_replay_export_failed">Replay export failed</string>
+
+    <!-- Studio: flyout menu -->
+    <string name="studio_flyout_section_preset">Preset</string>
+    <string name="studio_flyout_panes">Panes</string>
+    <string name="studio_flyout_new">New</string>
+    <string name="studio_flyout_load">Load</string>
+    <string name="studio_flyout_save">Save</string>
+    <string name="studio_flyout_section_mode">Mode</string>
+    <string name="studio_flyout_replay_mode">Replay mode</string>
+    <string name="studio_flyout_section_elements">Elements</string>
+    <string name="studio_flyout_manage">Manage</string>
+    <string name="studio_flyout_add">Add</string>
+
+    <!-- Studio: confirm dialogs -->
+    <string name="studio_dlg_new_title">New preset?</string>
+    <string name="studio_dlg_new_body">This clears every overlay and resets the screen to a single camera viewport. Saved presets are not affected.</string>
+    <string name="studio_dlg_new_confirm">New</string>
+    <string name="studio_dlg_load_title">Load preset?</string>
+    <string name="studio_dlg_load_body">Loading \"%1$s\" replaces your current preset. Save the current one first if you want to keep it.</string>
+    <string name="studio_dlg_load_builtin_title">Load built-in preset?</string>
+    <string name="studio_dlg_load_confirm">Load</string>
+
+    <!-- Studio: save preset dialog -->
+    <string name="studio_save_preset_title">Save preset</string>
+    <string name="studio_save_preset_body">Presets are saved as individual .json files in your backup folder, under overlays/.</string>
+    <string name="studio_save_preset_name_label">Preset name</string>
+    <string name="studio_save_btn">Save</string>
+    <string name="studio_no_folder_body">No backup folder is set. Saved presets need a backup folder so each one can be its own file.</string>
+
+    <!-- Studio: load preset sheet -->
+    <string name="studio_load_preset_title">Load preset</string>
+    <string name="studio_section_portrait">Portrait</string>
+    <string name="studio_section_landscape">Landscape</string>
+    <string name="studio_section_your_presets">Your presets</string>
+    <string name="studio_dlg_delete_preset_title">Delete preset?</string>
+    <string name="studio_dlg_delete_preset_body">\"%1$s\" will be permanently deleted.</string>
+    <string name="studio_cd_delete_preset">Delete preset</string>
+
+    <!-- Studio: add element sheet -->
+    <string name="studio_add_element_title">Add element</string>
+
+    <!-- Studio: element type labels -->
+    <string name="studio_element_wheel_name">Wheel name</string>
+    <string name="studio_element_app_badge">App badge</string>
+    <string name="studio_element_text">Free text</string>
+    <string name="studio_element_data_value">Data value</string>
+    <string name="studio_element_data_graph">Data graph</string>
+    <string name="studio_element_data_dial">Dial gauge</string>
+    <string name="studio_element_data_bar">Linear bar</string>
+    <string name="studio_element_floating_camera">Floating camera</string>
+    <string name="studio_element_image">Image / clipart</string>
+    <string name="studio_element_clock">Clock</string>
+
+    <!-- Studio: element type hints (shown in add-element list) -->
+    <string name="studio_hint_wheel_name">The connected wheel\'s name</string>
+    <string name="studio_hint_app_badge">EUC Planet name and icon</string>
+    <string name="studio_hint_text">Custom text you write yourself</string>
+    <string name="studio_hint_data_value">A live value like speed or battery</string>
+    <string name="studio_hint_data_graph">A rolling graph of a value</string>
+    <string name="studio_hint_data_dial">A circular dial gauge for a value</string>
+    <string name="studio_hint_data_bar">A linear bar gauge for a value</string>
+    <string name="studio_hint_floating_camera">A small picture-in-picture camera</string>
+    <string name="studio_hint_image">Your own image, embedded in the preset</string>
+    <string name="studio_hint_clock">A clock, analog watch or stopwatch</string>
+
+    <!-- Studio: layout picker -->
+    <string name="studio_layout_title">Camera panes</string>
+    <string name="studio_layout_hint">Pick how the screen is divided. Drag the dividers afterwards to resize each section.</string>
+    <string name="studio_layout_full_screen">Full screen</string>
+    <string name="studio_layout_2_rows">2 rows</string>
+    <string name="studio_layout_2_columns">2 columns</string>
+    <string name="studio_layout_3_rows">3 rows</string>
+    <string name="studio_layout_3_columns">3 columns</string>
+    <string name="studio_layout_grid_4">2 × 2 grid</string>
+
+    <!-- Studio: divider config -->
+    <string name="studio_divider_title">Divider lines</string>
+    <string name="studio_divider_colour_label">Line colour</string>
+    <string name="studio_divider_thickness_label">Thickness</string>
+    <string name="studio_divider_thickness_fmt">%1$d dp</string>
+
+    <!-- Studio: viewport config -->
+    <string name="studio_viewport_title">Section %1$d source</string>
+    <string name="studio_viewport_camera">Camera</string>
+    <string name="studio_viewport_fill">Fill</string>
+    <string name="studio_viewport_image">Image</string>
+    <string name="studio_viewport_camera_label">Camera</string>
+    <string name="studio_viewport_choose_image">Choose</string>
+    <string name="studio_viewport_replace_image">Replace</string>
+    <string name="studio_viewport_clear_image">Clear</string>
+    <string name="studio_camera_none">No cameras detected on this device.</string>
+    <string name="studio_camera_limit">Android limits the number of camera streams, so with two cameras in use the rest are disabled.</string>
+
+    <!-- Studio: background editor -->
+    <string name="studio_bg_solid">Solid</string>
+    <string name="studio_bg_linear">Linear</string>
+    <string name="studio_bg_radial">Radial</string>
+    <string name="studio_bg_colour_label">Colour</string>
+    <string name="studio_bg_direction_label">Direction</string>
+    <string name="studio_bg_direction_fmt">%1$d°</string>
+    <string name="studio_bg_colour_stops">Colour stops</string>
+    <string name="studio_bg_add_stop">Add stop</string>
+    <string name="studio_cd_remove_stop">Remove stop</string>
+
+    <!-- Studio: element config sheet -->
+    <string name="studio_cfg_text_label">Text</string>
+    <string name="studio_cfg_text_variables">Variables: {speed} {battery} {temp} {voltage} {current} {power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. Press enter for a new line.</string>
+    <string name="studio_cfg_alignment">Alignment</string>
+    <string name="studio_cfg_align_left">Left</string>
+    <string name="studio_cfg_align_centre">Centre</string>
+    <string name="studio_cfg_align_right">Right</string>
+    <string name="studio_cfg_clock_style">Style</string>
+    <string name="studio_cfg_clock_digital">Digital</string>
+    <string name="studio_cfg_clock_analog">Analog</string>
+    <string name="studio_cfg_clock_text">Text</string>
+    <string name="studio_cfg_clock_stopwatch">Stopwatch</string>
+    <string name="studio_cfg_clock_show_date">Show date line</string>
+    <string name="studio_cfg_metric_label">Metric</string>
+    <string name="studio_cfg_max_label">Maximum</string>
+    <string name="studio_cfg_show_label">Show label</string>
+    <string name="studio_cfg_badge_stacked">Stacked (icon on top)</string>
+    <string name="studio_cfg_badge_show_name">Show app name</string>
+    <string name="studio_cfg_badge_show_version">Show version number</string>
+    <string name="studio_cfg_time_window_label">Time window</string>
+    <string name="studio_cfg_time_window_fmt">%1$ds</string>
+    <string name="studio_cfg_camera_label">Camera</string>
+    <string name="studio_cfg_replace_image">Replace image</string>
+    <string name="studio_cfg_chroma_key">Make a colour transparent</string>
+    <string name="studio_cfg_mask_colour">Mask colour</string>
+    <string name="studio_cfg_threshold_label">Threshold</string>
+    <string name="studio_cfg_threshold_fmt">%1$d%%</string>
+    <string name="studio_cfg_text_colour">Text colour</string>
+    <string name="studio_cfg_background">Background</string>
+    <string name="studio_cfg_opacity_label">Opacity</string>
+    <string name="studio_cfg_opacity_fmt">%1$d%%</string>
+    <string name="studio_cfg_rotation_label">Rotation</string>
+    <string name="studio_cfg_rotation_fmt">%1$d°</string>
+    <string name="studio_cfg_reset_position">Reset position</string>
+
+    <!-- Studio: manage elements sheet -->
+    <string name="studio_manage_title">Manage elements</string>
+    <string name="studio_manage_empty">No elements yet — use Add element to place one.</string>
+    <string name="studio_manage_hint">Drag to reorder, tap a row to select it.</string>
+    <string name="studio_cd_drag_reorder">Drag to reorder</string>
+    <string name="studio_cd_delete_element">Delete element</string>
+
+    <!-- Studio: colour picker -->
+    <string name="studio_colour_picker_title">Custom colour</string>
+    <string name="studio_colour_opacity_label">Opacity</string>
+    <string name="studio_colour_opacity_fmt">%1$d%%</string>
+    <string name="studio_colour_select">Select</string>
+    <string name="studio_cd_invisible">Invisible</string>
+    <string name="studio_cd_custom_colour">Custom colour</string>
+
+    <!-- Studio: viewport pane messages -->
+    <string name="studio_pane_camera_access_needed">Camera access needed</string>
+    <string name="studio_pane_camera_conflict">%1$s can\'t run alongside another camera on this device</string>
+    <string name="studio_pane_camera_unavailable">Camera unavailable</string>
+    <string name="studio_pane_choose_image">Tap the wrench to choose an image</string>
+    <string name="studio_cd_resize_section">Resize section</string>
+    <string name="studio_cd_divider_options">Divider options</string>
+
+    <!-- Studio: element chrome content descriptions -->
+    <string name="studio_cd_resize">Resize</string>
+
+    <!-- Studio: replay panel -->
+    <string name="studio_replay_title">Replay</string>
+    <string name="studio_replay_choose_trip">Choose a trip</string>
+    <string name="studio_replay_speed_title">Replay speed</string>
+    <string name="studio_replay_cd_fade">Fade the panel</string>
+    <string name="studio_replay_cd_back">Back</string>
+    <string name="studio_replay_cd_close">Close replay</string>
+    <string name="studio_replay_no_trips">No recorded trips yet</string>
+    <string name="studio_replay_cd_play">Play</string>
+    <string name="studio_replay_cd_pause">Pause</string>
+    <string name="studio_replay_cd_speed">Replay speed</string>
+
+    <!-- Studio: metric display names -->
+    <string name="studio_metric_speed">Speed</string>
+    <string name="studio_metric_battery">Battery</string>
+    <string name="studio_metric_temperature">Temperature</string>
+    <string name="studio_metric_voltage">Voltage</string>
+    <string name="studio_metric_current">Current</string>
+    <string name="studio_metric_power">Power</string>
+    <string name="studio_metric_pwm">PWM</string>
+    <string name="studio_metric_trip_distance">Trip distance</string>
+    <string name="studio_metric_odometer">Odometer</string>
+    <string name="studio_metric_pitch">Pitch</string>
+    <string name="studio_metric_roll">Roll</string>
+    <string name="studio_metric_g_force">G-Force</string>
 
     <!-- Navigator -->
     <string name="tab_navigator">Navigator</string>

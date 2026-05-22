@@ -18,16 +18,23 @@ import kotlin.math.sin
 private const val CELL_W = 2f
 private const val CELL_H = 3.6f
 private const val COLON_W = 0.9f
+private const val DOT_W = 0.7f
 private const val GAP = 0.42f
 
 /**
- * A 7-segment numeric display. [text] may hold digits 0-9 and ':'. Unlit
+ * A 7-segment numeric display. [text] may hold digits 0-9, ':' and '.'. Unlit
  * segments are drawn faintly so it reads like a real LED panel.
  */
 @Composable
 fun SevenSegmentDisplay(text: String, color: Color, modifier: Modifier = Modifier) {
     var widthUnits = 0f
-    text.forEach { widthUnits += (if (it == ':') COLON_W else CELL_W) + GAP }
+    text.forEach {
+        widthUnits += (when (it) {
+            ':' -> COLON_W
+            '.' -> DOT_W
+            else -> CELL_W
+        }) + GAP
+    }
     widthUnits = (widthUnits - GAP).coerceAtLeast(CELL_W)
     Canvas(modifier.fillMaxWidth().aspectRatio(widthUnits / CELL_H)) {
         val unit = size.height / CELL_H
@@ -37,6 +44,10 @@ fun SevenSegmentDisplay(text: String, color: Color, modifier: Modifier = Modifie
                 ':' -> {
                     drawColon(x * unit, unit, color)
                     x += COLON_W + GAP
+                }
+                '.' -> {
+                    drawDot(x * unit, unit, color)
+                    x += DOT_W + GAP
                 }
                 in '0'..'9' -> {
                     drawDigit(ch - '0', x * unit, unit, color)
@@ -99,6 +110,13 @@ private fun DrawScope.drawColon(ox: Float, unit: Float, color: Color) {
     val r = 0.17f * unit
     drawCircle(color, r, Offset(cx, CELL_H * unit * 0.36f))
     drawCircle(color, r, Offset(cx, CELL_H * unit * 0.66f))
+}
+
+/** A decimal point — a single dot resting near the baseline of a digit cell. */
+private fun DrawScope.drawDot(ox: Float, unit: Float, color: Color) {
+    val cx = ox + DOT_W * unit / 2f
+    val r = 0.2f * unit
+    drawCircle(color, r, Offset(cx, CELL_H * unit - r * 1.4f))
 }
 
 /** A clean, modern analog clock face. */

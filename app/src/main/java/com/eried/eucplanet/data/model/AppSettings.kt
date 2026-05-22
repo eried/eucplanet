@@ -225,7 +225,7 @@ data class AppSettings(
     /** Speak turn-by-turn / Treasure Hunt instructions through TTS. */
     val navVoiceEnabled: Boolean = true,
     /** Radius (meters) within which a waypoint / goal counts as "reached". */
-    val navArrivalRadiusM: Int = 40,
+    val navArrivalRadiusM: Int = 50,
     /** Perpendicular distance (meters) off the route before "wrong way" triggers. */
     val navOffRouteToleranceM: Int = 40,
     /** Default travel mode for new routes: CYCLING / DRIVING / WALKING / STRAIGHT. */

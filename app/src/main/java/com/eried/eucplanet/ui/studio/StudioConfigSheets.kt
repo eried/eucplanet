@@ -147,29 +147,29 @@ val ChromaPalette: List<Long> = listOf(
     0xFFFFFFFFL, 0xFF000000L, 0xFFE53935L
 )
 
-val ViewportLayout.displayName: String
-    get() = when (this) {
-        ViewportLayout.SINGLE -> "Full screen"
-        ViewportLayout.ROWS_2 -> "2 rows"
-        ViewportLayout.COLUMNS_2 -> "2 columns"
-        ViewportLayout.ROWS_3 -> "3 rows"
-        ViewportLayout.COLUMNS_3 -> "3 columns"
-        ViewportLayout.GRID_4 -> "2 × 2 grid"
-    }
+@Composable
+fun ViewportLayout.displayName(): String = when (this) {
+    ViewportLayout.SINGLE -> stringResource(R.string.studio_layout_full_screen)
+    ViewportLayout.ROWS_2 -> stringResource(R.string.studio_layout_2_rows)
+    ViewportLayout.COLUMNS_2 -> stringResource(R.string.studio_layout_2_columns)
+    ViewportLayout.ROWS_3 -> stringResource(R.string.studio_layout_3_rows)
+    ViewportLayout.COLUMNS_3 -> stringResource(R.string.studio_layout_3_columns)
+    ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
+}
 
-private val OverlayElementType.label: String
-    get() = when (this) {
-        OverlayElementType.WHEEL_NAME -> "Wheel name"
-        OverlayElementType.APP_BADGE -> "App badge"
-        OverlayElementType.TEXT -> "Free text"
-        OverlayElementType.DATA_VALUE -> "Data value"
-        OverlayElementType.DATA_GRAPH -> "Data graph"
-        OverlayElementType.DATA_DIAL -> "Dial gauge"
-        OverlayElementType.DATA_BAR -> "Linear bar"
-        OverlayElementType.FLOATING_CAMERA -> "Floating camera"
-        OverlayElementType.IMAGE -> "Image / clipart"
-        OverlayElementType.CLOCK -> "Clock"
-    }
+@Composable
+private fun OverlayElementType.label(): String = when (this) {
+    OverlayElementType.WHEEL_NAME -> stringResource(R.string.studio_element_wheel_name)
+    OverlayElementType.APP_BADGE -> stringResource(R.string.studio_element_app_badge)
+    OverlayElementType.TEXT -> stringResource(R.string.studio_element_text)
+    OverlayElementType.DATA_VALUE -> stringResource(R.string.studio_element_data_value)
+    OverlayElementType.DATA_GRAPH -> stringResource(R.string.studio_element_data_graph)
+    OverlayElementType.DATA_DIAL -> stringResource(R.string.studio_element_data_dial)
+    OverlayElementType.DATA_BAR -> stringResource(R.string.studio_element_data_bar)
+    OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_element_floating_camera)
+    OverlayElementType.IMAGE -> stringResource(R.string.studio_element_image)
+    OverlayElementType.CLOCK -> stringResource(R.string.studio_element_clock)
+}
 
 private val OverlayElementType.icon
     get() = when (this) {
@@ -209,28 +209,28 @@ fun StudioToolsFlyout(
         androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
-                FlyoutSection("Preset")
-                FlyoutItem(Icons.Default.Dashboard, "Panes") {
+                FlyoutSection(stringResource(R.string.studio_flyout_section_preset))
+                FlyoutItem(Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes)) {
                     onDismiss(); onChangeLayout()
                 }
-                FlyoutItem(Icons.Default.NoteAdd, "New") { onDismiss(); onNew() }
-                FlyoutItem(Icons.Default.Image, "Load") { onDismiss(); onLoadPreset() }
-                FlyoutItem(Icons.Default.Save, "Save", enabled = hasElements) {
+                FlyoutItem(Icons.Default.NoteAdd, stringResource(R.string.studio_flyout_new)) { onDismiss(); onNew() }
+                FlyoutItem(Icons.Default.Image, stringResource(R.string.studio_flyout_load)) { onDismiss(); onLoadPreset() }
+                FlyoutItem(Icons.Default.Save, stringResource(R.string.studio_flyout_save), enabled = hasElements) {
                     onDismiss(); onSavePreset()
                 }
             }
             Spacer(Modifier.width(4.dp))
             Column(Modifier.width(154.dp)) {
-                FlyoutSection("Mode")
-                FlyoutItem(Icons.Default.History, "Replay mode") {
+                FlyoutSection(stringResource(R.string.studio_flyout_section_mode))
+                FlyoutItem(Icons.Default.History, stringResource(R.string.studio_flyout_replay_mode)) {
                     onDismiss(); onReplayMode()
                 }
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                FlyoutSection("Elements")
-                FlyoutItem(Icons.Default.Layers, "Manage", enabled = hasElements) {
+                FlyoutSection(stringResource(R.string.studio_flyout_section_elements))
+                FlyoutItem(Icons.Default.Layers, stringResource(R.string.studio_flyout_manage), enabled = hasElements) {
                     onDismiss(); onManageElements()
                 }
-                FlyoutItem(Icons.Default.Widgets, "Add") { onDismiss(); onAddElement() }
+                FlyoutItem(Icons.Default.Widgets, stringResource(R.string.studio_flyout_add)) { onDismiss(); onAddElement() }
             }
         }
         }
@@ -260,22 +260,19 @@ fun StudioConfirmDialog(
     val action: String
     when (confirm) {
         StudioConfirm.ClearLayout -> {
-            title = "New preset?"
-            body = "This clears every overlay and resets the screen to a single " +
-                "camera viewport. Saved presets are not affected."
-            action = "New"
+            title = stringResource(R.string.studio_dlg_new_title)
+            body = stringResource(R.string.studio_dlg_new_body)
+            action = stringResource(R.string.studio_dlg_new_confirm)
         }
         is StudioConfirm.LoadUserPreset -> {
-            title = "Load preset?"
-            body = "Loading \"${confirm.name}\" replaces your current preset. " +
-                "Save the current one first if you want to keep it."
-            action = "Load"
+            title = stringResource(R.string.studio_dlg_load_title)
+            body = stringResource(R.string.studio_dlg_load_body, confirm.name)
+            action = stringResource(R.string.studio_dlg_load_confirm)
         }
         is StudioConfirm.LoadBundledPreset -> {
-            title = "Load built-in preset?"
-            body = "Loading \"${confirm.name}\" replaces your current preset. " +
-                "Save the current one first if you want to keep it."
-            action = "Load"
+            title = stringResource(R.string.studio_dlg_load_builtin_title)
+            body = stringResource(R.string.studio_dlg_load_body, confirm.name)
+            action = stringResource(R.string.studio_dlg_load_confirm)
         }
     }
     AlertDialog(
@@ -284,7 +281,7 @@ fun StudioConfirmDialog(
         title = { Text(title) },
         text = { Text(body) },
         confirmButton = { TextButton(onClick = onConfirm) { Text(action) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -447,7 +444,7 @@ fun AddElementSheet(
                 .padding(bottom = 8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Add element")
+            SheetHeader(stringResource(R.string.studio_add_element_title))
             OverlayElementType.entries.forEach { type ->
                 Row(
                     Modifier
@@ -464,7 +461,7 @@ fun AddElementSheet(
                         tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text(type.label, fontWeight = FontWeight.SemiBold)
+                        Text(type.label(), fontWeight = FontWeight.SemiBold)
                         Text(
                             elementHint(type),
                             style = MaterialTheme.typography.bodySmall,
@@ -477,17 +474,18 @@ fun AddElementSheet(
     }
 }
 
+@Composable
 private fun elementHint(type: OverlayElementType): String = when (type) {
-    OverlayElementType.WHEEL_NAME -> "The connected wheel's name"
-    OverlayElementType.APP_BADGE -> "EUC Planet name and icon"
-    OverlayElementType.TEXT -> "Custom text you write yourself"
-    OverlayElementType.DATA_VALUE -> "A live value like speed or battery"
-    OverlayElementType.DATA_GRAPH -> "A rolling graph of a value"
-    OverlayElementType.DATA_DIAL -> "A circular dial gauge for a value"
-    OverlayElementType.DATA_BAR -> "A linear bar gauge for a value"
-    OverlayElementType.FLOATING_CAMERA -> "A small picture-in-picture camera"
-    OverlayElementType.IMAGE -> "Your own image, embedded in the preset"
-    OverlayElementType.CLOCK -> "A clock, analog watch or stopwatch"
+    OverlayElementType.WHEEL_NAME -> stringResource(R.string.studio_hint_wheel_name)
+    OverlayElementType.APP_BADGE -> stringResource(R.string.studio_hint_app_badge)
+    OverlayElementType.TEXT -> stringResource(R.string.studio_hint_text)
+    OverlayElementType.DATA_VALUE -> stringResource(R.string.studio_hint_data_value)
+    OverlayElementType.DATA_GRAPH -> stringResource(R.string.studio_hint_data_graph)
+    OverlayElementType.DATA_DIAL -> stringResource(R.string.studio_hint_data_dial)
+    OverlayElementType.DATA_BAR -> stringResource(R.string.studio_hint_data_bar)
+    OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_hint_floating_camera)
+    OverlayElementType.IMAGE -> stringResource(R.string.studio_hint_image)
+    OverlayElementType.CLOCK -> stringResource(R.string.studio_hint_clock)
 }
 
 // --------------------------------------------------------------------------
@@ -508,10 +506,9 @@ fun LayoutPickerSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Camera panes")
+            SheetHeader(stringResource(R.string.studio_layout_title))
             Text(
-                "Pick how the screen is divided. Drag the dividers afterwards to " +
-                    "resize each section.",
+                stringResource(R.string.studio_layout_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 12.dp)
@@ -574,7 +571,7 @@ private fun LayoutChoice(
         }
         Spacer(Modifier.height(6.dp))
         Text(
-            layout.displayName,
+            layout.displayName(),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -596,15 +593,14 @@ fun SavePresetDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-        title = { Text("Save preset") },
+        title = { Text(stringResource(R.string.studio_save_preset_title)) },
         text = {
             Column {
                 if (!folderAvailable) {
                     FolderWarning(onOpenFolderSettings)
                 } else {
                     Text(
-                        "Presets are saved as individual .json files in your " +
-                            "backup folder, under overlays/.",
+                        stringResource(R.string.studio_save_preset_body),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -612,7 +608,7 @@ fun SavePresetDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = { Text("Preset name") },
+                        label = { Text(stringResource(R.string.studio_save_preset_name_label)) },
                         singleLine = true
                     )
                 }
@@ -622,9 +618,9 @@ fun SavePresetDialog(
             TextButton(
                 enabled = folderAvailable && name.isNotBlank(),
                 onClick = { onSave(name.trim()) }
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.studio_save_btn)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } }
     )
 }
 
@@ -649,10 +645,10 @@ fun LoadPresetSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Load preset")
+            SheetHeader(stringResource(R.string.studio_load_preset_title))
 
             if (bundledPresets.isNotEmpty()) {
-                SectionLabel("Portrait")
+                SectionLabel(stringResource(R.string.studio_section_portrait))
                 bundledPresets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -663,7 +659,7 @@ fun LoadPresetSheet(
                 }
             }
             if (bundledLandscapePresets.isNotEmpty()) {
-                SectionLabel("Landscape")
+                SectionLabel(stringResource(R.string.studio_section_landscape))
                 bundledLandscapePresets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -677,7 +673,7 @@ fun LoadPresetSheet(
             if (!folderAvailable) {
                 FolderWarning(onOpenFolderSettings)
             } else if (presets.isNotEmpty()) {
-                SectionLabel("Your presets")
+                SectionLabel(stringResource(R.string.studio_section_your_presets))
                 presets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -693,15 +689,15 @@ fun LoadPresetSheet(
         AlertDialog(
             onDismissRequest = { confirmDelete = null },
             modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-            title = { Text("Delete preset?") },
-            text = { Text("\"$name\" will be permanently deleted.") },
+            title = { Text(stringResource(R.string.studio_dlg_delete_preset_title)) },
+            text = { Text(stringResource(R.string.studio_dlg_delete_preset_body, name)) },
             confirmButton = {
                 TextButton(onClick = { onDelete(name); confirmDelete = null }) {
-                    Text("Delete")
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = null }) { Text("Cancel") }
+                TextButton(onClick = { confirmDelete = null }) { Text(stringResource(R.string.action_cancel)) }
             }
         )
     }
@@ -739,7 +735,7 @@ private fun PresetRow(
         if (onDelete != null) {
             Icon(
                 Icons.Default.Delete,
-                contentDescription = "Delete preset",
+                contentDescription = stringResource(R.string.studio_cd_delete_preset),
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier
                     .clip(CircleShape)
@@ -761,8 +757,7 @@ private fun FolderWarning(onOpenFolderSettings: () -> Unit) {
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                "No backup folder is set. Saved presets need a backup folder so " +
-                    "each one can be its own file.",
+                stringResource(R.string.studio_no_folder_body),
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -796,12 +791,12 @@ fun ViewportConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Section ${index + 1} source")
+            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = config.source == ViewportSourceType.CAMERA,
                     onClick = { onChange(config.copy(source = ViewportSourceType.CAMERA)) },
-                    label = { Text("Camera") },
+                    label = { Text(stringResource(R.string.studio_viewport_camera)) },
                     leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
                 )
                 FilterChip(
@@ -812,20 +807,20 @@ fun ViewportConfigSheet(
                             config.source != ViewportSourceType.GRADIENT
                         ) onChange(config.copy(source = ViewportSourceType.SOLID))
                     },
-                    label = { Text("Fill") },
+                    label = { Text(stringResource(R.string.studio_viewport_fill)) },
                     leadingIcon = { Icon(Icons.Default.FormatColorFill, null) }
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.IMAGE,
                     onClick = { onChange(config.copy(source = ViewportSourceType.IMAGE)) },
-                    label = { Text("Image") },
+                    label = { Text(stringResource(R.string.studio_viewport_image)) },
                     leadingIcon = { Icon(Icons.Default.Image, null) }
                 )
             }
             Spacer(Modifier.height(12.dp))
             when (config.source) {
                 ViewportSourceType.CAMERA -> {
-                    Text("Camera", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
                     CameraPicker(cameras, config.cameraKey, inUseKeys) {
                         onChange(config.copy(cameraKey = it))
                     }
@@ -840,12 +835,12 @@ fun ViewportConfigSheet(
                         OutlinedButton(onClick = onPickImage) {
                             Icon(Icons.Default.AddPhotoAlternate, null)
                             Spacer(Modifier.width(8.dp))
-                            Text(if (config.imageData == null) "Choose" else "Replace")
+                            Text(if (config.imageData == null) stringResource(R.string.studio_viewport_choose_image) else stringResource(R.string.studio_viewport_replace_image))
                         }
                         if (config.imageData != null) {
                             OutlinedButton(
                                 onClick = { onChange(config.copy(imageData = null)) }
-                            ) { Text("Clear") }
+                            ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
                         }
                     }
                 }
@@ -868,7 +863,7 @@ private fun CameraPicker(
 ) {
     if (cameras.isEmpty()) {
         Text(
-            "No cameras detected on this device.",
+            stringResource(R.string.studio_camera_none),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -894,8 +889,7 @@ private fun CameraPicker(
     }
     if (atLimit) {
         Text(
-            "Android limits the number of camera streams, so with two cameras " +
-                "in use the rest are disabled.",
+            stringResource(R.string.studio_camera_limit),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -918,11 +912,13 @@ fun DividerConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Divider lines")
-            Text("Line colour", fontWeight = FontWeight.SemiBold)
+            SheetHeader(stringResource(R.string.studio_divider_title))
+            Text(stringResource(R.string.studio_divider_colour_label), fontWeight = FontWeight.SemiBold)
             ColorSwatchRow(color) { onChange(it, thickness) }
             LabeledSlider(
-                "Thickness", "${thickness.toInt()} dp", thickness, 1f, 16f
+                stringResource(R.string.studio_divider_thickness_label),
+                stringResource(R.string.studio_divider_thickness_fmt, thickness.toInt()),
+                thickness, 1f, 16f
             ) { onChange(color, kotlin.math.round(it)) }
         }
     }
@@ -962,22 +958,22 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
                     )
                 )
             },
-            label = { Text("Solid") }
+            label = { Text(stringResource(R.string.studio_bg_solid)) }
         )
         FilterChip(
             selected = !isSolid && !config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = false)) },
-            label = { Text("Linear") }
+            label = { Text(stringResource(R.string.studio_bg_linear)) }
         )
         FilterChip(
             selected = !isSolid && config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = true)) },
-            label = { Text("Radial") }
+            label = { Text(stringResource(R.string.studio_bg_radial)) }
         )
     }
     Spacer(Modifier.height(12.dp))
     if (isSolid) {
-        Text("Colour", fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.studio_bg_colour_label), fontWeight = FontWeight.SemiBold)
         ColorSwatchRow(config.solidColor) { onChange(config.copy(solidColor = it)) }
     } else {
         GradientEditor(config, onChange)
@@ -988,14 +984,15 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
 private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     if (!config.gradientRadial) {
         LabeledSlider(
-            "Direction", "${config.gradientAngle.toInt()}°",
+            stringResource(R.string.studio_bg_direction_label),
+            stringResource(R.string.studio_bg_direction_fmt, config.gradientAngle.toInt()),
             config.gradientAngle, 0f, 360f
         ) { onChange(config.copy(gradientAngle = it)) }
     }
     Spacer(Modifier.height(10.dp))
     GradientPreview(config)
     Spacer(Modifier.height(10.dp))
-    Text("Colour stops", fontWeight = FontWeight.SemiBold)
+    Text(stringResource(R.string.studio_bg_colour_stops), fontWeight = FontWeight.SemiBold)
     config.gradientColors.indices.forEach { i ->
         GradientStopRow(
             color = config.gradientColors[i],
@@ -1042,7 +1039,7 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
     ) {
         Icon(Icons.Default.Add, contentDescription = null)
         Spacer(Modifier.width(8.dp))
-        Text("Add stop")
+        Text(stringResource(R.string.studio_bg_add_stop))
     }
 }
 
@@ -1074,7 +1071,7 @@ private fun GradientStopRow(
             if (canRemove) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Remove stop",
+                    contentDescription = stringResource(R.string.studio_cd_remove_stop),
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .clip(CircleShape)
@@ -1112,13 +1109,13 @@ fun ElementConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(element.type.label)
+            SheetHeader(element.type.label())
 
             if (element.type == OverlayElementType.TEXT) {
                 OutlinedTextField(
                     value = element.text,
                     onValueChange = { onChange(element.copy(text = it)) },
-                    label = { Text("Text") },
+                    label = { Text(stringResource(R.string.studio_cfg_text_label)) },
                     minLines = 2,
                     // Preview the chosen alignment right in the field.
                     textStyle = LocalTextStyle.current.copy(
@@ -1132,9 +1129,7 @@ fun ElementConfigSheet(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Variables: {speed} {battery} {temp} {voltage} {current} " +
-                        "{power} {pwm} {trip} {odometer} {pitch} {roll} {wheel}. " +
-                        "Press enter for a new line.",
+                    stringResource(R.string.studio_cfg_text_variables),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1146,10 +1141,13 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.TEXT ||
                 element.type == OverlayElementType.DATA_VALUE
             ) {
-                Text("Alignment", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_alignment), fontWeight = FontWeight.SemiBold)
+                val alignLeft = stringResource(R.string.studio_cfg_align_left)
+                val alignCentre = stringResource(R.string.studio_cfg_align_centre)
+                val alignRight = stringResource(R.string.studio_cfg_align_right)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
-                        "START" to "Left", "CENTER" to "Centre", "END" to "Right"
+                        "START" to alignLeft, "CENTER" to alignCentre, "END" to alignRight
                     ).forEach { (key, lbl) ->
                         FilterChip(
                             selected = element.textAlign == key,
@@ -1162,10 +1160,14 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.CLOCK) {
-                Text("Style", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_clock_style), fontWeight = FontWeight.SemiBold)
+                val clockDigital = stringResource(R.string.studio_cfg_clock_digital)
+                val clockAnalog = stringResource(R.string.studio_cfg_clock_analog)
+                val clockText = stringResource(R.string.studio_cfg_clock_text)
+                val clockStopwatch = stringResource(R.string.studio_cfg_clock_stopwatch)
                 listOf(
-                    "DIGITAL" to "Digital", "ANALOG" to "Analog",
-                    "TEXT" to "Text", "STOPWATCH" to "Stopwatch"
+                    "DIGITAL" to clockDigital, "ANALOG" to clockAnalog,
+                    "TEXT" to clockText, "STOPWATCH" to clockStopwatch
                 ).chunked(2).forEach { row ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         row.forEach { (key, lbl) ->
@@ -1185,7 +1187,7 @@ fun ElementConfigSheet(
                             onCheckedChange = { onChange(element.copy(clockShowDate = it)) }
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("Show date line")
+                        Text(stringResource(R.string.studio_cfg_clock_show_date))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -1196,7 +1198,7 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.DATA_VALUE ||
                 element.type == OverlayElementType.DATA_GRAPH || isGauge
             ) {
-                Text("Metric", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_metric_label), fontWeight = FontWeight.SemiBold)
                 MetricPicker(element.metric) { key ->
                     onChange(
                         if (isGauge) element.copy(
@@ -1211,7 +1213,8 @@ fun ElementConfigSheet(
             if (isGauge) {
                 val metricMax = StudioMetric.fromKey(element.metric).defaultMax
                 LabeledSlider(
-                    "Maximum", element.gaugeMax.toInt().toString(),
+                    stringResource(R.string.studio_cfg_max_label),
+                    element.gaugeMax.toInt().toString(),
                     element.gaugeMax,
                     metricMax * 0.2f, metricMax * 2.5f
                 ) { onChange(element.copy(gaugeMax = it)) }
@@ -1220,32 +1223,33 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.DATA_VALUE ||
                 element.type == OverlayElementType.DATA_BAR
             ) {
-                ToggleRow("Show label", element.showLabel) {
+                ToggleRow(stringResource(R.string.studio_cfg_show_label), element.showLabel) {
                     onChange(element.copy(showLabel = it))
                 }
             }
 
             if (element.type == OverlayElementType.APP_BADGE) {
-                ToggleRow("Stacked (icon on top)", element.badgeStacked) {
+                ToggleRow(stringResource(R.string.studio_cfg_badge_stacked), element.badgeStacked) {
                     onChange(element.copy(badgeStacked = it))
                 }
-                ToggleRow("Show app name", element.showLabel) {
+                ToggleRow(stringResource(R.string.studio_cfg_badge_show_name), element.showLabel) {
                     onChange(element.copy(showLabel = it))
                 }
-                ToggleRow("Show version number", element.badgeShowVersion) {
+                ToggleRow(stringResource(R.string.studio_cfg_badge_show_version), element.badgeShowVersion) {
                     onChange(element.copy(badgeShowVersion = it))
                 }
             }
 
             if (element.type == OverlayElementType.DATA_GRAPH) {
                 LabeledSlider(
-                    "Time window", "${element.graphWindowSec}s",
+                    stringResource(R.string.studio_cfg_time_window_label),
+                    stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.toFloat(), 10f, 300f
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
             }
 
             if (element.type == OverlayElementType.FLOATING_CAMERA) {
-                Text("Camera", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_camera_label), fontWeight = FontWeight.SemiBold)
                 CameraPicker(cameras, element.cameraKey, inUseKeys) {
                     onChange(element.copy(cameraKey = it))
                 }
@@ -1256,20 +1260,20 @@ fun ElementConfigSheet(
                 OutlinedButton(onClick = onReplaceImage) {
                     Icon(Icons.Default.AddPhotoAlternate, null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Replace image")
+                    Text(stringResource(R.string.studio_cfg_replace_image))
                 }
                 Spacer(Modifier.height(8.dp))
-                ToggleRow("Make a colour transparent", element.chromaKeyEnabled) {
+                ToggleRow(stringResource(R.string.studio_cfg_chroma_key), element.chromaKeyEnabled) {
                     onChange(element.copy(chromaKeyEnabled = it))
                 }
                 if (element.chromaKeyEnabled) {
-                    Text("Mask colour", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.studio_cfg_mask_colour), fontWeight = FontWeight.SemiBold)
                     ColorSwatchRow(element.chromaKeyColor, ChromaPalette) {
                         onChange(element.copy(chromaKeyColor = it))
                     }
                     LabeledSlider(
-                        "Threshold",
-                        "${(element.chromaKeyTolerance * 100).toInt()}%",
+                        stringResource(R.string.studio_cfg_threshold_label),
+                        stringResource(R.string.studio_cfg_threshold_fmt, (element.chromaKeyTolerance * 100).toInt()),
                         element.chromaKeyTolerance, 0.02f, 0.6f
                     ) { onChange(element.copy(chromaKeyTolerance = it)) }
                 }
@@ -1280,11 +1284,11 @@ fun ElementConfigSheet(
             if (element.type != OverlayElementType.FLOATING_CAMERA &&
                 element.type != OverlayElementType.IMAGE
             ) {
-                Text("Text colour", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
                 ColorSwatchRow(element.foreground, allowTransparent = false) {
                     onChange(element.copy(foreground = it))
                 }
-                Text("Background", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.studio_cfg_background), fontWeight = FontWeight.SemiBold)
                 ColorSwatchRow(element.background) {
                     onChange(element.copy(background = it))
                 }
@@ -1292,17 +1296,19 @@ fun ElementConfigSheet(
 
             // Opacity + rotation apply to every element.
             LabeledSlider(
-                "Opacity", "${(element.opacity * 100).toInt()}%",
+                stringResource(R.string.studio_cfg_opacity_label),
+                stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
                 element.opacity, 0.1f, 1f, steps = 17
             ) { onChange(element.copy(opacity = it)) }
             LabeledSlider(
-                "Rotation", "${element.rotationDeg.toInt()}°",
+                stringResource(R.string.studio_cfg_rotation_label),
+                stringResource(R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()),
                 element.rotationDeg, -180f, 180f, steps = 71
             ) { onChange(element.copy(rotationDeg = it)) }
 
             Spacer(Modifier.height(10.dp))
             OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }) {
-                Text("Reset position")
+                Text(stringResource(R.string.studio_cfg_reset_position))
             }
         }
     }
@@ -1316,7 +1322,7 @@ private fun MetricPicker(selected: String, onPick: (String) -> Unit) {
             FilterChip(
                 selected = metric.key == selected,
                 onClick = { onPick(metric.key) },
-                label = { Text(metric.label) }
+                label = { Text(metric.displayName()) }
             )
         }
     }
@@ -1389,7 +1395,7 @@ private fun ColorSwatch(
         if (transparent) {
             Icon(
                 Icons.Default.FormatColorReset,
-                contentDescription = "Invisible",
+                contentDescription = stringResource(R.string.studio_cd_invisible),
                 tint = Color(0xFFBBBBBB),
                 modifier = Modifier.size(20.dp)
             )
@@ -1425,7 +1431,7 @@ private fun CustomColorSwatch(current: Long, isActive: Boolean, onClick: () -> U
     ) {
         Icon(
             Icons.Default.Colorize,
-            contentDescription = "Custom colour",
+            contentDescription = stringResource(R.string.studio_cd_custom_colour),
             tint = Color.White,
             modifier = Modifier.size(18.dp)
         )
@@ -1452,7 +1458,7 @@ private fun ColorPickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.rotateLayout(LocalStudioRotation.current),
-        title = { Text("Custom colour") },
+        title = { Text(stringResource(R.string.studio_colour_picker_title)) },
         text = {
             Column {
                 Box(
@@ -1471,16 +1477,18 @@ private fun ColorPickerDialog(
                 HueBar(hue = hue) { hue = it }
                 if (allowAlpha) {
                     LabeledSlider(
-                        "Opacity", "${(alpha * 100).toInt()}%", alpha, 0f, 1f, 19
+                        stringResource(R.string.studio_colour_opacity_label),
+                        stringResource(R.string.studio_colour_opacity_fmt, (alpha * 100).toInt()),
+                        alpha, 0f, 1f, 19
                     ) { alpha = it }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onPick(color.toArgbLong()) }) { Text("Select") }
+            TextButton(onClick = { onPick(color.toArgbLong()) }) { Text(stringResource(R.string.studio_colour_select)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         }
     )
 }
@@ -1631,12 +1639,12 @@ private fun SheetHeader(title: String) {
 // Manage elements — list, reorder (z-order), select, delete
 // --------------------------------------------------------------------------
 
-private val OverlayElement.summary: String
-    get() = when (type) {
-        OverlayElementType.DATA_VALUE, OverlayElementType.DATA_GRAPH ->
-            "${type.label} · ${StudioMetric.fromKey(metric).label}"
-        else -> type.label
-    }
+@Composable
+private fun OverlayElement.summary(): String = when (type) {
+    OverlayElementType.DATA_VALUE, OverlayElementType.DATA_GRAPH ->
+        "${type.label()} · ${StudioMetric.fromKey(metric).displayName()}"
+    else -> type.label()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1654,17 +1662,17 @@ fun ManageElementsSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader("Manage elements")
+            SheetHeader(stringResource(R.string.studio_manage_title))
             if (elements.isEmpty()) {
                 Text(
-                    "No elements yet — use Add element to place one.",
+                    stringResource(R.string.studio_manage_empty),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
             } else {
                 Text(
-                    "Drag to reorder, tap a row to select it.",
+                    stringResource(R.string.studio_manage_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -1705,7 +1713,7 @@ private fun ManageElementRow(
     ) {
         Icon(
             Icons.Default.DragIndicator,
-            contentDescription = "Drag to reorder",
+            contentDescription = stringResource(R.string.studio_cd_drag_reorder),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = dragHandle
         )
@@ -1717,7 +1725,7 @@ private fun ManageElementRow(
         )
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(element.summary, fontWeight = FontWeight.Medium, maxLines = 1)
+            Text(element.summary(), fontWeight = FontWeight.Medium, maxLines = 1)
             Text(
                 "x ${(element.x * 100).roundToInt()}%   " +
                     "y ${(element.y * 100).roundToInt()}%",
@@ -1727,7 +1735,7 @@ private fun ManageElementRow(
         }
         Icon(
             Icons.Default.Delete,
-            contentDescription = "Delete element",
+            contentDescription = stringResource(R.string.studio_cd_delete_element),
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .clip(CircleShape)

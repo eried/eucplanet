@@ -45,10 +45,12 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.OverlayPreset
 import com.eried.eucplanet.data.model.ViewportConfig
 import com.eried.eucplanet.data.model.ViewportLayout
@@ -217,7 +219,7 @@ private fun CameraPane(hub: StudioCameraHub, cameraKey: String, hasPermission: B
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-            !hasPermission -> PaneMessage(Icons.Default.VideocamOff, "Camera access needed")
+            !hasPermission -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_access_needed))
             hub.isLive(cameraKey) -> Icon(
                 Icons.Default.PhotoCamera,
                 contentDescription = null,
@@ -226,10 +228,9 @@ private fun CameraPane(hub: StudioCameraHub, cameraKey: String, hasPermission: B
             )
             hub.info(cameraKey) != null -> PaneMessage(
                 Icons.Default.VideocamOff,
-                "${hub.info(cameraKey)?.label ?: "Camera"} can't run alongside " +
-                    "another camera on this device"
+                stringResource(R.string.studio_pane_camera_conflict, hub.info(cameraKey)?.label ?: stringResource(R.string.studio_viewport_camera_label))
             )
-            else -> PaneMessage(Icons.Default.VideocamOff, "Camera unavailable")
+            else -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_unavailable))
         }
     }
 }
@@ -287,7 +288,7 @@ private fun ViewportImagePane(imageData: String?) {
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            PaneMessage(Icons.Default.Image, "Tap the wrench to choose an image")
+            PaneMessage(Icons.Default.Image, stringResource(R.string.studio_pane_choose_image))
         }
     }
 }
@@ -503,7 +504,7 @@ private fun DividerControls(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(resizeIcon, contentDescription = "Resize section", tint = Color.White,
+            Icon(resizeIcon, contentDescription = stringResource(R.string.studio_cd_resize_section), tint = Color.White,
                 modifier = Modifier.size(20.dp))
         }
         Box(
@@ -512,7 +513,7 @@ private fun DividerControls(
                 .pointerInput(Unit) { detectTapGestures(onTap = { onConfig() }) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Build, contentDescription = "Divider options", tint = Color.White,
+            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = Color.White,
                 modifier = Modifier.size(17.dp)
                     .rotate(-LocalStudioRotation.current.toFloat()))
         }

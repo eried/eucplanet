@@ -1,6 +1,9 @@
 package com.eried.eucplanet.ui.studio
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.util.Units
 import kotlin.math.absoluteValue
@@ -66,4 +69,21 @@ enum class StudioMetric(
     companion object {
         fun fromKey(key: String): StudioMetric = entries.firstOrNull { it.key == key } ?: SPEED
     }
+}
+
+/** Returns the localised display name for the metric — for use in Composable contexts only. */
+@Composable
+fun StudioMetric.displayName(): String = when (this) {
+    StudioMetric.SPEED -> stringResource(R.string.studio_metric_speed)
+    StudioMetric.BATTERY -> stringResource(R.string.studio_metric_battery)
+    StudioMetric.TEMPERATURE -> stringResource(R.string.studio_metric_temperature)
+    StudioMetric.VOLTAGE -> stringResource(R.string.studio_metric_voltage)
+    StudioMetric.CURRENT -> stringResource(R.string.studio_metric_current)
+    StudioMetric.POWER -> stringResource(R.string.studio_metric_power)
+    StudioMetric.PWM -> stringResource(R.string.studio_metric_pwm)
+    StudioMetric.TRIP -> stringResource(R.string.studio_metric_trip_distance)
+    StudioMetric.ODOMETER -> stringResource(R.string.studio_metric_odometer)
+    StudioMetric.PITCH -> stringResource(R.string.studio_metric_pitch)
+    StudioMetric.ROLL -> stringResource(R.string.studio_metric_roll)
+    StudioMetric.G_FORCE -> stringResource(R.string.studio_metric_g_force)
 }

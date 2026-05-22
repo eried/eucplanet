@@ -248,7 +248,7 @@ private fun StudioElementBox(
                     ) {
                         Icon(
                             Icons.Default.OpenInFull,
-                            contentDescription = "Resize",
+                            contentDescription = stringResource(R.string.studio_cd_resize),
                             tint = Color.White,
                             modifier = Modifier.size(16.dp).rotate(90f)
                         )
@@ -348,12 +348,14 @@ private fun formatClockTime(ms: Long, pattern: String): String =
         .format(java.util.Date(ms))
 
 private fun formatStopwatch(ms: Long): String {
-    val total = (ms / 1000).coerceAtLeast(0)
+    val clamped = ms.coerceAtLeast(0L)
+    val total = clamped / 1000
+    val millis = clamped % 1000
     val h = total / 3600
     val m = (total % 3600) / 60
     val s = total % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, s)
-    else "%02d:%02d".format(m, s)
+    return if (h > 0) "%d:%02d:%02d.%03d".format(h, m, s, millis)
+    else "%02d:%02d.%03d".format(m, s, millis)
 }
 
 @Composable
@@ -521,7 +523,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
         Column(Modifier.fillMaxWidth(), horizontalAlignment = align) {
             if (element.showLabel) {
                 androidx.compose.material3.Text(
-                    text = metric.label.uppercase(),
+                    text = metric.displayName().uppercase(),
                     color = Color(element.foreground).copy(alpha = 0.7f),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = (w * 0.09f).coerceIn(9f, 26f).sp,
@@ -581,7 +583,7 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
         val w = maxWidth.value
         Column {
             androidx.compose.material3.Text(
-                text = "${metric.label.uppercase()}  ·  ${element.graphWindowSec}s",
+                text = "${metric.displayName().uppercase()}  ·  ${element.graphWindowSec}s",
                 color = Color(element.foreground).copy(alpha = 0.7f),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = (w * 0.07f).coerceIn(8f, 20f).sp,
@@ -662,7 +664,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
             )
             val unit = metric.unitText(
                 context, data.speedUnit, data.distanceUnit, data.tempUnit
-            ).ifEmpty { metric.label }
+            ).ifEmpty { metric.displayName() }
             androidx.compose.material3.Text(
                 text = unit,
                 color = fill.copy(alpha = 0.7f),
@@ -693,7 +695,7 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
             Row(verticalAlignment = Alignment.Bottom) {
                 if (element.showLabel) {
                     androidx.compose.material3.Text(
-                        text = metric.label.uppercase(),
+                        text = metric.displayName().uppercase(),
                         color = fill.copy(alpha = 0.7f),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = (w * 0.07f).coerceIn(9f, 22f).sp,
