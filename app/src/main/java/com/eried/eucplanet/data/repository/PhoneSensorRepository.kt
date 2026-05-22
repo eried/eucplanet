@@ -31,7 +31,11 @@ data class PhoneImuSample(
     val yG: Float,
     val zG: Float,
     val timestamp: Long = System.currentTimeMillis()
-)
+) {
+    /** Overall acceleration magnitude in g (gravity already removed). */
+    val magnitude: Float
+        get() = kotlin.math.sqrt(xG * xG + yG * yG + zG * zG)
+}
 
 /**
  * Singleton listener over [SensorManager] that re-emits linear acceleration as

@@ -15,6 +15,8 @@ data class WheelData(
     val totalDistance: Float = 0f,       // km
     val pitchAngle: Float = 0f,
     val rollAngle: Float = 0f,
+    /** Phone IMU acceleration magnitude in g — 0 for trips recorded before this. */
+    val gForce: Float = 0f,
     val batteryPower: Int = 0,
     val motorPower: Int = 0,
     val dynamicSpeedLimit: Float = 0f,

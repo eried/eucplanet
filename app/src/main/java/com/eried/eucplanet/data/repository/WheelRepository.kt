@@ -20,6 +20,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -52,7 +53,8 @@ class WheelRepository @Inject constructor(
     private val alarmEngine: AlarmEngine,
     private val voiceService: VoiceService,
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
-    private val cheatState: com.eried.eucplanet.cheats.CheatState
+    private val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val phoneSensorRepository: PhoneSensorRepository
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -243,6 +245,15 @@ class WheelRepository @Inject constructor(
             }
         }
 
+        // Merge the phone's accelerometer (g-force) into the telemetry stream so
+        // it shows live and is recorded into the trip CSV. Sampled to ~8 Hz so
+        // it doesn't flood downstream collectors.
+        scope.launch {
+            phoneSensorRepository.imu.sample(120L).collect { s ->
+                _wheelData.value = _wheelData.value.copy(gForce = s?.magnitude ?: 0f)
+            }
+        }
+
         // Track the rider's speed calibration. We mirror it into a volatile
         // multiplier so the hot telemetry path applies it without re-reading
         // the settings flow per frame. Also persist a copy into the per-wheel
@@ -271,6 +282,7 @@ class WheelRepository @Inject constructor(
                 when (state) {
                     ConnectionState.CONNECTED -> {
                         reconcileNextSettings = true
+                        phoneSensorRepository.start()
                         startInitSequence()
                         // Restore the per-wheel saved parameters (tiltback,
                         // alarm, safety, calibration). Profile is keyed by
@@ -291,7 +303,9 @@ class WheelRepository @Inject constructor(
                         _modelName.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
-                        _wheelData.value = _wheelData.value.copy(totalDistance = 0f)
+                        phoneSensorRepository.stop()
+                        _wheelData.value =
+                            _wheelData.value.copy(totalDistance = 0f, gForce = 0f)
                         // History is preserved across disconnects (cleared only on new wheel)
                     }
                     else -> {}
