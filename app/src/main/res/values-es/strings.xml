@@ -959,4 +959,15 @@
     <string name="studio_cfg_fit_crop">Recortar</string>
     <string name="studio_cfg_fit_contain">Ajustar</string>
     <string name="studio_cfg_fit_center">Centrar</string>
+    <string name="studio_cfg_brightness">Brillo</string>
+    <string name="studio_cfg_contrast">Contraste</string>
+    <string name="studio_cfg_saturation">Saturación</string>
+    <string name="studio_cfg_filter">Filtro</string>
+    <string name="studio_cfg_filter_none">Ninguno</string>
+    <string name="studio_cfg_filter_bw">B/N</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Cálido</string>
+    <string name="studio_cfg_filter_cool">Frío</string>
+    <string name="studio_cfg_zoom">Zoom</string>
+    <string name="studio_cfg_shadow">Sombra</string>
 </resources>

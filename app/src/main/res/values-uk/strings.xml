@@ -979,4 +979,15 @@
     <string name="studio_cfg_fit_crop">Обрізати</string>
     <string name="studio_cfg_fit_contain">Вмістити</string>
     <string name="studio_cfg_fit_center">По центру</string>
+    <string name="studio_cfg_brightness">Яскравість</string>
+    <string name="studio_cfg_contrast">Контраст</string>
+    <string name="studio_cfg_saturation">Насиченість</string>
+    <string name="studio_cfg_filter">Фільтр</string>
+    <string name="studio_cfg_filter_none">Немає</string>
+    <string name="studio_cfg_filter_bw">Ч/Б</string>
+    <string name="studio_cfg_filter_sepia">Сепія</string>
+    <string name="studio_cfg_filter_warm">Теплий</string>
+    <string name="studio_cfg_filter_cool">Холодний</string>
+    <string name="studio_cfg_zoom">Масштаб</string>
+    <string name="studio_cfg_shadow">Тінь</string>
 </resources>

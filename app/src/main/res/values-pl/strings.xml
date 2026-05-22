@@ -979,4 +979,15 @@
     <string name="studio_cfg_fit_crop">Przytnij</string>
     <string name="studio_cfg_fit_contain">Dopasuj</string>
     <string name="studio_cfg_fit_center">Wyśrodkuj</string>
+    <string name="studio_cfg_brightness">Jasność</string>
+    <string name="studio_cfg_contrast">Kontrast</string>
+    <string name="studio_cfg_saturation">Nasycenie</string>
+    <string name="studio_cfg_filter">Filtr</string>
+    <string name="studio_cfg_filter_none">Brak</string>
+    <string name="studio_cfg_filter_bw">Cz-b</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Ciepły</string>
+    <string name="studio_cfg_filter_cool">Chłodny</string>
+    <string name="studio_cfg_zoom">Powiększenie</string>
+    <string name="studio_cfg_shadow">Cień</string>
 </resources>

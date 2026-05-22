@@ -942,4 +942,15 @@
     <string name="studio_cfg_fit_crop">Beskär</string>
     <string name="studio_cfg_fit_contain">Anpassa</string>
     <string name="studio_cfg_fit_center">Centrera</string>
+    <string name="studio_cfg_brightness">Ljusstyrka</string>
+    <string name="studio_cfg_contrast">Kontrast</string>
+    <string name="studio_cfg_saturation">Mättnad</string>
+    <string name="studio_cfg_filter">Filter</string>
+    <string name="studio_cfg_filter_none">Ingen</string>
+    <string name="studio_cfg_filter_bw">S/V</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Varm</string>
+    <string name="studio_cfg_filter_cool">Sval</string>
+    <string name="studio_cfg_zoom">Zoom</string>
+    <string name="studio_cfg_shadow">Skugga</string>
 </resources>

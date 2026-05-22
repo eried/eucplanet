@@ -33,6 +33,14 @@ object OverlayPresetJson {
                 put(JSONObject().apply {
                     put("source", vp.source.name)
                     put("cameraKey", vp.cameraKey)
+                    put("cameraMirror", vp.cameraMirror)
+                    put("cameraOrientation", vp.cameraOrientation)
+                    put("fitMode", vp.fitMode)
+                    put("brightness", vp.brightness.toDouble())
+                    put("contrast", vp.contrast.toDouble())
+                    put("saturation", vp.saturation.toDouble())
+                    put("colorFilter", vp.colorFilter)
+                    put("zoom", vp.zoom.toDouble())
                     put("solidColor", vp.solidColor)
                     if (vp.imageData != null) put("imageData", vp.imageData)
                     put("gradientColors", JSONArray().apply {
@@ -87,6 +95,14 @@ object OverlayPresetJson {
         return ViewportConfig(
             source = enumOr(o.optString("source"), d.source),
             cameraKey = cameraKey,
+            cameraMirror = o.optBoolean("cameraMirror", d.cameraMirror),
+            cameraOrientation = o.optInt("cameraOrientation", d.cameraOrientation),
+            fitMode = o.optString("fitMode", d.fitMode),
+            brightness = o.optDouble("brightness", d.brightness.toDouble()).toFloat(),
+            contrast = o.optDouble("contrast", d.contrast.toDouble()).toFloat(),
+            saturation = o.optDouble("saturation", d.saturation.toDouble()).toFloat(),
+            colorFilter = o.optString("colorFilter", d.colorFilter),
+            zoom = o.optDouble("zoom", d.zoom.toDouble()).toFloat(),
             solidColor = o.optLong("solidColor", d.solidColor),
             imageData = if (o.has("imageData")) o.optString("imageData") else d.imageData,
             gradientColors = o.optJSONArray("gradientColors")?.let { arr ->
@@ -108,6 +124,7 @@ object OverlayPresetJson {
         put("width", el.width.toDouble())
         put("rotationDeg", el.rotationDeg.toDouble())
         put("opacity", el.opacity.toDouble())
+        put("shadow", el.shadow)
         put("metric", el.metric)
         put("showLabel", el.showLabel)
         put("text", el.text)
@@ -143,6 +160,7 @@ object OverlayPresetJson {
             width = o.optDouble("width", d.width.toDouble()).toFloat(),
             rotationDeg = o.optDouble("rotationDeg", d.rotationDeg.toDouble()).toFloat(),
             opacity = o.optDouble("opacity", d.opacity.toDouble()).toFloat(),
+            shadow = o.optBoolean("shadow", d.shadow),
             metric = o.optString("metric", d.metric),
             showLabel = o.optBoolean("showLabel", d.showLabel),
             text = o.optString("text", d.text),

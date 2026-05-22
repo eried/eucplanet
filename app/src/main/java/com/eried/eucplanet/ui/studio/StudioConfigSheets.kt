@@ -931,6 +931,7 @@ fun ViewportConfigSheet(
                     }
                     Spacer(Modifier.height(8.dp))
                     FitModePicker(config, onChange)
+                    ColorGradeEditor(config, onChange)
                 }
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
                     BackgroundEditor(config, onChange)
@@ -952,10 +953,60 @@ fun ViewportConfigSheet(
                     }
                     Spacer(Modifier.height(12.dp))
                     FitModePicker(config, onChange)
+                    ColorGradeEditor(config, onChange)
                 }
             }
         }
     }
+}
+
+/**
+ * Filter preset + brightness / contrast / saturation + digital zoom for a
+ * camera or image viewport. Every control feeds a GPU ColorMatrix / scale —
+ * there is no per-frame CPU pixel work.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
+    Spacer(Modifier.height(8.dp))
+    Text(stringResource(R.string.studio_cfg_filter), fontWeight = FontWeight.SemiBold)
+    val filterNone = stringResource(R.string.studio_cfg_filter_none)
+    val filterBw = stringResource(R.string.studio_cfg_filter_bw)
+    val filterSepia = stringResource(R.string.studio_cfg_filter_sepia)
+    val filterWarm = stringResource(R.string.studio_cfg_filter_warm)
+    val filterCool = stringResource(R.string.studio_cfg_filter_cool)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            "NONE" to filterNone, "BW" to filterBw, "SEPIA" to filterSepia,
+            "WARM" to filterWarm, "COOL" to filterCool
+        ).forEach { (key, lbl) ->
+            FilterChip(
+                selected = config.colorFilter == key,
+                onClick = { onChange(config.copy(colorFilter = key)) },
+                label = { Text(lbl) }
+            )
+        }
+    }
+    LabeledSlider(
+        stringResource(R.string.studio_cfg_brightness),
+        (config.brightness * 100).roundToInt().toString(),
+        config.brightness, -1f, 1f
+    ) { onChange(config.copy(brightness = it)) }
+    LabeledSlider(
+        stringResource(R.string.studio_cfg_contrast),
+        "%.2f".format(config.contrast),
+        config.contrast, 0f, 2f
+    ) { onChange(config.copy(contrast = it)) }
+    LabeledSlider(
+        stringResource(R.string.studio_cfg_saturation),
+        "%.2f".format(config.saturation),
+        config.saturation, 0f, 2f
+    ) { onChange(config.copy(saturation = it)) }
+    LabeledSlider(
+        stringResource(R.string.studio_cfg_zoom),
+        "%.1fx".format(config.zoom),
+        config.zoom, 1f, 3f
+    ) { onChange(config.copy(zoom = it)) }
 }
 
 /**
@@ -1481,6 +1532,10 @@ fun ElementConfigSheet(
                 stringResource(R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()),
                 element.rotationDeg, -180f, 180f, steps = 71
             ) { onChange(element.copy(rotationDeg = it)) }
+            // Drop shadow applies to every element type.
+            ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
+                onChange(element.copy(shadow = it))
+            }
 
             Spacer(Modifier.height(10.dp))
             OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }) {

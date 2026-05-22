@@ -978,4 +978,15 @@
     <string name="studio_cfg_fit_crop">Bijsnijden</string>
     <string name="studio_cfg_fit_contain">Passend</string>
     <string name="studio_cfg_fit_center">Centreren</string>
+    <string name="studio_cfg_brightness">Helderheid</string>
+    <string name="studio_cfg_contrast">Contrast</string>
+    <string name="studio_cfg_saturation">Verzadiging</string>
+    <string name="studio_cfg_filter">Filter</string>
+    <string name="studio_cfg_filter_none">Geen</string>
+    <string name="studio_cfg_filter_bw">Z/W</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Warm</string>
+    <string name="studio_cfg_filter_cool">Koel</string>
+    <string name="studio_cfg_zoom">Zoom</string>
+    <string name="studio_cfg_shadow">Schaduw</string>
 </resources>

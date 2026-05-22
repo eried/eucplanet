@@ -942,4 +942,15 @@
     <string name="studio_cfg_fit_crop">裁剪</string>
     <string name="studio_cfg_fit_contain">适应</string>
     <string name="studio_cfg_fit_center">居中</string>
+    <string name="studio_cfg_brightness">亮度</string>
+    <string name="studio_cfg_contrast">对比度</string>
+    <string name="studio_cfg_saturation">饱和度</string>
+    <string name="studio_cfg_filter">滤镜</string>
+    <string name="studio_cfg_filter_none">无</string>
+    <string name="studio_cfg_filter_bw">黑白</string>
+    <string name="studio_cfg_filter_sepia">棕褐色</string>
+    <string name="studio_cfg_filter_warm">暖色</string>
+    <string name="studio_cfg_filter_cool">冷色</string>
+    <string name="studio_cfg_zoom">缩放</string>
+    <string name="studio_cfg_shadow">阴影</string>
 </resources>

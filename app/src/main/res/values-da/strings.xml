@@ -944,4 +944,15 @@
     <string name="studio_cfg_fit_crop">Beskær</string>
     <string name="studio_cfg_fit_contain">Tilpas</string>
     <string name="studio_cfg_fit_center">Centrer</string>
+    <string name="studio_cfg_brightness">Lysstyrke</string>
+    <string name="studio_cfg_contrast">Kontrast</string>
+    <string name="studio_cfg_saturation">Mætning</string>
+    <string name="studio_cfg_filter">Filter</string>
+    <string name="studio_cfg_filter_none">Ingen</string>
+    <string name="studio_cfg_filter_bw">S/H</string>
+    <string name="studio_cfg_filter_sepia">Sepia</string>
+    <string name="studio_cfg_filter_warm">Varm</string>
+    <string name="studio_cfg_filter_cool">Kølig</string>
+    <string name="studio_cfg_zoom">Zoom</string>
+    <string name="studio_cfg_shadow">Skygge</string>
 </resources>

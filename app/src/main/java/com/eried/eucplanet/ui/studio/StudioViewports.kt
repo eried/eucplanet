@@ -38,6 +38,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
@@ -180,15 +182,13 @@ fun StudioViewportLayer(
                     ViewportSourceType.SOLID ->
                         Box(Modifier.fillMaxSize().background(Color(config.solidColor)))
                     ViewportSourceType.IMAGE ->
-                        ViewportImagePane(config.imageData, config.fitMode)
+                        ViewportImagePane(config.imageData, config)
                     ViewportSourceType.GRADIENT -> ViewportGradientPane(config)
                     else -> CameraPane(
                         hub = hub,
                         cameraKey = config?.cameraKey ?: "BACK",
                         hasPermission = hasCameraPermission,
-                        mirror = config?.cameraMirror ?: false,
-                        orientation = config?.cameraOrientation ?: 0,
-                        fitMode = config?.fitMode ?: "CROP"
+                        config = config ?: ViewportConfig()
                     )
                 }
                 if (editable) {
@@ -223,30 +223,116 @@ private fun contentScaleOf(fitMode: String): ContentScale = when (fitMode) {
     else -> ContentScale.Crop
 }
 
+/**
+ * Builds the colour-grading [ColorMatrix] for a viewport (filter preset +
+ * saturation + contrast + brightness), or null when everything is neutral so
+ * the [Image] can skip the colour filter entirely. Pure GPU — the matrix is
+ * applied once by the renderer with [ColorFilter.colorMatrix], no pixel work.
+ */
+private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
+    val preset = config.colorFilter
+    val b = config.brightness.coerceIn(-1f, 1f)
+    val c = config.contrast.coerceIn(0f, 2f)
+    val s = config.saturation.coerceIn(0f, 2f)
+    // Neutral on every axis — no colour filter needed at all.
+    if (preset == "NONE" && b == 0f && c == 1f && s == 1f) return null
+
+    // 1. Preset base matrix.
+    val m = when (preset) {
+        "BW" -> ColorMatrix().apply { setToSaturation(0f) }
+        "SEPIA" -> ColorMatrix().apply {
+            setToSaturation(0f)
+            // Warm brown tint mapped onto the now-grey image.
+            timesAssign(
+                ColorMatrix(
+                    floatArrayOf(
+                        1.07f, 0f, 0f, 0f, 0f,
+                        0f, 0.74f, 0f, 0f, 0f,
+                        0f, 0f, 0.43f, 0f, 0f,
+                        0f, 0f, 0f, 1f, 0f
+                    )
+                )
+            )
+        }
+        "WARM" -> ColorMatrix(
+            floatArrayOf(
+                1.10f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 0f,
+                0f, 0f, 0.90f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+        "COOL" -> ColorMatrix(
+            floatArrayOf(
+                0.90f, 0f, 0f, 0f, 0f,
+                0f, 1f, 0f, 0f, 0f,
+                0f, 0f, 1.10f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+        else -> ColorMatrix() // NONE — identity
+    }
+
+    // 2. Saturation.
+    m.timesAssign(ColorMatrix().apply { setToSaturation(s) })
+
+    // 3. Contrast — diagonal scale c, offset (1-c)*0.5 on the 0..255 scale.
+    val contrastOffset = (1f - c) * 0.5f * 255f
+    m.timesAssign(
+        ColorMatrix(
+            floatArrayOf(
+                c, 0f, 0f, 0f, contrastOffset,
+                0f, c, 0f, 0f, contrastOffset,
+                0f, 0f, c, 0f, contrastOffset,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+    )
+
+    // 4. Brightness — add b*255 to the RGB translate column.
+    val brightOffset = b * 255f
+    m.timesAssign(
+        ColorMatrix(
+            floatArrayOf(
+                1f, 0f, 0f, 0f, brightOffset,
+                0f, 1f, 0f, 0f, brightOffset,
+                0f, 0f, 1f, 0f, brightOffset,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+    )
+    return m
+}
+
 @Composable
 private fun CameraPane(
     hub: StudioCameraHub,
     cameraKey: String,
     hasPermission: Boolean,
-    mirror: Boolean,
-    orientation: Int,
-    fitMode: String = "CROP"
+    config: ViewportConfig
 ) {
     Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
         val frame = hub.frame(cameraKey)
+        val grade = remember(
+            config.colorFilter, config.brightness, config.contrast, config.saturation
+        ) { viewportColorMatrix(config) }
+        val zoom = config.zoom.coerceIn(1f, 3f)
         when {
-            // Mirror/orientation are GPU graphicsLayer transforms only — no
-            // per-frame pixel work — applied to the camera image itself so the
-            // recording (which captures pane content) picks them up.
+            // Mirror / orientation / zoom are GPU graphicsLayer transforms and
+            // the colour grade a single GPU ColorMatrix — no per-frame pixel
+            // work — applied to the camera image itself so the recording (which
+            // captures pane content) picks them up.
             frame != null -> Image(
                 bitmap = frame,
                 contentDescription = null,
-                contentScale = contentScaleOf(fitMode),
+                contentScale = contentScaleOf(config.fitMode),
+                colorFilter = grade?.let { ColorFilter.colorMatrix(it) },
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
-                        scaleX = if (mirror) -1f else 1f
-                        rotationZ = orientation.toFloat()
+                        scaleX = (if (config.cameraMirror) -1f else 1f) * zoom
+                        scaleY = zoom
+                        rotationZ = config.cameraOrientation.toFloat()
                     }
             )
             !hasPermission -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_access_needed))
@@ -305,17 +391,29 @@ private fun ViewportGradientPane(config: ViewportConfig) {
 }
 
 @Composable
-private fun ViewportImagePane(imageData: String?, fitMode: String = "CROP") {
+private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
     Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
         val bitmap = remember(imageData) {
             imageData?.let { StudioImages.decode(it)?.asImageBitmap() }
         }
+        val grade = remember(
+            config.colorFilter, config.brightness, config.contrast, config.saturation
+        ) { viewportColorMatrix(config) }
+        val zoom = config.zoom.coerceIn(1f, 3f)
         if (bitmap != null) {
+            // Colour grade is a single GPU ColorMatrix, zoom a graphicsLayer
+            // scale — no per-frame pixel work.
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                contentScale = contentScaleOf(fitMode),
-                modifier = Modifier.fillMaxSize()
+                contentScale = contentScaleOf(config.fitMode),
+                colorFilter = grade?.let { ColorFilter.colorMatrix(it) },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = zoom
+                        scaleY = zoom
+                    }
             )
         } else {
             PaneMessage(Icons.Default.Image, stringResource(R.string.studio_pane_choose_image))

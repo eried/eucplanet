@@ -40,11 +40,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
@@ -215,7 +218,35 @@ private fun StudioElementBox(
             ) {
                 Box(
                     Modifier.graphicsLayer { alpha = element.opacity.coerceIn(0f, 1f) }
-                ) { content() }
+                ) {
+                    // Drop shadow — the content emitted a second time BEHIND
+                    // the real copy, offset ~(3.dp, 3.dp) at 0.55 alpha. The
+                    // graphicsLayer forces an offscreen layer (offset + alpha),
+                    // then a solid-black rect drawn with SrcAtop recolours only
+                    // the content's silhouette to black. It follows the actual
+                    // content shape (text, gauges) — pure GPU, no per-frame
+                    // pixel work; small elements make it effectively free.
+                    if (element.shadow) {
+                        Box(
+                            Modifier
+                                .matchParentSize()
+                                .graphicsLayer {
+                                    translationX = 3.dp.toPx()
+                                    translationY = 3.dp.toPx()
+                                    alpha = 0.55f
+                                    compositingStrategy = CompositingStrategy.Offscreen
+                                }
+                                .drawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        color = Color.Black,
+                                        blendMode = BlendMode.SrcAtop
+                                    )
+                                }
+                        ) { content() }
+                    }
+                    content()
+                }
 
                 if (selected) {
                     // The edit chrome lives inside the rotated layer, so the

@@ -62,6 +62,16 @@ data class ViewportConfig(
      * (original size, centred). Maps to a Compose [ContentScale]; GPU-only.
      */
     val fitMode: String = "CROP",
+    /** Colour-grade brightness, -1..1 (0 = neutral). GPU ColorMatrix only. */
+    val brightness: Float = 0f,
+    /** Colour-grade contrast, 0..2 (1 = neutral). GPU ColorMatrix only. */
+    val contrast: Float = 1f,
+    /** Colour-grade saturation, 0..2 (1 = neutral). GPU ColorMatrix only. */
+    val saturation: Float = 1f,
+    /** Filter preset — one of NONE / BW / SEPIA / WARM / COOL. GPU ColorMatrix only. */
+    val colorFilter: String = "NONE",
+    /** Digital zoom factor, 1..3 — a GPU graphicsLayer scale, no pixel work. */
+    val zoom: Float = 1f,
     /** ARGB colour used when [source] is [ViewportSourceType.SOLID]. */
     val solidColor: Long = 0xFF101014L,
     /** Base64 PNG embedded in the preset when [source] is [ViewportSourceType.IMAGE]. */
@@ -120,6 +130,8 @@ data class OverlayElement(
     val width: Float = 0.4f,
     val rotationDeg: Float = 0f,
     val opacity: Float = 1f,
+    /** Draw a soft drop shadow behind the element so it reads on bright video. */
+    val shadow: Boolean = false,
 
     // DATA_VALUE / DATA_GRAPH — which metric, see StudioMetric.
     val metric: String = "SPEED",
