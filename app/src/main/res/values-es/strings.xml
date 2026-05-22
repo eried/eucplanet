@@ -670,8 +670,6 @@
     <string name="nav_menu_exit">Volver al panel</string>
     <string name="nav_menu_load">Cargar ruta (GPX)</string>
     <string name="nav_menu_save">Guardar ruta (GPX)</string>
-    <string name="nav_menu_start_hunt">Iniciar Búsqueda del tesoro</string>
-    <string name="nav_menu_start_nav">Iniciar navegación</string>
     <string name="nav_minimize">Minimizar</string>
     <string name="nav_mode_cycling">Bici</string>
     <string name="nav_mode_driving">Coche</string>

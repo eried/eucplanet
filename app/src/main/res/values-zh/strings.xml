@@ -653,8 +653,6 @@
     <string name="nav_menu_exit">返回主屏</string>
     <string name="nav_menu_load">加载路线 (GPX)</string>
     <string name="nav_menu_save">保存路线 (GPX)</string>
-    <string name="nav_menu_start_hunt">开始寻宝</string>
-    <string name="nav_menu_start_nav">开始导航</string>
     <string name="nav_minimize">最小化</string>
     <string name="nav_mode_cycling">骑行</string>
     <string name="nav_mode_driving">驾车</string>

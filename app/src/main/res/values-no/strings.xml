@@ -670,8 +670,6 @@
     <string name="nav_menu_exit">Tilbake til dashbordet</string>
     <string name="nav_menu_load">Last inn rute (GPX)</string>
     <string name="nav_menu_save">Lagre rute (GPX)</string>
-    <string name="nav_menu_start_hunt">Start skattejakt</string>
-    <string name="nav_menu_start_nav">Start navigasjon</string>
     <string name="nav_minimize">Minimer</string>
     <string name="nav_mode_cycling">Sykkel</string>
     <string name="nav_mode_driving">Bil</string>

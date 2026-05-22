@@ -653,8 +653,6 @@
     <string name="nav_menu_exit">Retour au tableau de bord</string>
     <string name="nav_menu_load">Charger un itinéraire (GPX)</string>
     <string name="nav_menu_save">Enregistrer l\'itinéraire (GPX)</string>
-    <string name="nav_menu_start_hunt">Lancer la chasse au trésor</string>
-    <string name="nav_menu_start_nav">Lancer la navigation</string>
     <string name="nav_minimize">Réduire</string>
     <string name="nav_mode_cycling">Vélo</string>
     <string name="nav_mode_driving">Voiture</string>

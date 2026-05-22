@@ -689,8 +689,6 @@
     <string name="nav_menu_exit">Torna alla dashboard</string>
     <string name="nav_menu_load">Carica percorso (GPX)</string>
     <string name="nav_menu_save">Salva percorso (GPX)</string>
-    <string name="nav_menu_start_hunt">Avvia Caccia al tesoro</string>
-    <string name="nav_menu_start_nav">Avvia navigazione</string>
     <string name="nav_minimize">Riduci</string>
     <string name="nav_mode_cycling">Bici</string>
     <string name="nav_mode_driving">Auto</string>

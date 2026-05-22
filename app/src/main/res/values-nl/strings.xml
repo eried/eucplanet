@@ -689,8 +689,6 @@
     <string name="nav_menu_exit">Terug naar dashboard</string>
     <string name="nav_menu_load">Route laden (GPX)</string>
     <string name="nav_menu_save">Route opslaan (GPX)</string>
-    <string name="nav_menu_start_hunt">Schattenjacht starten</string>
-    <string name="nav_menu_start_nav">Navigatie starten</string>
     <string name="nav_minimize">Minimaliseren</string>
     <string name="nav_mode_cycling">Fiets</string>
     <string name="nav_mode_driving">Auto</string>

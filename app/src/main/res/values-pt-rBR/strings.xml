@@ -689,8 +689,6 @@
     <string name="nav_menu_exit">Voltar ao painel</string>
     <string name="nav_menu_load">Carregar rota (GPX)</string>
     <string name="nav_menu_save">Salvar rota (GPX)</string>
-    <string name="nav_menu_start_hunt">Iniciar Caça ao Tesouro</string>
-    <string name="nav_menu_start_nav">Iniciar navegação</string>
     <string name="nav_minimize">Minimizar</string>
     <string name="nav_mode_cycling">Bicicleta</string>
     <string name="nav_mode_driving">Carro</string>

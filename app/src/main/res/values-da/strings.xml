@@ -654,8 +654,6 @@
     <string name="nav_menu_exit">Tilbage til dashboard</string>
     <string name="nav_menu_load">Indlæs rute (GPX)</string>
     <string name="nav_menu_save">Gem rute (GPX)</string>
-    <string name="nav_menu_start_hunt">Start skattejagt</string>
-    <string name="nav_menu_start_nav">Start navigation</string>
     <string name="nav_minimize">Minimér</string>
     <string name="nav_mode_cycling">Cykel</string>
     <string name="nav_mode_driving">Bil</string>

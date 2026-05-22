@@ -653,8 +653,6 @@
     <string name="nav_menu_exit">Tillbaka till instrumentpanelen</string>
     <string name="nav_menu_load">Läs in rutt (GPX)</string>
     <string name="nav_menu_save">Spara rutt (GPX)</string>
-    <string name="nav_menu_start_hunt">Starta skattjakt</string>
-    <string name="nav_menu_start_nav">Starta navigering</string>
     <string name="nav_minimize">Minimera</string>
     <string name="nav_mode_cycling">Cykel</string>
     <string name="nav_mode_driving">Bil</string>

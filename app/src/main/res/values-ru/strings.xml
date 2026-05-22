@@ -705,8 +705,6 @@
     <string name="nav_menu_exit">Назад к панели</string>
     <string name="nav_menu_load">Загрузить маршрут (GPX)</string>
     <string name="nav_menu_save">Сохранить маршрут (GPX)</string>
-    <string name="nav_menu_start_hunt">Начать поиск сокровищ</string>
-    <string name="nav_menu_start_nav">Начать навигацию</string>
     <string name="nav_minimize">Свернуть</string>
     <string name="nav_mode_cycling">Велосипед</string>
     <string name="nav_mode_driving">Авто</string>

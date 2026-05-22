@@ -670,8 +670,6 @@
     <string name="nav_menu_exit">Zurück zum Dashboard</string>
     <string name="nav_menu_load">Route laden (GPX)</string>
     <string name="nav_menu_save">Route speichern (GPX)</string>
-    <string name="nav_menu_start_hunt">Schatzsuche starten</string>
-    <string name="nav_menu_start_nav">Navigation starten</string>
     <string name="nav_minimize">Minimieren</string>
     <string name="nav_mode_cycling">Fahrrad</string>
     <string name="nav_mode_driving">Auto</string>

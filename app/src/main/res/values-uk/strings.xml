@@ -690,8 +690,6 @@
     <string name="nav_menu_exit">Назад на панель</string>
     <string name="nav_menu_load">Завантажити маршрут (GPX)</string>
     <string name="nav_menu_save">Зберегти маршрут (GPX)</string>
-    <string name="nav_menu_start_hunt">Почати пошук скарбів</string>
-    <string name="nav_menu_start_nav">Почати навігацію</string>
     <string name="nav_minimize">Згорнути</string>
     <string name="nav_mode_cycling">Велосипед</string>
     <string name="nav_mode_driving">Авто</string>

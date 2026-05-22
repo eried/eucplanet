@@ -690,8 +690,6 @@
     <string name="nav_menu_exit">Powrót do pulpitu</string>
     <string name="nav_menu_load">Wczytaj trasę (GPX)</string>
     <string name="nav_menu_save">Zapisz trasę (GPX)</string>
-    <string name="nav_menu_start_hunt">Rozpocznij Poszukiwanie skarbu</string>
-    <string name="nav_menu_start_nav">Rozpocznij nawigację</string>
     <string name="nav_minimize">Zminimalizuj</string>
     <string name="nav_mode_cycling">Rower</string>
     <string name="nav_mode_driving">Samochód</string>
