@@ -336,45 +336,56 @@ fun OverlayStudioScreen(
     // --- Recording: draw the studio layer straight onto the encoder --------
     LaunchedEffect(encoder) {
         val enc = encoder ?: return@LaunchedEffect
-        // The studio is already a GraphicsLayer living on the GPU. Replay it
-        // directly onto the H.264 encoder's input surface — no toImageBitmap()
-        // render-to-bitmap + GPU read-back, no intermediate bitmap. One GPU
-        // pass per frame instead of render + sync + blit.
+        // The studio is already a GraphicsLayer on the GPU. Replay it directly
+        // onto the H.264 encoder's input surface — no toImageBitmap() render +
+        // intermediate bitmap. The loop runs OFF the UI thread so the encode
+        // never serialises behind composition; replaying a recorded display
+        // list is thread-safe.
         val drawScope = CanvasDrawScope()
-        var started = false
         try {
-            while (recording) {
-                val t0 = System.currentTimeMillis()
-                val layerSize = graphicsLayer.size
-                if (layerSize.width > 0 && layerSize.height > 0) {
-                    if (!started) {
-                        started = withContext(Dispatchers.IO) {
-                            enc.start(layerSize.width, layerSize.height)
+            withContext(Dispatchers.Default) {
+                var started = false
+                // Drift-free 60 fps pacing: schedule each frame against an
+                // accumulator, so a loose delay() on one frame is absorbed by
+                // the next instead of compounding into a lower average rate.
+                var nextFrameNs = System.nanoTime()
+                while (recording) {
+                    val layerSize = graphicsLayer.size
+                    if (layerSize.width > 0 && layerSize.height > 0) {
+                        if (!started) {
+                            started = enc.start(layerSize.width, layerSize.height)
+                            if (!started) break
                         }
-                        if (!started) break
-                    }
-                    val ew = enc.encodeWidth
-                    val eh = enc.encodeHeight
-                    val drawn = enc.submitFrame { androidCanvas ->
-                        drawScope.draw(
-                            density,
-                            layoutDirection,
-                            androidx.compose.ui.graphics.Canvas(androidCanvas),
-                            Size(ew.toFloat(), eh.toFloat())
-                        ) {
-                            scale(
-                                ew / layerSize.width.toFloat(),
-                                eh / layerSize.height.toFloat(),
-                                Offset.Zero
+                        val ew = enc.encodeWidth
+                        val eh = enc.encodeHeight
+                        val drawn = enc.submitFrame { androidCanvas ->
+                            drawScope.draw(
+                                density,
+                                layoutDirection,
+                                androidx.compose.ui.graphics.Canvas(androidCanvas),
+                                Size(ew.toFloat(), eh.toFloat())
                             ) {
-                                drawLayer(graphicsLayer)
+                                scale(
+                                    ew / layerSize.width.toFloat(),
+                                    eh / layerSize.height.toFloat(),
+                                    Offset.Zero
+                                ) {
+                                    drawLayer(graphicsLayer)
+                                }
                             }
                         }
+                        if (!drawn) break // the encoder failed
                     }
-                    if (!drawn) break // the encoder failed
+                    nextFrameNs += FRAME_INTERVAL_NS
+                    val sleepNs = nextFrameNs - System.nanoTime()
+                    when {
+                        // On schedule — wait out the rest of the frame.
+                        sleepNs > 0L -> delay(sleepNs / 1_000_000L)
+                        // A real stall (>4 frames behind) — resync, don't burst.
+                        sleepNs < -4L * FRAME_INTERVAL_NS -> nextFrameNs = System.nanoTime()
+                        // Slightly behind — skip the wait; the next frame catches up.
+                    }
                 }
-                val dt = System.currentTimeMillis() - t0
-                if (dt < FRAME_INTERVAL_MS) delay(FRAME_INTERVAL_MS - dt)
             }
         } finally {
             val uri = withContext(NonCancellable + Dispatchers.IO) { enc.finish() }
@@ -1064,9 +1075,11 @@ fun OverlayStudioScreen(
     }
 }
 
-// 60 fps target — the capture loop runs as fast as the device allows up to
-// this; pts are wall-clock, so a slower device still plays back at real speed.
-private const val FRAME_INTERVAL_MS = 16L
+// Capture-loop pacing. Aimed a touch above 60 fps: delay() only ever
+// overshoots, so targeting a 62 fps interval lands the delivered video at a
+// solid 60+ fps. pts are wall-clock, so a slower device still plays back at
+// real speed (just with fewer frames).
+private const val FRAME_INTERVAL_NS = 1_000_000_000L / 62L
 
 /** Open a saved photo / video in whatever gallery app handles it. */
 private fun openInGallery(context: Context, uri: Uri, mime: String) {

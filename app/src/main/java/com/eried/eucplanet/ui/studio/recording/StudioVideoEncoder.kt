@@ -133,6 +133,9 @@ class StudioVideoEncoder(
                 setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
                 setInteger(MediaFormat.KEY_FRAME_RATE, 60)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+                // Ask the codec to process as fast as it can, not just at the
+                // 60 fps display rate — helps a software encoder keep up.
+                setInteger(MediaFormat.KEY_OPERATING_RATE, Short.MAX_VALUE.toInt())
             }
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
             inputSurface = enc.createInputSurface()
@@ -463,6 +466,6 @@ class StudioVideoEncoder(
         private const val HW_LONG_EDGE = 1920
 
         /** Longest encoded edge on a software encoder — small enough for 60 fps. */
-        private const val SW_LONG_EDGE = 1080
+        private const val SW_LONG_EDGE = 720
     }
 }
