@@ -92,8 +92,11 @@ class AlarmViewModel @Inject constructor(
         }
     }
 
-    fun previewVoice(text: String, metric: AlarmMetric) {
-        val metricLabel = context.getString(metric.labelRes)
+    fun previewVoice(text: String, metric: AlarmMetric, threshold: Float) {
+        val metricLabel = context.getString(metric.voiceLabelRes)
+        // {value} and {threshold} both read back the rider's chosen threshold,
+        // so the preview sounds like the alarm they actually configured.
+        val thresh = "%.0f".format(threshold)
         val preview = text.ifBlank { context.getString(R.string.alarm_test_default) }
             .replace("{speed}", "35")
             .replace("{battery}", "80")
@@ -102,9 +105,9 @@ class AlarmViewModel @Inject constructor(
             .replace("{voltage}", "100")
             .replace("{current}", "12")
             .replace("{trip}", "10")
-            .replace("{value}", "35")
+            .replace("{value}", thresh)
             .replace("{metric}", metricLabel)
-            .replace("{threshold}", "30")
+            .replace("{threshold}", thresh)
         voiceService.speak(preview)
     }
 

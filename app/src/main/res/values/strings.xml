@@ -446,6 +446,7 @@
     <string name="alarm_metric_battery">Battery</string>
     <string name="alarm_metric_temperature">Temperature</string>
     <string name="alarm_metric_pwm">Load (PWM)</string>
+    <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
 

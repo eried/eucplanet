@@ -72,7 +72,9 @@ import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
+import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.util.Units
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
@@ -160,7 +162,7 @@ fun AlarmSettingsContent(
             },
             onDismiss = { showEditor = false },
             onPreviewBeep = { freq, dur, cnt -> viewModel.previewBeep(freq, dur, cnt) },
-            onPreviewVoice = { text, metric -> viewModel.previewVoice(text, metric) },
+            onPreviewVoice = { text, metric, thr -> viewModel.previewVoice(text, metric, thr) },
             onPreviewVibrate = { dur -> viewModel.previewVibrate(dur) }
         )
     }
@@ -207,12 +209,15 @@ private fun AlarmRuleCard(
 
     val color = when {
         !rule.enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        // One distinct colour per metric, so rules that share a metric read as
+        // a visual group in the list.
         else -> when (metric) {
             AlarmMetric.SPEED -> AccentOrange
             AlarmMetric.BATTERY -> AccentGreen
             AlarmMetric.TEMPERATURE -> AccentRed
-            AlarmMetric.PWM -> AccentOrange
-            else -> AccentBlue
+            AlarmMetric.PWM -> AccentYellow
+            AlarmMetric.VOLTAGE -> AccentBlue
+            AlarmMetric.CURRENT -> AccentPurple
         }
     }
 
@@ -293,7 +298,7 @@ private fun AlarmRuleEditorDialog(
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
-    onPreviewVoice: (String, AlarmMetric) -> Unit,
+    onPreviewVoice: (String, AlarmMetric, Float) -> Unit,
     onPreviewVibrate: (Int) -> Unit
 ) {
     val initial = rule ?: AlarmRule()
@@ -515,7 +520,7 @@ private fun AlarmRuleEditorDialog(
                     title = stringResource(R.string.alarm_section_voice),
                     color = AccentGreen,
                     enabled = voiceEnabled,
-                    onPreview = { onPreviewVoice(voiceText, selectedMetric) }
+                    onPreview = { onPreviewVoice(voiceText, selectedMetric, displayedThreshold) }
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),

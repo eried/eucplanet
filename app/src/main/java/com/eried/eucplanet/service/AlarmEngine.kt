@@ -156,7 +156,7 @@ class AlarmEngine @Inject constructor(
         distanceUnit: String,
         tempUnit: String
     ): String {
-        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).labelRes) } catch (_: Exception) { rule.metric }
+        val metricLabel = try { context.getString(AlarmMetric.valueOf(rule.metric).voiceLabelRes) } catch (_: Exception) { rule.metric }
         // {value} and {threshold} are converted using the rule's own metric — speed
         // alarm in mph reads mph, temperature alarm in °F reads °F, everything else
         // stays in its native unit (battery %, PWM %, voltage V, current A).

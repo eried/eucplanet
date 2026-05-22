@@ -44,11 +44,16 @@ data class AlarmRule(
     val repeatWhileActive: Boolean = false
 )
 
-enum class AlarmMetric(val labelRes: Int, val unit: String) {
+enum class AlarmMetric(
+    val labelRes: Int,
+    val unit: String,
+    /** Name spoken by voice alarms — defaults to the on-screen label. */
+    val voiceLabelRes: Int = labelRes
+) {
     SPEED(R.string.alarm_metric_speed, "km/h"),
     BATTERY(R.string.alarm_metric_battery, "%"),
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
-    PWM(R.string.alarm_metric_pwm, "%"),
+    PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V"),
     CURRENT(R.string.alarm_metric_current, "A")
 }
