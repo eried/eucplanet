@@ -878,9 +878,8 @@
     <string name="studio_pane_camera_conflict">%1$s ne peut pas fonctionner avec une autre caméra sur cet appareil</string>
     <string name="studio_pane_camera_unavailable">Caméra indisponible</string>
     <string name="studio_pane_choose_image">Touchez la clé pour choisir une image</string>
-    <string name="studio_rendering">Rendu en cours…</string>
+    <string name="studio_rendering">Rendu en cours</string>
     <string name="studio_rendering_cancel">Annuler</string>
-    <string name="studio_rendering_keep_open">Gardez cet écran ouvert.</string>
     <string name="studio_replay_cd_back">Retour</string>
     <string name="studio_replay_cd_close">Fermer le rejeu</string>
     <string name="studio_replay_cd_fade">Estomper le panneau</string>
@@ -967,4 +966,8 @@
     <string name="studio_cd_rotate">Pivoter</string>
     <string name="studio_cfg_border_colour">Couleur de la bordure</string>
     <string name="studio_cfg_border_width">Épaisseur de la bordure</string>
+    <string name="studio_rendering_keep_open">Garde cet écran ouvert jusqu\'à la fin de l\'enregistrement du clip.</string>
+    <string name="studio_chroma_bright_green">Vert vif</string>
+    <string name="studio_chroma_cyan">Cyan</string>
+    <string name="studio_export_force_opaque">Forcer l\'opacité totale</string>
 </resources>

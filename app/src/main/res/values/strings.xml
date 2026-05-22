@@ -682,8 +682,7 @@
     <string name="studio_no_folder">Set a backup folder first to save presets</string>
 
     <!-- Studio: render progress overlay -->
-    <string name="studio_rendering">Rendering…</string>
-    <string name="studio_rendering_keep_open">Keep this screen open.</string>
+    <string name="studio_rendering">Rendering</string>
     <string name="studio_rendering_cancel">Cancel</string>
     <string name="studio_dlg_cancel_render_title">Cancel rendering?</string>
     <string name="studio_dlg_cancel_render_body">The replay clip will not be saved.</string>
@@ -698,8 +697,11 @@
     <string name="studio_export_photo">Photo</string>
     <string name="studio_export_video">Video</string>
     <string name="studio_export_chroma">Chroma key colour</string>
+    <string name="studio_export_force_opaque">Force fully opaque</string>
     <string name="studio_chroma_magenta">Magenta</string>
     <string name="studio_chroma_green">Green</string>
+    <string name="studio_chroma_bright_green">Bright green</string>
+    <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_chroma_blue">Blue</string>
     <string name="studio_chroma_black">Black</string>
     <string name="studio_chroma_white">White</string>
@@ -1087,4 +1089,5 @@
     <string name="studio_group_media">Camera &amp; images</string>
     <string name="studio_cfg_border_colour">Border colour</string>
     <string name="studio_cfg_border_width">Border thickness</string>
+    <string name="studio_rendering_keep_open">Keep this screen open until the clip finishes saving.</string>
 </resources>

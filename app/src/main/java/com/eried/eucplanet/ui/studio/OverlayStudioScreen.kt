@@ -142,6 +142,10 @@ fun OverlayStudioScreen(
 
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
+    // The element config sheet's "Style" section open / closed state, hoisted
+    // here so it sticks for the studio session across different elements (not
+    // persisted to settings).
+    var styleSheetExpanded by remember { mutableStateOf(false) }
     val dirty by viewModel.dirty.collectAsState()
     // Layouts are capped — past the limit, Add is disabled everywhere.
     val canAddElement = preset.elements.size < OverlayStudioViewModel.MAX_ELEMENTS
@@ -283,6 +287,10 @@ fun OverlayStudioScreen(
     var renderProgress by remember { mutableStateOf(0f) }
     var renderCancelRequested by remember { mutableStateOf(false) }
     var showCancelConfirm by remember { mutableStateOf(false) }
+    // True while an alpha-less export (JPG / MP4) is rendering and the rider has
+    // the "force opaque" toggle on — the recording layer then draws every
+    // overlay element at 100% opacity so nothing blends with the chroma fill.
+    var renderForceOpaque by remember { mutableStateOf(false) }
     // Physical device rotation (0/90/180/270) — the layout stays fixed but the
     // control icons counter-rotate so they read upright when held sideways.
     var deviceRotation by remember { mutableStateOf(0) }
@@ -474,25 +482,39 @@ fun OverlayStudioScreen(
     // --- Photo snapshot ----------------------------------------------------
     LaunchedEffect(capturing) {
         if (capturing) {
+            // Replay snapshots honour the chosen photo format. Live snapshots
+            // stay JPEG. PNG / WEBP keep the transparent background; JPG has no
+            // alpha so it composites onto the chroma colour.
+            val photoFormat =
+                if (replayMode) exportPrefs.photoFormat else ReplayPhotoFormat.JPG
+            // JPG lacks alpha — when the rider asked for opaque overlays, flag
+            // the recording layer to draw every element at 100% opacity.
+            val opaqueExport = !photoFormat.hasAlpha && exportPrefs.forceOpaque
+            if (opaqueExport) renderForceOpaque = true
             delay(160) // let the element selection chrome clear for a clean frame
             val bmp = runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }
                 .getOrNull()
-            // Replay snapshots honour the chosen photo format (PNG keeps the
-            // transparent background; JPG composites onto the chroma colour).
-            // Live snapshots stay JPEG.
-            val photoIsPng = !replayMode || exportPrefs.photoFormat == ReplayPhotoFormat.PNG
             val uri = bmp?.let { src ->
-                if (photoIsPng) {
-                    StudioCapture.savePng(context, src)
-                } else {
-                    // JPEG has no alpha — flatten onto the chroma colour first.
-                    StudioCapture.saveJpeg(context, flattenOntoChroma(src, exportPrefs.chromaColor))
+                when (photoFormat) {
+                    ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, src)
+                    ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, src)
+                    ReplayPhotoFormat.JPG ->
+                        // JPEG has no alpha — flatten onto the chroma colour first.
+                        StudioCapture.saveJpeg(
+                            context, flattenOntoChroma(src, exportPrefs.chromaColor)
+                        )
                 }
+            }
+            val photoMime = when (photoFormat) {
+                ReplayPhotoFormat.PNG -> "image/png"
+                ReplayPhotoFormat.WEBP -> "image/webp"
+                ReplayPhotoFormat.JPG -> "image/jpeg"
             }
             // Restore the chrome the instant the save is done — showSnackbar
             // suspends for the snackbar's whole lifetime, so clearing this
             // after it would freeze the studio for ~4 s every photo.
             capturing = false
+            renderForceOpaque = false
             val result = snackbar.showSnackbar(
                 message = context.getString(
                     if (uri != null) R.string.studio_photo_saved
@@ -503,7 +525,7 @@ fun OverlayStudioScreen(
                 duration = SnackbarDuration.Long
             )
             if (uri != null && result == SnackbarResult.ActionPerformed) {
-                openInGallery(context, uri, if (photoIsPng) "image/png" else "image/jpeg")
+                openInGallery(context, uri, photoMime)
             }
         }
     }
@@ -523,6 +545,14 @@ fun OverlayStudioScreen(
         val videoFormat = exportPrefs.videoFormat
         val chroma = exportPrefs.chromaColor
         val savedPos = replayPosMs
+        // MP4 lacks alpha — when the rider asked for opaque overlays, draw every
+        // element at 100% opacity so nothing blends with the chroma fill.
+        val opaqueExport = !videoFormat.hasAlpha && exportPrefs.forceOpaque
+        if (opaqueExport) renderForceOpaque = true
+        // The saved-file Uri, captured per format so the success snackbar can
+        // offer a "View" action: MP4 from the encoder, GIF / APNG from the
+        // pending gallery image.
+        var resultUri: Uri? = null
         renderProgress = 0f
         val fps = 10
         val frameMs = 1000 / fps
@@ -597,7 +627,9 @@ fun OverlayStudioScreen(
                                 i++
                             }
                             encoderUri = withContext(Dispatchers.IO) { mp4.finish() }
-                            !cancelled && encOk && encoderUri != null
+                            val mp4Ok = !cancelled && encOk && encoderUri != null
+                            if (mp4Ok) resultUri = encoderUri
+                            mp4Ok
                         }
                     } catch (e: Exception) {
                         android.util.Log.e("OverlayStudio", "Replay MP4 render failed", e)
@@ -659,6 +691,7 @@ fun OverlayStudioScreen(
                             runCatching { stream.close() }
                         }
                         pending.finalize(imgOk)
+                        if (imgOk) resultUri = pending.uri
                         imgOk
                     }
                 }
@@ -670,13 +703,27 @@ fun OverlayStudioScreen(
         replayPosMs = savedPos
         rendering = false
         renderCancelRequested = false
-        snackbar.showSnackbar(
-            when {
+        renderForceOpaque = false
+        val savedUri = resultUri
+        val result = snackbar.showSnackbar(
+            message = when {
                 ok -> context.getString(R.string.studio_replay_clip_saved)
                 cancelled -> context.getString(R.string.studio_replay_render_cancelled)
                 else -> context.getString(R.string.studio_replay_export_failed)
-            }
+            },
+            actionLabel =
+                if (ok && savedUri != null) context.getString(R.string.action_view)
+                else null,
+            duration = SnackbarDuration.Long
         )
+        if (ok && savedUri != null && result == SnackbarResult.ActionPerformed) {
+            val mime = when (videoFormat) {
+                ReplayVideoFormat.GIF -> "image/gif"
+                ReplayVideoFormat.APNG -> "image/png"
+                ReplayVideoFormat.MP4 -> "video/mp4"
+            }
+            openInGallery(context, savedUri, mime)
+        }
     }
 
     // Keep the screen awake and run immersive while the studio is open.
@@ -775,7 +822,14 @@ fun OverlayStudioScreen(
                     }
                 )
                 StudioElementLayer(
-                    elements = preset.elements,
+                    // While an opaque export is in progress, force every element
+                    // to 100% opacity so half-transparent overlays don't blend
+                    // oddly with the chroma fill of an alpha-less format.
+                    elements = if (renderForceOpaque) {
+                        preset.elements.map { it.copy(opacity = 1f) }
+                    } else {
+                        preset.elements
+                    },
                     replayMode = replayMode,
                     data = StudioElementData(
                         wheelData = wheelData,
@@ -974,6 +1028,7 @@ fun OverlayStudioScreen(
                     onPhotoFormat = { viewModel.setReplayPhotoFormat(it) },
                     onVideoFormat = { viewModel.setReplayVideoFormat(it) },
                     onChromaColor = { viewModel.setReplayChromaColor(it) },
+                    onForceOpaque = { viewModel.setReplayForceOpaque(it) },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
@@ -1200,7 +1255,9 @@ fun OverlayStudioScreen(
                     cameras = hub.cameras,
                     inUseKeys = requestedCameras.toSet(),
                     dimmed = panelsDimmed,
+                    styleExpanded = styleSheetExpanded,
                     onToggleDim = { panelsDimmed = !panelsDimmed },
+                    onStyleExpandedChange = { styleSheetExpanded = it },
                     onChange = viewModel::updateElement,
                     onReplaceImage = {
                         imageTargetId = element.id

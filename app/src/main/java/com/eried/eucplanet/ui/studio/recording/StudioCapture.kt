@@ -41,6 +41,20 @@ object StudioCapture {
             Bitmap.CompressFormat.PNG, 100
         )
 
+    /** Save [bitmap] as a lossless WebP — keeps transparency, smaller than PNG. */
+    @Suppress("DEPRECATION")
+    suspend fun saveWebp(context: Context, bitmap: Bitmap): Uri? {
+        // WEBP_LOSSLESS is API 30+; on API 29 fall back to the deprecated WEBP.
+        val format = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            Bitmap.CompressFormat.WEBP_LOSSLESS
+        } else {
+            Bitmap.CompressFormat.WEBP
+        }
+        return saveBitmap(
+            context, bitmap, "EUC_${stamp()}.webp", "image/webp", format, 100
+        )
+    }
+
     /** A unique base file name (no extension) for an export, e.g. an APNG clip. */
     fun timestampedName(): String = "EUC_${stamp()}"
 

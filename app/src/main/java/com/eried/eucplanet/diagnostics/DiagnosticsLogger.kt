@@ -25,7 +25,7 @@ import java.util.Locale
  */
 object DiagnosticsLogger {
 
-    private const val MAX_ENTRIES = 5000
+    private const val MAX_ENTRIES = 9999
 
     enum class Kind { RX, TX, NOTE, CMD, COMMENT, INFO }
 

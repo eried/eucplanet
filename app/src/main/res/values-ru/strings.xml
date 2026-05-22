@@ -930,9 +930,8 @@
     <string name="studio_pane_camera_conflict">%1$s не может работать вместе с другой камерой на этом устройстве</string>
     <string name="studio_pane_camera_unavailable">Камера недоступна</string>
     <string name="studio_pane_choose_image">Коснитесь гаечного ключа, чтобы выбрать изображение</string>
-    <string name="studio_rendering">Рендеринг…</string>
+    <string name="studio_rendering">Рендеринг</string>
     <string name="studio_rendering_cancel">Отмена</string>
-    <string name="studio_rendering_keep_open">Не закрывайте этот экран.</string>
     <string name="studio_replay_cd_back">Назад</string>
     <string name="studio_replay_cd_close">Закрыть повтор</string>
     <string name="studio_replay_cd_fade">Скрыть панель</string>
@@ -1019,4 +1018,8 @@
     <string name="studio_cd_rotate">Повернути</string>
     <string name="studio_cfg_border_colour">Цвет рамки</string>
     <string name="studio_cfg_border_width">Толщина рамки</string>
+    <string name="studio_rendering_keep_open">Не закрывайте этот экран, пока клип не сохранится.</string>
+    <string name="studio_chroma_bright_green">Ярко-зелёный</string>
+    <string name="studio_chroma_cyan">Голубой</string>
+    <string name="studio_export_force_opaque">Принудительно без прозрачности</string>
 </resources>

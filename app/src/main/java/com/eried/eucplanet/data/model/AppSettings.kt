@@ -375,7 +375,13 @@ data class AppSettings(
      * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
      * MP4) is chosen. Default magenta (0xFFFF00FF).
      */
-    val studioReplayChromaColor: Long = 0xFFFF00FFL
+    val studioReplayChromaColor: Long = 0xFFFF00FFL,
+    /**
+     * When exporting an alpha-less format (JPG, MP4), force every overlay
+     * element to 100% opacity so half-transparent elements don't blend with
+     * the chroma fill and look wrong. Default on.
+     */
+    val studioReplayForceOpaque: Boolean = true
 )
 
 enum class FlicAction(val labelRes: Int) {

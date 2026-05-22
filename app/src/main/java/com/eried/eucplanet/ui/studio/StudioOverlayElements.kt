@@ -28,7 +28,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.filled.RotateRight
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -311,24 +311,58 @@ private fun StudioElementBox(
             // Rotate handle — a sibling of the rotated marquee, so it lives in
             // the un-rotated frame where the drag math has a stable coordinate
             // system. Measuring it INSIDE the rotated layer fed the rotation
-            // back into the angle it was computing and spun wildly. Bottom-left
-            // corner — opposite the top-right config buttons.
+            // back into the angle it was computing and spun wildly. It is still
+            // POSITIONED at the element's rotated bottom-left corner so it looks
+            // attached at any angle — the offset is frozen mid-drag (below) so
+            // the coordinate frame can't move while the gesture computes angles.
             if (selected) {
+                val density = LocalDensity.current
+                val handlePx = with(density) { 30.dp.toPx() }
+                // While dragging, the handle's screen offset is pinned to this
+                // frozen value; null means "follow the live rotated corner".
+                var frozenOffset by remember { mutableStateOf<IntOffset?>(null) }
+
+                // Element-content offset of the bottom-left corner rotated by
+                // [deg] about the content centre, minus half the handle so the
+                // handle's CENTRE lands on the corner. Pure layout maths — no
+                // graphicsLayer — so the drag's coordinate frame stays stable.
+                fun cornerOffset(deg: Float): IntOffset {
+                    val w = contentSize.width.toFloat()
+                    val h = contentSize.height.toFloat()
+                    val cx = w / 2f
+                    val cy = h / 2f
+                    val rad = Math.toRadians(deg.toDouble())
+                    val cos = kotlin.math.cos(rad).toFloat()
+                    val sin = kotlin.math.sin(rad).toFloat()
+                    // Bottom-left corner (0, h) relative to the centre.
+                    val dx = 0f - cx
+                    val dy = h - cy
+                    val rx = cx + dx * cos - dy * sin
+                    val ry = cy + dx * sin + dy * cos
+                    return IntOffset(
+                        (rx - handlePx / 2f).roundToInt(),
+                        (ry - handlePx / 2f).roundToInt()
+                    )
+                }
+
                 var startAngle = 0f
                 var startRotation = 0f
                 Box(
                     Modifier
-                        .align(Alignment.BottomStart)
-                        .offset(x = (-12).dp, y = 12.dp)
+                        // Frozen while dragging so the gesture frame is fixed;
+                        // springs back to the live rotated corner on release.
+                        .offset { frozenOffset ?: cornerOffset(live.rotationDeg) }
                         .size(30.dp)
                         .clip(CircleShape)
                         .background(rotateAccent)
                         .pointerInput(element.id) {
                             // Angle of a handle-local point about the element
-                            // centre, in the stable (un-rotated) frame.
-                            fun angleAt(local: Offset): Float {
-                                val px = (-12).dp.toPx() + local.x
-                                val py = contentSize.height - 18.dp.toPx() + local.y
+                            // centre, in the stable (un-rotated) frame. Uses the
+                            // FROZEN handle origin so the frame never moves
+                            // mid-drag (the offset is captured at onDragStart).
+                            fun angleAt(local: Offset, origin: IntOffset): Float {
+                                val px = origin.x + local.x
+                                val py = origin.y + local.y
                                 return Math.toDegrees(
                                     kotlin.math.atan2(
                                         (py - contentSize.height / 2f).toDouble(),
@@ -338,13 +372,20 @@ private fun StudioElementBox(
                             }
                             detectDragGestures(
                                 onDragStart = { pos ->
-                                    startAngle = angleAt(pos)
+                                    // Freeze the handle at its current rotated
+                                    // corner for the whole drag.
+                                    val origin = cornerOffset(live.rotationDeg)
+                                    frozenOffset = origin
+                                    startAngle = angleAt(pos, origin)
                                     startRotation = live.rotationDeg
-                                }
+                                },
+                                onDragEnd = { frozenOffset = null },
+                                onDragCancel = { frozenOffset = null }
                             ) { change, _ ->
                                 change.consume()
+                                val origin = frozenOffset ?: cornerOffset(live.rotationDeg)
                                 var next = startRotation +
-                                    (angleAt(change.position) - startAngle)
+                                    (angleAt(change.position, origin) - startAngle)
                                 // Snap to 15-degree increments.
                                 next = Math.round(next / 15f) * 15f
                                 next = ((next % 360f) + 360f) % 360f
@@ -354,7 +395,7 @@ private fun StudioElementBox(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.RotateRight,
+                        Icons.Default.Sync,
                         contentDescription = stringResource(R.string.studio_cd_rotate),
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)

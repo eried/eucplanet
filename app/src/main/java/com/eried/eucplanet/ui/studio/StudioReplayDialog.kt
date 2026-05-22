@@ -41,6 +41,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -149,6 +151,7 @@ fun StudioReplayDialog(
     onPhotoFormat: (ReplayPhotoFormat) -> Unit,
     onVideoFormat: (ReplayVideoFormat) -> Unit,
     onChromaColor: (Long) -> Unit,
+    onForceOpaque: (Boolean) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -234,7 +237,8 @@ fun StudioReplayDialog(
                 prefs = exportPrefs,
                 onPhotoFormat = onPhotoFormat,
                 onVideoFormat = onVideoFormat,
-                onChromaColor = onChromaColor
+                onChromaColor = onChromaColor,
+                onForceOpaque = onForceOpaque
             )
             else -> {
             // A trip is replayable once it parsed to a non-zero timeline.
@@ -356,6 +360,8 @@ fun StudioReplayDialog(
 private val chromaPresets: List<Pair<Int, Long>> = listOf(
     R.string.studio_chroma_magenta to 0xFFFF00FFL,
     R.string.studio_chroma_green to 0xFF00B140L,
+    R.string.studio_chroma_bright_green to 0xFF00FF00L,
+    R.string.studio_chroma_cyan to 0xFF00FFFFL,
     R.string.studio_chroma_blue to 0xFF0047BBL,
     R.string.studio_chroma_black to 0xFF000000L,
     R.string.studio_chroma_white to 0xFFFFFFFFL
@@ -363,15 +369,17 @@ private val chromaPresets: List<Pair<Int, Long>> = listOf(
 
 /**
  * The expandable output-format chooser shown as a Replay sub-picker. Photo and
- * video format are segmented rows; the chroma swatches appear only when the
- * chosen photo or video format has no alpha channel (JPG / MP4).
+ * video format are segmented rows; the chroma-key swatches are always shown so
+ * the rider can pick the fill before choosing an alpha-less format. Chips for
+ * formats that have no alpha (JPG / MP4) carry a dot in the chosen chroma colour.
  */
 @Composable
 private fun ExportFormatChooser(
     prefs: ReplayExportPrefs,
     onPhotoFormat: (ReplayPhotoFormat) -> Unit,
     onVideoFormat: (ReplayVideoFormat) -> Unit,
-    onChromaColor: (Long) -> Unit
+    onChromaColor: (Long) -> Unit,
+    onForceOpaque: (Boolean) -> Unit
 ) {
     Column(
         Modifier
@@ -390,6 +398,8 @@ private fun ExportFormatChooser(
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.photoFormat,
+                    // Alpha-less formats are flattened onto the chroma fill.
+                    chromaDot = if (fmt.hasAlpha) null else prefs.chromaColor,
                     modifier = Modifier.weight(1f),
                     onClick = { onPhotoFormat(fmt) }
                 )
@@ -409,64 +419,97 @@ private fun ExportFormatChooser(
                 FormatChip(
                     label = fmt.name,
                     selected = fmt == prefs.videoFormat,
+                    chromaDot = if (fmt.hasAlpha) null else prefs.chromaColor,
                     modifier = Modifier.weight(1f),
                     onClick = { onVideoFormat(fmt) }
                 )
             }
         }
 
-        // Chroma key — only relevant when a chosen format has no alpha.
-        val needsChroma = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
-        if (needsChroma) {
-            Spacer(Modifier.height(12.dp))
-            Text(
-                stringResource(R.string.studio_export_chroma),
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f),
-                modifier = Modifier.padding(bottom = 6.dp)
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                chromaPresets.forEach { (labelRes, argb) ->
-                    val selected = argb == prefs.chromaColor
-                    Box(
-                        Modifier
-                            .size(34.dp)
-                            .clip(CircleShape)
-                            .background(Color(argb))
-                            .border(
-                                width = if (selected) 3.dp else 1.dp,
-                                color = if (selected) StudioControlAccent
-                                else Color.White.copy(alpha = 0.4f),
-                                shape = CircleShape
-                            )
-                            .clickable { onChromaColor(argb) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (selected) {
-                            // Check contrasts against light or dark swatches.
-                            val light = ((argb ushr 16) and 0xFF) +
-                                ((argb ushr 8) and 0xFF) + (argb and 0xFF) > 0x180
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = stringResource(labelRes),
-                                tint = if (light) Color.Black else Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+        // Chroma key — always shown, so the fill colour for JPG / MP4 is ready
+        // before the rider switches to one of those alpha-less formats.
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(R.string.studio_export_chroma),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            chromaPresets.forEach { (labelRes, argb) ->
+                val selected = argb == prefs.chromaColor
+                Box(
+                    Modifier
+                        .size(34.dp)
+                        .clip(CircleShape)
+                        .background(Color(argb))
+                        .border(
+                            width = if (selected) 3.dp else 1.dp,
+                            color = if (selected) StudioControlAccent
+                            else Color.White.copy(alpha = 0.4f),
+                            shape = CircleShape
+                        )
+                        .clickable { onChromaColor(argb) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (selected) {
+                        // Check contrasts against light or dark swatches.
+                        val light = ((argb ushr 16) and 0xFF) +
+                            ((argb ushr 8) and 0xFF) + (argb and 0xFF) > 0x180
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = stringResource(labelRes),
+                            tint = if (light) Color.Black else Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
+            }
+        }
+
+        // Force-opaque toggle — only relevant for alpha-less formats (JPG, MP4)
+        // where a half-transparent element would blend with the chroma fill.
+        val alphaLessChosen = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
+        if (alphaLessChosen) {
+            Spacer(Modifier.height(12.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { onForceOpaque(!prefs.forceOpaque) }
+                    .padding(vertical = 4.dp, horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.studio_export_force_opaque),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Switch(
+                    checked = prefs.forceOpaque,
+                    onCheckedChange = { onForceOpaque(it) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = StudioControlAccent,
+                        checkedTrackColor = StudioControlAccent.copy(alpha = 0.45f)
+                    )
+                )
             }
         }
         Spacer(Modifier.height(4.dp))
     }
 }
 
-/** A single segmented-button-style format chip. */
+/**
+ * A single segmented-button-style format chip. When [chromaDot] is non-null the
+ * format has no alpha channel, so a small dot in that chroma colour is drawn
+ * beside the label as a reminder the output will be flattened onto it.
+ */
 @Composable
 private fun FormatChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
+    chromaDot: Long? = null,
     onClick: () -> Unit
 ) {
     Box(
@@ -486,12 +529,26 @@ private fun FormatChip(
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            label,
-            color = if (selected) StudioControlAccent else Color.White,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            style = MaterialTheme.typography.bodyMedium
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text(
+                label,
+                color = if (selected) StudioControlAccent else Color.White,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            if (chromaDot != null) {
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(Color(chromaDot))
+                        .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+                )
+            }
+        }
     }
 }
 

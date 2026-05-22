@@ -188,6 +188,7 @@ object SettingsJson {
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
+        put("studioReplayForceOpaque", s.studioReplayForceOpaque)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -347,7 +348,8 @@ object SettingsJson {
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
-        studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor)
+        studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),
+        studioReplayForceOpaque = j.optBoolean("studioReplayForceOpaque", base.studioReplayForceOpaque)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

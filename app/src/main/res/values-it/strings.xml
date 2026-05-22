@@ -914,9 +914,8 @@
     <string name="studio_pane_camera_conflict">%1$s non può funzionare insieme a un\'altra fotocamera su questo dispositivo</string>
     <string name="studio_pane_camera_unavailable">Fotocamera non disponibile</string>
     <string name="studio_pane_choose_image">Tocca la chiave inglese per scegliere un\'immagine</string>
-    <string name="studio_rendering">Rendering…</string>
+    <string name="studio_rendering">Rendering</string>
     <string name="studio_rendering_cancel">Annulla</string>
-    <string name="studio_rendering_keep_open">Tieni questa schermata aperta.</string>
     <string name="studio_replay_cd_back">Indietro</string>
     <string name="studio_replay_cd_close">Chiudi replay</string>
     <string name="studio_replay_cd_fade">Dissolvi il pannello</string>
@@ -1003,4 +1002,8 @@
     <string name="studio_cd_rotate">Ruota</string>
     <string name="studio_cfg_border_colour">Colore del bordo</string>
     <string name="studio_cfg_border_width">Spessore del bordo</string>
+    <string name="studio_rendering_keep_open">Tieni questa schermata aperta finché il clip non è salvato.</string>
+    <string name="studio_chroma_bright_green">Verde brillante</string>
+    <string name="studio_chroma_cyan">Ciano</string>
+    <string name="studio_export_force_opaque">Forza opacità totale</string>
 </resources>

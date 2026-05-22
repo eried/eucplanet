@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Widgets
@@ -1317,7 +1318,9 @@ fun ElementConfigSheet(
     cameras: List<StudioCameraInfo>,
     inUseKeys: Set<String>,
     dimmed: Boolean,
+    styleExpanded: Boolean,
     onToggleDim: () -> Unit,
+    onStyleExpandedChange: (Boolean) -> Unit,
     onChange: (OverlayElement) -> Unit,
     onReplaceImage: () -> Unit,
     onDismiss: () -> Unit
@@ -1565,13 +1568,13 @@ fun ElementConfigSheet(
 
             // The generic styling controls (colours, opacity, rotation, drop
             // shadow) live in a collapsible "Style" section so the sheet stays
-            // short — collapsed by default.
-            var styleExpanded by remember { mutableStateOf(false) }
+            // short. Its open / closed state is hoisted to the studio screen so
+            // it sticks for the session as the rider hops between elements.
             Spacer(Modifier.height(8.dp))
             CollapsibleSectionHeader(
                 title = stringResource(R.string.studio_cfg_style),
                 expanded = styleExpanded,
-                onToggle = { styleExpanded = !styleExpanded }
+                onToggle = { onStyleExpandedChange(!styleExpanded) }
             )
             if (styleExpanded) {
                 // Colours. A transparent "Background" swatch makes the element's
@@ -1596,11 +1599,39 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
                     element.opacity, 0.1f, 1f, steps = 17
                 ) { onChange(element.copy(opacity = it)) }
-                LabeledSlider(
-                    stringResource(R.string.studio_cfg_rotation_label),
-                    stringResource(R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()),
-                    element.rotationDeg, -180f, 180f, steps = 71
-                ) { onChange(element.copy(rotationDeg = it)) }
+                // The rotate handle's accent — ties this slider visually to the
+                // orange rotate grip on the element itself.
+                Row(
+                    Modifier.fillMaxWidth().padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Sync,
+                        contentDescription = null,
+                        tint = Color(0xFFFFB74D),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        stringResource(R.string.studio_cfg_rotation_label),
+                        Modifier.weight(1f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        stringResource(
+                            R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Slider(
+                    value = element.rotationDeg.coerceIn(-180f, 180f),
+                    onValueChange = {
+                        onChange(element.copy(rotationDeg = it.coerceIn(-180f, 180f)))
+                    },
+                    valueRange = -180f..180f,
+                    steps = 71
+                )
                 // Drop shadow applies to every element type.
                 ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
                     onChange(element.copy(shadow = it))

@@ -39,7 +39,8 @@ enum class ReplayPhotoFormat(
     val hasAlpha: Boolean
 ) {
     PNG(true),
-    JPG(false);
+    JPG(false),
+    WEBP(true);
 
     companion object {
         fun fromKey(key: String): ReplayPhotoFormat =
@@ -67,7 +68,13 @@ data class ReplayExportPrefs(
     val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
     val videoFormat: ReplayVideoFormat = ReplayVideoFormat.GIF,
     /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
-    val chromaColor: Long = 0xFFFF00FFL
+    val chromaColor: Long = 0xFFFF00FFL,
+    /**
+     * When exporting an alpha-less format (JPG, MP4), override every overlay
+     * element to 100% opacity so half-transparent elements don't blend oddly
+     * with the chroma fill.
+     */
+    val forceOpaque: Boolean = true
 )
 
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
@@ -145,7 +152,8 @@ class OverlayStudioViewModel @Inject constructor(
         ReplayExportPrefs(
             photoFormat = ReplayPhotoFormat.fromKey(initialSettings.studioReplayPhotoFormat),
             videoFormat = ReplayVideoFormat.fromKey(initialSettings.studioReplayVideoFormat),
-            chromaColor = initialSettings.studioReplayChromaColor
+            chromaColor = initialSettings.studioReplayChromaColor,
+            forceOpaque = initialSettings.studioReplayForceOpaque
         )
     )
     val replayExportPrefs: StateFlow<ReplayExportPrefs> = _replayExportPrefs.asStateFlow()
@@ -165,6 +173,11 @@ class OverlayStudioViewModel @Inject constructor(
         persistReplayExportPrefs()
     }
 
+    fun setReplayForceOpaque(force: Boolean) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(forceOpaque = force)
+        persistReplayExportPrefs()
+    }
+
     private fun persistReplayExportPrefs() {
         val prefs = _replayExportPrefs.value
         viewModelScope.launch {
@@ -173,7 +186,8 @@ class OverlayStudioViewModel @Inject constructor(
                 current.copy(
                     studioReplayPhotoFormat = prefs.photoFormat.name,
                     studioReplayVideoFormat = prefs.videoFormat.name,
-                    studioReplayChromaColor = prefs.chromaColor
+                    studioReplayChromaColor = prefs.chromaColor,
+                    studioReplayForceOpaque = prefs.forceOpaque
                 )
             )
         }

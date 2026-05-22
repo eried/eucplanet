@@ -880,9 +880,8 @@
     <string name="studio_pane_camera_conflict">%1$s kan ikke køre sammen med et andet kamera på denne enhed</string>
     <string name="studio_pane_camera_unavailable">Kamera ikke tilgængeligt</string>
     <string name="studio_pane_choose_image">Tryk på skruenøglen for at vælge et billede</string>
-    <string name="studio_rendering">Renderer…</string>
+    <string name="studio_rendering">Renderer</string>
     <string name="studio_rendering_cancel">Annuller</string>
-    <string name="studio_rendering_keep_open">Lad denne skærm være åben.</string>
     <string name="studio_replay_cd_back">Tilbage</string>
     <string name="studio_replay_cd_close">Luk replay</string>
     <string name="studio_replay_cd_fade">Ton panelet ud</string>
@@ -969,4 +968,8 @@
     <string name="studio_cd_rotate">Roter</string>
     <string name="studio_cfg_border_colour">Kantfarve</string>
     <string name="studio_cfg_border_width">Kanttykkelse</string>
+    <string name="studio_rendering_keep_open">Hold denne skærm åben, indtil klippet er færdiggemt.</string>
+    <string name="studio_chroma_bright_green">Knaldgrøn</string>
+    <string name="studio_chroma_cyan">Cyan</string>
+    <string name="studio_export_force_opaque">Tving helt uigennemsigtig</string>
 </resources>
