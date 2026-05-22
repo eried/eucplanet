@@ -191,7 +191,9 @@ data class OverlayElement(
     /** Draw the GPS trace polyline over the map. */
     val mapTrace: Boolean = true,
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
-    val mapBorderWidth: Float = 2f
+    val mapBorderWidth: Float = 2f,
+    /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
+    val gForceScale: Float = 1.5f
 )
 
 /**

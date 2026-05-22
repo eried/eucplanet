@@ -1090,4 +1090,5 @@
     <string name="studio_cfg_border_colour">Border colour</string>
     <string name="studio_cfg_border_width">Border thickness</string>
     <string name="studio_rendering_keep_open">Keep this screen open until the clip finishes saving.</string>
+    <string name="studio_cfg_g_scale">Scale</string>
 </resources>

@@ -987,4 +987,5 @@
     <string name="studio_chroma_bright_green">Knallgrønn</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Tving helt ugjennomsiktig</string>
+    <string name="studio_cfg_g_scale">Skala</string>
 </resources>

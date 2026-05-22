@@ -987,4 +987,5 @@
     <string name="studio_chroma_bright_green">Hellgrün</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Voll deckend erzwingen</string>
+    <string name="studio_cfg_g_scale">Skala</string>
 </resources>

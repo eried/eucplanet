@@ -477,13 +477,13 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             val h = size.height
             val cx = w / 2f
             val cy = h / 2f
-            val maxG = 1.5f
+            val maxG = element.gForceScale.coerceIn(0.3f, 6f)
             val unit = (w.coerceAtMost(h) / 2f) / maxG
 
-            // Concentric dashed rings at 0.5 / 1.0 / 1.5 g + a crosshair.
+            // Three concentric dashed rings at 1/3, 2/3 and the full scale.
             val grid = trailColor.copy(alpha = 0.4f)
             val dash = PathEffect.dashPathEffect(floatArrayOf(4f, 4f))
-            listOf(0.5f, 1.0f, 1.5f).forEach { r ->
+            listOf(maxG / 3f, maxG * 2f / 3f, maxG).forEach { r ->
                 drawCircle(
                     color = grid,
                     radius = r * unit,

@@ -1007,4 +1007,5 @@
     <string name="studio_chroma_bright_green">Яскраво-зелений</string>
     <string name="studio_chroma_cyan">Блакитний</string>
     <string name="studio_export_force_opaque">Примусово без прозорості</string>
+    <string name="studio_cfg_g_scale">Масштаб</string>
 </resources>

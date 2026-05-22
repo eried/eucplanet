@@ -1477,6 +1477,13 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.toFloat(), 2f, 30f
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
+                // Outer-ring g value. A smaller scale magnifies small
+                // movements, making them more evident on the recording.
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_g_scale),
+                    "%.1f g".format(element.gForceScale),
+                    element.gForceScale, 0.5f, 4f
+                ) { onChange(element.copy(gForceScale = it)) }
             }
 
             if (element.type == OverlayElementType.MAP) {
