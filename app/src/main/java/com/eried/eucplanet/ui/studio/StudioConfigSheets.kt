@@ -1366,12 +1366,13 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
     }
     OutlinedButton(
         onClick = {
-            onChange(
-                config.copy(
-                    gradientColors = config.gradientColors + 0xFFFFFFFFL,
-                    gradientStops = config.gradientStops + 1f
-                )
-            )
+            // Add a stop at 100% and re-space every stop evenly, so the
+            // existing ones compress to make room (0/100 -> 0/50/100 ->
+            // 0/33/66/100) instead of piling up on the last position.
+            val newColors = config.gradientColors + 0xFFFFFFFFL
+            val n = newColors.size
+            val newStops = List(n) { i -> i.toFloat() / (n - 1).coerceAtLeast(1) }
+            onChange(config.copy(gradientColors = newColors, gradientStops = newStops))
         },
         modifier = Modifier.padding(top = 4.dp)
     ) {
