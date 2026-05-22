@@ -171,7 +171,7 @@
 
     <string name="section_speed_limits">Fartsgrenser</string>
     <string name="section_legal_mode_speed">Lovlig modus, fart</string>
-    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback.</string>
+    <string name="legal_mode_caption">Brukes når Lovlig modus er PÅ. Må være lavere enn normal tiltback</string>
     <string name="speed_limits_disconnected">Koble til hjulet for å endre fartsgrenser</string>
     <string name="speed_tiltback">Tiltback-fart</string>
     <string name="speed_alarm">Alarmfart</string>
@@ -580,7 +580,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Miks</string>
     <string name="engine_headphones_only">Kun med hodetelefoner</string>
-    <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd.</string>
+    <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Totakt</string>
@@ -621,7 +621,7 @@
     <string name="section_external_gps">GPS og sensorer</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
-    <string name="speed_calibration_caption">Bruker en prosentandel på farten som kommer fra hjulet. Alarmer, stemme og turloggen bruker alle den kalibrerte verdien.</string>
+    <string name="speed_calibration_caption">Bruker en prosentandel på farten som kommer fra hjulet. Alarmer, stemme og turloggen bruker alle den kalibrerte verdien</string>
     <string name="speed_calibration_label">Fartsjustering</string>
     <string name="sources_other_metrics">Andre målinger</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -645,7 +645,7 @@
     <string name="nav_dist_m">%1$d m</string>
     <string name="nav_dist_mi">%1$s mi</string>
     <string name="nav_drag_stop">Endre rekkefølge</string>
-    <string name="nav_empty_hint">Trykk på kartet, søk, eller last inn en GPX-fil.</string>
+    <string name="nav_empty_hint">Trykk på kartet, søk, eller last inn en GPX-fil</string>
     <string name="nav_end_body">Stoppe veiledningen for den aktive ruten?</string>
     <string name="nav_end_confirm">Avslutt</string>
     <string name="nav_end_title">Avslutte navigasjon?</string>
@@ -704,7 +704,7 @@
     <string name="nav_setting_arrival_radius_desc">Hvor nært som teller som å ha nådd et stopp</string>
     <string name="nav_setting_default_mode">Standard reisemåte</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>
-    <string name="nav_setting_endpoints_hint">Gratis offentlige OpenStreetMap-tjenester, ingen konto nødvendig. Endre bare for å peke mot din egen server.</string>
+    <string name="nav_setting_endpoints_hint">Gratis offentlige OpenStreetMap-tjenester, ingen konto nødvendig. Endre bare for å peke mot din egen server</string>
     <string name="nav_setting_geocoder_url">URL for adressesøk</string>
     <string name="nav_setting_offroute">Toleranse for avvik fra ruten</string>
     <string name="nav_setting_offroute_desc">Hvor langt utenfor ruten før \"feil vei\" utløses</string>
@@ -873,7 +873,7 @@
     <string name="studio_layout_title">Kameravinduer</string>
     <string name="studio_load_preset_title">Last inn forhåndsinnstilling</string>
     <string name="studio_manage_empty">Ingen elementer ennå – bruk Legg til element for å plassere ett.</string>
-    <string name="studio_manage_hint">Dra for å endre rekkefølge, trykk på en rad for å velge den.</string>
+    <string name="studio_manage_hint">Dra for å endre rekkefølge, trykk på en rad for å velge den</string>
     <string name="studio_manage_title">Administrer elementer</string>
     <string name="studio_metric_battery">Batteri</string>
     <string name="studio_metric_current">Strøm</string>
@@ -990,13 +990,13 @@
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_g_smoothing">Utjevning</string>
     <string name="studio_cfg_geometry">Geometri</string>
-    <string name="studio_export_force_opaque_hint">Formater uten gjennomsiktighet bruker chroma key-fargen, som kan se rart ut på delvis gjennomsiktige elementer.</string>
+    <string name="studio_export_force_opaque_hint">Formater uten gjennomsiktighet bruker chroma key-fargen, som kan se rart ut på delvis gjennomsiktige elementer</string>
     <string name="studio_cfg_filter_vivid">Livlig</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Innstillinger for ekstern GPS</string>
-    <string name="external_gps_caption">Slå på RaceBox-en og trykk Koble til for å søke. Når den er tilkoblet, mater fart og G-kraft appen live og lagres i CSV-en for hver tur.</string>
-    <string name="gps_prioritize_external_desc">Når en enhet er tilkoblet, bruk den til fart, posisjon og G-kraft i stedet for telefonen.</string>
+    <string name="external_gps_caption">Slå på RaceBox-en og trykk Koble til for å søke. Når den er tilkoblet, mater fart og G-kraft appen live og lagres i CSV-en for hver tur</string>
+    <string name="gps_prioritize_external_desc">Når en enhet er tilkoblet, bruk den til fart, posisjon og G-kraft i stedet for telefonen</string>
     <string name="studio_cfg_show_value">Vis verdi</string>
 </resources>

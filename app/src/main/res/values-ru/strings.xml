@@ -171,7 +171,7 @@
 
     <string name="section_speed_limits">Ограничения скорости</string>
     <string name="section_legal_mode_speed">Скорости в лег. режиме</string>
-    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback.</string>
+    <string name="legal_mode_caption">Эти значения применяются, когда включён лег. режим. Должны быть ниже обычного tiltback</string>
     <string name="speed_limits_disconnected">Подключите колесо, чтобы изменить ограничения скорости</string>
     <string name="speed_tiltback">Tiltback</string>
     <string name="speed_alarm">Предупреждение</string>
@@ -615,7 +615,7 @@
     <string name="engine_duck_pause">Пауза</string>
     <string name="engine_duck_mix">Смешать</string>
     <string name="engine_headphones_only">Только с наушниками</string>
-    <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио.</string>
+    <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-тактный</string>
@@ -656,7 +656,7 @@
     <string name="section_external_gps">GPS и датчики</string>
     <string name="external_gps_device_title">Внешний GPS</string>
     <string name="section_speed_calibration">Калибровка скорости</string>
-    <string name="speed_calibration_caption">Применяет процент к скорости, поступающей с колеса. Сигналы, озвучка и журнал поездок используют откалиброванное значение.</string>
+    <string name="speed_calibration_caption">Применяет процент к скорости, поступающей с колеса. Сигналы, озвучка и журнал поездок используют откалиброванное значение</string>
     <string name="speed_calibration_label">Поправка скорости</string>
     <string name="sources_other_metrics">Другие показатели</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -680,7 +680,7 @@
     <string name="nav_dist_m">%1$d m</string>
     <string name="nav_dist_mi">%1$s mi</string>
     <string name="nav_drag_stop">Изменить порядок</string>
-    <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX.</string>
+    <string name="nav_empty_hint">Коснитесь карты, выполните поиск или загрузите файл GPX</string>
     <string name="nav_end_body">Прекратить ведение по активному маршруту?</string>
     <string name="nav_end_confirm">Завершить</string>
     <string name="nav_end_title">Завершить навигацию?</string>
@@ -739,7 +739,7 @@
     <string name="nav_setting_arrival_radius_desc">Насколько близко считается достижением остановки</string>
     <string name="nav_setting_default_mode">Способ передвижения по умолчанию</string>
     <string name="nav_setting_endpoints">Сервисы маршрутизации</string>
-    <string name="nav_setting_endpoints_hint">Бесплатные публичные сервисы OpenStreetMap, аккаунт не нужен. Меняйте только чтобы указать на собственный сервер.</string>
+    <string name="nav_setting_endpoints_hint">Бесплатные публичные сервисы OpenStreetMap, аккаунт не нужен. Меняйте только чтобы указать на собственный сервер</string>
     <string name="nav_setting_geocoder_url">URL поиска адресов</string>
     <string name="nav_setting_offroute">Допуск отклонения от маршрута</string>
     <string name="nav_setting_offroute_desc">Насколько можно отклониться от маршрута до срабатывания «не туда»</string>
@@ -908,7 +908,7 @@
     <string name="studio_layout_title">Окна камеры</string>
     <string name="studio_load_preset_title">Загрузить пресет</string>
     <string name="studio_manage_empty">Элементов пока нет — используйте «Добавить элемент», чтобы разместить.</string>
-    <string name="studio_manage_hint">Перетащите для изменения порядка, коснитесь строки, чтобы выбрать её.</string>
+    <string name="studio_manage_hint">Перетащите для изменения порядка, коснитесь строки, чтобы выбрать её</string>
     <string name="studio_manage_title">Управление элементами</string>
     <string name="studio_metric_battery">Заряд</string>
     <string name="studio_metric_current">Ток</string>
@@ -1025,13 +1025,13 @@
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_cfg_g_smoothing">Сглаживание</string>
     <string name="studio_cfg_geometry">Геометрия</string>
-    <string name="studio_export_force_opaque_hint">Форматы без прозрачности используют цвет хромакея, что может плохо выглядеть на частично прозрачных элементах.</string>
+    <string name="studio_export_force_opaque_hint">Форматы без прозрачности используют цвет хромакея, что может плохо выглядеть на частично прозрачных элементах</string>
     <string name="studio_cfg_filter_vivid">Яркий</string>
     <string name="studio_cfg_filter_noir">Нуар</string>
     <string name="studio_cfg_filter_vintage">Винтаж</string>
     <string name="studio_cfg_filter_matte">Матовый</string>
     <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
-    <string name="external_gps_caption">Включите RaceBox и нажмите «Сопряжение» для поиска. После сопряжения скорость и перегрузка передаются в приложение в реальном времени и сохраняются в CSV каждой поездки.</string>
-    <string name="gps_prioritize_external_desc">Когда устройство подключено, использовать его для скорости, позиции и перегрузки вместо телефона.</string>
+    <string name="external_gps_caption">Включите RaceBox и нажмите «Сопряжение» для поиска. После сопряжения скорость и перегрузка передаются в приложение в реальном времени и сохраняются в CSV каждой поездки</string>
+    <string name="gps_prioritize_external_desc">Когда устройство подключено, использовать его для скорости, позиции и перегрузки вместо телефона</string>
     <string name="studio_cfg_show_value">Показывать значение</string>
 </resources>

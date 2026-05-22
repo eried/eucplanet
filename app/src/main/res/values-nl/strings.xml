@@ -237,7 +237,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Snelheidslimieten</string>
     <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>
-    <string name="legal_mode_caption">Wordt toegepast als Legal Mode AAN staat. Moet lager zijn dan de normale tiltback.</string>
+    <string name="legal_mode_caption">Wordt toegepast als Legal Mode AAN staat. Moet lager zijn dan de normale tiltback</string>
     <string name="speed_limits_disconnected">Verbind je wiel om snelheidslimieten te bewerken</string>
     <string name="speed_tiltback">Tiltback-snelheid</string>
     <string name="speed_alarm">Alarmsnelheid</string>
@@ -599,7 +599,7 @@
     <string name="engine_duck_pause">Pauzeren</string>
     <string name="engine_duck_mix">Mengen</string>
     <string name="engine_headphones_only">Alleen met koptelefoon</string>
-    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio.</string>
+    <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Tweetakt</string>
@@ -640,7 +640,7 @@
     <string name="section_external_gps">GPS en sensoren</string>
     <string name="external_gps_device_title">Externe gps</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
-    <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde.</string>
+    <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
     <string name="sources_other_metrics">Andere gegevens</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -664,7 +664,7 @@
     <string name="nav_dist_m">%1$d m</string>
     <string name="nav_dist_mi">%1$s mi</string>
     <string name="nav_drag_stop">Sleep om te ordenen</string>
-    <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand.</string>
+    <string name="nav_empty_hint">Tik op de kaart, zoek, of laad een GPX-bestand</string>
     <string name="nav_end_body">De begeleiding voor de actieve route stoppen?</string>
     <string name="nav_end_confirm">Beëindigen</string>
     <string name="nav_end_title">Navigatie beëindigen?</string>
@@ -723,7 +723,7 @@
     <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop</string>
     <string name="nav_setting_default_mode">Standaard reismodus</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>
-    <string name="nav_setting_endpoints_hint">Gratis publieke OpenStreetMap-services, geen account nodig. Wijzig alleen om naar je eigen server te verwijzen.</string>
+    <string name="nav_setting_endpoints_hint">Gratis publieke OpenStreetMap-services, geen account nodig. Wijzig alleen om naar je eigen server te verwijzen</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
     <string name="nav_setting_offroute_desc">Hoe ver van de route voordat \"verkeerde kant\" wordt geactiveerd</string>
@@ -892,7 +892,7 @@
     <string name="studio_layout_title">Camerapanelen</string>
     <string name="studio_load_preset_title">Preset laden</string>
     <string name="studio_manage_empty">Nog geen elementen — gebruik Element toevoegen om er een te plaatsen.</string>
-    <string name="studio_manage_hint">Sleep om te ordenen, tik op een rij om die te selecteren.</string>
+    <string name="studio_manage_hint">Sleep om te ordenen, tik op een rij om die te selecteren</string>
     <string name="studio_manage_title">Elementen beheren</string>
     <string name="studio_metric_battery">Accu</string>
     <string name="studio_metric_current">Stroom</string>
@@ -1009,13 +1009,13 @@
     <string name="studio_cfg_g_scale">Schaal</string>
     <string name="studio_cfg_g_smoothing">Demping</string>
     <string name="studio_cfg_geometry">Geometrie</string>
-    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakleur, wat er bij deels transparante elementen onverzorgd uit kan zien.</string>
+    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakleur, wat er bij deels transparante elementen onverzorgd uit kan zien</string>
     <string name="studio_cfg_filter_vivid">Levendig</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Instellingen externe gps</string>
-    <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit.</string>
-    <string name="gps_prioritize_external_desc">Als een apparaat verbonden is, gebruik het voor snelheid, positie en G-kracht in plaats van de telefoon.</string>
+    <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit</string>
+    <string name="gps_prioritize_external_desc">Als een apparaat verbonden is, gebruik het voor snelheid, positie en G-kracht in plaats van de telefoon</string>
     <string name="studio_cfg_show_value">Waarde tonen</string>
 </resources>

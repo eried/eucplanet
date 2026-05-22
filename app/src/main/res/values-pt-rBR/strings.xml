@@ -237,7 +237,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limites de velocidade</string>
     <string name="section_legal_mode_speed">Velocidade do Modo Legal</string>
-    <string name="legal_mode_caption">Aplicado quando o Modo Legal está ATIVO. Deve ser menor que o tiltback normal.</string>
+    <string name="legal_mode_caption">Aplicado quando o Modo Legal está ATIVO. Deve ser menor que o tiltback normal</string>
     <string name="speed_limits_disconnected">Conecte sua roda para editar os limites de velocidade</string>
     <string name="speed_tiltback">Velocidade de tiltback</string>
     <string name="speed_alarm">Velocidade de alarme</string>
@@ -599,7 +599,7 @@
     <string name="engine_duck_pause">Pausar</string>
     <string name="engine_duck_mix">Mixar</string>
     <string name="engine_headphones_only">Só com fones</string>
-    <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca com áudio com fio ou Bluetooth.</string>
+    <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca com áudio com fio ou Bluetooth</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2 tempos</string>
@@ -640,7 +640,7 @@
     <string name="section_external_gps">GPS e sensores</string>
     <string name="external_gps_device_title">GPS externo</string>
     <string name="section_speed_calibration">Calibração de velocidade</string>
-    <string name="speed_calibration_caption">Aplica uma porcentagem à velocidade vinda da roda. Alarmes, voz e o registro de viagens usam o valor calibrado.</string>
+    <string name="speed_calibration_caption">Aplica uma porcentagem à velocidade vinda da roda. Alarmes, voz e o registro de viagens usam o valor calibrado</string>
     <string name="speed_calibration_label">Desvio de velocidade</string>
     <string name="sources_other_metrics">Outras métricas</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -664,7 +664,7 @@
     <string name="nav_dist_m">%1$d m</string>
     <string name="nav_dist_mi">%1$s mi</string>
     <string name="nav_drag_stop">Reordenar</string>
-    <string name="nav_empty_hint">Toque no mapa, pesquise ou carregue um arquivo GPX.</string>
+    <string name="nav_empty_hint">Toque no mapa, pesquise ou carregue um arquivo GPX</string>
     <string name="nav_end_body">Parar a orientação da rota ativa?</string>
     <string name="nav_end_confirm">Encerrar</string>
     <string name="nav_end_title">Encerrar navegação?</string>
@@ -723,7 +723,7 @@
     <string name="nav_setting_arrival_radius_desc">A que distância já conta como ter alcançado uma parada</string>
     <string name="nav_setting_default_mode">Modo de viagem padrão</string>
     <string name="nav_setting_endpoints">Serviços de rotas</string>
-    <string name="nav_setting_endpoints_hint">Serviços públicos e gratuitos do OpenStreetMap, sem necessidade de conta. Altere apenas para apontar para o seu próprio servidor.</string>
+    <string name="nav_setting_endpoints_hint">Serviços públicos e gratuitos do OpenStreetMap, sem necessidade de conta. Altere apenas para apontar para o seu próprio servidor</string>
     <string name="nav_setting_geocoder_url">URL de busca de endereços</string>
     <string name="nav_setting_offroute">Tolerância de desvio de rota</string>
     <string name="nav_setting_offroute_desc">A que distância da rota o aviso de \"caminho errado\" é disparado</string>
@@ -892,7 +892,7 @@
     <string name="studio_layout_title">Visores de câmera</string>
     <string name="studio_load_preset_title">Carregar predefinição</string>
     <string name="studio_manage_empty">Nenhum elemento ainda — use Adicionar elemento para colocar um.</string>
-    <string name="studio_manage_hint">Arraste para reordenar, toque em uma linha para selecioná-la.</string>
+    <string name="studio_manage_hint">Arraste para reordenar, toque em uma linha para selecioná-la</string>
     <string name="studio_manage_title">Gerenciar elementos</string>
     <string name="studio_metric_battery">Bateria</string>
     <string name="studio_metric_current">Corrente</string>
@@ -1009,13 +1009,13 @@
     <string name="studio_cfg_g_scale">Escala</string>
     <string name="studio_cfg_g_smoothing">Suavização</string>
     <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">Formatos sem transparência usam a cor do chroma key, o que pode ficar estranho em elementos parcialmente transparentes.</string>
+    <string name="studio_export_force_opaque_hint">Formatos sem transparência usam a cor do chroma key, o que pode ficar estranho em elementos parcialmente transparentes</string>
     <string name="studio_cfg_filter_vivid">Vívido</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Fosco</string>
     <string name="dash_external_gps_settings">Configurações do GPS externo</string>
-    <string name="external_gps_caption">Ligue seu RaceBox e toque em Parear para buscar. Depois de pareado, sua velocidade e força G alimentam o app ao vivo e são salvas no CSV de cada viagem.</string>
-    <string name="gps_prioritize_external_desc">Quando um dispositivo está conectado, use-o para velocidade, posição e força G em vez do telefone.</string>
+    <string name="external_gps_caption">Ligue seu RaceBox e toque em Parear para buscar. Depois de pareado, sua velocidade e força G alimentam o app ao vivo e são salvas no CSV de cada viagem</string>
+    <string name="gps_prioritize_external_desc">Quando um dispositivo está conectado, use-o para velocidade, posição e força G em vez do telefone</string>
     <string name="studio_cfg_show_value">Mostrar valor</string>
 </resources>

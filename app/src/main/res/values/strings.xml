@@ -247,9 +247,9 @@
     <string name="section_speed_limits">Speed limits</string>
     <string name="section_speed_calibration">Speed calibration</string>
     <string name="speed_calibration_label">Speed offset</string>
-    <string name="speed_calibration_caption">Applies a percentage to the speed coming from the wheel. Alarms, voice and the trip log all use the calibrated value.</string>
+    <string name="speed_calibration_caption">Applies a percentage to the speed coming from the wheel. Alarms, voice and the trip log all use the calibrated value</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>
-    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback.</string>
+    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
@@ -320,7 +320,7 @@
     <string name="engine_duck_pause">Pause</string>
     <string name="engine_duck_mix">Mix</string>
     <string name="engine_headphones_only">Only with headphones</string>
-    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only with wired or Bluetooth audio.</string>
+    <string name="engine_headphones_only_hint">Skip the phone speaker. Engine plays only with wired or Bluetooth audio</string>
     <!-- Engine preset names -->
     <string name="engine_preset_two_stroke">2-stroke</string>
     <string name="engine_preset_four_stroke_single">4-stroke single</string>
@@ -882,7 +882,7 @@
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Manage elements</string>
     <string name="studio_manage_empty">No elements yet — use Add element to place one.</string>
-    <string name="studio_manage_hint">Drag to reorder, tap a row to select it.</string>
+    <string name="studio_manage_hint">Drag to reorder, tap a row to select it</string>
     <string name="studio_cd_drag_reorder">Drag to reorder</string>
     <string name="studio_cd_delete_element">Delete element</string>
 
@@ -990,7 +990,7 @@
     <string name="nav_my_location">My location</string>
     <string name="nav_no_location">Waiting for a GPS fix…</string>
     <string name="nav_route_distance">Route distance: %1$s</string>
-    <string name="nav_empty_hint">Tap the map, search, or load a GPX file.</string>
+    <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
     <string name="nav_need_two">Add at least two stops to navigate.</string>
     <string name="nav_routing">Finding the route…</string>
     <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
@@ -1072,7 +1072,7 @@
     <string name="nav_setting_open_builder">Open route builder</string>
     <string name="nav_setting_params">Navigation parameters</string>
     <string name="nav_setting_endpoints">Routing services</string>
-    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server.</string>
+    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>
     <string name="nav_setting_router_url">Routing URL</string>
     <string name="watch_show_navigation">Show navigation</string>
@@ -1096,13 +1096,13 @@
     <string name="studio_rendering_keep_open">Keep your phone on and this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_cfg_g_smoothing">Smoothing</string>
-    <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements.</string>
+    <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matte</string>
     <string name="dash_external_gps_settings">External GPS settings</string>
-    <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV.</string>
-    <string name="gps_prioritize_external_desc">When a device is connected, use it for speed, position and G-Force instead of the phone.</string>
+    <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV</string>
+    <string name="gps_prioritize_external_desc">When a device is connected, use it for speed, position and G-Force instead of the phone</string>
     <string name="studio_cfg_show_value">Show value</string>
 </resources>

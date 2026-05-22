@@ -237,7 +237,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limity prędkości</string>
     <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>
-    <string name="legal_mode_caption">Stosowana, gdy tryb legalny jest WŁ. Musi być niższa niż normalny tiltback.</string>
+    <string name="legal_mode_caption">Stosowana, gdy tryb legalny jest WŁ. Musi być niższa niż normalny tiltback</string>
     <string name="speed_limits_disconnected">Połącz koło, aby edytować limity prędkości</string>
     <string name="speed_tiltback">Prędkość tiltbacka</string>
     <string name="speed_alarm">Prędkość alarmu</string>
@@ -599,7 +599,7 @@
     <string name="engine_duck_pause">Pauza</string>
     <string name="engine_duck_mix">Mieszaj</string>
     <string name="engine_headphones_only">Tylko ze słuchawkami</string>
-    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth.</string>
+    <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-suw</string>
@@ -640,7 +640,7 @@
     <string name="section_external_gps">GPS i czujniki</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
-    <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości.</string>
+    <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
     <string name="sources_other_metrics">Inne metryki</string>
 
@@ -665,7 +665,7 @@
     <string name="nav_dist_m">%1$d m</string>
     <string name="nav_dist_mi">%1$s mi</string>
     <string name="nav_drag_stop">Zmień kolejność</string>
-    <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX.</string>
+    <string name="nav_empty_hint">Stuknij mapę, wyszukaj lub wczytaj plik GPX</string>
     <string name="nav_end_body">Zatrzymać prowadzenie po aktywnej trasie?</string>
     <string name="nav_end_confirm">Zakończ</string>
     <string name="nav_end_title">Zakończyć nawigację?</string>
@@ -724,7 +724,7 @@
     <string name="nav_setting_arrival_radius_desc">Jak blisko liczy się jako dotarcie do stopu</string>
     <string name="nav_setting_default_mode">Domyślny tryb podróży</string>
     <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>
-    <string name="nav_setting_endpoints_hint">Darmowe publiczne usługi OpenStreetMap, bez konta. Zmieniaj tylko, aby wskazać własny serwer.</string>
+    <string name="nav_setting_endpoints_hint">Darmowe publiczne usługi OpenStreetMap, bez konta. Zmieniaj tylko, aby wskazać własny serwer</string>
     <string name="nav_setting_geocoder_url">Adres URL wyszukiwania adresów</string>
     <string name="nav_setting_offroute">Tolerancja zejścia z trasy</string>
     <string name="nav_setting_offroute_desc">Jak daleko od trasy, zanim uruchomi się \"zła droga\"</string>
@@ -893,7 +893,7 @@
     <string name="studio_layout_title">Okna aparatów</string>
     <string name="studio_load_preset_title">Wczytaj preset</string>
     <string name="studio_manage_empty">Brak elementów — użyj Dodaj element, aby umieścić pierwszy.</string>
-    <string name="studio_manage_hint">Przeciągnij, aby zmienić kolejność, stuknij wiersz, aby go wybrać.</string>
+    <string name="studio_manage_hint">Przeciągnij, aby zmienić kolejność, stuknij wiersz, aby go wybrać</string>
     <string name="studio_manage_title">Zarządzaj elementami</string>
     <string name="studio_metric_battery">Bateria</string>
     <string name="studio_metric_current">Prąd</string>
@@ -1010,13 +1010,13 @@
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_g_smoothing">Wygładzanie</string>
     <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru klucza chroma, co może źle wyglądać na częściowo przezroczystych elementach.</string>
+    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru klucza chroma, co może źle wyglądać na częściowo przezroczystych elementach</string>
     <string name="studio_cfg_filter_vivid">Żywy</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matowy</string>
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
-    <string name="external_gps_caption">Włącz RaceBox i dotknij Paruj, aby skanować. Po sparowaniu prędkość i przeciążenie zasilają aplikację na żywo i są zapisywane w pliku CSV każdej trasy.</string>
-    <string name="gps_prioritize_external_desc">Gdy urządzenie jest podłączone, używaj go do prędkości, pozycji i przeciążenia zamiast telefonu.</string>
+    <string name="external_gps_caption">Włącz RaceBox i dotknij Paruj, aby skanować. Po sparowaniu prędkość i przeciążenie zasilają aplikację na żywo i są zapisywane w pliku CSV każdej trasy</string>
+    <string name="gps_prioritize_external_desc">Gdy urządzenie jest podłączone, używaj go do prędkości, pozycji i przeciążenia zamiast telefonu</string>
     <string name="studio_cfg_show_value">Pokaż wartość</string>
 </resources>
