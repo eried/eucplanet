@@ -1,8 +1,10 @@
 package com.eried.eucplanet.ui.studio
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.provider.MediaStore
 import android.view.OrientationEventListener
 import androidx.activity.compose.BackHandler
@@ -37,8 +39,10 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -89,6 +93,7 @@ import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -324,27 +329,42 @@ fun OverlayStudioScreen(
     // --- Recording: capture the GraphicsLayer frame-by-frame ---------------
     LaunchedEffect(encoder) {
         val enc = encoder ?: return@LaunchedEffect
-        var ok = true
-        var started = false
+        // Pipeline the recording: the GPU read-back of one frame overlaps with
+        // the ARGB->YUV + H.264 encode of the previous one, so throughput is
+        // max(capture, encode) instead of their sum. A rendezvous hand-off
+        // keeps memory bounded and frames strictly in order.
+        val frames = Channel<android.graphics.Bitmap>(Channel.RENDEZVOUS)
         try {
-            while (recording && ok) {
-                val t0 = System.currentTimeMillis()
-                val img = runCatching { graphicsLayer.toImageBitmap() }.getOrNull()
-                if (img != null) {
-                    val bmp = img.asAndroidBitmap()
-                    ok = withContext(Dispatchers.IO) {
+            val encodeJob = launch(Dispatchers.IO) {
+                var started = false
+                try {
+                    for (bmp in frames) {
                         if (!started) {
                             started = enc.start(bmp.width, bmp.height)
-                            if (!started) return@withContext false
+                            if (!started) break
                         }
                         enc.submitFrame(bmp)
-                        true
                     }
+                } finally {
+                    // Unblock a producer still parked on send() if we bail out.
+                    frames.cancel()
+                }
+            }
+            while (recording) {
+                val t0 = System.currentTimeMillis()
+                val img = runCatching { graphicsLayer.toImageBitmap() }.getOrNull()
+                if (img != null &&
+                    runCatching { frames.send(img.asAndroidBitmap()) }.isFailure
+                ) {
+                    break // the encoder stopped (finished or failed)
                 }
                 val dt = System.currentTimeMillis() - t0
                 if (dt < FRAME_INTERVAL_MS) delay(FRAME_INTERVAL_MS - dt)
             }
+            frames.close()
+            encodeJob.join()
         } finally {
+            frames.close()
             val uri = withContext(NonCancellable + Dispatchers.IO) { enc.finish() }
             // Only clear shared state if a new recording has not already
             // replaced this encoder (guards a fast stop-then-record).
@@ -353,12 +373,19 @@ fun OverlayStudioScreen(
                 recording = false
             }
             scope.launch {
-                snackbar.showSnackbar(
-                    context.getString(
-                        if (uri != null && ok) R.string.studio_recording_saved
+                val saved = uri != null
+                val result = snackbar.showSnackbar(
+                    message = context.getString(
+                        if (saved) R.string.studio_recording_saved
                         else R.string.studio_recording_failed
-                    )
+                    ),
+                    actionLabel =
+                        if (saved) context.getString(R.string.action_view) else null,
+                    duration = SnackbarDuration.Long
                 )
+                if (saved && result == SnackbarResult.ActionPerformed) {
+                    openInGallery(context, uri!!, "video/mp4")
+                }
             }
         }
     }
@@ -390,12 +417,18 @@ fun OverlayStudioScreen(
             // suspends for the snackbar's whole lifetime, so clearing this
             // after it would freeze the studio for ~4 s every photo.
             capturing = false
-            snackbar.showSnackbar(
-                context.getString(
+            val result = snackbar.showSnackbar(
+                message = context.getString(
                     if (uri != null) R.string.studio_photo_saved
                     else R.string.studio_photo_failed
-                )
+                ),
+                actionLabel =
+                    if (uri != null) context.getString(R.string.action_view) else null,
+                duration = SnackbarDuration.Long
             )
+            if (uri != null && result == SnackbarResult.ActionPerformed) {
+                openInGallery(context, uri, if (replayMode) "image/png" else "image/jpeg")
+            }
         }
     }
 
@@ -1021,6 +1054,17 @@ fun OverlayStudioScreen(
 // 60 fps target — the capture loop runs as fast as the device allows up to
 // this; pts are wall-clock, so a slower device still plays back at real speed.
 private const val FRAME_INTERVAL_MS = 16L
+
+/** Open a saved photo / video in whatever gallery app handles it. */
+private fun openInGallery(context: Context, uri: Uri, mime: String) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mime)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    runCatching { context.startActivity(intent) }
+        .onFailure { android.util.Log.w("OverlayStudio", "No viewer for $uri", it) }
+}
 
 /**
  * Default element for [type], dropped near the top-left of the layout. New

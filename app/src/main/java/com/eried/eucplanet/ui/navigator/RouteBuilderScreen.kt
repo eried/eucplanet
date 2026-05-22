@@ -250,7 +250,11 @@ fun RouteBuilderScreen(
     // Starting navigation — Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
     // Shared by the menu item and the bottom button.
+    // Set the moment Start is tapped so the button never flips to "Stop
+    // navigation" while the builder is still animating away.
+    var navStarting by remember { mutableStateOf(false) }
     val startNav: () -> Unit = {
+        navStarting = true
         val mode = if (travelMode == TravelMode.STRAIGHT)
             NavMode.TREASURE_HUNT else NavMode.TURN_BY_TURN
         viewModel.startNavigation(mode) { onExit() }
@@ -540,7 +544,7 @@ fun RouteBuilderScreen(
                     onStartNavigation = startNav,
                     onStopNavigation = viewModel::stopNavigation,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
-                    navRunning = navRunning
+                    navRunning = navRunning && !navStarting
                 )
             }
 

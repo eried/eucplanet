@@ -210,20 +210,28 @@ internal const val ROUTE_BUILDER_HTML: String = """
     }
   };
 
-  // Saved Home / Work places — always shown, not interactive.
+  // Saved Home / Work places — always shown, drawn behind the stops.
   var placeMarkers = [];
+  var placeIcons = {
+    home: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">' +
+      '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>',
+    work: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">' +
+      '<path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 ' +
+      '.9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 ' +
+      '0h-4V4h4v2z"/></svg>'
+  };
   window.nativeSetPlaces = function(json){
     placeMarkers.forEach(function(m){ map.removeLayer(m); });
     placeMarkers = [];
     var places = JSON.parse(json);
     places.forEach(function(p){
-      var letter = p.kind === 'home' ? 'H' : 'W';
       var m = L.marker([p.lat, p.lng], {
         icon: L.divIcon({
           className:'', iconSize:[30,30], iconAnchor:[15,15],
-          html:'<div class="place-badge place-' + p.kind + '">' + letter + '</div>'
+          html:'<div class="place-badge place-' + p.kind + '">' +
+            (placeIcons[p.kind] || '') + '</div>'
         }),
-        interactive:false, zIndexOffset:500
+        interactive:false, zIndexOffset:-1000
       });
       m.addTo(map);
       placeMarkers.push(m);

@@ -50,6 +50,7 @@ class StudioVideoEncoder(
     private var encodeH = 0
     private var startNs = 0L
     private var lastPtsUs = -1L
+    private var submittedFrames = 0
 
     // --- Muxer (shared) ---
     private val muxerLock = Any()
@@ -165,6 +166,7 @@ class StudioVideoEncoder(
             }
             fillImage(frame, image)
             c.queueInputBuffer(index, 0, encodeW * encodeH * 3 / 2, nextPtsUs(), 0)
+            submittedFrames++
         } catch (e: Exception) {
             Log.e(TAG, "submitFrame failed", e)
             failed = true
@@ -375,6 +377,15 @@ class StudioVideoEncoder(
             }
         }
         if (!muxerStarted) failed = true
+        val durMs = (System.nanoTime() - startNs) / 1_000_000
+        if (durMs > 0) {
+            Log.i(
+                TAG,
+                "Encoded $submittedFrames frames in ${durMs}ms " +
+                    "(${"%.1f".format(submittedFrames * 1000.0 / durMs)} fps), " +
+                    "${encodeW}x$encodeH"
+            )
+        }
         cleanup()
         val uri = outputUri
         outputUri = null
