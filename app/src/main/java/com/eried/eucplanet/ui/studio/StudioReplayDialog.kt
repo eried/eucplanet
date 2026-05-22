@@ -40,6 +40,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -326,20 +327,27 @@ private fun ReplayTimeline(
         fun xOf(ms: Long): Float = ((ms.toFloat() / dur) * wPx).coerceIn(0f, wPx)
         fun msOf(x: Float): Long = ((x / wPx) * dur).toLong().coerceIn(0L, dur)
         var dragHandle by remember { mutableStateOf(-1) }
+        // The drag pointerInput is keyed only on durationMs (stable mid-drag).
+        // These rememberUpdatedState values keep apply()'s coercion fresh
+        // *without* re-keying — re-keying on positionMs / range was restarting
+        // the gesture every update, so a handle never stayed grabbed.
+        val curStart by rememberUpdatedState(rangeStartMs)
+        val curEnd by rememberUpdatedState(rangeEndMs)
+        val curPos by rememberUpdatedState(positionMs)
 
         fun apply(handle: Int, x: Float) {
             when (handle) {
                 0 -> {
-                    val s = msOf(x).coerceIn(0L, rangeEndMs - 1L)
-                    onRange(s, rangeEndMs)
-                    if (positionMs < s) onScrub(s)
+                    val s = msOf(x).coerceIn(0L, curEnd - 1L)
+                    onRange(s, curEnd)
+                    if (curPos < s) onScrub(s)
                 }
                 1 -> {
-                    val e = msOf(x).coerceIn(rangeStartMs + 1L, dur)
-                    onRange(rangeStartMs, e)
-                    if (positionMs > e) onScrub(e)
+                    val e = msOf(x).coerceIn(curStart + 1L, dur)
+                    onRange(curStart, e)
+                    if (curPos > e) onScrub(e)
                 }
-                else -> onScrub(msOf(x).coerceIn(rangeStartMs, rangeEndMs))
+                else -> onScrub(msOf(x).coerceIn(curStart, curEnd))
             }
         }
 
@@ -353,16 +361,16 @@ private fun ReplayTimeline(
                     detectTapGestures { o ->
                         if (o.y < trackY) {
                             apply(
-                                if (abs(o.x - xOf(rangeStartMs)) <=
-                                    abs(o.x - xOf(rangeEndMs))) 0 else 1,
+                                if (abs(o.x - xOf(curStart)) <=
+                                    abs(o.x - xOf(curEnd))) 0 else 1,
                                 o.x
                             )
                         } else {
-                            onScrub(msOf(o.x).coerceIn(rangeStartMs, rangeEndMs))
+                            onScrub(msOf(o.x).coerceIn(curStart, curEnd))
                         }
                     }
                 }
-                .pointerInput(durationMs, rangeStartMs, rangeEndMs, positionMs) {
+                .pointerInput(durationMs) {
                     val trackY = size.height * 0.42f
                     detectDragGestures(
                         onDragStart = { o ->
@@ -370,8 +378,8 @@ private fun ReplayTimeline(
                             // row grabs the nearer trim handle.
                             dragHandle = if (o.y >= trackY) {
                                 2
-                            } else if (abs(o.x - xOf(rangeStartMs)) <=
-                                abs(o.x - xOf(rangeEndMs))
+                            } else if (abs(o.x - xOf(curStart)) <=
+                                abs(o.x - xOf(curEnd))
                             ) 0 else 1
                             apply(dragHandle, o.x)
                         },

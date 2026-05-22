@@ -99,11 +99,6 @@ class StudioVideoEncoder(
         return try {
             val enc = MediaCodec.createEncoderByType(VIDEO_MIME)
             codec = enc
-            Log.i(
-                TAG,
-                "Video codec ${enc.codecInfo.name}, " +
-                    "hw=${runCatching { enc.codecInfo.isHardwareAccelerated }.getOrNull()}"
-            )
             runCatching {
                 val vc = enc.codecInfo.getCapabilitiesForType(VIDEO_MIME).videoCapabilities
                 val wAlign = maxOf(2, vc.widthAlignment)
