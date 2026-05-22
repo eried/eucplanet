@@ -318,9 +318,6 @@ private fun StudioElementBox(
             if (selected) {
                 val density = LocalDensity.current
                 val handlePx = with(density) { 30.dp.toPx() }
-                // While dragging, the handle's screen offset is pinned to this
-                // frozen value; null means "follow the live rotated corner".
-                var frozenOffset by remember { mutableStateOf<IntOffset?>(null) }
 
                 // Element-content offset of the bottom-left corner rotated by
                 // [deg] about the content centre, minus half the handle so the
@@ -349,18 +346,21 @@ private fun StudioElementBox(
                 var startRotation = 0f
                 Box(
                     Modifier
-                        // Frozen while dragging so the gesture frame is fixed;
-                        // springs back to the live rotated corner on release.
-                        .offset { frozenOffset ?: cornerOffset(live.rotationDeg) }
+                        // Follows the live rotated corner, so the handle turns
+                        // with the element as it is dragged.
+                        .offset { cornerOffset(live.rotationDeg) }
                         .size(30.dp)
                         .clip(CircleShape)
                         .background(rotateAccent)
                         .pointerInput(element.id) {
-                            // Angle of a handle-local point about the element
-                            // centre, in the stable (un-rotated) frame. Uses the
-                            // FROZEN handle origin so the frame never moves
-                            // mid-drag (the offset is captured at onDragStart).
-                            fun angleAt(local: Offset, origin: IntOffset): Float {
+                            // Pointer angle about the element centre, in the
+                            // un-rotated frame. The origin is the handle's LIVE
+                            // top-left, so origin + local recovers the true
+                            // pointer position wherever the handle has turned
+                            // to — it can follow the rotation without feeding
+                            // back into the angle being computed.
+                            fun angleAt(local: Offset): Float {
+                                val origin = cornerOffset(live.rotationDeg)
                                 val px = origin.x + local.x
                                 val py = origin.y + local.y
                                 return Math.toDegrees(
@@ -372,20 +372,13 @@ private fun StudioElementBox(
                             }
                             detectDragGestures(
                                 onDragStart = { pos ->
-                                    // Freeze the handle at its current rotated
-                                    // corner for the whole drag.
-                                    val origin = cornerOffset(live.rotationDeg)
-                                    frozenOffset = origin
-                                    startAngle = angleAt(pos, origin)
+                                    startAngle = angleAt(pos)
                                     startRotation = live.rotationDeg
-                                },
-                                onDragEnd = { frozenOffset = null },
-                                onDragCancel = { frozenOffset = null }
+                                }
                             ) { change, _ ->
                                 change.consume()
-                                val origin = frozenOffset ?: cornerOffset(live.rotationDeg)
                                 var next = startRotation +
-                                    (angleAt(change.position, origin) - startAngle)
+                                    (angleAt(change.position) - startAngle)
                                 // Snap to 15-degree increments.
                                 next = Math.round(next / 15f) * 15f
                                 next = ((next % 360f) + 360f) % 360f

@@ -113,6 +113,7 @@ import sh.calvin.reorderable.ReorderableColumn
 @Composable
 fun RouteBuilderScreen(
     onExit: () -> Unit,
+    onOpenNavSettings: () -> Unit,
     viewModel: RouteBuilderViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -314,10 +315,14 @@ fun RouteBuilderScreen(
                             onDismiss = { menuOpen = false },
                             onSave = { saveLauncher.launch("route.gpx") },
                             onLoad = {
+                                // No "*/*" — that wildcard showed every file.
+                                // Android has no registered MIME for ".gpx", so
+                                // such files resolve to octet-stream; that entry
+                                // has to stay or real GPX files would be hidden.
                                 loadLauncher.launch(
                                     arrayOf(
                                         "application/gpx+xml", "application/xml",
-                                        "text/xml", "application/octet-stream", "*/*"
+                                        "text/xml", "application/octet-stream"
                                     )
                                 )
                             },
@@ -331,7 +336,8 @@ fun RouteBuilderScreen(
                             hasHome = homePlace != null,
                             hasWork = workPlace != null,
                             onClearHome = viewModel::clearHome,
-                            onClearWork = viewModel::clearWork
+                            onClearWork = viewModel::clearWork,
+                            onNavSettings = onOpenNavSettings
                         )
                     }
                 }
@@ -668,7 +674,8 @@ private fun BuilderMenu(
     hasHome: Boolean,
     hasWork: Boolean,
     onClearHome: () -> Unit,
-    onClearWork: () -> Unit
+    onClearWork: () -> Unit,
+    onNavSettings: () -> Unit
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         // "Start navigation" is omitted here — it is already a primary button.
@@ -704,6 +711,11 @@ private fun BuilderMenu(
                 onClick = { onDismiss(); onClearWork() }
             )
         }
+        HorizontalDivider()
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_setting_params)) },
+            onClick = { onDismiss(); onNavSettings() }
+        )
     }
 }
 

@@ -152,7 +152,10 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.RouteBuilder.route) {
             RouteBuilderScreen(
-                onExit = { navController.popSingle() }
+                onExit = { navController.popSingle() },
+                onOpenNavSettings = {
+                    navController.navigateSingle(Screen.Settings.createRoute(8))
+                }
             )
         }
         composable(Screen.Recording.route) {
