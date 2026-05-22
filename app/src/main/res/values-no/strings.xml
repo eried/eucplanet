@@ -870,7 +870,6 @@
     <string name="studio_layout_3_rows">3 rader</string>
     <string name="studio_layout_full_screen">Fullskjerm</string>
     <string name="studio_layout_grid_4">2 × 2-rutenett</string>
-    <string name="studio_layout_hint">Velg hvordan skjermen deles opp. Dra i skillelinjene etterpå for å endre størrelsen på hver seksjon.</string>
     <string name="studio_layout_title">Kameravinduer</string>
     <string name="studio_load_preset_title">Last inn forhåndsinnstilling</string>
     <string name="studio_manage_empty">Ingen elementer ennå – bruk Legg til element for å plassere ett.</string>
@@ -995,4 +994,5 @@
     <string name="dash_external_gps_settings">Innstillinger for ekstern GPS</string>
     <string name="external_gps_caption">Slå på RaceBox-en og trykk Koble til for å søke. Når den er tilkoblet, mater fart og G-kraft appen live og lagres i CSV-en for hver tur.</string>
     <string name="gps_prioritize_external_desc">Når en ekstern boks er tilkoblet, bruk den for fart og G-kraft; ellers bruk telefonen.</string>
+    <string name="studio_cfg_show_value">Vis verdi</string>
 </resources>

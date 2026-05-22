@@ -152,6 +152,7 @@ object OverlayPresetJson {
         put("mapTrace", el.mapTrace)
         put("mapBorderWidth", el.mapBorderWidth.toDouble())
         put("gForceScale", el.gForceScale.toDouble())
+        put("barShowValue", el.barShowValue)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -205,7 +206,8 @@ object OverlayPresetJson {
             ),
             mapTrace = o.optBoolean("mapTrace", d.mapTrace),
             mapBorderWidth = o.optDouble("mapBorderWidth", d.mapBorderWidth.toDouble()).toFloat(),
-            gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat()
+            gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat(),
+            barShowValue = o.optBoolean("barShowValue", d.barShowValue)
         )
     }
 

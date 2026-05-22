@@ -905,7 +905,6 @@
     <string name="studio_layout_3_rows">3 строки</string>
     <string name="studio_layout_full_screen">Весь экран</string>
     <string name="studio_layout_grid_4">Сетка 2 × 2</string>
-    <string name="studio_layout_hint">Выберите, как делится экран. Затем перетаскивайте разделители, чтобы изменить размер каждой секции.</string>
     <string name="studio_layout_title">Окна камеры</string>
     <string name="studio_load_preset_title">Загрузить пресет</string>
     <string name="studio_manage_empty">Элементов пока нет — используйте «Добавить элемент», чтобы разместить.</string>
@@ -1030,4 +1029,5 @@
     <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
     <string name="external_gps_caption">Включите RaceBox и нажмите «Сопряжение» для поиска. После сопряжения скорость и перегрузка передаются в приложение в реальном времени и сохраняются в CSV каждой поездки.</string>
     <string name="gps_prioritize_external_desc">Когда подключён внешний модуль, использовать его для скорости и перегрузки; иначе использовать телефон.</string>
+    <string name="studio_cfg_show_value">Показывать значение</string>
 </resources>

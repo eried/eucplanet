@@ -773,7 +773,6 @@
 
     <!-- Studio: layout picker -->
     <string name="studio_layout_title">Camera panes</string>
-    <string name="studio_layout_hint">Pick how the screen is divided. Drag the dividers afterwards to resize each section.</string>
     <string name="studio_layout_full_screen">Full screen</string>
     <string name="studio_layout_2_rows">2 rows</string>
     <string name="studio_layout_2_columns">2 columns</string>
@@ -1098,4 +1097,5 @@
     <string name="dash_external_gps_settings">External GPS settings</string>
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV.</string>
     <string name="gps_prioritize_external_desc">When an external box is connected, use it for speed and G-Force; otherwise fall back to the phone.</string>
+    <string name="studio_cfg_show_value">Show value</string>
 </resources>

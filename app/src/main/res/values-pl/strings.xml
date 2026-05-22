@@ -890,7 +890,6 @@
     <string name="studio_layout_3_rows">3 wiersze</string>
     <string name="studio_layout_full_screen">Pełny ekran</string>
     <string name="studio_layout_grid_4">Siatka 2 × 2</string>
-    <string name="studio_layout_hint">Wybierz, jak podzielić ekran. Następnie przeciągnij linie podziału, aby zmienić rozmiar każdej sekcji.</string>
     <string name="studio_layout_title">Okna aparatów</string>
     <string name="studio_load_preset_title">Wczytaj preset</string>
     <string name="studio_manage_empty">Brak elementów — użyj Dodaj element, aby umieścić pierwszy.</string>
@@ -1015,4 +1014,5 @@
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
     <string name="external_gps_caption">Włącz RaceBox i dotknij Paruj, aby skanować. Po sparowaniu prędkość i przeciążenie zasilają aplikację na żywo i są zapisywane w pliku CSV każdej trasy.</string>
     <string name="gps_prioritize_external_desc">Gdy zewnętrzny moduł jest połączony, używaj go do prędkości i przeciążenia; w przeciwnym razie użyj telefonu.</string>
+    <string name="studio_cfg_show_value">Pokaż wartość</string>
 </resources>

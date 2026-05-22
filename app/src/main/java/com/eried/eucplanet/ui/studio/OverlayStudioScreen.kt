@@ -1222,6 +1222,8 @@ fun OverlayStudioScreen(
             color = preset.dividerColor,
             thickness = preset.dividerThickness,
             onChange = { color, thickness -> viewModel.setDividerStyle(color, thickness) },
+            dimmed = panelsDimmed,
+            onToggleDim = { panelsDimmed = !panelsDimmed },
             onDismiss = { sheet = StudioSheet.None }
         )
         is StudioSheet.ViewportConfig -> {

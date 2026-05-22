@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -127,20 +128,25 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
         elements
     }
     shown.forEach { element ->
-        StudioElementBox(
-            element = element,
-            containerW = containerW,
-            containerH = containerH,
-            widthPx = widthPx,
-            heightPx = heightPx,
-            editable = editable,
-            selected = editable && element.id == selectedId,
-            onSelect = { onSelect(element.id) },
-            onConfigure = { onConfigure(element.id) },
-            onDelete = { onDelete(element.id) },
-            onChange = onChange
-        ) {
-            ElementContent(element, data)
+        // Keyed by id so Compose never reuses one element's box (and its edit
+        // chrome) for another — that reuse made a stale onConfigure / onDelete
+        // fire for the wrong element.
+        key(element.id) {
+            StudioElementBox(
+                element = element,
+                containerW = containerW,
+                containerH = containerH,
+                widthPx = widthPx,
+                heightPx = heightPx,
+                editable = editable,
+                selected = editable && element.id == selectedId,
+                onSelect = { onSelect(element.id) },
+                onConfigure = { onConfigure(element.id) },
+                onDelete = { onDelete(element.id) },
+                onChange = onChange
+            ) {
+                ElementContent(element, data)
+            }
         }
     }
 }
@@ -405,13 +411,16 @@ private fun ChromeButton(
     tint: Color,
     onClick: () -> Unit
 ) {
+    // pointerInput(Unit) never restarts, so capture onClick through a state
+    // holder — otherwise a reused button keeps calling a stale callback.
+    val currentOnClick by rememberUpdatedState(onClick)
     Box(
         Modifier
             .size(30.dp)
             .clip(CircleShape)
             .background(Color(0xDD1E1E26))
             .border(1.dp, tint, CircleShape)
-            .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
+            .pointerInput(Unit) { detectTapGestures(onTap = { currentOnClick() }) },
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
@@ -969,18 +978,20 @@ private fun DataBarElement(element: OverlayElement, data: StudioElementData) {
                         maxLines = 1
                     )
                 }
-                val unit = metric.unitText(
-                    context, data.speedUnit, data.distanceUnit, data.tempUnit
-                )
-                androidx.compose.material3.Text(
-                    text = metric.formatted(
-                        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
-                    ) + if (unit.isEmpty()) "" else " $unit",
-                    color = fill,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = (w * 0.10f).coerceIn(10f, 30f).sp,
-                    maxLines = 1
-                )
+                if (element.barShowValue) {
+                    val unit = metric.unitText(
+                        context, data.speedUnit, data.distanceUnit, data.tempUnit
+                    )
+                    androidx.compose.material3.Text(
+                        text = metric.formatted(
+                            data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                        ) + if (unit.isEmpty()) "" else " $unit",
+                        color = fill,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = (w * 0.10f).coerceIn(10f, 30f).sp,
+                        maxLines = 1
+                    )
+                }
             }
             Spacer(Modifier.height(5.dp))
             Box(

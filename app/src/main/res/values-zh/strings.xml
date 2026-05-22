@@ -853,7 +853,6 @@
     <string name="studio_layout_3_rows">3 行</string>
     <string name="studio_layout_full_screen">全屏</string>
     <string name="studio_layout_grid_4">2 × 2 网格</string>
-    <string name="studio_layout_hint">选择屏幕的分割方式。之后可拖动分隔线调整各分区的大小。</string>
     <string name="studio_layout_title">相机分屏</string>
     <string name="studio_load_preset_title">加载预设</string>
     <string name="studio_manage_empty">暂无元素 — 使用「添加元素」放置一个。</string>
@@ -978,4 +977,5 @@
     <string name="dash_external_gps_settings">外部 GPS 设置</string>
     <string name="external_gps_caption">打开你的 RaceBox 并点按「配对」扫描。配对后，速度和 G 力会实时传入应用，并保存到每次行程的 CSV。</string>
     <string name="gps_prioritize_external_desc">连接外部设备时，用它获取速度和 G 力；否则回退到手机。</string>
+    <string name="studio_cfg_show_value">显示数值</string>
 </resources>

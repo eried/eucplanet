@@ -853,7 +853,6 @@
     <string name="studio_layout_3_rows">3 lignes</string>
     <string name="studio_layout_full_screen">Plein écran</string>
     <string name="studio_layout_grid_4">Grille 2 × 2</string>
-    <string name="studio_layout_hint">Choisissez comment l\'écran est divisé. Faites ensuite glisser les séparateurs pour redimensionner chaque section.</string>
     <string name="studio_layout_title">Fenêtres caméra</string>
     <string name="studio_load_preset_title">Charger un préréglage</string>
     <string name="studio_manage_empty">Aucun élément pour le moment — utilisez Ajouter un élément pour en placer un.</string>
@@ -978,4 +977,5 @@
     <string name="dash_external_gps_settings">Réglages du GPS externe</string>
     <string name="external_gps_caption">Allume ta RaceBox et appuie sur Associer pour rechercher. Une fois associée, sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV de chaque trajet.</string>
     <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser pour la vitesse et la force G ; sinon, revenir au téléphone.</string>
+    <string name="studio_cfg_show_value">Afficher la valeur</string>
 </resources>

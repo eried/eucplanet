@@ -853,7 +853,6 @@
     <string name="studio_layout_3_rows">3 rader</string>
     <string name="studio_layout_full_screen">Helskärm</string>
     <string name="studio_layout_grid_4">2 × 2-rutnät</string>
-    <string name="studio_layout_hint">Välj hur skärmen delas upp. Dra i avgränsarna efteråt för att ändra storlek på varje sektion.</string>
     <string name="studio_layout_title">Kamerarutor</string>
     <string name="studio_load_preset_title">Läs in förinställning</string>
     <string name="studio_manage_empty">Inga element ännu — använd Lägg till element för att placera ett.</string>
@@ -978,4 +977,5 @@
     <string name="dash_external_gps_settings">Inställningar för extern GPS</string>
     <string name="external_gps_caption">Slå på din RaceBox och tryck på Para för att söka. När den är parad matar fart och G-kraft appen live och sparas i CSV-filen för varje tur.</string>
     <string name="gps_prioritize_external_desc">När en extern box är ansluten, använd den för hastighet och G-kraft; annars använd telefonen.</string>
+    <string name="studio_cfg_show_value">Visa värde</string>
 </resources>

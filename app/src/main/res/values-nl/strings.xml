@@ -889,7 +889,6 @@
     <string name="studio_layout_3_rows">3 rijen</string>
     <string name="studio_layout_full_screen">Volledig scherm</string>
     <string name="studio_layout_grid_4">2 × 2 raster</string>
-    <string name="studio_layout_hint">Kies hoe het scherm wordt verdeeld. Sleep daarna de scheidingslijnen om elke sectie te verkleinen of vergroten.</string>
     <string name="studio_layout_title">Camerapanelen</string>
     <string name="studio_load_preset_title">Preset laden</string>
     <string name="studio_manage_empty">Nog geen elementen — gebruik Element toevoegen om er een te plaatsen.</string>
@@ -1014,4 +1013,5 @@
     <string name="dash_external_gps_settings">Instellingen externe gps</string>
     <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit.</string>
     <string name="gps_prioritize_external_desc">Als een externe box is verbonden, die gebruiken voor snelheid en G-kracht; anders terugvallen op de telefoon.</string>
+    <string name="studio_cfg_show_value">Waarde tonen</string>
 </resources>

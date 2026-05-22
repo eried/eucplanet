@@ -870,7 +870,6 @@
     <string name="studio_layout_3_rows">3 Zeilen</string>
     <string name="studio_layout_full_screen">Vollbild</string>
     <string name="studio_layout_grid_4">2 × 2 Raster</string>
-    <string name="studio_layout_hint">Wähle, wie der Bildschirm aufgeteilt wird. Ziehe danach an den Trennlinien, um jeden Bereich anzupassen.</string>
     <string name="studio_layout_title">Kameraansichten</string>
     <string name="studio_load_preset_title">Preset laden</string>
     <string name="studio_manage_empty">Noch keine Elemente — füge mit „Element hinzufügen“ eines hinzu.</string>
@@ -995,4 +994,5 @@
     <string name="dash_external_gps_settings">Einstellungen für externes GPS</string>
     <string name="external_gps_caption">Schalte deine RaceBox ein und tippe auf Koppeln, um zu suchen. Nach dem Koppeln liefern Geschwindigkeit und G-Kraft die App live und werden im CSV jeder Fahrt gespeichert.</string>
     <string name="gps_prioritize_external_desc">Wenn eine externe Box verbunden ist, sie für Geschwindigkeit und G-Kraft nutzen; sonst auf das Telefon zurückgreifen.</string>
+    <string name="studio_cfg_show_value">Wert anzeigen</string>
 </resources>

@@ -589,12 +589,7 @@ fun LayoutPickerSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(stringResource(R.string.studio_layout_title))
-            Text(
-                stringResource(R.string.studio_layout_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
+            Spacer(Modifier.height(4.dp))
             ViewportLayout.entries.chunked(3).forEach { row ->
                 Row(
                     Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -1165,9 +1160,11 @@ fun DividerConfigSheet(
     color: Long,
     thickness: Float,
     onChange: (Long, Float) -> Unit,
+    dimmed: Boolean,
+    onToggleDim: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    StudioSidePanel(onDismiss = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss, dimmed = dimmed, onToggleDim = onToggleDim) {
         Column(
             Modifier
                 .padding(horizontal = 4.dp)
@@ -1491,6 +1488,11 @@ fun ElementConfigSheet(
             ) {
                 ToggleRow(stringResource(R.string.studio_cfg_show_label), element.showLabel) {
                     onChange(element.copy(showLabel = it))
+                }
+                if (element.type == OverlayElementType.DATA_BAR) {
+                    ToggleRow(
+                        stringResource(R.string.studio_cfg_show_value), element.barShowValue
+                    ) { onChange(element.copy(barShowValue = it)) }
                 }
             }
 

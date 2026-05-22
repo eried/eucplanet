@@ -193,7 +193,9 @@ data class OverlayElement(
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
     val mapBorderWidth: Float = 2f,
     /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
-    val gForceScale: Float = 1.5f
+    val gForceScale: Float = 1.5f,
+    /** DATA_BAR: show the numeric value above the bar (false = just the bar). */
+    val barShowValue: Boolean = true
 )
 
 /**
