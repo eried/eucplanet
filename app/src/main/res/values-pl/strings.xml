@@ -990,4 +990,14 @@
     <string name="studio_cfg_filter_cool">Chłodny</string>
     <string name="studio_cfg_zoom">Powiększenie</string>
     <string name="studio_cfg_shadow">Cień</string>
+    <string name="studio_cfg_trace_colour">Kolor trasy</string>
+    <string name="studio_export_format">Format wyjściowy</string>
+    <string name="studio_export_photo">Zdjęcie</string>
+    <string name="studio_export_video">Wideo</string>
+    <string name="studio_export_chroma">Kolor klucza chroma</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Zielony</string>
+    <string name="studio_chroma_blue">Niebieski</string>
+    <string name="studio_chroma_black">Czarny</string>
+    <string name="studio_chroma_white">Biały</string>
 </resources>

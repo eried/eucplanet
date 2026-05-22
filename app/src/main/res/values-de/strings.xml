@@ -970,4 +970,14 @@
     <string name="studio_cfg_filter_cool">Kühl</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Schatten</string>
+    <string name="studio_cfg_trace_colour">Streckenfarbe</string>
+    <string name="studio_export_format">Ausgabeformat</string>
+    <string name="studio_export_photo">Foto</string>
+    <string name="studio_export_video">Video</string>
+    <string name="studio_export_chroma">Chroma-Key-Farbe</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Grün</string>
+    <string name="studio_chroma_blue">Blau</string>
+    <string name="studio_chroma_black">Schwarz</string>
+    <string name="studio_chroma_white">Weiß</string>
 </resources>

@@ -508,9 +508,11 @@ private val ADD_ELEMENT_GROUPS: List<Pair<Int, List<OverlayElementType>>> = list
 fun AddElementSheet(
     onPick: (OverlayElementType) -> Unit,
     onPickImage: () -> Unit,
+    dimmed: Boolean,
+    onToggleDim: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    StudioSidePanel(onDismiss = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss, dimmed = dimmed, onToggleDim = onToggleDim) {
         Column(
             Modifier
                 .padding(bottom = 8.dp)
@@ -1472,6 +1474,15 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_map_trace),
                     element.mapTrace
                 ) { onChange(element.copy(mapTrace = it)) }
+                // The map's only meaningful colour — the trace line and the
+                // position dot. (Its background is hidden behind the tiles.)
+                Text(
+                    stringResource(R.string.studio_cfg_trace_colour),
+                    fontWeight = FontWeight.SemiBold
+                )
+                ColorSwatchRow(element.foreground, allowTransparent = false) {
+                    onChange(element.copy(foreground = it))
+                }
                 Spacer(Modifier.height(8.dp))
             }
 
@@ -1509,7 +1520,8 @@ fun ElementConfigSheet(
             // Colours. A transparent "Background" swatch makes the element's
             // backdrop invisible.
             if (element.type != OverlayElementType.FLOATING_CAMERA &&
-                element.type != OverlayElementType.IMAGE
+                element.type != OverlayElementType.IMAGE &&
+                element.type != OverlayElementType.MAP
             ) {
                 Text(stringResource(R.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
                 ColorSwatchRow(element.foreground, allowTransparent = false) {
@@ -1884,9 +1896,11 @@ fun ManageElementsSheet(
     onMove: (Int, Int) -> Unit,
     onSelect: (String) -> Unit,
     onDelete: (String) -> Unit,
+    dimmed: Boolean,
+    onToggleDim: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    StudioSidePanel(onDismiss = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss, dimmed = dimmed, onToggleDim = onToggleDim) {
         Column(
             Modifier
                 .padding(horizontal = 4.dp)

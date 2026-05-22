@@ -362,7 +362,20 @@ data class AppSettings(
     /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
     val engineDuckOnVoice: String = "DUCK",
     /** If true, engine only plays when wired/BT audio is routed to headphones (safety). */
-    val engineHeadphonesOnly: Boolean = false
+    val engineHeadphonesOnly: Boolean = false,
+
+    // --- Overlay Studio replay export ---
+    // Output format for the Replay-mode photo / video export. Stored as stable
+    // keys so the format set can change without a settings migration.
+    /** Replay photo export format: "PNG" (alpha) or "JPG" (chroma-filled). */
+    val studioReplayPhotoFormat: String = "PNG",
+    /** Replay video export format: "GIF" (1-bit alpha), "APNG" (alpha) or "MP4" (chroma-filled). */
+    val studioReplayVideoFormat: String = "GIF",
+    /**
+     * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
+     * MP4) is chosen. Default magenta (0xFFFF00FF).
+     */
+    val studioReplayChromaColor: Long = 0xFFFF00FFL
 )
 
 enum class FlicAction(val labelRes: Int) {

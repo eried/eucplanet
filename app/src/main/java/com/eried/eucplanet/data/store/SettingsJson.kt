@@ -185,6 +185,9 @@ object SettingsJson {
         put("navCurrentRouteJson", s.navCurrentRouteJson)
         put("navMapType", s.navMapType)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
+        put("studioReplayVideoFormat", s.studioReplayVideoFormat)
+        put("studioReplayChromaColor", s.studioReplayChromaColor)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -341,7 +344,10 @@ object SettingsJson {
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
         navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
         navMapType = j.optString("navMapType", base.navMapType),
-        watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation)
+        watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
+        studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
+        studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

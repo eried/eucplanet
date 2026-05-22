@@ -1,6 +1,8 @@
 package com.eried.eucplanet.ui.studio
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,12 +20,16 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material.icons.filled.Pause
@@ -45,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -132,12 +139,16 @@ fun StudioReplayDialog(
     speed: Float,
     playing: Boolean,
     dimmed: Boolean,
+    exportPrefs: ReplayExportPrefs,
     onPickTrip: (TripRecord) -> Unit,
     onScrub: (Long) -> Unit,
     onRange: (Long, Long) -> Unit,
     onSpeed: (Float) -> Unit,
     onPlayPause: () -> Unit,
     onToggleDim: () -> Unit,
+    onPhotoFormat: (ReplayPhotoFormat) -> Unit,
+    onVideoFormat: (ReplayVideoFormat) -> Unit,
+    onChromaColor: (Long) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -161,6 +172,7 @@ fun StudioReplayDialog(
                     when (picker) {
                         1 -> stringResource(R.string.studio_replay_choose_trip)
                         2 -> stringResource(R.string.studio_replay_speed_title)
+                        3 -> stringResource(R.string.studio_export_format)
                         else -> stringResource(R.string.studio_replay_title)
                     },
                     modifier = Modifier.weight(1f),
@@ -218,6 +230,12 @@ fun StudioReplayDialog(
                     )
                 }
             }
+            3 -> ExportFormatChooser(
+                prefs = exportPrefs,
+                onPhotoFormat = onPhotoFormat,
+                onVideoFormat = onVideoFormat,
+                onChromaColor = onChromaColor
+            )
             else -> {
             // A trip is replayable once it parsed to a non-zero timeline.
             val active = trip != null && trip.durationMs > 0L
@@ -302,9 +320,178 @@ fun StudioReplayDialog(
                     color = clockColor
                 )
             }
+            // Collapsed output-format row — opens the chooser sub-picker.
+            Spacer(Modifier.height(4.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+                    .clickable { picker = 3 }
+                    .padding(vertical = 8.dp, horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.studio_export_format),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.name}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = StudioControlAccent
+                )
+                Icon(
+                    Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
             }
           }
         }
+    }
+}
+
+/** Chroma-key fill presets — label resource paired with the ARGB colour. */
+private val chromaPresets: List<Pair<Int, Long>> = listOf(
+    R.string.studio_chroma_magenta to 0xFFFF00FFL,
+    R.string.studio_chroma_green to 0xFF00B140L,
+    R.string.studio_chroma_blue to 0xFF0047BBL,
+    R.string.studio_chroma_black to 0xFF000000L,
+    R.string.studio_chroma_white to 0xFFFFFFFFL
+)
+
+/**
+ * The expandable output-format chooser shown as a Replay sub-picker. Photo and
+ * video format are segmented rows; the chroma swatches appear only when the
+ * chosen photo or video format has no alpha channel (JPG / MP4).
+ */
+@Composable
+private fun ExportFormatChooser(
+    prefs: ReplayExportPrefs,
+    onPhotoFormat: (ReplayPhotoFormat) -> Unit,
+    onVideoFormat: (ReplayVideoFormat) -> Unit,
+    onChromaColor: (Long) -> Unit
+) {
+    Column(
+        Modifier
+            .heightIn(max = 280.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        // Photo.
+        Text(
+            stringResource(R.string.studio_export_photo),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ReplayPhotoFormat.entries.forEach { fmt ->
+                FormatChip(
+                    label = fmt.name,
+                    selected = fmt == prefs.photoFormat,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onPhotoFormat(fmt) }
+                )
+            }
+        }
+
+        // Video.
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(R.string.studio_export_video),
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ReplayVideoFormat.entries.forEach { fmt ->
+                FormatChip(
+                    label = fmt.name,
+                    selected = fmt == prefs.videoFormat,
+                    modifier = Modifier.weight(1f),
+                    onClick = { onVideoFormat(fmt) }
+                )
+            }
+        }
+
+        // Chroma key — only relevant when a chosen format has no alpha.
+        val needsChroma = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
+        if (needsChroma) {
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.studio_export_chroma),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.padding(bottom = 6.dp)
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                chromaPresets.forEach { (labelRes, argb) ->
+                    val selected = argb == prefs.chromaColor
+                    Box(
+                        Modifier
+                            .size(34.dp)
+                            .clip(CircleShape)
+                            .background(Color(argb))
+                            .border(
+                                width = if (selected) 3.dp else 1.dp,
+                                color = if (selected) StudioControlAccent
+                                else Color.White.copy(alpha = 0.4f),
+                                shape = CircleShape
+                            )
+                            .clickable { onChromaColor(argb) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (selected) {
+                            // Check contrasts against light or dark swatches.
+                            val light = ((argb ushr 16) and 0xFF) +
+                                ((argb ushr 8) and 0xFF) + (argb and 0xFF) > 0x180
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = stringResource(labelRes),
+                                tint = if (light) Color.Black else Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
+/** A single segmented-button-style format chip. */
+@Composable
+private fun FormatChip(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (selected) StudioControlAccent.copy(alpha = 0.22f)
+                else Color.White.copy(alpha = 0.06f)
+            )
+            .border(
+                width = 1.dp,
+                color = if (selected) StudioControlAccent
+                else Color.White.copy(alpha = 0.18f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clickable { onClick() }
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            label,
+            color = if (selected) StudioControlAccent else Color.White,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

@@ -953,4 +953,14 @@
     <string name="studio_cfg_filter_cool">冷色</string>
     <string name="studio_cfg_zoom">缩放</string>
     <string name="studio_cfg_shadow">阴影</string>
+    <string name="studio_cfg_trace_colour">轨迹颜色</string>
+    <string name="studio_export_format">输出格式</string>
+    <string name="studio_export_photo">照片</string>
+    <string name="studio_export_video">视频</string>
+    <string name="studio_export_chroma">色键颜色</string>
+    <string name="studio_chroma_magenta">品红</string>
+    <string name="studio_chroma_green">绿色</string>
+    <string name="studio_chroma_blue">蓝色</string>
+    <string name="studio_chroma_black">黑色</string>
+    <string name="studio_chroma_white">白色</string>
 </resources>

@@ -953,4 +953,14 @@
     <string name="studio_cfg_filter_cool">Sval</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Skugga</string>
+    <string name="studio_cfg_trace_colour">Spårfärg</string>
+    <string name="studio_export_format">Utdataformat</string>
+    <string name="studio_export_photo">Foto</string>
+    <string name="studio_export_video">Video</string>
+    <string name="studio_export_chroma">Chroma key-färg</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Grön</string>
+    <string name="studio_chroma_blue">Blå</string>
+    <string name="studio_chroma_black">Svart</string>
+    <string name="studio_chroma_white">Vit</string>
 </resources>

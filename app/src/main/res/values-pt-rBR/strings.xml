@@ -989,4 +989,14 @@
     <string name="studio_cfg_filter_cool">Frio</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Sombra</string>
+    <string name="studio_cfg_trace_colour">Cor do trajeto</string>
+    <string name="studio_export_format">Formato de saída</string>
+    <string name="studio_export_photo">Foto</string>
+    <string name="studio_export_video">Vídeo</string>
+    <string name="studio_export_chroma">Cor do chroma key</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Verde</string>
+    <string name="studio_chroma_blue">Azul</string>
+    <string name="studio_chroma_black">Preto</string>
+    <string name="studio_chroma_white">Branco</string>
 </resources>

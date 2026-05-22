@@ -990,4 +990,14 @@
     <string name="studio_cfg_filter_cool">Холодний</string>
     <string name="studio_cfg_zoom">Масштаб</string>
     <string name="studio_cfg_shadow">Тінь</string>
+    <string name="studio_cfg_trace_colour">Колір сліду</string>
+    <string name="studio_export_format">Формат виводу</string>
+    <string name="studio_export_photo">Фото</string>
+    <string name="studio_export_video">Відео</string>
+    <string name="studio_export_chroma">Колір хромакею</string>
+    <string name="studio_chroma_magenta">Пурпуровий</string>
+    <string name="studio_chroma_green">Зелений</string>
+    <string name="studio_chroma_blue">Синій</string>
+    <string name="studio_chroma_black">Чорний</string>
+    <string name="studio_chroma_white">Білий</string>
 </resources>

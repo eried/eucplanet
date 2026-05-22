@@ -1005,4 +1005,14 @@
     <string name="studio_cfg_filter_cool">Холодный</string>
     <string name="studio_cfg_zoom">Масштаб</string>
     <string name="studio_cfg_shadow">Тень</string>
+    <string name="studio_cfg_trace_colour">Цвет следа</string>
+    <string name="studio_export_format">Формат вывода</string>
+    <string name="studio_export_photo">Фото</string>
+    <string name="studio_export_video">Видео</string>
+    <string name="studio_export_chroma">Цвет хромакея</string>
+    <string name="studio_chroma_magenta">Пурпурный</string>
+    <string name="studio_chroma_green">Зелёный</string>
+    <string name="studio_chroma_blue">Синий</string>
+    <string name="studio_chroma_black">Чёрный</string>
+    <string name="studio_chroma_white">Белый</string>
 </resources>

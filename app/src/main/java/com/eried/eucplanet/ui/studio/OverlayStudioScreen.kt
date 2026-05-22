@@ -94,6 +94,7 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.ViewportSourceType
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
+import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
@@ -137,6 +138,7 @@ fun OverlayStudioScreen(
     val savedPresets by viewModel.savedPresets.collectAsState()
     val bundledPresets by viewModel.bundledPresets.collectAsState()
     val bundledLandscapePresets by viewModel.bundledLandscapePresets.collectAsState()
+    val exportPrefs by viewModel.replayExportPrefs.collectAsState()
 
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
@@ -475,11 +477,17 @@ fun OverlayStudioScreen(
             delay(160) // let the element selection chrome clear for a clean frame
             val bmp = runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }
                 .getOrNull()
-            // Replay snapshots are PNG so the transparent background survives;
-            // live snapshots stay JPEG.
-            val uri = bmp?.let {
-                if (replayMode) StudioCapture.savePng(context, it)
-                else StudioCapture.saveJpeg(context, it)
+            // Replay snapshots honour the chosen photo format (PNG keeps the
+            // transparent background; JPG composites onto the chroma colour).
+            // Live snapshots stay JPEG.
+            val photoIsPng = !replayMode || exportPrefs.photoFormat == ReplayPhotoFormat.PNG
+            val uri = bmp?.let { src ->
+                if (photoIsPng) {
+                    StudioCapture.savePng(context, src)
+                } else {
+                    // JPEG has no alpha — flatten onto the chroma colour first.
+                    StudioCapture.saveJpeg(context, flattenOntoChroma(src, exportPrefs.chromaColor))
+                }
             }
             // Restore the chrome the instant the save is done — showSnackbar
             // suspends for the snackbar's whole lifetime, so clearing this
@@ -495,12 +503,15 @@ fun OverlayStudioScreen(
                 duration = SnackbarDuration.Long
             )
             if (uri != null && result == SnackbarResult.ActionPerformed) {
-                openInGallery(context, uri, if (replayMode) "image/png" else "image/jpeg")
+                openInGallery(context, uri, if (photoIsPng) "image/png" else "image/jpeg")
             }
         }
     }
 
-    // --- Replay APNG export (offline, frame-by-frame) ----------------------
+    // --- Replay clip export (offline, frame-by-frame) ----------------------
+    // GIF / APNG / MP4 all share the same offline frame-stepping loop; only the
+    // encoder differs — GIF and APNG stream into a pending gallery image, MP4
+    // drives StudioVideoEncoder which publishes its own MP4.
     LaunchedEffect(rendering) {
         if (!rendering) return@LaunchedEffect
         renderCancelRequested = false
@@ -509,6 +520,8 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
+        val videoFormat = exportPrefs.videoFormat
+        val chroma = exportPrefs.chromaColor
         val savedPos = replayPosMs
         renderProgress = 0f
         val fps = 10
@@ -537,45 +550,123 @@ fun OverlayStudioScreen(
         val ew = (first.width * scale).toInt().coerceAtLeast(2)
         val eh = (first.height * scale).toInt().coerceAtLeast(2)
 
-        val pending = withContext(Dispatchers.IO) {
-            StudioCapture.newPendingImage(
-                context, "${StudioCapture.timestampedName()}.gif", "image/gif"
-            )
-        }
-        val stream = pending?.openStream()
-        if (pending == null || stream == null) {
-            rendering = false
-            return@LaunchedEffect
-        }
         var cancelled = false
-        val ok = try {
-            val gif = StudioGifEncoder(stream, ew, eh, frameMs)
-            withContext(Dispatchers.IO) { gif.addFrame(first) }
-            renderProgress = 1f / frameCount
-            for (i in 1 until frameCount) {
-                if (renderCancelRequested) {
-                    cancelled = true
-                    break
+        val ok: Boolean = try {
+            when (videoFormat) {
+                ReplayVideoFormat.MP4 -> {
+                    // MP4 has no alpha — every frame is composited onto the
+                    // chroma colour before it is drawn into the encoder.
+                    val mp4 = StudioVideoEncoder(context, withAudio = false)
+                    var encoderUri: Uri? = null
+                    try {
+                        if (!mp4.start(ew, eh)) {
+                            false
+                        } else {
+                            val canvasW = mp4.encodeWidth
+                            val canvasH = mp4.encodeHeight
+                            val paint = android.graphics.Paint(
+                                android.graphics.Paint.FILTER_BITMAP_FLAG
+                            )
+                            fun submit(frame: android.graphics.Bitmap): Boolean {
+                                val sw = if (frame.config == android.graphics.Bitmap.Config.HARDWARE) {
+                                    frame.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+                                } else frame
+                                val drawn = mp4.submitFrame { canvas ->
+                                    canvas.drawColor(chroma.toInt())
+                                    if (sw != null) {
+                                        val dst = android.graphics.Rect(0, 0, canvasW, canvasH)
+                                        canvas.drawBitmap(sw, null, dst, paint)
+                                    }
+                                }
+                                if (sw != null && sw !== frame) sw.recycle()
+                                return drawn
+                            }
+                            var encOk = withContext(Dispatchers.Default) { submit(first) }
+                            renderProgress = 1f / frameCount
+                            var i = 1
+                            while (encOk && i < frameCount) {
+                                if (renderCancelRequested) {
+                                    cancelled = true
+                                    break
+                                }
+                                replayPosMs = replayStartMs + i * stepMs
+                                repeat(2) { withFrameNanos {} }
+                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                encOk = withContext(Dispatchers.Default) { submit(frame) }
+                                renderProgress = (i + 1f) / frameCount
+                                i++
+                            }
+                            encoderUri = withContext(Dispatchers.IO) { mp4.finish() }
+                            !cancelled && encOk && encoderUri != null
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e("OverlayStudio", "Replay MP4 render failed", e)
+                        runCatching { mp4.finish() }
+                        false
+                    }
                 }
-                replayPosMs = replayStartMs + i * stepMs
-                repeat(2) { withFrameNanos {} }
-                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
-                withContext(Dispatchers.IO) { gif.addFrame(frame) }
-                renderProgress = (i + 1f) / frameCount
-            }
-            if (!cancelled) {
-                withContext(Dispatchers.IO) { gif.finish() }
-                true
-            } else {
-                false
+                else -> {
+                    // GIF / APNG — stream straight into a pending gallery image.
+                    val pending = withContext(Dispatchers.IO) {
+                        StudioCapture.newPendingImage(
+                            context,
+                            "${StudioCapture.timestampedName()}." +
+                                if (videoFormat == ReplayVideoFormat.GIF) "gif" else "png",
+                            if (videoFormat == ReplayVideoFormat.GIF) "image/gif" else "image/png"
+                        )
+                    }
+                    val stream = pending?.openStream()
+                    if (pending == null || stream == null) {
+                        false
+                    } else {
+                        var imgOk = false
+                        try {
+                            // GIF (1-bit alpha) vs APNG (full RGBA alpha).
+                            val gif = if (videoFormat == ReplayVideoFormat.GIF)
+                                StudioGifEncoder(stream, ew, eh, frameMs) else null
+                            val apng = if (videoFormat == ReplayVideoFormat.APNG)
+                                StudioApngEncoder(stream, ew, eh, frameMs, frameCount) else null
+                            withContext(Dispatchers.IO) {
+                                gif?.addFrame(first)
+                                apng?.addFrame(first)
+                            }
+                            renderProgress = 1f / frameCount
+                            for (i in 1 until frameCount) {
+                                if (renderCancelRequested) {
+                                    cancelled = true
+                                    break
+                                }
+                                replayPosMs = replayStartMs + i * stepMs
+                                repeat(2) { withFrameNanos {} }
+                                val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                withContext(Dispatchers.IO) {
+                                    gif?.addFrame(frame)
+                                    apng?.addFrame(frame)
+                                }
+                                renderProgress = (i + 1f) / frameCount
+                            }
+                            if (!cancelled) {
+                                withContext(Dispatchers.IO) {
+                                    gif?.finish()
+                                    apng?.finish()
+                                }
+                                imgOk = true
+                            }
+                        } catch (e: Exception) {
+                            android.util.Log.e("OverlayStudio", "Replay clip render failed", e)
+                            imgOk = false
+                        } finally {
+                            runCatching { stream.close() }
+                        }
+                        pending.finalize(imgOk)
+                        imgOk
+                    }
+                }
             }
         } catch (e: Exception) {
-            android.util.Log.e("OverlayStudio", "Replay GIF render failed", e)
+            android.util.Log.e("OverlayStudio", "Replay clip render failed", e)
             false
-        } finally {
-            runCatching { stream.close() }
         }
-        pending.finalize(ok)
         replayPosMs = savedPos
         rendering = false
         renderCancelRequested = false
@@ -763,7 +854,8 @@ fun OverlayStudioScreen(
                     ) { if (!capturing) capturing = true }
                     RecordButton {
                         if (replayMode) {
-                            // Replay records an offline transparent APNG clip.
+                            // Replay renders an offline clip in the chosen
+                            // video format (GIF / APNG / MP4).
                             if (!rendering && replayTrip != null) rendering = true
                         } else if (encoder == null) {
                             encoder = StudioVideoEncoder(
@@ -811,6 +903,11 @@ fun OverlayStudioScreen(
                         iconRotation = iconRot,
                         onLongClick = {
                             if (canAddElement) sheet = StudioSheet.AddElement
+                        },
+                        onDoubleClick = {
+                            if (preset.elements.isNotEmpty()) {
+                                sheet = StudioSheet.ManageElements
+                            }
                         }
                     ) { menuOpen = true }
                     StudioToolsFlyout(
@@ -873,6 +970,10 @@ fun OverlayStudioScreen(
                     onPlayPause = { replayPlaying = !replayPlaying },
                     dimmed = panelsDimmed,
                     onToggleDim = { panelsDimmed = !panelsDimmed },
+                    exportPrefs = exportPrefs,
+                    onPhotoFormat = { viewModel.setReplayPhotoFormat(it) },
+                    onVideoFormat = { viewModel.setReplayVideoFormat(it) },
+                    onChromaColor = { viewModel.setReplayChromaColor(it) },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
@@ -986,6 +1087,8 @@ fun OverlayStudioScreen(
                 sheet = StudioSheet.None
             },
             onDelete = { viewModel.removeElement(it) },
+            dimmed = panelsDimmed,
+            onToggleDim = { panelsDimmed = !panelsDimmed },
             onDismiss = { sheet = StudioSheet.None }
         )
         StudioSheet.AddElement -> AddElementSheet(
@@ -1001,6 +1104,8 @@ fun OverlayStudioScreen(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
+            dimmed = panelsDimmed,
+            onToggleDim = { panelsDimmed = !panelsDimmed },
             onDismiss = { sheet = StudioSheet.None }
         )
         StudioSheet.LayoutPicker -> LayoutPickerSheet(
@@ -1132,6 +1237,30 @@ fun OverlayStudioScreen(
 // real speed (just with fewer frames).
 private const val FRAME_INTERVAL_NS = 1_000_000_000L / 62L
 
+/**
+ * Composite [src] onto an opaque [chroma] colour. JPEG carries no alpha, so the
+ * transparent replay background has to be flattened to a solid fill first.
+ */
+private fun flattenOntoChroma(
+    src: android.graphics.Bitmap,
+    chroma: Long
+): android.graphics.Bitmap {
+    val flat = android.graphics.Bitmap.createBitmap(
+        src.width, src.height, android.graphics.Bitmap.Config.ARGB_8888
+    )
+    val canvas = android.graphics.Canvas(flat)
+    canvas.drawColor(chroma.toInt())
+    // getPixels needs a software bitmap — toImageBitmap() may hand back HARDWARE.
+    val sw = if (src.config == android.graphics.Bitmap.Config.HARDWARE) {
+        src.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+    } else src
+    if (sw != null) {
+        canvas.drawBitmap(sw, 0f, 0f, null)
+        if (sw !== src) sw.recycle()
+    }
+    return flat
+}
+
 /** Open a saved photo / video in whatever gallery app handles it. */
 private fun openInGallery(context: Context, uri: Uri, mime: String) {
     val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -1227,6 +1356,7 @@ private fun StudioRoundButton(
     iconTint: Color = Color.White,
     iconRotation: Float = 0f,
     onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
     onClick: () -> Unit
 ) {
     Box(
@@ -1234,10 +1364,11 @@ private fun StudioRoundButton(
             .size(size)
             .clip(CircleShape)
             .background(background)
-            .pointerInput(onLongClick) {
+            .pointerInput(onLongClick, onDoubleClick) {
                 detectTapGestures(
                     onTap = { onClick() },
-                    onLongPress = onLongClick?.let { cb -> { cb() } }
+                    onLongPress = onLongClick?.let { cb -> { cb() } },
+                    onDoubleTap = onDoubleClick?.let { cb -> { _ -> cb() } }
                 )
             },
         contentAlignment = Alignment.Center

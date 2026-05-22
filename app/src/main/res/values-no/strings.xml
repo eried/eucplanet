@@ -970,4 +970,14 @@
     <string name="studio_cfg_filter_cool">Kjølig</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Skygge</string>
+    <string name="studio_cfg_trace_colour">Sporfarge</string>
+    <string name="studio_export_format">Utdataformat</string>
+    <string name="studio_export_photo">Bilde</string>
+    <string name="studio_export_video">Video</string>
+    <string name="studio_export_chroma">Chroma key-farge</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Grønn</string>
+    <string name="studio_chroma_blue">Blå</string>
+    <string name="studio_chroma_black">Svart</string>
+    <string name="studio_chroma_white">Hvit</string>
 </resources>

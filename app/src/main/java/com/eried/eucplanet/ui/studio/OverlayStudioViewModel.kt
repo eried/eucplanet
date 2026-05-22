@@ -33,6 +33,43 @@ import javax.inject.Inject
 /** One telemetry tick plus the wall-clock time it arrived, for graph elements. */
 data class StudioSample(val timeMs: Long, val data: WheelData)
 
+/** Photo output format for a Replay-mode snapshot. */
+enum class ReplayPhotoFormat(
+    /** True when the format carries an alpha channel (no chroma fill needed). */
+    val hasAlpha: Boolean
+) {
+    PNG(true),
+    JPG(false);
+
+    companion object {
+        fun fromKey(key: String): ReplayPhotoFormat =
+            entries.firstOrNull { it.name == key } ?: PNG
+    }
+}
+
+/** Video output format for a Replay-mode clip export. */
+enum class ReplayVideoFormat(
+    /** True when the format carries an alpha channel (no chroma fill needed). */
+    val hasAlpha: Boolean
+) {
+    GIF(true),   // 1-bit transparency
+    APNG(true),  // full RGBA alpha
+    MP4(false);  // opaque — needs a chroma fill
+
+    companion object {
+        fun fromKey(key: String): ReplayVideoFormat =
+            entries.firstOrNull { it.name == key } ?: GIF
+    }
+}
+
+/** The rider's Replay-mode output-format choices. */
+data class ReplayExportPrefs(
+    val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
+    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.GIF,
+    /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
+    val chromaColor: Long = 0xFFFF00FFL
+)
+
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
 enum class PresetSaveResult { SAVED, NO_FOLDER, FAILED }
 
@@ -100,6 +137,47 @@ class OverlayStudioViewModel @Inject constructor(
     val speedUnit: String = Units.effectiveSpeedUnit(initialSettings)
     val distanceUnit: String = Units.effectiveDistanceUnit(initialSettings)
     val tempUnit: String = Units.effectiveTempUnit(initialSettings)
+
+    // --- Replay export format prefs -----------------------------------------
+    // The Replay panel's output-format chooser. Seeded from saved settings;
+    // every change is persisted so the rider's choice sticks across sessions.
+    private val _replayExportPrefs = MutableStateFlow(
+        ReplayExportPrefs(
+            photoFormat = ReplayPhotoFormat.fromKey(initialSettings.studioReplayPhotoFormat),
+            videoFormat = ReplayVideoFormat.fromKey(initialSettings.studioReplayVideoFormat),
+            chromaColor = initialSettings.studioReplayChromaColor
+        )
+    )
+    val replayExportPrefs: StateFlow<ReplayExportPrefs> = _replayExportPrefs.asStateFlow()
+
+    fun setReplayPhotoFormat(format: ReplayPhotoFormat) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(photoFormat = format)
+        persistReplayExportPrefs()
+    }
+
+    fun setReplayVideoFormat(format: ReplayVideoFormat) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(videoFormat = format)
+        persistReplayExportPrefs()
+    }
+
+    fun setReplayChromaColor(color: Long) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(chromaColor = color)
+        persistReplayExportPrefs()
+    }
+
+    private fun persistReplayExportPrefs() {
+        val prefs = _replayExportPrefs.value
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(
+                current.copy(
+                    studioReplayPhotoFormat = prefs.photoFormat.name,
+                    studioReplayVideoFormat = prefs.videoFormat.name,
+                    studioReplayChromaColor = prefs.chromaColor
+                )
+            )
+        }
+    }
 
     private val _history = MutableStateFlow<List<StudioSample>>(emptyList())
     val history: StateFlow<List<StudioSample>> = _history.asStateFlow()

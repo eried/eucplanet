@@ -953,4 +953,14 @@
     <string name="studio_cfg_filter_cool">Froid</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Ombre</string>
+    <string name="studio_cfg_trace_colour">Couleur du tracé</string>
+    <string name="studio_export_format">Format de sortie</string>
+    <string name="studio_export_photo">Photo</string>
+    <string name="studio_export_video">Vidéo</string>
+    <string name="studio_export_chroma">Couleur d\'incrustation</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Vert</string>
+    <string name="studio_chroma_blue">Bleu</string>
+    <string name="studio_chroma_black">Noir</string>
+    <string name="studio_chroma_white">Blanc</string>
 </resources>

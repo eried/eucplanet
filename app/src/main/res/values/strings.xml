@@ -693,6 +693,17 @@
     <string name="studio_replay_render_cancelled">Render cancelled</string>
     <string name="studio_replay_export_failed">Replay export failed</string>
 
+    <!-- Studio: replay output-format chooser -->
+    <string name="studio_export_format">Output format</string>
+    <string name="studio_export_photo">Photo</string>
+    <string name="studio_export_video">Video</string>
+    <string name="studio_export_chroma">Chroma key colour</string>
+    <string name="studio_chroma_magenta">Magenta</string>
+    <string name="studio_chroma_green">Green</string>
+    <string name="studio_chroma_blue">Blue</string>
+    <string name="studio_chroma_black">Black</string>
+    <string name="studio_chroma_white">White</string>
+
     <!-- Studio: flyout menu -->
     <string name="studio_flyout_section_preset">Preset</string>
     <string name="studio_flyout_panes">Panes</string>
@@ -1071,4 +1082,5 @@
     <string name="studio_group_data">Data</string>
     <string name="studio_group_text">Text &amp; info</string>
     <string name="studio_group_media">Camera &amp; images</string>
+    <string name="studio_cfg_trace_colour">Trace colour</string>
 </resources>
