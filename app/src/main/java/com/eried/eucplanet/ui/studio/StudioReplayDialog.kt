@@ -384,7 +384,7 @@ private fun ExportFormatChooser(
     Column(
         Modifier
             .fillMaxWidth()
-            .heightIn(max = 280.dp)
+            .heightIn(max = 360.dp)
             .verticalScroll(rememberScrollState())
     ) {
         // Photo.

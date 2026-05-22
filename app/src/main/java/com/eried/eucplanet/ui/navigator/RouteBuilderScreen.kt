@@ -864,7 +864,8 @@ private fun BottomPanel(
                 } else {
                     Column(
                         modifier = Modifier
-                            .heightIn(max = 220.dp)
+                            // ~4.5 stop rows tall — the half row hints it scrolls.
+                            .heightIn(max = 234.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
                         ReorderableColumn(

@@ -1008,5 +1008,5 @@
     <string name="studio_export_force_opaque">Forçar opacidade total</string>
     <string name="studio_cfg_g_scale">Escala</string>
     <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">JPG e MP4 não suportam transparência, então só essas saídas são afetadas — sem isso, elementos esmaecidos se misturam à cor do chroma.</string>
+    <string name="studio_export_force_opaque_hint">Formatos sem transparência usam a cor do chroma key, o que pode ficar estranho em elementos parcialmente transparentes.</string>
 </resources>

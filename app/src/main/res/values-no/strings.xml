@@ -989,5 +989,5 @@
     <string name="studio_export_force_opaque">Tving helt ugjennomsiktig</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_geometry">Geometri</string>
-    <string name="studio_export_force_opaque_hint">JPG og MP4 støtter ikke gjennomsiktighet, så bare de utdataene påvirkes – uten dette blandes nedtonede elementer med chroma-fargen.</string>
+    <string name="studio_export_force_opaque_hint">Formater uten gjennomsiktighet bruker chroma key-fargen, som kan se rart ut på delvis gjennomsiktige elementer.</string>
 </resources>

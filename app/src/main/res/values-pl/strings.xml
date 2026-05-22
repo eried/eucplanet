@@ -1009,5 +1009,5 @@
     <string name="studio_export_force_opaque">Wymuś pełną nieprzezroczystość</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">JPG i MP4 nie obsługują przezroczystości, więc dotyczy to tylko tych formatów — bez tego przyciemnione elementy zlewają się z kolorem klucza.</string>
+    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru klucza chroma, co może źle wyglądać na częściowo przezroczystych elementach.</string>
 </resources>

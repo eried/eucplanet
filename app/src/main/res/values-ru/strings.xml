@@ -1024,5 +1024,5 @@
     <string name="studio_export_force_opaque">Принудительно без прозрачности</string>
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_cfg_geometry">Геометрия</string>
-    <string name="studio_export_force_opaque_hint">JPG и MP4 не сохраняют прозрачность, поэтому затронуты только эти форматы — без этого полупрозрачные элементы сольются с цветом хромакея.</string>
+    <string name="studio_export_force_opaque_hint">Форматы без прозрачности используют цвет хромакея, что может плохо выглядеть на частично прозрачных элементах.</string>
 </resources>
