@@ -141,6 +141,8 @@ fun OverlayStudioScreen(
     var sheet by remember { mutableStateOf<StudioSheet>(StudioSheet.None) }
     var confirm by remember { mutableStateOf<StudioConfirm?>(null) }
     val dirty by viewModel.dirty.collectAsState()
+    // Layouts are capped — past the limit, Add is disabled everywhere.
+    val canAddElement = preset.elements.size < OverlayStudioViewModel.MAX_ELEMENTS
 
     // Runs a New / Load action. When the working layout is untouched there is
     // nothing to lose, so it applies straight away with no confirmation dialog.
@@ -677,7 +679,9 @@ fun OverlayStudioScreen(
                     onConfigViewport = { sheet = StudioSheet.ViewportConfig(it) },
                     onConfigDivider = { sheet = StudioSheet.DividerConfig },
                     onTapEmpty = { viewModel.selectElement(null) },
-                    onDoubleTapEmpty = { sheet = StudioSheet.AddElement }
+                    onDoubleTapEmpty = {
+                        if (canAddElement) sheet = StudioSheet.AddElement
+                    }
                 )
                 StudioElementLayer(
                     elements = preset.elements,
@@ -805,11 +809,14 @@ fun OverlayStudioScreen(
                         background = Color(0xCC1E1E26),
                         size = 48.dp,
                         iconRotation = iconRot,
-                        onLongClick = { sheet = StudioSheet.AddElement }
+                        onLongClick = {
+                            if (canAddElement) sheet = StudioSheet.AddElement
+                        }
                     ) { menuOpen = true }
                     StudioToolsFlyout(
                         expanded = menuOpen,
                         hasElements = preset.elements.isNotEmpty(),
+                        canAddElement = canAddElement,
                         onDismiss = { menuOpen = false },
                         onAddElement = { sheet = StudioSheet.AddElement },
                         onManageElements = { sheet = StudioSheet.ManageElements },
@@ -1148,11 +1155,16 @@ private fun newElement(
     val isGauge = type == OverlayElementType.DATA_DIAL ||
         type == OverlayElementType.DATA_BAR
     val metric = nextMetric(elements)
+    // Cascade each new element so it never lands exactly on an existing one —
+    // a perfect overlap makes the covered element impossible to tap/select.
+    val step = elements.size % 6
+    val nx = 0.10f + step * 0.045f
+    val ny = 0.12f + step * 0.060f
     if (type == OverlayElementType.G_FORCE) {
         return OverlayElement(
             type = type,
-            x = 0.12f,
-            y = 0.16f,
+            x = nx,
+            y = ny,
             width = 0.4f,
             graphWindowSec = 6,
             foreground = 0xFF4FC3F7L, // cyan trail / dot
@@ -1162,8 +1174,8 @@ private fun newElement(
     }
     return OverlayElement(
         type = type,
-        x = 0.12f,
-        y = 0.16f,
+        x = nx,
+        y = ny,
         width = when (type) {
             OverlayElementType.DATA_GRAPH, OverlayElementType.DATA_BAR,
             OverlayElementType.TEXT -> 0.5f

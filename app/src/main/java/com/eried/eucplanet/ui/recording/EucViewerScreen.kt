@@ -155,12 +155,11 @@ fun EucViewerScreen(
                 WebView(ctx).apply {
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
-                    // useWideViewPort=true gave the page a broken 731px-wide
-                    // layout viewport and a 0-height #map. Off, the WebView
-                    // uses its own size as the CSS viewport — a clean 1:1
-                    // mobile layout, which is what the responsive viewer wants.
-                    settings.useWideViewPort = false
-                    settings.loadWithOverviewMode = false
+                    // This WebView lays the viewer's page out at a wider
+                    // viewport than the screen; overview mode scales the whole
+                    // page down to fit so nothing is clipped off-screen.
+                    settings.useWideViewPort = true
+                    settings.loadWithOverviewMode = true
                     webViewClient = object : WebViewClient() {
                         override fun shouldInterceptRequest(
                             view: WebView?,

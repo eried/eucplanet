@@ -203,6 +203,7 @@ private val OverlayElementType.icon
 fun StudioToolsFlyout(
     expanded: Boolean,
     hasElements: Boolean,
+    canAddElement: Boolean = true,
     onDismiss: () -> Unit,
     onAddElement: () -> Unit,
     onManageElements: () -> Unit,
@@ -240,7 +241,10 @@ fun StudioToolsFlyout(
                 FlyoutItem(Icons.Default.Layers, stringResource(R.string.studio_flyout_manage), enabled = hasElements) {
                     onDismiss(); onManageElements()
                 }
-                FlyoutItem(Icons.Default.Widgets, stringResource(R.string.studio_flyout_add)) { onDismiss(); onAddElement() }
+                FlyoutItem(
+                    Icons.Default.Widgets, stringResource(R.string.studio_flyout_add),
+                    enabled = canAddElement
+                ) { onDismiss(); onAddElement() }
             }
         }
         }

@@ -54,6 +54,8 @@ class OverlayStudioViewModel @Inject constructor(
         /** Keep this many seconds of telemetry for graph elements. */
         private const val HISTORY_SECONDS = 360
         private const val DRAFT_DEBOUNCE_MS = 600L
+        /** Hard cap on overlay elements in one layout. */
+        const val MAX_ELEMENTS = 32
     }
 
     private val initialSettings = runBlocking(Dispatchers.IO) { settingsRepository.get() }
@@ -195,6 +197,7 @@ class OverlayStudioViewModel @Inject constructor(
     }
 
     fun addElement(element: OverlayElement) {
+        if (_preset.value.elements.size >= MAX_ELEMENTS) return
         mutate { it.copy(elements = it.elements + element) }
         _selectedElementId.value = element.id
     }
