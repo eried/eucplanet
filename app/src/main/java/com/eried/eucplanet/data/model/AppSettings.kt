@@ -229,7 +229,7 @@ data class AppSettings(
     /** Perpendicular distance (meters) off the route before "wrong way" triggers. */
     val navOffRouteToleranceM: Int = 40,
     /** Default travel mode for new routes: CYCLING / DRIVING / WALKING / STRAIGHT. */
-    val navDefaultTravelMode: String = "CYCLING",
+    val navDefaultTravelMode: String = "STRAIGHT",
     /** Saved Home place as JSON {name,lat,lng}; blank when unset. */
     val navHomeJson: String = "",
     /** Saved Work place as JSON {name,lat,lng}; blank when unset. */
