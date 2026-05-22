@@ -3,6 +3,8 @@ package com.eried.eucplanet.ui.navigator
 import android.content.Context
 import android.location.Location
 import android.net.Uri
+import android.provider.DocumentsContract
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -438,13 +440,28 @@ class RouteBuilderViewModel @Inject constructor(
             try {
                 val route = _route.value
                     ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
-                context.contentResolver.openOutputStream(uri)?.use { GpxIO.write(route, it) }
+                // Keep the .gpx extension even if the rider cleared it in the
+                // system save dialog — otherwise the file is hard to spot and
+                // won't filter back into the open dialog later.
+                val target = ensureGpxExtension(uri)
+                context.contentResolver.openOutputStream(target)?.use { GpxIO.write(route, it) }
                 _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "saveGpx failed", e)
                 _messages.tryEmit(R.string.nav_save_failed)
             }
         }
+    }
+
+    /** Renames the just-created document to append ".gpx" when it is missing. */
+    private fun ensureGpxExtension(uri: Uri): Uri {
+        val name = context.contentResolver.query(
+            uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null
+        )?.use { c -> if (c.moveToFirst()) c.getString(0) else null } ?: return uri
+        if (name.endsWith(".gpx", ignoreCase = true)) return uri
+        return runCatching {
+            DocumentsContract.renameDocument(context.contentResolver, uri, "$name.gpx")
+        }.getOrNull() ?: uri
     }
 
     // --- Map data ----------------------------------------------------------------
