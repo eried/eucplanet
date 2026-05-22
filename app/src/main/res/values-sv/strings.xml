@@ -925,4 +925,15 @@
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_hint_g_force">En G-kraftcirkel med spår</string>
     <string name="studio_cfg_trail_label">Spårlängd</string>
+    <string name="studio_cfg_mirror">Spegelvänd</string>
+    <string name="studio_cfg_orientation">Orientering</string>
+    <string name="studio_element_map">Karta</string>
+    <string name="studio_hint_map">En live-minikarta med ditt spår</string>
+    <string name="studio_cfg_map_style">Kartstil</string>
+    <string name="studio_cfg_map_street">Gata</string>
+    <string name="studio_cfg_map_dark">Mörk</string>
+    <string name="studio_cfg_map_satellite">Satellit</string>
+    <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_rotate">Rotera med rörelsen</string>
+    <string name="studio_cfg_map_trace">Visa spår</string>
 </resources>

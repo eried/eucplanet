@@ -925,4 +925,15 @@
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_hint_g_force">Un cercle de traînée de force G</string>
     <string name="studio_cfg_trail_label">Longueur de la traînée</string>
+    <string name="studio_cfg_mirror">Miroir</string>
+    <string name="studio_cfg_orientation">Orientation</string>
+    <string name="studio_element_map">Carte</string>
+    <string name="studio_hint_map">Une mini-carte en direct avec votre tracé</string>
+    <string name="studio_cfg_map_style">Style de carte</string>
+    <string name="studio_cfg_map_street">Rue</string>
+    <string name="studio_cfg_map_dark">Sombre</string>
+    <string name="studio_cfg_map_satellite">Satellite</string>
+    <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
+    <string name="studio_cfg_map_trace">Afficher le tracé</string>
 </resources>

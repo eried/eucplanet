@@ -52,6 +52,10 @@ enum class ViewportSourceType { CAMERA, SOLID, IMAGE, GRADIENT }
 data class ViewportConfig(
     val source: ViewportSourceType = ViewportSourceType.CAMERA,
     val cameraKey: String = "BACK",
+    /** Horizontally flip the camera frame (GPU graphicsLayer transform). */
+    val cameraMirror: Boolean = false,
+    /** Camera frame rotation in degrees: one of 0 / 90 / 180 / 270. */
+    val cameraOrientation: Int = 0,
     /** ARGB colour used when [source] is [ViewportSourceType.SOLID]. */
     val solidColor: Long = 0xFF101014L,
     /** Base64 PNG embedded in the preset when [source] is [ViewportSourceType.IMAGE]. */
@@ -90,7 +94,9 @@ enum class OverlayElementType {
     /** A clock / watch — digital, analog, plain text, or a stopwatch. */
     CLOCK,
     /** A circular crosshair plotting live lateral × forward G-force with a comet trail. */
-    G_FORCE
+    G_FORCE,
+    /** A live mini-map of the rider's GPS position with a route trace. */
+    MAP
 }
 
 /**
@@ -147,7 +153,17 @@ data class OverlayElement(
 
     // CLOCK — DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
     val clockStyle: String = "DIGITAL",
-    val clockShowDate: Boolean = false
+    val clockShowDate: Boolean = false,
+
+    // MAP — live mini-map options.
+    /** Tile style: STREET / DARK / SATELLITE. */
+    val mapStyle: String = "STREET",
+    /** Slippy-map tile zoom level, 10..19. */
+    val mapZoom: Int = 16,
+    /** True rotates the map so the direction of travel points up; false = north up. */
+    val mapRotateWithHeading: Boolean = false,
+    /** Draw the GPS trace polyline over the map. */
+    val mapTrace: Boolean = true
 )
 
 /**

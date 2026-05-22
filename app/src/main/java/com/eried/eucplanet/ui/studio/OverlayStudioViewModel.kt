@@ -72,7 +72,18 @@ class OverlayStudioViewModel @Inject constructor(
     val dirty: StateFlow<Boolean> = _dirty.asStateFlow()
 
     // --- Live telemetry ------------------------------------------------------
-    val wheelData: StateFlow<WheelData> = wheelRepository.wheelData
+    // Merge the phone's live GPS fix into the telemetry stream the same way the
+    // repository merges the IMU — the MAP overlay reads latitude / longitude
+    // from WheelData. WheelRepository can't inject TripRepository (that would
+    // be circular), so the GPS merge lands here where TripRepository is already
+    // available. In replay the lat/lon come from the trip CSV instead.
+    val wheelData: StateFlow<WheelData> = combine(
+        wheelRepository.wheelData,
+        tripRepository.currentLocation
+    ) { data, loc ->
+        if (loc != null) data.copy(latitude = loc.latitude, longitude = loc.longitude)
+        else data
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, WheelData())
 
     val connected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
@@ -130,6 +141,10 @@ class OverlayStudioViewModel @Inject constructor(
     private var draftSaveJob: Job? = null
 
     init {
+        // The MAP overlay needs live GPS even when the studio is opened with no
+        // wheel connected and no trip recording. Idempotent — TripRepository
+        // guards against starting a second fused-location request.
+        tripRepository.startLocationUpdates()
         viewModelScope.launch {
             _preset.value = presetStore.loadDraft()
         }

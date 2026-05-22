@@ -1172,6 +1172,19 @@ private fun newElement(
             rotationDeg = ((360 - deviceRotation) % 360).toFloat()
         )
     }
+    if (type == OverlayElementType.MAP) {
+        return OverlayElement(
+            type = type,
+            x = nx,
+            y = ny,
+            width = 0.4f,
+            mapZoom = 16,
+            mapStyle = "STREET",
+            foreground = 0xFFFFEB3BL, // bright yellow trace / marker
+            background = 0x66000000L,
+            rotationDeg = ((360 - deviceRotation) % 360).toFloat()
+        )
+    }
     return OverlayElement(
         type = type,
         x = nx,

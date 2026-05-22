@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -175,6 +176,7 @@ private val OverlayElementType.labelRes: Int
         OverlayElementType.IMAGE -> R.string.studio_element_image
         OverlayElementType.CLOCK -> R.string.studio_element_clock
         OverlayElementType.G_FORCE -> R.string.studio_element_g_force
+        OverlayElementType.MAP -> R.string.studio_element_map
     }
 
 @Composable
@@ -193,6 +195,7 @@ private val OverlayElementType.icon
         OverlayElementType.IMAGE -> Icons.Default.Image
         OverlayElementType.CLOCK -> Icons.Default.Schedule
         OverlayElementType.G_FORCE -> Icons.Default.TrackChanges
+        OverlayElementType.MAP -> Icons.Default.Map
     }
 
 // --------------------------------------------------------------------------
@@ -529,6 +532,7 @@ private fun elementHint(type: OverlayElementType): String = when (type) {
     OverlayElementType.IMAGE -> stringResource(R.string.studio_hint_image)
     OverlayElementType.CLOCK -> stringResource(R.string.studio_hint_clock)
     OverlayElementType.G_FORCE -> stringResource(R.string.studio_hint_g_force)
+    OverlayElementType.MAP -> stringResource(R.string.studio_hint_map)
 }
 
 // --------------------------------------------------------------------------
@@ -868,6 +872,21 @@ fun ViewportConfigSheet(
                     Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
                     CameraPicker(cameras, config.cameraKey, inUseKeys) {
                         onChange(config.copy(cameraKey = it))
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
+                        onChange(config.copy(cameraMirror = it))
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(0, 90, 180, 270).forEach { deg ->
+                            FilterChip(
+                                selected = config.cameraOrientation == deg,
+                                onClick = { onChange(config.copy(cameraOrientation = deg)) },
+                                label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) }
+                            )
+                        }
                     }
                 }
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
@@ -1301,6 +1320,39 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.toFloat(), 2f, 30f
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
+            }
+
+            if (element.type == OverlayElementType.MAP) {
+                Text(stringResource(R.string.studio_cfg_map_style), fontWeight = FontWeight.SemiBold)
+                val mapStreet = stringResource(R.string.studio_cfg_map_street)
+                val mapDark = stringResource(R.string.studio_cfg_map_dark)
+                val mapSatellite = stringResource(R.string.studio_cfg_map_satellite)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "STREET" to mapStreet, "DARK" to mapDark,
+                        "SATELLITE" to mapSatellite
+                    ).forEach { (key, lbl) ->
+                        FilterChip(
+                            selected = element.mapStyle == key,
+                            onClick = { onChange(element.copy(mapStyle = key)) },
+                            label = { Text(lbl) }
+                        )
+                    }
+                }
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_map_zoom),
+                    element.mapZoom.toString(),
+                    element.mapZoom.toFloat(), 10f, 19f, steps = 8
+                ) { onChange(element.copy(mapZoom = it.roundToInt())) }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_map_rotate),
+                    element.mapRotateWithHeading
+                ) { onChange(element.copy(mapRotateWithHeading = it)) }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_map_trace),
+                    element.mapTrace
+                ) { onChange(element.copy(mapTrace = it)) }
+                Spacer(Modifier.height(8.dp))
             }
 
             if (element.type == OverlayElementType.FLOATING_CAMERA) {

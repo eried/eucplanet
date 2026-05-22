@@ -925,4 +925,15 @@
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_hint_g_force">G力轨迹圆圈</string>
     <string name="studio_cfg_trail_label">轨迹长度</string>
+    <string name="studio_cfg_mirror">镜像</string>
+    <string name="studio_cfg_orientation">方向</string>
+    <string name="studio_element_map">地图</string>
+    <string name="studio_hint_map">带轨迹的实时小地图</string>
+    <string name="studio_cfg_map_style">地图样式</string>
+    <string name="studio_cfg_map_street">街道</string>
+    <string name="studio_cfg_map_dark">深色</string>
+    <string name="studio_cfg_map_satellite">卫星</string>
+    <string name="studio_cfg_map_zoom">缩放</string>
+    <string name="studio_cfg_map_rotate">随移动旋转</string>
+    <string name="studio_cfg_map_trace">显示轨迹</string>
 </resources>

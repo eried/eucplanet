@@ -977,4 +977,15 @@
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_hint_g_force">Круг со следом перегрузки</string>
     <string name="studio_cfg_trail_label">Длина следа</string>
+    <string name="studio_cfg_mirror">Отразить</string>
+    <string name="studio_cfg_orientation">Ориентация</string>
+    <string name="studio_element_map">Карта</string>
+    <string name="studio_hint_map">Живая мини-карта с вашим маршрутом</string>
+    <string name="studio_cfg_map_style">Стиль карты</string>
+    <string name="studio_cfg_map_street">Улицы</string>
+    <string name="studio_cfg_map_dark">Тёмная</string>
+    <string name="studio_cfg_map_satellite">Спутник</string>
+    <string name="studio_cfg_map_zoom">Масштаб</string>
+    <string name="studio_cfg_map_rotate">Поворот по движению</string>
+    <string name="studio_cfg_map_trace">Показывать след</string>
 </resources>

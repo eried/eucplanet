@@ -123,6 +123,12 @@ object OverlayPresetJson {
         put("chromaKeyEnabled", el.chromaKeyEnabled)
         put("chromaKeyColor", el.chromaKeyColor)
         put("chromaKeyTolerance", el.chromaKeyTolerance.toDouble())
+        put("clockStyle", el.clockStyle)
+        put("clockShowDate", el.clockShowDate)
+        put("mapStyle", el.mapStyle)
+        put("mapZoom", el.mapZoom)
+        put("mapRotateWithHeading", el.mapRotateWithHeading)
+        put("mapTrace", el.mapTrace)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -157,7 +163,15 @@ object OverlayPresetJson {
             chromaKeyColor = o.optLong("chromaKeyColor", d.chromaKeyColor),
             chromaKeyTolerance = o.optDouble(
                 "chromaKeyTolerance", d.chromaKeyTolerance.toDouble()
-            ).toFloat()
+            ).toFloat(),
+            clockStyle = o.optString("clockStyle", d.clockStyle),
+            clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
+            mapStyle = o.optString("mapStyle", d.mapStyle),
+            mapZoom = o.optInt("mapZoom", d.mapZoom),
+            mapRotateWithHeading = o.optBoolean(
+                "mapRotateWithHeading", d.mapRotateWithHeading
+            ),
+            mapTrace = o.optBoolean("mapTrace", d.mapTrace)
         )
     }
 

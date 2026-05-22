@@ -927,4 +927,15 @@
     <string name="studio_element_g_force">G-Force</string>
     <string name="studio_hint_g_force">En G-kraftcirkel med spor</string>
     <string name="studio_cfg_trail_label">Sporlængde</string>
+    <string name="studio_cfg_mirror">Spejlvend</string>
+    <string name="studio_cfg_orientation">Retning</string>
+    <string name="studio_element_map">Kort</string>
+    <string name="studio_hint_map">Et live-minikort med dit spor</string>
+    <string name="studio_cfg_map_style">Kortstil</string>
+    <string name="studio_cfg_map_street">Gade</string>
+    <string name="studio_cfg_map_dark">Mørk</string>
+    <string name="studio_cfg_map_satellite">Satellit</string>
+    <string name="studio_cfg_map_zoom">Zoom</string>
+    <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
+    <string name="studio_cfg_map_trace">Vis spor</string>
 </resources>

@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -183,7 +184,9 @@ fun StudioViewportLayer(
                     else -> CameraPane(
                         hub = hub,
                         cameraKey = config?.cameraKey ?: "BACK",
-                        hasPermission = hasCameraPermission
+                        hasPermission = hasCameraPermission,
+                        mirror = config?.cameraMirror ?: false,
+                        orientation = config?.cameraOrientation ?: 0
                     )
                 }
                 if (editable) {
@@ -209,15 +212,29 @@ fun StudioViewportLayer(
 }
 
 @Composable
-private fun CameraPane(hub: StudioCameraHub, cameraKey: String, hasPermission: Boolean) {
+private fun CameraPane(
+    hub: StudioCameraHub,
+    cameraKey: String,
+    hasPermission: Boolean,
+    mirror: Boolean,
+    orientation: Int
+) {
     Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
         val frame = hub.frame(cameraKey)
         when {
+            // Mirror/orientation are GPU graphicsLayer transforms only — no
+            // per-frame pixel work — applied to the camera image itself so the
+            // recording (which captures pane content) picks them up.
             frame != null -> Image(
                 bitmap = frame,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = if (mirror) -1f else 1f
+                        rotationZ = orientation.toFloat()
+                    }
             )
             !hasPermission -> PaneMessage(Icons.Default.VideocamOff, stringResource(R.string.studio_pane_camera_access_needed))
             hub.isLive(cameraKey) -> Icon(

@@ -30,9 +30,12 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
@@ -66,6 +70,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.OverlayElement
 import com.eried.eucplanet.data.model.OverlayElementType
 import com.eried.eucplanet.data.model.WheelData
+import kotlinx.coroutines.launch
 
 /** Everything an overlay element needs to render itself with live data. */
 data class StudioElementData(
@@ -293,6 +298,7 @@ private fun ElementContent(element: OverlayElement, data: StudioElementData) {
         OverlayElementType.IMAGE -> ImageElement(element)
         OverlayElementType.CLOCK -> ClockElement(element, data)
         OverlayElementType.G_FORCE -> GForceTrailElement(element, data)
+        OverlayElementType.MAP -> MapElement(element, data)
     }
 }
 
@@ -931,6 +937,241 @@ private fun ImageElement(element: OverlayElement) {
                 tint = Color.White,
                 modifier = Modifier.size(32.dp)
             )
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// MAP — a live mini-map drawn entirely with a Compose Canvas so the studio's
+// GraphicsLayer capture records it (a real MapView is SurfaceView-backed and
+// would not appear in the recording). Raster "slippy map" tiles are fetched
+// over HTTP, cached, and painted onto the Canvas; the GPS trace and position
+// marker are projected with the same Web-Mercator maths.
+// --------------------------------------------------------------------------
+
+/** Side of a single map tile, in pixels (standard slippy-map tile size). */
+private const val MAP_TILE_SIZE = 256
+
+/** Most recent trace points to draw — keeps the polyline cheap on long trips. */
+private const val MAP_TRACE_CAP = 400
+
+/**
+ * Process-wide raster tile cache + async loader. Tiles are immutable for a
+ * given (style, z, x, y), so one shared LRU serves every MAP element.
+ */
+private object MapTileCache {
+    // ~64 tiles ≈ 16 MB of ARGB_8888 bitmaps — plenty for a 3x3 view plus pans.
+    private val cache = android.util.LruCache<String, ImageBitmap>(64)
+    // URLs currently being fetched, so two recompositions don't double-load.
+    private val inFlight = java.util.Collections.synchronizedSet(HashSet<String>())
+
+    fun get(url: String): ImageBitmap? = cache.get(url)
+
+    fun isLoading(url: String): Boolean = inFlight.contains(url)
+
+    /** Loads [url] off the main thread; returns true once a bitmap is cached. */
+    suspend fun load(url: String): Boolean {
+        if (cache.get(url) != null) return true
+        if (!inFlight.add(url)) return false
+        return try {
+            val bmp = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    val conn = (java.net.URL(url).openConnection()
+                        as java.net.HttpURLConnection).apply {
+                        // Tile servers (OSM in particular) reject blank UAs.
+                        setRequestProperty("User-Agent", "EUC Planet")
+                        connectTimeout = 8000
+                        readTimeout = 8000
+                    }
+                    conn.inputStream.use { android.graphics.BitmapFactory.decodeStream(it) }
+                }.getOrNull()
+            }
+            if (bmp != null) {
+                cache.put(url, bmp.asImageBitmap())
+                true
+            } else false
+        } finally {
+            inFlight.remove(url)
+        }
+    }
+}
+
+/** Tile URL for a style + z/x/y. */
+private fun mapTileUrl(style: String, z: Int, x: Int, y: Int): String = when (style) {
+    "DARK" -> "https://basemaps.cartocdn.com/dark_all/$z/$x/$y.png"
+    "SATELLITE" ->
+        "https://server.arcgisonline.com/ArcGIS/rest/services/" +
+            "World_Imagery/MapServer/tile/$z/$y/$x"
+    else -> "https://tile.openstreetmap.org/$z/$x/$y.png"
+}
+
+/** Fractional tile X for a longitude at [zoom] (slippy-map / Web Mercator). */
+private fun lonToTileX(lon: Double, zoom: Int): Double =
+    (lon + 180.0) / 360.0 * (1 shl zoom)
+
+/** Fractional tile Y for a latitude at [zoom] (slippy-map / Web Mercator). */
+private fun latToTileY(lat: Double, zoom: Int): Double {
+    val rad = Math.toRadians(lat)
+    return (1.0 - kotlin.math.ln(
+        kotlin.math.tan(rad) + 1.0 / kotlin.math.cos(rad)
+    ) / Math.PI) / 2.0 * (1 shl zoom)
+}
+
+@Composable
+private fun MapElement(element: OverlayElement, data: StudioElementData) {
+    val zoom = element.mapZoom.coerceIn(10, 19)
+    val centerLat = data.wheelData.latitude
+    val centerLon = data.wheelData.longitude
+    val hasFix = centerLat != 0.0 || centerLon != 0.0
+
+    // Trace points with a real fix, capped to the most recent stretch. Built
+    // from history so it works identically for live recording and replay.
+    val trace = remember(data.history, element.mapTrace) {
+        if (!element.mapTrace) emptyList()
+        else data.history
+            .asSequence()
+            .map { it.data }
+            .filter { it.latitude != 0.0 || it.longitude != 0.0 }
+            .toList()
+            .takeLast(MAP_TRACE_CAP)
+    }
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color(element.background))
+    ) {
+        if (!hasFix) {
+            // No GPS yet — leave the styled background, nothing to project.
+            return@Box
+        }
+
+        // Fractional tile coordinates of the centre at this zoom.
+        val centerTx = lonToTileX(centerLon, zoom)
+        val centerTy = latToTileY(centerLat, zoom)
+        val maxTile = (1 shl zoom) - 1
+
+        // Which tiles are needed: enough rings around the centre tile to cover
+        // the (square) canvas at any rotation. 2 rings (5x5) is ample.
+        val ring = 2
+        val baseTx = kotlin.math.floor(centerTx).toInt()
+        val baseTy = kotlin.math.floor(centerTy).toInt()
+        val tileKeys = remember(element.mapStyle, zoom, baseTx, baseTy) {
+            buildList {
+                for (dx in -ring..ring) for (dy in -ring..ring) {
+                    val tx = baseTx + dx
+                    val ty = baseTy + dy
+                    if (ty in 0..maxTile) {
+                        // Wrap X around the antimeridian so panning never gaps.
+                        val wx = ((tx % (maxTile + 1)) + (maxTile + 1)) % (maxTile + 1)
+                        add(Triple(tx, ty, mapTileUrl(element.mapStyle, zoom, wx, ty)))
+                    }
+                }
+            }
+        }
+
+        // Bump this on every tile completion so the Canvas redraws. Each tile
+        // is fetched in its own child coroutine so they download in parallel.
+        var tilesReady by remember { mutableStateOf(0) }
+        LaunchedEffect(tileKeys) {
+            kotlinx.coroutines.coroutineScope {
+                tileKeys.forEach { (_, _, url) ->
+                    if (MapTileCache.get(url) == null) {
+                        launch {
+                            if (MapTileCache.load(url)) tilesReady++
+                        }
+                    }
+                }
+            }
+        }
+
+        val fg = Color(element.foreground)
+
+        androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+            // Touch tilesReady so a tile finishing schedules a redraw.
+            tilesReady
+            val w = size.width
+            val h = size.height
+            val cx = w / 2f
+            val cy = h / 2f
+
+            // Bearing of recent travel (degrees, 0 = north, clockwise) from the
+            // last two distinct trace points — drives optional heading-up mode.
+            val bearing: Float = if (trace.size >= 2) {
+                var b = 0f
+                val last = trace.last()
+                for (i in trace.size - 2 downTo 0) {
+                    val p = trace[i]
+                    if (p.latitude != last.latitude || p.longitude != last.longitude) {
+                        val dLon = Math.toRadians(last.longitude - p.longitude)
+                        val lat1 = Math.toRadians(p.latitude)
+                        val lat2 = Math.toRadians(last.latitude)
+                        val yb = kotlin.math.sin(dLon) * kotlin.math.cos(lat2)
+                        val xb = kotlin.math.cos(lat1) * kotlin.math.sin(lat2) -
+                            kotlin.math.sin(lat1) * kotlin.math.cos(lat2) *
+                            kotlin.math.cos(dLon)
+                        b = Math.toDegrees(kotlin.math.atan2(yb, xb)).toFloat()
+                        break
+                    }
+                }
+                b
+            } else 0f
+            val rotation = if (element.mapRotateWithHeading) -bearing else 0f
+
+            // Project a (lat, lon) to canvas pixels: pixel offset from centre
+            // tile coords, scaled by the tile size.
+            fun project(lat: Double, lon: Double): Offset {
+                val px = (lonToTileX(lon, zoom) - centerTx) * MAP_TILE_SIZE
+                val py = (latToTileY(lat, zoom) - centerTy) * MAP_TILE_SIZE
+                return Offset(cx + px.toFloat(), cy + py.toFloat())
+            }
+
+            // Everything (tiles + trace) rotates together for heading-up; the
+            // marker is drawn after, unrotated, so it stays a fixed dot.
+            rotate(degrees = rotation, pivot = Offset(cx, cy)) {
+                // Tiles — top-left of each tile is its (tileX - centerTx) offset.
+                tileKeys.forEach { (tx, ty, url) ->
+                    val bmp = MapTileCache.get(url) ?: return@forEach
+                    val left = cx + ((tx - centerTx) * MAP_TILE_SIZE).toFloat()
+                    val top = cy + ((ty - centerTy) * MAP_TILE_SIZE).toFloat()
+                    drawImage(
+                        image = bmp,
+                        dstOffset = androidx.compose.ui.unit.IntOffset(
+                            left.roundToInt(), top.roundToInt()
+                        ),
+                        dstSize = androidx.compose.ui.unit.IntSize(
+                            MAP_TILE_SIZE, MAP_TILE_SIZE
+                        )
+                    )
+                }
+
+                // Trace polyline.
+                if (element.mapTrace && trace.size >= 2) {
+                    val path = androidx.compose.ui.graphics.Path()
+                    trace.forEachIndexed { i, p ->
+                        val o = project(p.latitude, p.longitude)
+                        if (i == 0) path.moveTo(o.x, o.y) else path.lineTo(o.x, o.y)
+                    }
+                    // A dark casing under the bright line so it reads on any tile.
+                    drawPath(
+                        path = path,
+                        color = Color.Black.copy(alpha = 0.45f),
+                        style = Stroke(width = 7f, cap = StrokeCap.Round)
+                    )
+                    drawPath(
+                        path = path,
+                        color = fg,
+                        style = Stroke(width = 4f, cap = StrokeCap.Round)
+                    )
+                }
+            }
+
+            // Position marker — always at the canvas centre, white ring + dot.
+            drawCircle(color = fg.copy(alpha = 0.20f), radius = 18f, center = Offset(cx, cy))
+            drawCircle(color = Color.White, radius = 11f, center = Offset(cx, cy))
+            drawCircle(color = fg, radius = 8f, center = Offset(cx, cy))
         }
     }
 }

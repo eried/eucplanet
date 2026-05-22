@@ -67,6 +67,8 @@ fun parseTripCsv(text: String): ReplayTrip {
     val iGForce = idx("g-force", "gforce")
     val iAccelX = idx("g-force x")
     val iAccelY = idx("g-force y")
+    val iLat = idx("latitude")
+    val iLon = idx("longitude")
 
     val out = ArrayList<ReplaySample>()
     var firstMs = -1L
@@ -78,6 +80,7 @@ fun parseTripCsv(text: String): ReplayTrip {
         if (line.isBlank()) return@forEach
         val c = line.split(',')
         fun num(i: Int) = if (i in c.indices) c[i].trim().toFloatOrNull() ?: 0f else 0f
+        fun dbl(i: Int) = if (i in c.indices) c[i].trim().toDoubleOrNull() ?: 0.0 else 0.0
         val rawDate = c.getOrNull(iDate)?.trim()?.takeIf { it.isNotEmpty() } ?: return@forEach
         val ms = fmts.firstNotNullOfOrNull {
             runCatching { it.parse(subMs.replace(rawDate, "$1"))?.time }.getOrNull()
@@ -101,7 +104,9 @@ fun parseTripCsv(text: String): ReplayTrip {
                 motorPower = (voltage * current).toInt(),
                 gForce = num(iGForce),
                 accelX = num(iAccelX),
-                accelY = num(iAccelY)
+                accelY = num(iAccelY),
+                latitude = dbl(iLat),
+                longitude = dbl(iLon)
             )
         )
     }
