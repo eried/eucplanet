@@ -51,15 +51,26 @@ enum class ReplayPhotoFormat(
 /** Video output format for a Replay-mode clip export. */
 enum class ReplayVideoFormat(
     /** True when the format carries an alpha channel (no chroma fill needed). */
-    val hasAlpha: Boolean
+    val hasAlpha: Boolean,
+    /** Output size as a fraction of the studio's native resolution. */
+    val scale: Float,
+    /** Label shown on the export-format chip. */
+    val label: String
 ) {
-    GIF(true),   // 1-bit transparency
-    APNG(true),  // full RGBA alpha
-    MP4(false);  // opaque — needs a chroma fill
+    GIF(true, 1f, "GIF"),            // 1-bit transparency
+    GIF_HALF(true, 0.5f, "GIF 50%"), // half-size — smaller, faster
+    APNG(true, 1f, "APNG"),          // full RGBA alpha
+    MP4(false, 1f, "MP4"),           // opaque — needs a chroma fill
+    MP4_HALF(false, 0.5f, "MP4 50%");
+
+    /** Exports through the GIF encoder (full or half size). */
+    val isGif: Boolean get() = this == GIF || this == GIF_HALF
+    /** Exports through the MP4 encoder (full or half size). */
+    val isMp4: Boolean get() = this == MP4 || this == MP4_HALF
 
     companion object {
         fun fromKey(key: String): ReplayVideoFormat =
-            entries.firstOrNull { it.name == key } ?: GIF
+            entries.firstOrNull { it.name == key } ?: MP4
     }
 }
 

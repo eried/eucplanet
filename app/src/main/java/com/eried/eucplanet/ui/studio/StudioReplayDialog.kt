@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -341,7 +343,7 @@ fun StudioReplayDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.name}",
+                    "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.label}",
                     style = MaterialTheme.typography.bodySmall,
                     color = StudioControlAccent
                 )
@@ -374,6 +376,7 @@ private val chromaPresets: List<Pair<Int, Long>> = listOf(
  * the rider can pick the fill before choosing an alpha-less format. Chips for
  * formats that have no alpha (JPG / MP4) carry a dot in the chosen chroma colour.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ExportFormatChooser(
     prefs: ReplayExportPrefs,
@@ -416,13 +419,16 @@ private fun ExportFormatChooser(
             color = Color.White.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 6.dp)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Five formats (incl. the 50% variants) — a FlowRow wraps them tidily.
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             ReplayVideoFormat.entries.forEach { fmt ->
                 FormatChip(
-                    label = fmt.name,
+                    label = fmt.label,
                     selected = fmt == prefs.videoFormat,
                     chromaDot = if (fmt.hasAlpha) null else prefs.chromaColor,
-                    modifier = Modifier.weight(1f),
                     onClick = { onVideoFormat(fmt) }
                 )
             }
