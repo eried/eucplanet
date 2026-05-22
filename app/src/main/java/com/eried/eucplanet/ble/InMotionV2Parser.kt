@@ -235,9 +235,11 @@ object InMotionV2Parser {
         val battery1 = if (data.size >= 22) ByteUtils.getUint16LE(data, 20) / 100f else 0f
         val battery2 = if (data.size >= 24) ByteUtils.getUint16LE(data, 22) / 100f else 0f
         val batteryPercent = if (battery1 > 0f || battery2 > 0f) {
-            ((battery1 + battery2) / 2f).toInt().coerceIn(0, 100)
+            // Real per-pack percentages — round the average so 97.9 reads 98
+            // like the wheel screen, not 97 (truncation lost the last percent).
+            ((battery1 + battery2) / 2f).roundToInt().coerceIn(0, 100)
         } else {
-            ((voltage - 165f) / 70f * 100f).toInt().coerceIn(0, 100)
+            ((voltage - 165f) / 70f * 100f).roundToInt().coerceIn(0, 100)
         }
 
         // Lifetime odometer as uint32 LE at offset 58, in 0.01 km units.

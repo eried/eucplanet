@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
 import com.eried.eucplanet.util.ByteUtils.parseTemperature
+import kotlin.math.roundToInt
 
 /**
  * Telemetry and settings parser for InMotion V12 HS / HT / Pro.
@@ -83,7 +84,9 @@ object InMotionV2ParserV12 {
         // Treat any beam (low or high) as "light on" for the dashboard indicator
         val lightOn = (lightByte and 0x03) != 0
 
-        val batteryPercent = batteryLevel.toInt().coerceIn(0, 100)
+        // V12's battery field is a real percentage — round it so 96.7 reads
+        // 97 like the wheel screen, not 96.
+        val batteryPercent = batteryLevel.roundToInt().coerceIn(0, 100)
 
         return WheelData(
             speed = speed,
