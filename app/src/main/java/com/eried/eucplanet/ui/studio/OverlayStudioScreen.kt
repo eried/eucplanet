@@ -148,24 +148,14 @@ fun OverlayStudioScreen(
         when (pending) {
             StudioConfirm.ClearLayout -> viewModel.clearLayout()
             is StudioConfirm.LoadUserPreset -> viewModel.loadPreset(pending.name) { ok ->
-                scope.launch {
-                    snackbar.showSnackbar(
-                        context.getString(
-                            if (ok) R.string.studio_preset_loaded
-                            else R.string.studio_preset_failed
-                        )
-                    )
+                if (!ok) scope.launch {
+                    snackbar.showSnackbar(context.getString(R.string.studio_preset_failed))
                 }
             }
             is StudioConfirm.LoadBundledPreset ->
                 viewModel.loadBundledPreset(pending.name) { ok ->
-                    scope.launch {
-                        snackbar.showSnackbar(
-                            context.getString(
-                                if (ok) R.string.studio_preset_loaded
-                                else R.string.studio_preset_failed
-                            )
-                        )
+                    if (!ok) scope.launch {
+                        snackbar.showSnackbar(context.getString(R.string.studio_preset_failed))
                     }
                 }
         }
@@ -195,6 +185,17 @@ fun OverlayStudioScreen(
         replayTrip?.dataAt(replayPosMs) ?: WheelData()
     } else {
         liveWheelData
+    }
+
+    // Graph elements read history; in replay there is no live feed, so build it
+    // from the trip's own samples up to the current scrub position.
+    val elementHistory: List<StudioSample> = if (replayMode) {
+        replayTrip?.samples
+            ?.filter { it.offsetMs <= replayPosMs }
+            ?.map { StudioSample(it.offsetMs, it.data) }
+            ?: emptyList()
+    } else {
+        history
     }
 
     // Opened from a trip ("Replay in Studio") — jump straight into replay.
@@ -643,7 +644,7 @@ fun OverlayStudioScreen(
                         wheelData = wheelData,
                         wheelName = wheelName,
                         connected = connected,
-                        history = history,
+                        history = elementHistory,
                         cameraHub = hub,
                         speedUnit = viewModel.speedUnit,
                         distanceUnit = viewModel.distanceUnit,
@@ -960,16 +961,14 @@ fun OverlayStudioScreen(
             folderAvailable = folderAvailable,
             onSave = { name ->
                 viewModel.savePresetAs(name) { result ->
-                    scope.launch {
-                        snackbar.showSnackbar(
-                            context.getString(
-                                when (result) {
-                                    PresetSaveResult.SAVED -> R.string.studio_preset_saved
-                                    PresetSaveResult.NO_FOLDER -> R.string.studio_no_folder
-                                    PresetSaveResult.FAILED -> R.string.studio_preset_failed
-                                }
-                            )
-                        )
+                    // Success is silent; only surface a problem.
+                    val msg = when (result) {
+                        PresetSaveResult.SAVED -> null
+                        PresetSaveResult.NO_FOLDER -> R.string.studio_no_folder
+                        PresetSaveResult.FAILED -> R.string.studio_preset_failed
+                    }
+                    if (msg != null) scope.launch {
+                        snackbar.showSnackbar(context.getString(msg))
                     }
                 }
                 sheet = StudioSheet.None

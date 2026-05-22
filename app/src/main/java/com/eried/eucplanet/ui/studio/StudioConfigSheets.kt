@@ -65,6 +65,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -89,6 +90,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.OverlayElement
@@ -806,7 +808,7 @@ fun ViewportConfigSheet(
                             config.source != ViewportSourceType.GRADIENT
                         ) onChange(config.copy(source = ViewportSourceType.SOLID))
                     },
-                    label = { Text("Background") },
+                    label = { Text("Fill") },
                     leadingIcon = { Icon(Icons.Default.FormatColorFill, null) }
                 )
                 FilterChip(
@@ -827,22 +829,20 @@ fun ViewportConfigSheet(
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
                     BackgroundEditor(config, onChange)
                 ViewportSourceType.IMAGE -> {
-                    OutlinedButton(onClick = onPickImage) {
-                        Icon(Icons.Default.AddPhotoAlternate, null)
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            if (config.imageData == null) "Choose image"
-                            else "Replace image"
-                        )
-                    }
-                    if (config.imageData == null) {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            "No image chosen yet — the section stays blank until " +
-                                "you pick one.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(onClick = onPickImage) {
+                            Icon(Icons.Default.AddPhotoAlternate, null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(if (config.imageData == null) "Choose" else "Replace")
+                        }
+                        if (config.imageData != null) {
+                            OutlinedButton(
+                                onClick = { onChange(config.copy(imageData = null)) }
+                            ) { Text("Clear") }
+                        }
                     }
                 }
             }
@@ -1116,6 +1116,14 @@ fun ElementConfigSheet(
                     onValueChange = { onChange(element.copy(text = it)) },
                     label = { Text("Text") },
                     minLines = 2,
+                    // Preview the chosen alignment right in the field.
+                    textStyle = LocalTextStyle.current.copy(
+                        textAlign = when (element.textAlign) {
+                            "CENTER" -> TextAlign.Center
+                            "END" -> TextAlign.End
+                            else -> TextAlign.Start
+                        }
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(4.dp))
