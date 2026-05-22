@@ -8,7 +8,7 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Close this and tap %1$s to share it. The buttons below delete crash logs.</string>
+<string name="crash_log_action_prompt">You long-pressed %1$s. Delete just this log, or delete all. To share it instead, tap Cancel and then tap the file.</string>
     <string name="crash_log_delete_one">Delete this log</string>
     <string name="crash_log_delete_all">Delete all</string>
     <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>

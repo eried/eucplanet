@@ -7,7 +7,7 @@
     <string name="action_back">Zurück</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Schließe dies und tippe auf %1$s, um es zu teilen. Die Schaltflächen unten löschen Absturzprotokolle.</string>
+<string name="crash_log_action_prompt">Du hast %1$s lange gedrückt. Lösche nur dieses Protokoll oder alle. Zum Teilen tippe auf Abbrechen und dann auf die Datei.</string>
     <string name="crash_log_delete_one">Diesen Log löschen</string>
     <string name="crash_log_delete_all">Alle löschen</string>
     <string name="crash_log_delete_all_warning">Alle gespeicherten Absturzprotokolle löschen? Das kann nicht rückgängig gemacht werden.</string>

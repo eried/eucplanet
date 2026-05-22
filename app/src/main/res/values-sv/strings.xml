@@ -7,7 +7,7 @@
     <string name="action_back">Tillbaka</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Stäng detta och tryck på %1$s för att dela den. Knapparna nedan tar bort kraschloggar.</string>
+<string name="crash_log_action_prompt">Du höll in %1$s. Radera bara den här loggen, eller alla. Tryck på Avbryt och sedan på filen för att dela den.</string>
     <string name="crash_log_delete_one">Ta bort denna logg</string>
     <string name="crash_log_delete_all">Radera alla</string>
     <string name="crash_log_delete_all_warning">Radera alla sparade kraschloggar? Detta kan inte ångras.</string>

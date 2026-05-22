@@ -8,7 +8,7 @@
     <string name="action_back">Indietro</string>
     <string name="action_cancel">Annulla</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Chiudi questa finestra e tocca %1$s per condividerlo. I pulsanti sotto eliminano i log dei crash.</string>
+<string name="crash_log_action_prompt">Hai tenuto premuto %1$s. Elimina solo questo log, o tutti. Per condividerlo, tocca Annulla e poi tocca il file.</string>
     <string name="crash_log_delete_one">Elimina questo log</string>
     <string name="crash_log_delete_all">Elimina tutto</string>
     <string name="crash_log_delete_all_warning">Eliminare tutti i log dei crash salvati? Questa operazione non può essere annullata.</string>

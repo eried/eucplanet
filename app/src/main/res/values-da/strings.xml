@@ -7,7 +7,7 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Luk dette, og tryk på %1$s for at dele den. Knapperne nedenfor sletter nedbrudslogfiler.</string>
+<string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log, eller alle. Tryk på Annuller og derefter på filen for at dele den.</string>
     <string name="crash_log_delete_one">Slet denne log</string>
     <string name="crash_log_delete_all">Slet alle</string>
     <string name="crash_log_delete_all_warning">Slet alle gemte nedbrudslogfiler? Dette kan ikke fortrydes.</string>

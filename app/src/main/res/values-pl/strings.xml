@@ -8,7 +8,7 @@
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Zamknij to i dotknij %1$s, aby udostępnić. Przyciski poniżej usuwają dzienniki awarii.</string>
+<string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń tylko ten dziennik lub wszystkie. Aby udostępnić, dotknij Anuluj, a potem dotknij pliku.</string>
     <string name="crash_log_delete_one">Usuń ten log</string>
     <string name="crash_log_delete_all">Usuń wszystkie</string>
     <string name="crash_log_delete_all_warning">Usunąć wszystkie zapisane dzienniki awarii? Tej operacji nie można cofnąć.</string>

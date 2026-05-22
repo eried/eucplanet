@@ -7,7 +7,7 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
-<string name="crash_log_action_prompt">关闭此对话框并点按 %1$s 即可分享。下方按钮可删除崩溃日志。</string>
+<string name="crash_log_action_prompt">你长按了 %1$s。可删除此日志或全部删除。如需分享，请点按“取消”后再点按该文件。</string>
     <string name="crash_log_delete_one">删除此日志</string>
     <string name="crash_log_delete_all">全部删除</string>
     <string name="crash_log_delete_all_warning">删除所有已保存的崩溃日志吗？此操作无法撤销。</string>
