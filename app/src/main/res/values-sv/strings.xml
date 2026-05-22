@@ -243,7 +243,6 @@
     <string name="gps_log_additional">Använd ytterligare GPS-data</string>
     <string name="gps_log_additional_desc">Logga extra GPS-prov från telefonen eller en extern enhet</string>
     <string name="gps_prioritize_external">Prioritera extern GPS</string>
-    <string name="gps_prioritize_external_desc">När en extern enhet är ansluten, använd den som hastighetskälla; annars fall tillbaka på telefonen</string>
     <string name="gps_show_on_dashboard">Visa hastighet på instrumentpanelen</string>
     <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet</string>
     <string name="section_volume_keys">Volymknappar</string>
@@ -595,7 +594,6 @@
     <string name="external_gps_autodetect_lateral_capture">Läser sidledsrörelse…</string>
     <string name="external_gps_autodetect_next">Nästa</string>
     <string name="external_gps_autodetect_vertical_capture">Läser vertikal rörelse…</string>
-    <string name="external_gps_caption">Slå på din RaceBox och tryck på Para för att söka. När den är parad matar dess hastighet hastighetsmätaren på instrumentpanelen och en ny kolumn i slutet av varje tur-CSV.</string>
     <string name="external_gps_disconnect">Koppla från</string>
     <string name="external_gps_paired_with">Parad med %1$s</string>
     <string name="external_gps_reconnect">Anslut igen</string>
@@ -978,4 +976,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Inställningar för extern GPS</string>
+    <string name="external_gps_caption">Slå på din RaceBox och tryck på Para för att söka. När den är parad matar fart och G-kraft appen live och sparas i CSV-filen för varje tur.</string>
+    <string name="gps_prioritize_external_desc">När en extern box är ansluten, använd den för hastighet och G-kraft; annars använd telefonen.</string>
 </resources>

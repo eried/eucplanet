@@ -243,7 +243,6 @@
     <string name="gps_log_additional">Utiliser les données GPS supplémentaires</string>
     <string name="gps_log_additional_desc">Enregistre des échantillons GPS supplémentaires depuis le téléphone ou un boîtier externe</string>
     <string name="gps_prioritize_external">Priorité au GPS externe</string>
-    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser comme source de vitesse ; sinon, basculer sur le téléphone</string>
     <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
     <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS</string>
     <string name="section_volume_keys">Touches de volume</string>
@@ -595,7 +594,6 @@
     <string name="external_gps_autodetect_lateral_capture">Lecture du mouvement latéral…</string>
     <string name="external_gps_autodetect_next">Suivant</string>
     <string name="external_gps_autodetect_vertical_capture">Lecture du mouvement vertical…</string>
-    <string name="external_gps_caption">Allumez votre RaceBox et appuyez sur Coupler pour rechercher. Une fois couplée, sa vitesse alimente le cadran du tableau de bord et une nouvelle colonne à la fin de chaque CSV de trajet.</string>
     <string name="external_gps_disconnect">Déconnecter</string>
     <string name="external_gps_paired_with">Couplé avec %1$s</string>
     <string name="external_gps_reconnect">Reconnecter</string>
@@ -978,4 +976,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Réglages du GPS externe</string>
+    <string name="external_gps_caption">Allume ta RaceBox et appuie sur Associer pour rechercher. Une fois associée, sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV de chaque trajet.</string>
+    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser pour la vitesse et la force G ; sinon, revenir au téléphone.</string>
 </resources>

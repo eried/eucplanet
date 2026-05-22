@@ -314,7 +314,6 @@
     <string name="gps_log_additional">Використовувати додаткові дані GPS</string>
     <string name="gps_log_additional_desc">Записує додаткові вибірки GPS з телефона або зовнішнього пристрою</string>
     <string name="gps_prioritize_external">Пріоритет зовнішнього GPS</string>
-    <string name="gps_prioritize_external_desc">Коли зовнішній пристрій підключений, використовувати його як джерело швидкості; інакше, телефон</string>
     <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
     <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS</string>
     <string name="section_volume_keys">Кнопки гучності</string>
@@ -631,7 +630,6 @@
     <string name="external_gps_autodetect_lateral_capture">Зчитування бокового руху…</string>
     <string name="external_gps_autodetect_next">Далі</string>
     <string name="external_gps_autodetect_vertical_capture">Зчитування вертикального руху…</string>
-    <string name="external_gps_caption">Увімкни свій RaceBox і натисни «Підʼєднати» для пошуку. Після сполучення його швидкість надходить на спідометр на панелі та в новий стовпець у кінці CSV кожної поїздки.</string>
     <string name="external_gps_disconnect">Відключити</string>
     <string name="external_gps_paired_with">Сполучено з %1$s</string>
     <string name="external_gps_reconnect">Перепідключити</string>
@@ -1015,4 +1013,6 @@
     <string name="studio_cfg_filter_vintage">Вінтаж</string>
     <string name="studio_cfg_filter_matte">Матовий</string>
     <string name="dash_external_gps_settings">Налаштування зовнішнього GPS</string>
+    <string name="external_gps_caption">Увімкніть RaceBox і торкніться «Парувати» для пошуку. Після парування швидкість і перевантаження передаються в застосунок наживо та зберігаються в CSV кожної поїздки.</string>
+    <string name="gps_prioritize_external_desc">Коли підключено зовнішній модуль, використовувати його для швидкості та перевантаження; інакше використовувати телефон.</string>
 </resources>

@@ -314,7 +314,6 @@
     <string name="gps_log_additional">Usa dati GPS aggiuntivi</string>
     <string name="gps_log_additional_desc">Registra campioni GPS aggiuntivi dal telefono o da una scatola esterna</string>
     <string name="gps_prioritize_external">Priorità al GPS esterno</string>
-    <string name="gps_prioritize_external_desc">Quando una scatola esterna è collegata, usala come fonte di velocità; altrimenti il telefono</string>
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
     <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS</string>
     <string name="section_volume_keys">Tasti volume</string>
@@ -631,7 +630,6 @@
     <string name="external_gps_autodetect_lateral_capture">Lettura del movimento laterale…</string>
     <string name="external_gps_autodetect_next">Avanti</string>
     <string name="external_gps_autodetect_vertical_capture">Lettura del movimento verticale…</string>
-    <string name="external_gps_caption">Accendi la tua RaceBox e tocca Accoppia per cercare. Una volta accoppiata, la sua velocità alimenta il quadrante della dashboard e una nuova colonna alla fine di ogni CSV del viaggio.</string>
     <string name="external_gps_disconnect">Disconnetti</string>
     <string name="external_gps_paired_with">Accoppiato con %1$s</string>
     <string name="external_gps_reconnect">Riconnetti</string>
@@ -1014,4 +1012,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Opaco</string>
     <string name="dash_external_gps_settings">Impostazioni GPS esterno</string>
+    <string name="external_gps_caption">Accendi la tua RaceBox e tocca Abbina per cercare. Una volta abbinata, velocità e forza G alimentano l\'app in tempo reale e vengono salvate nel CSV di ogni viaggio.</string>
+    <string name="gps_prioritize_external_desc">Quando una scatola esterna è connessa, usala per velocità e forza G; altrimenti usa il telefono.</string>
 </resources>

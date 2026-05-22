@@ -575,19 +575,19 @@ fun DashboardScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
+                        // The P / D cluster is one tap target — it opens the
+                        // wheel speed settings.
+                        .clickable { onNavigateToSettings(2) }
                         .padding(top = 8.dp, start = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Tapping either jumps to the wheel speed/parameter settings.
                     DashIndicatorLetter(
                         "P", active = live && wheelData.pcMode != 1,
-                        activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { onNavigateToSettings(2) }
+                        activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface
                     )
                     DashIndicatorLetter(
                         "D", active = live && wheelData.pcMode == 1,
-                        activeColor = if (useAccent) primary else AccentGreen,
-                        modifier = Modifier.clickable { onNavigateToSettings(2) }
+                        activeColor = if (useAccent) primary else AccentGreen
                     )
                 }
                 // GPS indicator, top-right. The icon glyph + colour speak for

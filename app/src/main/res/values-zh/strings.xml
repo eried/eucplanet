@@ -243,7 +243,6 @@
     <string name="gps_log_additional">使用额外的 GPS 数据</string>
     <string name="gps_log_additional_desc">记录来自手机或外部设备的额外 GPS 数据。</string>
     <string name="gps_prioritize_external">优先使用外部 GPS</string>
-    <string name="gps_prioritize_external_desc">连接外部设备时使用它作为速度来源；否则回退到手机。</string>
     <string name="gps_show_on_dashboard">在主屏显示速度</string>
     <string name="gps_show_on_dashboard_desc">在速度表上叠加一个彩色圆点显示 GPS 读数。</string>
     <string name="section_volume_keys">音量键</string>
@@ -595,7 +594,6 @@
     <string name="external_gps_autodetect_lateral_capture">正在读取横向动作…</string>
     <string name="external_gps_autodetect_next">下一步</string>
     <string name="external_gps_autodetect_vertical_capture">正在读取垂直动作…</string>
-    <string name="external_gps_caption">打开你的 RaceBox 并点击「配对」开始扫描。配对后,它的速度会接入主屏速度表盘,并在每条行程 CSV 末尾新增一列。</string>
     <string name="external_gps_disconnect">断开</string>
     <string name="external_gps_paired_with">已与 %1$s 配对</string>
     <string name="external_gps_reconnect">重新连接</string>
@@ -978,4 +976,6 @@
     <string name="studio_cfg_filter_vintage">复古</string>
     <string name="studio_cfg_filter_matte">哑光</string>
     <string name="dash_external_gps_settings">外部 GPS 设置</string>
+    <string name="external_gps_caption">打开你的 RaceBox 并点按「配对」扫描。配对后，速度和 G 力会实时传入应用，并保存到每次行程的 CSV。</string>
+    <string name="gps_prioritize_external_desc">连接外部设备时，用它获取速度和 G 力；否则回退到手机。</string>
 </resources>

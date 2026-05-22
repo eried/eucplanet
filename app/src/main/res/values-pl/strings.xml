@@ -314,7 +314,6 @@
     <string name="gps_log_additional">Używaj dodatkowych danych GPS</string>
     <string name="gps_log_additional_desc">Zapisuj dodatkowe próbki GPS z telefonu lub zewnętrznego urządzenia</string>
     <string name="gps_prioritize_external">Priorytet zewnętrznego GPS</string>
-    <string name="gps_prioritize_external_desc">Gdy zewnętrzne urządzenie jest podłączone, użyj go jako źródła prędkości; w przeciwnym razie użyj telefonu</string>
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="gps_show_on_dashboard_desc">Dodaje kolorową kropkę na prędkościomierzu z odczytem GPS</string>
     <string name="section_volume_keys">Klawisze głośności</string>
@@ -631,7 +630,6 @@
     <string name="external_gps_autodetect_lateral_capture">Odczyt ruchu na boki…</string>
     <string name="external_gps_autodetect_next">Dalej</string>
     <string name="external_gps_autodetect_vertical_capture">Odczyt ruchu pionowego…</string>
-    <string name="external_gps_caption">Włącz swój RaceBox i stuknij Sparuj, aby rozpocząć skanowanie. Po sparowaniu jego prędkość zasila wskaźnik na pulpicie oraz nową kolumnę na końcu każdego pliku CSV trasy.</string>
     <string name="external_gps_disconnect">Rozłącz</string>
     <string name="external_gps_paired_with">Sparowano z %1$s</string>
     <string name="external_gps_reconnect">Połącz ponownie</string>
@@ -1015,4 +1013,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matowy</string>
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
+    <string name="external_gps_caption">Włącz RaceBox i dotknij Paruj, aby skanować. Po sparowaniu prędkość i przeciążenie zasilają aplikację na żywo i są zapisywane w pliku CSV każdej trasy.</string>
+    <string name="gps_prioritize_external_desc">Gdy zewnętrzny moduł jest połączony, używaj go do prędkości i przeciążenia; w przeciwnym razie użyj telefonu.</string>
 </resources>

@@ -245,7 +245,6 @@
     <string name="gps_log_additional">Brug ekstra GPS-data</string>
     <string name="gps_log_additional_desc">Log ekstra GPS-data fra telefonen eller en ekstern boks</string>
     <string name="gps_prioritize_external">Prioritér ekstern GPS</string>
-    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilsluttet, bruges den som hastighedskilde; ellers bruges telefonen</string>
     <string name="gps_show_on_dashboard">Vis hastighed på dashboardet</string>
     <string name="gps_show_on_dashboard_desc">Tilføjer en farvet prik på speedometeret med GPS-værdien</string>
     <string name="section_volume_keys">Lydstyrketaster</string>
@@ -595,7 +594,6 @@
     <string name="external_gps_autodetect_lateral_capture">Læser sidebevægelse…</string>
     <string name="external_gps_autodetect_next">Næste</string>
     <string name="external_gps_autodetect_vertical_capture">Læser lodret bevægelse…</string>
-    <string name="external_gps_caption">Tænd din RaceBox og tryk Par for at scanne. Når den er parret, leverer dens hastighed til speedometerets måler og en ny kolonne i slutningen af hver tur-CSV.</string>
     <string name="external_gps_disconnect">Afbryd</string>
     <string name="external_gps_paired_with">Parret med %1$s</string>
     <string name="external_gps_reconnect">Forbind igen</string>
@@ -980,4 +978,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Indstillinger for ekstern GPS</string>
+    <string name="external_gps_caption">Tænd din RaceBox og tryk på Par for at søge. Når den er parret, fører fart og G-kraft appen live og gemmes i CSV-en for hver tur.</string>
+    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilsluttet, brug den til fart og G-kraft; ellers brug telefonen.</string>
 </resources>

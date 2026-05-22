@@ -239,7 +239,6 @@
     <string name="gps_log_additional">Использовать дополнительные данные GPS</string>
     <string name="gps_log_additional_desc">Записывает дополнительные образцы GPS с телефона или внешнего устройства</string>
     <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
-    <string name="gps_prioritize_external_desc">Когда внешнее устройство подключено, оно используется как источник скорости; иначе, телефон</string>
     <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
     <string name="gps_show_on_dashboard_desc">Добавляет цветную точку на спидометре с показаниями GPS</string>
     <string name="section_volume_keys">Кнопки громкости</string>
@@ -647,7 +646,6 @@
     <string name="external_gps_autodetect_lateral_capture">Считываем боковое движение…</string>
     <string name="external_gps_autodetect_next">Далее</string>
     <string name="external_gps_autodetect_vertical_capture">Считываем вертикальное движение…</string>
-    <string name="external_gps_caption">Включите RaceBox и нажмите «Подключить» для поиска. После сопряжения его скорость поступает на спидометр на панели и в новый столбец в конце CSV каждой поездки.</string>
     <string name="external_gps_disconnect">Отключить</string>
     <string name="external_gps_paired_with">Сопряжено с %1$s</string>
     <string name="external_gps_reconnect">Переподключить</string>
@@ -1030,4 +1028,6 @@
     <string name="studio_cfg_filter_vintage">Винтаж</string>
     <string name="studio_cfg_filter_matte">Матовый</string>
     <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
+    <string name="external_gps_caption">Включите RaceBox и нажмите «Сопряжение» для поиска. После сопряжения скорость и перегрузка передаются в приложение в реальном времени и сохраняются в CSV каждой поездки.</string>
+    <string name="gps_prioritize_external_desc">Когда подключён внешний модуль, использовать его для скорости и перегрузки; иначе использовать телефон.</string>
 </resources>

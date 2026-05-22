@@ -239,7 +239,6 @@
     <string name="gps_log_additional">Zusätzliche GPS-Daten verwenden</string>
     <string name="gps_log_additional_desc">Zusätzliche GPS-Samples vom Telefon oder einer externen Box aufzeichnen</string>
     <string name="gps_prioritize_external">Externes GPS bevorzugen</string>
-    <string name="gps_prioritize_external_desc">Wenn eine externe Box verbunden ist, sie als Geschwindigkeitsquelle nutzen; sonst das Telefon</string>
     <string name="gps_show_on_dashboard">Geschwindigkeit im Dashboard zeigen</string>
     <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt auf den Tacho mit dem GPS-Wert</string>
     <string name="section_volume_keys">Lautstärketasten</string>
@@ -611,7 +610,6 @@
     <string name="external_gps_autodetect_lateral_capture">Seitliche Bewegung wird gelesen…</string>
     <string name="external_gps_autodetect_next">Weiter</string>
     <string name="external_gps_autodetect_vertical_capture">Vertikale Bewegung wird gelesen…</string>
-    <string name="external_gps_caption">Schalte deine RaceBox ein und tippe auf Koppeln, um zu suchen. Nach dem Koppeln speist ihre Geschwindigkeit den Tacho im Dashboard und eine neue Spalte am Ende jeder Fahrten-CSV.</string>
     <string name="external_gps_disconnect">Trennen</string>
     <string name="external_gps_paired_with">Gekoppelt mit %1$s</string>
     <string name="external_gps_reconnect">Erneut verbinden</string>
@@ -995,4 +993,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Einstellungen für externes GPS</string>
+    <string name="external_gps_caption">Schalte deine RaceBox ein und tippe auf Koppeln, um zu suchen. Nach dem Koppeln liefern Geschwindigkeit und G-Kraft die App live und werden im CSV jeder Fahrt gespeichert.</string>
+    <string name="gps_prioritize_external_desc">Wenn eine externe Box verbunden ist, sie für Geschwindigkeit und G-Kraft nutzen; sonst auf das Telefon zurückgreifen.</string>
 </resources>

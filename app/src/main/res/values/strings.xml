@@ -378,7 +378,6 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_external_gps">Additional GPS</string>
-    <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed feeds the dashboard dial and a new column at the end of each trip CSV.</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
     <string name="external_gps_stop_scan">Stop scan</string>
@@ -409,7 +408,6 @@
     <string name="gps_log_additional">Use additional GPS data</string>
     <string name="gps_log_additional_desc">Log extra GPS samples from the phone or an external box</string>
     <string name="gps_prioritize_external">Prioritize external GPS</string>
-    <string name="gps_prioritize_external_desc">When an external box is connected, use it as the speed source; otherwise fall back to the phone</string>
     <string name="gps_show_on_dashboard">Show speed on dashboard</string>
     <string name="gps_show_on_dashboard_desc">Adds a coloured dot on the speed dial with the GPS reading</string>
     <string name="section_volume_keys">Volume keys</string>
@@ -1098,4 +1096,6 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matte</string>
     <string name="dash_external_gps_settings">External GPS settings</string>
+    <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV.</string>
+    <string name="gps_prioritize_external_desc">When an external box is connected, use it for speed and G-Force; otherwise fall back to the phone.</string>
 </resources>
