@@ -92,6 +92,7 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -136,6 +137,8 @@ fun RouteBuilderScreen(
     var selfMenuOpen by remember { mutableStateOf(false) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
     var markerMenuIndex by remember { mutableStateOf(-1) }
+    // Screen position of the tapped marker, so its menu opens at the pin.
+    var markerMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
@@ -365,7 +368,10 @@ fun RouteBuilderScreen(
                                     }
                                 },
                                 selfTap = { selfMenuOpen = true },
-                                markerTapped = { markerMenuIndex = it }
+                                markerTapped = { idx, x, y ->
+                                    markerMenuIndex = idx
+                                    markerMenuOffset = DpOffset(x.dp, y.dp)
+                                }
                             ),
                             "AndroidNav"
                         )
@@ -596,11 +602,13 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // Stop-marker menu — save that stop as a Home / Work preset.
-            Box(modifier = Modifier.align(Alignment.Center)) {
+            // Stop-marker menu — save that stop as a Home / Work preset. Anchored
+            // at the tapped pin via markerMenuOffset.
+            Box(modifier = Modifier.align(Alignment.TopStart)) {
                 DropdownMenu(
                     expanded = markerMenuIndex >= 0,
-                    onDismissRequest = { markerMenuIndex = -1 }
+                    onDismissRequest = { markerMenuIndex = -1 },
+                    offset = markerMenuOffset
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.nav_save_home)) },
@@ -988,7 +996,7 @@ private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
     private val selfTap: () -> Unit,
-    private val markerTapped: (Int) -> Unit
+    private val markerTapped: (Int, Int, Int) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
 
@@ -1008,8 +1016,8 @@ private class NavJsBridge(
     }
 
     @JavascriptInterface
-    fun onMarkerTapped(index: Int) {
-        main.post { markerTapped(index) }
+    fun onMarkerTapped(index: Int, x: Int, y: Int) {
+        main.post { markerTapped(index, x, y) }
     }
 }
 

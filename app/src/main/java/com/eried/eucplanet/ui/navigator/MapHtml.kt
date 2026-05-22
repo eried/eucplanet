@@ -181,7 +181,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
         };
       })(i));
       m.on('click', (function(idx){
-        return function(){ if (window.AndroidNav) AndroidNav.onMarkerTapped(idx); };
+        return function(){
+          if (!window.AndroidNav) return;
+          var mp = map.latLngToContainerPoint(markers[idx].getLatLng());
+          AndroidNav.onMarkerTapped(idx, Math.round(mp.x), Math.round(mp.y));
+        };
       })(i));
       m.addTo(map);
       markers.push(m);
