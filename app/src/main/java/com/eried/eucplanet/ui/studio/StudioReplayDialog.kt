@@ -212,6 +212,9 @@ fun StudioReplayDialog(
                 }
             }
             else -> {
+            // A trip is replayable once it parsed to a non-zero timeline.
+            val active = trip != null && trip.durationMs > 0L
+            val dur = trip?.durationMs ?: 0L
             // Trip picker + speed combo, side by side.
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -230,7 +233,7 @@ fun StudioReplayDialog(
                 }
                 OutlinedButton(
                     onClick = { picker = 2 },
-                    enabled = selectedTrip != null
+                    enabled = active
                 ) {
                     Text(speedLabel(speed))
                     Icon(Icons.Default.ArrowDropDown, contentDescription = "Replay speed")
@@ -238,8 +241,6 @@ fun StudioReplayDialog(
             }
 
             // Transport stays on screen always — disabled until a trip loads.
-            val active = trip != null && trip.durationMs > 0L
-            val dur = trip?.durationMs ?: 0L
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onPlayPause, enabled = active) {
@@ -292,13 +293,6 @@ fun StudioReplayDialog(
                     formatReplayClock(dur),
                     style = MaterialTheme.typography.bodySmall,
                     color = clockColor
-                )
-            }
-            if (selectedTrip != null && trip != null && trip.durationMs == 0L) {
-                Text(
-                    "This trip has no replayable telemetry.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White.copy(alpha = 0.7f)
                 )
             }
             }

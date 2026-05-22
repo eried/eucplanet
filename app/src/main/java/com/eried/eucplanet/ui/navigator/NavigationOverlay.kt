@@ -117,21 +117,7 @@ fun NavigationOverlay(
     DisposableEffect(Unit) { onDispose { viewModel.setCueVisible(false) } }
 
     Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-        // Timed-out or manually minimized → compact pill at the top. Hidden
-        // during the "start riding" wait so nothing lingers at the top before
-        // the rider gets moving.
-        AnimatedVisibility(
-            visible = state.active && !state.waiting &&
-                (state.minimized || !popupShown),
-            enter = fadeIn(), exit = fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter)
-        ) {
-            MinimizedPill(state, onExpand = {
-                viewModel.setMinimized(false)
-                popGen++ // re-pop the centred card and restart its timeout
-            })
-        }
-        // Active cue → big centred translucent popup.
+        // Only the big centred arrow popup — no minimized pill or other widget.
         AnimatedVisibility(
             visible = state.active && !state.minimized && popupShown,
             enter = fadeIn() + scaleIn(initialScale = 0.85f),

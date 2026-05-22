@@ -864,11 +864,19 @@ private fun BottomPanel(
                                             .padding(vertical = 2.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
+                                        // A single stop cannot be reordered — leave the handle dim and inert.
+                                        val canReorder = waypoints.size > 1
                                         Icon(
                                             Icons.Default.DragHandle,
                                             contentDescription = stringResource(R.string.nav_drag_stop),
-                                            modifier = Modifier.draggableHandle().size(22.dp),
+                                            modifier = Modifier
+                                                .then(
+                                                    if (canReorder) Modifier.draggableHandle()
+                                                    else Modifier
+                                                )
+                                                .size(22.dp),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                .copy(alpha = if (canReorder) 1f else 0.3f)
                                         )
                                         Spacer(Modifier.width(10.dp))
                                         // Long-press the row to open its options menu.

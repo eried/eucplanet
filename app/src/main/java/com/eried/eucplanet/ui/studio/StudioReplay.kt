@@ -40,29 +40,38 @@ class ReplayTrip(val samples: List<ReplaySample>) {
  * `Total mileage,GPS speed,Ext GPS speed,Current,PWM`.
  */
 fun parseTripCsv(text: String): ReplayTrip {
-    val fmt = SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS", Locale.US)
+    // Tolerate a few date layouts so a trip recorded by any app/version still
+    // replays — strictness here was making GPS-only trips look "empty".
+    val fmts = listOf(
+        "dd.MM.yyyy HH:mm:ss.SSS", "dd.MM.yyyy HH:mm:ss",
+        "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"
+    ).map { SimpleDateFormat(it, Locale.US) }
     val out = ArrayList<ReplaySample>()
     var firstMs = -1L
     var firstMileage = Float.NaN
     text.lineSequence().drop(1).forEach { line ->
         if (line.isBlank()) return@forEach
         val c = line.split(',')
-        if (c.size < 13) return@forEach
-        val ms = runCatching { fmt.parse(c[0].trim())?.time }.getOrNull() ?: return@forEach
+        if (c.size < 2) return@forEach
+        // Use whatever columns the row has; missing telemetry just reads 0.
+        fun col(i: Int) = c.getOrNull(i)?.trim()?.toFloatOrNull() ?: 0f
+        val ms = fmts.firstNotNullOfOrNull {
+            runCatching { it.parse(c[0].trim())?.time }.getOrNull()
+        } ?: return@forEach
         if (firstMs < 0L) firstMs = ms
-        val voltage = c[2].trim().toFloatOrNull() ?: 0f
-        val current = c[11].trim().toFloatOrNull() ?: 0f
-        val mileage = c[8].trim().toFloatOrNull() ?: 0f
+        val voltage = col(2)
+        val current = col(11)
+        val mileage = col(8)
         if (firstMileage.isNaN()) firstMileage = mileage
         out += ReplaySample(
             offsetMs = (ms - firstMs).coerceAtLeast(0L),
             data = WheelData(
-                speed = c[1].trim().toFloatOrNull() ?: 0f,
+                speed = col(1),
                 voltage = voltage,
                 current = current,
-                maxTemperature = c[3].trim().toFloatOrNull() ?: 0f,
-                batteryPercent = c[4].trim().toFloatOrNull()?.toInt() ?: 0,
-                pwm = c[12].trim().toFloatOrNull() ?: 0f,
+                maxTemperature = col(3),
+                batteryPercent = col(4).toInt(),
+                pwm = col(12),
                 totalDistance = mileage,
                 tripDistance = (mileage - firstMileage).coerceAtLeast(0f),
                 motorPower = (voltage * current).toInt()
