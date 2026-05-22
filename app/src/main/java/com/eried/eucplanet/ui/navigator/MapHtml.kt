@@ -77,7 +77,8 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   map.setView([20,0], 2);
 
-  var markers = [];
+  var markers = [];       // draggable stop pins (one per waypoint, index-aligned)
+  var rings = [];         // dotted arrival-radius circles, one per stop
   var routeLine = null;   // solid: the solved route
   var connector = null;   // dashed: drag / pre-route preview
   var userMarker = null;
@@ -151,7 +152,9 @@ internal const val ROUTE_BUILDER_HTML: String = """
     var geom = JSON.parse(geomJson);
 
     markers.forEach(function(m){ map.removeLayer(m); });
+    rings.forEach(function(r){ map.removeLayer(r); });
     markers = [];
+    rings = [];
     wps.forEach(function(w, i){
       // Dotted radius area around each stop (the arrival radius from Settings).
       var ringColor = colorFor(i, wps.length);
@@ -162,7 +165,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
         dashArray:'5 7', interactive:false
       });
       ring.addTo(map);
-      markers.push(ring);
+      rings.push(ring);
       var m = L.marker([w.lat, w.lng], {
         draggable:true,
         icon: iconFor(i + 1, colorFor(i, wps.length))
@@ -172,7 +175,14 @@ internal const val ROUTE_BUILDER_HTML: String = """
         if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
         drawConnector();
       });
-      m.on('drag', function(){ drawConnector(); });
+      m.on('drag', (function(idx){
+        // Keep the stop's radius ring under the pin while dragging, so the
+        // dashed preview tracks the pin instead of its old, now-empty spot.
+        return function(ev){
+          if (rings[idx]) rings[idx].setLatLng(ev.target.getLatLng());
+          drawConnector();
+        };
+      })(i));
       m.on('dragend', (function(idx){
         return function(ev){
           var ll = ev.target.getLatLng();
