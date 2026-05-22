@@ -1001,7 +1001,7 @@
     <string name="studio_cd_rotate">Ruota</string>
     <string name="studio_cfg_border_colour">Colore del bordo</string>
     <string name="studio_cfg_border_width">Spessore del bordo</string>
-    <string name="studio_rendering_keep_open">Tieni questa schermata aperta finché il rendering non termina</string>
+    <string name="studio_rendering_keep_open">Tieni il telefono acceso e questa schermata aperta finché il rendering non termina</string>
     <string name="studio_chroma_bright_green">Verde brillante</string>
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forza opacità totale</string>

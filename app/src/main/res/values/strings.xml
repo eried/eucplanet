@@ -1089,7 +1089,7 @@
     <string name="studio_group_media">Camera &amp; images</string>
     <string name="studio_cfg_border_colour">Border colour</string>
     <string name="studio_cfg_border_width">Border thickness</string>
-    <string name="studio_rendering_keep_open">Keep this screen open while the render finishes</string>
+    <string name="studio_rendering_keep_open">Keep your phone on and this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements.</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>

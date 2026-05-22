@@ -965,7 +965,7 @@
     <string name="studio_cd_rotate">Pivoter</string>
     <string name="studio_cfg_border_colour">Couleur de la bordure</string>
     <string name="studio_cfg_border_width">Épaisseur de la bordure</string>
-    <string name="studio_rendering_keep_open">Gardez cet écran ouvert pendant le rendu</string>
+    <string name="studio_rendering_keep_open">Gardez le téléphone allumé et cet écran ouvert pendant le rendu</string>
     <string name="studio_chroma_bright_green">Vert vif</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Forcer l\'opacité totale</string>

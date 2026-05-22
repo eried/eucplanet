@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -715,24 +714,29 @@ fun OverlayStudioScreen(
         renderCancelRequested = false
         renderForceOpaque = false
         val savedUri = resultUri
-        val result = snackbar.showSnackbar(
-            message = when {
-                ok -> context.getString(R.string.studio_replay_clip_saved)
-                cancelled -> context.getString(R.string.studio_replay_render_cancelled)
-                else -> context.getString(R.string.studio_replay_export_failed)
-            },
-            actionLabel =
-                if (ok && savedUri != null) context.getString(R.string.action_view)
-                else null,
-            duration = SnackbarDuration.Long
-        )
-        if (ok && savedUri != null && result == SnackbarResult.ActionPerformed) {
-            val mime = when (videoFormat) {
-                ReplayVideoFormat.GIF -> "image/gif"
-                ReplayVideoFormat.APNG -> "image/png"
-                ReplayVideoFormat.MP4 -> "video/mp4"
+        // The snackbar runs on the screen scope, not this effect: clearing
+        // `rendering` above re-keys LaunchedEffect(rendering), which would
+        // cancel the toast the instant showSnackbar suspended if shown here.
+        scope.launch {
+            val result = snackbar.showSnackbar(
+                message = when {
+                    ok -> context.getString(R.string.studio_replay_clip_saved)
+                    cancelled -> context.getString(R.string.studio_replay_render_cancelled)
+                    else -> context.getString(R.string.studio_replay_export_failed)
+                },
+                actionLabel =
+                    if (ok && savedUri != null) context.getString(R.string.action_view)
+                    else null,
+                duration = SnackbarDuration.Long
+            )
+            if (ok && savedUri != null && result == SnackbarResult.ActionPerformed) {
+                val mime = when (videoFormat) {
+                    ReplayVideoFormat.GIF -> "image/gif"
+                    ReplayVideoFormat.APNG -> "image/png"
+                    ReplayVideoFormat.MP4 -> "video/mp4"
+                }
+                openInGallery(context, savedUri, mime)
             }
-            openInGallery(context, savedUri, mime)
         }
     }
 
@@ -1012,7 +1016,7 @@ fun OverlayStudioScreen(
         // Replay panel — always on while in replay mode; its X returns to live.
         if (replayMode) {
           RotatedFullScreen(deviceRotation) {
-            BoxWithConstraints(Modifier.safeDrawingPadding().fillMaxSize()) {
+            Box(Modifier.safeDrawingPadding().fillMaxSize()) {
                 StudioReplayDialog(
                     trips = trips,
                     selectedTrip = replayRecord,
@@ -1055,9 +1059,6 @@ fun OverlayStudioScreen(
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        // Cap the panel so it always fits the screen (it is
-                        // short in landscape) — the dialog scrolls inside this.
-                        .heightIn(max = maxHeight - 120.dp)
                         .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
                         .alpha(if (panelsDimmed) 0.65f else 1f)
                 )

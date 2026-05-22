@@ -1017,7 +1017,7 @@
     <string name="studio_cd_rotate">Повернути</string>
     <string name="studio_cfg_border_colour">Цвет рамки</string>
     <string name="studio_cfg_border_width">Толщина рамки</string>
-    <string name="studio_rendering_keep_open">Не закрывайте этот экран до завершения рендеринга</string>
+    <string name="studio_rendering_keep_open">Не выключайте телефон и не закрывайте этот экран до завершения рендеринга</string>
     <string name="studio_chroma_bright_green">Ярко-зелёный</string>
     <string name="studio_chroma_cyan">Голубой</string>
     <string name="studio_export_force_opaque">Принудительно без прозрачности</string>

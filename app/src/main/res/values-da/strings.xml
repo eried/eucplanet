@@ -967,7 +967,7 @@
     <string name="studio_cd_rotate">Roter</string>
     <string name="studio_cfg_border_colour">Kantfarve</string>
     <string name="studio_cfg_border_width">Kanttykkelse</string>
-    <string name="studio_rendering_keep_open">Hold denne skærm åben, indtil gengivelsen er færdig</string>
+    <string name="studio_rendering_keep_open">Hold telefonen tændt og denne skærm åben, indtil gengivelsen er færdig</string>
     <string name="studio_chroma_bright_green">Knaldgrøn</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Tving helt uigennemsigtig</string>
