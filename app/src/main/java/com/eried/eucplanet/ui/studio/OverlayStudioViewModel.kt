@@ -9,6 +9,7 @@ import com.eried.eucplanet.data.model.ViewportConfig
 import com.eried.eucplanet.data.model.ViewportLayout
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelData
+import com.eried.eucplanet.data.repository.PhoneSensorRepository
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -93,7 +94,8 @@ class OverlayStudioViewModel @Inject constructor(
     private val wheelRepository: WheelRepository,
     private val settingsRepository: SettingsRepository,
     private val presetStore: OverlayPresetStore,
-    private val tripRepository: TripRepository
+    private val tripRepository: TripRepository,
+    private val phoneSensorRepository: PhoneSensorRepository
 ) : ViewModel() {
 
     companion object {
@@ -247,6 +249,10 @@ class OverlayStudioViewModel @Inject constructor(
         // wheel connected and no trip recording. Idempotent — TripRepository
         // guards against starting a second fused-location request.
         tripRepository.startLocationUpdates()
+        // The G-Force overlay needs the phone IMU the whole time the studio is
+        // open — previewing, recording video, or with no wheel connected — so
+        // the studio holds its own reference, released in onCleared().
+        phoneSensorRepository.start()
         viewModelScope.launch {
             _preset.value = presetStore.loadDraft()
         }
@@ -412,8 +418,13 @@ class OverlayStudioViewModel @Inject constructor(
         }
     }
 
+    /** Re-arms the IMU listener — call when the studio returns to foreground,
+     *  since Android can quietly drop sensor delivery while backgrounded. */
+    fun refreshSensors() = phoneSensorRepository.refresh()
+
     override fun onCleared() {
         super.onCleared()
+        phoneSensorRepository.stop()
         // Flush the draft synchronously so nothing in flight is lost.
         runBlocking { presetStore.saveDraft(_preset.value) }
     }

@@ -58,7 +58,10 @@ class PhoneSensorRepository @Inject constructor(
     val latest: PhoneImuSample? get() = _imu.value
     val isAvailable: Boolean get() = linearAccel != null
 
-    private var listening = false
+    // Reference count of active consumers (a connected wheel, the data-sources
+    // sheet, the Overlay Studio). The listener is registered while it is > 0.
+    private var refCount = 0
+    private var registered = false
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             if (event.sensor.type != Sensor.TYPE_LINEAR_ACCELERATION) return
@@ -74,24 +77,53 @@ class PhoneSensorRepository @Inject constructor(
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { /* unused */ }
     }
 
-    /** Idempotent — second call while listening is a no-op. Safe to invoke
-     *  every time the dialog opens. */
-    fun start() {
-        if (listening) return
+    private fun register() {
+        if (registered) return
         val sm = sensorManager ?: return
         val s = linearAccel ?: return
         // SENSOR_DELAY_GAME (~20 ms) gives a smooth trail in the crosshair
         // without pegging the CPU. SENSOR_DELAY_UI (~60 ms) felt choppy on
         // a Pixel 6 during a tilt test.
         sm.registerListener(listener, s, SensorManager.SENSOR_DELAY_GAME)
-        listening = true
+        registered = true
     }
 
-    /** Stop callback registration. Sample stays in [latest] until the next
-     *  start, so the UI can still show the last reading after dismissing. */
-    fun stop() {
-        if (!listening) return
+    private fun unregister() {
+        if (!registered) return
         sensorManager?.unregisterListener(listener)
-        listening = false
+        registered = false
+    }
+
+    /**
+     * Marks one consumer as needing g-force. Reference-counted: the sensor
+     * stays registered while at least one consumer is active, so a connected
+     * wheel disconnecting never starves the Studio (or the data-sources sheet,
+     * or vice versa). Every [start] must be balanced by exactly one [stop].
+     */
+    @Synchronized
+    fun start() {
+        refCount++
+        if (refCount == 1) register()
+    }
+
+    /** Releases one consumer; unregisters once the last one is gone. The last
+     *  sample stays in [latest] so the UI can still show it after dismissing. */
+    @Synchronized
+    fun stop() {
+        if (refCount <= 0) return
+        refCount--
+        if (refCount == 0) unregister()
+    }
+
+    /**
+     * Re-registers the listener. Android can stop delivering sensor events to
+     * a backgrounded app and not resume them for the existing listener; call
+     * this on a foreground return to re-arm it.
+     */
+    @Synchronized
+    fun refresh() {
+        if (refCount <= 0) return
+        unregister()
+        register()
     }
 }

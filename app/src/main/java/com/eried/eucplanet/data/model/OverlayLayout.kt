@@ -194,6 +194,8 @@ data class OverlayElement(
     val mapBorderWidth: Float = 2f,
     /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
     val gForceScale: Float = 1.5f,
+    /** G-Force dot smoothing — 0 snaps instantly, 1 makes the dot heavy/slow. */
+    val gForceSmoothing: Float = 0.35f,
     /** DATA_BAR: show the numeric value above the bar (false = just the bar). */
     val barShowValue: Boolean = true
 )

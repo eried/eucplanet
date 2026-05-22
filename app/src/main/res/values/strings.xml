@@ -1096,6 +1096,7 @@
     <string name="studio_cfg_border_width">Border thickness</string>
     <string name="studio_rendering_keep_open">Keep your phone on and this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
+    <string name="studio_cfg_g_smoothing">Smoothing</string>
     <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements.</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>
     <string name="studio_cfg_filter_noir">Noir</string>

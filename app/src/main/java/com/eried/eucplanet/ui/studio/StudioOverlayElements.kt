@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.animation.core.animateOffsetAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -467,11 +469,23 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             .filter { it.timeMs >= last - windowMs }
             .map { Offset(it.data.accelX, it.data.accelY) }
     }
+    // Outer-ring g value — the scale goes down to 0.25 g for tiny movements.
+    val maxG = element.gForceScale.coerceIn(0.25f, 6f)
+    // Eased live dot — gForceSmoothing makes the movement feel heavy / slow.
+    val smoothMs = (element.gForceSmoothing.coerceIn(0f, 1f) * 900f).toInt().coerceAtLeast(1)
+    val liveG by animateOffsetAsState(
+        targetValue = Offset(
+            data.wheelData.accelX.coerceIn(-maxG, maxG),
+            data.wheelData.accelY.coerceIn(-maxG, maxG)
+        ),
+        animationSpec = tween(smoothMs),
+        label = "gforce-dot"
+    )
     Box(
         Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .background(Color(element.background), RoundedCornerShape(10.dp))
+            .background(Color(element.background), CircleShape)
             .padding(10.dp)
     ) {
         androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
@@ -479,7 +493,6 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             val h = size.height
             val cx = w / 2f
             val cy = h / 2f
-            val maxG = element.gForceScale.coerceIn(0.3f, 6f)
             val unit = (w.coerceAtMost(h) / 2f) / maxG
 
             // Three concentric dashed rings at 1/3, 2/3 and the full scale.
@@ -548,9 +561,9 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
                 }
             }
 
-            // Live dot at the current lateral / forward G-force.
-            val gx = data.wheelData.accelX.coerceIn(-maxG, maxG)
-            val gy = data.wheelData.accelY.coerceIn(-maxG, maxG)
+            // Live dot — eased toward the current lateral / forward G-force.
+            val gx = liveG.x.coerceIn(-maxG, maxG)
+            val gy = liveG.y.coerceIn(-maxG, maxG)
             val center = Offset(cx + gx * unit, cy - gy * unit)
             drawCircle(color = fg.copy(alpha = 0.15f), radius = 24f, center = center)
             drawCircle(color = fg.copy(alpha = 0.30f), radius = 18f, center = center)

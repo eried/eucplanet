@@ -1008,6 +1008,7 @@
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forza opacità totale</string>
     <string name="studio_cfg_g_scale">Scala</string>
+    <string name="studio_cfg_g_smoothing">Smussatura</string>
     <string name="studio_cfg_geometry">Geometria</string>
     <string name="studio_export_force_opaque_hint">I formati senza trasparenza usano il colore chroma key, che può rendere male sugli elementi parzialmente trasparenti.</string>
     <string name="studio_cfg_filter_vivid">Vivido</string>

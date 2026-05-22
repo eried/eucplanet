@@ -1625,9 +1625,15 @@ fun ElementConfigSheet(
                 // movements, making them more evident on the recording.
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_g_scale),
-                    "%.1f g".format(element.gForceScale),
-                    element.gForceScale, 0.5f, 4f
+                    "%.2f g".format(element.gForceScale),
+                    element.gForceScale, 0.25f, 4f
                 ) { onChange(element.copy(gForceScale = it)) }
+                // Movement smoothing — higher makes the dot heavier and slower.
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_g_smoothing),
+                    "%.0f%%".format(element.gForceSmoothing * 100f),
+                    element.gForceSmoothing, 0f, 1f
+                ) { onChange(element.copy(gForceSmoothing = it)) }
             }
 
             if (element.type == OverlayElementType.MAP) {
