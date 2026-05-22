@@ -156,13 +156,27 @@ val ChromaPalette: List<Long> = listOf(
 )
 
 @Composable
-fun ViewportLayout.displayName(): String = when (this) {
-    ViewportLayout.SINGLE -> stringResource(R.string.studio_layout_full_screen)
-    ViewportLayout.ROWS_2 -> stringResource(R.string.studio_layout_2_rows)
-    ViewportLayout.COLUMNS_2 -> stringResource(R.string.studio_layout_2_columns)
-    ViewportLayout.ROWS_3 -> stringResource(R.string.studio_layout_3_rows)
-    ViewportLayout.COLUMNS_3 -> stringResource(R.string.studio_layout_3_columns)
-    ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
+fun ViewportLayout.displayName(): String {
+    // Held sideways, a fixed "2 rows" split reads as 2 columns to the rider, so
+    // the layout picker names each choice the way it is actually seen. Only the
+    // words swap — the mini-diagram rotates with the panel and already matches,
+    // and the underlying geometry never changes.
+    val landscape = LocalStudioRotation.current.let { it == 90 || it == 270 }
+    val shown = if (!landscape) this else when (this) {
+        ViewportLayout.ROWS_2 -> ViewportLayout.COLUMNS_2
+        ViewportLayout.COLUMNS_2 -> ViewportLayout.ROWS_2
+        ViewportLayout.ROWS_3 -> ViewportLayout.COLUMNS_3
+        ViewportLayout.COLUMNS_3 -> ViewportLayout.ROWS_3
+        else -> this
+    }
+    return when (shown) {
+        ViewportLayout.SINGLE -> stringResource(R.string.studio_layout_full_screen)
+        ViewportLayout.ROWS_2 -> stringResource(R.string.studio_layout_2_rows)
+        ViewportLayout.COLUMNS_2 -> stringResource(R.string.studio_layout_2_columns)
+        ViewportLayout.ROWS_3 -> stringResource(R.string.studio_layout_3_rows)
+        ViewportLayout.COLUMNS_3 -> stringResource(R.string.studio_layout_3_columns)
+        ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
+    }
 }
 
 private val OverlayElementType.labelRes: Int
