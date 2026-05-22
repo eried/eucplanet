@@ -94,7 +94,7 @@ import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.ViewportSourceType
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
-import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
+import com.eried.eucplanet.ui.studio.recording.StudioGifEncoder
 import com.eried.eucplanet.ui.studio.recording.StudioCapture
 import com.eried.eucplanet.ui.studio.recording.StudioVideoEncoder
 import kotlinx.coroutines.Dispatchers
@@ -494,7 +494,7 @@ fun OverlayStudioScreen(
 
         val pending = withContext(Dispatchers.IO) {
             StudioCapture.newPendingImage(
-                context, "${StudioCapture.timestampedName()}.png", "image/png"
+                context, "${StudioCapture.timestampedName()}.gif", "image/gif"
             )
         }
         val stream = pending?.openStream()
@@ -504,8 +504,8 @@ fun OverlayStudioScreen(
         }
         var cancelled = false
         val ok = try {
-            val apng = StudioApngEncoder(stream, ew, eh, frameCount, frameMs)
-            withContext(Dispatchers.IO) { apng.addFrame(first) }
+            val gif = StudioGifEncoder(stream, ew, eh, frameMs)
+            withContext(Dispatchers.IO) { gif.addFrame(first) }
             renderProgress = 1f / frameCount
             for (i in 1 until frameCount) {
                 if (renderCancelRequested) {
@@ -515,17 +515,17 @@ fun OverlayStudioScreen(
                 replayPosMs = replayStartMs + i * stepMs
                 repeat(2) { withFrameNanos {} }
                 val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
-                withContext(Dispatchers.IO) { apng.addFrame(frame) }
+                withContext(Dispatchers.IO) { gif.addFrame(frame) }
                 renderProgress = (i + 1f) / frameCount
             }
             if (!cancelled) {
-                withContext(Dispatchers.IO) { apng.finish() }
+                withContext(Dispatchers.IO) { gif.finish() }
                 true
             } else {
                 false
             }
         } catch (e: Exception) {
-            android.util.Log.e("OverlayStudio", "Replay APNG render failed", e)
+            android.util.Log.e("OverlayStudio", "Replay GIF render failed", e)
             false
         } finally {
             runCatching { stream.close() }
@@ -845,7 +845,7 @@ fun OverlayStudioScreen(
                     modifier = Modifier.padding(36.dp)
                 ) {
                     Text(
-                        "Rendering replay clip",
+                        "Rendering…",
                         color = Color.White,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
@@ -867,15 +867,9 @@ fun OverlayStudioScreen(
                                 .background(Color(0xFF4FC3F7))
                         )
                     }
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "${(renderProgress * 100).toInt()}%",
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
                     Spacer(Modifier.height(22.dp))
                     Text(
-                        "Keep this screen open. Do not switch apps or lock the " +
-                            "phone while the clip renders.",
+                        "Keep this screen open.",
                         color = Color.White.copy(alpha = 0.55f),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.width(280.dp)

@@ -64,11 +64,19 @@ data class PaneRect(val left: Float, val top: Float, val width: Float, val heigh
 /** Smallest fraction a divider may be dragged to, so no pane collapses away. */
 private const val MIN_PANE = 0.12f
 
-/** Pane rectangles for [layout] given current [dividers] (clamped, ordered). */
-fun paneRects(layout: ViewportLayout, dividers: List<Float>): List<PaneRect> {
+/**
+ * Pane rectangles for [layout] given current [dividers] (clamped, ordered).
+ * When [landscape] the row/column split is transposed, so a stacked layout
+ * splits side-by-side instead — keeping each pane a usable shape.
+ */
+fun paneRects(
+    layout: ViewportLayout,
+    dividers: List<Float>,
+    landscape: Boolean = false
+): List<PaneRect> {
     fun d(i: Int, fallback: Float) = dividers.getOrNull(i)?.coerceIn(MIN_PANE, 1f - MIN_PANE)
         ?: fallback
-    return when (layout) {
+    val rects: List<PaneRect> = when (layout) {
         ViewportLayout.SINGLE -> listOf(PaneRect(0f, 0f, 1f, 1f))
         ViewportLayout.ROWS_2 -> {
             val a = d(0, 0.5f)
@@ -107,6 +115,15 @@ fun paneRects(layout: ViewportLayout, dividers: List<Float>): List<PaneRect> {
             )
         }
     }
+    // In landscape, swap the split axis (rows <-> columns). SINGLE has nothing
+    // to swap and GRID_4 stays a grid, so both are left as-is.
+    return if (landscape &&
+        layout != ViewportLayout.SINGLE && layout != ViewportLayout.GRID_4
+    ) {
+        rects.map { PaneRect(it.top, it.left, it.height, it.width) }
+    } else {
+        rects
+    }
 }
 
 /**
@@ -137,7 +154,8 @@ fun StudioViewportLayer(
         val h = maxHeight
         val widthPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
         val heightPx = constraints.maxHeight.toFloat().coerceAtLeast(1f)
-        val rects = paneRects(preset.layout, preset.dividers)
+        val landscape = LocalStudioRotation.current.let { it == 90 || it == 270 }
+        val rects = paneRects(preset.layout, preset.dividers, landscape)
 
         rects.forEachIndexed { index, r ->
             val config = preset.viewports.getOrNull(index)
@@ -180,6 +198,7 @@ fun StudioViewportLayer(
             preset = preset,
             widthPx = widthPx,
             heightPx = heightPx,
+            landscape = landscape,
             editable = editable,
             onDividerChange = onDividerChange,
             onConfigDivider = onConfigDivider
@@ -323,6 +342,7 @@ private fun BoxWithConstraintsScope.DividerLayer(
     preset: OverlayPreset,
     widthPx: Float,
     heightPx: Float,
+    landscape: Boolean,
     editable: Boolean,
     onDividerChange: (List<Float>) -> Unit,
     onConfigDivider: () -> Unit
@@ -354,8 +374,12 @@ private fun BoxWithConstraintsScope.DividerLayer(
         return
     }
 
-    val vertical = layout == ViewportLayout.COLUMNS_2 || layout == ViewportLayout.COLUMNS_3
-    val horizontal = layout == ViewportLayout.ROWS_2 || layout == ViewportLayout.ROWS_3
+    // Landscape transposes the split, so a "rows" layout draws a vertical
+    // divider and vice versa — matching the transposed panes in paneRects.
+    val cols = layout == ViewportLayout.COLUMNS_2 || layout == ViewportLayout.COLUMNS_3
+    val rows = layout == ViewportLayout.ROWS_2 || layout == ViewportLayout.ROWS_3
+    val vertical = if (landscape) rows else cols
+    val horizontal = if (landscape) cols else rows
     for (i in 0 until layout.dividerCount) {
         val value = dividers.getOrElse(i) { (i + 1f) / (layout.dividerCount + 1f) }
         if (vertical) {

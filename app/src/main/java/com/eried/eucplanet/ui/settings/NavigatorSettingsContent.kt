@@ -53,13 +53,6 @@ fun NavigatorSettingsContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // --- Navigation parameters ---
-        Text(
-            stringResource(R.string.nav_setting_params),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-
         // --- Arrival radius ---
         SliderRow(
             label = stringResource(R.string.nav_setting_arrival_radius),

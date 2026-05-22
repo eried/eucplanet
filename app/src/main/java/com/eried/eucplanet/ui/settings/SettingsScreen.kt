@@ -316,7 +316,7 @@ fun SettingsScreen(
     val titleAuto = stringResource(R.string.tab_auto)
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
-    val titleNavigator = stringResource(R.string.tab_navigator)
+    val titleNavigator = stringResource(R.string.nav_setting_params)
 
     val corpusGeneral = listOf(
         titleGeneral,
