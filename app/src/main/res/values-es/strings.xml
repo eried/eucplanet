@@ -617,7 +617,7 @@
     <string name="external_gps_state_connecting">Buscando…</string>
     <string name="external_gps_state_disconnected">Desconectado</string>
     <string name="external_gps_unpair">Olvidar dispositivo</string>
-    <string name="section_external_gps">Ubicación y sensores</string>
+    <string name="section_external_gps">GPS y sensores</string>
     <string name="section_speed_calibration">Calibración de velocidad</string>
     <string name="speed_calibration_caption">Aplica un porcentaje a la velocidad que llega de la rueda. Las alarmas, la voz y el registro de viajes usan el valor calibrado.</string>
     <string name="speed_calibration_label">Desfase de velocidad</string>

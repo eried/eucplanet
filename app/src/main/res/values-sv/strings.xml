@@ -600,7 +600,7 @@
     <string name="external_gps_state_connecting">Söker…</string>
     <string name="external_gps_state_disconnected">Frånkopplad</string>
     <string name="external_gps_unpair">Glöm enhet</string>
-    <string name="section_external_gps">Plats och sensorer</string>
+    <string name="section_external_gps">GPS och sensorer</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
     <string name="speed_calibration_caption">Tillämpar en procentsats på hastigheten som kommer från hjulet. Larm, röst och turloggen använder alla det kalibrerade värdet.</string>
     <string name="speed_calibration_label">Hastighetsjustering</string>

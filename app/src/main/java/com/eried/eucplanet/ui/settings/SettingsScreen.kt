@@ -52,6 +52,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
@@ -317,6 +318,7 @@ fun SettingsScreen(
     val titleIntegration = stringResource(R.string.tab_integration)
     val titleWatch = stringResource(R.string.tab_watch)
     val titleNavigator = stringResource(R.string.nav_setting_params)
+    val titleGpsSensors = stringResource(R.string.section_external_gps)
 
     val corpusGeneral = listOf(
         titleGeneral,
@@ -422,6 +424,13 @@ fun SettingsScreen(
         stringResource(R.string.nav_setting_endpoints)
     ).joinToString(" ")
 
+    val corpusGpsSensors = listOf(
+        titleGpsSensors,
+        stringResource(R.string.gps_show_on_dashboard),
+        stringResource(R.string.gps_prioritize_external),
+        stringResource(R.string.external_gps_caption)
+    ).joinToString(" ")
+
     val corpusWatch = listOf(
         titleWatch,
         stringResource(R.string.section_watch_general),
@@ -463,6 +472,9 @@ fun SettingsScreen(
         },
         SectionDef("navigator", titleNavigator, Icons.Default.Navigation, corpusNavigator) {
             NavigatorSettingsContent()
+        },
+        SectionDef("location", titleGpsSensors, Icons.Default.Sensors, corpusGpsSensors) {
+            ExternalGpsSection()
         },
         SectionDef("integration", titleIntegration, Icons.Default.Extension, corpusIntegration) {
             FlicTab()
@@ -1422,8 +1434,6 @@ private fun FlicTab(
                 }
             }
         }
-
-        ExternalGpsSection()
 
         SectionHeader(stringResource(R.string.section_volume_keys))
         HintText(stringResource(R.string.volume_keys_caption), small = true)

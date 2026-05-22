@@ -616,7 +616,7 @@
     <string name="external_gps_state_connecting">Suche…</string>
     <string name="external_gps_state_disconnected">Getrennt</string>
     <string name="external_gps_unpair">Gerät entfernen</string>
-    <string name="section_external_gps">Standort und Sensoren</string>
+    <string name="section_external_gps">GPS &amp; Sensoren</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="speed_calibration_caption">Wendet einen Prozentsatz auf die vom Rad kommende Geschwindigkeit an. Alarme, Stimme und das Fahrtenprotokoll nutzen alle den kalibrierten Wert.</string>
     <string name="speed_calibration_label">Geschwindigkeits-Versatz</string>

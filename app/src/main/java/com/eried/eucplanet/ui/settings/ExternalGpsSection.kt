@@ -69,8 +69,6 @@ fun ExternalGpsSection(
     val autoDetectPhase by viewModel.autoDetect.collectAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        SectionHeader(stringResource(R.string.section_external_gps))
-
         BringIntoViewSection(expanded = true, spacing = 8.dp) {
         // Show speed on the dashboard — a general display option, kept first
         // because it has nothing to do with the external box below it.

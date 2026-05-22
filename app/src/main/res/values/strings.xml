@@ -378,7 +378,7 @@
     <string name="flic_click">Click</string>
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
-    <string name="section_external_gps">Location and sensors</string>
+    <string name="section_external_gps">GPS &amp; sensors</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
     <string name="external_gps_stop_scan">Stop scan</string>

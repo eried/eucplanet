@@ -636,7 +636,7 @@
     <string name="external_gps_state_connecting">Wyszukiwanie…</string>
     <string name="external_gps_state_disconnected">Rozłączono</string>
     <string name="external_gps_unpair">Zapomnij urządzenie</string>
-    <string name="section_external_gps">Lokalizacja i czujniki</string>
+    <string name="section_external_gps">GPS i czujniki</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
     <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości.</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
