@@ -1063,26 +1063,30 @@ private fun ZoomSlider(config: ViewportConfig, onChange: (ViewportConfig) -> Uni
  * viewport. Every control feeds a GPU ColorMatrix — there is no per-frame CPU
  * pixel work. Digital zoom lives in its own [ZoomSlider] (a spatial transform).
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
     Spacer(Modifier.height(8.dp))
     Text(stringResource(R.string.studio_cfg_filter), fontWeight = FontWeight.SemiBold)
-    val filterNone = stringResource(R.string.studio_cfg_filter_none)
-    val filterBw = stringResource(R.string.studio_cfg_filter_bw)
-    val filterSepia = stringResource(R.string.studio_cfg_filter_sepia)
-    val filterWarm = stringResource(R.string.studio_cfg_filter_warm)
-    val filterCool = stringResource(R.string.studio_cfg_filter_cool)
-    val filterVivid = stringResource(R.string.studio_cfg_filter_vivid)
-    val filterNoir = stringResource(R.string.studio_cfg_filter_noir)
-    val filterVintage = stringResource(R.string.studio_cfg_filter_vintage)
-    val filterMatte = stringResource(R.string.studio_cfg_filter_matte)
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf(
-            "NONE" to filterNone, "BW" to filterBw, "SEPIA" to filterSepia,
-            "WARM" to filterWarm, "COOL" to filterCool, "VIVID" to filterVivid,
-            "NOIR" to filterNoir, "VINTAGE" to filterVintage, "MATTE" to filterMatte
-        ).forEach { (key, lbl) ->
+    val filters = listOf(
+        "NONE" to stringResource(R.string.studio_cfg_filter_none),
+        "BW" to stringResource(R.string.studio_cfg_filter_bw),
+        "SEPIA" to stringResource(R.string.studio_cfg_filter_sepia),
+        "WARM" to stringResource(R.string.studio_cfg_filter_warm),
+        "COOL" to stringResource(R.string.studio_cfg_filter_cool),
+        "VIVID" to stringResource(R.string.studio_cfg_filter_vivid),
+        "NOIR" to stringResource(R.string.studio_cfg_filter_noir),
+        "VINTAGE" to stringResource(R.string.studio_cfg_filter_vintage),
+        "MATTE" to stringResource(R.string.studio_cfg_filter_matte)
+    )
+    // A single side-scrolling row, like the camera picker — the sheet stays
+    // short and the filters never wrap onto a second line.
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        items(filters.size) { i ->
+            val (key, lbl) = filters[i]
             FilterChip(
                 selected = config.colorFilter == key,
                 onClick = { onChange(config.copy(colorFilter = key)) },
