@@ -54,7 +54,8 @@ class WheelRepository @Inject constructor(
     private val voiceService: VoiceService,
     private val wheelProfileDao: com.eried.eucplanet.data.db.WheelProfileDao,
     private val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val phoneSensorRepository: PhoneSensorRepository
+    private val phoneSensorRepository: PhoneSensorRepository,
+    private val externalGpsRepository: ExternalGpsRepository
 ) {
     companion object {
         private const val TAG = "WheelRepo"
@@ -161,6 +162,8 @@ class WheelRepository @Inject constructor(
     // True only for the first 0x20 settings packet after each (re)connect.
     // Used to reconcile stored speed limits with the wheel's actual values.
     @Volatile private var reconcileNextSettings = false
+    /** Mirrors AppSettings.gpsPrioritizeExternal for the g-force source merge. */
+    @Volatile private var prioritizeExternalGps = true
 
     /** Wall-clock of the most recent app-side speed write. Used to ignore
      *  the wheel's echo (which arrives in the next settings packet ~1-2 s
@@ -245,12 +248,32 @@ class WheelRepository @Inject constructor(
             }
         }
 
-        // Merge the phone's accelerometer (g-force) into the telemetry stream so
-        // it shows live and is recorded into the trip CSV. Sampled to ~8 Hz so
-        // it doesn't flood downstream collectors.
+        // Tracks the "prioritize external GPS" setting so the g-force merge
+        // below doesn't read settings on every IMU tick.
+        scope.launch {
+            settingsRepository.settings.collect { prioritizeExternalGps = it.gpsPrioritizeExternal }
+        }
+
+        // Merge accelerometer (g-force) into the telemetry stream so it shows
+        // live and is recorded into the trip CSV. Sampled to ~8 Hz so it
+        // doesn't flood downstream collectors. A paired external box (RaceBox)
+        // is mounted on the wheel, so when the rider has one and "prioritize
+        // external" is on, its accelerometer wins over the phone's IMU.
         scope.launch {
             phoneSensorRepository.imu.sample(120L).collect { s ->
-                _wheelData.value = _wheelData.value.copy(
+                val ext = externalGpsRepository.currentSample.value
+                val useExt = prioritizeExternalGps &&
+                    externalGpsRepository.connectionState.value == ConnectionState.CONNECTED &&
+                    ext?.accelXG != null
+                _wheelData.value = if (useExt) {
+                    val ax = ext!!.accelXG ?: 0f
+                    val ay = ext.accelZG ?: 0f
+                    _wheelData.value.copy(
+                        gForce = kotlin.math.sqrt(ax * ax + ay * ay),
+                        accelX = ax,
+                        accelY = ay
+                    )
+                } else _wheelData.value.copy(
                     gForce = s?.magnitude ?: 0f,
                     accelX = s?.xG ?: 0f,
                     accelY = s?.zG ?: 0f

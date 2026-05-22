@@ -88,6 +88,36 @@ fun EucViewerScreen(
                               window.loadFileFromBase64(s.substring(s.indexOf(',')+1), '$name')
                             ).then(function(res){
                               console.log('euc loadFileFromBase64 -> '+JSON.stringify(res));
+                              // This WebView leaves #map at 0 height. Force it
+                              // to fill the viewport with inline !important
+                              // styles (nothing can override those), nudge
+                              // Leaflet to re-measure, and collapse the viewer's
+                              // Trip Explorer panel so the route is the focus.
+                              function fix(){
+                                var m=document.getElementById('map');
+                                if(m){
+                                  var s=m.style;
+                                  s.setProperty('position','fixed','important');
+                                  s.setProperty('top','0','important');
+                                  s.setProperty('left','0','important');
+                                  s.setProperty('width',window.innerWidth+'px','important');
+                                  s.setProperty('height',window.innerHeight+'px','important');
+                                }
+                                var p=document.getElementById('trip-panel');
+                                if(p) p.classList.remove('open');
+                                window.dispatchEvent(new Event('resize'));
+                              }
+                              [0,200,500,1000,1700].forEach(function(d){
+                                setTimeout(fix,d);
+                              });
+                              setTimeout(function(){
+                                var m=document.getElementById('map');
+                                var cs=m?getComputedStyle(m):null;
+                                console.log('euc env inner='+window.innerWidth+'x'
+                                  +window.innerHeight+' map='
+                                  +(m?m.offsetWidth+'x'+m.offsetHeight:'none')
+                                  +' cs='+(cs?cs.position+'/'+cs.height+'/'+cs.display:'?'));
+                              },1900);
                             });
                           };
                           fr.readAsDataURL(blob);
@@ -125,11 +155,11 @@ fun EucViewerScreen(
                 WebView(ctx).apply {
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
-                    // The viewer is mobile-responsive (it carries a
-                    // width=device-width viewport meta) — let it render in its
-                    // native mobile layout rather than forcing a desktop UA,
-                    // which collapsed the new map-controls panel.
-                    settings.useWideViewPort = true
+                    // useWideViewPort=true gave the page a broken 731px-wide
+                    // layout viewport and a 0-height #map. Off, the WebView
+                    // uses its own size as the CSS viewport — a clean 1:1
+                    // mobile layout, which is what the responsive viewer wants.
+                    settings.useWideViewPort = false
                     settings.loadWithOverviewMode = false
                     webViewClient = object : WebViewClient() {
                         override fun shouldInterceptRequest(

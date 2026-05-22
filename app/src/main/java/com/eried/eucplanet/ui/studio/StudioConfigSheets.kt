@@ -34,7 +34,7 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Colorize
-import androidx.compose.material.icons.filled.CompareArrows
+import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsBike
@@ -93,6 +93,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -161,20 +162,23 @@ fun ViewportLayout.displayName(): String = when (this) {
     ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
 }
 
+private val OverlayElementType.labelRes: Int
+    get() = when (this) {
+        OverlayElementType.WHEEL_NAME -> R.string.studio_element_wheel_name
+        OverlayElementType.APP_BADGE -> R.string.studio_element_app_badge
+        OverlayElementType.TEXT -> R.string.studio_element_text
+        OverlayElementType.DATA_VALUE -> R.string.studio_element_data_value
+        OverlayElementType.DATA_GRAPH -> R.string.studio_element_data_graph
+        OverlayElementType.DATA_DIAL -> R.string.studio_element_data_dial
+        OverlayElementType.DATA_BAR -> R.string.studio_element_data_bar
+        OverlayElementType.FLOATING_CAMERA -> R.string.studio_element_floating_camera
+        OverlayElementType.IMAGE -> R.string.studio_element_image
+        OverlayElementType.CLOCK -> R.string.studio_element_clock
+        OverlayElementType.G_FORCE -> R.string.studio_element_g_force
+    }
+
 @Composable
-private fun OverlayElementType.label(): String = when (this) {
-    OverlayElementType.WHEEL_NAME -> stringResource(R.string.studio_element_wheel_name)
-    OverlayElementType.APP_BADGE -> stringResource(R.string.studio_element_app_badge)
-    OverlayElementType.TEXT -> stringResource(R.string.studio_element_text)
-    OverlayElementType.DATA_VALUE -> stringResource(R.string.studio_element_data_value)
-    OverlayElementType.DATA_GRAPH -> stringResource(R.string.studio_element_data_graph)
-    OverlayElementType.DATA_DIAL -> stringResource(R.string.studio_element_data_dial)
-    OverlayElementType.DATA_BAR -> stringResource(R.string.studio_element_data_bar)
-    OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_element_floating_camera)
-    OverlayElementType.IMAGE -> stringResource(R.string.studio_element_image)
-    OverlayElementType.CLOCK -> stringResource(R.string.studio_element_clock)
-    OverlayElementType.G_FORCE -> stringResource(R.string.studio_element_g_force)
-}
+private fun OverlayElementType.label(): String = stringResource(labelRes)
 
 private val OverlayElementType.icon
     get() = when (this) {
@@ -188,7 +192,7 @@ private val OverlayElementType.icon
         OverlayElementType.FLOATING_CAMERA -> Icons.Default.PhotoCamera
         OverlayElementType.IMAGE -> Icons.Default.Image
         OverlayElementType.CLOCK -> Icons.Default.Schedule
-        OverlayElementType.G_FORCE -> Icons.Default.CompareArrows
+        OverlayElementType.G_FORCE -> Icons.Default.TrackChanges
     }
 
 // --------------------------------------------------------------------------
@@ -474,7 +478,12 @@ fun AddElementSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(stringResource(R.string.studio_add_element_title))
-            OverlayElementType.entries.forEach { type ->
+            // Listed alphabetically by their localized name.
+            val context = LocalContext.current
+            val orderedTypes = remember(context) {
+                OverlayElementType.entries.sortedBy { context.getString(it.labelRes) }
+            }
+            orderedTypes.forEach { type ->
                 Row(
                     Modifier
                         .fillMaxWidth()
