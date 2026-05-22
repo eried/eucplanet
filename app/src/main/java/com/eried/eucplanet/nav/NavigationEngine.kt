@@ -137,8 +137,13 @@ class NavigationEngine @Inject constructor(
     private var lastGoalDistM = Double.NaN
     private var lastProximity: Proximity? = null
     private var lastHuntVoiceMs = 0L
+    // Unbroken run of "getting colder" voice cues — escalates to a wrong-way
+    // shout; any "warmer" / "hot" cue resets it back to zero.
+    private var coldStreak = 0
 
     private var arrivalHandled = false
+    // Destinations already visited and mirrored to the builder's saved route.
+    private var lastSyncedReached = 0
 
     /** Begins guidance. Must be called while the app is in the foreground. */
     fun start(route: NavRoute, mode: NavMode) {
@@ -244,7 +249,9 @@ class NavigationEngine @Inject constructor(
         lastGoalDistM = Double.NaN
         lastProximity = null
         lastHuntVoiceMs = 0L
+        coldStreak = 0
         arrivalHandled = false
+        lastSyncedReached = 0
     }
 
     // --- per-fix processing ------------------------------------------------------
@@ -337,6 +344,7 @@ class NavigationEngine @Inject constructor(
         // Count only the destination-side waypoints already passed — the origin
         // pin (index 0, alongM ≈ 0) must not inflate the goal index.
         val reached = waypointAlongM.drop(1).count { it <= hit.alongM + arrivalRadiusM }
+        syncBuilderRoute(reached)
 
         _navState.value = _navState.value.copy(
             waiting = false,
@@ -540,14 +548,48 @@ class NavigationEngine @Inject constructor(
         // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL while moving.
         if (voiceEnabled && now - lastHuntVoiceMs > HUNT_VOICE_INTERVAL_MS) {
             lastHuntVoiceMs = now
-            speakHunt(currentGoal, dist, rel, proximity)
+            // Count an unbroken run of "colder" cues; warmer / hot resets it.
+            coldStreak = if (proximity == Proximity.COLD) coldStreak + 1 else 0
+            speakHunt(currentGoal, dist, rel, proximity, coldStreak)
         }
 
+        syncBuilderRoute(currentGoal - 1)
         lastGoalDistM = dist
         lastProximity = proximity
     }
 
-    private fun speakHunt(waypointIndex: Int, dist: Double, rel: Double, proximity: Proximity) {
+    /**
+     * Mirrors navigation progress back to the builder's saved route: drops the
+     * stops already visited and clears the geometry, so re-opening the builder
+     * mid-trip shows only the stops still ahead and recomputes from where the
+     * rider is now. When the last stop is done the route is left empty.
+     */
+    private fun syncBuilderRoute(reachedDests: Int) {
+        if (reachedDests == lastSyncedReached) return
+        lastSyncedReached = reachedDests
+        val route = activeRoute ?: return
+        // route.waypoints is [rider, dest1, dest2, ...] — keep the unvisited.
+        val remaining = route.waypoints.drop(1 + reachedDests)
+        scope.launch {
+            runCatching {
+                val s = settingsRepository.get()
+                val json = if (remaining.isEmpty()) "" else route.copy(
+                    waypoints = remaining,
+                    geometry = emptyList(),
+                    maneuvers = emptyList()
+                ).toJson().toString()
+                settingsRepository.update(s.copy(navCurrentRouteJson = json))
+            }
+        }
+    }
+
+    private fun speakHunt(
+        waypointIndex: Int,
+        dist: Double,
+        rel: Double,
+        proximity: Proximity,
+        coldStreak: Int
+    ) {
         val base = context.getString(
             R.string.voice_nav_hunt,
             goalLabel(waypointIndex),
@@ -557,7 +599,17 @@ class NavigationEngine @Inject constructor(
         val proxPhrase = when (proximity) {
             Proximity.HOT -> context.getString(R.string.voice_prox_hot)
             Proximity.WARM -> context.getString(R.string.voice_prox_warmer)
-            Proximity.COLD -> context.getString(R.string.voice_prox_colder)
+            Proximity.COLD -> {
+                // Escalate a sustained drift: a wrong-way shout on the 3rd cold
+                // cue in a row, a triple-loud one on the 5th. The orientation
+                // and distance (base) are still spoken either way.
+                val wrong = context.getString(R.string.voice_nav_wrong_way)
+                when (coldStreak) {
+                    3 -> wrong
+                    5 -> "$wrong $wrong $wrong"
+                    else -> context.getString(R.string.voice_prox_colder)
+                }
+            }
         }
         voiceService.announceEvent(context.getString(R.string.voice_nav_hunt_prox, base, proxPhrase))
     }
