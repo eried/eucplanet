@@ -232,28 +232,42 @@ object KingsongParser {
     }
 
     /**
-     * Linear voltage-to-percent curve keyed by the wheel's nominal pack
-     * voltage. Bounds match the spec table in section 4.5: a 67.2 V class
-     * pack reads full at 67.2 V and empty at 53.2 V; the same 0.79 / 1.00
-     * ratio scales to all classes (84 / 100.8 / 126 / 151.2 / 176.4 V full).
+     * Voltage-to-percent curve, keyed by the wheel's nominal pack voltage.
+     * KingSong never transmits a battery percentage, so it is estimated
+     * from pack voltage.
+     *
+     * Ported verbatim from WheelLog's `KingsongAdapter` (its default, non-
+     * "better-percents" curve) so the dashboard agrees with the reference
+     * app. The endpoints matter: a "full" 84 V KingSong pack settles near
+     * 82.5 V, not 84 V — anchoring 100% at 84 V (as an earlier curve did)
+     * made the gauge under-read by ~7% across the whole range.
+     *
+     * WheelLog works in centivolts; the curve is reproduced in those units
+     * (integer division included) so the result matches it exactly.
      *
      * Returns 0 when no model is detected — the dashboard renders the empty
      * battery rather than a stale fallback.
      */
     private fun batteryPercentFromVoltage(voltage: Float, model: KingsongModel?): Int {
         if (model == null || voltage <= 0f) return 0
-        val full: Float
-        val empty: Float
+        val cv = (voltage * 100f).toInt()
+        // empty = 0% threshold, full = 100% threshold, span = centivolts per 1%.
+        val empty: Int
+        val full: Int
+        val span: Int
         when (model.nominalVoltage) {
-            67 -> { full = 67.2f; empty = 53.2f }
-            84 -> { full = 84.0f; empty = 67.0f }
-            100 -> { full = 100.8f; empty = 80.0f }
-            126 -> { full = 126.0f; empty = 100.0f }
-            151 -> { full = 151.2f; empty = 120.0f }
-            176 -> { full = 176.4f; empty = 140.0f }
+            67  -> { empty = 5000;  full = 6600;  span = 16 }
+            84  -> { empty = 6250;  full = 8250;  span = 20 }
+            100 -> { empty = 7500;  full = 9900;  span = 24 }
+            126 -> { empty = 9375;  full = 12375; span = 30 }
+            151 -> { empty = 11250; full = 14850; span = 36 }
+            176 -> { empty = 13125; full = 17325; span = 42 }
             else -> return 0
         }
-        val pct = ((voltage - empty) / (full - empty) * 100f).toInt()
-        return pct.coerceIn(0, 100)
+        return when {
+            cv < empty -> 0
+            cv >= full -> 100
+            else -> ((cv - empty) / span).coerceIn(0, 100)
+        }
     }
 }

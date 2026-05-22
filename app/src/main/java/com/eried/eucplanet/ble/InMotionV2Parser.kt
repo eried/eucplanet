@@ -4,6 +4,7 @@ import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import com.eried.eucplanet.util.ByteUtils
 import com.eried.eucplanet.util.ByteUtils.parseTemperature
+import kotlin.math.roundToInt
 
 /**
  * Parses telemetry and settings responses from InMotion V14.
@@ -54,7 +55,10 @@ object InMotionV2Parser {
             (data[76].toInt() and 0x02) != 0
         } else false
 
-        val batteryPercent = ((battery1 + battery2) / 2f).toInt().coerceIn(0, 100)
+        // The two packs each carry a real percentage; round the average so a
+        // 96.7 reads 97 like the wheel screen, not 96 (truncation was the
+        // source of the occasional 1% disagreement with the wheel).
+        val batteryPercent = ((battery1 + battery2) / 2f).roundToInt().coerceIn(0, 100)
 
         return WheelData(
             speed = speed,
