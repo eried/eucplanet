@@ -697,7 +697,7 @@
     <string name="nav_map_light">Светлая карта</string>
     <string name="nav_map_satellite">Спутниковая карта</string>
     <string name="nav_map_style">Стиль карты</string>
-    <string name="nav_max_stops">До одного пункта назначения и 8 остановок</string>
+    <string name="nav_max_stops">До одного пункта назначения и 24 остановок</string>
     <string name="nav_menu">Меню</string>
     <string name="nav_menu_clear">Сбросить маршрут</string>
     <string name="nav_menu_exit">Назад к панели</string>

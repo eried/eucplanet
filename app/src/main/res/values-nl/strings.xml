@@ -681,7 +681,7 @@
     <string name="nav_map_light">Lichte kaart</string>
     <string name="nav_map_satellite">Satellietkaart</string>
     <string name="nav_map_style">Kaartstijl</string>
-    <string name="nav_max_stops">Tot een bestemming en 8 stops</string>
+    <string name="nav_max_stops">Tot een bestemming en 24 stops</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Route wissen</string>
     <string name="nav_menu_exit">Terug naar dashboard</string>

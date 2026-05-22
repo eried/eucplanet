@@ -662,7 +662,7 @@
     <string name="nav_map_light">Lyst kart</string>
     <string name="nav_map_satellite">Satellittkart</string>
     <string name="nav_map_style">Kartstil</string>
-    <string name="nav_max_stops">Opptil ett bestemmelsessted og 8 stopp</string>
+    <string name="nav_max_stops">Opptil ett bestemmelsessted og 24 stopp</string>
     <string name="nav_menu">Meny</string>
     <string name="nav_menu_clear">Fjern rute</string>
     <string name="nav_menu_exit">Tilbake til dashbordet</string>

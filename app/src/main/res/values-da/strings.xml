@@ -646,7 +646,7 @@
     <string name="nav_map_light">Lyst kort</string>
     <string name="nav_map_satellite">Satellitkort</string>
     <string name="nav_map_style">Kortstil</string>
-    <string name="nav_max_stops">Op til én destination og 8 stop</string>
+    <string name="nav_max_stops">Op til én destination og 24 stop</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Ryd rute</string>
     <string name="nav_menu_exit">Tilbage til dashboard</string>

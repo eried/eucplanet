@@ -681,7 +681,7 @@
     <string name="nav_map_light">Mapa claro</string>
     <string name="nav_map_satellite">Mapa de satélite</string>
     <string name="nav_map_style">Estilo do mapa</string>
-    <string name="nav_max_stops">Até um destino e 8 paradas</string>
+    <string name="nav_max_stops">Até um destino e 24 paradas</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Apagar rota</string>
     <string name="nav_menu_exit">Voltar ao painel</string>

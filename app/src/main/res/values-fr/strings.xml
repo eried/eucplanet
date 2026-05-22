@@ -645,7 +645,7 @@
     <string name="nav_map_light">Carte claire</string>
     <string name="nav_map_satellite">Carte satellite</string>
     <string name="nav_map_style">Style de carte</string>
-    <string name="nav_max_stops">Jusqu\'à une destination et 8 arrêts</string>
+    <string name="nav_max_stops">Jusqu\'à une destination et 24 arrêts</string>
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_clear">Effacer l\'itinéraire</string>
     <string name="nav_menu_exit">Retour au tableau de bord</string>

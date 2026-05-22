@@ -56,8 +56,12 @@ class RouteBuilderViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
-        /** Listed destinations + stops (the rider is the implicit origin). */
-        const val MAX_WAYPOINTS = 9
+        /**
+         * Listed destinations + stops (the rider is the implicit origin).
+         * OSRM solves the whole chain in one /route request, so this cap is a
+         * usability limit (a manageable list), not a router limit.
+         */
+        const val MAX_WAYPOINTS = 25
 
         /** How far the rider moves before the route preview is recomputed. */
         private const val ORIGIN_REROUTE_M = 25.0
