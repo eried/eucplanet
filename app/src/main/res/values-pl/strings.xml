@@ -283,6 +283,7 @@
     <string name="report_distance">Dystans</string>
     <string name="report_recording">Nagrywanie</string>
     <string name="report_time">Czas</string>
+    <string name="report_navigation">Nawigacja</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
@@ -637,6 +638,7 @@
     <string name="external_gps_state_disconnected">Rozłączono</string>
     <string name="external_gps_unpair">Zapomnij urządzenie</string>
     <string name="section_external_gps">GPS i czujniki</string>
+    <string name="external_gps_device_title">Zewnętrzny GPS</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
     <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości.</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
@@ -730,7 +732,6 @@
     <string name="nav_setting_params">Parametry nawigacji</string>
     <string name="nav_setting_router_url">Adres URL wyznaczania trasy</string>
     <string name="nav_setting_voice">Prowadzenie głosowe</string>
-    <string name="nav_setting_voice_repeat">Powtarzaj nawigację</string>
     <string name="nav_setting_voice_desc">Wypowiadaj instrukcje zakrętów i Poszukiwania skarbu</string>
     <string name="nav_skip_locating">Pomiń</string>
     <string name="nav_start_riding">Zacznij jazdę</string>

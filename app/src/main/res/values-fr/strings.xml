@@ -481,6 +481,7 @@
     <string name="menu_voice_periodic_off">Désactiver les annonces périodiques</string>
     <string name="menu_voice_periodic_on">Activer les annonces périodiques</string>
     <string name="report_time">Temps</string>
+    <string name="report_navigation">Navigation</string>
     <string name="scan_show_all_subtitle">Activez si votre roue n\'apparaît pas</string>
     <string name="scan_show_all_title">Afficher tous les appareils</string>
     <string name="scan_simulate_subtitle">Contourne le BLE et utilise des réponses préenregistrées. Uniquement en build debug.</string>
@@ -601,6 +602,7 @@
     <string name="external_gps_state_disconnected">Déconnecté</string>
     <string name="external_gps_unpair">Oublier l\'appareil</string>
     <string name="section_external_gps">GPS et capteurs</string>
+    <string name="external_gps_device_title">GPS externe</string>
     <string name="section_speed_calibration">Calibration de vitesse</string>
     <string name="speed_calibration_caption">Applique un pourcentage à la vitesse provenant de la roue. Les alarmes, la voix et le journal des trajets utilisent tous la valeur calibrée.</string>
     <string name="speed_calibration_label">Décalage de vitesse</string>
@@ -693,7 +695,6 @@
     <string name="nav_setting_params">Paramètres de navigation</string>
     <string name="nav_setting_router_url">URL de calcul d\'itinéraire</string>
     <string name="nav_setting_voice">Guidage vocal</string>
-    <string name="nav_setting_voice_repeat">Répéter la navigation</string>
     <string name="nav_setting_voice_desc">Énoncer les instructions de virage et de chasse au trésor</string>
     <string name="nav_skip_locating">Ignorer</string>
     <string name="nav_start_riding">Commencer à rouler</string>

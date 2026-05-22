@@ -6,9 +6,16 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -62,6 +69,12 @@ class PhoneSensorRepository @Inject constructor(
     // sheet, the Overlay Studio). The listener is registered while it is > 0.
     private var refCount = 0
     private var registered = false
+    // Periodic re-register heartbeat — Android can quietly stop delivering
+    // events to a non-wake-up sensor while the AP sleeps (screen off mid-ride);
+    // re-registering every 15 s self-heals it as long as the AP has been woken
+    // at least once in the meantime (BLE polling during a trip wakes it).
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var heartbeat: Job? = null
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             if (event.sensor.type != Sensor.TYPE_LINEAR_ACCELERATION) return
@@ -103,7 +116,15 @@ class PhoneSensorRepository @Inject constructor(
     @Synchronized
     fun start() {
         refCount++
-        if (refCount == 1) register()
+        if (refCount == 1) {
+            register()
+            heartbeat = scope.launch {
+                while (isActive) {
+                    delay(15_000L)
+                    refresh()
+                }
+            }
+        }
     }
 
     /** Releases one consumer; unregisters once the last one is gone. The last
@@ -112,7 +133,11 @@ class PhoneSensorRepository @Inject constructor(
     fun stop() {
         if (refCount <= 0) return
         refCount--
-        if (refCount == 0) unregister()
+        if (refCount == 0) {
+            heartbeat?.cancel()
+            heartbeat = null
+            unregister()
+        }
     }
 
     /**

@@ -139,14 +139,20 @@ class RouteBuilderViewModel @Inject constructor(
             defaultRadiusM = s.navArrivalRadiusM
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
-            // Re-open whatever route was last in the builder.
-            NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
-                if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
-                    routeName = existing.name
-                    _travelMode.value = existing.travelMode
-                    _waypoints.value = existing.waypoints
-                    _route.value = existing
-                    bumpRender(fit = true)
+            // The builder's route is disposable across an app restart: the
+            // rider's preferred travel mode (above) is preserved, but the
+            // pins only persist if they save a GPX. Restore the saved route
+            // ONLY while a navigation session is still running, since the
+            // engine keeps it up to date as each stop is reached.
+            if (navigationEngine.isActive) {
+                NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
+                    if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
+                        routeName = existing.name
+                        _travelMode.value = existing.travelMode
+                        _waypoints.value = existing.waypoints
+                        _route.value = existing
+                        bumpRender(fit = true)
+                    }
                 }
             }
         }

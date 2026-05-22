@@ -119,12 +119,14 @@ class SettingsViewModel @Inject constructor(
     fun updateVoiceReportPwm(v: Boolean) = update { copy(voiceReportPwm = v) }
     fun updateVoiceReportDistance(v: Boolean) = update { copy(voiceReportDistance = v) }
     fun updateVoiceReportTime(v: Boolean) = update { copy(voiceReportTime = v) }
+    fun updateVoiceReportNavigation(v: Boolean) = update { copy(voiceReportNavigation = v) }
     fun updateTriggerReportSpeed(v: Boolean) = update { copy(triggerReportSpeed = v) }
     fun updateTriggerReportBattery(v: Boolean) = update { copy(triggerReportBattery = v) }
     fun updateTriggerReportTemp(v: Boolean) = update { copy(triggerReportTemp = v) }
     fun updateTriggerReportPwm(v: Boolean) = update { copy(triggerReportPwm = v) }
     fun updateTriggerReportDistance(v: Boolean) = update { copy(triggerReportDistance = v) }
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
+    fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
     fun updateVoiceLocale(tag: String) {
         update { copy(voiceLocale = tag) }
         voiceService.setVoiceLocale(tag)
@@ -286,7 +288,6 @@ class SettingsViewModel @Inject constructor(
 
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
-    fun updateNavRepeatVoice(v: Boolean) = update { copy(navRepeatVoice = v) }
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
@@ -463,7 +464,7 @@ class SettingsViewModel @Inject constructor(
     fun moveReportItem(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            val known = listOf("Speed", "Battery", "Temp", "PWM", "Distance", "Recording", "Time")
+            val known = listOf("Speed", "Battery", "Temp", "PWM", "Distance", "Recording", "Time", "Navigation")
             val saved = current.voiceReportOrder.split(",").map { it.trim() }.filter { it in known }
             val items = (saved + known.filter { it !in saved }).toMutableList()
             if (fromIndex in items.indices && toIndex in items.indices) {

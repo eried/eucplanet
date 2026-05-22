@@ -86,10 +86,6 @@ class NavigationEngine @Inject constructor(
         // How long the "arrived" banner lingers before the popup self-clears.
         private const val ARRIVAL_DISMISS_MS = 9_000L
 
-        // Optional "repeat navigation": re-announce the current turn after this
-        // much silence, as a reminder for a rider who missed the last cue.
-        private const val REPEAT_INTERVAL_MS = 35_000L
-
         // Treasure Hunt voice cadence + proximity hysteresis.
         private const val HUNT_VOICE_INTERVAL_MS = 45_000L
         private const val PROX_BAND_M = 4.0
@@ -108,6 +104,23 @@ class NavigationEngine @Inject constructor(
 
     val isActive: Boolean get() = _navState.value.active
 
+    init {
+        // Push the current navigation cue (or null) to VoiceService whenever
+        // it changes. The Report-status announcement reads it for the
+        // "Navigation" row, so a Periodic / Trigger report includes the live
+        // turn instruction without any caller having to thread it through.
+        scope.launch {
+            _navState.collect { s ->
+                voiceService.currentNavCue =
+                    if (s.active && !s.waiting && !s.arrived && s.primaryText.isNotBlank())
+                        listOf(s.primaryText, s.distanceText)
+                            .filter { it.isNotBlank() }
+                            .joinToString(", ")
+                    else null
+            }
+        }
+    }
+
     @Volatile private var initJob: Job? = null
     @Volatile private var collectJob: Job? = null
     @Volatile private var rerouteJob: Job? = null
@@ -118,7 +131,6 @@ class NavigationEngine @Inject constructor(
     // Settings snapshot, refreshed on start().
     private var imperial = false
     private var voiceEnabled = true
-    private var repeatVoice = false
     private var arrivalRadiusM = 25.0
     private var offRouteToleranceM = 40.0
     private var routerUrl = RoutingService.DEFAULT_ROUTER
@@ -136,8 +148,6 @@ class NavigationEngine @Inject constructor(
     private var lastWrongWayMs = 0L
     private var rerouteInFlight = false
     private var waypointAlongM: List<Double> = emptyList()
-    // Wall-clock of the last spoken nav cue — drives the repeat reminder.
-    private var lastNavVoiceMs = 0L
 
     // --- treasure-hunt state ---
     private var currentGoal = 0
@@ -174,7 +184,6 @@ class NavigationEngine @Inject constructor(
             val s = settingsRepository.get()
             imperial = s.imperialUnits
             voiceEnabled = s.navVoiceEnabled
-            repeatVoice = s.navRepeatVoice
             arrivalRadiusM = s.navArrivalRadiusM.toDouble()
             offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
@@ -271,7 +280,6 @@ class NavigationEngine @Inject constructor(
         coldStreak = 0
         arrivalHandled = false
         lastSyncedReached = 0
-        lastNavVoiceMs = System.currentTimeMillis()
     }
 
     // --- per-fix processing ------------------------------------------------------
@@ -359,8 +367,7 @@ class NavigationEngine @Inject constructor(
         val distToTurn = ((next?.distanceFromStartM ?: route.totalDistanceM) - hit.alongM)
             .coerceAtLeast(0.0)
 
-        if (next != null) announceManeuver(nextIndex, next, distToTurn, now)
-        maybeRepeat(next, distToTurn, now)
+        if (next != null) announceManeuver(nextIndex, next, distToTurn)
 
         // Count only the destination-side waypoints already passed — the origin
         // pin (index 0, alongM ≈ 0) must not inflate the goal index.
@@ -383,14 +390,13 @@ class NavigationEngine @Inject constructor(
     }
 
     /** Speaks the prepare ("in X, turn left") then execute ("turn left now") cues. */
-    private fun announceManeuver(index: Int, maneuver: Maneuver, distToTurn: Double, now: Long) {
+    private fun announceManeuver(index: Int, maneuver: Maneuver, distToTurn: Double) {
         // DEPART has no cue; ARRIVE is left to handleArrival() — announcing the
         // final maneuver here too made arrival speak two or three times over.
         if (maneuver.type == TurnType.DEPART || maneuver.type == TurnType.ARRIVE) return
         if (!voiceEnabled) return
         if (distToTurn <= PREPARE_DIST_M && preparedManeuver != index) {
             preparedManeuver = index
-            lastNavVoiceMs = now
             voiceService.announceEvent(
                 context.getString(
                     R.string.voice_nav_prepare,
@@ -401,30 +407,10 @@ class NavigationEngine @Inject constructor(
         }
         if (distToTurn <= EXECUTE_DIST_M && executedManeuver != index) {
             executedManeuver = index
-            lastNavVoiceMs = now
             voiceService.announceEvent(
                 context.getString(R.string.voice_nav_now, turnText(maneuver.type))
             )
         }
-    }
-
-    /**
-     * "Repeat navigation": when enabled, re-announce the upcoming turn after a
-     * stretch of silence, so a rider who missed the cue gets a fresh reminder
-     * with the current distance.
-     */
-    private fun maybeRepeat(next: Maneuver?, distToTurn: Double, now: Long) {
-        if (!repeatVoice || !voiceEnabled) return
-        if (now - lastNavVoiceMs < REPEAT_INTERVAL_MS) return
-        if (next == null || next.type == TurnType.DEPART || next.type == TurnType.ARRIVE) return
-        lastNavVoiceMs = now
-        voiceService.announceEvent(
-            context.getString(
-                R.string.voice_nav_prepare,
-                NavFormat.spokenDistance(context, distToTurn, imperial),
-                turnText(next.type)
-            )
-        )
     }
 
     private fun handleOffRoute(route: NavRoute, point: GeoPoint, off: Boolean, now: Long) {

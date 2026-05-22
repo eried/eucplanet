@@ -283,6 +283,7 @@
     <string name="report_distance">Distanza</string>
     <string name="report_recording">Registrazione</string>
     <string name="report_time">Ora</string>
+    <string name="report_navigation">Navigazione</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Pulsanti Flic 2</string>
@@ -637,6 +638,7 @@
     <string name="external_gps_state_disconnected">Disconnesso</string>
     <string name="external_gps_unpair">Dimentica dispositivo</string>
     <string name="section_external_gps">GPS e sensori</string>
+    <string name="external_gps_device_title">GPS esterno</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="speed_calibration_caption">Applica una percentuale alla velocità che arriva dalla ruota. Allarmi, voce e il registro dei viaggi usano tutti il valore calibrato.</string>
     <string name="speed_calibration_label">Scostamento velocità</string>
@@ -729,7 +731,6 @@
     <string name="nav_setting_params">Parametri di navigazione</string>
     <string name="nav_setting_router_url">URL di routing</string>
     <string name="nav_setting_voice">Guida vocale</string>
-    <string name="nav_setting_voice_repeat">Ripeti navigazione</string>
     <string name="nav_setting_voice_desc">Annuncia le svolte e le istruzioni della Caccia al tesoro</string>
     <string name="nav_skip_locating">Salta</string>
     <string name="nav_start_riding">Inizia a guidare</string>

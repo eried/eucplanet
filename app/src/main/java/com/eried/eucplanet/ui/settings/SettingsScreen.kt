@@ -1126,16 +1126,6 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateNavVoiceEnabled(it) },
             onTest = { viewModel.testSpeak(navSample) }
         )
-        // Periodic reminder of the current cue — only meaningful with nav voice on.
-        if (settings.navVoiceEnabled) {
-            AnnounceSwitchSetting(
-                stringResource(R.string.nav_setting_voice_repeat),
-                settings.navRepeatVoice,
-                onCheckedChange = { viewModel.updateNavRepeatVoice(it) },
-                onTest = { viewModel.testSpeak(navSample) }
-            )
-        }
-
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 
         val sLock = stringResource(R.string.voice_wheel_locked)
@@ -1208,6 +1198,7 @@ private fun VoiceTab(
             "Distance" -> sTripEx
             "Recording" -> listOf(sRecOn, sRecOff).random()
             "Time" -> sTimeEx
+            "Navigation" -> navSample
             else -> null
         }
 
@@ -1221,6 +1212,7 @@ private fun VoiceTab(
                     "Distance" -> settings.voiceReportDistance
                     "Recording" -> settings.voiceReportRecording
                     "Time" -> settings.voiceReportTime
+                    "Navigation" -> settings.voiceReportNavigation
                     else -> false
                 } else when (key) {
                     "Speed" -> settings.triggerReportSpeed
@@ -1230,6 +1222,7 @@ private fun VoiceTab(
                     "Distance" -> settings.triggerReportDistance
                     "Recording" -> settings.triggerReportRecording
                     "Time" -> settings.triggerReportTime
+                    "Navigation" -> settings.triggerReportNavigation
                     else -> false
                 }
                 if (enabled) exampleFor(key) else null
@@ -1303,7 +1296,11 @@ private fun VoiceTab(
             "Time" to ReportItemConfig("Time", stringResource(R.string.report_time),
                 settings.voiceReportTime, { viewModel.updateVoiceReportTime(it) },
                 settings.triggerReportTime, { viewModel.updateTriggerReportTime(it) },
-                sTimeEx)
+                sTimeEx),
+            "Navigation" to ReportItemConfig("Navigation", stringResource(R.string.report_navigation),
+                settings.voiceReportNavigation, { viewModel.updateVoiceReportNavigation(it) },
+                settings.triggerReportNavigation, { viewModel.updateTriggerReportNavigation(it) },
+                navSample)
         )
 
         // Existing users may have a saved order that predates new report items (e.g. "Time").

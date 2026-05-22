@@ -514,6 +514,7 @@
 
     <!-- Report -->
     <string name="report_time">Время</string>
+    <string name="report_navigation">Навигация</string>
 
     <!-- Scan extras -->
     <string name="scan_show_all_subtitle">Включите, если ваше колесо не появляется</string>
@@ -653,6 +654,7 @@
     <string name="external_gps_state_disconnected">Не подключено</string>
     <string name="external_gps_unpair">Забыть устройство</string>
     <string name="section_external_gps">GPS и датчики</string>
+    <string name="external_gps_device_title">Внешний GPS</string>
     <string name="section_speed_calibration">Калибровка скорости</string>
     <string name="speed_calibration_caption">Применяет процент к скорости, поступающей с колеса. Сигналы, озвучка и журнал поездок используют откалиброванное значение.</string>
     <string name="speed_calibration_label">Поправка скорости</string>
@@ -745,7 +747,6 @@
     <string name="nav_setting_params">Параметры навигации</string>
     <string name="nav_setting_router_url">URL маршрутизации</string>
     <string name="nav_setting_voice">Голосовые подсказки</string>
-    <string name="nav_setting_voice_repeat">Повторять навигацию</string>
     <string name="nav_setting_voice_desc">Озвучивать повороты и подсказки поиска сокровищ</string>
     <string name="nav_skip_locating">Пропустить</string>
     <string name="nav_start_riding">В путь</string>

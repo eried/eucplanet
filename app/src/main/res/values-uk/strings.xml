@@ -283,6 +283,7 @@
     <string name="report_distance">Відстань</string>
     <string name="report_recording">Запис</string>
     <string name="report_time">Час</string>
+    <string name="report_navigation">Навігація</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
@@ -637,6 +638,7 @@
     <string name="external_gps_state_disconnected">Не підключено</string>
     <string name="external_gps_unpair">Забути пристрій</string>
     <string name="section_external_gps">GPS і датчики</string>
+    <string name="external_gps_device_title">Зовнішній GPS</string>
     <string name="section_speed_calibration">Калібрування швидкості</string>
     <string name="speed_calibration_caption">Застосовує відсоток до швидкості, що надходить з колеса. Тривоги, голос і журнал поїздок використовують відкалібороване значення.</string>
     <string name="speed_calibration_label">Поправка швидкості</string>
@@ -730,7 +732,6 @@
     <string name="nav_setting_params">Параметри навігації</string>
     <string name="nav_setting_router_url">URL маршрутизації</string>
     <string name="nav_setting_voice">Голосовий супровід</string>
-    <string name="nav_setting_voice_repeat">Повторювати навігацію</string>
     <string name="nav_setting_voice_desc">Озвучувати повороти та підказки пошуку скарбів</string>
     <string name="nav_skip_locating">Пропустити</string>
     <string name="nav_start_riding">Поїхали</string>

@@ -75,12 +75,14 @@ object SettingsJson {
         put("voiceReportPwm", s.voiceReportPwm)
         put("voiceReportDistance", s.voiceReportDistance)
         put("voiceReportTime", s.voiceReportTime)
+        put("voiceReportNavigation", s.voiceReportNavigation)
         put("triggerReportSpeed", s.triggerReportSpeed)
         put("triggerReportBattery", s.triggerReportBattery)
         put("triggerReportTemp", s.triggerReportTemp)
         put("triggerReportPwm", s.triggerReportPwm)
         put("triggerReportDistance", s.triggerReportDistance)
         put("triggerReportTime", s.triggerReportTime)
+        put("triggerReportNavigation", s.triggerReportNavigation)
         put("voiceReportRecording", s.voiceReportRecording)
         put("triggerReportRecording", s.triggerReportRecording)
         put("voiceReportOrder", s.voiceReportOrder)
@@ -174,7 +176,6 @@ object SettingsJson {
         put("gpsPrioritizeExternal", s.gpsPrioritizeExternal)
         put("gpsShowOnDashboard", s.gpsShowOnDashboard)
         put("navVoiceEnabled", s.navVoiceEnabled)
-        put("navRepeatVoice", s.navRepeatVoice)
         put("navArrivalRadiusM", s.navArrivalRadiusM)
         put("navOffRouteToleranceM", s.navOffRouteToleranceM)
         put("navHomeJson", s.navHomeJson)
@@ -227,12 +228,14 @@ object SettingsJson {
         voiceReportPwm = j.optBoolean("voiceReportPwm", base.voiceReportPwm),
         voiceReportDistance = j.optBoolean("voiceReportDistance", base.voiceReportDistance),
         voiceReportTime = j.optBoolean("voiceReportTime", base.voiceReportTime),
+        voiceReportNavigation = j.optBoolean("voiceReportNavigation", base.voiceReportNavigation),
         triggerReportSpeed = j.optBoolean("triggerReportSpeed", base.triggerReportSpeed),
         triggerReportBattery = j.optBoolean("triggerReportBattery", base.triggerReportBattery),
         triggerReportTemp = j.optBoolean("triggerReportTemp", base.triggerReportTemp),
         triggerReportPwm = j.optBoolean("triggerReportPwm", base.triggerReportPwm),
         triggerReportDistance = j.optBoolean("triggerReportDistance", base.triggerReportDistance),
         triggerReportTime = j.optBoolean("triggerReportTime", base.triggerReportTime),
+        triggerReportNavigation = j.optBoolean("triggerReportNavigation", base.triggerReportNavigation),
         voiceReportRecording = j.optBoolean("voiceReportRecording", base.voiceReportRecording),
         triggerReportRecording = j.optBoolean("triggerReportRecording", base.triggerReportRecording),
         voiceReportOrder = j.optString("voiceReportOrder", base.voiceReportOrder),
@@ -335,7 +338,6 @@ object SettingsJson {
         gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
         gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard),
         navVoiceEnabled = j.optBoolean("navVoiceEnabled", base.navVoiceEnabled),
-        navRepeatVoice = j.optBoolean("navRepeatVoice", base.navRepeatVoice),
         navArrivalRadiusM = j.optInt("navArrivalRadiusM", base.navArrivalRadiusM),
         navOffRouteToleranceM = j.optInt("navOffRouteToleranceM", base.navOffRouteToleranceM),
         navHomeJson = j.optString("navHomeJson", base.navHomeJson),

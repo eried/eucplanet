@@ -283,6 +283,7 @@
     <string name="report_distance">Afstand</string>
     <string name="report_recording">Opname</string>
     <string name="report_time">Tijd</string>
+    <string name="report_navigation">Navigatie</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knoppen</string>
@@ -637,6 +638,7 @@
     <string name="external_gps_state_disconnected">Niet verbonden</string>
     <string name="external_gps_unpair">Apparaat vergeten</string>
     <string name="section_external_gps">GPS en sensoren</string>
+    <string name="external_gps_device_title">Externe gps</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
     <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde.</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
@@ -729,7 +731,6 @@
     <string name="nav_setting_params">Navigatieparameters</string>
     <string name="nav_setting_router_url">Routerings-URL</string>
     <string name="nav_setting_voice">Gesproken begeleiding</string>
-    <string name="nav_setting_voice_repeat">Navigatie herhalen</string>
     <string name="nav_setting_voice_desc">Spreek afslag- en schattenjachtinstructies uit</string>
     <string name="nav_skip_locating">Overslaan</string>
     <string name="nav_start_riding">Begin met rijden</string>

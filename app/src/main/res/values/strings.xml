@@ -365,6 +365,7 @@
     <string name="report_distance">Distance</string>
     <string name="report_recording">Recording</string>
     <string name="report_time">Time</string>
+    <string name="report_navigation">Navigation</string>
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 buttons</string>
@@ -379,6 +380,7 @@
     <string name="flic_double_click">Double Click</string>
     <string name="flic_hold">Hold</string>
     <string name="section_external_gps">GPS &amp; sensors</string>
+    <string name="external_gps_device_title">External GPS</string>
     <string name="external_gps_pair_button">Start scan</string>
     <string name="external_gps_pair_action">Pair</string>
     <string name="external_gps_stop_scan">Stop scan</string>
@@ -1061,7 +1063,6 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Voice guidance</string>
-    <string name="nav_setting_voice_repeat">Repeat navigation</string>
     <string name="nav_setting_voice_desc">Speak turn and Treasure Hunt instructions</string>
     <string name="nav_setting_arrival_radius">Arrival radius</string>
     <string name="nav_setting_arrival_radius_desc">How close counts as reaching a stop</string>

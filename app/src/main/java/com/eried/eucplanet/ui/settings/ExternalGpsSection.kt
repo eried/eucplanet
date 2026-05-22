@@ -78,14 +78,13 @@ fun ExternalGpsSection(
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
         HintText(stringResource(R.string.gps_show_on_dashboard_desc), small = true)
-        ToggleRow(
-            label = stringResource(R.string.gps_prioritize_external),
-            checked = settings?.gpsPrioritizeExternal == true,
-            onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
-        )
-        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
 
         Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.external_gps_device_title),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold
+        )
 
         if (pairedAddress == null) {
             HintText(stringResource(R.string.external_gps_caption), small = true)
@@ -189,7 +188,15 @@ fun ExternalGpsSection(
                 }
             )
         }
-        }   // end Additional GPS BringIntoViewSection
+
+        Spacer(Modifier.height(4.dp))
+        ToggleRow(
+            label = stringResource(R.string.gps_prioritize_external),
+            checked = settings?.gpsPrioritizeExternal == true,
+            onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
+        )
+        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
+        }   // end BringIntoViewSection
     }
 
     if (autoDetectPhase !is ExternalGpsViewModel.AutoDetectPhase.Idle) {

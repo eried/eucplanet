@@ -327,6 +327,14 @@ class VoiceService @Inject constructor(
         synchronized(pendingBeforeReady) { pendingBeforeReady.clear() }
     }
 
+    /**
+     * Current spoken navigation cue, kept up to date by [NavigationEngine] as
+     * it pushes navState changes. Read by [buildReportParts] when the
+     * "Navigation" row of the Report-status grid is on, so the periodic /
+     * triggered status report includes the live turn instruction.
+     */
+    @Volatile var currentNavCue: String? = null
+
     fun announceStatus(data: WheelData, settings: AppSettings, isRecording: Boolean = false) {
         val parts = buildReportParts(data, settings, isRecording, periodic = true)
         if (parts.isEmpty()) return
@@ -384,6 +392,7 @@ class VoiceService @Inject constructor(
                 "Distance" -> settings.voiceReportDistance
                 "Recording" -> settings.voiceReportRecording
                 "Time" -> settings.voiceReportTime
+                "Navigation" -> settings.voiceReportNavigation
                 else -> false
             } else when (item) {
                 "Speed" -> settings.triggerReportSpeed
@@ -393,6 +402,7 @@ class VoiceService @Inject constructor(
                 "Distance" -> settings.triggerReportDistance
                 "Recording" -> settings.triggerReportRecording
                 "Time" -> settings.triggerReportTime
+                "Navigation" -> settings.triggerReportNavigation
                 else -> false
             }
             if (enabled) {
@@ -421,6 +431,10 @@ class VoiceService @Inject constructor(
                     "Recording" -> parts.add(context.getString(if (isRecording) R.string.voice_recording_on else R.string.voice_recording_off))
                     "Time" -> parts.add(context.getString(R.string.voice_time_fmt,
                         android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date())))
+                    // The cue is pushed in by NavigationEngine when nav is live;
+                    // null when there is nothing to say, in which case the row
+                    // is silently skipped.
+                    "Navigation" -> currentNavCue?.let { parts.add(it) }
                 }
             }
         }

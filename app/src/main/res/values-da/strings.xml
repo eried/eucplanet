@@ -483,6 +483,7 @@
     <string name="menu_voice_periodic_off">Slå løbende annonceringer fra</string>
     <string name="menu_voice_periodic_on">Slå løbende annonceringer til</string>
     <string name="report_time">Tid</string>
+    <string name="report_navigation">Navigation</string>
     <string name="scan_show_all_subtitle">Slå til, hvis dit hjul ikke vises</string>
     <string name="scan_show_all_title">Vis alle enheder</string>
     <string name="scan_simulate_subtitle">Springer BLE over og bruger prædefinerede svar. Kun i debug-builds.</string>
@@ -601,6 +602,7 @@
     <string name="external_gps_state_disconnected">Afbrudt</string>
     <string name="external_gps_unpair">Glem enhed</string>
     <string name="section_external_gps">GPS og sensorer</string>
+    <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighedskalibrering</string>
     <string name="speed_calibration_caption">Anvender en procentdel på hastigheden fra hjulet. Alarmer, stemme og turloggen bruger alle den kalibrerede værdi.</string>
     <string name="speed_calibration_label">Hastighedsjustering</string>
@@ -694,7 +696,6 @@
     <string name="nav_setting_params">Navigationsparametre</string>
     <string name="nav_setting_router_url">URL til ruteberegning</string>
     <string name="nav_setting_voice">Stemmevejledning</string>
-    <string name="nav_setting_voice_repeat">Gentag navigation</string>
     <string name="nav_setting_voice_desc">Læs svingbeskeder og skattejagts-instruktioner højt</string>
     <string name="nav_skip_locating">Spring over</string>
     <string name="nav_start_riding">Begynd at køre</string>
