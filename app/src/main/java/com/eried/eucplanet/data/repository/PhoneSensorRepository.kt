@@ -5,6 +5,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.SystemClock
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,9 +77,20 @@ class PhoneSensorRepository @Inject constructor(
     // at least once in the meantime (BLE polling during a trip wakes it).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var heartbeat: Job? = null
+
+    // Delivery instrumentation — counts events between heartbeat ticks so we can
+    // see in logcat (tag PhoneIMU) whether the sensor stream is actually flowing.
+    // Zero events between two ticks means Android has stopped delivering — that's
+    // the dropout we are hunting.
+    @Volatile private var eventsSinceLastTick = 0L
+    @Volatile private var lastEventElapsedMs = 0L
+    @Volatile private var lastRegisterElapsedMs = 0L
+
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             if (event.sensor.type != Sensor.TYPE_LINEAR_ACCELERATION) return
+            eventsSinceLastTick++
+            lastEventElapsedMs = SystemClock.elapsedRealtime()
             // m/s² → g (9.80665). x/y/z follow the SensorManager axis convention:
             // x = device right, y = device up, z = out of screen toward user.
             _imu.value = PhoneImuSample(
@@ -87,7 +100,9 @@ class PhoneSensorRepository @Inject constructor(
             )
         }
 
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) { /* unused */ }
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+            Log.i(TAG, "accuracyChanged accuracy=$accuracy")
+        }
     }
 
     private fun register() {
@@ -97,14 +112,17 @@ class PhoneSensorRepository @Inject constructor(
         // SENSOR_DELAY_GAME (~20 ms) gives a smooth trail in the crosshair
         // without pegging the CPU. SENSOR_DELAY_UI (~60 ms) felt choppy on
         // a Pixel 6 during a tilt test.
-        sm.registerListener(listener, s, SensorManager.SENSOR_DELAY_GAME)
-        registered = true
+        val ok = sm.registerListener(listener, s, SensorManager.SENSOR_DELAY_GAME)
+        registered = ok
+        lastRegisterElapsedMs = SystemClock.elapsedRealtime()
+        Log.i(TAG, "register ok=$ok sensor=${s.name} wakeUp=${s.isWakeUpSensor} reportingMode=${s.reportingMode}")
     }
 
     private fun unregister() {
         if (!registered) return
         sensorManager?.unregisterListener(listener)
         registered = false
+        Log.i(TAG, "unregister")
     }
 
     /**
@@ -116,12 +134,28 @@ class PhoneSensorRepository @Inject constructor(
     @Synchronized
     fun start() {
         refCount++
+        Log.i(TAG, "start refCount=$refCount")
         if (refCount == 1) {
             register()
             heartbeat = scope.launch {
                 while (isActive) {
                     delay(15_000L)
-                    refresh()
+                    val count = eventsSinceLastTick
+                    eventsSinceLastTick = 0
+                    val now = SystemClock.elapsedRealtime()
+                    val sinceLastEvent = if (lastEventElapsedMs == 0L) -1L else (now - lastEventElapsedMs)
+                    val sinceRegister = if (lastRegisterElapsedMs == 0L) -1L else (now - lastRegisterElapsedMs)
+                    Log.i(
+                        TAG,
+                        "tick events/15s=$count sinceLastEventMs=$sinceLastEvent registered=$registered sinceRegisterMs=$sinceRegister refCount=$refCount"
+                    )
+                    // If we got zero events but we are supposed to be registered,
+                    // try to self-heal by re-registering. This is the actual fix;
+                    // the log line above tells us how often we hit it.
+                    if (count == 0L && registered) {
+                        Log.w(TAG, "no events in 15s while registered — forcing refresh")
+                        refresh()
+                    }
                 }
             }
         }
@@ -133,6 +167,7 @@ class PhoneSensorRepository @Inject constructor(
     fun stop() {
         if (refCount <= 0) return
         refCount--
+        Log.i(TAG, "stop refCount=$refCount")
         if (refCount == 0) {
             heartbeat?.cancel()
             heartbeat = null
@@ -148,7 +183,12 @@ class PhoneSensorRepository @Inject constructor(
     @Synchronized
     fun refresh() {
         if (refCount <= 0) return
+        Log.i(TAG, "refresh refCount=$refCount registered=$registered")
         unregister()
         register()
+    }
+
+    companion object {
+        private const val TAG = "PhoneIMU"
     }
 }
