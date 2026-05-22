@@ -609,6 +609,19 @@ class RouteBuilderViewModel @Inject constructor(
                     ?: RoutingService.straightLineRoute(routeName, navWps)
             }
             navigationEngine.start(navRoute, mode)
+            // Keep the saved builder route in sync with what's being navigated
+            // (minus the prepended rider pin) so re-opening the builder during
+            // guidance shows that route with its real travel mode, not a stale
+            // draft. The engine clears this again once the trip is finished.
+            runCatching {
+                val s = settingsRepository.get()
+                settingsRepository.update(
+                    s.copy(
+                        navCurrentRouteJson =
+                            navRoute.copy(waypoints = dests).toJson().toString()
+                    )
+                )
+            }
         }
     }
 

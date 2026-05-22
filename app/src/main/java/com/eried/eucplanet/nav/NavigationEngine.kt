@@ -355,7 +355,9 @@ class NavigationEngine @Inject constructor(
 
     /** Speaks the prepare ("in X, turn left") then execute ("turn left now") cues. */
     private fun announceManeuver(index: Int, maneuver: Maneuver, distToTurn: Double) {
-        if (maneuver.type == TurnType.DEPART) return
+        // DEPART has no cue; ARRIVE is left to handleArrival() — announcing the
+        // final maneuver here too made arrival speak two or three times over.
+        if (maneuver.type == TurnType.DEPART || maneuver.type == TurnType.ARRIVE) return
         if (!voiceEnabled) return
         if (distToTurn <= PREPARE_DIST_M && preparedManeuver != index) {
             preparedManeuver = index
@@ -575,6 +577,15 @@ class NavigationEngine @Inject constructor(
         )
         if (voiceEnabled) {
             voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
+        }
+        // The trip succeeded — clear the saved builder route so re-opening the
+        // builder starts fresh instead of restoring a finished route. The trip
+        // recording (the CSV trace) is separate and is left untouched.
+        scope.launch {
+            runCatching {
+                val s = settingsRepository.get()
+                settingsRepository.update(s.copy(navCurrentRouteJson = ""))
+            }
         }
         // Leave the "arrived" banner up briefly, then clear the popup. The job
         // is tracked so a stop()/start() within the window cancels it — it must
