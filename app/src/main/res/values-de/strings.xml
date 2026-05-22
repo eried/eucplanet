@@ -712,6 +712,7 @@
     <string name="nav_setting_params">Navigationsparameter</string>
     <string name="nav_setting_router_url">Routing-URL</string>
     <string name="nav_setting_voice">Sprachführung</string>
+    <string name="nav_setting_voice_repeat">Navigation wiederholen</string>
     <string name="nav_setting_voice_desc">Abbiege- und Schatzsuche-Anweisungen ansagen</string>
     <string name="nav_skip_locating">Überspringen</string>
     <string name="nav_start_riding">Losfahren</string>

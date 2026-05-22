@@ -1063,6 +1063,7 @@
 
     <!-- Navigation settings -->
     <string name="nav_setting_voice">Voice guidance</string>
+    <string name="nav_setting_voice_repeat">Repeat navigation</string>
     <string name="nav_setting_voice_desc">Speak turn and Treasure Hunt instructions</string>
     <string name="nav_setting_arrival_radius">Arrival radius</string>
     <string name="nav_setting_arrival_radius_desc">How close counts as reaching a stop</string>

@@ -712,6 +712,7 @@
     <string name="nav_setting_params">Parámetros de navegación</string>
     <string name="nav_setting_router_url">URL de cálculo de rutas</string>
     <string name="nav_setting_voice">Guía por voz</string>
+    <string name="nav_setting_voice_repeat">Repetir navegación</string>
     <string name="nav_setting_voice_desc">Anuncia los giros y las pistas de la Búsqueda del tesoro</string>
     <string name="nav_skip_locating">Omitir</string>
     <string name="nav_start_riding">Empieza a rodar</string>

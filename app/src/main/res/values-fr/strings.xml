@@ -695,6 +695,7 @@
     <string name="nav_setting_params">Paramètres de navigation</string>
     <string name="nav_setting_router_url">URL de calcul d\'itinéraire</string>
     <string name="nav_setting_voice">Guidage vocal</string>
+    <string name="nav_setting_voice_repeat">Répéter la navigation</string>
     <string name="nav_setting_voice_desc">Énoncer les instructions de virage et de chasse au trésor</string>
     <string name="nav_skip_locating">Ignorer</string>
     <string name="nav_start_riding">Commencer à rouler</string>

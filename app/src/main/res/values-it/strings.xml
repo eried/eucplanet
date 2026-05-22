@@ -731,6 +731,7 @@
     <string name="nav_setting_params">Parametri di navigazione</string>
     <string name="nav_setting_router_url">URL di routing</string>
     <string name="nav_setting_voice">Guida vocale</string>
+    <string name="nav_setting_voice_repeat">Ripeti navigazione</string>
     <string name="nav_setting_voice_desc">Annuncia le svolte e le istruzioni della Caccia al tesoro</string>
     <string name="nav_skip_locating">Salta</string>
     <string name="nav_start_riding">Inizia a guidare</string>

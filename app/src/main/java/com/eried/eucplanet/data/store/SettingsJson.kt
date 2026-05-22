@@ -175,6 +175,7 @@ object SettingsJson {
         put("gpsPrioritizeExternal", s.gpsPrioritizeExternal)
         put("gpsShowOnDashboard", s.gpsShowOnDashboard)
         put("navVoiceEnabled", s.navVoiceEnabled)
+        put("navRepeatVoice", s.navRepeatVoice)
         put("navArrivalRadiusM", s.navArrivalRadiusM)
         put("navOffRouteToleranceM", s.navOffRouteToleranceM)
         put("navHomeJson", s.navHomeJson)
@@ -336,6 +337,7 @@ object SettingsJson {
         gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
         gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard),
         navVoiceEnabled = j.optBoolean("navVoiceEnabled", base.navVoiceEnabled),
+        navRepeatVoice = j.optBoolean("navRepeatVoice", base.navRepeatVoice),
         navArrivalRadiusM = j.optInt("navArrivalRadiusM", base.navArrivalRadiusM),
         navOffRouteToleranceM = j.optInt("navOffRouteToleranceM", base.navOffRouteToleranceM),
         navHomeJson = j.optString("navHomeJson", base.navHomeJson),

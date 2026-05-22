@@ -219,8 +219,12 @@ class OverlayStudioViewModel @Inject constructor(
         _bundledLandscapePresets.asStateFlow()
 
     // --- Replay (recorded trips) --------------------------------------------
-    /** Recorded trips available to replay, newest first. */
-    val trips: StateFlow<List<TripRecord>> = tripRepository.allTrips
+    /** Recorded trips available to replay, newest first. The in-progress trip
+     *  has no finalised CSV yet, so it is kept out of the picker. */
+    val trips: StateFlow<List<TripRecord>> = combine(
+        tripRepository.allTrips,
+        tripRepository.currentTripId
+    ) { all, currentId -> all.filter { it.id != currentId } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** Looks up a single trip by id — used when the studio opens from Share. */

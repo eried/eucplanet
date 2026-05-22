@@ -731,6 +731,7 @@
     <string name="nav_setting_params">Parâmetros de navegação</string>
     <string name="nav_setting_router_url">URL de roteamento</string>
     <string name="nav_setting_voice">Orientação por voz</string>
+    <string name="nav_setting_voice_repeat">Repetir navegação</string>
     <string name="nav_setting_voice_desc">Falar as instruções de curva e da Caça ao Tesouro</string>
     <string name="nav_skip_locating">Pular</string>
     <string name="nav_start_riding">Comece a pedalar</string>

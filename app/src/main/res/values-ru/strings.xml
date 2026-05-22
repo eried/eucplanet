@@ -747,6 +747,7 @@
     <string name="nav_setting_params">Параметры навигации</string>
     <string name="nav_setting_router_url">URL маршрутизации</string>
     <string name="nav_setting_voice">Голосовые подсказки</string>
+    <string name="nav_setting_voice_repeat">Повторять навигацию</string>
     <string name="nav_setting_voice_desc">Озвучивать повороты и подсказки поиска сокровищ</string>
     <string name="nav_skip_locating">Пропустить</string>
     <string name="nav_start_riding">В путь</string>

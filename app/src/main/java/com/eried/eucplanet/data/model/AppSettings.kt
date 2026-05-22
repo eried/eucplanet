@@ -224,6 +224,8 @@ data class AppSettings(
     // Treasure Hunt proximity-hint mode.
     /** Speak turn-by-turn / Treasure Hunt instructions through TTS. */
     val navVoiceEnabled: Boolean = true,
+    /** Periodically re-announce the current navigation cue as a reminder. */
+    val navRepeatVoice: Boolean = false,
     /** Radius (meters) within which a waypoint / goal counts as "reached". */
     val navArrivalRadiusM: Int = 50,
     /** Perpendicular distance (meters) off the route before "wrong way" triggers. */

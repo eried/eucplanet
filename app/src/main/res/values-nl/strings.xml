@@ -731,6 +731,7 @@
     <string name="nav_setting_params">Navigatieparameters</string>
     <string name="nav_setting_router_url">Routerings-URL</string>
     <string name="nav_setting_voice">Gesproken begeleiding</string>
+    <string name="nav_setting_voice_repeat">Navigatie herhalen</string>
     <string name="nav_setting_voice_desc">Spreek afslag- en schattenjachtinstructies uit</string>
     <string name="nav_skip_locating">Overslaan</string>
     <string name="nav_start_riding">Begin met rijden</string>

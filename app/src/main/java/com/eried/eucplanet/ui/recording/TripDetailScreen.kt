@@ -88,6 +88,8 @@ fun TripDetailScreen(
 ) {
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
+    // The in-progress trip can't be shared — its CSV isn't finalised yet.
+    val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
 
     if (showShareDialog) {
         TripActionDialog(
@@ -114,7 +116,10 @@ fun TripDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showShareDialog = true }) {
+                    IconButton(
+                        onClick = { showShareDialog = true },
+                        enabled = !isLiveTrip
+                    ) {
                         Icon(Icons.Default.Share, contentDescription = stringResource(R.string.action_share))
                     }
                 },

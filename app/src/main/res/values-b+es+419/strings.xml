@@ -731,6 +731,7 @@
     <string name="nav_setting_params">Parámetros de navegación</string>
     <string name="nav_setting_router_url">URL de cálculo de rutas</string>
     <string name="nav_setting_voice">Guía por voz</string>
+    <string name="nav_setting_voice_repeat">Repetir navegación</string>
     <string name="nav_setting_voice_desc">Decir en voz alta las indicaciones de giro y de la Búsqueda del Tesoro</string>
     <string name="nav_skip_locating">Omitir</string>
     <string name="nav_start_riding">A rodar</string>

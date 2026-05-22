@@ -1114,6 +1114,15 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateNavVoiceEnabled(it) },
             onTest = { viewModel.testSpeak(navSample) }
         )
+        // Periodic reminder of the current cue — only meaningful with nav voice on.
+        if (settings.navVoiceEnabled) {
+            AnnounceSwitchSetting(
+                stringResource(R.string.nav_setting_voice_repeat),
+                settings.navRepeatVoice,
+                onCheckedChange = { viewModel.updateNavRepeatVoice(it) },
+                onTest = { viewModel.testSpeak(navSample) }
+            )
+        }
 
         androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
 

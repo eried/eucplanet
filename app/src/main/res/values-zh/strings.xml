@@ -695,6 +695,7 @@
     <string name="nav_setting_params">导航参数</string>
     <string name="nav_setting_router_url">路线规划 URL</string>
     <string name="nav_setting_voice">语音引导</string>
+    <string name="nav_setting_voice_repeat">重复导航</string>
     <string name="nav_setting_voice_desc">播报转弯和寻宝提示</string>
     <string name="nav_skip_locating">跳过</string>
     <string name="nav_start_riding">开始骑行</string>

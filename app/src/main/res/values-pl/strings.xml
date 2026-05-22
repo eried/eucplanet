@@ -732,6 +732,7 @@
     <string name="nav_setting_params">Parametry nawigacji</string>
     <string name="nav_setting_router_url">Adres URL wyznaczania trasy</string>
     <string name="nav_setting_voice">Prowadzenie głosowe</string>
+    <string name="nav_setting_voice_repeat">Powtarzaj nawigację</string>
     <string name="nav_setting_voice_desc">Wypowiadaj instrukcje zakrętów i Poszukiwania skarbu</string>
     <string name="nav_skip_locating">Pomiń</string>
     <string name="nav_start_riding">Zacznij jazdę</string>

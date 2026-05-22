@@ -695,6 +695,7 @@
     <string name="nav_setting_params">Navigeringsparametrar</string>
     <string name="nav_setting_router_url">Rutt-URL</string>
     <string name="nav_setting_voice">Röstvägledning</string>
+    <string name="nav_setting_voice_repeat">Upprepa navigering</string>
     <string name="nav_setting_voice_desc">Läs upp sväng- och skattjaktsinstruktioner</string>
     <string name="nav_skip_locating">Hoppa över</string>
     <string name="nav_start_riding">Börja åk</string>
