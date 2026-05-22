@@ -916,4 +916,10 @@
     <string name="dash_view_video_gallery">Voir la galerie vidéo</string>
     <string name="dash_view_photo_gallery">Voir la galerie photo</string>
     <string name="dash_no_gallery_app">Aucune application de galerie trouvée</string>
+    <string name="trip_action_share_file">Partager le fichier</string>
+    <string name="trip_action_share_file_desc">Envoyer le CSV du trajet à une autre application</string>
+    <string name="trip_action_view_online">Voir en ligne</string>
+    <string name="trip_action_view_online_desc">L\'ouvrir sur la carte EUC Viewer</string>
+    <string name="trip_action_replay">Rejouer dans Studio</string>
+    <string name="trip_action_replay_desc">Parcourir le trajet avec les données en surimpression</string>
 </resources>

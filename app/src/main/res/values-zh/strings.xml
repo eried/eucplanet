@@ -916,4 +916,10 @@
     <string name="dash_view_video_gallery">查看视频库</string>
     <string name="dash_view_photo_gallery">查看照片库</string>
     <string name="dash_no_gallery_app">未找到图库应用</string>
+    <string name="trip_action_share_file">分享文件</string>
+    <string name="trip_action_share_file_desc">将行程 CSV 发送到其他应用</string>
+    <string name="trip_action_view_online">在线查看</string>
+    <string name="trip_action_view_online_desc">在 EUC Viewer 地图上打开</string>
+    <string name="trip_action_replay">在工作室中回放</string>
+    <string name="trip_action_replay_desc">通过实时数据叠加层回放行程</string>
 </resources>

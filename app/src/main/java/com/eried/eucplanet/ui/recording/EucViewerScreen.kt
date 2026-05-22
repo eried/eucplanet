@@ -1,5 +1,10 @@
 package com.eried.eucplanet.ui.recording
 
+import android.util.Log
+import android.webkit.ConsoleMessage
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,13 +24,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.eucplanet.R
+import java.io.ByteArrayInputStream
+import java.util.concurrent.atomic.AtomicReference
+
+/** Path the embedded viewer fetches the trip CSV from — intercepted locally. */
+private const val TRIP_PATH = "/__euc_trip.csv"
+private const val VIEWER_URL = "https://eucviewer.ried.no/?embedded"
+private const val TAG = "EucViewer"
 
 /**
- * Hosts the EUC Viewer (eucviewer.ried.no) embedded in a WebView and hands it
- * the trip's CSV via the documented `window.loadFileFromBase64` JS hook — no
- * upload, the data is injected client-side.
+ * Hosts the EUC Viewer (eucviewer.ried.no) embedded in a WebView and feeds it
+ * the trip's CSV.
+ *
+ * The CSV is **not** inlined into an injected script — a long ride is several MB
+ * of base64, and that overflowed `evaluateJavascript`, leaving a truncated
+ * (syntax-broken) script that silently did nothing. Instead the app intercepts
+ * a same-origin request for [TRIP_PATH] and serves the bytes directly; the
+ * injected script just `fetch`es that URL and hands the data to the viewer's
+ * documented `window.loadFileFromBase64` hook (see the viewer's INTEGRATION.md).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,24 +54,45 @@ fun EucViewerScreen(
     onBack: () -> Unit,
     viewModel: EucViewerViewModel = hiltViewModel()
 ) {
-    var payload by remember { mutableStateOf<Pair<String, String>?>(null) }
+    // Read by shouldInterceptRequest on a background thread — hence atomic.
+    val payloadRef = remember { AtomicReference<Pair<ByteArray, String>?>(null) }
+    var fileName by remember { mutableStateOf<String?>(null) }
     var webView by remember { mutableStateOf<WebView?>(null) }
     var pageReady by remember { mutableStateOf(false) }
 
-    LaunchedEffect(tripId) { payload = viewModel.tripPayload(tripId) }
-    LaunchedEffect(pageReady, payload) {
-        val p = payload
-        if (pageReady && p != null) {
-            // onPageFinished fires before the viewer's own scripts have run, so
-            // window.loadFileFromBase64 often isn't defined yet — poll for the
-            // hook (up to ~15 s) before handing over the CSV. base64 + the trip
-            // file name contain no quotes, so a single-quoted literal is safe.
+    LaunchedEffect(tripId) {
+        val p = viewModel.tripPayload(tripId)
+        payloadRef.set(p)
+        fileName = p?.second
+        Log.i(TAG, "trip $tripId payload: ${p?.first?.size ?: -1} bytes, name=${p?.second}")
+    }
+
+    LaunchedEffect(pageReady, fileName) {
+        val name = fileName
+        if (pageReady && name != null) {
+            // Tiny script: poll for the hook, then fetch the intercepted CSV and
+            // base64 it client-side via FileReader (handles any file size). The
+            // trip file name carries no quotes, so a single-quoted literal is safe.
             val js = """
                 (function(){
-                  var b64='${p.first}', name='${p.second}', n=0;
+                  var n=0;
                   function go(){
                     if (typeof window.loadFileFromBase64 === 'function') {
-                      window.loadFileFromBase64(b64, name);
+                      fetch('$TRIP_PATH')
+                        .then(function(r){ return r.blob(); })
+                        .then(function(blob){
+                          var fr=new FileReader();
+                          fr.onload=function(){
+                            var s=String(fr.result);
+                            Promise.resolve(
+                              window.loadFileFromBase64(s.substring(s.indexOf(',')+1), '$name')
+                            ).then(function(res){
+                              console.log('euc loadFileFromBase64 -> '+JSON.stringify(res));
+                            });
+                          };
+                          fr.readAsDataURL(blob);
+                        })
+                        .catch(function(e){ console.error('euc trip fetch failed: '+e); });
                     } else if (n++ < 150) {
                       setTimeout(go, 100);
                     }
@@ -66,10 +107,13 @@ fun EucViewerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("View online") },
+                title = { Text(stringResource(R.string.trip_action_view_online)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.studio_replay_cd_back)
+                        )
                     }
                 }
             )
@@ -81,21 +125,45 @@ fun EucViewerScreen(
                 WebView(ctx).apply {
                     settings.javaScriptEnabled = true
                     settings.domStorageEnabled = true
-                    // Desktop mode, zoomed out — the viewer's full layout fits
-                    // the screen instead of a cramped mobile view.
+                    // The viewer is mobile-responsive (it carries a
+                    // width=device-width viewport meta) — let it render in its
+                    // native mobile layout rather than forcing a desktop UA,
+                    // which collapsed the new map-controls panel.
                     settings.useWideViewPort = true
-                    settings.loadWithOverviewMode = true
-                    settings.builtInZoomControls = true
-                    settings.displayZoomControls = false
-                    settings.userAgentString =
-                        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " +
-                            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    settings.loadWithOverviewMode = false
                     webViewClient = object : WebViewClient() {
+                        override fun shouldInterceptRequest(
+                            view: WebView?,
+                            request: WebResourceRequest?
+                        ): WebResourceResponse? {
+                            if (request?.url?.path == TRIP_PATH) {
+                                val p = payloadRef.get()
+                                if (p != null) {
+                                    return WebResourceResponse(
+                                        "text/csv", "UTF-8",
+                                        ByteArrayInputStream(p.first)
+                                    ).apply {
+                                        responseHeaders =
+                                            mapOf("Access-Control-Allow-Origin" to "*")
+                                    }
+                                }
+                            }
+                            return super.shouldInterceptRequest(view, request)
+                        }
+
                         override fun onPageFinished(view: WebView?, url: String?) {
                             pageReady = true
                         }
                     }
-                    loadUrl("https://eucviewer.ried.no/?embedded")
+                    // Surfaces the viewer's own console output (and our fetch
+                    // errors) so a future breakage is diagnosable from logcat.
+                    webChromeClient = object : WebChromeClient() {
+                        override fun onConsoleMessage(m: ConsoleMessage): Boolean {
+                            Log.i(TAG, "viewer: ${m.message()} (${m.lineNumber()})")
+                            return true
+                        }
+                    }
+                    loadUrl(VIEWER_URL)
                     webView = this
                 }
             },

@@ -952,4 +952,10 @@
     <string name="dash_view_video_gallery">Videogalerij openen</string>
     <string name="dash_view_photo_gallery">Fotogalerij openen</string>
     <string name="dash_no_gallery_app">Geen galerij-app gevonden</string>
+    <string name="trip_action_share_file">Bestand delen</string>
+    <string name="trip_action_share_file_desc">Stuur de rit-CSV naar een andere app</string>
+    <string name="trip_action_view_online">Online bekijken</string>
+    <string name="trip_action_view_online_desc">Open het op de EUC Viewer-kaart</string>
+    <string name="trip_action_replay">Afspelen in Studio</string>
+    <string name="trip_action_replay_desc">Scrub de rit met live data-overlays</string>
 </resources>

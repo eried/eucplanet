@@ -933,4 +933,10 @@
     <string name="dash_view_video_gallery">Vis videogalleri</string>
     <string name="dash_view_photo_gallery">Vis fotogalleri</string>
     <string name="dash_no_gallery_app">Fant ingen galleri-app</string>
+    <string name="trip_action_share_file">Del fil</string>
+    <string name="trip_action_share_file_desc">Send turens CSV til en annen app</string>
+    <string name="trip_action_view_online">Vis online</string>
+    <string name="trip_action_view_online_desc">Åpne den på EUC Viewer-kartet</string>
+    <string name="trip_action_replay">Spill av i Studio</string>
+    <string name="trip_action_replay_desc">Skrubb turen med sanntids dataoverlegg</string>
 </resources>

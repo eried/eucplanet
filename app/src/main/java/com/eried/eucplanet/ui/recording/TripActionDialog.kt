@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.eried.eucplanet.R
 
 /**
  * Chooser shown when the rider taps Share on a trip — three things to do with
@@ -38,21 +40,26 @@ fun TripActionDialog(
         text = {
             Column {
                 TripActionRow(
-                    Icons.Default.Share, "Share file",
-                    "Send the trip CSV to another app"
+                    Icons.Default.Share,
+                    stringResource(R.string.trip_action_share_file),
+                    stringResource(R.string.trip_action_share_file_desc)
                 ) { onDismiss(); onShareFile() }
                 TripActionRow(
-                    Icons.Default.Public, "View online",
-                    "Open it on the EUC Viewer map"
+                    Icons.Default.Public,
+                    stringResource(R.string.trip_action_view_online),
+                    stringResource(R.string.trip_action_view_online_desc)
                 ) { onDismiss(); onViewOnline() }
                 TripActionRow(
-                    Icons.Default.History, "Replay in Studio",
-                    "Scrub the ride with live data overlays"
+                    Icons.Default.History,
+                    stringResource(R.string.trip_action_replay),
+                    stringResource(R.string.trip_action_replay_desc)
                 ) { onDismiss(); onReplay() }
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        }
     )
 }
 

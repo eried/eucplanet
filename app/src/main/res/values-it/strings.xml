@@ -952,4 +952,10 @@
     <string name="dash_view_video_gallery">Apri galleria video</string>
     <string name="dash_view_photo_gallery">Apri galleria foto</string>
     <string name="dash_no_gallery_app">Nessuna app galleria trovata</string>
+    <string name="trip_action_share_file">Condividi file</string>
+    <string name="trip_action_share_file_desc">Invia il CSV del viaggio a un\'altra app</string>
+    <string name="trip_action_view_online">Vedi online</string>
+    <string name="trip_action_view_online_desc">Aprilo sulla mappa di EUC Viewer</string>
+    <string name="trip_action_replay">Riproduci nello Studio</string>
+    <string name="trip_action_replay_desc">Scorri il viaggio con i dati in sovrimpressione dal vivo</string>
 </resources>

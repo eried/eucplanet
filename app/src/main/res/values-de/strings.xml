@@ -933,4 +933,10 @@
     <string name="dash_view_video_gallery">Videogalerie öffnen</string>
     <string name="dash_view_photo_gallery">Fotogalerie öffnen</string>
     <string name="dash_no_gallery_app">Keine Galerie-App gefunden</string>
+    <string name="trip_action_share_file">Datei teilen</string>
+    <string name="trip_action_share_file_desc">Die Fahrt-CSV an eine andere App senden</string>
+    <string name="trip_action_view_online">Online ansehen</string>
+    <string name="trip_action_view_online_desc">Auf der EUC-Viewer-Karte öffnen</string>
+    <string name="trip_action_replay">Im Studio abspielen</string>
+    <string name="trip_action_replay_desc">Die Fahrt mit Live-Datenoverlays durchsehen</string>
 </resources>

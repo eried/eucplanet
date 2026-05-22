@@ -916,4 +916,10 @@
     <string name="dash_view_video_gallery">Visa videogalleri</string>
     <string name="dash_view_photo_gallery">Visa fotogalleri</string>
     <string name="dash_no_gallery_app">Ingen galleriapp hittades</string>
+    <string name="trip_action_share_file">Dela fil</string>
+    <string name="trip_action_share_file_desc">Skicka turens CSV till en annan app</string>
+    <string name="trip_action_view_online">Visa online</string>
+    <string name="trip_action_view_online_desc">Öppna den på EUC Viewer-kartan</string>
+    <string name="trip_action_replay">Spela upp i Studio</string>
+    <string name="trip_action_replay_desc">Skrubba turen med datalager i realtid</string>
 </resources>

@@ -1029,6 +1029,13 @@
     <string name="nav_setting_router_url">Routing URL</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
+    <!-- ==== Trip share / actions ==== -->
+    <string name="trip_action_share_file">Share file</string>
+    <string name="trip_action_share_file_desc">Send the trip CSV to another app</string>
+    <string name="trip_action_view_online">View online</string>
+    <string name="trip_action_view_online_desc">Open it on the EUC Viewer map</string>
+    <string name="trip_action_replay">Replay in Studio</string>
+    <string name="trip_action_replay_desc">Scrub the ride with live data overlays</string>
     <!-- ==== Dashboard quick menus ==== -->
     <string name="dash_view_video_gallery">View video gallery</string>
     <string name="dash_view_photo_gallery">View photo gallery</string>
