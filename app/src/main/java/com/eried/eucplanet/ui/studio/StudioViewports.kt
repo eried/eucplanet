@@ -71,8 +71,9 @@ private const val MIN_PANE = 0.12f
 
 /**
  * Pane rectangles for [layout] given current [dividers] (clamped, ordered).
- * When [landscape] the row/column split is transposed, so a stacked layout
- * splits side-by-side instead — keeping each pane a usable shape.
+ * The layout is fixed — it does not transpose with device orientation, so the
+ * geometry the rider picked is exactly what records. ([landscape] is kept for
+ * call-site compatibility but no longer changes the result.)
  */
 fun paneRects(
     layout: ViewportLayout,
@@ -120,15 +121,9 @@ fun paneRects(
             )
         }
     }
-    // In landscape, swap the split axis (rows <-> columns). SINGLE has nothing
-    // to swap and GRID_4 stays a grid, so both are left as-is.
-    return if (landscape &&
-        layout != ViewportLayout.SINGLE && layout != ViewportLayout.GRID_4
-    ) {
-        rects.map { PaneRect(it.top, it.left, it.height, it.width) }
-    } else {
-        rects
-    }
+    // Fixed geometry: a "2 rows" split stays 2 rows whatever the device
+    // orientation, so panes never change shape under the rider.
+    return rects
 }
 
 /**
@@ -562,12 +557,10 @@ private fun BoxWithConstraintsScope.DividerLayer(
         return
     }
 
-    // Landscape transposes the split, so a "rows" layout draws a vertical
-    // divider and vice versa — matching the transposed panes in paneRects.
-    val cols = layout == ViewportLayout.COLUMNS_2 || layout == ViewportLayout.COLUMNS_3
-    val rows = layout == ViewportLayout.ROWS_2 || layout == ViewportLayout.ROWS_3
-    val vertical = if (landscape) rows else cols
-    val horizontal = if (landscape) cols else rows
+    // Fixed split — columns always draw vertical dividers, rows horizontal,
+    // regardless of device orientation (matches paneRects).
+    val vertical = layout == ViewportLayout.COLUMNS_2 || layout == ViewportLayout.COLUMNS_3
+    val horizontal = layout == ViewportLayout.ROWS_2 || layout == ViewportLayout.ROWS_3
     for (i in 0 until layout.dividerCount) {
         val value = dividers.getOrElse(i) { (i + 1f) / (layout.dividerCount + 1f) }
         if (vertical) {
