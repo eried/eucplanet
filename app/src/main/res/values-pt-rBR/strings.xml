@@ -650,7 +650,6 @@
     <string name="nav_clear_confirm">Descartar a rota atual?</string>
     <string name="nav_clear_home">Esquecer Casa</string>
     <string name="nav_clear_work">Esquecer Trabalho</string>
-    <string name="nav_cleared">Rota apagada</string>
     <string name="nav_close">Encerrar navegação</string>
     <string name="nav_continue">Siga em frente</string>
     <string name="nav_default_route_name">Minha rota</string>
@@ -677,7 +676,6 @@
     <string name="nav_label_next_stop">Próxima parada</string>
     <string name="nav_last_stop">Última parada</string>
     <string name="nav_load_failed">Não foi possível ler esse arquivo GPX</string>
-    <string name="nav_loaded">Rota carregada</string>
     <string name="nav_locating">Localizando você…</string>
     <string name="nav_map_dark">Mapa escuro</string>
     <string name="nav_map_light">Mapa claro</string>
@@ -718,7 +716,6 @@
     <string name="nav_save_failed">Não foi possível salvar a rota</string>
     <string name="nav_save_home">Salvar como Casa</string>
     <string name="nav_save_work">Salvar como Trabalho</string>
-    <string name="nav_saved">Rota salva</string>
     <string name="nav_search_hint">Pesquisar endereço ou local</string>
     <string name="nav_searching">Pesquisando…</string>
     <string name="nav_self_add_stop">Adicionar como parada</string>

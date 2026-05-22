@@ -28,7 +28,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.filled.Rotate90DegreesCw
+import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -306,74 +306,59 @@ private fun StudioElementBox(
                             modifier = Modifier.size(16.dp).rotate(90f)
                         )
                     }
-                    // Rotate handle — opposite corner to the resize grip. The
-                    // chrome sits INSIDE the element's rotated graphicsLayer, so
-                    // a drag delta is already in the element's local frame: the
-                    // angular change of the pointer about the content centre is
-                    // added straight onto rotationDeg.
-                    Box(
-                        Modifier
-                            .align(Alignment.TopStart)
-                            .offset(x = (-14).dp, y = (-14).dp)
-                            .size(30.dp)
-                            .clip(CircleShape)
-                            .background(rotateAccent)
-                            .pointerInput(element.id) {
-                                // Pointer angle (about the content centre) at
-                                // the moment the drag started — the delta from
-                                // this is what moves the element, so the handle
-                                // never "jumps" on grab.
-                                var startPointerAngle = 0f
-                                var startRotation = 0f
-                                detectDragGestures(
-                                    onDragStart = { pos ->
-                                        val cx = contentSize.width / 2f
-                                        val cy = contentSize.height / 2f
-                                        // Handle centre is offset (-14,-14) from
-                                        // the content's TopStart corner.
-                                        val hx = (-14).dp.toPx() + 15.dp.toPx()
-                                        val hy = (-14).dp.toPx() + 15.dp.toPx()
-                                        startPointerAngle = Math.toDegrees(
-                                            kotlin.math.atan2(
-                                                (hy + pos.y) - cy,
-                                                (hx + pos.x) - cx
-                                            ).toDouble()
-                                        ).toFloat()
-                                        startRotation = live.rotationDeg
-                                    }
-                                ) { change, _ ->
-                                    change.consume()
-                                    val cx = contentSize.width / 2f
-                                    val cy = contentSize.height / 2f
-                                    val hx = (-14).dp.toPx() + 15.dp.toPx()
-                                    val hy = (-14).dp.toPx() + 15.dp.toPx()
-                                    val angle = Math.toDegrees(
-                                        kotlin.math.atan2(
-                                            (hy + change.position.y) - cy,
-                                            (hx + change.position.x) - cx
-                                        ).toDouble()
-                                    ).toFloat()
-                                    var next = startRotation + (angle - startPointerAngle)
-                                    // Normalise to 0..360.
-                                    next = ((next % 360f) + 360f) % 360f
-                                    // Detent — snap to 0/90/180/270 within ±6°.
-                                    listOf(0f, 90f, 180f, 270f, 360f).forEach { d ->
-                                        if (kotlin.math.abs(next - d) <= 6f) {
-                                            next = d % 360f
-                                        }
-                                    }
-                                    onChange(live.copy(rotationDeg = next))
+                }
+            }
+            // Rotate handle — a sibling of the rotated marquee, so it lives in
+            // the un-rotated frame where the drag math has a stable coordinate
+            // system. Measuring it INSIDE the rotated layer fed the rotation
+            // back into the angle it was computing and spun wildly. Bottom-left
+            // corner — opposite the top-right config buttons.
+            if (selected) {
+                var startAngle = 0f
+                var startRotation = 0f
+                Box(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .offset(x = (-12).dp, y = 12.dp)
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(rotateAccent)
+                        .pointerInput(element.id) {
+                            // Angle of a handle-local point about the element
+                            // centre, in the stable (un-rotated) frame.
+                            fun angleAt(local: Offset): Float {
+                                val px = (-12).dp.toPx() + local.x
+                                val py = contentSize.height - 18.dp.toPx() + local.y
+                                return Math.toDegrees(
+                                    kotlin.math.atan2(
+                                        (py - contentSize.height / 2f).toDouble(),
+                                        (px - contentSize.width / 2f).toDouble()
+                                    )
+                                ).toFloat()
+                            }
+                            detectDragGestures(
+                                onDragStart = { pos ->
+                                    startAngle = angleAt(pos)
+                                    startRotation = live.rotationDeg
                                 }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Rotate90DegreesCw,
-                            contentDescription = stringResource(R.string.studio_cd_rotate),
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
+                            ) { change, _ ->
+                                change.consume()
+                                var next = startRotation +
+                                    (angleAt(change.position) - startAngle)
+                                // Snap to 15-degree increments.
+                                next = Math.round(next / 15f) * 15f
+                                next = ((next % 360f) + 360f) % 360f
+                                onChange(live.copy(rotationDeg = next))
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.RotateRight,
+                        contentDescription = stringResource(R.string.studio_cd_rotate),
+                        tint = Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
             }
         }

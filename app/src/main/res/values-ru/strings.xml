@@ -666,7 +666,6 @@
     <string name="nav_clear_confirm">Сбросить текущий маршрут?</string>
     <string name="nav_clear_home">Забыть дом</string>
     <string name="nav_clear_work">Забыть работу</string>
-    <string name="nav_cleared">Маршрут сброшен</string>
     <string name="nav_close">Завершить навигацию</string>
     <string name="nav_continue">Двигайтесь прямо</string>
     <string name="nav_default_route_name">Мой маршрут</string>
@@ -693,7 +692,6 @@
     <string name="nav_label_next_stop">Следующая остановка</string>
     <string name="nav_last_stop">Последняя остановка</string>
     <string name="nav_load_failed">Не удалось прочитать этот файл GPX</string>
-    <string name="nav_loaded">Маршрут загружен</string>
     <string name="nav_locating">Определяем ваше местоположение…</string>
     <string name="nav_map_dark">Тёмная карта</string>
     <string name="nav_map_light">Светлая карта</string>
@@ -734,7 +732,6 @@
     <string name="nav_save_failed">Не удалось сохранить маршрут</string>
     <string name="nav_save_home">Сохранить как дом</string>
     <string name="nav_save_work">Сохранить как работу</string>
-    <string name="nav_saved">Маршрут сохранён</string>
     <string name="nav_search_hint">Поиск адреса или места</string>
     <string name="nav_searching">Поиск…</string>
     <string name="nav_self_add_stop">Добавить как остановку</string>

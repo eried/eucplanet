@@ -989,11 +989,8 @@
     <string name="nav_need_two">Add at least two stops to navigate.</string>
     <string name="nav_routing">Finding the route…</string>
     <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
-    <string name="nav_saved">Route saved</string>
     <string name="nav_save_failed">Could not save the route</string>
     <string name="nav_load_failed">Could not read that GPX file</string>
-    <string name="nav_loaded">Route loaded</string>
-    <string name="nav_cleared">Route cleared</string>
     <string name="nav_remove_stop">Remove stop</string>
     <string name="nav_drag_stop">Reorder</string>
     <string name="nav_default_route_name">My route</string>

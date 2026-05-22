@@ -614,7 +614,6 @@
     <string name="nav_clear_confirm">Abandonner l\'itinéraire actuel ?</string>
     <string name="nav_clear_home">Oublier le domicile</string>
     <string name="nav_clear_work">Oublier le travail</string>
-    <string name="nav_cleared">Itinéraire effacé</string>
     <string name="nav_close">Terminer la navigation</string>
     <string name="nav_continue">Continuer tout droit</string>
     <string name="nav_default_route_name">Mon itinéraire</string>
@@ -641,7 +640,6 @@
     <string name="nav_label_next_stop">Prochain arrêt</string>
     <string name="nav_last_stop">Dernier arrêt</string>
     <string name="nav_load_failed">Impossible de lire ce fichier GPX</string>
-    <string name="nav_loaded">Itinéraire chargé</string>
     <string name="nav_locating">Localisation en cours…</string>
     <string name="nav_map_dark">Carte sombre</string>
     <string name="nav_map_light">Carte claire</string>
@@ -682,7 +680,6 @@
     <string name="nav_save_failed">Impossible d\'enregistrer l\'itinéraire</string>
     <string name="nav_save_home">Enregistrer comme domicile</string>
     <string name="nav_save_work">Enregistrer comme travail</string>
-    <string name="nav_saved">Itinéraire enregistré</string>
     <string name="nav_search_hint">Rechercher une adresse ou un lieu</string>
     <string name="nav_searching">Recherche…</string>
     <string name="nav_self_add_stop">Ajouter comme arrêt</string>

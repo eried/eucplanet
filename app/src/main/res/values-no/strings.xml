@@ -631,7 +631,6 @@
     <string name="nav_clear_confirm">Forkaste den nåværende ruten?</string>
     <string name="nav_clear_home">Glem Hjem</string>
     <string name="nav_clear_work">Glem Jobb</string>
-    <string name="nav_cleared">Rute fjernet</string>
     <string name="nav_close">Avslutt navigasjon</string>
     <string name="nav_continue">Fortsett rett fram</string>
     <string name="nav_default_route_name">Min rute</string>
@@ -658,7 +657,6 @@
     <string name="nav_label_next_stop">Neste stopp</string>
     <string name="nav_last_stop">Siste stopp</string>
     <string name="nav_load_failed">Klarte ikke å lese den GPX-filen</string>
-    <string name="nav_loaded">Rute lastet inn</string>
     <string name="nav_locating">Finner posisjonen din…</string>
     <string name="nav_map_dark">Mørkt kart</string>
     <string name="nav_map_light">Lyst kart</string>
@@ -699,7 +697,6 @@
     <string name="nav_save_failed">Klarte ikke å lagre ruten</string>
     <string name="nav_save_home">Lagre som Hjem</string>
     <string name="nav_save_work">Lagre som Jobb</string>
-    <string name="nav_saved">Rute lagret</string>
     <string name="nav_search_hint">Søk etter adresse eller sted</string>
     <string name="nav_searching">Søker…</string>
     <string name="nav_self_add_stop">Legg til som stopp</string>

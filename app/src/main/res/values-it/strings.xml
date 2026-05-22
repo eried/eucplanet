@@ -650,7 +650,6 @@
     <string name="nav_clear_confirm">Scartare il percorso attuale?</string>
     <string name="nav_clear_home">Dimentica Casa</string>
     <string name="nav_clear_work">Dimentica Lavoro</string>
-    <string name="nav_cleared">Percorso cancellato</string>
     <string name="nav_close">Termina navigazione</string>
     <string name="nav_continue">Prosegui dritto</string>
     <string name="nav_default_route_name">Il mio percorso</string>
@@ -677,7 +676,6 @@
     <string name="nav_label_next_stop">Prossima fermata</string>
     <string name="nav_last_stop">Ultima fermata</string>
     <string name="nav_load_failed">Impossibile leggere quel file GPX</string>
-    <string name="nav_loaded">Percorso caricato</string>
     <string name="nav_locating">Individuazione della tua posizione…</string>
     <string name="nav_map_dark">Mappa scura</string>
     <string name="nav_map_light">Mappa chiara</string>
@@ -718,7 +716,6 @@
     <string name="nav_save_failed">Impossibile salvare il percorso</string>
     <string name="nav_save_home">Salva come Casa</string>
     <string name="nav_save_work">Salva come Lavoro</string>
-    <string name="nav_saved">Percorso salvato</string>
     <string name="nav_search_hint">Cerca indirizzo o luogo</string>
     <string name="nav_searching">Ricerca…</string>
     <string name="nav_self_add_stop">Aggiungi come fermata</string>

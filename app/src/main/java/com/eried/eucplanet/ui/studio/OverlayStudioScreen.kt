@@ -1310,7 +1310,7 @@ private fun newElement(
             width = 0.4f,
             mapZoom = 16,
             mapStyle = "STREET",
-            foreground = 0xFFFFEB3BL, // bright yellow trace / marker
+            foreground = 0xFF2196F3L, // blue border / trace / marker
             background = 0x66000000L,
             rotationDeg = ((360 - deviceRotation) % 360).toFloat()
         )

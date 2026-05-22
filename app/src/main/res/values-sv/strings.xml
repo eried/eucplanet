@@ -614,7 +614,6 @@
     <string name="nav_clear_confirm">Vill du kasta den aktuella rutten?</string>
     <string name="nav_clear_home">Glöm Hem</string>
     <string name="nav_clear_work">Glöm Jobb</string>
-    <string name="nav_cleared">Rutten rensad</string>
     <string name="nav_close">Avsluta navigeringen</string>
     <string name="nav_continue">Fortsätt rakt fram</string>
     <string name="nav_default_route_name">Min rutt</string>
@@ -641,7 +640,6 @@
     <string name="nav_label_next_stop">Nästa stopp</string>
     <string name="nav_last_stop">Sista stoppet</string>
     <string name="nav_load_failed">Kunde inte läsa den GPX-filen</string>
-    <string name="nav_loaded">Rutten inläst</string>
     <string name="nav_locating">Hittar din plats…</string>
     <string name="nav_map_dark">Mörk karta</string>
     <string name="nav_map_light">Ljus karta</string>
@@ -682,7 +680,6 @@
     <string name="nav_save_failed">Kunde inte spara rutten</string>
     <string name="nav_save_home">Spara som Hem</string>
     <string name="nav_save_work">Spara som Jobb</string>
-    <string name="nav_saved">Rutten sparad</string>
     <string name="nav_search_hint">Sök adress eller plats</string>
     <string name="nav_searching">Söker…</string>
     <string name="nav_self_add_stop">Lägg till som stopp</string>

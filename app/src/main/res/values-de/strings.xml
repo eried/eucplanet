@@ -631,7 +631,6 @@
     <string name="nav_clear_confirm">Aktuelle Route verwerfen?</string>
     <string name="nav_clear_home">Zuhause vergessen</string>
     <string name="nav_clear_work">Arbeit vergessen</string>
-    <string name="nav_cleared">Route gelöscht</string>
     <string name="nav_close">Navigation beenden</string>
     <string name="nav_continue">Geradeaus weiter</string>
     <string name="nav_default_route_name">Meine Route</string>
@@ -658,7 +657,6 @@
     <string name="nav_label_next_stop">Nächster Halt</string>
     <string name="nav_last_stop">Letzter Halt</string>
     <string name="nav_load_failed">Diese GPX-Datei konnte nicht gelesen werden</string>
-    <string name="nav_loaded">Route geladen</string>
     <string name="nav_locating">Standort wird ermittelt…</string>
     <string name="nav_map_dark">Dunkle Karte</string>
     <string name="nav_map_light">Helle Karte</string>
@@ -699,7 +697,6 @@
     <string name="nav_save_failed">Route konnte nicht gespeichert werden</string>
     <string name="nav_save_home">Als Zuhause speichern</string>
     <string name="nav_save_work">Als Arbeit speichern</string>
-    <string name="nav_saved">Route gespeichert</string>
     <string name="nav_search_hint">Adresse oder Ort suchen</string>
     <string name="nav_searching">Suche…</string>
     <string name="nav_self_add_stop">Als Halt hinzufügen</string>

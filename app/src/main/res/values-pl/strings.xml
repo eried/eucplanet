@@ -651,7 +651,6 @@
     <string name="nav_clear_confirm">Odrzucić bieżącą trasę?</string>
     <string name="nav_clear_home">Zapomnij dom</string>
     <string name="nav_clear_work">Zapomnij pracę</string>
-    <string name="nav_cleared">Trasa wyczyszczona</string>
     <string name="nav_close">Zakończ nawigację</string>
     <string name="nav_continue">Jedź prosto</string>
     <string name="nav_default_route_name">Moja trasa</string>
@@ -678,7 +677,6 @@
     <string name="nav_label_next_stop">Następny stop</string>
     <string name="nav_last_stop">Ostatni stop</string>
     <string name="nav_load_failed">Nie udało się odczytać tego pliku GPX</string>
-    <string name="nav_loaded">Trasa wczytana</string>
     <string name="nav_locating">Ustalanie Twojej lokalizacji…</string>
     <string name="nav_map_dark">Ciemna mapa</string>
     <string name="nav_map_light">Jasna mapa</string>
@@ -719,7 +717,6 @@
     <string name="nav_save_failed">Nie udało się zapisać trasy</string>
     <string name="nav_save_home">Zapisz jako dom</string>
     <string name="nav_save_work">Zapisz jako pracę</string>
-    <string name="nav_saved">Trasa zapisana</string>
     <string name="nav_search_hint">Szukaj adresu lub miejsca</string>
     <string name="nav_searching">Wyszukiwanie…</string>
     <string name="nav_self_add_stop">Dodaj jako stop</string>

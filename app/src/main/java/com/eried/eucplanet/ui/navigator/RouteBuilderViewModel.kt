@@ -227,7 +227,6 @@ class RouteBuilderViewModel @Inject constructor(
         lastRouteOrigin = null
         bumpRender(fit = false)
         persist()
-        _messages.tryEmit(R.string.nav_cleared)
     }
 
 
@@ -422,7 +421,6 @@ class RouteBuilderViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                _messages.tryEmit(R.string.nav_loaded)
                 _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "loadGpx failed", e)
@@ -437,7 +435,6 @@ class RouteBuilderViewModel @Inject constructor(
                 val route = _route.value
                     ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
                 context.contentResolver.openOutputStream(uri)?.use { GpxIO.write(route, it) }
-                _messages.tryEmit(R.string.nav_saved)
                 _routeClean.value = true
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "saveGpx failed", e)

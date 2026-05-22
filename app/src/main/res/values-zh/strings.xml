@@ -614,7 +614,6 @@
     <string name="nav_clear_confirm">放弃当前路线?</string>
     <string name="nav_clear_home">清除家</string>
     <string name="nav_clear_work">清除公司</string>
-    <string name="nav_cleared">路线已清除</string>
     <string name="nav_close">结束导航</string>
     <string name="nav_continue">继续直行</string>
     <string name="nav_default_route_name">我的路线</string>
@@ -641,7 +640,6 @@
     <string name="nav_label_next_stop">下一站</string>
     <string name="nav_last_stop">终点站</string>
     <string name="nav_load_failed">无法读取该 GPX 文件</string>
-    <string name="nav_loaded">路线已加载</string>
     <string name="nav_locating">正在定位你的位置…</string>
     <string name="nav_map_dark">深色地图</string>
     <string name="nav_map_light">浅色地图</string>
@@ -682,7 +680,6 @@
     <string name="nav_save_failed">无法保存路线</string>
     <string name="nav_save_home">设为家</string>
     <string name="nav_save_work">设为公司</string>
-    <string name="nav_saved">路线已保存</string>
     <string name="nav_search_hint">搜索地址或地点</string>
     <string name="nav_searching">搜索中…</string>
     <string name="nav_self_add_stop">添加为途经点</string>
