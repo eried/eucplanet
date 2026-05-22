@@ -4,20 +4,19 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.media.AudioFormat
 import android.media.AudioRecord
-import android.media.Image
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Surface
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,10 +26,17 @@ import java.util.Locale
  * is no "share your screen" consent dialog.
  *
  * Video: the studio (cameras + overlays) is captured each frame into a [Bitmap]
- * by the caller, converted to YUV and fed to an H.264 [MediaCodec].
+ * by the caller and drawn straight onto the H.264 [MediaCodec]'s input
+ * [Surface] with a hardware [android.graphics.Canvas] — the GPU does the scale
+ * and the RGB→YUV colour conversion, so there is no per-pixel CPU work.
  * Audio (optional): the device microphone is read on a background thread and
  * fed to an AAC [MediaCodec]. Both streams are interleaved into one MP4 by a
  * shared [MediaMuxer].
+ *
+ * The muxer writes to a **local cache file**, not a MediaStore descriptor:
+ * per-sample writes to a MediaStore fd go through FUSE and stall the encode
+ * loop ~25 ms a frame. The finished file is published to the gallery in one
+ * sequential copy by [finish].
  *
  * Threading: [start] / [submitFrame] / [finish] run on the caller's capture
  * thread; the microphone runs on its own thread. The muxer is the only shared
@@ -42,14 +48,15 @@ class StudioVideoEncoder(
 ) {
     // --- Video ---
     private var codec: MediaCodec? = null
+    private var inputSurface: Surface? = null
     private var muxer: MediaMuxer? = null
-    private var pfd: ParcelFileDescriptor? = null
-    private var outputUri: Uri? = null
+    private var tempFile: File? = null
     private val videoBufferInfo = MediaCodec.BufferInfo()
     private var encodeW = 0
     private var encodeH = 0
+    private val dstRect = Rect()
     private var startNs = 0L
-    private var lastPtsUs = -1L
+    private var startUs = 0L
     private var submittedFrames = 0
 
     // --- Muxer (shared) ---
@@ -70,44 +77,33 @@ class StudioVideoEncoder(
 
     private var failed = false
 
-    /** Reused per-frame scratch so we are not allocating bitmaps a second. */
-    private var scaled: Bitmap? = null
-    private var pixels: IntArray? = null
-
-    /** Worker pool that splits the per-frame ARGB->YUV conversion across cores. */
-    private val yuvThreads = Runtime.getRuntime().availableProcessors().coerceIn(2, 6)
-    private var yuvExecutor: java.util.concurrent.ExecutorService? = null
-
     /** True once [start] has successfully set up the video codec + muxer. */
     var started = false
         private set
 
     /**
      * Prepare the encoder for a [captureWidth] x [captureHeight] source.
-     * Returns false if the device could not give us a video encoder or output
-     * file; if only the microphone fails, recording continues video-only.
+     * Returns false if the device could not give us a video encoder; if only
+     * the microphone fails, recording continues video-only.
      */
     fun start(captureWidth: Int, captureHeight: Int): Boolean {
         if (captureWidth <= 0 || captureHeight <= 0) return false
-        encodeW = align16(captureWidth.coerceAtMost(1080))
-        encodeH = align16((encodeW.toLong() * captureHeight / captureWidth).toInt())
+        // Cap the long edge: encoding the full ~1072x2384 screen tops the codec
+        // out near 33 fps. Scaling the pixel count down lets it keep pace with
+        // the capture loop, and the result is still sharp for a phone clip.
+        val longEdge = maxOf(captureWidth, captureHeight)
+        val scale = if (longEdge > MAX_LONG_EDGE) MAX_LONG_EDGE.toFloat() / longEdge else 1f
+        encodeW = align16((captureWidth * scale).toInt())
+        encodeH = align16((captureHeight * scale).toInt())
         if (encodeW < 16 || encodeH < 16) return false
         return try {
-            val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-            val values = ContentValues().apply {
-                put(MediaStore.Video.Media.DISPLAY_NAME, "EUC_$stamp.mp4")
-                put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
-                put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/EUC Planet")
-                put(MediaStore.Video.Media.IS_PENDING, 1)
-            }
-            outputUri = context.contentResolver.insert(
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values
-            ) ?: return false
-            pfd = context.contentResolver.openFileDescriptor(outputUri!!, "rw")
-                ?: return false
-
             val enc = MediaCodec.createEncoderByType(VIDEO_MIME)
             codec = enc
+            Log.i(
+                TAG,
+                "Video codec ${enc.codecInfo.name}, " +
+                    "hw=${runCatching { enc.codecInfo.isHardwareAccelerated }.getOrNull()}"
+            )
             runCatching {
                 val vc = enc.codecInfo.getCapabilitiesForType(VIDEO_MIME).videoCapabilities
                 val wAlign = maxOf(2, vc.widthAlignment)
@@ -124,20 +120,24 @@ class StudioVideoEncoder(
             val bitRate = (encodeW.toLong() * encodeH * 9)
                 .coerceIn(6_000_000L, 32_000_000L).toInt()
             val format = MediaFormat.createVideoFormat(VIDEO_MIME, encodeW, encodeH).apply {
+                // Surface input — the encoder consumes GPU buffers directly.
                 setInteger(
                     MediaFormat.KEY_COLOR_FORMAT,
-                    MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
+                    MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
                 )
                 setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
                 setInteger(MediaFormat.KEY_FRAME_RATE, 60)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
             }
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+            inputSurface = enc.createInputSurface()
             enc.start()
-            muxer = MediaMuxer(
-                pfd!!.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
-            )
+            dstRect.set(0, 0, encodeW, encodeH)
+            val tmp = File(context.cacheDir, "studio_rec_${System.nanoTime()}.mp4")
+            tempFile = tmp
+            muxer = MediaMuxer(tmp.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
             startNs = System.nanoTime()
+            startUs = startNs / 1000
             if (withAudio) startAudio()
             started = true
             true
@@ -145,39 +145,40 @@ class StudioVideoEncoder(
             Log.e(TAG, "Encoder start failed", e)
             failed = true
             cleanup()
+            runCatching { tempFile?.delete() }
+            tempFile = null
             false
         }
     }
 
     // --- Video --------------------------------------------------------------
 
-    /** Encode one studio frame. The bitmap may be any size; it is scaled to fit. */
+    /**
+     * Encode one studio frame. The bitmap may be any size or config (including
+     * a HARDWARE bitmap straight off a GraphicsLayer); it is scaled to the
+     * encoder size by the GPU as it is drawn onto the input surface.
+     */
     fun submitFrame(frame: Bitmap) {
-        val c = codec ?: return
+        val surface = inputSurface ?: return
         if (failed || !started) return
         try {
             drainVideo(false)
-            val index = c.dequeueInputBuffer(10_000)
-            if (index < 0) return
-            val image = c.getInputImage(index)
-            if (image == null) {
-                failed = true
-                return
+            // A hardware canvas blits the (often HARDWARE) bitmap GPU-to-GPU and
+            // posts it to the encoder — the timestamp is the wall clock, which
+            // drainVideo rebases to zero so audio and video stay aligned.
+            val canvas = surface.lockHardwareCanvas()
+            try {
+                canvas.drawBitmap(
+                    frame, Rect(0, 0, frame.width, frame.height), dstRect, null
+                )
+            } finally {
+                surface.unlockCanvasAndPost(canvas)
             }
-            fillImage(frame, image)
-            c.queueInputBuffer(index, 0, encodeW * encodeH * 3 / 2, nextPtsUs(), 0)
             submittedFrames++
         } catch (e: Exception) {
             Log.e(TAG, "submitFrame failed", e)
             failed = true
         }
-    }
-
-    private fun nextPtsUs(): Long {
-        val raw = (System.nanoTime() - startNs) / 1000
-        val pts = if (raw <= lastPtsUs) lastPtsUs + 1 else raw
-        lastPtsUs = pts
-        return pts
     }
 
     private fun drainVideo(endOfStream: Boolean) {
@@ -199,6 +200,11 @@ class StudioVideoEncoder(
                     val isConfig =
                         videoBufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0
                     if (buf != null && !isConfig && videoBufferInfo.size > 0) {
+                        // The input surface stamps frames with the wall clock —
+                        // rebase to the recording start so the muxed video
+                        // track begins at zero, like the audio track.
+                        videoBufferInfo.presentationTimeUs =
+                            (videoBufferInfo.presentationTimeUs - startUs).coerceAtLeast(0)
                         synchronized(muxerLock) {
                             if (muxerStarted) {
                                 buf.position(videoBufferInfo.offset)
@@ -345,7 +351,7 @@ class StudioVideoEncoder(
     // --- Finish -------------------------------------------------------------
 
     /**
-     * Flush everything, finalise the MP4 and publish it to the gallery.
+     * Flush everything, finalise the local MP4 and publish it to the gallery.
      * Returns the saved video's URI, or null if the recording failed.
      */
     fun finish(): Uri? {
@@ -364,12 +370,7 @@ class StudioVideoEncoder(
         val c = codec
         if (c != null && started && !failed) {
             try {
-                val index = c.dequeueInputBuffer(10_000)
-                if (index >= 0) {
-                    c.queueInputBuffer(
-                        index, 0, 0, nextPtsUs(), MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                    )
-                }
+                c.signalEndOfInputStream()
                 drainVideo(true)
             } catch (e: Exception) {
                 Log.e(TAG, "finish drain failed", e)
@@ -387,21 +388,44 @@ class StudioVideoEncoder(
             )
         }
         cleanup()
-        val uri = outputUri
-        outputUri = null
-        if (uri == null) return null
-        return if (failed) {
-            runCatching { context.contentResolver.delete(uri, null, null) }
-            null
-        } else {
-            runCatching {
-                context.contentResolver.update(
-                    uri,
-                    ContentValues().apply { put(MediaStore.Video.Media.IS_PENDING, 0) },
-                    null, null
-                )
-            }
+        val tmp = tempFile
+        tempFile = null
+        if (tmp == null) return null
+        if (failed || !tmp.exists() || tmp.length() == 0L) {
+            runCatching { tmp.delete() }
+            return null
+        }
+        val uri = publishToGallery(tmp)
+        runCatching { tmp.delete() }
+        return uri
+    }
+
+    /** Copy the finished MP4 into the gallery — one sequential write, not 60/s. */
+    private fun publishToGallery(file: File): Uri? {
+        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+        val resolver = context.contentResolver
+        val values = ContentValues().apply {
+            put(MediaStore.Video.Media.DISPLAY_NAME, "EUC_$stamp.mp4")
+            put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
+            put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/EUC Planet")
+            put(MediaStore.Video.Media.IS_PENDING, 1)
+        }
+        val uri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return null
+        return try {
+            resolver.openOutputStream(uri)?.use { out ->
+                file.inputStream().use { it.copyTo(out, 1 shl 16) }
+            } ?: throw IllegalStateException("no output stream")
+            resolver.update(
+                uri,
+                ContentValues().apply { put(MediaStore.Video.Media.IS_PENDING, 0) },
+                null, null
+            )
             uri
+        } catch (e: Exception) {
+            Log.e(TAG, "Publish to gallery failed", e)
+            runCatching { resolver.delete(uri, null, null) }
+            null
         }
     }
 
@@ -416,85 +440,12 @@ class StudioVideoEncoder(
         runCatching { codec?.stop() }
         runCatching { codec?.release() }
         codec = null
+        runCatching { inputSurface?.release() }
+        inputSurface = null
         runCatching { if (muxerStarted) muxer?.stop() }
         runCatching { muxer?.release() }
         muxer = null
-        runCatching { pfd?.close() }
-        pfd = null
-        scaled?.recycle()
-        scaled = null
-        pixels = null
-        runCatching { yuvExecutor?.shutdown() }
-        yuvExecutor = null
     }
-
-    // --- Frame conversion ---------------------------------------------------
-
-    /** Scale [frame] into the encoder size and convert ARGB -> YUV420 in [image]. */
-    private fun fillImage(frame: Bitmap, image: Image) {
-        val w = image.width
-        val h = image.height
-        // GraphicsLayer.toImageBitmap() can hand back a HARDWARE bitmap, which a
-        // software Canvas can neither draw nor getPixels — copy it first.
-        val source = if (frame.config == Bitmap.Config.HARDWARE) {
-            frame.copy(Bitmap.Config.ARGB_8888, false) ?: return
-        } else {
-            frame
-        }
-        val target = scaled ?: Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-            .also { scaled = it }
-        Canvas(target).drawBitmap(
-            source,
-            Rect(0, 0, source.width, source.height),
-            Rect(0, 0, w, h),
-            null
-        )
-        if (source !== frame) source.recycle()
-        val argb = pixels ?: IntArray(w * h).also { pixels = it }
-        target.getPixels(argb, 0, w, 0, 0, w, h)
-
-        val yP = image.planes[0]
-        val uP = image.planes[1]
-        val vP = image.planes[2]
-        val yBuf = yP.buffer
-        val uBuf = uP.buffer
-        val vBuf = vP.buffer
-        // ARGB -> YUV420 is the per-frame hot loop; split the rows across a
-        // worker pool so a 1080p frame converts fast enough to stay smooth.
-        // Absolute ByteBuffer puts to distinct indices are race-free.
-        val pool = yuvExecutor ?: java.util.concurrent.Executors
-            .newFixedThreadPool(yuvThreads).also { yuvExecutor = it }
-        val rowsPerBand = (h + yuvThreads - 1) / yuvThreads
-        val tasks = (0 until yuvThreads).mapNotNull { band ->
-            val jStart = band * rowsPerBand
-            if (jStart >= h) return@mapNotNull null
-            val jEnd = minOf(jStart + rowsPerBand, h)
-            java.util.concurrent.Callable {
-                for (j in jStart until jEnd) {
-                    val rowYuv = j shr 1
-                    val rowArgb = j * w
-                    for (i in 0 until w) {
-                        val c = argb[rowArgb + i]
-                        val r = (c shr 16) and 0xFF
-                        val g = (c shr 8) and 0xFF
-                        val b = c and 0xFF
-                        val y = ((66 * r + 129 * g + 25 * b + 128) shr 8) + 16
-                        yBuf.put(j * yP.rowStride + i * yP.pixelStride, clamp(y))
-                        if (j and 1 == 0 && i and 1 == 0) {
-                            val u = ((-38 * r - 74 * g + 112 * b + 128) shr 8) + 128
-                            val v = ((112 * r - 94 * g - 18 * b + 128) shr 8) + 128
-                            val col = i shr 1
-                            uBuf.put(rowYuv * uP.rowStride + col * uP.pixelStride, clamp(u))
-                            vBuf.put(rowYuv * vP.rowStride + col * vP.pixelStride, clamp(v))
-                        }
-                    }
-                }
-            }
-        }
-        pool.invokeAll(tasks)
-    }
-
-    private fun clamp(v: Int): Byte = v.coerceIn(0, 255).toByte()
 
     private fun align16(value: Int): Int = (value / 16) * 16
 
@@ -503,5 +454,8 @@ class StudioVideoEncoder(
         private const val VIDEO_MIME = "video/avc"
         private const val AUDIO_MIME = "audio/mp4a-latm"
         private const val SAMPLE_RATE = 44_100
+
+        /** Longest encoded edge — keeps the H.264 encoder ahead of the loop. */
+        private const val MAX_LONG_EDGE = 1920
     }
 }

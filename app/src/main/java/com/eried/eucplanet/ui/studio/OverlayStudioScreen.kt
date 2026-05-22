@@ -663,7 +663,7 @@ fun OverlayStudioScreen(
                     iconRotation = iconRot,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(start = 14.dp, top = 14.dp)
+                        .padding(start = 8.dp, top = 2.dp)
                 ) { onBack() }
                 // Gallery — pinned to the bottom-left corner, like a camera app.
                 StudioRoundButton(
@@ -768,6 +768,7 @@ fun OverlayStudioScreen(
                     trips = trips,
                     selectedTrip = replayRecord,
                     trip = replayTrip,
+                    distanceUnit = viewModel.distanceUnit,
                     positionMs = replayPosMs,
                     rangeStartMs = replayStartMs,
                     rangeEndMs = replayEndMs,

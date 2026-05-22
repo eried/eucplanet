@@ -62,8 +62,10 @@ import kotlin.math.abs
 private val tripDateFmt = SimpleDateFormat("d MMM yyyy, HH:mm", Locale.getDefault())
 private val replaySpeeds = listOf(0.25f, 0.5f, 1f, 2f, 4f, 8f, 16f, 32f, 64f)
 
-private fun tripLabel(t: TripRecord): String =
-    "${tripDateFmt.format(Date(t.startTime))}  ·  ${"%.1f".format(t.distanceKm)} km"
+private fun tripLabel(t: TripRecord, distanceUnit: String): String {
+    val dist = com.eried.eucplanet.util.Units.distance(t.distanceKm.toFloat(), distanceUnit)
+    return "${tripDateFmt.format(Date(t.startTime))}  ·  ${"%.1f".format(dist)} $distanceUnit"
+}
 
 private fun speedLabel(s: Float): String =
     if (s == s.toInt().toFloat()) "${s.toInt()}×" else "$s×"
@@ -119,6 +121,7 @@ fun StudioReplayDialog(
     trips: List<TripRecord>,
     selectedTrip: TripRecord?,
     trip: ReplayTrip?,
+    distanceUnit: String,
     positionMs: Long,
     rangeStartMs: Long,
     rangeEndMs: Long,
@@ -190,7 +193,7 @@ fun StudioReplayDialog(
                 }
                 trips.forEach { t ->
                     Text(
-                        tripLabel(t),
+                        tripLabel(t, distanceUnit),
                         maxLines = 1,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -225,7 +228,7 @@ fun StudioReplayDialog(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        selectedTrip?.let { tripLabel(it) } ?: "Choose a trip",
+                        selectedTrip?.let { tripLabel(it, distanceUnit) } ?: "Choose a trip",
                         modifier = Modifier.weight(1f),
                         maxLines = 1
                     )

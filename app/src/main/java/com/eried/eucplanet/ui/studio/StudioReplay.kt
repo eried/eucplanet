@@ -34,44 +34,61 @@ class ReplayTrip(val samples: List<ReplaySample>) {
 }
 
 /**
- * Parses a DarknessBot-format trip CSV (see [com.eried.eucplanet.util.CsvWriter])
- * into a [ReplayTrip]. Columns:
- * `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,`
- * `Total mileage,GPS speed,Ext GPS speed,Current,PWM`.
+ * Parses a trip CSV into a [ReplayTrip]. **Header-driven**: each telemetry
+ * column is located by name, so it works for native recordings *and* imported
+ * CSVs (DarknessBot / EUC World / WheelLog) whose column order and date format
+ * differ. Several date layouts are accepted, including ISO `T`-separated stamps
+ * with sub-millisecond precision.
  */
 fun parseTripCsv(text: String): ReplayTrip {
-    // Tolerate a few date layouts so a trip recorded by any app/version still
-    // replays — strictness here was making GPS-only trips look "empty".
     val fmts = listOf(
         "dd.MM.yyyy HH:mm:ss.SSS", "dd.MM.yyyy HH:mm:ss",
-        "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"
+        "yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS", "yyyy-MM-dd'T'HH:mm:ss"
     ).map { SimpleDateFormat(it, Locale.US) }
+    val lines = text.lineSequence().iterator()
+    if (!lines.hasNext()) return ReplayTrip(emptyList())
+    val header = lines.next().split(',').map { it.trim().lowercase(Locale.US) }
+    fun idx(vararg names: String): Int =
+        names.firstNotNullOfOrNull { header.indexOf(it).takeIf { i -> i >= 0 } } ?: -1
+    val iDate = idx("date")
+    if (iDate < 0) return ReplayTrip(emptyList())
+    val iSpeed = idx("speed")
+    val iVoltage = idx("voltage")
+    val iCurrent = idx("current")
+    val iPwm = idx("pwm")
+    val iTemp = idx("temperature")
+    val iBattery = idx("battery level", "battery")
+    val iMileage = idx("total mileage", "mileage", "distance")
+
     val out = ArrayList<ReplaySample>()
     var firstMs = -1L
     var firstMileage = Float.NaN
-    text.lineSequence().drop(1).forEach { line ->
+    // Trim sub-millisecond precision (e.g. .000000 micros) WITHOUT touching a
+    // 4-digit year like .2026 — only 5+ digits after the dot are trimmed.
+    val subMs = Regex("(\\.\\d{3})\\d{2,}")
+    lines.forEach { line ->
         if (line.isBlank()) return@forEach
         val c = line.split(',')
-        if (c.size < 2) return@forEach
-        // Use whatever columns the row has; missing telemetry just reads 0.
-        fun col(i: Int) = c.getOrNull(i)?.trim()?.toFloatOrNull() ?: 0f
+        fun num(i: Int) = if (i in c.indices) c[i].trim().toFloatOrNull() ?: 0f else 0f
+        val rawDate = c.getOrNull(iDate)?.trim()?.takeIf { it.isNotEmpty() } ?: return@forEach
         val ms = fmts.firstNotNullOfOrNull {
-            runCatching { it.parse(c[0].trim())?.time }.getOrNull()
+            runCatching { it.parse(subMs.replace(rawDate, "$1"))?.time }.getOrNull()
         } ?: return@forEach
         if (firstMs < 0L) firstMs = ms
-        val voltage = col(2)
-        val current = col(11)
-        val mileage = col(8)
+        val voltage = num(iVoltage)
+        val current = num(iCurrent)
+        val mileage = num(iMileage)
         if (firstMileage.isNaN()) firstMileage = mileage
         out += ReplaySample(
             offsetMs = (ms - firstMs).coerceAtLeast(0L),
             data = WheelData(
-                speed = col(1),
+                speed = num(iSpeed),
                 voltage = voltage,
                 current = current,
-                maxTemperature = col(3),
-                batteryPercent = col(4).toInt(),
-                pwm = col(12),
+                maxTemperature = num(iTemp),
+                batteryPercent = num(iBattery).toInt(),
+                pwm = num(iPwm),
                 totalDistance = mileage,
                 tripDistance = (mileage - firstMileage).coerceAtLeast(0f),
                 motorPower = (voltage * current).toInt()
