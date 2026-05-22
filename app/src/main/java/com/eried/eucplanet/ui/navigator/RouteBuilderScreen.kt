@@ -696,6 +696,12 @@ private fun BuilderMenu(
                 onClick = { onDismiss(); onClear() }
             )
         }
+        HorizontalDivider()
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_setting_params)) },
+            onClick = { onDismiss(); onNavSettings() }
+        )
+        // Forget Home / Work sit last — they are rare, destructive actions.
         if (hasHome || hasWork) {
             HorizontalDivider()
         }
@@ -711,11 +717,6 @@ private fun BuilderMenu(
                 onClick = { onDismiss(); onClearWork() }
             )
         }
-        HorizontalDivider()
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_setting_params)) },
-            onClick = { onDismiss(); onNavSettings() }
-        )
     }
 }
 
