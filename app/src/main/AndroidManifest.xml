@@ -40,10 +40,22 @@
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
-    <!-- Camera is optional: the Overlay Studio degrades to solid-colour
-         viewports on devices with no camera, so the app stays installable. -->
+    <!-- Camera + mic are optional: the Overlay Studio degrades to solid-colour
+         viewports (and no recorded audio) on devices that lack them, so the
+         app stays installable. The CAMERA and RECORD_AUDIO permissions
+         otherwise imply android.hardware.camera, .camera.autofocus and
+         .microphone as REQUIRED, which silently excludes ~3% of phones. -->
     <uses-feature
         android:name="android.hardware.camera.any"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.microphone"
         android:required="false" />
 
     <application
