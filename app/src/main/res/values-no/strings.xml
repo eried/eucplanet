@@ -619,7 +619,7 @@
     <string name="external_gps_state_connecting">Søker…</string>
     <string name="external_gps_state_disconnected">Frakoblet</string>
     <string name="external_gps_unpair">Glem enhet</string>
-    <string name="section_external_gps">Ekstra GPS</string>
+    <string name="section_external_gps">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
     <string name="speed_calibration_caption">Bruker en prosentandel på farten som kommer fra hjulet. Alarmer, stemme og turloggen bruker alle den kalibrerte verdien.</string>
     <string name="speed_calibration_label">Fartsjustering</string>
@@ -998,6 +998,6 @@
     <string name="studio_cfg_filter_matte">Matt</string>
     <string name="dash_external_gps_settings">Innstillinger for ekstern GPS</string>
     <string name="external_gps_caption">Slå på RaceBox-en og trykk Koble til for å søke. Når den er tilkoblet, mater fart og G-kraft appen live og lagres i CSV-en for hver tur.</string>
-    <string name="gps_prioritize_external_desc">Når en ekstern boks er tilkoblet, bruk den for fart og G-kraft; ellers bruk telefonen.</string>
+    <string name="gps_prioritize_external_desc">Når en enhet er tilkoblet, bruk den til fart, posisjon og G-kraft i stedet for telefonen.</string>
     <string name="studio_cfg_show_value">Vis verdi</string>
 </resources>

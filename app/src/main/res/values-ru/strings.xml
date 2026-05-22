@@ -654,7 +654,7 @@
     <string name="external_gps_state_connecting">Поиск…</string>
     <string name="external_gps_state_disconnected">Не подключено</string>
     <string name="external_gps_unpair">Забыть устройство</string>
-    <string name="section_external_gps">Дополнительный GPS</string>
+    <string name="section_external_gps">Внешний GPS</string>
     <string name="section_speed_calibration">Калибровка скорости</string>
     <string name="speed_calibration_caption">Применяет процент к скорости, поступающей с колеса. Сигналы, озвучка и журнал поездок используют откалиброванное значение.</string>
     <string name="speed_calibration_label">Поправка скорости</string>
@@ -1033,6 +1033,6 @@
     <string name="studio_cfg_filter_matte">Матовый</string>
     <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
     <string name="external_gps_caption">Включите RaceBox и нажмите «Сопряжение» для поиска. После сопряжения скорость и перегрузка передаются в приложение в реальном времени и сохраняются в CSV каждой поездки.</string>
-    <string name="gps_prioritize_external_desc">Когда подключён внешний модуль, использовать его для скорости и перегрузки; иначе использовать телефон.</string>
+    <string name="gps_prioritize_external_desc">Когда устройство подключено, использовать его для скорости, позиции и перегрузки вместо телефона.</string>
     <string name="studio_cfg_show_value">Показывать значение</string>
 </resources>

@@ -11,13 +11,12 @@ import java.util.Locale
 
 /**
  * Writes DarknessBot-compatible CSV files.
- * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM`
- * The trailing GPS-speed, Current and PWM columns are EUC Planet extensions;
- * DarknessBot viewers ignore trailing columns. `Ext GPS speed` is populated only
- * while an external BLE GPS box (RaceBox today) is paired and streaming;
- * otherwise it stays empty so the column doesn't pretend to have data it
- * doesn't. `Current` (amps, signed) and `PWM` (percent) come straight from the
- * wheel telemetry.
+ * Format: `Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y`
+ * The trailing GPS-speed, Current, PWM and G-Force columns are EUC Planet
+ * extensions; DarknessBot viewers ignore trailing columns. `GPS speed` carries
+ * the external BLE GPS box's reading when the rider prioritises external GPS,
+ * otherwise the phone's own GPS speed. `Current` (amps, signed) and `PWM`
+ * (percent) come straight from the wheel telemetry.
  */
 class CsvWriter(private val file: File) {
 
@@ -27,7 +26,7 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
         writer?.newLine()
     }
 
@@ -44,17 +43,16 @@ class CsvWriter(private val file: File) {
         val alt = location?.altitude ?: 0.0
 
         // Prefer wheel speed; fall back to GPS speed (m/s -> km/h) when the wheel is silent.
-        val gpsSpeedKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else 0f
-        val speed = if (data.speed != 0f) data.speed else gpsSpeedKmh
-
-        // External GPS column: empty when not connected so analysis tools can
-        // distinguish "device not paired" from "device read 0 km/h".
-        val extColumn = externalGpsSpeedKmh?.let { String.format(Locale.US, "%.1f", it) } ?: ""
+        val phoneGpsKmh = if (location?.hasSpeed() == true) location.speed * 3.6f else 0f
+        val speed = if (data.speed != 0f) data.speed else phoneGpsKmh
+        // GPS speed column: the external box's speed when the rider prioritises
+        // external GPS (passed in non-null), otherwise the phone's GPS speed.
+        val gpsSpeedKmh = externalGpsSpeedKmh ?: phoneGpsKmh
 
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s,%.1f,%.1f,%.3f,%.3f,%.3f",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f",
                 date,
                 speed,
                 data.voltage,
@@ -65,7 +63,6 @@ class CsvWriter(private val file: File) {
                 lon,
                 data.totalDistance,
                 gpsSpeedKmh,
-                extColumn,
                 data.current,
                 data.pwm,
                 data.gForce,

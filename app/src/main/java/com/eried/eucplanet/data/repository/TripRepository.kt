@@ -196,12 +196,16 @@ class TripRepository @Inject constructor(
             while (_recording.value) {
                 val data = wheelRepository.wheelData.value
                 val location = _currentLocation.value
-                // Snapshot the external GPS sample only if it's recent — staler than
-                // the record interval and we'd be writing a frozen reading. Empty when
-                // no device is paired or a sample hasn't arrived yet.
+                // The merged GPS-speed column uses the external box's speed only
+                // when the rider prioritises external GPS and the sample is
+                // recent (a staler reading would freeze the column); otherwise
+                // the writer falls back to the phone's GPS speed.
                 val extSample = externalGpsRepository.currentSample.value
                 val extSpeed = extSample
-                    ?.takeIf { System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3 }
+                    ?.takeIf {
+                        settingsRepository.get().gpsPrioritizeExternal &&
+                            System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3
+                    }
                     ?.speedKmh
                 csvWriter?.writeRow(data, location, extSpeed)
                 rowsWritten++

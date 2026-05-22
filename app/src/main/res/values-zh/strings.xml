@@ -602,7 +602,7 @@
     <string name="external_gps_state_connecting">搜索中…</string>
     <string name="external_gps_state_disconnected">已断开</string>
     <string name="external_gps_unpair">忘记设备</string>
-    <string name="section_external_gps">附加 GPS</string>
+    <string name="section_external_gps">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
     <string name="speed_calibration_caption">对来自车轮的速度应用一个百分比。报警、语音和行程记录都使用校准后的数值。</string>
     <string name="speed_calibration_label">速度偏移</string>
@@ -981,6 +981,6 @@
     <string name="studio_cfg_filter_matte">哑光</string>
     <string name="dash_external_gps_settings">外部 GPS 设置</string>
     <string name="external_gps_caption">打开你的 RaceBox 并点按「配对」扫描。配对后，速度和 G 力会实时传入应用，并保存到每次行程的 CSV。</string>
-    <string name="gps_prioritize_external_desc">连接外部设备时，用它获取速度和 G 力；否则回退到手机。</string>
+    <string name="gps_prioritize_external_desc">连接设备后，用它代替手机提供速度、位置和 G 力。</string>
     <string name="studio_cfg_show_value">显示数值</string>
 </resources>

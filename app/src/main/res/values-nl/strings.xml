@@ -638,7 +638,7 @@
     <string name="external_gps_state_connecting">Zoeken…</string>
     <string name="external_gps_state_disconnected">Niet verbonden</string>
     <string name="external_gps_unpair">Apparaat vergeten</string>
-    <string name="section_external_gps">Extra GPS</string>
+    <string name="section_external_gps">Externe gps</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
     <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde.</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
@@ -1017,6 +1017,6 @@
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Instellingen externe gps</string>
     <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit.</string>
-    <string name="gps_prioritize_external_desc">Als een externe box is verbonden, die gebruiken voor snelheid en G-kracht; anders terugvallen op de telefoon.</string>
+    <string name="gps_prioritize_external_desc">Als een apparaat verbonden is, gebruik het voor snelheid, positie en G-kracht in plaats van de telefoon.</string>
     <string name="studio_cfg_show_value">Waarde tonen</string>
 </resources>

@@ -602,7 +602,7 @@
     <string name="external_gps_state_connecting">Recherche…</string>
     <string name="external_gps_state_disconnected">Déconnecté</string>
     <string name="external_gps_unpair">Oublier l\'appareil</string>
-    <string name="section_external_gps">GPS supplémentaire</string>
+    <string name="section_external_gps">GPS externe</string>
     <string name="section_speed_calibration">Calibration de vitesse</string>
     <string name="speed_calibration_caption">Applique un pourcentage à la vitesse provenant de la roue. Les alarmes, la voix et le journal des trajets utilisent tous la valeur calibrée.</string>
     <string name="speed_calibration_label">Décalage de vitesse</string>
@@ -981,6 +981,6 @@
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Réglages du GPS externe</string>
     <string name="external_gps_caption">Allume ta RaceBox et appuie sur Associer pour rechercher. Une fois associée, sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV de chaque trajet.</string>
-    <string name="gps_prioritize_external_desc">Quand un boîtier externe est connecté, l\'utiliser pour la vitesse et la force G ; sinon, revenir au téléphone.</string>
+    <string name="gps_prioritize_external_desc">Quand un appareil est connecté, utiliser sa vitesse, sa position et sa force G plutôt que le téléphone.</string>
     <string name="studio_cfg_show_value">Afficher la valeur</string>
 </resources>
