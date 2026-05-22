@@ -270,6 +270,65 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
                 0f, 0f, 0f, 1f, 0f
             )
         )
+        "VIVID" -> ColorMatrix().apply {
+            // Punchy — saturation x1.4, then contrast x1.15.
+            setToSaturation(1.4f)
+            val vc = 1.15f
+            val vco = (1f - vc) * 0.5f * 255f
+            timesAssign(
+                ColorMatrix(
+                    floatArrayOf(
+                        vc, 0f, 0f, 0f, vco,
+                        0f, vc, 0f, 0f, vco,
+                        0f, 0f, vc, 0f, vco,
+                        0f, 0f, 0f, 1f, 0f
+                    )
+                )
+            )
+        }
+        "NOIR" -> ColorMatrix().apply {
+            // High-contrast black & white — saturation 0, then contrast x1.35.
+            setToSaturation(0f)
+            val nc = 1.35f
+            val nco = (1f - nc) * 0.5f * 255f
+            timesAssign(
+                ColorMatrix(
+                    floatArrayOf(
+                        nc, 0f, 0f, 0f, nco,
+                        0f, nc, 0f, 0f, nco,
+                        0f, 0f, nc, 0f, nco,
+                        0f, 0f, 0f, 1f, 0f
+                    )
+                )
+            )
+        }
+        "VINTAGE" -> ColorMatrix().apply {
+            // Faded film — saturation x0.75, a warm tint, lifted blacks (+12).
+            setToSaturation(0.75f)
+            timesAssign(
+                ColorMatrix(
+                    floatArrayOf(
+                        1.10f, 0f, 0f, 0f, 12f,
+                        0f, 1f, 0f, 0f, 12f,
+                        0f, 0f, 0.88f, 0f, 12f,
+                        0f, 0f, 0f, 1f, 0f
+                    )
+                )
+            )
+        }
+        "MATTE" -> {
+            // Modern faded look — contrast x0.82 with lifted blacks (+18).
+            val mc = 0.82f
+            val mco = (1f - mc) * 0.5f * 255f + 18f
+            ColorMatrix(
+                floatArrayOf(
+                    mc, 0f, 0f, 0f, mco,
+                    0f, mc, 0f, 0f, mco,
+                    0f, 0f, mc, 0f, mco,
+                    0f, 0f, 0f, 1f, 0f
+                )
+            )
+        }
         else -> ColorMatrix() // NONE — identity
     }
 

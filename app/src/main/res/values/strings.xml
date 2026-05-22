@@ -1093,4 +1093,9 @@
     <string name="studio_rendering_keep_open">Keep this screen open until the clip finishes saving.</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements.</string>
+    <string name="studio_cfg_filter_vivid">Vivid</string>
+    <string name="studio_cfg_filter_noir">Noir</string>
+    <string name="studio_cfg_filter_vintage">Vintage</string>
+    <string name="studio_cfg_filter_matte">Matte</string>
+    <string name="dash_external_gps_settings">External GPS settings</string>
 </resources>

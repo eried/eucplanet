@@ -254,6 +254,7 @@ fun DashboardScreen(
     var showSettingsMenu by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
     var showStudioMenu by remember { mutableStateOf(false) }
+    var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
@@ -577,8 +578,17 @@ fun DashboardScreen(
                         .padding(top = 8.dp, start = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    DashIndicatorLetter("P", active = live && wheelData.pcMode != 1, activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface)
-                    DashIndicatorLetter("D", active = live && wheelData.pcMode == 1, activeColor = if (useAccent) primary else AccentGreen)
+                    // Tapping either jumps to the wheel speed/parameter settings.
+                    DashIndicatorLetter(
+                        "P", active = live && wheelData.pcMode != 1,
+                        activeColor = if (useAccent) primary else MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.clickable { onNavigateToSettings(2) }
+                    )
+                    DashIndicatorLetter(
+                        "D", active = live && wheelData.pcMode == 1,
+                        activeColor = if (useAccent) primary else AccentGreen,
+                        modifier = Modifier.clickable { onNavigateToSettings(2) }
+                    )
                 }
                 // GPS indicator, top-right. The icon glyph + colour speak for
                 // the phone's GPS:
@@ -601,7 +611,10 @@ fun DashboardScreen(
                         .align(Alignment.TopEnd)
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
-                        .clickable { showSourcesSheet = true },
+                        .combinedClickable(
+                            onClick = { showSourcesSheet = true },
+                            onLongClick = { showGpsMenu = true }
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -620,6 +633,20 @@ fun DashboardScreen(
                             "E",
                             active = externalLive,
                             activeColor = if (useAccent) primary else AccentGreen
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showGpsMenu,
+                        onDismissRequest = { showGpsMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(stringResource(R.string.dash_external_gps_settings))
+                            },
+                            onClick = {
+                                showGpsMenu = false
+                                onNavigateToSettings(7)
+                            }
                         )
                     }
                 }
@@ -1853,10 +1880,19 @@ private fun SpeedGauge(
 
 // Car-dashboard style status indicator: dim (off) / lit (on).
 @Composable
-private fun DashIndicatorLetter(letter: String, active: Boolean, activeColor: Color) {
+private fun DashIndicatorLetter(
+    letter: String,
+    active: Boolean,
+    activeColor: Color,
+    modifier: Modifier = Modifier
+) {
     val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.20f)
     Text(
         text = letter,
+        // Fixed width — matches DashIndicatorIcon and the map glyph, so the
+        // left-corner cluster lines up on both edges, like the right corner.
+        modifier = modifier.width(32.dp),
+        textAlign = TextAlign.Center,
         fontSize = 34.sp,
         fontWeight = FontWeight.Bold,
         color = if (active) activeColor else dim

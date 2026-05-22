@@ -149,6 +149,8 @@ fun OverlayStudioScreen(
     // Likewise, the viewport config sheet's camera "Geometry" section, hoisted
     // so it sticks for the session as the rider hops between viewports.
     var geometrySheetExpanded by remember { mutableStateOf(false) }
+    // And the viewport config sheet's camera "Style" (colour-grading) section.
+    var cameraStyleExpanded by remember { mutableStateOf(false) }
     val dirty by viewModel.dirty.collectAsState()
     // Layouts are capped — past the limit, Add is disabled everywhere.
     val canAddElement = preset.elements.size < OverlayStudioViewModel.MAX_ELEMENTS
@@ -1234,8 +1236,10 @@ fun OverlayStudioScreen(
                     inUseKeys = requestedCameras.toSet(),
                     dimmed = panelsDimmed,
                     geometryExpanded = geometrySheetExpanded,
+                    cameraStyleExpanded = cameraStyleExpanded,
                     onToggleDim = { panelsDimmed = !panelsDimmed },
                     onGeometryExpandedChange = { geometrySheetExpanded = it },
+                    onCameraStyleExpandedChange = { cameraStyleExpanded = it },
                     onChange = { viewModel.setViewport(s.index, it) },
                     onPickImage = {
                         imageTargetViewport = s.index

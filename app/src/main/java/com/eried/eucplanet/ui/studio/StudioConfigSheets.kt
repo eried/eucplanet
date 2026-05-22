@@ -894,8 +894,10 @@ fun ViewportConfigSheet(
     inUseKeys: Set<String>,
     dimmed: Boolean,
     geometryExpanded: Boolean,
+    cameraStyleExpanded: Boolean,
     onToggleDim: () -> Unit,
     onGeometryExpandedChange: (Boolean) -> Unit,
+    onCameraStyleExpandedChange: (Boolean) -> Unit,
     onChange: (ViewportConfig) -> Unit,
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
@@ -981,7 +983,18 @@ fun ViewportConfigSheet(
                         FitModePicker(config, onChange)
                         ZoomSlider(config, onChange)
                     }
-                    ColorGradeEditor(config, onChange)
+                    // The colour-grading controls are tucked into a collapsible
+                    // "Style" section — like "Geometry" above — so the sheet
+                    // stays short; its open / closed state is hoisted for the
+                    // session.
+                    CollapsibleSectionHeader(
+                        title = stringResource(R.string.studio_cfg_style),
+                        expanded = cameraStyleExpanded,
+                        onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
+                    )
+                    if (cameraStyleExpanded) {
+                        ColorGradeEditor(config, onChange)
+                    }
                 }
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
                     BackgroundEditor(config, onChange)
@@ -1040,10 +1053,15 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
     val filterSepia = stringResource(R.string.studio_cfg_filter_sepia)
     val filterWarm = stringResource(R.string.studio_cfg_filter_warm)
     val filterCool = stringResource(R.string.studio_cfg_filter_cool)
+    val filterVivid = stringResource(R.string.studio_cfg_filter_vivid)
+    val filterNoir = stringResource(R.string.studio_cfg_filter_noir)
+    val filterVintage = stringResource(R.string.studio_cfg_filter_vintage)
+    val filterMatte = stringResource(R.string.studio_cfg_filter_matte)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         listOf(
             "NONE" to filterNone, "BW" to filterBw, "SEPIA" to filterSepia,
-            "WARM" to filterWarm, "COOL" to filterCool
+            "WARM" to filterWarm, "COOL" to filterCool, "VIVID" to filterVivid,
+            "NOIR" to filterNoir, "VINTAGE" to filterVintage, "MATTE" to filterMatte
         ).forEach { (key, lbl) ->
             FilterChip(
                 selected = config.colorFilter == key,

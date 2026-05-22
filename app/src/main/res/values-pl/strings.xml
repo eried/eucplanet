@@ -1010,4 +1010,9 @@
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_geometry">Geometria</string>
     <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru klucza chroma, co może źle wyglądać na częściowo przezroczystych elementach.</string>
+    <string name="studio_cfg_filter_vivid">Żywy</string>
+    <string name="studio_cfg_filter_noir">Noir</string>
+    <string name="studio_cfg_filter_vintage">Vintage</string>
+    <string name="studio_cfg_filter_matte">Matowy</string>
+    <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
 </resources>

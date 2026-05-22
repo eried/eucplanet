@@ -1025,4 +1025,9 @@
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_cfg_geometry">Геометрия</string>
     <string name="studio_export_force_opaque_hint">Форматы без прозрачности используют цвет хромакея, что может плохо выглядеть на частично прозрачных элементах.</string>
+    <string name="studio_cfg_filter_vivid">Яркий</string>
+    <string name="studio_cfg_filter_noir">Нуар</string>
+    <string name="studio_cfg_filter_vintage">Винтаж</string>
+    <string name="studio_cfg_filter_matte">Матовый</string>
+    <string name="dash_external_gps_settings">Настройки внешнего GPS</string>
 </resources>

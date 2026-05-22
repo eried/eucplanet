@@ -973,4 +973,9 @@
     <string name="studio_cfg_g_scale">量程</string>
     <string name="studio_cfg_geometry">几何</string>
     <string name="studio_export_force_opaque_hint">不支持透明度的格式会使用色键颜色，半透明元素可能因此显得不自然。</string>
+    <string name="studio_cfg_filter_vivid">鲜艳</string>
+    <string name="studio_cfg_filter_noir">黑色</string>
+    <string name="studio_cfg_filter_vintage">复古</string>
+    <string name="studio_cfg_filter_matte">哑光</string>
+    <string name="dash_external_gps_settings">外部 GPS 设置</string>
 </resources>
