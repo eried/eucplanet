@@ -893,7 +893,9 @@ fun ViewportConfigSheet(
     cameras: List<StudioCameraInfo>,
     inUseKeys: Set<String>,
     dimmed: Boolean,
+    geometryExpanded: Boolean,
     onToggleDim: () -> Unit,
+    onGeometryExpandedChange: (Boolean) -> Unit,
     onChange: (ViewportConfig) -> Unit,
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
@@ -945,27 +947,40 @@ fun ViewportConfigSheet(
             Spacer(Modifier.height(12.dp))
             when (config.source) {
                 ViewportSourceType.CAMERA -> {
+                    // The camera picker is the primary choice, so it stays at the
+                    // top. The spatial-transform controls (mirror, orientation,
+                    // fit, zoom) are tucked into a collapsible "Geometry" section
+                    // so the sheet stays short — its open / closed state is
+                    // hoisted to the studio screen so it sticks for the session.
                     Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
                     CameraPicker(cameras, config.cameraKey, inUseKeys) {
                         onChange(config.copy(cameraKey = it))
                     }
                     Spacer(Modifier.height(8.dp))
-                    ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
-                        onChange(config.copy(cameraMirror = it))
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(0, 90, 180, 270).forEach { deg ->
-                            FilterChip(
-                                selected = config.cameraOrientation == deg,
-                                onClick = { onChange(config.copy(cameraOrientation = deg)) },
-                                label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) }
-                            )
+                    CollapsibleSectionHeader(
+                        title = stringResource(R.string.studio_cfg_geometry),
+                        expanded = geometryExpanded,
+                        onToggle = { onGeometryExpandedChange(!geometryExpanded) }
+                    )
+                    if (geometryExpanded) {
+                        ToggleRow(stringResource(R.string.studio_cfg_mirror), config.cameraMirror) {
+                            onChange(config.copy(cameraMirror = it))
                         }
+                        Spacer(Modifier.height(4.dp))
+                        Text(stringResource(R.string.studio_cfg_orientation), fontWeight = FontWeight.SemiBold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf(0, 90, 180, 270).forEach { deg ->
+                                FilterChip(
+                                    selected = config.cameraOrientation == deg,
+                                    onClick = { onChange(config.copy(cameraOrientation = deg)) },
+                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) }
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        FitModePicker(config, onChange)
+                        ZoomSlider(config, onChange)
                     }
-                    Spacer(Modifier.height(8.dp))
-                    FitModePicker(config, onChange)
                     ColorGradeEditor(config, onChange)
                 }
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
@@ -988,6 +1003,7 @@ fun ViewportConfigSheet(
                     }
                     Spacer(Modifier.height(12.dp))
                     FitModePicker(config, onChange)
+                    ZoomSlider(config, onChange)
                     ColorGradeEditor(config, onChange)
                 }
             }
@@ -996,9 +1012,23 @@ fun ViewportConfigSheet(
 }
 
 /**
- * Filter preset + brightness / contrast / saturation + digital zoom for a
- * camera or image viewport. Every control feeds a GPU ColorMatrix / scale —
- * there is no per-frame CPU pixel work.
+ * Digital-zoom slider — a spatial transform feeding a GPU scale. Kept separate
+ * from [ColorGradeEditor] so the camera viewport can group it with the other
+ * geometry controls under its collapsible "Geometry" section.
+ */
+@Composable
+private fun ZoomSlider(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
+    LabeledSlider(
+        stringResource(R.string.studio_cfg_zoom),
+        "%.1fx".format(config.zoom),
+        config.zoom, 1f, 3f
+    ) { onChange(config.copy(zoom = it)) }
+}
+
+/**
+ * Filter preset + brightness / contrast / saturation for a camera or image
+ * viewport. Every control feeds a GPU ColorMatrix — there is no per-frame CPU
+ * pixel work. Digital zoom lives in its own [ZoomSlider] (a spatial transform).
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -1037,11 +1067,6 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
         "%.2f".format(config.saturation),
         config.saturation, 0f, 2f
     ) { onChange(config.copy(saturation = it)) }
-    LabeledSlider(
-        stringResource(R.string.studio_cfg_zoom),
-        "%.1fx".format(config.zoom),
-        config.zoom, 1f, 3f
-    ) { onChange(config.copy(zoom = it)) }
 }
 
 /**

@@ -1008,4 +1008,5 @@
     <string name="studio_chroma_cyan">Cyjan</string>
     <string name="studio_export_force_opaque">Wymuś pełną nieprzezroczystość</string>
     <string name="studio_cfg_g_scale">Skala</string>
+    <string name="studio_cfg_geometry">Geometria</string>
 </resources>

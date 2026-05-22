@@ -971,4 +971,5 @@
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Forcer l\'opacité totale</string>
     <string name="studio_cfg_g_scale">Échelle</string>
+    <string name="studio_cfg_geometry">Géométrie</string>
 </resources>

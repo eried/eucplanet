@@ -988,4 +988,5 @@
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Voll deckend erzwingen</string>
     <string name="studio_cfg_g_scale">Skala</string>
+    <string name="studio_cfg_geometry">Geometrie</string>
 </resources>

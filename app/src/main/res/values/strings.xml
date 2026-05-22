@@ -826,6 +826,7 @@
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Shadow</string>
     <string name="studio_cfg_style">Style</string>
+    <string name="studio_cfg_geometry">Geometry</string>
     <string name="studio_cfg_shadow_colour">Shadow colour</string>
     <string name="studio_cfg_shadow_strength">Shadow strength</string>
     <string name="studio_cfg_shadow_offset">Shadow offset</string>

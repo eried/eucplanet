@@ -973,4 +973,5 @@
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Tving helt uigennemsigtig</string>
     <string name="studio_cfg_g_scale">Skala</string>
+    <string name="studio_cfg_geometry">Geometri</string>
 </resources>

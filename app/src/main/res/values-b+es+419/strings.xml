@@ -1007,4 +1007,5 @@
     <string name="studio_chroma_cyan">Cian</string>
     <string name="studio_export_force_opaque">Forzar opacidad total</string>
     <string name="studio_cfg_g_scale">Escala</string>
+    <string name="studio_cfg_geometry">Geometría</string>
 </resources>

@@ -971,4 +971,5 @@
     <string name="studio_chroma_cyan">青色</string>
     <string name="studio_export_force_opaque">强制完全不透明</string>
     <string name="studio_cfg_g_scale">量程</string>
+    <string name="studio_cfg_geometry">几何</string>
 </resources>
