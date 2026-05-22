@@ -377,8 +377,18 @@ val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
  * the host's box (no overflow) and touch input still lands right.
  */
 @Composable
-fun Modifier.rotateLayout(rotation: Int): Modifier {
+fun Modifier.rotateLayout(rotation: Int, withFade: Boolean = true): Modifier {
     val target = ((rotation % 360) + 360) % 360
+    if (!withFade) {
+        // No crossfade — snap straight to the orientation. Used by the render
+        // overlay, where fading its scrim out blinks the whole screen.
+        val o = when (target) {
+            0 -> Modifier
+            180 -> Modifier.rotate(180f)
+            else -> Modifier.then(SwapSizeModifier).rotate(-target.toFloat())
+        }
+        return this.then(o)
+    }
     // Fade out, swap orientation while invisible, fade back in — a device
     // rotation eases the chrome over instead of snapping it around.
     val shown = remember { androidx.compose.runtime.mutableIntStateOf(target) }
@@ -453,11 +463,15 @@ private object SwapSizeModifier : androidx.compose.ui.layout.LayoutModifier {
  * the phone sideways.
  */
 @Composable
-fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
+fun RotatedFullScreen(
+    rotation: Int,
+    withFade: Boolean = true,
+    content: @Composable () -> Unit
+) {
     // Always routed through rotateLayout so the fade-on-rotation applies even
     // for transitions to and from the upright (0 degree) orientation.
     androidx.compose.foundation.layout.Box(
-        Modifier.fillMaxSize().rotateLayout(rotation)
+        Modifier.fillMaxSize().rotateLayout(rotation, withFade)
     ) {
         content()
     }

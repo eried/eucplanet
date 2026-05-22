@@ -66,9 +66,9 @@ enum class ReplayVideoFormat(
 /** The rider's Replay-mode output-format choices. */
 data class ReplayExportPrefs(
     val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
-    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.GIF,
+    val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MP4,
     /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
-    val chromaColor: Long = 0xFFFF00FFL,
+    val chromaColor: Long = 0xFF00FF00L,
     /**
      * When exporting an alpha-less format (JPG, MP4), override every overlay
      * element to 100% opacity so half-transparent elements don't blend oddly

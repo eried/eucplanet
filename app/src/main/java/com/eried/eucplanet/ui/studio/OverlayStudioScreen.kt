@@ -56,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -837,10 +838,18 @@ fun OverlayStudioScreen(
                 )
                 StudioElementLayer(
                     // While an opaque export is in progress, force every element
-                    // to 100% opacity so half-transparent overlays don't blend
-                    // oddly with the chroma fill of an alpha-less format.
+                    // fully opaque so nothing blends with the chroma fill of an
+                    // alpha-less format — element opacity AND the per-element
+                    // background / foreground alpha (the default pill is a
+                    // translucent black, which leaked through before).
                     elements = if (renderForceOpaque) {
-                        preset.elements.map { it.copy(opacity = 1f) }
+                        preset.elements.map {
+                            it.copy(
+                                opacity = 1f,
+                                background = it.background or 0xFF000000L,
+                                foreground = it.foreground or 0xFF000000L
+                            )
+                        }
                     } else {
                         preset.elements
                     },
@@ -920,7 +929,11 @@ fun OverlayStudioScreen(
                         size = 52.dp,
                         iconRotation = iconRot
                     ) { if (!capturing) capturing = true }
-                    RecordButton {
+                    RecordButton(
+                        // In replay a render needs a trip — disable it until
+                        // one is picked, instead of a no-op tap.
+                        enabled = !(replayMode && replayTrip == null)
+                    ) {
                         if (replayMode) {
                             // Replay renders an offline clip in the chosen
                             // video format (GIF / APNG / MP4).
@@ -1079,7 +1092,9 @@ fun OverlayStudioScreen(
 
         // Replay clip render progress.
         if (rendering) {
-          RotatedFullScreen(deviceRotation) {
+          // No crossfade on the render overlay — fading its scrim mid-render
+          // would blink the whole screen when the phone is rotated.
+          RotatedFullScreen(deviceRotation, withFade = false) {
             Box(
                 Modifier
                     .fillMaxSize()
@@ -1481,23 +1496,26 @@ private fun StudioRoundButton(
 }
 
 @Composable
-private fun RecordButton(onClick: () -> Unit) {
+private fun RecordButton(enabled: Boolean = true, onClick: () -> Unit) {
+    val currentOnClick by rememberUpdatedState(onClick)
     Box(
         Modifier
             .size(66.dp)
             .clip(CircleShape)
             .background(Color(0x55FFFFFF))
-            .border(3.dp, Color.White, CircleShape)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { onClick() })
-            },
+            .border(3.dp, if (enabled) Color.White else Color(0x55FFFFFF), CircleShape)
+            .then(
+                if (enabled) Modifier.pointerInput(Unit) {
+                    detectTapGestures(onTap = { currentOnClick() })
+                } else Modifier
+            ),
         contentAlignment = Alignment.Center
     ) {
         Box(
             Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFE53935))
+                .background(if (enabled) Color(0xFFE53935) else Color(0x66E53935))
         )
     }
 }

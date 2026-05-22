@@ -370,12 +370,12 @@ data class AppSettings(
     /** Replay photo export format: "PNG" (alpha) or "JPG" (chroma-filled). */
     val studioReplayPhotoFormat: String = "PNG",
     /** Replay video export format: "GIF" (1-bit alpha), "APNG" (alpha) or "MP4" (chroma-filled). */
-    val studioReplayVideoFormat: String = "GIF",
+    val studioReplayVideoFormat: String = "MP4",
     /**
      * ARGB chroma-key fill colour used when an alpha-less export format (JPG,
-     * MP4) is chosen. Default magenta (0xFFFF00FF).
+     * MP4) is chosen. Default bright green (0xFF00FF00).
      */
-    val studioReplayChromaColor: Long = 0xFFFF00FFL,
+    val studioReplayChromaColor: Long = 0xFF00FF00L,
     /**
      * When exporting an alpha-less format (JPG, MP4), force every overlay
      * element to 100% opacity so half-transparent elements don't blend with
