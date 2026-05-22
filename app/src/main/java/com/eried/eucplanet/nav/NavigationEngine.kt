@@ -214,6 +214,17 @@ class NavigationEngine @Inject constructor(
         Log.i(TAG, "Navigation stopped")
     }
 
+    /**
+     * Dev cheat: speaks a wrong-way shout with a randomly stretched run of
+     * o's and a's, so the elongated voice cue can be heard without riding
+     * off-route. Triggered by typing "wrongway" in the builder search box.
+     */
+    fun cheatWrongWay() {
+        val o = "o".repeat((3..20).random())
+        val a = "a".repeat((2..16).random())
+        voiceService.announceEvent("Wr${o}ng w${a}y!")
+    }
+
     fun setMinimized(minimized: Boolean) {
         _navState.value = _navState.value.copy(minimized = minimized)
     }
@@ -600,13 +611,12 @@ class NavigationEngine @Inject constructor(
             Proximity.HOT -> context.getString(R.string.voice_prox_hot)
             Proximity.WARM -> context.getString(R.string.voice_prox_warmer)
             Proximity.COLD -> {
-                // Escalate a sustained drift: a wrong-way shout on the 3rd cold
-                // cue in a row, a triple-loud one on the 5th. The orientation
-                // and distance (base) are still spoken either way.
-                val wrong = context.getString(R.string.voice_nav_wrong_way)
+                // Escalate a sustained drift: a stretched wrong-way shout on
+                // the 3rd cold cue in a row, an even-longer one on the 5th. The
+                // orientation and distance (base) are still spoken either way.
                 when (coldStreak) {
-                    3 -> wrong
-                    5 -> "$wrong $wrong $wrong"
+                    3 -> context.getString(R.string.voice_nav_wrong_way)
+                    5 -> context.getString(R.string.voice_nav_wrong_way_extreme)
                     else -> context.getString(R.string.voice_prox_colder)
                 }
             }

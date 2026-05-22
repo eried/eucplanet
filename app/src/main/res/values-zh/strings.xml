@@ -738,7 +738,6 @@
     <string name="voice_nav_now">现在%1$s</string>
     <string name="voice_nav_prepare">%1$s后,%2$s</string>
     <string name="voice_nav_start_riding">开始骑行</string>
-    <string name="voice_nav_wrong_way">走~错~路~啦~!</string>
     <string name="voice_prox_colder">越来越冷了</string>
     <string name="voice_prox_hot">你已经非常接近了</string>
     <string name="voice_prox_warmer">越来越热了</string>

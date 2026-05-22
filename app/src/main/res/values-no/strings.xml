@@ -755,7 +755,6 @@
     <string name="voice_nav_now">%1$s nå</string>
     <string name="voice_nav_prepare">Om %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Begynn å kjøre</string>
-    <string name="voice_nav_wrong_way">Feiiiil veeeei!</string>
     <string name="voice_prox_colder">det blir kaldere</string>
     <string name="voice_prox_hot">du er veldig nær</string>
     <string name="voice_prox_warmer">det blir varmere</string>

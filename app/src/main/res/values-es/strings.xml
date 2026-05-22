@@ -755,7 +755,6 @@
     <string name="voice_nav_now">%1$s ahora</string>
     <string name="voice_nav_prepare">En %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Empieza a rodar</string>
-    <string name="voice_nav_wrong_way">¡Dirección equivocadaaaaaaa!</string>
     <string name="voice_prox_colder">cada vez más frío</string>
     <string name="voice_prox_hot">estás muy cerca</string>
     <string name="voice_prox_warmer">cada vez más caliente</string>

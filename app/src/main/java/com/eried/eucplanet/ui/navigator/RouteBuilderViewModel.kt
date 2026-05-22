@@ -265,6 +265,14 @@ class RouteBuilderViewModel @Inject constructor(
 
     fun search(query: String) {
         searchJob?.cancel()
+        // Dev cheat: typing "wrongway" in the search box speaks a randomly
+        // stretched wrong-way shout, for testing the elongated voice cue.
+        if (query.trim().equals("wrongway", ignoreCase = true)) {
+            navigationEngine.cheatWrongWay()
+            _searchResults.value = emptyList()
+            _searching.value = false
+            return
+        }
         if (query.isBlank()) {
             _searchResults.value = emptyList()
             _searching.value = false

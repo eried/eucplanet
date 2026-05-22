@@ -790,7 +790,6 @@
     <string name="voice_nav_now">%1$s сейчас</string>
     <string name="voice_nav_prepare">Через %1$s %2$s</string>
     <string name="voice_nav_start_riding">В путь</string>
-    <string name="voice_nav_wrong_way">Не туууудаааа!</string>
     <string name="voice_prox_colder">становится холоднее</string>
     <string name="voice_prox_hot">вы совсем рядом</string>
     <string name="voice_prox_warmer">становится теплее</string>
