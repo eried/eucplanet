@@ -890,6 +890,7 @@
     <string name="studio_replay_render_cancelled">渲染已取消</string>
     <string name="studio_replay_speed_title">回放速度</string>
     <string name="studio_replay_title">回放</string>
+    <string name="studio_flyout_live">实时</string>
     <string name="studio_save_btn">保存</string>
     <string name="studio_save_preset_body">预设会作为单独的 .json 文件保存在备份文件夹的 overlays/ 目录下。</string>
     <string name="studio_save_preset_name_label">预设名称</string>

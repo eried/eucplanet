@@ -907,6 +907,7 @@
     <string name="studio_replay_render_cancelled">Gjengivelse avbrutt</string>
     <string name="studio_replay_speed_title">Avspillingshastighet</string>
     <string name="studio_replay_title">Avspilling</string>
+    <string name="studio_flyout_live">Direkte</string>
     <string name="studio_save_btn">Lagre</string>
     <string name="studio_save_preset_body">Forhåndsinnstillinger lagres som egne .json-filer i backup-mappen din, under overlays/.</string>
     <string name="studio_save_preset_name_label">Navn på forhåndsinnstilling</string>

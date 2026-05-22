@@ -904,6 +904,7 @@
 
     <!-- Studio: replay panel -->
     <string name="studio_replay_title">Replay</string>
+    <string name="studio_flyout_live">Live</string>
     <string name="studio_replay_choose_trip">Choose a trip</string>
     <string name="studio_replay_speed_title">Replay speed</string>
     <string name="studio_replay_cd_fade">Fade the panel</string>

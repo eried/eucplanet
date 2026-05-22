@@ -892,6 +892,7 @@
     <string name="studio_replay_render_cancelled">Rendering annulleret</string>
     <string name="studio_replay_speed_title">Replay-hastighed</string>
     <string name="studio_replay_title">Replay</string>
+    <string name="studio_flyout_live">Direkte</string>
     <string name="studio_save_btn">Gem</string>
     <string name="studio_save_preset_body">Forudindstillinger gemmes som individuelle .json-filer i din backup-mappe, under overlays/.</string>
     <string name="studio_save_preset_name_label">Navn på forudindstilling</string>

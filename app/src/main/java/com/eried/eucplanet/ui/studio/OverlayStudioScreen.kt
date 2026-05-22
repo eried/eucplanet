@@ -986,7 +986,17 @@ fun OverlayStudioScreen(
                             viewModel.refreshFolderState()
                             sheet = StudioSheet.SavePreset
                         },
-                        onReplayMode = { studioMode = StudioMode.REPLAY },
+                        onReplayMode = {
+                            // The flyout's Mode button toggles: while replaying
+                            // it reads "Live" and returns to the live camera,
+                            // dismissing the replay panel.
+                            if (replayMode) {
+                                studioMode = StudioMode.LIVE
+                                replayPlaying = false
+                            } else {
+                                studioMode = StudioMode.REPLAY
+                            }
+                        },
                         replayMode = replayMode,
                         deviceRotation = deviceRotation
                     )

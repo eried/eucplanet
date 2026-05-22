@@ -926,6 +926,7 @@
     <string name="studio_replay_render_cancelled">Renderen geannuleerd</string>
     <string name="studio_replay_speed_title">Replaysnelheid</string>
     <string name="studio_replay_title">Replay</string>
+    <string name="studio_flyout_live">Live</string>
     <string name="studio_save_btn">Opslaan</string>
     <string name="studio_save_preset_body">Presets worden opgeslagen als losse .json-bestanden in je back-upmap, onder overlays/.</string>
     <string name="studio_save_preset_name_label">Presetnaam</string>

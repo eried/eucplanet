@@ -927,6 +927,7 @@
     <string name="studio_replay_render_cancelled">Рендеринг скасовано</string>
     <string name="studio_replay_speed_title">Швидкість повтору</string>
     <string name="studio_replay_title">Повтор</string>
+    <string name="studio_flyout_live">Наживо</string>
     <string name="studio_save_btn">Зберегти</string>
     <string name="studio_save_preset_body">Пресети зберігаються окремими файлами .json у твоїй папці резервних копій, у overlays/.</string>
     <string name="studio_save_preset_name_label">Назва пресета</string>

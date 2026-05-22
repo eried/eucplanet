@@ -890,6 +890,7 @@
     <string name="studio_replay_render_cancelled">Rendu annulé</string>
     <string name="studio_replay_speed_title">Vitesse de rejeu</string>
     <string name="studio_replay_title">Rejeu</string>
+    <string name="studio_flyout_live">En direct</string>
     <string name="studio_save_btn">Enregistrer</string>
     <string name="studio_save_preset_body">Les préréglages sont enregistrés sous forme de fichiers .json individuels dans votre dossier de sauvegarde, sous overlays/.</string>
     <string name="studio_save_preset_name_label">Nom du préréglage</string>

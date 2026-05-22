@@ -58,6 +58,7 @@ import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Widgets
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -267,8 +268,17 @@ fun StudioToolsFlyout(
             Spacer(Modifier.width(4.dp))
             Column(Modifier.width(154.dp)) {
                 FlyoutSection(stringResource(R.string.studio_flyout_section_mode))
-                FlyoutItem(Icons.Default.History, stringResource(R.string.studio_replay_title)) {
-                    onDismiss(); onReplayMode()
+                // Toggles the studio mode: reads "Replay" while live, and
+                // "Live" while replaying — the same button returns to the
+                // camera and closes the replay panel.
+                if (replayMode) {
+                    FlyoutItem(Icons.Default.Videocam, stringResource(R.string.studio_flyout_live)) {
+                        onDismiss(); onReplayMode()
+                    }
+                } else {
+                    FlyoutItem(Icons.Default.History, stringResource(R.string.studio_replay_title)) {
+                        onDismiss(); onReplayMode()
+                    }
                 }
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 FlyoutSection(stringResource(R.string.studio_flyout_section_elements))

@@ -926,6 +926,7 @@
     <string name="studio_replay_render_cancelled">Rendering annullato</string>
     <string name="studio_replay_speed_title">Velocità di replay</string>
     <string name="studio_replay_title">Replay</string>
+    <string name="studio_flyout_live">Dal vivo</string>
     <string name="studio_save_btn">Salva</string>
     <string name="studio_save_preset_body">I preset vengono salvati come singoli file .json nella cartella di backup, in overlays/.</string>
     <string name="studio_save_preset_name_label">Nome del preset</string>

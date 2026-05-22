@@ -890,6 +890,7 @@
     <string name="studio_replay_render_cancelled">Rendering avbruten</string>
     <string name="studio_replay_speed_title">Uppspelningshastighet</string>
     <string name="studio_replay_title">Återuppspelning</string>
+    <string name="studio_flyout_live">Direkt</string>
     <string name="studio_save_btn">Spara</string>
     <string name="studio_save_preset_body">Förinställningar sparas som enskilda .json-filer i din säkerhetskopieringsmapp, under overlays/.</string>
     <string name="studio_save_preset_name_label">Namn på förinställning</string>
