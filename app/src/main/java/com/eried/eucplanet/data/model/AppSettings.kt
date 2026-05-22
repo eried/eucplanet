@@ -203,14 +203,6 @@ data class AppSettings(
     val raceboxMapY: String = "Y",
     val raceboxMapZ: String = "Z",
     /**
-     * Master switch for additional GPS data. When OFF (default), the app
-     * doesn't capture or log extra GPS samples, and the whole Additional GPS
-     * sub-section in Settings collapses — no external connect attempts, no
-     * dashboard dot. When ON, samples flow from the phone or an external box
-     * per [gpsPrioritizeExternal].
-     */
-    val gpsLogAdditional: Boolean = false,
-    /**
      * When ON and an external GPS box is connected, its samples are the
      * dashboard's "extra speed" source. When OFF (or when no external box is
      * available) the phone's own GPS speed is used instead.

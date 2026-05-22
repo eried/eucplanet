@@ -96,8 +96,7 @@ class DashboardViewModel @Inject constructor(
      * speed when this is non-null.
      */
     /**
-     * Extra speed indicator on the dial. Honors the three new GPS settings:
-     *  - [AppSettings.gpsLogAdditional] off → no indicator
+     * Extra speed indicator on the dial. Honors the GPS settings:
      *  - [AppSettings.gpsShowOnDashboard] off → no indicator
      *  - [AppSettings.gpsPrioritizeExternal] on AND external sample fresh → external
      *  - else → phone GPS (when fix available)
@@ -118,7 +117,7 @@ class DashboardViewModel @Inject constructor(
         externalGpsRepository.currentSample,
         tripRepository.currentLocation
     ) { settings, externalSample, location ->
-        if (!settings.gpsLogAdditional || !settings.gpsShowOnDashboard) return@combine null
+        if (!settings.gpsShowOnDashboard) return@combine null
         val externalFresh = externalSample != null &&
             System.currentTimeMillis() - externalSample.timestamp < 5_000L
         when {

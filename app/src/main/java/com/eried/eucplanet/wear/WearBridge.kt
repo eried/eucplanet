@@ -350,7 +350,7 @@ class WearBridge @Inject constructor(
      * dashboard would show nothing (feature off, hidden, or no fresh source).
      */
     private fun computeGpsExtraSpeed(settings: AppSettings): Pair<Float, String>? {
-        if (!settings.gpsLogAdditional || !settings.gpsShowOnDashboard) return null
+        if (!settings.gpsShowOnDashboard) return null
         val externalSample = externalGpsRepository.currentSample.value
         val location = tripRepository.currentLocation.value
         val externalFresh = externalSample != null &&

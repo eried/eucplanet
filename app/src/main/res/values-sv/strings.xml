@@ -241,8 +241,6 @@
     <string name="external_gps_autodetect_vertical">Rör enheten upp och ner</string>
     <string name="external_gps_autodetect_done">Axlar identifierade och tillämpade</string>
     <string name="external_gps_autodetect_abort">Avbryt</string>
-    <string name="gps_log_additional">Använd ytterligare GPS-data</string>
-    <string name="gps_log_additional_desc">Logga extra GPS-prov från telefonen eller en extern enhet</string>
     <string name="gps_prioritize_external">Prioritera extern GPS</string>
     <string name="gps_show_on_dashboard">Visa hastighet på instrumentpanelen</string>
     <string name="gps_show_on_dashboard_desc">Lägger till en färgad prick på hastighetsmätaren med GPS-värdet</string>
@@ -602,7 +600,7 @@
     <string name="external_gps_state_connecting">Söker…</string>
     <string name="external_gps_state_disconnected">Frånkopplad</string>
     <string name="external_gps_unpair">Glöm enhet</string>
-    <string name="section_external_gps">Extern GPS</string>
+    <string name="section_external_gps">Plats och sensorer</string>
     <string name="section_speed_calibration">Hastighetskalibrering</string>
     <string name="speed_calibration_caption">Tillämpar en procentsats på hastigheten som kommer från hjulet. Larm, röst och turloggen använder alla det kalibrerade värdet.</string>
     <string name="speed_calibration_label">Hastighetsjustering</string>

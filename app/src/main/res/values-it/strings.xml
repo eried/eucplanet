@@ -312,8 +312,6 @@
     <string name="external_gps_autodetect_vertical">Muovi il dispositivo su e giù</string>
     <string name="external_gps_autodetect_done">Assi rilevati e applicati</string>
     <string name="external_gps_autodetect_abort">Annulla</string>
-    <string name="gps_log_additional">Usa dati GPS aggiuntivi</string>
-    <string name="gps_log_additional_desc">Registra campioni GPS aggiuntivi dal telefono o da una scatola esterna</string>
     <string name="gps_prioritize_external">Priorità al GPS esterno</string>
     <string name="gps_show_on_dashboard">Mostra velocità sulla dashboard</string>
     <string name="gps_show_on_dashboard_desc">Aggiunge un puntino colorato sul tachimetro con la lettura GPS</string>
@@ -638,7 +636,7 @@
     <string name="external_gps_state_connecting">Ricerca…</string>
     <string name="external_gps_state_disconnected">Disconnesso</string>
     <string name="external_gps_unpair">Dimentica dispositivo</string>
-    <string name="section_external_gps">GPS esterno</string>
+    <string name="section_external_gps">Posizione e sensori</string>
     <string name="section_speed_calibration">Calibrazione velocità</string>
     <string name="speed_calibration_caption">Applica una percentuale alla velocità che arriva dalla ruota. Allarmi, voce e il registro dei viaggi usano tutti il valore calibrato.</string>
     <string name="speed_calibration_label">Scostamento velocità</string>

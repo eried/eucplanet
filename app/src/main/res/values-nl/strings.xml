@@ -312,8 +312,6 @@
     <string name="external_gps_autodetect_vertical">Beweeg het apparaat op en neer</string>
     <string name="external_gps_autodetect_done">Assen gedetecteerd en toegepast</string>
     <string name="external_gps_autodetect_abort">Annuleren</string>
-    <string name="gps_log_additional">Extra GPS-data gebruiken</string>
-    <string name="gps_log_additional_desc">Log extra GPS-samples van de telefoon of een externe box</string>
     <string name="gps_prioritize_external">Externe GPS prioriteit geven</string>
     <string name="gps_show_on_dashboard">Snelheid op dashboard tonen</string>
     <string name="gps_show_on_dashboard_desc">Zet een gekleurd stipje op de snelheidsmeter met de GPS-waarde</string>
@@ -638,7 +636,7 @@
     <string name="external_gps_state_connecting">Zoeken…</string>
     <string name="external_gps_state_disconnected">Niet verbonden</string>
     <string name="external_gps_unpair">Apparaat vergeten</string>
-    <string name="section_external_gps">Externe gps</string>
+    <string name="section_external_gps">Locatie en sensoren</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
     <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde.</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>

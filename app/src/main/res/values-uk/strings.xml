@@ -312,8 +312,6 @@
     <string name="external_gps_autodetect_vertical">Рухай пристроєм вгору-вниз</string>
     <string name="external_gps_autodetect_done">Осі визначено та застосовано</string>
     <string name="external_gps_autodetect_abort">Скасувати</string>
-    <string name="gps_log_additional">Використовувати додаткові дані GPS</string>
-    <string name="gps_log_additional_desc">Записує додаткові вибірки GPS з телефона або зовнішнього пристрою</string>
     <string name="gps_prioritize_external">Пріоритет зовнішнього GPS</string>
     <string name="gps_show_on_dashboard">Показувати швидкість на панелі</string>
     <string name="gps_show_on_dashboard_desc">Додає кольорову точку на спідометрі з показанням GPS</string>
@@ -638,7 +636,7 @@
     <string name="external_gps_state_connecting">Пошук…</string>
     <string name="external_gps_state_disconnected">Не підключено</string>
     <string name="external_gps_unpair">Забути пристрій</string>
-    <string name="section_external_gps">Зовнішній GPS</string>
+    <string name="section_external_gps">Місцезнаходження та датчики</string>
     <string name="section_speed_calibration">Калібрування швидкості</string>
     <string name="speed_calibration_caption">Застосовує відсоток до швидкості, що надходить з колеса. Тривоги, голос і журнал поїздок використовують відкалібороване значення.</string>
     <string name="speed_calibration_label">Поправка швидкості</string>

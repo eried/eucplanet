@@ -171,7 +171,6 @@ object SettingsJson {
         put("raceboxMapX", s.raceboxMapX)
         put("raceboxMapY", s.raceboxMapY)
         put("raceboxMapZ", s.raceboxMapZ)
-        put("gpsLogAdditional", s.gpsLogAdditional)
         put("gpsPrioritizeExternal", s.gpsPrioritizeExternal)
         put("gpsShowOnDashboard", s.gpsShowOnDashboard)
         put("navVoiceEnabled", s.navVoiceEnabled)
@@ -333,7 +332,6 @@ object SettingsJson {
         raceboxMapX = j.optString("raceboxMapX", base.raceboxMapX),
         raceboxMapY = j.optString("raceboxMapY", base.raceboxMapY),
         raceboxMapZ = j.optString("raceboxMapZ", base.raceboxMapZ),
-        gpsLogAdditional = j.optBoolean("gpsLogAdditional", base.gpsLogAdditional),
         gpsPrioritizeExternal = j.optBoolean("gpsPrioritizeExternal", base.gpsPrioritizeExternal),
         gpsShowOnDashboard = j.optBoolean("gpsShowOnDashboard", base.gpsShowOnDashboard),
         navVoiceEnabled = j.optBoolean("navVoiceEnabled", base.navVoiceEnabled),

@@ -104,8 +104,7 @@ class ExternalGpsRepository @Inject constructor(
                     current.copy(
                         externalGpsAddress = null,
                         externalGpsName = null,
-                        externalGpsSource = null,
-                        gpsLogAdditional = false
+                        externalGpsSource = null
                     )
                 )
             }

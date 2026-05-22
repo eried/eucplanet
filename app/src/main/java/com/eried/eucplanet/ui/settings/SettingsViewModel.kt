@@ -193,7 +193,6 @@ class SettingsViewModel @Inject constructor(
     fun updateRaceboxMapX(v: String) = update { copy(raceboxMapX = v) }
     fun updateRaceboxMapY(v: String) = update { copy(raceboxMapY = v) }
     fun updateRaceboxMapZ(v: String) = update { copy(raceboxMapZ = v) }
-    fun updateGpsLogAdditional(v: Boolean) = update { copy(gpsLogAdditional = v) }
     fun updateGpsPrioritizeExternal(v: Boolean) = update { copy(gpsPrioritizeExternal = v) }
     fun updateGpsShowOnDashboard(v: Boolean) = update { copy(gpsShowOnDashboard = v) }
     fun setRaceboxAxisMap(mapX: String, mapY: String, mapZ: String) =

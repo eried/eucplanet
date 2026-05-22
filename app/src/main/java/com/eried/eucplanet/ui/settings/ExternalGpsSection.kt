@@ -68,37 +68,24 @@ fun ExternalGpsSection(
     val settings by settingsViewModel.settings.collectAsState()
     val autoDetectPhase by viewModel.autoDetect.collectAsState()
 
-    val additionalEnabled = settings?.gpsLogAdditional == true
-
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionHeader(stringResource(R.string.section_external_gps))
 
-        // Master toggle. Everything below collapses when this is off; the
-        // app skips the external connect entirely and no dashboard dot
-        // appears (the dashboard's gpsExtraSpeed flow gates on the same
-        // setting).
-        BringIntoViewSection(expanded = additionalEnabled, spacing = 8.dp) {
-        ToggleRow(
-            label = stringResource(R.string.gps_log_additional),
-            checked = additionalEnabled,
-            onCheckedChange = { settingsViewModel.updateGpsLogAdditional(it) }
-        )
-        HintText(stringResource(R.string.gps_log_additional_desc), small = true)
-
-        if (!additionalEnabled) return@BringIntoViewSection
-
-        ToggleRow(
-            label = stringResource(R.string.gps_prioritize_external),
-            checked = settings?.gpsPrioritizeExternal == true,
-            onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
-        )
-        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
+        BringIntoViewSection(expanded = true, spacing = 8.dp) {
+        // Show speed on the dashboard — a general display option, kept first
+        // because it has nothing to do with the external box below it.
         ToggleRow(
             label = stringResource(R.string.gps_show_on_dashboard),
             checked = settings?.gpsShowOnDashboard == true,
             onCheckedChange = { settingsViewModel.updateGpsShowOnDashboard(it) }
         )
         HintText(stringResource(R.string.gps_show_on_dashboard_desc), small = true)
+        ToggleRow(
+            label = stringResource(R.string.gps_prioritize_external),
+            checked = settings?.gpsPrioritizeExternal == true,
+            onCheckedChange = { settingsViewModel.updateGpsPrioritizeExternal(it) }
+        )
+        HintText(stringResource(R.string.gps_prioritize_external_desc), small = true)
 
         Spacer(Modifier.height(8.dp))
 

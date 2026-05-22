@@ -237,8 +237,6 @@
     <string name="external_gps_autodetect_vertical">Gerät auf und ab bewegen</string>
     <string name="external_gps_autodetect_done">Achsen erkannt und übernommen</string>
     <string name="external_gps_autodetect_abort">Abbrechen</string>
-    <string name="gps_log_additional">Zusätzliche GPS-Daten verwenden</string>
-    <string name="gps_log_additional_desc">Zusätzliche GPS-Samples vom Telefon oder einer externen Box aufzeichnen</string>
     <string name="gps_prioritize_external">Externes GPS bevorzugen</string>
     <string name="gps_show_on_dashboard">Geschwindigkeit im Dashboard zeigen</string>
     <string name="gps_show_on_dashboard_desc">Setzt einen farbigen Punkt auf den Tacho mit dem GPS-Wert</string>
@@ -618,7 +616,7 @@
     <string name="external_gps_state_connecting">Suche…</string>
     <string name="external_gps_state_disconnected">Getrennt</string>
     <string name="external_gps_unpair">Gerät entfernen</string>
-    <string name="section_external_gps">Externes GPS</string>
+    <string name="section_external_gps">Standort und Sensoren</string>
     <string name="section_speed_calibration">Geschwindigkeitskalibrierung</string>
     <string name="speed_calibration_caption">Wendet einen Prozentsatz auf die vom Rad kommende Geschwindigkeit an. Alarme, Stimme und das Fahrtenprotokoll nutzen alle den kalibrierten Wert.</string>
     <string name="speed_calibration_label">Geschwindigkeits-Versatz</string>

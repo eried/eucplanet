@@ -241,8 +241,6 @@
     <string name="external_gps_autodetect_vertical">Bougez l\'appareil de haut en bas</string>
     <string name="external_gps_autodetect_done">Axes détectés et appliqués</string>
     <string name="external_gps_autodetect_abort">Annuler</string>
-    <string name="gps_log_additional">Utiliser les données GPS supplémentaires</string>
-    <string name="gps_log_additional_desc">Enregistre des échantillons GPS supplémentaires depuis le téléphone ou un boîtier externe</string>
     <string name="gps_prioritize_external">Priorité au GPS externe</string>
     <string name="gps_show_on_dashboard">Afficher la vitesse sur le tableau de bord</string>
     <string name="gps_show_on_dashboard_desc">Ajoute un point coloré sur le compteur avec la valeur GPS</string>
@@ -602,7 +600,7 @@
     <string name="external_gps_state_connecting">Recherche…</string>
     <string name="external_gps_state_disconnected">Déconnecté</string>
     <string name="external_gps_unpair">Oublier l\'appareil</string>
-    <string name="section_external_gps">GPS externe</string>
+    <string name="section_external_gps">Localisation et capteurs</string>
     <string name="section_speed_calibration">Calibration de vitesse</string>
     <string name="speed_calibration_caption">Applique un pourcentage à la vitesse provenant de la roue. Les alarmes, la voix et le journal des trajets utilisent tous la valeur calibrée.</string>
     <string name="speed_calibration_label">Décalage de vitesse</string>

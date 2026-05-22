@@ -312,8 +312,6 @@
     <string name="external_gps_autodetect_vertical">Poruszaj urządzeniem w górę i w dół</string>
     <string name="external_gps_autodetect_done">Osie wykryte i zastosowane</string>
     <string name="external_gps_autodetect_abort">Przerwij</string>
-    <string name="gps_log_additional">Używaj dodatkowych danych GPS</string>
-    <string name="gps_log_additional_desc">Zapisuj dodatkowe próbki GPS z telefonu lub zewnętrznego urządzenia</string>
     <string name="gps_prioritize_external">Priorytet zewnętrznego GPS</string>
     <string name="gps_show_on_dashboard">Pokaż prędkość na pulpicie</string>
     <string name="gps_show_on_dashboard_desc">Dodaje kolorową kropkę na prędkościomierzu z odczytem GPS</string>
@@ -638,7 +636,7 @@
     <string name="external_gps_state_connecting">Wyszukiwanie…</string>
     <string name="external_gps_state_disconnected">Rozłączono</string>
     <string name="external_gps_unpair">Zapomnij urządzenie</string>
-    <string name="section_external_gps">Zewnętrzny GPS</string>
+    <string name="section_external_gps">Lokalizacja i czujniki</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
     <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości.</string>
     <string name="speed_calibration_label">Korekta prędkości</string>

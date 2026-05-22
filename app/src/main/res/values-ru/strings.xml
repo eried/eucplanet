@@ -237,8 +237,6 @@
     <string name="external_gps_autodetect_vertical">Двигай устройство вверх-вниз</string>
     <string name="external_gps_autodetect_done">Оси определены и применены</string>
     <string name="external_gps_autodetect_abort">Отмена</string>
-    <string name="gps_log_additional">Использовать дополнительные данные GPS</string>
-    <string name="gps_log_additional_desc">Записывает дополнительные образцы GPS с телефона или внешнего устройства</string>
     <string name="gps_prioritize_external">Приоритет внешнего GPS</string>
     <string name="gps_show_on_dashboard">Показывать скорость на панели</string>
     <string name="gps_show_on_dashboard_desc">Добавляет цветную точку на спидометре с показаниями GPS</string>
@@ -654,7 +652,7 @@
     <string name="external_gps_state_connecting">Поиск…</string>
     <string name="external_gps_state_disconnected">Не подключено</string>
     <string name="external_gps_unpair">Забыть устройство</string>
-    <string name="section_external_gps">Внешний GPS</string>
+    <string name="section_external_gps">Местоположение и датчики</string>
     <string name="section_speed_calibration">Калибровка скорости</string>
     <string name="speed_calibration_caption">Применяет процент к скорости, поступающей с колеса. Сигналы, озвучка и журнал поездок используют откалиброванное значение.</string>
     <string name="speed_calibration_label">Поправка скорости</string>
