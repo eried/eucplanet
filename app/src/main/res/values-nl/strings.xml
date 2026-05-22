@@ -1008,4 +1008,5 @@
     <string name="studio_export_force_opaque">Volledig ondoorzichtig forceren</string>
     <string name="studio_cfg_g_scale">Schaal</string>
     <string name="studio_cfg_geometry">Geometrie</string>
+    <string name="studio_export_force_opaque_hint">JPG en MP4 kunnen geen transparantie opslaan.</string>
 </resources>

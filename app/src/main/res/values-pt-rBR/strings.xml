@@ -1008,4 +1008,5 @@
     <string name="studio_export_force_opaque">Forçar opacidade total</string>
     <string name="studio_cfg_g_scale">Escala</string>
     <string name="studio_cfg_geometry">Geometria</string>
+    <string name="studio_export_force_opaque_hint">JPG e MP4 não podem salvar transparência.</string>
 </resources>

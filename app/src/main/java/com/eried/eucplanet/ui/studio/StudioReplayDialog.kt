@@ -494,6 +494,12 @@ private fun ExportFormatChooser(
                     )
                 )
             }
+            Text(
+                stringResource(R.string.studio_export_force_opaque_hint),
+                modifier = Modifier.padding(horizontal = 4.dp),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.6f)
+            )
         }
         Spacer(Modifier.height(4.dp))
     }
