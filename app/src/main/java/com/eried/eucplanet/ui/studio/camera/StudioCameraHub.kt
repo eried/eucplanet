@@ -34,6 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
@@ -118,6 +121,30 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
         )
     }
 
+    // The camera must be released while the app is backgrounded: Android hands
+    // the device to whatever comes to the foreground, and a CameraDevice taken
+    // away that way returns disconnected — its last frame just freezes on
+    // screen. Tracking the lifecycle lets the binding tear down on STOP and
+    // rebuild on START, so the feed is live again the moment the rider switches
+    // back to the studio instead of being stuck on a stale frame.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var foreground by remember {
+        mutableStateOf(
+            lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        )
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> foreground = true
+                Lifecycle.Event.ON_STOP -> foreground = false
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     LaunchedEffect(Unit) {
         val cm = context.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
         if (cm == null) {
@@ -138,16 +165,18 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
         hub.ready = true
     }
 
-    val requestSignature = requestedKeys.distinct().joinToString(",") + "|" + enabled
+    val requestSignature = requestedKeys.distinct().joinToString(",") +
+        "|" + enabled + "|" + foreground
     LaunchedEffect(hub.ready, requestSignature) {
         if (!hub.ready) return@LaunchedEffect
         // Tear the previous binding down before touching the camera subsystem —
-        // a concurrent open fails while another session still holds a device.
+        // a concurrent open fails while another session still holds a device,
+        // and a backgrounded app must let go of the camera entirely.
         hub.binding?.close()
         hub.binding = null
         hub.frames.clear()
         hub.liveKeys = emptySet()
-        if (!enabled) return@LaunchedEffect
+        if (!enabled || !foreground) return@LaunchedEffect
         val cm = context.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
             ?: return@LaunchedEffect
         val wanted = requestedKeys.distinct()
