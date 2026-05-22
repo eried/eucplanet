@@ -949,4 +949,7 @@
     <string name="studio_viewport_image">Immagine</string>
     <string name="studio_viewport_replace_image">Sostituisci</string>
     <string name="studio_viewport_title">Sorgente della sezione %1$d</string>
+    <string name="dash_view_video_gallery">Apri galleria video</string>
+    <string name="dash_view_photo_gallery">Apri galleria foto</string>
+    <string name="dash_no_gallery_app">Nessuna app galleria trovata</string>
 </resources>

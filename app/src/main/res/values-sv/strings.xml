@@ -913,4 +913,7 @@
     <string name="studio_viewport_image">Bild</string>
     <string name="studio_viewport_replace_image">Byt</string>
     <string name="studio_viewport_title">Källa för sektion %1$d</string>
+    <string name="dash_view_video_gallery">Visa videogalleri</string>
+    <string name="dash_view_photo_gallery">Visa fotogalleri</string>
+    <string name="dash_no_gallery_app">Ingen galleriapp hittades</string>
 </resources>

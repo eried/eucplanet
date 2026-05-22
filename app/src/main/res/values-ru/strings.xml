@@ -965,4 +965,7 @@
     <string name="studio_viewport_image">Изображение</string>
     <string name="studio_viewport_replace_image">Заменить</string>
     <string name="studio_viewport_title">Источник секции %1$d</string>
+    <string name="dash_view_video_gallery">Открыть галерею видео</string>
+    <string name="dash_view_photo_gallery">Открыть галерею фото</string>
+    <string name="dash_no_gallery_app">Приложение галереи не найдено</string>
 </resources>

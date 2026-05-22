@@ -61,7 +61,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.Opacity
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.OutlinedButton
@@ -89,6 +91,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -396,14 +399,18 @@ fun RotatedFullScreen(rotation: Int, content: @Composable () -> Unit) {
 @Composable
 fun StudioSidePanel(
     onDismiss: () -> Unit,
+    dimmed: Boolean = false,
+    onToggleDim: (() -> Unit)? = null,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
 ) {
     RotatedFullScreen(LocalStudioRotation.current) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
+            // A dimmed panel uses a near-clear scrim and a translucent surface
+            // so the overlay being edited stays visible behind it.
             androidx.compose.foundation.layout.Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Color(0x99000000))
+                    .background(Color(if (dimmed) 0x1A000000 else 0x99000000))
                     .pointerInput(Unit) { detectTapGestures { onDismiss() } }
             )
             Surface(
@@ -413,15 +420,34 @@ fun StudioSidePanel(
                     .align(Alignment.CenterEnd)
                     .width(340.dp)
                     .heightIn(max = maxHeight * 0.92f)
+                    .alpha(if (dimmed) 0.65f else 1f)
                     .pointerInput(Unit) { detectTapGestures { } },
                 shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 2.dp
             ) {
-                Column(
-                    Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                    content = content
-                )
+                androidx.compose.foundation.layout.Box {
+                    Column(
+                        Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        content = content
+                    )
+                    // The fade toggle floats in the top-right corner; the sheet
+                    // headers are left-aligned, so it never collides with them.
+                    if (onToggleDim != null) {
+                        IconButton(
+                            onClick = onToggleDim,
+                            modifier = Modifier.align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                Icons.Default.Opacity,
+                                contentDescription =
+                                    stringResource(R.string.studio_replay_cd_fade),
+                                tint = if (dimmed) StudioControlAccent
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -780,11 +806,13 @@ fun ViewportConfigSheet(
     config: ViewportConfig,
     cameras: List<StudioCameraInfo>,
     inUseKeys: Set<String>,
+    dimmed: Boolean,
+    onToggleDim: () -> Unit,
     onChange: (ViewportConfig) -> Unit,
     onPickImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    StudioSidePanel(onDismiss = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss, dimmed = dimmed, onToggleDim = onToggleDim) {
         Column(
             Modifier
                 .padding(horizontal = 4.dp)
@@ -1098,11 +1126,13 @@ fun ElementConfigSheet(
     element: OverlayElement,
     cameras: List<StudioCameraInfo>,
     inUseKeys: Set<String>,
+    dimmed: Boolean,
+    onToggleDim: () -> Unit,
     onChange: (OverlayElement) -> Unit,
     onReplaceImage: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    StudioSidePanel(onDismiss = onDismiss) {
+    StudioSidePanel(onDismiss = onDismiss, dimmed = dimmed, onToggleDim = onToggleDim) {
         Column(
             Modifier
                 .padding(horizontal = 4.dp)

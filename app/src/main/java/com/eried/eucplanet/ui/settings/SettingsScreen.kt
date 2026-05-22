@@ -606,6 +606,7 @@ private fun initialTabSectionKey(initialTab: Int): String? = when (initialTab) {
     5 -> "alarms"
     6 -> "auto"
     7 -> "integration"
+    8 -> "navigator"
     else -> null
 }
 

@@ -3,6 +3,7 @@ package com.eried.eucplanet.ui.dashboard
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -144,6 +145,25 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * Opens the system gallery to the videos or photos collection. Overlay Studio
+ * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
+ * "open exactly this folder" intent, so this filters the gallery by media type.
+ */
+private fun openMediaGallery(context: Context, video: Boolean) {
+    val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+    else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(collection, if (video) "video/*" else "image/*")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    runCatching { context.startActivity(intent) }.onFailure {
+        Toast.makeText(
+            context, context.getString(R.string.dash_no_gallery_app), Toast.LENGTH_SHORT
+        ).show()
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(
@@ -221,6 +241,7 @@ fun DashboardScreen(
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
     val navState by navOverlayVm.navState.collectAsState()
+    val savedRoute by navOverlayVm.savedRoute.collectAsState()
     val flicFlashAt by viewModel.flicFlashAt.collectAsState()
     val latestTripId by viewModel.latestTripId.collectAsState()
     val currentTripId by viewModel.currentTripId.collectAsState()
@@ -231,6 +252,8 @@ fun DashboardScreen(
     var showNoTripsDialog by remember { mutableStateOf(false) }
     var showSourcesSheet by remember { mutableStateOf(false) }
     var showSettingsMenu by remember { mutableStateOf(false) }
+    var showMapMenu by remember { mutableStateOf(false) }
+    var showStudioMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
@@ -603,18 +626,40 @@ fun DashboardScreen(
                 // Overlay Studio — same indicator styling as the GPS / P-D
                 // glyphs (no chrome, accent colour), mirroring the GPS column
                 // in the dial's bottom-right corner.
-                DashIndicatorIcon(
-                    icon = Icons.Default.PhotoCamera,
-                    active = true,
-                    activeColor = if (useAccent) primary else AccentGreen,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .offset(x = 4.dp)
-                        .padding(bottom = 8.dp)
-                        .clickable(
-                            onClickLabel = stringResource(R.string.studio_open)
-                        ) { onNavigateToStudio() }
-                )
+                Box(Modifier.align(Alignment.BottomEnd)) {
+                    DashIndicatorIcon(
+                        icon = Icons.Default.PhotoCamera,
+                        active = true,
+                        activeColor = if (useAccent) primary else AccentGreen,
+                        modifier = Modifier
+                            .offset(x = 4.dp)
+                            .padding(bottom = 8.dp)
+                            .combinedClickable(
+                                onClickLabel = stringResource(R.string.studio_open),
+                                onClick = { onNavigateToStudio() },
+                                onLongClick = { showStudioMenu = true }
+                            )
+                    )
+                    DropdownMenu(
+                        expanded = showStudioMenu,
+                        onDismissRequest = { showStudioMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.dash_view_video_gallery)) },
+                            onClick = {
+                                showStudioMenu = false
+                                openMediaGallery(toastContext, video = true)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.dash_view_photo_gallery)) },
+                            onClick = {
+                                showStudioMenu = false
+                                openMediaGallery(toastContext, video = false)
+                            }
+                        )
+                    }
+                }
                 // Navigator entry point — bottom-left, a bare icon styled to
                 // match the P / D indicators above it (same left column). While
                 // guidance runs it turns into a green arrow rotating toward the
@@ -626,22 +671,58 @@ fun DashboardScreen(
                     if (navActive) navState.arrowAngleDeg() else 0f,
                     label = "navBtnArrow"
                 )
-                Icon(
-                    imageVector = if (navActive) Icons.Default.Navigation
-                    else Icons.Default.Map,
-                    contentDescription = stringResource(R.string.nav_open),
-                    tint = if (navActive) AccentGreen
-                    else if (useAccent) primary else AccentGreen,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 4.dp, bottom = 10.dp)
-                        .size(32.dp)
-                        .clickable {
-                            if (navActive) navOverlayVm.requestPopup()
-                            else onNavigateToNavigator()
+                Box(Modifier.align(Alignment.BottomStart)) {
+                    Icon(
+                        imageVector = if (navActive) Icons.Default.Navigation
+                        else Icons.Default.Map,
+                        contentDescription = stringResource(R.string.nav_open),
+                        tint = if (navActive) AccentGreen
+                        else if (useAccent) primary else AccentGreen,
+                        modifier = Modifier
+                            .padding(start = 4.dp, bottom = 10.dp)
+                            .size(32.dp)
+                            .combinedClickable(
+                                onClick = {
+                                    if (navActive) navOverlayVm.requestPopup()
+                                    else onNavigateToNavigator()
+                                },
+                                onLongClick = { showMapMenu = true }
+                            )
+                            .rotate(if (navActive) navBtnAngle else 0f)
+                    )
+                    DropdownMenu(
+                        expanded = showMapMenu,
+                        onDismissRequest = { showMapMenu = false }
+                    ) {
+                        // a) Start / Stop — shown only when there is an active
+                        // session to stop, or a saved route to start.
+                        if (navActive) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.nav_stop_short)) },
+                                onClick = {
+                                    showMapMenu = false
+                                    navOverlayVm.endNavigation()
+                                }
+                            )
+                        } else if (savedRoute != null) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.nav_start_short)) },
+                                onClick = {
+                                    showMapMenu = false
+                                    navOverlayVm.startSavedRoute()
+                                }
+                            )
                         }
-                        .rotate(if (navActive) navBtnAngle else 0f)
-                )
+                        // b) Quick jump to the navigation settings.
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_setting_params)) },
+                            onClick = {
+                                showMapMenu = false
+                                onNavigateToSettings(8)
+                            }
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(16.dp))

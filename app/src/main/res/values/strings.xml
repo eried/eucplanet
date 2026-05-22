@@ -1029,4 +1029,8 @@
     <string name="nav_setting_router_url">Routing URL</string>
     <string name="watch_show_navigation">Show navigation</string>
     <string name="watch_show_navigation_desc">Mirror the turn arrow and distance on the watch while navigating</string>
+    <!-- ==== Dashboard quick menus ==== -->
+    <string name="dash_view_video_gallery">View video gallery</string>
+    <string name="dash_view_photo_gallery">View photo gallery</string>
+    <string name="dash_no_gallery_app">No gallery app found</string>
 </resources>

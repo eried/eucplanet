@@ -178,7 +178,7 @@ fun OverlayStudioScreen(
     var replayEndMs by remember { mutableStateOf(0L) }
     var replaySpeed by remember { mutableStateOf(1f) }
     var replayPlaying by remember { mutableStateOf(false) }
-    var replayDimmed by remember { mutableStateOf(false) }
+    var panelsDimmed by remember { mutableStateOf(false) }
     val replayMode = studioMode == StudioMode.REPLAY
     // Overlays read this: trip telemetry while replaying, live telemetry otherwise.
     val wheelData = if (replayMode) {
@@ -863,8 +863,8 @@ fun OverlayStudioScreen(
                     },
                     onSpeed = { replaySpeed = it },
                     onPlayPause = { replayPlaying = !replayPlaying },
-                    dimmed = replayDimmed,
-                    onToggleDim = { replayDimmed = !replayDimmed },
+                    dimmed = panelsDimmed,
+                    onToggleDim = { panelsDimmed = !panelsDimmed },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false
@@ -872,7 +872,7 @@ fun OverlayStudioScreen(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
-                        .alpha(if (replayDimmed) 0.4f else 1f)
+                        .alpha(if (panelsDimmed) 0.65f else 1f)
                 )
             }
           }
@@ -1061,6 +1061,8 @@ fun OverlayStudioScreen(
                     config = cfg,
                     cameras = hub.cameras,
                     inUseKeys = requestedCameras.toSet(),
+                    dimmed = panelsDimmed,
+                    onToggleDim = { panelsDimmed = !panelsDimmed },
                     onChange = { viewModel.setViewport(s.index, it) },
                     onPickImage = {
                         imageTargetViewport = s.index
@@ -1084,6 +1086,8 @@ fun OverlayStudioScreen(
                     element = element,
                     cameras = hub.cameras,
                     inUseKeys = requestedCameras.toSet(),
+                    dimmed = panelsDimmed,
+                    onToggleDim = { panelsDimmed = !panelsDimmed },
                     onChange = viewModel::updateElement,
                     onReplaceImage = {
                         imageTargetId = element.id

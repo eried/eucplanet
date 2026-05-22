@@ -930,4 +930,7 @@
     <string name="studio_viewport_image">Bilde</string>
     <string name="studio_viewport_replace_image">Bytt</string>
     <string name="studio_viewport_title">Kilde for seksjon %1$d</string>
+    <string name="dash_view_video_gallery">Vis videogalleri</string>
+    <string name="dash_view_photo_gallery">Vis fotogalleri</string>
+    <string name="dash_no_gallery_app">Fant ingen galleri-app</string>
 </resources>

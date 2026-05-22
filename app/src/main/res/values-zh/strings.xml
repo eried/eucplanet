@@ -913,4 +913,7 @@
     <string name="studio_viewport_image">图片</string>
     <string name="studio_viewport_replace_image">更换</string>
     <string name="studio_viewport_title">分区 %1$d 来源</string>
+    <string name="dash_view_video_gallery">查看视频库</string>
+    <string name="dash_view_photo_gallery">查看照片库</string>
+    <string name="dash_no_gallery_app">未找到图库应用</string>
 </resources>

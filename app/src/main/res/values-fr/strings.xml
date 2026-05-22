@@ -913,4 +913,7 @@
     <string name="studio_viewport_image">Image</string>
     <string name="studio_viewport_replace_image">Remplacer</string>
     <string name="studio_viewport_title">Source de la section %1$d</string>
+    <string name="dash_view_video_gallery">Voir la galerie vidéo</string>
+    <string name="dash_view_photo_gallery">Voir la galerie photo</string>
+    <string name="dash_no_gallery_app">Aucune application de galerie trouvée</string>
 </resources>

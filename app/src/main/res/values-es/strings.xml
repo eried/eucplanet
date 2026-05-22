@@ -930,4 +930,7 @@
     <string name="studio_viewport_image">Imagen</string>
     <string name="studio_viewport_replace_image">Sustituir</string>
     <string name="studio_viewport_title">Fuente de la sección %1$d</string>
+    <string name="dash_view_video_gallery">Ver galería de vídeos</string>
+    <string name="dash_view_photo_gallery">Ver galería de fotos</string>
+    <string name="dash_no_gallery_app">No se encontró ninguna app de galería</string>
 </resources>

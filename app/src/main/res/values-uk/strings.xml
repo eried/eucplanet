@@ -950,4 +950,7 @@
     <string name="studio_viewport_image">Зображення</string>
     <string name="studio_viewport_replace_image">Замінити</string>
     <string name="studio_viewport_title">Джерело секції %1$d</string>
+    <string name="dash_view_video_gallery">Переглянути галерею відео</string>
+    <string name="dash_view_photo_gallery">Переглянути галерею фото</string>
+    <string name="dash_no_gallery_app">Застосунок галереї не знайдено</string>
 </resources>
