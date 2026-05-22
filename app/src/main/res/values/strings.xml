@@ -696,6 +696,8 @@
     <string name="studio_export_photo">Photo</string>
     <string name="studio_export_video">Video</string>
     <string name="studio_export_chroma">Chroma key colour</string>
+    <string name="studio_export_options">Output options</string>
+    <string name="studio_export_scale">Scale</string>
     <string name="studio_export_force_opaque">Force fully opaque</string>
     <string name="studio_chroma_magenta">Magenta</string>
     <string name="studio_chroma_green">Green</string>

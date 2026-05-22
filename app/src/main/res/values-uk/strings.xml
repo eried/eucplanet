@@ -989,6 +989,8 @@
     <string name="studio_export_photo">Фото</string>
     <string name="studio_export_video">Відео</string>
     <string name="studio_export_chroma">Колір хромакею</string>
+    <string name="studio_export_options">Параметри виводу</string>
+    <string name="studio_export_scale">Масштаб</string>
     <string name="studio_chroma_magenta">Пурпуровий</string>
     <string name="studio_chroma_green">Зелений</string>
     <string name="studio_chroma_blue">Синій</string>

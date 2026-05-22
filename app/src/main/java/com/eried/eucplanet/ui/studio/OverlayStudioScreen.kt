@@ -585,15 +585,16 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
-        // Output size — the studio's native resolution, or half of it for the
-        // 50% formats (smaller files, faster renders).
-        val ew = (first.width * videoFormat.scale).toInt().coerceAtLeast(2)
-        val eh = (first.height * videoFormat.scale).toInt().coerceAtLeast(2)
+        // Output size — the chosen Scale percentage of the studio's native
+        // resolution (smaller = quicker render, smaller file).
+        val pct = exportPrefs.scale.coerceIn(25, 100) / 100f
+        val ew = (first.width * pct).toInt().coerceAtLeast(2)
+        val eh = (first.height * pct).toInt().coerceAtLeast(2)
 
         var cancelled = false
         val ok: Boolean = try {
             when (videoFormat) {
-                ReplayVideoFormat.MP4, ReplayVideoFormat.MP4_HALF -> {
+                ReplayVideoFormat.MP4 -> {
                     // MP4 has no alpha — every frame is composited onto the
                     // chroma colour before it is drawn into the encoder.
                     val mp4 = StudioVideoEncoder(context, withAudio = false)
@@ -653,8 +654,8 @@ fun OverlayStudioScreen(
                         StudioCapture.newPendingImage(
                             context,
                             "${StudioCapture.timestampedName()}." +
-                                if (videoFormat.isGif) "gif" else "png",
-                            if (videoFormat.isGif) "image/gif" else "image/png"
+                                if (videoFormat == ReplayVideoFormat.GIF) "gif" else "png",
+                            if (videoFormat == ReplayVideoFormat.GIF) "image/gif" else "image/png"
                         )
                     }
                     val stream = pending?.openStream()
@@ -664,7 +665,7 @@ fun OverlayStudioScreen(
                         var imgOk = false
                         try {
                             // GIF (1-bit alpha) vs APNG (full RGBA alpha).
-                            val gif = if (videoFormat.isGif)
+                            val gif = if (videoFormat == ReplayVideoFormat.GIF)
                                 StudioGifEncoder(stream, ew, eh, frameMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
                                 StudioApngEncoder(stream, ew, eh, frameMs, frameCount) else null
@@ -731,10 +732,10 @@ fun OverlayStudioScreen(
                 duration = SnackbarDuration.Long
             )
             if (ok && savedUri != null && result == SnackbarResult.ActionPerformed) {
-                val mime = when {
-                    videoFormat.isGif -> "image/gif"
-                    videoFormat == ReplayVideoFormat.APNG -> "image/png"
-                    else -> "video/mp4"
+                val mime = when (videoFormat) {
+                    ReplayVideoFormat.GIF -> "image/gif"
+                    ReplayVideoFormat.APNG -> "image/png"
+                    ReplayVideoFormat.MP4 -> "video/mp4"
                 }
                 openInGallery(context, savedUri, mime)
             }
@@ -1066,6 +1067,7 @@ fun OverlayStudioScreen(
                     onVideoFormat = { viewModel.setReplayVideoFormat(it) },
                     onChromaColor = { viewModel.setReplayChromaColor(it) },
                     onForceOpaque = { viewModel.setReplayForceOpaque(it) },
+                    onScale = { viewModel.setReplayScale(it) },
                     onClose = {
                         studioMode = StudioMode.LIVE
                         replayPlaying = false

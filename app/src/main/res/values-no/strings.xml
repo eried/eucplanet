@@ -969,6 +969,8 @@
     <string name="studio_export_photo">Bilde</string>
     <string name="studio_export_video">Video</string>
     <string name="studio_export_chroma">Chroma key-farge</string>
+    <string name="studio_export_options">Utdataalternativer</string>
+    <string name="studio_export_scale">Skalering</string>
     <string name="studio_chroma_magenta">Magenta</string>
     <string name="studio_chroma_green">Grønn</string>
     <string name="studio_chroma_blue">Blå</string>

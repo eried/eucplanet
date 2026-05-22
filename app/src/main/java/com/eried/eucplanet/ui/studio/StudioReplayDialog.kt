@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Opacity
@@ -155,6 +154,7 @@ fun StudioReplayDialog(
     onVideoFormat: (ReplayVideoFormat) -> Unit,
     onChromaColor: (Long) -> Unit,
     onForceOpaque: (Boolean) -> Unit,
+    onScale: (Int) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -241,7 +241,8 @@ fun StudioReplayDialog(
                 onPhotoFormat = onPhotoFormat,
                 onVideoFormat = onVideoFormat,
                 onChromaColor = onChromaColor,
-                onForceOpaque = onForceOpaque
+                onForceOpaque = onForceOpaque,
+                onScale = onScale
             )
             else -> {
             // A trip is replayable once it parsed to a non-zero timeline.
@@ -343,7 +344,7 @@ fun StudioReplayDialog(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.label}",
+                    "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.name}",
                     style = MaterialTheme.typography.bodySmall,
                     color = StudioControlAccent
                 )
@@ -376,14 +377,14 @@ private val chromaPresets: List<Pair<Int, Long>> = listOf(
  * the rider can pick the fill before choosing an alpha-less format. Chips for
  * formats that have no alpha (JPG / MP4) carry a dot in the chosen chroma colour.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ExportFormatChooser(
     prefs: ReplayExportPrefs,
     onPhotoFormat: (ReplayPhotoFormat) -> Unit,
     onVideoFormat: (ReplayVideoFormat) -> Unit,
     onChromaColor: (Long) -> Unit,
-    onForceOpaque: (Boolean) -> Unit
+    onForceOpaque: (Boolean) -> Unit,
+    onScale: (Int) -> Unit
 ) {
     Column(
         Modifier
@@ -419,26 +420,59 @@ private fun ExportFormatChooser(
             color = Color.White.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 6.dp)
         )
-        // Five formats (incl. the 50% variants) — a FlowRow wraps them tidily.
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ReplayVideoFormat.entries.forEach { fmt ->
                 FormatChip(
-                    label = fmt.label,
+                    label = fmt.name,
                     selected = fmt == prefs.videoFormat,
                     chromaDot = if (fmt.hasAlpha) null else prefs.chromaColor,
+                    modifier = Modifier.weight(1f),
                     onClick = { onVideoFormat(fmt) }
                 )
             }
         }
 
-        // Chroma key + force-opaque only matter for alpha-less formats (JPG /
-        // MP4): they need a fill colour, and a half-transparent element would
-        // blend oddly with it. For alpha formats both are hidden entirely.
-        val alphaLessChosen = !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
-        if (alphaLessChosen) {
+        // Output options — Scale, chroma key and force-opaque — collapsed by
+        // default so the common case (just picking a format) stays compact.
+        Spacer(Modifier.height(12.dp))
+        var optionsOpen by remember { mutableStateOf(false) }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { optionsOpen = !optionsOpen }
+                .padding(vertical = 8.dp, horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.studio_export_options),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.6f)
+            )
+            Icon(
+                if (optionsOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.6f)
+            )
+        }
+        if (optionsOpen) {
+            Text(
+                stringResource(R.string.studio_export_scale),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.6f),
+                modifier = Modifier.padding(bottom = 6.dp)
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(50, 75, 100).forEach { pct ->
+                    FormatChip(
+                        label = "$pct%",
+                        selected = prefs.scale == pct,
+                        modifier = Modifier.weight(1f),
+                        onClick = { onScale(pct) }
+                    )
+                }
+            }
             Spacer(Modifier.height(12.dp))
             Text(
                 stringResource(R.string.studio_export_chroma),

@@ -988,6 +988,8 @@
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
     <string name="studio_export_chroma">Colore chroma key</string>
+    <string name="studio_export_options">Opzioni di output</string>
+    <string name="studio_export_scale">Scala</string>
     <string name="studio_chroma_magenta">Magenta</string>
     <string name="studio_chroma_green">Verde</string>
     <string name="studio_chroma_blue">Blu</string>

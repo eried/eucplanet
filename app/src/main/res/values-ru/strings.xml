@@ -1004,6 +1004,8 @@
     <string name="studio_export_photo">Фото</string>
     <string name="studio_export_video">Видео</string>
     <string name="studio_export_chroma">Цвет хромакея</string>
+    <string name="studio_export_options">Параметры вывода</string>
+    <string name="studio_export_scale">Масштаб</string>
     <string name="studio_chroma_magenta">Пурпурный</string>
     <string name="studio_chroma_green">Зелёный</string>
     <string name="studio_chroma_blue">Синий</string>

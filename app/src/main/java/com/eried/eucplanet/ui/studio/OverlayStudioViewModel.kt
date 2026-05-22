@@ -51,22 +51,11 @@ enum class ReplayPhotoFormat(
 /** Video output format for a Replay-mode clip export. */
 enum class ReplayVideoFormat(
     /** True when the format carries an alpha channel (no chroma fill needed). */
-    val hasAlpha: Boolean,
-    /** Output size as a fraction of the studio's native resolution. */
-    val scale: Float,
-    /** Label shown on the export-format chip. */
-    val label: String
+    val hasAlpha: Boolean
 ) {
-    GIF(true, 1f, "GIF"),            // 1-bit transparency
-    GIF_HALF(true, 0.5f, "GIF 50%"), // half-size — smaller, faster
-    APNG(true, 1f, "APNG"),          // full RGBA alpha
-    MP4(false, 1f, "MP4"),           // opaque — needs a chroma fill
-    MP4_HALF(false, 0.5f, "MP4 50%");
-
-    /** Exports through the GIF encoder (full or half size). */
-    val isGif: Boolean get() = this == GIF || this == GIF_HALF
-    /** Exports through the MP4 encoder (full or half size). */
-    val isMp4: Boolean get() = this == MP4 || this == MP4_HALF
+    GIF(true),   // 1-bit transparency
+    APNG(true),  // full RGBA alpha
+    MP4(false);  // opaque — needs a chroma fill
 
     companion object {
         fun fromKey(key: String): ReplayVideoFormat =
@@ -85,7 +74,9 @@ data class ReplayExportPrefs(
      * element to 100% opacity so half-transparent elements don't blend oddly
      * with the chroma fill.
      */
-    val forceOpaque: Boolean = true
+    val forceOpaque: Boolean = true,
+    /** Output size as a percentage of the studio's native resolution (50/75/100). */
+    val scale: Int = 100
 )
 
 /** Outcome of a "save preset" attempt, surfaced to the UI as a snackbar. */
@@ -187,6 +178,10 @@ class OverlayStudioViewModel @Inject constructor(
     fun setReplayForceOpaque(force: Boolean) {
         _replayExportPrefs.value = _replayExportPrefs.value.copy(forceOpaque = force)
         persistReplayExportPrefs()
+    }
+
+    fun setReplayScale(scale: Int) {
+        _replayExportPrefs.value = _replayExportPrefs.value.copy(scale = scale)
     }
 
     private fun persistReplayExportPrefs() {

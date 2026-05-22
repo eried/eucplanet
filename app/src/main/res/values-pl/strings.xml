@@ -989,6 +989,8 @@
     <string name="studio_export_photo">Zdjęcie</string>
     <string name="studio_export_video">Wideo</string>
     <string name="studio_export_chroma">Kolor klucza chroma</string>
+    <string name="studio_export_options">Opcje wyjścia</string>
+    <string name="studio_export_scale">Skala</string>
     <string name="studio_chroma_magenta">Magenta</string>
     <string name="studio_chroma_green">Zielony</string>
     <string name="studio_chroma_blue">Niebieski</string>
