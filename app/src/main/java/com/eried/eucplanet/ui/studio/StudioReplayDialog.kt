@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -580,7 +581,13 @@ private fun ReplayTimeline(
 ) {
     val dur = durationMs.coerceAtLeast(1L)
     BoxWithConstraints(modifier.height(82.dp)) {
-        val wPx = constraints.maxWidth.toFloat().coerceAtLeast(1f)
+        // The Canvas's real laid-out width, captured via onSizeChanged below.
+        // NOT constraints.maxWidth: inside the rotated landscape panel
+        // (SwapSizeModifier) the incoming constraint no longer matches the
+        // actual Canvas, which scaled the trim drag off the finger.
+        var wPx by remember {
+            mutableStateOf(constraints.maxWidth.toFloat().coerceAtLeast(1f))
+        }
         fun xOf(ms: Long): Float = ((ms.toFloat() / dur) * wPx).coerceIn(0f, wPx)
         fun msOf(x: Float): Long = ((x / wPx) * dur).toLong().coerceIn(0L, dur)
         var dragHandle by remember { mutableStateOf(-1) }
@@ -611,6 +618,7 @@ private fun ReplayTimeline(
         Canvas(
             Modifier
                 .fillMaxSize()
+                .onSizeChanged { wPx = it.width.toFloat().coerceAtLeast(1f) }
                 .alpha(if (enabled) 1f else 0.3f)
                 .then(if (!enabled) Modifier else Modifier
                 .pointerInput(durationMs) {

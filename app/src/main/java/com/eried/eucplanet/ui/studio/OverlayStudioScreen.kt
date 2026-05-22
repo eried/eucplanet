@@ -567,14 +567,14 @@ fun OverlayStudioScreen(
         val fps = 10
         val frameMs = 1000 / fps
         val span = replayEndMs - replayStartMs
-        var frameCount = (span / frameMs).toInt() + 1
+        // The clip honours the replay speed: at 4x the trimmed span plays back
+        // in a quarter of the time, so it needs a quarter of the frames — and
+        // renders that much faster. Slow speeds add frames for smoother slow-mo.
+        // Frames only ever sample inside the trimmed [start, end] range.
+        val outputMs = (span / replaySpeed.coerceAtLeast(0.05f)).toLong()
         val maxFrames = 240
-        val stepMs: Long = if (frameCount > maxFrames) {
-            frameCount = maxFrames
-            span / (frameCount - 1)
-        } else {
-            frameMs.toLong()
-        }
+        val frameCount = ((outputMs / frameMs).toInt() + 1).coerceIn(2, maxFrames)
+        val stepMs: Long = span / (frameCount - 1)
 
         // Frame 0 — also tells us the capture dimensions.
         replayPosMs = replayStartMs
@@ -1058,8 +1058,19 @@ fun OverlayStudioScreen(
                         replayPlaying = false
                     },
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
+                        // In landscape the screen is short — dock the panel to
+                        // the side, where it has the full height and never has
+                        // to scroll. Portrait keeps it above the bottom bar.
+                        .then(
+                            if (deviceRotation == 90 || deviceRotation == 270)
+                                Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 12.dp, top = 8.dp, bottom = 8.dp)
+                            else
+                                Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
+                        )
                         .alpha(if (panelsDimmed) 0.65f else 1f)
                 )
             }

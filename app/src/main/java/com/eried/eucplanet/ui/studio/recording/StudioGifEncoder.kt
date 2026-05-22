@@ -60,17 +60,30 @@ class StudioGifEncoder(
         val palette = quantize(counts, MAX_COLORS)
         val transIndex = palette.size // one slot past the colours is "transparent"
 
-        val nearestCache = HashMap<Int, Int>()
-        for (i in argb.indices) {
-            val p = argb[i]
-            indices[i] = if ((p ushr 24) < ALPHA_CUTOFF) {
-                transIndex.toByte()
-            } else {
-                val rgb = p and 0xFFFFFF
-                (nearestCache[rgb]
-                    ?: nearestIndex(rgb, palette).also { nearestCache[rgb] = it }).toByte()
-            }
-        }
+        // Nearest-colour matching is per-pixel independent — fan the bands out
+        // across cores so a full-resolution frame quantises in a fraction of
+        // the time. Each band keeps its own colour cache, writes a disjoint
+        // slice of `indices`, and nearestIndex() is pure — so no shared state.
+        val tIndex = transIndex.toByte()
+        val cores = Runtime.getRuntime().availableProcessors().coerceIn(2, 8)
+        val band = (argb.size + cores - 1) / cores
+        (0 until cores).map { c ->
+            Thread {
+                val cache = HashMap<Int, Int>()
+                val start = c * band
+                val end = minOf(start + band, argb.size)
+                for (i in start until end) {
+                    val p = argb[i]
+                    indices[i] = if ((p ushr 24) < ALPHA_CUTOFF) {
+                        tIndex
+                    } else {
+                        val rgb = p and 0xFFFFFF
+                        (cache[rgb]
+                            ?: nearestIndex(rgb, palette).also { cache[rgb] = it }).toByte()
+                    }
+                }
+            }.apply { start() }
+        }.forEach { it.join() }
 
         // Colour table size must be a power of two covering every index used.
         var bits = 1
