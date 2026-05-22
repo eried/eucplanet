@@ -953,7 +953,6 @@
     <string name="studio_cfg_filter_cool">冷色</string>
     <string name="studio_cfg_zoom">缩放</string>
     <string name="studio_cfg_shadow">阴影</string>
-    <string name="studio_cfg_trace_colour">轨迹颜色</string>
     <string name="studio_export_format">输出格式</string>
     <string name="studio_export_photo">照片</string>
     <string name="studio_export_video">视频</string>
@@ -969,4 +968,6 @@
     <string name="studio_cfg_shadow_offset">阴影偏移</string>
     <string name="studio_cfg_shadow_angle">阴影方向</string>
     <string name="studio_cd_rotate">旋转</string>
+    <string name="studio_cfg_border_colour">边框颜色</string>
+    <string name="studio_cfg_border_width">边框粗细</string>
 </resources>

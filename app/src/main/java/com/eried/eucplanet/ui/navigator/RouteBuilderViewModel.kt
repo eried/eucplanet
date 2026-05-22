@@ -174,6 +174,9 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         _waypoints.value = _waypoints.value + Waypoint(lat, lng, name)
+        // A plain stop was just added — clear the "last preset" memory so the
+        // Home / Work search suggestions both come back. addPreset() re-sets it.
+        _lastAddedPresetKind.value = null
         scheduleRecompute(fit = fit)
     }
 
@@ -220,6 +223,7 @@ class RouteBuilderViewModel @Inject constructor(
         _waypoints.value = emptyList()
         _route.value = null
         _routing.value = false
+        _lastAddedPresetKind.value = null
         lastRouteOrigin = null
         bumpRender(fit = false)
         persist()
@@ -514,8 +518,20 @@ class RouteBuilderViewModel @Inject constructor(
     private val _routeClean = MutableStateFlow(false)
     val routeClean: StateFlow<Boolean> = _routeClean.asStateFlow()
 
-    /** Drops a saved preset onto the map as the next waypoint. */
-    fun addPreset(w: Waypoint) = addWaypoint(w.lat, w.lng, w.name, fit = true)
+    /**
+     * The kind of preset added last ("HOME" / "WORK"), or null if the last
+     * waypoint added was a plain stop. The search field hides whichever preset
+     * this names — it was just used, so re-suggesting it is noise. Adding any
+     * other stop clears this and both suggestions return.
+     */
+    private val _lastAddedPresetKind = MutableStateFlow<String?>(null)
+    val lastAddedPresetKind: StateFlow<String?> = _lastAddedPresetKind.asStateFlow()
+
+    /** Drops a saved Home / Work preset onto the map as the next waypoint. */
+    fun addPreset(w: Waypoint, kind: String) {
+        addWaypoint(w.lat, w.lng, w.name, fit = true)
+        _lastAddedPresetKind.value = kind
+    }
 
     /** Saves a stop already on the route as the Home / Work preset. */
     fun saveWaypointAsHome(index: Int) {

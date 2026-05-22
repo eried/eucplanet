@@ -990,7 +990,6 @@
     <string name="studio_cfg_filter_cool">Chłodny</string>
     <string name="studio_cfg_zoom">Powiększenie</string>
     <string name="studio_cfg_shadow">Cień</string>
-    <string name="studio_cfg_trace_colour">Kolor trasy</string>
     <string name="studio_export_format">Format wyjściowy</string>
     <string name="studio_export_photo">Zdjęcie</string>
     <string name="studio_export_video">Wideo</string>
@@ -1006,4 +1005,6 @@
     <string name="studio_cfg_shadow_offset">Przesunięcie cienia</string>
     <string name="studio_cfg_shadow_angle">Kierunek cienia</string>
     <string name="studio_cd_rotate">Obróć</string>
+    <string name="studio_cfg_border_colour">Kolor obramowania</string>
+    <string name="studio_cfg_border_width">Grubość obramowania</string>
 </resources>

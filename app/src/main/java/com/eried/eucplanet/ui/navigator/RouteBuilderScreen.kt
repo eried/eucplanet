@@ -409,10 +409,14 @@ fun RouteBuilderScreen(
                     tonalElevation = 4.dp
                 ) {
                     Column(modifier = Modifier.heightIn(max = 280.dp).verticalScroll(rememberScrollState())) {
-                        // Saved Home / Work presets — tap to drop as the next stop.
+                        // Saved Home / Work presets — tap to drop as the next
+                        // stop. Whichever was added last is hidden (just used,
+                        // re-suggesting it is noise); adding any plain stop
+                        // brings it back.
+                        val lastPresetKind by viewModel.lastAddedPresetKind.collectAsState()
                         val presets = listOfNotNull(
-                            homePlace?.let { "Home" to it },
-                            workPlace?.let { "Work" to it }
+                            homePlace?.takeIf { lastPresetKind != "HOME" }?.let { "Home" to it },
+                            workPlace?.takeIf { lastPresetKind != "WORK" }?.let { "Work" to it }
                         )
                         presets.forEach { (label, place) ->
                             Row(
@@ -420,7 +424,9 @@ fun RouteBuilderScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         searchText = ""
-                                        viewModel.addPreset(place)
+                                        viewModel.addPreset(
+                                            place, if (label == "Home") "HOME" else "WORK"
+                                        )
                                     }
                                     .padding(horizontal = 14.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically

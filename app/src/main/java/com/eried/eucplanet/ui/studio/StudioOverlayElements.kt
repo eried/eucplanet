@@ -1157,7 +1157,13 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             .fillMaxWidth()
             .aspectRatio(1f)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(element.background))
+            // A neutral fill — only ever seen for the moment before the first
+            // tiles arrive. The configurable colour is the border.
+            .background(Color(0xFFE6E6EA))
+            .border(
+                element.mapBorderWidth.dp, Color(element.foreground),
+                RoundedCornerShape(12.dp)
+            )
     ) {
         if (!hasFix) {
             // No GPS yet — leave the styled background, nothing to project.

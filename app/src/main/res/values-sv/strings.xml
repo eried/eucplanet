@@ -953,7 +953,6 @@
     <string name="studio_cfg_filter_cool">Sval</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Skugga</string>
-    <string name="studio_cfg_trace_colour">Spårfärg</string>
     <string name="studio_export_format">Utdataformat</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
@@ -969,4 +968,6 @@
     <string name="studio_cfg_shadow_offset">Skuggförskjutning</string>
     <string name="studio_cfg_shadow_angle">Skuggriktning</string>
     <string name="studio_cd_rotate">Rotera</string>
+    <string name="studio_cfg_border_colour">Kantfärg</string>
+    <string name="studio_cfg_border_width">Kanttjocklek</string>
 </resources>

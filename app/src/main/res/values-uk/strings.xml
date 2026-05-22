@@ -990,7 +990,6 @@
     <string name="studio_cfg_filter_cool">Холодний</string>
     <string name="studio_cfg_zoom">Масштаб</string>
     <string name="studio_cfg_shadow">Тінь</string>
-    <string name="studio_cfg_trace_colour">Колір сліду</string>
     <string name="studio_export_format">Формат виводу</string>
     <string name="studio_export_photo">Фото</string>
     <string name="studio_export_video">Відео</string>
@@ -1006,4 +1005,6 @@
     <string name="studio_cfg_shadow_offset">Зсув тіні</string>
     <string name="studio_cfg_shadow_angle">Напрямок тіні</string>
     <string name="studio_cd_rotate">Обертати</string>
+    <string name="studio_cfg_border_colour">Колір рамки</string>
+    <string name="studio_cfg_border_width">Товщина рамки</string>
 </resources>

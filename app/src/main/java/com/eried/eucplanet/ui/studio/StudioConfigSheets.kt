@@ -1506,15 +1506,24 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_map_trace),
                     element.mapTrace
                 ) { onChange(element.copy(mapTrace = it)) }
-                // The map's only meaningful colour — the trace line and the
-                // position dot. (Its background is hidden behind the tiles.)
+                // The map's configurable colour is its border (the trace and
+                // dot share it). The fill is a fixed neutral — it only shows
+                // for a moment while the tiles load.
                 Text(
-                    stringResource(R.string.studio_cfg_trace_colour),
+                    stringResource(R.string.studio_cfg_border_colour),
                     fontWeight = FontWeight.SemiBold
                 )
                 ColorSwatchRow(element.foreground, allowTransparent = false) {
                     onChange(element.copy(foreground = it))
                 }
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_border_width),
+                    stringResource(
+                        R.string.studio_divider_thickness_fmt,
+                        element.mapBorderWidth.toInt()
+                    ),
+                    element.mapBorderWidth, 0f, 8f
+                ) { onChange(element.copy(mapBorderWidth = it)) }
                 Spacer(Modifier.height(8.dp))
             }
 

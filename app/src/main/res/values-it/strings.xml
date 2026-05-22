@@ -989,7 +989,6 @@
     <string name="studio_cfg_filter_cool">Freddo</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Ombra</string>
-    <string name="studio_cfg_trace_colour">Colore del percorso</string>
     <string name="studio_export_format">Formato di output</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
@@ -1005,4 +1004,6 @@
     <string name="studio_cfg_shadow_offset">Spostamento dell\'ombra</string>
     <string name="studio_cfg_shadow_angle">Direzione dell\'ombra</string>
     <string name="studio_cd_rotate">Ruota</string>
+    <string name="studio_cfg_border_colour">Colore del bordo</string>
+    <string name="studio_cfg_border_width">Spessore del bordo</string>
 </resources>

@@ -1088,5 +1088,6 @@
     <string name="studio_group_data">Data</string>
     <string name="studio_group_text">Text &amp; info</string>
     <string name="studio_group_media">Camera &amp; images</string>
-    <string name="studio_cfg_trace_colour">Trace colour</string>
+    <string name="studio_cfg_border_colour">Border colour</string>
+    <string name="studio_cfg_border_width">Border thickness</string>
 </resources>

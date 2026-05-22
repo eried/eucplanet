@@ -955,7 +955,6 @@
     <string name="studio_cfg_filter_cool">Kølig</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Skygge</string>
-    <string name="studio_cfg_trace_colour">Sporfarve</string>
     <string name="studio_export_format">Outputformat</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
@@ -971,4 +970,6 @@
     <string name="studio_cfg_shadow_offset">Skyggeforskydning</string>
     <string name="studio_cfg_shadow_angle">Skyggeretning</string>
     <string name="studio_cd_rotate">Roter</string>
+    <string name="studio_cfg_border_colour">Kantfarve</string>
+    <string name="studio_cfg_border_width">Kanttykkelse</string>
 </resources>

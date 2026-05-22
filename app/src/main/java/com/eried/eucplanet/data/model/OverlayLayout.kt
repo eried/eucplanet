@@ -189,7 +189,9 @@ data class OverlayElement(
     /** True rotates the map so the direction of travel points up; false = north up. */
     val mapRotateWithHeading: Boolean = false,
     /** Draw the GPS trace polyline over the map. */
-    val mapTrace: Boolean = true
+    val mapTrace: Boolean = true,
+    /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
+    val mapBorderWidth: Float = 2f
 )
 
 /**

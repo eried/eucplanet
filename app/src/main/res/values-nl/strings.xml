@@ -989,7 +989,6 @@
     <string name="studio_cfg_filter_cool">Koel</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Schaduw</string>
-    <string name="studio_cfg_trace_colour">Routekleur</string>
     <string name="studio_export_format">Uitvoerformaat</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
@@ -1005,4 +1004,6 @@
     <string name="studio_cfg_shadow_offset">Schaduwafstand</string>
     <string name="studio_cfg_shadow_angle">Schaduwrichting</string>
     <string name="studio_cd_rotate">Draaien</string>
+    <string name="studio_cfg_border_colour">Randkleur</string>
+    <string name="studio_cfg_border_width">Randdikte</string>
 </resources>

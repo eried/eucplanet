@@ -150,6 +150,7 @@ object OverlayPresetJson {
         put("mapZoom", el.mapZoom)
         put("mapRotateWithHeading", el.mapRotateWithHeading)
         put("mapTrace", el.mapTrace)
+        put("mapBorderWidth", el.mapBorderWidth.toDouble())
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -201,7 +202,8 @@ object OverlayPresetJson {
             mapRotateWithHeading = o.optBoolean(
                 "mapRotateWithHeading", d.mapRotateWithHeading
             ),
-            mapTrace = o.optBoolean("mapTrace", d.mapTrace)
+            mapTrace = o.optBoolean("mapTrace", d.mapTrace),
+            mapBorderWidth = o.optDouble("mapBorderWidth", d.mapBorderWidth.toDouble()).toFloat()
         )
     }
 
