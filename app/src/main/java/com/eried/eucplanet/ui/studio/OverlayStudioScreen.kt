@@ -50,6 +50,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -758,6 +761,18 @@ fun OverlayStudioScreen(
             controller?.show(WindowInsetsCompat.Type.systemBars())
             recording = false // the capture loop's finally finalises the file
         }
+    }
+
+    // Android can quietly stop delivering sensor events while the app is
+    // backgrounded; re-arm the IMU when the studio returns to the foreground
+    // so the G-Force overlay keeps updating after an app switch.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val obs = LifecycleEventObserver { _, e ->
+            if (e == Lifecycle.Event.ON_START) viewModel.refreshSensors()
+        }
+        lifecycleOwner.lifecycle.addObserver(obs)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
     }
 
     // Track physical rotation so the control icons can counter-rotate (the
