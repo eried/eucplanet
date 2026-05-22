@@ -56,6 +56,12 @@ data class ViewportConfig(
     val cameraMirror: Boolean = false,
     /** Camera frame rotation in degrees: one of 0 / 90 / 180 / 270. */
     val cameraOrientation: Int = 0,
+    /**
+     * How the camera frame / source image fills its viewport — one of
+     * "CROP" (fill, crop overflow), "FIT" (letterboxed) or "CENTER"
+     * (original size, centred). Maps to a Compose [ContentScale]; GPU-only.
+     */
+    val fitMode: String = "CROP",
     /** ARGB colour used when [source] is [ViewportSourceType.SOLID]. */
     val solidColor: Long = 0xFF101014L,
     /** Base64 PNG embedded in the preset when [source] is [ViewportSourceType.IMAGE]. */

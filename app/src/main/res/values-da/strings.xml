@@ -840,7 +840,6 @@
     <string name="studio_flyout_manage">Administrér</string>
     <string name="studio_flyout_new">Ny</string>
     <string name="studio_flyout_panes">Felter</string>
-    <string name="studio_flyout_replay_mode">Replay-tilstand</string>
     <string name="studio_flyout_save">Gem</string>
     <string name="studio_flyout_section_elements">Elementer</string>
     <string name="studio_flyout_section_mode">Tilstand</string>
@@ -938,4 +937,11 @@
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Roter med bevægelsen</string>
     <string name="studio_cfg_map_trace">Vis spor</string>
+    <string name="studio_group_data">Data</string>
+    <string name="studio_group_text">Tekst &amp; info</string>
+    <string name="studio_group_media">Kamera &amp; billeder</string>
+    <string name="studio_cfg_fit">Skalering</string>
+    <string name="studio_cfg_fit_crop">Beskær</string>
+    <string name="studio_cfg_fit_contain">Tilpas</string>
+    <string name="studio_cfg_fit_center">Centrer</string>
 </resources>

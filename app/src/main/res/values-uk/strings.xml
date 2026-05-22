@@ -875,7 +875,6 @@
     <string name="studio_flyout_manage">Керувати</string>
     <string name="studio_flyout_new">Новий</string>
     <string name="studio_flyout_panes">Вікна</string>
-    <string name="studio_flyout_replay_mode">Режим повтору</string>
     <string name="studio_flyout_save">Зберегти</string>
     <string name="studio_flyout_section_elements">Елементи</string>
     <string name="studio_flyout_section_mode">Режим</string>
@@ -973,4 +972,11 @@
     <string name="studio_cfg_map_zoom">Масштаб</string>
     <string name="studio_cfg_map_rotate">Обертати за рухом</string>
     <string name="studio_cfg_map_trace">Показувати слід</string>
+    <string name="studio_group_data">Дані</string>
+    <string name="studio_group_text">Текст та інформація</string>
+    <string name="studio_group_media">Камера та зображення</string>
+    <string name="studio_cfg_fit">Масштабування</string>
+    <string name="studio_cfg_fit_crop">Обрізати</string>
+    <string name="studio_cfg_fit_contain">Вмістити</string>
+    <string name="studio_cfg_fit_center">По центру</string>
 </resources>

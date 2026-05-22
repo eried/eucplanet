@@ -855,7 +855,6 @@
     <string name="studio_flyout_manage">Administrer</string>
     <string name="studio_flyout_new">Ny</string>
     <string name="studio_flyout_panes">Vinduer</string>
-    <string name="studio_flyout_replay_mode">Avspillingsmodus</string>
     <string name="studio_flyout_save">Lagre</string>
     <string name="studio_flyout_section_elements">Elementer</string>
     <string name="studio_flyout_section_mode">Modus</string>
@@ -953,4 +952,11 @@
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Roter med bevegelsen</string>
     <string name="studio_cfg_map_trace">Vis spor</string>
+    <string name="studio_group_data">Data</string>
+    <string name="studio_group_text">Tekst &amp; info</string>
+    <string name="studio_group_media">Kamera &amp; bilder</string>
+    <string name="studio_cfg_fit">Skalering</string>
+    <string name="studio_cfg_fit_crop">Beskjær</string>
+    <string name="studio_cfg_fit_contain">Tilpass</string>
+    <string name="studio_cfg_fit_center">Midtstill</string>
 </resources>

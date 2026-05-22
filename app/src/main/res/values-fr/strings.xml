@@ -838,7 +838,6 @@
     <string name="studio_flyout_manage">Gérer</string>
     <string name="studio_flyout_new">Nouveau</string>
     <string name="studio_flyout_panes">Fenêtres</string>
-    <string name="studio_flyout_replay_mode">Mode rejeu</string>
     <string name="studio_flyout_save">Enregistrer</string>
     <string name="studio_flyout_section_elements">Éléments</string>
     <string name="studio_flyout_section_mode">Mode</string>
@@ -936,4 +935,11 @@
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Pivoter avec le mouvement</string>
     <string name="studio_cfg_map_trace">Afficher le tracé</string>
+    <string name="studio_group_data">Données</string>
+    <string name="studio_group_text">Texte &amp; infos</string>
+    <string name="studio_group_media">Caméra &amp; images</string>
+    <string name="studio_cfg_fit">Mise à l\'échelle</string>
+    <string name="studio_cfg_fit_crop">Rogner</string>
+    <string name="studio_cfg_fit_contain">Ajuster</string>
+    <string name="studio_cfg_fit_center">Centrer</string>
 </resources>

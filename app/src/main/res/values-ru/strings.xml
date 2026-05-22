@@ -890,7 +890,6 @@
     <string name="studio_flyout_manage">Управление</string>
     <string name="studio_flyout_new">Новый</string>
     <string name="studio_flyout_panes">Окна</string>
-    <string name="studio_flyout_replay_mode">Режим повтора</string>
     <string name="studio_flyout_save">Сохранить</string>
     <string name="studio_flyout_section_elements">Элементы</string>
     <string name="studio_flyout_section_mode">Режим</string>
@@ -988,4 +987,11 @@
     <string name="studio_cfg_map_zoom">Масштаб</string>
     <string name="studio_cfg_map_rotate">Поворот по движению</string>
     <string name="studio_cfg_map_trace">Показывать след</string>
+    <string name="studio_group_data">Данные</string>
+    <string name="studio_group_text">Текст и информация</string>
+    <string name="studio_group_media">Камера и изображения</string>
+    <string name="studio_cfg_fit">Масштабирование</string>
+    <string name="studio_cfg_fit_crop">Обрезать</string>
+    <string name="studio_cfg_fit_contain">Вписать</string>
+    <string name="studio_cfg_fit_center">По центру</string>
 </resources>

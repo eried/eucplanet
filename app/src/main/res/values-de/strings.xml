@@ -855,7 +855,6 @@
     <string name="studio_flyout_manage">Verwalten</string>
     <string name="studio_flyout_new">Neu</string>
     <string name="studio_flyout_panes">Ansichten</string>
-    <string name="studio_flyout_replay_mode">Replay-Modus</string>
     <string name="studio_flyout_save">Speichern</string>
     <string name="studio_flyout_section_elements">Elemente</string>
     <string name="studio_flyout_section_mode">Modus</string>
@@ -953,4 +952,11 @@
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Mit der Bewegung drehen</string>
     <string name="studio_cfg_map_trace">Strecke anzeigen</string>
+    <string name="studio_group_data">Daten</string>
+    <string name="studio_group_text">Text &amp; Info</string>
+    <string name="studio_group_media">Kamera &amp; Bilder</string>
+    <string name="studio_cfg_fit">Skalierung</string>
+    <string name="studio_cfg_fit_crop">Zuschneiden</string>
+    <string name="studio_cfg_fit_contain">Anpassen</string>
+    <string name="studio_cfg_fit_center">Zentrieren</string>
 </resources>

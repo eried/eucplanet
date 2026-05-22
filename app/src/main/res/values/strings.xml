@@ -700,7 +700,6 @@
     <string name="studio_flyout_load">Load</string>
     <string name="studio_flyout_save">Save</string>
     <string name="studio_flyout_section_mode">Mode</string>
-    <string name="studio_flyout_replay_mode">Replay mode</string>
     <string name="studio_flyout_section_elements">Elements</string>
     <string name="studio_flyout_manage">Manage</string>
     <string name="studio_flyout_add">Add</string>
@@ -798,6 +797,10 @@
     <string name="studio_bg_direction_fmt">%1$d°</string>
     <string name="studio_cfg_mirror">Mirror</string>
     <string name="studio_cfg_orientation">Orientation</string>
+    <string name="studio_cfg_fit">Scaling</string>
+    <string name="studio_cfg_fit_crop">Crop</string>
+    <string name="studio_cfg_fit_contain">Fit</string>
+    <string name="studio_cfg_fit_center">Center</string>
     <string name="studio_bg_colour_stops">Colour stops</string>
     <string name="studio_bg_add_stop">Add stop</string>
     <string name="studio_cd_remove_stop">Remove stop</string>
@@ -1054,4 +1057,7 @@
     <string name="dash_view_video_gallery">View video gallery</string>
     <string name="dash_view_photo_gallery">View photo gallery</string>
     <string name="dash_no_gallery_app">No gallery app found</string>
+    <string name="studio_group_data">Data</string>
+    <string name="studio_group_text">Text &amp; info</string>
+    <string name="studio_group_media">Camera &amp; images</string>
 </resources>

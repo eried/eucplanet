@@ -94,7 +94,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -215,6 +214,7 @@ fun StudioToolsFlyout(
     onLoadPreset: () -> Unit,
     onSavePreset: () -> Unit,
     onReplayMode: () -> Unit,
+    replayMode: Boolean = false,
     deviceRotation: Int = 0
 ) {
     // Two columns: saved Presets on the left, the live studio actions on the
@@ -224,7 +224,12 @@ fun StudioToolsFlyout(
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
                 FlyoutSection(stringResource(R.string.studio_flyout_section_preset))
-                FlyoutItem(Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes)) {
+                // Camera panes are hidden in replay (the background is the
+                // trip's transparent checkerboard), so configuring them is moot.
+                FlyoutItem(
+                    Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes),
+                    enabled = !replayMode
+                ) {
                     onDismiss(); onChangeLayout()
                 }
                 FlyoutItem(Icons.Default.NoteAdd, stringResource(R.string.studio_flyout_new)) { onDismiss(); onNew() }
@@ -236,7 +241,7 @@ fun StudioToolsFlyout(
             Spacer(Modifier.width(4.dp))
             Column(Modifier.width(154.dp)) {
                 FlyoutSection(stringResource(R.string.studio_flyout_section_mode))
-                FlyoutItem(Icons.Default.History, stringResource(R.string.studio_flyout_replay_mode)) {
+                FlyoutItem(Icons.Default.History, stringResource(R.string.studio_replay_title)) {
                     onDismiss(); onReplayMode()
                 }
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
@@ -472,6 +477,33 @@ fun StudioSidePanel(
 // --------------------------------------------------------------------------
 
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * The Add-element list, in fixed groups. The groups and their order — and the
+ * order within each group (English-alphabetical by element name) — are the SAME
+ * in every language; only the labels are translated. So the menu positions stay
+ * constant and familiar regardless of locale.
+ */
+private val ADD_ELEMENT_GROUPS: List<Pair<Int, List<OverlayElementType>>> = listOf(
+    R.string.studio_group_data to listOf(
+        OverlayElementType.DATA_GRAPH,   // Data graph
+        OverlayElementType.DATA_VALUE,   // Data value
+        OverlayElementType.DATA_DIAL,    // Dial gauge
+        OverlayElementType.G_FORCE,      // G-Force
+        OverlayElementType.DATA_BAR,     // Linear bar
+        OverlayElementType.MAP           // Map
+    ),
+    R.string.studio_group_text to listOf(
+        OverlayElementType.APP_BADGE,    // App badge
+        OverlayElementType.CLOCK,        // Clock
+        OverlayElementType.TEXT,         // Free text
+        OverlayElementType.WHEEL_NAME    // Wheel name
+    ),
+    R.string.studio_group_media to listOf(
+        OverlayElementType.FLOATING_CAMERA,  // Floating camera
+        OverlayElementType.IMAGE             // Image / clipart
+    )
+)
+
 @Composable
 fun AddElementSheet(
     onPick: (OverlayElementType) -> Unit,
@@ -485,33 +517,31 @@ fun AddElementSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(stringResource(R.string.studio_add_element_title))
-            // Listed alphabetically by their localized name.
-            val context = LocalContext.current
-            val orderedTypes = remember(context) {
-                OverlayElementType.entries.sortedBy { context.getString(it.labelRes) }
-            }
-            orderedTypes.forEach { type ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable {
-                            if (type == OverlayElementType.IMAGE) onPickImage()
-                            else onPick(type)
+            ADD_ELEMENT_GROUPS.forEach { (titleRes, types) ->
+                SectionLabel(stringResource(titleRes))
+                types.forEach { type ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .clickable {
+                                if (type == OverlayElementType.IMAGE) onPickImage()
+                                else onPick(type)
+                            }
+                            .padding(vertical = 8.dp, horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(type.icon, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(type.label(), fontWeight = FontWeight.SemiBold)
+                            Text(
+                                elementHint(type),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        .padding(vertical = 8.dp, horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(type.icon, contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(type.label(), fontWeight = FontWeight.SemiBold)
-                        Text(
-                            elementHint(type),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             }
@@ -856,14 +886,25 @@ fun ViewportConfigSheet(
                             config.source != ViewportSourceType.GRADIENT
                         ) onChange(config.copy(source = ViewportSourceType.SOLID))
                     },
-                    label = { Text(stringResource(R.string.studio_viewport_fill)) },
-                    leadingIcon = { Icon(Icons.Default.FormatColorFill, null) }
+                    // Icon-only — the fill-bucket glyph is self-explanatory
+                    // and the chip stays compact.
+                    label = {
+                        Icon(
+                            Icons.Default.FormatColorFill,
+                            contentDescription = stringResource(R.string.studio_viewport_fill)
+                        )
+                    }
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.IMAGE,
                     onClick = { onChange(config.copy(source = ViewportSourceType.IMAGE)) },
-                    label = { Text(stringResource(R.string.studio_viewport_image)) },
-                    leadingIcon = { Icon(Icons.Default.Image, null) }
+                    // Icon-only — the image glyph is self-explanatory.
+                    label = {
+                        Icon(
+                            Icons.Default.Image,
+                            contentDescription = stringResource(R.string.studio_viewport_image)
+                        )
+                    }
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -888,6 +929,8 @@ fun ViewportConfigSheet(
                             )
                         }
                     }
+                    Spacer(Modifier.height(8.dp))
+                    FitModePicker(config, onChange)
                 }
                 ViewportSourceType.SOLID, ViewportSourceType.GRADIENT ->
                     BackgroundEditor(config, onChange)
@@ -907,8 +950,34 @@ fun ViewportConfigSheet(
                             ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
                         }
                     }
+                    Spacer(Modifier.height(12.dp))
+                    FitModePicker(config, onChange)
                 }
             }
+        }
+    }
+}
+
+/**
+ * Crop / Fit / Center chips controlling how the camera frame or source image
+ * fills its viewport. Shown for any source that draws visual content.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> Unit) {
+    Text(stringResource(R.string.studio_cfg_fit), fontWeight = FontWeight.SemiBold)
+    val fitCrop = stringResource(R.string.studio_cfg_fit_crop)
+    val fitContain = stringResource(R.string.studio_cfg_fit_contain)
+    val fitCenter = stringResource(R.string.studio_cfg_fit_center)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        listOf(
+            "CROP" to fitCrop, "FIT" to fitContain, "CENTER" to fitCenter
+        ).forEach { (key, lbl) ->
+            FilterChip(
+                selected = config.fitMode == key,
+                onClick = { onChange(config.copy(fitMode = key)) },
+                label = { Text(lbl) }
+            )
         }
     }
 }

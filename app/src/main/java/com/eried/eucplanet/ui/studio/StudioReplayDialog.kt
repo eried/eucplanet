@@ -78,7 +78,8 @@ private fun speedLabel(s: Float): String =
  * point. The point sits on the track at [x]; [down] true points it downward.
  */
 private fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
-    val hw = 21f          // half width
+    val hw = 16f          // half width — visual only; the drag hitbox is the
+                          // whole top/bottom half of the track, not this shape
     val point = 18f       // height of the pointed part
     val total = 42f       // full height (point + square body)
     val s = if (down) -1f else 1f

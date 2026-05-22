@@ -179,14 +179,16 @@ fun StudioViewportLayer(
                 when (config?.source) {
                     ViewportSourceType.SOLID ->
                         Box(Modifier.fillMaxSize().background(Color(config.solidColor)))
-                    ViewportSourceType.IMAGE -> ViewportImagePane(config.imageData)
+                    ViewportSourceType.IMAGE ->
+                        ViewportImagePane(config.imageData, config.fitMode)
                     ViewportSourceType.GRADIENT -> ViewportGradientPane(config)
                     else -> CameraPane(
                         hub = hub,
                         cameraKey = config?.cameraKey ?: "BACK",
                         hasPermission = hasCameraPermission,
                         mirror = config?.cameraMirror ?: false,
-                        orientation = config?.cameraOrientation ?: 0
+                        orientation = config?.cameraOrientation ?: 0,
+                        fitMode = config?.fitMode ?: "CROP"
                     )
                 }
                 if (editable) {
@@ -211,13 +213,24 @@ fun StudioViewportLayer(
     }
 }
 
+/**
+ * Maps a [ViewportConfig.fitMode] string to a Compose [ContentScale].
+ * Pure GPU scaling — no per-frame pixel work.
+ */
+private fun contentScaleOf(fitMode: String): ContentScale = when (fitMode) {
+    "FIT" -> ContentScale.Fit
+    "CENTER" -> ContentScale.None
+    else -> ContentScale.Crop
+}
+
 @Composable
 private fun CameraPane(
     hub: StudioCameraHub,
     cameraKey: String,
     hasPermission: Boolean,
     mirror: Boolean,
-    orientation: Int
+    orientation: Int,
+    fitMode: String = "CROP"
 ) {
     Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
         val frame = hub.frame(cameraKey)
@@ -228,7 +241,7 @@ private fun CameraPane(
             frame != null -> Image(
                 bitmap = frame,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = contentScaleOf(fitMode),
                 modifier = Modifier
                     .fillMaxSize()
                     .graphicsLayer {
@@ -292,7 +305,7 @@ private fun ViewportGradientPane(config: ViewportConfig) {
 }
 
 @Composable
-private fun ViewportImagePane(imageData: String?) {
+private fun ViewportImagePane(imageData: String?, fitMode: String = "CROP") {
     Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
         val bitmap = remember(imageData) {
             imageData?.let { StudioImages.decode(it)?.asImageBitmap() }
@@ -301,7 +314,7 @@ private fun ViewportImagePane(imageData: String?) {
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = contentScaleOf(fitMode),
                 modifier = Modifier.fillMaxSize()
             )
         } else {
