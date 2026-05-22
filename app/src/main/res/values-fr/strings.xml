@@ -972,5 +972,5 @@
     <string name="studio_export_force_opaque">Forcer l\'opacité totale</string>
     <string name="studio_cfg_g_scale">Échelle</string>
     <string name="studio_cfg_geometry">Géométrie</string>
-    <string name="studio_export_force_opaque_hint">JPG et MP4 ne gèrent pas la transparence.</string>
+    <string name="studio_export_force_opaque_hint">JPG et MP4 ne gèrent pas la transparence, donc seules ces sorties sont concernées : sans cela, les éléments atténués se fondent dans la couleur d\'incrustation.</string>
 </resources>

@@ -972,5 +972,5 @@
     <string name="studio_export_force_opaque">强制完全不透明</string>
     <string name="studio_cfg_g_scale">量程</string>
     <string name="studio_cfg_geometry">几何</string>
-    <string name="studio_export_force_opaque_hint">JPG 和 MP4 无法保存透明度。</string>
+    <string name="studio_export_force_opaque_hint">JPG 和 MP4 无法保存透明度，因此只影响这些输出 — 否则半透明元素会与色键颜色混合。</string>
 </resources>

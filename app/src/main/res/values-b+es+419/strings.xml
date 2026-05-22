@@ -1008,5 +1008,5 @@
     <string name="studio_export_force_opaque">Forzar opacidad total</string>
     <string name="studio_cfg_g_scale">Escala</string>
     <string name="studio_cfg_geometry">Geometría</string>
-    <string name="studio_export_force_opaque_hint">JPG y MP4 no pueden guardar transparencia.</string>
+    <string name="studio_export_force_opaque_hint">JPG y MP4 no admiten transparencia, así que solo afecta a esas salidas: sin esto, los elementos atenuados se mezclan con el color de croma.</string>
 </resources>

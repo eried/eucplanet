@@ -972,5 +972,5 @@
     <string name="studio_export_force_opaque">Tvinga helt ogenomskinlig</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_geometry">Geometri</string>
-    <string name="studio_export_force_opaque_hint">JPG och MP4 kan inte spara genomskinlighet.</string>
+    <string name="studio_export_force_opaque_hint">JPG och MP4 stöder inte genomskinlighet, så bara de utdata påverkas – utan detta smälter tonade element samman med chroma-färgen.</string>
 </resources>

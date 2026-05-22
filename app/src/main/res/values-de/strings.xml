@@ -989,5 +989,5 @@
     <string name="studio_export_force_opaque">Voll deckend erzwingen</string>
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_geometry">Geometrie</string>
-    <string name="studio_export_force_opaque_hint">JPG und MP4 können keine Transparenz speichern.</string>
+    <string name="studio_export_force_opaque_hint">JPG und MP4 können keine Transparenz speichern, daher sind nur diese Ausgaben betroffen – ohne diese Option verschmelzen abgeblendete Elemente mit der Chroma-Farbe.</string>
 </resources>

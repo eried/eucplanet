@@ -383,6 +383,7 @@ private fun ExportFormatChooser(
 ) {
     Column(
         Modifier
+            .fillMaxWidth()
             .heightIn(max = 280.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -496,7 +497,9 @@ private fun ExportFormatChooser(
             }
             Text(
                 stringResource(R.string.studio_export_force_opaque_hint),
-                modifier = Modifier.padding(horizontal = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 2.dp),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White.copy(alpha = 0.6f)
             )

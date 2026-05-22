@@ -1009,5 +1009,5 @@
     <string name="studio_export_force_opaque">Примусово без прозорості</string>
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_cfg_geometry">Геометрія</string>
-    <string name="studio_export_force_opaque_hint">JPG і MP4 не зберігають прозорість.</string>
+    <string name="studio_export_force_opaque_hint">JPG і MP4 не зберігають прозорість, тому це впливає лише на ці формати — без цього напівпрозорі елементи зіллються з кольором хромакею.</string>
 </resources>

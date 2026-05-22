@@ -1092,5 +1092,5 @@
     <string name="studio_cfg_border_width">Border thickness</string>
     <string name="studio_rendering_keep_open">Keep this screen open until the clip finishes saving.</string>
     <string name="studio_cfg_g_scale">Scale</string>
-    <string name="studio_export_force_opaque_hint">JPG and MP4 cannot store transparency.</string>
+    <string name="studio_export_force_opaque_hint">JPG and MP4 cannot store transparency, so only those outputs are affected — without it, faded elements blend into the chroma colour.</string>
 </resources>
