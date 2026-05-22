@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
+import androidx.compose.material.icons.filled.Rotate90DegreesCw
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +59,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -159,6 +162,12 @@ private fun StudioElementBox(
 ) {
     val live by rememberUpdatedState(element)
     val accent = StudioControlAccent
+    // A distinct accent for the rotate handle so it is never confused with the
+    // resize grip (the studio's standard blue accent).
+    val rotateAccent = Color(0xFFFFB74D)
+    // Size of the element's content in px, captured from the rotated marquee
+    // layer — i.e. the unrotated content bounds, so its centre is exact.
+    var contentSize by remember { mutableStateOf(IntSize.Zero) }
 
     Box(
         Modifier.offset(x = containerW * element.x, y = containerH * element.y)
@@ -201,6 +210,7 @@ private fun StudioElementBox(
             Box(
                 Modifier
                     .graphicsLayer { rotationZ = element.rotationDeg }
+                    .onSizeChanged { contentSize = it }
                     .then(
                         if (selected) Modifier.drawBehind {
                             drawRoundRect(
@@ -220,26 +230,33 @@ private fun StudioElementBox(
                     Modifier.graphicsLayer { alpha = element.opacity.coerceIn(0f, 1f) }
                 ) {
                     // Drop shadow — the content emitted a second time BEHIND
-                    // the real copy, offset ~(3.dp, 3.dp) at 0.55 alpha. The
-                    // graphicsLayer forces an offscreen layer (offset + alpha),
-                    // then a solid-black rect drawn with SrcAtop recolours only
-                    // the content's silhouette to black. It follows the actual
-                    // content shape (text, gauges) — pure GPU, no per-frame
-                    // pixel work; small elements make it effectively free.
+                    // the real copy, offset / tinted by the element's shadow
+                    // settings. The graphicsLayer forces an offscreen layer
+                    // (offset + alpha), then a rect drawn with SrcAtop recolours
+                    // only the content's silhouette to the shadow colour. It
+                    // follows the actual content shape (text, gauges) — pure
+                    // GPU, no per-frame pixel work; small elements make it
+                    // effectively free.
                     if (element.shadow) {
+                        val shadowRad =
+                            Math.toRadians(element.shadowAngle.toDouble())
+                        val shadowTint = Color(element.shadowColor)
                         Box(
                             Modifier
                                 .matchParentSize()
                                 .graphicsLayer {
-                                    translationX = 3.dp.toPx()
-                                    translationY = 3.dp.toPx()
-                                    alpha = 0.55f
+                                    val dist = element.shadowDistance.dp.toPx()
+                                    translationX =
+                                        dist * kotlin.math.cos(shadowRad).toFloat()
+                                    translationY =
+                                        dist * kotlin.math.sin(shadowRad).toFloat()
+                                    alpha = element.shadowStrength.coerceIn(0f, 1f)
                                     compositingStrategy = CompositingStrategy.Offscreen
                                 }
                                 .drawWithContent {
                                     drawContent()
                                     drawRect(
-                                        color = Color.Black,
+                                        color = shadowTint,
                                         blendMode = BlendMode.SrcAtop
                                     )
                                 }
@@ -287,6 +304,74 @@ private fun StudioElementBox(
                             contentDescription = stringResource(R.string.studio_cd_resize),
                             tint = Color.White,
                             modifier = Modifier.size(16.dp).rotate(90f)
+                        )
+                    }
+                    // Rotate handle — opposite corner to the resize grip. The
+                    // chrome sits INSIDE the element's rotated graphicsLayer, so
+                    // a drag delta is already in the element's local frame: the
+                    // angular change of the pointer about the content centre is
+                    // added straight onto rotationDeg.
+                    Box(
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .offset(x = (-14).dp, y = (-14).dp)
+                            .size(30.dp)
+                            .clip(CircleShape)
+                            .background(rotateAccent)
+                            .pointerInput(element.id) {
+                                // Pointer angle (about the content centre) at
+                                // the moment the drag started — the delta from
+                                // this is what moves the element, so the handle
+                                // never "jumps" on grab.
+                                var startPointerAngle = 0f
+                                var startRotation = 0f
+                                detectDragGestures(
+                                    onDragStart = { pos ->
+                                        val cx = contentSize.width / 2f
+                                        val cy = contentSize.height / 2f
+                                        // Handle centre is offset (-14,-14) from
+                                        // the content's TopStart corner.
+                                        val hx = (-14).dp.toPx() + 15.dp.toPx()
+                                        val hy = (-14).dp.toPx() + 15.dp.toPx()
+                                        startPointerAngle = Math.toDegrees(
+                                            kotlin.math.atan2(
+                                                (hy + pos.y) - cy,
+                                                (hx + pos.x) - cx
+                                            ).toDouble()
+                                        ).toFloat()
+                                        startRotation = live.rotationDeg
+                                    }
+                                ) { change, _ ->
+                                    change.consume()
+                                    val cx = contentSize.width / 2f
+                                    val cy = contentSize.height / 2f
+                                    val hx = (-14).dp.toPx() + 15.dp.toPx()
+                                    val hy = (-14).dp.toPx() + 15.dp.toPx()
+                                    val angle = Math.toDegrees(
+                                        kotlin.math.atan2(
+                                            (hy + change.position.y) - cy,
+                                            (hx + change.position.x) - cx
+                                        ).toDouble()
+                                    ).toFloat()
+                                    var next = startRotation + (angle - startPointerAngle)
+                                    // Normalise to 0..360.
+                                    next = ((next % 360f) + 360f) % 360f
+                                    // Detent — snap to 0/90/180/270 within ±6°.
+                                    listOf(0f, 90f, 180f, 270f, 360f).forEach { d ->
+                                        if (kotlin.math.abs(next - d) <= 6f) {
+                                            next = d % 360f
+                                        }
+                                    }
+                                    onChange(live.copy(rotationDeg = next))
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Rotate90DegreesCw,
+                            contentDescription = stringResource(R.string.studio_cd_rotate),
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
                         )
                     }
                 }

@@ -132,6 +132,14 @@ data class OverlayElement(
     val opacity: Float = 1f,
     /** Draw a soft drop shadow behind the element so it reads on bright video. */
     val shadow: Boolean = false,
+    /** Drop-shadow tint, ARGB long. */
+    val shadowColor: Long = 0xFF000000L,
+    /** Drop-shadow opacity, 0..1. */
+    val shadowStrength: Float = 0.55f,
+    /** Drop-shadow offset distance in dp, 0..16. */
+    val shadowDistance: Float = 3f,
+    /** Drop-shadow cast direction in degrees, 0..360 (45 = down-right). */
+    val shadowAngle: Float = 45f,
 
     // DATA_VALUE / DATA_GRAPH — which metric, see StudioMetric.
     val metric: String = "SPEED",

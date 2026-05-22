@@ -999,4 +999,10 @@
     <string name="studio_chroma_blue">Blauw</string>
     <string name="studio_chroma_black">Zwart</string>
     <string name="studio_chroma_white">Wit</string>
+    <string name="studio_cfg_style">Stijl</string>
+    <string name="studio_cfg_shadow_colour">Schaduwkleur</string>
+    <string name="studio_cfg_shadow_strength">Schaduwsterkte</string>
+    <string name="studio_cfg_shadow_offset">Schaduwafstand</string>
+    <string name="studio_cfg_shadow_angle">Schaduwrichting</string>
+    <string name="studio_cd_rotate">Draaien</string>
 </resources>

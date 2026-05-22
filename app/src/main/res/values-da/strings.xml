@@ -965,4 +965,10 @@
     <string name="studio_chroma_blue">Blå</string>
     <string name="studio_chroma_black">Sort</string>
     <string name="studio_chroma_white">Hvid</string>
+    <string name="studio_cfg_style">Stil</string>
+    <string name="studio_cfg_shadow_colour">Skyggefarve</string>
+    <string name="studio_cfg_shadow_strength">Skyggestyrke</string>
+    <string name="studio_cfg_shadow_offset">Skyggeforskydning</string>
+    <string name="studio_cfg_shadow_angle">Skyggeretning</string>
+    <string name="studio_cd_rotate">Roter</string>
 </resources>

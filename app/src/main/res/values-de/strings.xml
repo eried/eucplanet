@@ -980,4 +980,10 @@
     <string name="studio_chroma_blue">Blau</string>
     <string name="studio_chroma_black">Schwarz</string>
     <string name="studio_chroma_white">Weiß</string>
+    <string name="studio_cfg_style">Stil</string>
+    <string name="studio_cfg_shadow_colour">Schattenfarbe</string>
+    <string name="studio_cfg_shadow_strength">Schattenstärke</string>
+    <string name="studio_cfg_shadow_offset">Schattenversatz</string>
+    <string name="studio_cfg_shadow_angle">Schattenrichtung</string>
+    <string name="studio_cd_rotate">Drehen</string>
 </resources>

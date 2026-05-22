@@ -1015,4 +1015,10 @@
     <string name="studio_chroma_blue">Синий</string>
     <string name="studio_chroma_black">Чёрный</string>
     <string name="studio_chroma_white">Белый</string>
+    <string name="studio_cfg_style">Стиль</string>
+    <string name="studio_cfg_shadow_colour">Цвет тени</string>
+    <string name="studio_cfg_shadow_strength">Сила тени</string>
+    <string name="studio_cfg_shadow_offset">Смещение тени</string>
+    <string name="studio_cfg_shadow_angle">Направление тени</string>
+    <string name="studio_cd_rotate">Повернути</string>
 </resources>

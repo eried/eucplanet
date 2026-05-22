@@ -823,6 +823,11 @@
     <string name="studio_cfg_filter_cool">Cool</string>
     <string name="studio_cfg_zoom">Zoom</string>
     <string name="studio_cfg_shadow">Shadow</string>
+    <string name="studio_cfg_style">Style</string>
+    <string name="studio_cfg_shadow_colour">Shadow colour</string>
+    <string name="studio_cfg_shadow_strength">Shadow strength</string>
+    <string name="studio_cfg_shadow_offset">Shadow offset</string>
+    <string name="studio_cfg_shadow_angle">Shadow direction</string>
     <string name="studio_bg_colour_stops">Colour stops</string>
     <string name="studio_bg_add_stop">Add stop</string>
     <string name="studio_cd_remove_stop">Remove stop</string>
@@ -895,6 +900,7 @@
 
     <!-- Studio: element chrome content descriptions -->
     <string name="studio_cd_resize">Resize</string>
+    <string name="studio_cd_rotate">Rotate</string>
 
     <!-- Studio: replay panel -->
     <string name="studio_replay_title">Replay</string>

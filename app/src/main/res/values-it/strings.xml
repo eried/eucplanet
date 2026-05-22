@@ -999,4 +999,10 @@
     <string name="studio_chroma_blue">Blu</string>
     <string name="studio_chroma_black">Nero</string>
     <string name="studio_chroma_white">Bianco</string>
+    <string name="studio_cfg_style">Stile</string>
+    <string name="studio_cfg_shadow_colour">Colore dell\'ombra</string>
+    <string name="studio_cfg_shadow_strength">Intensità dell\'ombra</string>
+    <string name="studio_cfg_shadow_offset">Spostamento dell\'ombra</string>
+    <string name="studio_cfg_shadow_angle">Direzione dell\'ombra</string>
+    <string name="studio_cd_rotate">Ruota</string>
 </resources>

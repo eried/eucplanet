@@ -125,6 +125,10 @@ object OverlayPresetJson {
         put("rotationDeg", el.rotationDeg.toDouble())
         put("opacity", el.opacity.toDouble())
         put("shadow", el.shadow)
+        put("shadowColor", el.shadowColor)
+        put("shadowStrength", el.shadowStrength.toDouble())
+        put("shadowDistance", el.shadowDistance.toDouble())
+        put("shadowAngle", el.shadowAngle.toDouble())
         put("metric", el.metric)
         put("showLabel", el.showLabel)
         put("text", el.text)
@@ -161,6 +165,14 @@ object OverlayPresetJson {
             rotationDeg = o.optDouble("rotationDeg", d.rotationDeg.toDouble()).toFloat(),
             opacity = o.optDouble("opacity", d.opacity.toDouble()).toFloat(),
             shadow = o.optBoolean("shadow", d.shadow),
+            shadowColor = o.optLong("shadowColor", d.shadowColor),
+            shadowStrength = o.optDouble(
+                "shadowStrength", d.shadowStrength.toDouble()
+            ).toFloat(),
+            shadowDistance = o.optDouble(
+                "shadowDistance", d.shadowDistance.toDouble()
+            ).toFloat(),
+            shadowAngle = o.optDouble("shadowAngle", d.shadowAngle.toDouble()).toFloat(),
             metric = o.optString("metric", d.metric),
             showLabel = o.optBoolean("showLabel", d.showLabel),
             text = o.optString("text", d.text),

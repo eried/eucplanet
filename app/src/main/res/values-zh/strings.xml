@@ -963,4 +963,10 @@
     <string name="studio_chroma_blue">蓝色</string>
     <string name="studio_chroma_black">黑色</string>
     <string name="studio_chroma_white">白色</string>
+    <string name="studio_cfg_style">样式</string>
+    <string name="studio_cfg_shadow_colour">阴影颜色</string>
+    <string name="studio_cfg_shadow_strength">阴影强度</string>
+    <string name="studio_cfg_shadow_offset">阴影偏移</string>
+    <string name="studio_cfg_shadow_angle">阴影方向</string>
+    <string name="studio_cd_rotate">旋转</string>
 </resources>

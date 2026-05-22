@@ -963,4 +963,10 @@
     <string name="studio_chroma_blue">Blå</string>
     <string name="studio_chroma_black">Svart</string>
     <string name="studio_chroma_white">Vit</string>
+    <string name="studio_cfg_style">Stil</string>
+    <string name="studio_cfg_shadow_colour">Skuggfärg</string>
+    <string name="studio_cfg_shadow_strength">Skuggstyrka</string>
+    <string name="studio_cfg_shadow_offset">Skuggförskjutning</string>
+    <string name="studio_cfg_shadow_angle">Skuggriktning</string>
+    <string name="studio_cd_rotate">Rotera</string>
 </resources>

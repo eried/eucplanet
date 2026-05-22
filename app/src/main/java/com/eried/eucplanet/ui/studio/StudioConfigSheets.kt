@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.TrackChanges
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.FolderOff
@@ -793,6 +795,36 @@ private fun SectionLabel(text: String) {
     )
 }
 
+/** A tappable section header with an expand / collapse chevron. */
+@Composable
+private fun CollapsibleSectionHeader(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onToggle)
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            title.uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(
+            if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
 @Composable
 private fun PresetRow(
     name: String,
@@ -1517,41 +1549,81 @@ fun ElementConfigSheet(
                 }
             }
 
-            // Colours. A transparent "Background" swatch makes the element's
-            // backdrop invisible.
-            if (element.type != OverlayElementType.FLOATING_CAMERA &&
-                element.type != OverlayElementType.IMAGE &&
-                element.type != OverlayElementType.MAP
-            ) {
-                Text(stringResource(R.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
-                ColorSwatchRow(element.foreground, allowTransparent = false) {
-                    onChange(element.copy(foreground = it))
-                }
-                Text(stringResource(R.string.studio_cfg_background), fontWeight = FontWeight.SemiBold)
-                ColorSwatchRow(element.background) {
-                    onChange(element.copy(background = it))
-                }
-            }
-
-            // Opacity + rotation apply to every element.
-            LabeledSlider(
-                stringResource(R.string.studio_cfg_opacity_label),
-                stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
-                element.opacity, 0.1f, 1f, steps = 17
-            ) { onChange(element.copy(opacity = it)) }
-            LabeledSlider(
-                stringResource(R.string.studio_cfg_rotation_label),
-                stringResource(R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()),
-                element.rotationDeg, -180f, 180f, steps = 71
-            ) { onChange(element.copy(rotationDeg = it)) }
-            // Drop shadow applies to every element type.
-            ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
-                onChange(element.copy(shadow = it))
-            }
-
             Spacer(Modifier.height(10.dp))
             OutlinedButton(onClick = { onChange(element.copy(x = 0.12f, y = 0.14f)) }) {
                 Text(stringResource(R.string.studio_cfg_reset_position))
+            }
+
+            // The generic styling controls (colours, opacity, rotation, drop
+            // shadow) live in a collapsible "Style" section so the sheet stays
+            // short — collapsed by default.
+            var styleExpanded by remember { mutableStateOf(false) }
+            Spacer(Modifier.height(8.dp))
+            CollapsibleSectionHeader(
+                title = stringResource(R.string.studio_cfg_style),
+                expanded = styleExpanded,
+                onToggle = { styleExpanded = !styleExpanded }
+            )
+            if (styleExpanded) {
+                // Colours. A transparent "Background" swatch makes the element's
+                // backdrop invisible.
+                if (element.type != OverlayElementType.FLOATING_CAMERA &&
+                    element.type != OverlayElementType.IMAGE &&
+                    element.type != OverlayElementType.MAP
+                ) {
+                    Text(stringResource(R.string.studio_cfg_text_colour), fontWeight = FontWeight.SemiBold)
+                    ColorSwatchRow(element.foreground, allowTransparent = false) {
+                        onChange(element.copy(foreground = it))
+                    }
+                    Text(stringResource(R.string.studio_cfg_background), fontWeight = FontWeight.SemiBold)
+                    ColorSwatchRow(element.background) {
+                        onChange(element.copy(background = it))
+                    }
+                }
+
+                // Opacity + rotation apply to every element.
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_opacity_label),
+                    stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
+                    element.opacity, 0.1f, 1f, steps = 17
+                ) { onChange(element.copy(opacity = it)) }
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_rotation_label),
+                    stringResource(R.string.studio_cfg_rotation_fmt, element.rotationDeg.toInt()),
+                    element.rotationDeg, -180f, 180f, steps = 71
+                ) { onChange(element.copy(rotationDeg = it)) }
+                // Drop shadow applies to every element type.
+                ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
+                    onChange(element.copy(shadow = it))
+                }
+                // Shadow sub-controls — only meaningful when the shadow is on.
+                if (element.shadow) {
+                    Text(
+                        stringResource(R.string.studio_cfg_shadow_colour),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    ColorSwatchRow(element.shadowColor, allowTransparent = false) {
+                        onChange(element.copy(shadowColor = it))
+                    }
+                    LabeledSlider(
+                        stringResource(R.string.studio_cfg_shadow_strength),
+                        "${(element.shadowStrength * 100).toInt()}%",
+                        element.shadowStrength, 0f, 1f
+                    ) { onChange(element.copy(shadowStrength = it)) }
+                    LabeledSlider(
+                        stringResource(R.string.studio_cfg_shadow_offset),
+                        element.shadowDistance.roundToInt().toString(),
+                        element.shadowDistance, 0f, 16f
+                    ) { onChange(element.copy(shadowDistance = it)) }
+                    LabeledSlider(
+                        stringResource(R.string.studio_cfg_shadow_angle),
+                        stringResource(
+                            R.string.studio_bg_direction_fmt,
+                            element.shadowAngle.roundToInt()
+                        ),
+                        element.shadowAngle, 0f, 360f
+                    ) { onChange(element.copy(shadowAngle = it)) }
+                }
             }
         }
     }

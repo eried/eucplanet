@@ -1000,4 +1000,10 @@
     <string name="studio_chroma_blue">Niebieski</string>
     <string name="studio_chroma_black">Czarny</string>
     <string name="studio_chroma_white">Biały</string>
+    <string name="studio_cfg_style">Styl</string>
+    <string name="studio_cfg_shadow_colour">Kolor cienia</string>
+    <string name="studio_cfg_shadow_strength">Siła cienia</string>
+    <string name="studio_cfg_shadow_offset">Przesunięcie cienia</string>
+    <string name="studio_cfg_shadow_angle">Kierunek cienia</string>
+    <string name="studio_cd_rotate">Obróć</string>
 </resources>

@@ -1000,4 +1000,10 @@
     <string name="studio_chroma_blue">Синій</string>
     <string name="studio_chroma_black">Чорний</string>
     <string name="studio_chroma_white">Білий</string>
+    <string name="studio_cfg_style">Стиль</string>
+    <string name="studio_cfg_shadow_colour">Колір тіні</string>
+    <string name="studio_cfg_shadow_strength">Сила тіні</string>
+    <string name="studio_cfg_shadow_offset">Зсув тіні</string>
+    <string name="studio_cfg_shadow_angle">Напрямок тіні</string>
+    <string name="studio_cd_rotate">Обертати</string>
 </resources>

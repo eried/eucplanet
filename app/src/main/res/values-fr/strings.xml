@@ -963,4 +963,10 @@
     <string name="studio_chroma_blue">Bleu</string>
     <string name="studio_chroma_black">Noir</string>
     <string name="studio_chroma_white">Blanc</string>
+    <string name="studio_cfg_style">Style</string>
+    <string name="studio_cfg_shadow_colour">Couleur de l\'ombre</string>
+    <string name="studio_cfg_shadow_strength">Intensité de l\'ombre</string>
+    <string name="studio_cfg_shadow_offset">Décalage de l\'ombre</string>
+    <string name="studio_cfg_shadow_angle">Direction de l\'ombre</string>
+    <string name="studio_cd_rotate">Pivoter</string>
 </resources>
