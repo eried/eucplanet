@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -584,11 +585,10 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
-        // Cap the longest side at 600 px — keeps render time and file size sane.
-        val srcMax = maxOf(first.width, first.height)
-        val scale = if (srcMax > 600) 600f / srcMax else 1f
-        val ew = (first.width * scale).toInt().coerceAtLeast(2)
-        val eh = (first.height * scale).toInt().coerceAtLeast(2)
+        // Render at the studio's native resolution so the clip matches the
+        // screen instead of being downscaled to a low-res thumbnail.
+        val ew = first.width.coerceAtLeast(2)
+        val eh = first.height.coerceAtLeast(2)
 
         var cancelled = false
         val ok: Boolean = try {
@@ -1012,7 +1012,7 @@ fun OverlayStudioScreen(
         // Replay panel — always on while in replay mode; its X returns to live.
         if (replayMode) {
           RotatedFullScreen(deviceRotation) {
-            Box(Modifier.safeDrawingPadding().fillMaxSize()) {
+            BoxWithConstraints(Modifier.safeDrawingPadding().fillMaxSize()) {
                 StudioReplayDialog(
                     trips = trips,
                     selectedTrip = replayRecord,
@@ -1055,6 +1055,9 @@ fun OverlayStudioScreen(
                     },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        // Cap the panel so it always fits the screen (it is
+                        // short in landscape) — the dialog scrolls inside this.
+                        .heightIn(max = maxHeight - 120.dp)
                         .padding(start = 12.dp, end = 12.dp, bottom = 96.dp)
                         .alpha(if (panelsDimmed) 0.65f else 1f)
                 )

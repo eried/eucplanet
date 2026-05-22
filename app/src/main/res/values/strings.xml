@@ -727,7 +727,7 @@
 
     <!-- Studio: save preset dialog -->
     <string name="studio_save_preset_title">Save preset</string>
-    <string name="studio_save_preset_body">Presets are saved as individual .json files in your backup folder, under overlays/.</string>
+    <string name="studio_save_preset_body">Presets are saved as individual .json files in your backup folder, under overlays/</string>
     <string name="studio_save_preset_name_label">Preset name</string>
     <string name="studio_save_btn">Save</string>
     <string name="studio_no_folder_body">No backup folder is set. Saved presets need a backup folder so each one can be its own file.</string>
@@ -1089,7 +1089,7 @@
     <string name="studio_group_media">Camera &amp; images</string>
     <string name="studio_cfg_border_colour">Border colour</string>
     <string name="studio_cfg_border_width">Border thickness</string>
-    <string name="studio_rendering_keep_open">Keep this screen open until the clip finishes saving.</string>
+    <string name="studio_rendering_keep_open">Keep this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements.</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>

@@ -965,7 +965,7 @@
     <string name="studio_cd_rotate">旋转</string>
     <string name="studio_cfg_border_colour">边框颜色</string>
     <string name="studio_cfg_border_width">边框粗细</string>
-    <string name="studio_rendering_keep_open">请保持此屏幕开启，直到片段保存完成。</string>
+    <string name="studio_rendering_keep_open">渲染完成前请保持此屏幕开启</string>
     <string name="studio_chroma_bright_green">亮绿色</string>
     <string name="studio_chroma_cyan">青色</string>
     <string name="studio_export_force_opaque">强制完全不透明</string>

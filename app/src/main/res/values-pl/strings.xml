@@ -930,7 +930,7 @@
     <string name="studio_replay_title">Powtórka</string>
     <string name="studio_flyout_live">Na żywo</string>
     <string name="studio_save_btn">Zapisz</string>
-    <string name="studio_save_preset_body">Presety są zapisywane jako osobne pliki .json w folderze kopii zapasowej, w katalogu overlays/.</string>
+    <string name="studio_save_preset_body">Presety są zapisywane jako osobne pliki .json w folderze kopii zapasowej, w katalogu overlays/</string>
     <string name="studio_save_preset_name_label">Nazwa presetu</string>
     <string name="studio_save_preset_title">Zapisz preset</string>
     <string name="studio_section_landscape">Pozioma</string>
@@ -1002,7 +1002,7 @@
     <string name="studio_cd_rotate">Obróć</string>
     <string name="studio_cfg_border_colour">Kolor obramowania</string>
     <string name="studio_cfg_border_width">Grubość obramowania</string>
-    <string name="studio_rendering_keep_open">Nie zamykaj tego ekranu, dopóki klip nie zostanie zapisany.</string>
+    <string name="studio_rendering_keep_open">Nie zamykaj tego ekranu, dopóki renderowanie się nie zakończy</string>
     <string name="studio_chroma_bright_green">Jaskrawozielony</string>
     <string name="studio_chroma_cyan">Cyjan</string>
     <string name="studio_export_force_opaque">Wymuś pełną nieprzezroczystość</string>

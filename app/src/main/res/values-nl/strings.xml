@@ -929,7 +929,7 @@
     <string name="studio_replay_title">Replay</string>
     <string name="studio_flyout_live">Live</string>
     <string name="studio_save_btn">Opslaan</string>
-    <string name="studio_save_preset_body">Presets worden opgeslagen als losse .json-bestanden in je back-upmap, onder overlays/.</string>
+    <string name="studio_save_preset_body">Presets worden opgeslagen als losse .json-bestanden in je back-upmap, onder overlays/</string>
     <string name="studio_save_preset_name_label">Presetnaam</string>
     <string name="studio_save_preset_title">Preset opslaan</string>
     <string name="studio_section_landscape">Liggend</string>
@@ -1001,7 +1001,7 @@
     <string name="studio_cd_rotate">Draaien</string>
     <string name="studio_cfg_border_colour">Randkleur</string>
     <string name="studio_cfg_border_width">Randdikte</string>
-    <string name="studio_rendering_keep_open">Houd dit scherm open totdat de clip klaar is met opslaan.</string>
+    <string name="studio_rendering_keep_open">Houd dit scherm open totdat het renderen klaar is</string>
     <string name="studio_chroma_bright_green">Felgroen</string>
     <string name="studio_chroma_cyan">Cyaan</string>
     <string name="studio_export_force_opaque">Volledig ondoorzichtig forceren</string>

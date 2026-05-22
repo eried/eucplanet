@@ -929,7 +929,7 @@
     <string name="studio_replay_title">Replay</string>
     <string name="studio_flyout_live">Dal vivo</string>
     <string name="studio_save_btn">Salva</string>
-    <string name="studio_save_preset_body">I preset vengono salvati come singoli file .json nella cartella di backup, in overlays/.</string>
+    <string name="studio_save_preset_body">I preset vengono salvati come singoli file .json nella cartella di backup, in overlays/</string>
     <string name="studio_save_preset_name_label">Nome del preset</string>
     <string name="studio_save_preset_title">Salva preset</string>
     <string name="studio_section_landscape">Orizzontale</string>
@@ -1001,7 +1001,7 @@
     <string name="studio_cd_rotate">Ruota</string>
     <string name="studio_cfg_border_colour">Colore del bordo</string>
     <string name="studio_cfg_border_width">Spessore del bordo</string>
-    <string name="studio_rendering_keep_open">Tieni questa schermata aperta finché il clip non è salvato.</string>
+    <string name="studio_rendering_keep_open">Tieni questa schermata aperta finché il rendering non termina</string>
     <string name="studio_chroma_bright_green">Verde brillante</string>
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forza opacità totale</string>

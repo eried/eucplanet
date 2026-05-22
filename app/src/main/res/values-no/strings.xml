@@ -910,7 +910,7 @@
     <string name="studio_replay_title">Avspilling</string>
     <string name="studio_flyout_live">Direkte</string>
     <string name="studio_save_btn">Lagre</string>
-    <string name="studio_save_preset_body">Forhåndsinnstillinger lagres som egne .json-filer i backup-mappen din, under overlays/.</string>
+    <string name="studio_save_preset_body">Forhåndsinnstillinger lagres som egne .json-filer i backup-mappen din, under overlays/</string>
     <string name="studio_save_preset_name_label">Navn på forhåndsinnstilling</string>
     <string name="studio_save_preset_title">Lagre forhåndsinnstilling</string>
     <string name="studio_section_landscape">Liggende</string>
@@ -982,7 +982,7 @@
     <string name="studio_cd_rotate">Roter</string>
     <string name="studio_cfg_border_colour">Kantfarge</string>
     <string name="studio_cfg_border_width">Kanttykkelse</string>
-    <string name="studio_rendering_keep_open">Hold denne skjermen åpen til klippet er ferdig lagret.</string>
+    <string name="studio_rendering_keep_open">Hold denne skjermen åpen til gjengivelsen er ferdig</string>
     <string name="studio_chroma_bright_green">Knallgrønn</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Tving helt ugjennomsiktig</string>

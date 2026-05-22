@@ -164,7 +164,14 @@ fun StudioReplayDialog(
         contentColor = Color.White,
         shadowElevation = 12.dp
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(
+            // Scrolls when the panel is taller than the space it has — in
+            // landscape the screen is short, so the output-format row at the
+            // bottom would otherwise be clipped off.
+            Modifier
+                .padding(14.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             // 0 = transport, 1 = trip list, 2 = speed list — inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }

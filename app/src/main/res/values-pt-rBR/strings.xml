@@ -929,7 +929,7 @@
     <string name="studio_replay_title">Replay</string>
     <string name="studio_flyout_live">Ao vivo</string>
     <string name="studio_save_btn">Salvar</string>
-    <string name="studio_save_preset_body">As predefinições são salvas como arquivos .json individuais na sua pasta de backup, dentro de overlays/.</string>
+    <string name="studio_save_preset_body">As predefinições são salvas como arquivos .json individuais na sua pasta de backup, dentro de overlays/</string>
     <string name="studio_save_preset_name_label">Nome da predefinição</string>
     <string name="studio_save_preset_title">Salvar predefinição</string>
     <string name="studio_section_landscape">Paisagem</string>
@@ -1001,7 +1001,7 @@
     <string name="studio_cd_rotate">Girar</string>
     <string name="studio_cfg_border_colour">Cor da borda</string>
     <string name="studio_cfg_border_width">Espessura da borda</string>
-    <string name="studio_rendering_keep_open">Mantenha esta tela aberta até o clipe terminar de salvar.</string>
+    <string name="studio_rendering_keep_open">Mantenha esta tela aberta até o render terminar</string>
     <string name="studio_chroma_bright_green">Verde brilhante</string>
     <string name="studio_chroma_cyan">Ciano</string>
     <string name="studio_export_force_opaque">Forçar opacidade total</string>

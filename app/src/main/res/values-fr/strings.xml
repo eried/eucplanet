@@ -893,7 +893,7 @@
     <string name="studio_replay_title">Rejeu</string>
     <string name="studio_flyout_live">En direct</string>
     <string name="studio_save_btn">Enregistrer</string>
-    <string name="studio_save_preset_body">Les préréglages sont enregistrés sous forme de fichiers .json individuels dans votre dossier de sauvegarde, sous overlays/.</string>
+    <string name="studio_save_preset_body">Les préréglages sont enregistrés sous forme de fichiers .json individuels dans votre dossier de sauvegarde, sous overlays/</string>
     <string name="studio_save_preset_name_label">Nom du préréglage</string>
     <string name="studio_save_preset_title">Enregistrer le préréglage</string>
     <string name="studio_section_landscape">Paysage</string>
@@ -965,7 +965,7 @@
     <string name="studio_cd_rotate">Pivoter</string>
     <string name="studio_cfg_border_colour">Couleur de la bordure</string>
     <string name="studio_cfg_border_width">Épaisseur de la bordure</string>
-    <string name="studio_rendering_keep_open">Garde cet écran ouvert jusqu\'à la fin de l\'enregistrement du clip.</string>
+    <string name="studio_rendering_keep_open">Gardez cet écran ouvert pendant le rendu</string>
     <string name="studio_chroma_bright_green">Vert vif</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Forcer l\'opacité totale</string>

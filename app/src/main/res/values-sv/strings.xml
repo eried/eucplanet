@@ -893,7 +893,7 @@
     <string name="studio_replay_title">Återuppspelning</string>
     <string name="studio_flyout_live">Direkt</string>
     <string name="studio_save_btn">Spara</string>
-    <string name="studio_save_preset_body">Förinställningar sparas som enskilda .json-filer i din säkerhetskopieringsmapp, under overlays/.</string>
+    <string name="studio_save_preset_body">Förinställningar sparas som enskilda .json-filer i din säkerhetskopieringsmapp, under overlays/</string>
     <string name="studio_save_preset_name_label">Namn på förinställning</string>
     <string name="studio_save_preset_title">Spara förinställning</string>
     <string name="studio_section_landscape">Liggande</string>
@@ -965,7 +965,7 @@
     <string name="studio_cd_rotate">Rotera</string>
     <string name="studio_cfg_border_colour">Kantfärg</string>
     <string name="studio_cfg_border_width">Kanttjocklek</string>
-    <string name="studio_rendering_keep_open">Håll den här skärmen öppen tills klippet har sparats.</string>
+    <string name="studio_rendering_keep_open">Håll den här skärmen öppen tills renderingen är klar</string>
     <string name="studio_chroma_bright_green">Klargrön</string>
     <string name="studio_chroma_cyan">Cyan</string>
     <string name="studio_export_force_opaque">Tvinga helt ogenomskinlig</string>
