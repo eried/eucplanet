@@ -42,9 +42,24 @@ fun EucViewerScreen(
     LaunchedEffect(pageReady, payload) {
         val p = payload
         if (pageReady && p != null) {
-            webView?.evaluateJavascript(
-                "window.loadFileFromBase64('${p.first}','${p.second}')", null
-            )
+            // onPageFinished fires before the viewer's own scripts have run, so
+            // window.loadFileFromBase64 often isn't defined yet — poll for the
+            // hook (up to ~15 s) before handing over the CSV. base64 + the trip
+            // file name contain no quotes, so a single-quoted literal is safe.
+            val js = """
+                (function(){
+                  var b64='${p.first}', name='${p.second}', n=0;
+                  function go(){
+                    if (typeof window.loadFileFromBase64 === 'function') {
+                      window.loadFileFromBase64(b64, name);
+                    } else if (n++ < 150) {
+                      setTimeout(go, 100);
+                    }
+                  }
+                  go();
+                })();
+            """.trimIndent()
+            webView?.evaluateJavascript(js, null)
         }
     }
 
