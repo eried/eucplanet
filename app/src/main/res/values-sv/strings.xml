@@ -7,9 +7,10 @@
     <string name="action_back">Tillbaka</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Vad vill du göra med denna logg?</string>
+<string name="crash_log_action_prompt">Stäng detta och tryck på %1$s för att dela den. Knapparna nedan tar bort kraschloggar.</string>
     <string name="crash_log_delete_one">Ta bort denna logg</string>
-    <string name="crash_log_delete_all">Ta bort alla loggar</string>
+    <string name="crash_log_delete_all">Radera alla</string>
+    <string name="crash_log_delete_all_warning">Radera alla sparade kraschloggar? Detta kan inte ångras.</string>
     <string name="action_save">Spara</string>
     <string name="action_delete">Radera</string>
     <string name="action_edit">Redigera</string>

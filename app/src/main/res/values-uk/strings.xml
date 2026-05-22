@@ -8,9 +8,10 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Що зробити з цим логом?</string>
+<string name="crash_log_action_prompt">Закрийте це вікно й торкніться %1$s, щоб поділитися. Кнопки нижче видаляють журнали збоїв.</string>
     <string name="crash_log_delete_one">Видалити цей лог</string>
-    <string name="crash_log_delete_all">Видалити всі логи</string>
+    <string name="crash_log_delete_all">Видалити всі</string>
+    <string name="crash_log_delete_all_warning">Видалити всі збережені журнали збоїв? Цю дію не можна скасувати.</string>
     <string name="action_save">Зберегти</string>
     <string name="action_delete">Видалити</string>
     <string name="action_edit">Змінити</string>

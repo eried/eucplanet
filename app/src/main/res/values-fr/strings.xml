@@ -7,9 +7,10 @@
     <string name="action_back">Retour</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Que faire avec ce journal ?</string>
+<string name="crash_log_action_prompt">Fermez ceci et touchez %1$s pour le partager. Les boutons ci-dessous suppriment les journaux de plantage.</string>
     <string name="crash_log_delete_one">Supprimer ce journal</string>
     <string name="crash_log_delete_all">Tout supprimer</string>
+    <string name="crash_log_delete_all_warning">Supprimer tous les journaux de plantage enregistrés ? Cette action est irréversible.</string>
     <string name="action_save">Enregistrer</string>
     <string name="action_delete">Supprimer</string>
     <string name="action_edit">Modifier</string>

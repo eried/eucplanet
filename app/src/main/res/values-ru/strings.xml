@@ -7,9 +7,10 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_ok">ОК</string>
-<string name="crash_log_action_prompt">Что сделать с этим логом?</string>
+<string name="crash_log_action_prompt">Закройте это окно и нажмите %1$s, чтобы поделиться. Кнопки ниже удаляют журналы сбоев.</string>
     <string name="crash_log_delete_one">Удалить этот лог</string>
-    <string name="crash_log_delete_all">Удалить все логи</string>
+    <string name="crash_log_delete_all">Удалить все</string>
+    <string name="crash_log_delete_all_warning">Удалить все сохранённые журналы сбоев? Это действие нельзя отменить.</string>
     <string name="action_save">Сохранить</string>
     <string name="action_delete">Удалить</string>
     <string name="action_edit">Изменить</string>

@@ -8,9 +8,10 @@
     <string name="action_back">Voltar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">O que fazer com este log?</string>
+<string name="crash_log_action_prompt">Feche isto e toque em %1$s para compartilhar. Os botões abaixo apagam os registros de falhas.</string>
     <string name="crash_log_delete_one">Apagar este log</string>
-    <string name="crash_log_delete_all">Apagar todos os logs</string>
+    <string name="crash_log_delete_all">Excluir tudo</string>
+    <string name="crash_log_delete_all_warning">Excluir todos os registros de falhas salvos? Isso não pode ser desfeito.</string>
     <string name="action_save">Salvar</string>
     <string name="action_delete">Excluir</string>
     <string name="action_edit">Editar</string>

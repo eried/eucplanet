@@ -7,9 +7,10 @@
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">Aceptar</string>
-<string name="crash_log_action_prompt">¿Qué quieres hacer con este registro?</string>
+<string name="crash_log_action_prompt">Cierra esto y toca %1$s para compartirlo. Los botones de abajo borran los registros de fallos.</string>
     <string name="crash_log_delete_one">Borrar este registro</string>
-    <string name="crash_log_delete_all">Borrar todos los registros</string>
+    <string name="crash_log_delete_all">Eliminar todo</string>
+    <string name="crash_log_delete_all_warning">¿Eliminar todos los registros de fallos guardados? Esta acción no se puede deshacer.</string>
     <string name="action_save">Guardar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_edit">Editar</string>

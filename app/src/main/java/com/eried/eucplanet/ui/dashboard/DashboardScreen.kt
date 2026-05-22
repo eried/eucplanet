@@ -1105,6 +1105,7 @@ fun DashboardScreen(
                     mutableStateOf(com.eried.eucplanet.util.CrashHandler.listCrashes(context))
                 }
                 var crashMenuFor by remember { mutableStateOf<java.io.File?>(null) }
+                var confirmDeleteAllCrashes by remember { mutableStateOf(false) }
                 val licenseText = remember {
                     try {
                         val raw = context.resources.openRawResource(R.raw.license)
@@ -1538,34 +1539,45 @@ fun DashboardScreen(
                     crashMenuFor?.let { target ->
                         androidx.compose.material3.AlertDialog(
                             onDismissRequest = { crashMenuFor = null },
-                            title = { Text(target.name) },
-                            text = { Text(stringResource(R.string.crash_log_action_prompt)) },
+                            title = { Text(stringResource(R.string.about_crash_logs)) },
+                            text = {
+                                Text(stringResource(R.string.crash_log_action_prompt, target.name))
+                            },
                             confirmButton = {
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    TextButton(
-                                        onClick = {
-                                            runCatching { target.delete() }
-                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
-                                            crashMenuFor = null
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text(stringResource(R.string.crash_log_delete_one)) }
-                                    TextButton(
-                                        onClick = {
-                                            crashes.forEach { runCatching { it.delete() } }
-                                            crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
-                                            crashMenuFor = null
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text(stringResource(R.string.crash_log_delete_all)) }
-                                    TextButton(
-                                        onClick = { crashMenuFor = null },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text(stringResource(R.string.action_cancel)) }
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    TextButton(onClick = {
+                                        runCatching { target.delete() }
+                                        crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                        crashMenuFor = null
+                                    }) { Text(stringResource(R.string.action_delete)) }
+                                    TextButton(onClick = { confirmDeleteAllCrashes = true }) {
+                                        Text(stringResource(R.string.crash_log_delete_all))
+                                    }
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { crashMenuFor = null }) {
+                                    Text(stringResource(R.string.action_cancel))
+                                }
+                            }
+                        )
+                    }
+                    if (confirmDeleteAllCrashes) {
+                        androidx.compose.material3.AlertDialog(
+                            onDismissRequest = { confirmDeleteAllCrashes = false },
+                            title = { Text(stringResource(R.string.crash_log_delete_all)) },
+                            text = { Text(stringResource(R.string.crash_log_delete_all_warning)) },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    crashes.forEach { runCatching { it.delete() } }
+                                    crashes = com.eried.eucplanet.util.CrashHandler.listCrashes(context)
+                                    confirmDeleteAllCrashes = false
+                                    crashMenuFor = null
+                                }) { Text(stringResource(R.string.action_delete)) }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { confirmDeleteAllCrashes = false }) {
+                                    Text(stringResource(R.string.action_cancel))
                                 }
                             }
                         )

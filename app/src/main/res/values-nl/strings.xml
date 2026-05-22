@@ -8,9 +8,10 @@
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Wat wil je met dit logbestand doen?</string>
+<string name="crash_log_action_prompt">Sluit dit en tik op %1$s om het te delen. De knoppen hieronder verwijderen crashlogs.</string>
     <string name="crash_log_delete_one">Dit logbestand verwijderen</string>
-    <string name="crash_log_delete_all">Alle logbestanden verwijderen</string>
+    <string name="crash_log_delete_all">Alles verwijderen</string>
+    <string name="crash_log_delete_all_warning">Alle opgeslagen crashlogs verwijderen? Dit kan niet ongedaan worden gemaakt.</string>
     <string name="action_save">Opslaan</string>
     <string name="action_delete">Verwijderen</string>
     <string name="action_edit">Bewerken</string>

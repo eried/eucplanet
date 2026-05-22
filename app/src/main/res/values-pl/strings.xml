@@ -8,9 +8,10 @@
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Co chcesz zrobić z tym logiem?</string>
+<string name="crash_log_action_prompt">Zamknij to i dotknij %1$s, aby udostępnić. Przyciski poniżej usuwają dzienniki awarii.</string>
     <string name="crash_log_delete_one">Usuń ten log</string>
-    <string name="crash_log_delete_all">Usuń wszystkie logi</string>
+    <string name="crash_log_delete_all">Usuń wszystkie</string>
+    <string name="crash_log_delete_all_warning">Usunąć wszystkie zapisane dzienniki awarii? Tej operacji nie można cofnąć.</string>
     <string name="action_save">Zapisz</string>
     <string name="action_delete">Usuń</string>
     <string name="action_edit">Edytuj</string>

@@ -8,9 +8,10 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">What do you want to do with this log?</string>
+<string name="crash_log_action_prompt">Close this and tap %1$s to share it. The buttons below delete crash logs.</string>
     <string name="crash_log_delete_one">Delete this log</string>
-    <string name="crash_log_delete_all">Delete all logs</string>
+    <string name="crash_log_delete_all">Delete all</string>
+    <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>
     <string name="action_save">Save</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
