@@ -1058,14 +1058,14 @@ fun OverlayStudioScreen(
                         replayPlaying = false
                     },
                     modifier = Modifier
-                        // In landscape the screen is short — dock the panel to
-                        // the side, where it has the full height and never has
-                        // to scroll. Portrait keeps it above the bottom bar.
+                        // In landscape the screen is short — centre the panel
+                        // so it has the full height (no scroll) and clears the
+                        // side buttons. Portrait keeps it above the bottom bar.
                         .then(
                             if (deviceRotation == 90 || deviceRotation == 270)
                                 Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(end = 12.dp, top = 8.dp, bottom = 8.dp)
+                                    .align(Alignment.Center)
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
                             else
                                 Modifier
                                     .align(Alignment.BottomCenter)
