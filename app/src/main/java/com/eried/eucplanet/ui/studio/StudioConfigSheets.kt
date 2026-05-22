@@ -252,7 +252,11 @@ fun StudioToolsFlyout(
     }
     // Two columns: saved Presets on the left, the live studio actions on the
     // right. Rotated so it faces a rider holding the phone sideways.
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(16.dp)
+    ) {
         androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
             Column(Modifier.width(154.dp)) {
@@ -380,7 +384,15 @@ fun Modifier.rotateLayout(rotation: Int): Modifier {
     val shown = remember { androidx.compose.runtime.mutableIntStateOf(target) }
     val fade = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(target) {
-        if (shown.intValue == target) return@LaunchedEffect
+        if (shown.intValue == target) {
+            // A previous rotation was interrupted mid-fade (orientation flipped
+            // back before the animation finished) — snap back to fully visible
+            // so the chrome can never get stuck half-faded / blank.
+            if (fade.value != 1f) {
+                fade.animateTo(1f, androidx.compose.animation.core.tween(140))
+            }
+            return@LaunchedEffect
+        }
         fade.animateTo(0f, androidx.compose.animation.core.tween(90))
         shown.intValue = target
         fade.animateTo(1f, androidx.compose.animation.core.tween(140))
@@ -1050,10 +1062,28 @@ fun ViewportConfigSheet(
                             ) { Text(stringResource(R.string.studio_viewport_clear_image)) }
                         }
                     }
-                    Spacer(Modifier.height(12.dp))
-                    FitModePicker(config, onChange)
-                    ZoomSlider(config, onChange)
-                    ColorGradeEditor(config, onChange)
+                    Spacer(Modifier.height(8.dp))
+                    // Same grouped layout as the camera source: fit / zoom under
+                    // a collapsible Geometry section, the colour grade under
+                    // Style — so the sheet stays short and the two sources read
+                    // the same. The open / closed state is shared with camera.
+                    CollapsibleSectionHeader(
+                        title = stringResource(R.string.studio_cfg_geometry),
+                        expanded = geometryExpanded,
+                        onToggle = { onGeometryExpandedChange(!geometryExpanded) }
+                    )
+                    if (geometryExpanded) {
+                        FitModePicker(config, onChange)
+                        ZoomSlider(config, onChange)
+                    }
+                    CollapsibleSectionHeader(
+                        title = stringResource(R.string.studio_cfg_style),
+                        expanded = cameraStyleExpanded,
+                        onToggle = { onCameraStyleExpandedChange(!cameraStyleExpanded) }
+                    )
+                    if (cameraStyleExpanded) {
+                        ColorGradeEditor(config, onChange)
+                    }
                 }
             }
         }
