@@ -1308,7 +1308,11 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
     Spacer(Modifier.height(12.dp))
     if (isSolid) {
         Text(stringResource(R.string.studio_bg_colour_label), fontWeight = FontWeight.SemiBold)
-        ColorSwatchRow(config.solidColor) { onChange(config.copy(solidColor = it)) }
+        // A pane background is the bottom layer — a transparent fill is
+        // meaningless, so the swatch row is opaque-only here.
+        ColorSwatchRow(config.solidColor, allowTransparent = false) {
+            onChange(config.copy(solidColor = it))
+        }
     } else {
         GradientEditor(config, onChange)
     }
@@ -1400,7 +1404,9 @@ private fun GradientStopRow(
     Column(Modifier.padding(vertical = 2.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) {
-                ColorSwatchRow(color) { onColor(it) }
+                // Gradient stops paint a pane background (linear or radial) —
+                // opaque-only, a transparent stop has nothing to blend with.
+                ColorSwatchRow(color, allowTransparent = false) { onColor(it) }
             }
             if (canRemove) {
                 Icon(
