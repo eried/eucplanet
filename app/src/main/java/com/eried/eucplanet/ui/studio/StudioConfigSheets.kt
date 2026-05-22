@@ -155,21 +155,31 @@ val ChromaPalette: List<Long> = listOf(
     0xFFFFFFFFL, 0xFF000000L, 0xFFE53935L
 )
 
-@Composable
-fun ViewportLayout.displayName(): String {
-    // Held sideways, a fixed "2 rows" split reads as 2 columns to the rider, so
-    // the layout picker names each choice the way it is actually seen. Only the
-    // words swap — the mini-diagram rotates with the panel and already matches,
-    // and the underlying geometry never changes.
-    val landscape = LocalStudioRotation.current.let { it == 90 || it == 270 }
-    val shown = if (!landscape) this else when (this) {
+/**
+ * The layout shape to PRESENT for [this] in the picker. The studio surface
+ * never rotates, but the picker panel does (so it faces a rider holding the
+ * phone sideways) — which means a COLUMNS_2 split, vertical on the upright
+ * surface, is physically seen as 2 rows once the phone is turned. The picker's
+ * name and mini-diagram are transposed together to match what will actually be
+ * recorded; the layout value the rider picks is never changed.
+ */
+private fun ViewportLayout.orientedForDisplay(landscape: Boolean): ViewportLayout =
+    if (!landscape) this else when (this) {
         ViewportLayout.ROWS_2 -> ViewportLayout.COLUMNS_2
         ViewportLayout.COLUMNS_2 -> ViewportLayout.ROWS_2
         ViewportLayout.ROWS_3 -> ViewportLayout.COLUMNS_3
         ViewportLayout.COLUMNS_3 -> ViewportLayout.ROWS_3
         else -> this
     }
-    return when (shown) {
+
+/** True while the studio chrome is rotated for a landscape grip. */
+@Composable
+private fun studioLandscape(): Boolean =
+    LocalStudioRotation.current.let { it == 90 || it == 270 }
+
+@Composable
+fun ViewportLayout.displayName(): String =
+    when (orientedForDisplay(studioLandscape())) {
         ViewportLayout.SINGLE -> stringResource(R.string.studio_layout_full_screen)
         ViewportLayout.ROWS_2 -> stringResource(R.string.studio_layout_2_rows)
         ViewportLayout.COLUMNS_2 -> stringResource(R.string.studio_layout_2_columns)
@@ -177,7 +187,6 @@ fun ViewportLayout.displayName(): String {
         ViewportLayout.COLUMNS_3 -> stringResource(R.string.studio_layout_3_columns)
         ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
     }
-}
 
 private val OverlayElementType.labelRes: Int
     get() = when (this) {
@@ -641,13 +650,15 @@ private fun LayoutChoice(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Mini diagram of the panes.
+        // Mini diagram of the panes — transposed in landscape to match the name
+        // and what the rider will actually see recorded.
         androidx.compose.foundation.layout.BoxWithConstraints(
             Modifier.fillMaxWidth().height(48.dp)
         ) {
             val w = maxWidth
             val h = maxHeight
-            paneRects(layout, layout.defaultDividers()).forEach { r ->
+            val shown = layout.orientedForDisplay(studioLandscape())
+            paneRects(shown, shown.defaultDividers()).forEach { r ->
                 Box(
                     Modifier
                         .offset(x = w * r.left, y = h * r.top)
