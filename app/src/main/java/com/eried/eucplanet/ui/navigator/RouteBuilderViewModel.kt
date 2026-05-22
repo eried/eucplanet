@@ -108,6 +108,17 @@ class RouteBuilderViewModel @Inject constructor(
     private var routerUrl = RoutingService.DEFAULT_ROUTER
     private var routeName = context.getString(R.string.nav_default_route_name)
 
+    // Declared above init{}: the init coroutine can resume synchronously (an
+    // already-cached settings read) and touch these before properties declared
+    // lower in the class would have been initialised — that was a startup crash.
+    private val _home = MutableStateFlow<Waypoint?>(null)
+    val home: StateFlow<Waypoint?> = _home.asStateFlow()
+    private val _work = MutableStateFlow<Waypoint?>(null)
+    val work: StateFlow<Waypoint?> = _work.asStateFlow()
+
+    /** Default arrival radius (metres) for waypoints with no custom value. */
+    private var defaultRadiusM: Int = 40
+
     init {
         // The route builder needs a live fix for the "my location" button.
         // WheelService owns the GPS lifecycle in general; this is an idempotent
@@ -433,9 +444,6 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Map data ----------------------------------------------------------------
 
-    /** Default arrival radius (metres) for waypoints with no custom value. */
-    private var defaultRadiusM: Int = 40
-
     fun waypointsJson(): String {
         val arr = JSONArray()
         _waypoints.value.forEach { w ->
@@ -460,11 +468,6 @@ class RouteBuilderViewModel @Inject constructor(
     }
 
     // --- Home / Work presets -------------------------------------------------
-
-    private val _home = MutableStateFlow<Waypoint?>(null)
-    val home: StateFlow<Waypoint?> = _home.asStateFlow()
-    private val _work = MutableStateFlow<Waypoint?>(null)
-    val work: StateFlow<Waypoint?> = _work.asStateFlow()
 
     private fun placeFromJson(s: String): Waypoint? = runCatching {
         if (s.isBlank()) null
