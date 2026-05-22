@@ -250,7 +250,11 @@ class WheelRepository @Inject constructor(
         // it doesn't flood downstream collectors.
         scope.launch {
             phoneSensorRepository.imu.sample(120L).collect { s ->
-                _wheelData.value = _wheelData.value.copy(gForce = s?.magnitude ?: 0f)
+                _wheelData.value = _wheelData.value.copy(
+                    gForce = s?.magnitude ?: 0f,
+                    accelX = s?.xG ?: 0f,
+                    accelY = s?.zG ?: 0f
+                )
             }
         }
 
@@ -305,7 +309,10 @@ class WheelRepository @Inject constructor(
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
                         phoneSensorRepository.stop()
                         _wheelData.value =
-                            _wheelData.value.copy(totalDistance = 0f, gForce = 0f)
+                            _wheelData.value.copy(
+                                totalDistance = 0f, gForce = 0f,
+                                accelX = 0f, accelY = 0f
+                            )
                         // History is preserved across disconnects (cleared only on new wheel)
                     }
                     else -> {}

@@ -17,6 +17,10 @@ data class WheelData(
     val rollAngle: Float = 0f,
     /** Phone IMU acceleration magnitude in g — 0 for trips recorded before this. */
     val gForce: Float = 0f,
+    /** Phone IMU lateral acceleration in g (+right). 0 for trips recorded before this. */
+    val accelX: Float = 0f,
+    /** Phone IMU forward acceleration in g (+forward). 0 for trips recorded before this. */
+    val accelY: Float = 0f,
     val batteryPower: Int = 0,
     val motorPower: Int = 0,
     val dynamicSpeedLimit: Float = 0f,

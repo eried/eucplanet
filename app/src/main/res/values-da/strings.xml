@@ -924,4 +924,7 @@
     <string name="trip_action_view_online_desc">Åbn den på EUC Viewer-kortet</string>
     <string name="trip_action_replay">Afspil i Studio</string>
     <string name="trip_action_replay_desc">Scrub turen med live-dataoverlejringer</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">En G-kraftcirkel med spor</string>
+    <string name="studio_cfg_trail_label">Sporlængde</string>
 </resources>

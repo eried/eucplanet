@@ -959,4 +959,7 @@
     <string name="trip_action_view_online_desc">Otwórz na mapie EUC Viewer</string>
     <string name="trip_action_replay">Odtwórz w Studio</string>
     <string name="trip_action_replay_desc">Przewijaj przejazd z nakładkami danych na żywo</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">Okrąg śladu przeciążenia</string>
+    <string name="studio_cfg_trail_label">Długość śladu</string>
 </resources>

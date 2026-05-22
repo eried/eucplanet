@@ -27,7 +27,7 @@ class CsvWriter(private val file: File) {
 
     fun open() {
         writer = BufferedWriter(FileWriter(file))
-        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM,G-Force")
+        writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Ext GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
         writer?.newLine()
     }
 
@@ -54,7 +54,7 @@ class CsvWriter(private val file: File) {
         w.write(
             String.format(
                 Locale.US,
-                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s,%.1f,%.1f,%.3f",
+                "%s,%.1f,%.1f,%.1f,%d,%.1f,%.6f,%.6f,%.1f,%.1f,%s,%.1f,%.1f,%.3f,%.3f,%.3f",
                 date,
                 speed,
                 data.voltage,
@@ -68,7 +68,9 @@ class CsvWriter(private val file: File) {
                 extColumn,
                 data.current,
                 data.pwm,
-                data.gForce
+                data.gForce,
+                data.accelX,
+                data.accelY
             )
         )
         w.newLine()

@@ -65,6 +65,8 @@ fun parseTripCsv(text: String): ReplayTrip {
     val iBattery = idx("battery level", "battery")
     val iMileage = idx("total mileage", "mileage", "distance")
     val iGForce = idx("g-force", "gforce")
+    val iAccelX = idx("g-force x")
+    val iAccelY = idx("g-force y")
 
     val out = ArrayList<ReplaySample>()
     var firstMs = -1L
@@ -97,7 +99,9 @@ fun parseTripCsv(text: String): ReplayTrip {
                 totalDistance = mileage,
                 tripDistance = (mileage - firstMileage).coerceAtLeast(0f),
                 motorPower = (voltage * current).toInt(),
-                gForce = num(iGForce)
+                gForce = num(iGForce),
+                accelX = num(iAccelX),
+                accelY = num(iAccelY)
             )
         )
     }

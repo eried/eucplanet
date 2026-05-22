@@ -292,6 +292,131 @@ private fun ElementContent(element: OverlayElement, data: StudioElementData) {
         OverlayElementType.FLOATING_CAMERA -> FloatingCameraElement(element, data)
         OverlayElementType.IMAGE -> ImageElement(element)
         OverlayElementType.CLOCK -> ClockElement(element, data)
+        OverlayElementType.G_FORCE -> GForceTrailElement(element, data)
+    }
+}
+
+/**
+ * A circular crosshair plotting live lateral × forward G-force with a fading
+ * comet trail — the studio twin of the dashboard's GForceCrosshair. The trail
+ * is rebuilt from [StudioElementData.history] each frame, so it works for both
+ * live recording and trip replay (history is the trip up to the scrub point).
+ */
+@Composable
+private fun GForceTrailElement(element: OverlayElement, data: StudioElementData) {
+    val fg = Color(element.foreground)
+    // Trail hue is the dot colour mixed toward black so the tail reads as a
+    // darker shade and the bright live dot stays the focal point.
+    val trailColor = androidx.compose.ui.graphics.lerp(fg, Color.Black, 0.45f)
+    // Comet trail points (lateral, forward) within the configured window,
+    // anchored to the latest sample so a stale clock doesn't freeze scrolling.
+    val windowMs = element.graphWindowSec * 1000L
+    val trail = remember(data.history, element.graphWindowSec) {
+        val last = data.history.lastOrNull()?.timeMs ?: 0L
+        data.history
+            .filter { it.timeMs >= last - windowMs }
+            .map { Offset(it.data.accelX, it.data.accelY) }
+    }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .background(Color(element.background), RoundedCornerShape(10.dp))
+            .padding(10.dp)
+    ) {
+        androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            val cx = w / 2f
+            val cy = h / 2f
+            val maxG = 1.5f
+            val unit = (w.coerceAtMost(h) / 2f) / maxG
+
+            // Concentric dashed rings at 0.5 / 1.0 / 1.5 g + a crosshair.
+            val grid = trailColor.copy(alpha = 0.4f)
+            val dash = PathEffect.dashPathEffect(floatArrayOf(4f, 4f))
+            listOf(0.5f, 1.0f, 1.5f).forEach { r ->
+                drawCircle(
+                    color = grid,
+                    radius = r * unit,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 1f, pathEffect = dash)
+                )
+            }
+            drawLine(grid, Offset(0f, cy), Offset(w, cy), strokeWidth = 1f, pathEffect = dash)
+            drawLine(grid, Offset(cx, 0f), Offset(cx, h), strokeWidth = 1f, pathEffect = dash)
+
+            // Comet tail — Catmull-Rom-smoothed curve through the trail points
+            // (tension 0.5), each segment sub-sampled into small strokes so it
+            // reads as one continuous curve. Stroke width + alpha taper along
+            // the tail (sqrt curve) so only the oldest end really fades out.
+            if (trail.size >= 2) {
+                val n = trail.size
+                val mapped = trail.map { p ->
+                    Offset(
+                        cx + p.x.coerceIn(-maxG, maxG) * unit,
+                        cy - p.y.coerceIn(-maxG, maxG) * unit
+                    )
+                }
+                val sub = 12
+                for (i in 1 until n) {
+                    val p0 = mapped[(i - 2).coerceAtLeast(0)]
+                    val p1 = mapped[i - 1]
+                    val p2 = mapped[i]
+                    val p3 = mapped[(i + 1).coerceAtMost(n - 1)]
+                    val age = i / (n - 1).toFloat()
+                    val visible = kotlin.math.sqrt(age)
+                    val alpha = 0.06f + 0.24f * visible
+                    val stroke = 2.5f + 6.5f * visible
+                    var prev = p1
+                    for (s in 1..sub) {
+                        val t = s / sub.toFloat()
+                        val t2 = t * t
+                        val t3 = t2 * t
+                        val x = 0.5f * (
+                            (2f * p1.x) +
+                            (-p0.x + p2.x) * t +
+                            (2f * p0.x - 5f * p1.x + 4f * p2.x - p3.x) * t2 +
+                            (-p0.x + 3f * p1.x - 3f * p2.x + p3.x) * t3
+                        )
+                        val y = 0.5f * (
+                            (2f * p1.y) +
+                            (-p0.y + p2.y) * t +
+                            (2f * p0.y - 5f * p1.y + 4f * p2.y - p3.y) * t2 +
+                            (-p0.y + 3f * p1.y - 3f * p2.y + p3.y) * t3
+                        )
+                        val cur = Offset(x, y)
+                        drawLine(
+                            color = trailColor.copy(alpha = alpha),
+                            start = prev,
+                            end = cur,
+                            strokeWidth = stroke,
+                            cap = StrokeCap.Round
+                        )
+                        prev = cur
+                    }
+                }
+            }
+
+            // Live dot at the current lateral / forward G-force.
+            val gx = data.wheelData.accelX.coerceIn(-maxG, maxG)
+            val gy = data.wheelData.accelY.coerceIn(-maxG, maxG)
+            val center = Offset(cx + gx * unit, cy - gy * unit)
+            drawCircle(color = fg.copy(alpha = 0.15f), radius = 24f, center = center)
+            drawCircle(color = fg.copy(alpha = 0.30f), radius = 18f, center = center)
+            drawCircle(color = fg, radius = 13f, center = center)
+            drawCircle(
+                color = Color.White,
+                radius = 13f,
+                center = center,
+                style = Stroke(width = 2f)
+            )
+            drawCircle(
+                color = Color.White.copy(alpha = 0.85f),
+                radius = 4f,
+                center = Offset(center.x - 4f, center.y - 4f)
+            )
+        }
     }
 }
 

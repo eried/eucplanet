@@ -744,6 +744,7 @@
     <string name="studio_element_floating_camera">Floating camera</string>
     <string name="studio_element_image">Image / clipart</string>
     <string name="studio_element_clock">Clock</string>
+    <string name="studio_element_g_force">G-Force</string>
 
     <!-- Studio: element type hints (shown in add-element list) -->
     <string name="studio_hint_wheel_name">The connected wheel\'s name</string>
@@ -756,6 +757,7 @@
     <string name="studio_hint_floating_camera">A small picture-in-picture camera</string>
     <string name="studio_hint_image">Your own image, embedded in the preset</string>
     <string name="studio_hint_clock">A clock, analog watch or stopwatch</string>
+    <string name="studio_hint_g_force">A G-force trail circle</string>
 
     <!-- Studio: layout picker -->
     <string name="studio_layout_title">Camera panes</string>
@@ -817,6 +819,7 @@
     <string name="studio_cfg_badge_show_version">Show version number</string>
     <string name="studio_cfg_time_window_label">Time window</string>
     <string name="studio_cfg_time_window_fmt">%1$ds</string>
+    <string name="studio_cfg_trail_label">Trail length</string>
     <string name="studio_cfg_camera_label">Camera</string>
     <string name="studio_cfg_replace_image">Replace image</string>
     <string name="studio_cfg_chroma_key">Make a colour transparent</string>

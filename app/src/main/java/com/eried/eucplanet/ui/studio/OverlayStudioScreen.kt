@@ -1148,6 +1148,18 @@ private fun newElement(
     val isGauge = type == OverlayElementType.DATA_DIAL ||
         type == OverlayElementType.DATA_BAR
     val metric = nextMetric(elements)
+    if (type == OverlayElementType.G_FORCE) {
+        return OverlayElement(
+            type = type,
+            x = 0.12f,
+            y = 0.16f,
+            width = 0.4f,
+            graphWindowSec = 6,
+            foreground = 0xFF4FC3F7L, // cyan trail / dot
+            background = 0x66000000L,
+            rotationDeg = ((360 - deviceRotation) % 360).toFloat()
+        )
+    }
     return OverlayElement(
         type = type,
         x = 0.12f,

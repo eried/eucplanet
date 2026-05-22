@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Colorize
+import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsBike
@@ -172,6 +173,7 @@ private fun OverlayElementType.label(): String = when (this) {
     OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_element_floating_camera)
     OverlayElementType.IMAGE -> stringResource(R.string.studio_element_image)
     OverlayElementType.CLOCK -> stringResource(R.string.studio_element_clock)
+    OverlayElementType.G_FORCE -> stringResource(R.string.studio_element_g_force)
 }
 
 private val OverlayElementType.icon
@@ -186,6 +188,7 @@ private val OverlayElementType.icon
         OverlayElementType.FLOATING_CAMERA -> Icons.Default.PhotoCamera
         OverlayElementType.IMAGE -> Icons.Default.Image
         OverlayElementType.CLOCK -> Icons.Default.Schedule
+        OverlayElementType.G_FORCE -> Icons.Default.CompareArrows
     }
 
 // --------------------------------------------------------------------------
@@ -512,6 +515,7 @@ private fun elementHint(type: OverlayElementType): String = when (type) {
     OverlayElementType.FLOATING_CAMERA -> stringResource(R.string.studio_hint_floating_camera)
     OverlayElementType.IMAGE -> stringResource(R.string.studio_hint_image)
     OverlayElementType.CLOCK -> stringResource(R.string.studio_hint_clock)
+    OverlayElementType.G_FORCE -> stringResource(R.string.studio_hint_g_force)
 }
 
 // --------------------------------------------------------------------------
@@ -1275,6 +1279,14 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_time_window_label),
                     stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
                     element.graphWindowSec.toFloat(), 10f, 300f
+                ) { onChange(element.copy(graphWindowSec = it.toInt())) }
+            }
+
+            if (element.type == OverlayElementType.G_FORCE) {
+                LabeledSlider(
+                    stringResource(R.string.studio_cfg_trail_label),
+                    stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
+                    element.graphWindowSec.toFloat(), 2f, 30f
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
             }
 

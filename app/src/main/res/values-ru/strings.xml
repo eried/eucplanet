@@ -974,4 +974,7 @@
     <string name="trip_action_view_online_desc">Открыть на карте EUC Viewer</string>
     <string name="trip_action_replay">Воспроизвести в Studio</string>
     <string name="trip_action_replay_desc">Прокрутка поездки с наложением данных в реальном времени</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">Круг со следом перегрузки</string>
+    <string name="studio_cfg_trail_label">Длина следа</string>
 </resources>

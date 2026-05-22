@@ -959,4 +959,7 @@
     <string name="trip_action_view_online_desc">Відкрити на карті EUC Viewer</string>
     <string name="trip_action_replay">Відтворити у Studio</string>
     <string name="trip_action_replay_desc">Прокручуйте поїздку з накладанням даних у реальному часі</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">Коло зі слідом G-сили</string>
+    <string name="studio_cfg_trail_label">Довжина сліду</string>
 </resources>

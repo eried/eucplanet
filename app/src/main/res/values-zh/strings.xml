@@ -922,4 +922,7 @@
     <string name="trip_action_view_online_desc">在 EUC Viewer 地图上打开</string>
     <string name="trip_action_replay">在工作室中回放</string>
     <string name="trip_action_replay_desc">通过实时数据叠加层回放行程</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">G力轨迹圆圈</string>
+    <string name="studio_cfg_trail_label">轨迹长度</string>
 </resources>

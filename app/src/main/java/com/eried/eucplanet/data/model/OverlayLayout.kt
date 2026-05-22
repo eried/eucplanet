@@ -88,7 +88,9 @@ enum class OverlayElementType {
     /** A user-supplied image / clipart, embedded in the preset. */
     IMAGE,
     /** A clock / watch — digital, analog, plain text, or a stopwatch. */
-    CLOCK
+    CLOCK,
+    /** A circular crosshair plotting live lateral × forward G-force with a comet trail. */
+    G_FORCE
 }
 
 /**

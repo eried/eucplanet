@@ -939,4 +939,7 @@
     <string name="trip_action_view_online_desc">Auf der EUC-Viewer-Karte öffnen</string>
     <string name="trip_action_replay">Im Studio abspielen</string>
     <string name="trip_action_replay_desc">Die Fahrt mit Live-Datenoverlays durchsehen</string>
+    <string name="studio_element_g_force">G-Force</string>
+    <string name="studio_hint_g_force">Ein G-Kraft-Kreis mit Spur</string>
+    <string name="studio_cfg_trail_label">Spurlänge</string>
 </resources>
