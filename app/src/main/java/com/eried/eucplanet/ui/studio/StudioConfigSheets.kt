@@ -1374,6 +1374,9 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
             val newStops = List(n) { i -> i.toFloat() / (n - 1).coerceAtLeast(1) }
             onChange(config.copy(gradientColors = newColors, gradientStops = newStops))
         },
+        // Cap at 8 stops — more than that is unwieldy to edit, and no real
+        // gradient needs it.
+        enabled = config.gradientColors.size < 8,
         modifier = Modifier.padding(top = 4.dp)
     ) {
         Icon(Icons.Default.Add, contentDescription = null)
