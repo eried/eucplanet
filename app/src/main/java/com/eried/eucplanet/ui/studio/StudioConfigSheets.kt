@@ -244,6 +244,12 @@ fun StudioToolsFlyout(
     replayMode: Boolean = false,
     deviceRotation: Int = 0
 ) {
+    // The Replay/Live mode label is snapshotted while the menu is open, so it
+    // does not visibly flip during the menu's close animation after a tap.
+    var modeIsReplay by remember { mutableStateOf(replayMode) }
+    LaunchedEffect(expanded, replayMode) {
+        if (expanded) modeIsReplay = replayMode
+    }
     // Two columns: saved Presets on the left, the live studio actions on the
     // right. Rotated so it faces a rider holding the phone sideways.
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
@@ -271,7 +277,7 @@ fun StudioToolsFlyout(
                 // Toggles the studio mode: reads "Replay" while live, and
                 // "Live" while replaying — the same button returns to the
                 // camera and closes the replay panel.
-                if (replayMode) {
+                if (modeIsReplay) {
                     FlyoutItem(Icons.Default.Videocam, stringResource(R.string.studio_flyout_live)) {
                         onDismiss(); onReplayMode()
                     }
