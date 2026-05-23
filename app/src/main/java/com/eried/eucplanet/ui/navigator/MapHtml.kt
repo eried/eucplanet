@@ -25,6 +25,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="leaflet.css"/>
 <script src="leaflet.js"></script>
+<!-- Rotation plugin: adds map.setBearing/getBearing and a two-finger touch
+     rotate gesture. Vanilla Leaflet 1.9 has no rotation support, so this
+     plugin patches Map / Marker / TileLayer to track a bearing. We
+     instantiate the map with rotate:true below to opt in. -->
+<script src="leaflet-rotate.js"></script>
 <style>
   html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#0b0f19;}
   /* Stop marker — circle with the stop's number inside. The original
@@ -104,8 +109,59 @@ internal const val ROUTE_BUILDER_HTML: String = """
 </head><body>
 <div id="map"></div>
 <script>
-  var map = L.map('map', {zoomControl:false, attributionControl:false});
+  // Rotate-capable map. touchRotate enables a 2-finger twist gesture; the
+  // built-in control button is hidden (we just want the gesture). bearing
+  // starts at 0 (north up) and the auto-follow logic below adjusts it to
+  // match userHeading while riding -- unless the rider has just manually
+  // rotated, in which case we pause the auto-follow for a few seconds.
+  var map = L.map('map', {
+    zoomControl: false,
+    attributionControl: false,
+    rotate: true,
+    touchRotate: true,
+    bearing: 0,
+    rotateControl: false
+  });
   var tileLayer = null;
+
+  // --- Auto-orient: snap the map's bearing to follow the rider's heading,
+  // but back off whenever the rider twists the map manually so we don't
+  // fight their gesture. The map's bearing is in DEGREES (CSS-style: +CW).
+  // To put the heading "up" on screen, bearing must be set to -heading.
+  var autoFollowHeading = true;
+  var lastManualRotateMs = 0;
+  // After a manual rotate stops, wait this long before resuming auto-follow.
+  var MANUAL_ROTATE_HOLD_MS = 6000;
+  map.on('rotate', function(){
+    // Distinguish rider-driven rotates (during touchRotate gesture) from our
+    // own programmatic setBearing calls: the touch handler in the plugin
+    // calls setBearing while _rotating is true.
+    if (map.touchRotate && map.touchRotate._enabled && map._rotating) {
+      lastManualRotateMs = Date.now();
+    }
+  });
+  function tickAutoFollow(){
+    if (autoFollowHeading && userMoving) {
+      if (Date.now() - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS) {
+        // leaflet-rotate uses CSS-convention bearing (positive = CW). To put
+        // the rider's heading "up" on screen, world direction θ has to show
+        // at screen θ - bearing; setting θ - bearing = 0 (i.e. bearing =
+        // heading) parks the heading direction at the top of the screen.
+        var target = userHeading;
+        var current = map.getBearing();
+        // Wrap delta into [-180, 180] so we always rotate the short way.
+        var delta = ((target - current + 540) % 360) - 180;
+        if (Math.abs(delta) > 0.5) {
+          map.setBearing(current + delta * 0.18);
+          if (userMarker) userMarker.setIcon(buildUserIcon());
+        }
+      }
+    }
+    requestAnimationFrame(tickAutoFollow);
+  }
+  // Kick the loop once after the page settles -- userHeading + userMoving are
+  // updated by nativeSetUserHeading / nativeSetUserStill from Kotlin.
+  setTimeout(function(){ requestAnimationFrame(tickAutoFollow); }, 500);
 
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
   window.nativeSetMapType = function(type){
@@ -476,11 +532,10 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   function buildUserIcon(){
     var hasPhoto = userPhotoDataUrl != null;
-    // Marker head diameter in px. The plain (no-photo) marker is kept
-    // small so it sits unobtrusively on the map (a dot of "you are here"
-    // without dominating nearby map labels). The customized one stays
-    // larger because the avatar inside needs the room to be legible.
-    var headPx = hasPhoto ? 42 : 18;
+    // Marker head diameter in px. The plain (no-photo) marker is sized to
+    // sit unobtrusively but still be tappable / visible against busy tiles;
+    // the customized one is larger so the avatar inside reads clearly.
+    var headPx = hasPhoto ? 42 : 26;
     var tailPx = Math.round(headPx * 7 / 6); // teardrop height, 1.17x head
     var photoPx = Math.round(headPx * 0.72); // inner photo: ~72% of head
 
@@ -522,13 +577,19 @@ internal const val ROUTE_BUILDER_HTML: String = """
         iconAnchor: [headPx / 2, headPx / 2]
       });
     }
-    // Moving: full teardrop pointing in the direction of travel. The
-    // wrapper rotates by heading + 45° (the teardrop body is pre-rotated
-    // -45° via the CSS border-radius drop-shape trick; adding 45° here
-    // makes a heading of 0 (north) point the tip straight up). Rotation
-    // origin is the HEAD centre so the tail swings around the head rather
-    // than the bounding-box centre.
-    var rot = userHeading + 45;
+    // Moving: full teardrop with the ROUND HEAD pointing in the direction
+    // of travel (head = front, tail = behind, matching how a rider thinks
+    // about "where I'm going"). The CSS rotates the .user-pin-body by -45°
+    // which puts the head at top / tail at bottom when the wrapper isn't
+    // rotated -- so a wrapper rotation of `userHeading` aligns the head
+    // with the heading on a north-up map.
+    //
+    // When the map is rotated (heading-up auto-follow or a manual twist),
+    // the marker sits in the no-rotate pane so we need to subtract the map
+    // bearing here, otherwise the head would over-rotate. On a north-up
+    // map (bearing = 0) this collapses to rot = userHeading.
+    var bearing = (map && map.getBearing) ? map.getBearing() : 0;
+    var rot = userHeading - bearing;
     return L.divIcon({
       className: '',
       html: '<div class="user-pin" style="width:' + headPx + 'px;height:' +

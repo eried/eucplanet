@@ -1457,39 +1457,39 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 }
             }
 
-            // Position marker — always at the canvas centre. When the rider
-            // has a custom photo (already a circular PNG from the Navigator
-            // crop dialog) we draw it instead of the default white-ring + dot
-            // and add the soft fg halo plus a thin white outline so it still
-            // pops on busy tiles. Falls back to the original 3-circle marker
-            // when no photo is available or the toggle is off.
+            // Position marker — always at the canvas centre. Both the plain
+            // and the photo variants now share the same outer-dimensions so
+            // they read as the same "you are here" pin, just with or without
+            // an avatar inside. Roughly twice the size of the original tiny
+            // dot, matching the Navigator's idle (no-photo) marker so the
+            // rider's visual identity is consistent across screens.
             val photo = markerPhoto
+            val r = 26f   // outer halo radius
+            val ringR = 16f  // white outline ring around the head / photo
+            val headR = 14f  // filled head / photo radius
+            // Soft halo for legibility on bright satellite tiles.
+            drawCircle(
+                color = fg.copy(alpha = 0.20f), radius = r,
+                center = Offset(cx, cy)
+            )
+            // Thin white outline ring so the head / photo separates from tiles.
+            drawCircle(
+                color = Color.White, radius = ringR,
+                center = Offset(cx, cy)
+            )
             if (photo != null) {
-                val r = 13f
-                val d = r * 2f
-                // Soft halo for legibility on bright satellite tiles.
-                drawCircle(
-                    color = fg.copy(alpha = 0.20f), radius = r + 6f,
-                    center = Offset(cx, cy)
-                )
-                // Thin white outline ring so the photo separates from tiles.
-                drawCircle(
-                    color = Color.White, radius = r + 1.5f,
-                    center = Offset(cx, cy)
-                )
+                val d = headR * 2f
                 drawImage(
                     image = photo,
                     dstOffset = androidx.compose.ui.unit.IntOffset(
-                        (cx - r).roundToInt(), (cy - r).roundToInt()
+                        (cx - headR).roundToInt(), (cy - headR).roundToInt()
                     ),
                     dstSize = androidx.compose.ui.unit.IntSize(
                         d.roundToInt(), d.roundToInt()
                     )
                 )
             } else {
-                drawCircle(color = fg.copy(alpha = 0.20f), radius = 18f, center = Offset(cx, cy))
-                drawCircle(color = Color.White, radius = 11f, center = Offset(cx, cy))
-                drawCircle(color = fg, radius = 8f, center = Offset(cx, cy))
+                drawCircle(color = fg, radius = headR, center = Offset(cx, cy))
             }
         }
     }
