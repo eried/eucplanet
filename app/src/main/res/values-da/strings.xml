@@ -678,6 +678,7 @@
     <string name="nav_route_failed">Rutetjenesten er ikke tilgængelig — bruger lige linjer</string>
     <string name="nav_routing">Finder ruten…</string>
     <string name="nav_save_failed">Kunne ikke gemme ruten</string>
+    <string name="nav_route_saved">Rute gemt</string>
     <string name="nav_save_home">Gem som Hjem</string>
     <string name="nav_save_work">Gem som Arbejde</string>
     <string name="nav_search_hint">Søg adresse eller sted</string>

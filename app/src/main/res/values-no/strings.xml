@@ -694,6 +694,7 @@
     <string name="nav_route_failed">Rutetjenesten er utilgjengelig – bruker rette linjer</string>
     <string name="nav_routing">Finner ruten…</string>
     <string name="nav_save_failed">Klarte ikke å lagre ruten</string>
+    <string name="nav_route_saved">Rute lagret</string>
     <string name="nav_save_home">Lagre som Hjem</string>
     <string name="nav_save_work">Lagre som Jobb</string>
     <string name="nav_search_hint">Søk etter adresse eller sted</string>

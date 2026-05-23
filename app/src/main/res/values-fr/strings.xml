@@ -677,6 +677,7 @@
     <string name="nav_route_failed">Service de calcul d\'itinéraire indisponible — tracé en lignes droites</string>
     <string name="nav_routing">Calcul de l\'itinéraire…</string>
     <string name="nav_save_failed">Impossible d\'enregistrer l\'itinéraire</string>
+    <string name="nav_route_saved">Itinéraire enregistré</string>
     <string name="nav_save_home">Enregistrer comme domicile</string>
     <string name="nav_save_work">Enregistrer comme travail</string>
     <string name="nav_search_hint">Rechercher une adresse ou un lieu</string>

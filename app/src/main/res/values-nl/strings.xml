@@ -713,6 +713,7 @@
     <string name="nav_route_failed">Routeringsservice niet beschikbaar — rechte lijnen worden gebruikt</string>
     <string name="nav_routing">De route zoeken…</string>
     <string name="nav_save_failed">De route kon niet opgeslagen worden</string>
+    <string name="nav_route_saved">Route opgeslagen</string>
     <string name="nav_save_home">Opslaan als Thuis</string>
     <string name="nav_save_work">Opslaan als Werk</string>
     <string name="nav_search_hint">Zoek adres of plaats</string>

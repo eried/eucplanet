@@ -677,6 +677,7 @@
     <string name="nav_route_failed">路线规划服务不可用 — 改用直线连接</string>
     <string name="nav_routing">正在规划路线…</string>
     <string name="nav_save_failed">无法保存路线</string>
+    <string name="nav_route_saved">路线已保存</string>
     <string name="nav_save_home">设为家</string>
     <string name="nav_save_work">设为公司</string>
     <string name="nav_search_hint">搜索地址或地点</string>

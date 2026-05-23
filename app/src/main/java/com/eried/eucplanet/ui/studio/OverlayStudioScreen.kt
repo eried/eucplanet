@@ -1264,13 +1264,15 @@ fun OverlayStudioScreen(
             folderAvailable = folderAvailable,
             onSave = { name ->
                 viewModel.savePresetAs(name) { result ->
-                    // Success is silent; only surface a problem.
+                    // Confirm a successful save the same way a failure is
+                    // surfaced — saving a preset is a deliberate file-picker
+                    // round-trip and the rider needs to know it landed.
                     val msg = when (result) {
-                        PresetSaveResult.SAVED -> null
+                        PresetSaveResult.SAVED -> R.string.studio_preset_saved
                         PresetSaveResult.NO_FOLDER -> R.string.studio_no_folder
                         PresetSaveResult.FAILED -> R.string.studio_preset_failed
                     }
-                    if (msg != null) scope.launch {
+                    scope.launch {
                         snackbar.showSnackbar(context.getString(msg))
                     }
                 }

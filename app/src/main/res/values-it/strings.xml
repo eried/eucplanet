@@ -713,6 +713,7 @@
     <string name="nav_route_failed">Servizio di routing non disponibile — uso linee rette</string>
     <string name="nav_routing">Calcolo del percorso…</string>
     <string name="nav_save_failed">Impossibile salvare il percorso</string>
+    <string name="nav_route_saved">Percorso salvato</string>
     <string name="nav_save_home">Salva come Casa</string>
     <string name="nav_save_work">Salva come Lavoro</string>
     <string name="nav_search_hint">Cerca indirizzo o luogo</string>

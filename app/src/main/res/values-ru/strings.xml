@@ -729,6 +729,7 @@
     <string name="nav_route_failed">Сервис маршрутов недоступен — строим по прямым линиям</string>
     <string name="nav_routing">Строим маршрут…</string>
     <string name="nav_save_failed">Не удалось сохранить маршрут</string>
+    <string name="nav_route_saved">Маршрут сохранён</string>
     <string name="nav_save_home">Сохранить как дом</string>
     <string name="nav_save_work">Сохранить как работу</string>
     <string name="nav_search_hint">Поиск адреса или места</string>

@@ -714,6 +714,7 @@
     <string name="nav_route_failed">Сервіс маршрутизації недоступний — використовуємо прямі лінії</string>
     <string name="nav_routing">Прокладаємо маршрут…</string>
     <string name="nav_save_failed">Не вдалося зберегти маршрут</string>
+    <string name="nav_route_saved">Маршрут збережено</string>
     <string name="nav_save_home">Зберегти як дім</string>
     <string name="nav_save_work">Зберегти як роботу</string>
     <string name="nav_search_hint">Пошук адреси або місця</string>

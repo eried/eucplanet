@@ -995,6 +995,7 @@
     <string name="nav_routing">Finding the route…</string>
     <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
     <string name="nav_save_failed">Could not save the route</string>
+    <string name="nav_route_saved">Route saved</string>
     <string name="nav_load_failed">Could not read that GPX file</string>
     <string name="nav_remove_stop">Remove stop</string>
     <string name="nav_drag_stop">Reorder</string>

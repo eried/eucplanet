@@ -694,6 +694,7 @@
     <string name="nav_route_failed">Servicio de rutas no disponible: se usan líneas rectas</string>
     <string name="nav_routing">Calculando la ruta…</string>
     <string name="nav_save_failed">No se pudo guardar la ruta</string>
+    <string name="nav_route_saved">Ruta guardada</string>
     <string name="nav_save_home">Guardar como Casa</string>
     <string name="nav_save_work">Guardar como Trabajo</string>
     <string name="nav_search_hint">Buscar dirección o lugar</string>

@@ -460,6 +460,10 @@ class RouteBuilderViewModel @Inject constructor(
                 val target = ensureGpxExtension(uri)
                 context.contentResolver.openOutputStream(target)?.use { GpxIO.write(route, it) }
                 _routeClean.value = true
+                // Confirm the save — a long file-picker round-trip without any
+                // visible feedback feels like nothing happened. Failure is
+                // already surfaced below; this is the success counterpart.
+                _messages.tryEmit(R.string.nav_route_saved)
             } catch (e: Exception) {
                 Log.w("RouteBuilder", "saveGpx failed", e)
                 _messages.tryEmit(R.string.nav_save_failed)

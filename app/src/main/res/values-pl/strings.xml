@@ -714,6 +714,7 @@
     <string name="nav_route_failed">Usługa wyznaczania trasy niedostępna — używam linii prostych</string>
     <string name="nav_routing">Wyznaczanie trasy…</string>
     <string name="nav_save_failed">Nie udało się zapisać trasy</string>
+    <string name="nav_route_saved">Trasa zapisana</string>
     <string name="nav_save_home">Zapisz jako dom</string>
     <string name="nav_save_work">Zapisz jako pracę</string>
     <string name="nav_search_hint">Szukaj adresu lub miejsca</string>

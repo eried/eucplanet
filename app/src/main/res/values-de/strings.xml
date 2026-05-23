@@ -694,6 +694,7 @@
     <string name="nav_route_failed">Routing-Dienst nicht verfügbar — es werden Luftlinien verwendet</string>
     <string name="nav_routing">Route wird gesucht…</string>
     <string name="nav_save_failed">Route konnte nicht gespeichert werden</string>
+    <string name="nav_route_saved">Route gespeichert</string>
     <string name="nav_save_home">Als Zuhause speichern</string>
     <string name="nav_save_work">Als Arbeit speichern</string>
     <string name="nav_search_hint">Adresse oder Ort suchen</string>

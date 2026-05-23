@@ -42,6 +42,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -284,6 +285,15 @@ private fun StudioElementBox(
                                     alpha = element.shadowStrength.coerceIn(0f, 1f)
                                     compositingStrategy = CompositingStrategy.Offscreen
                                 }
+                                // 2 dp blur masks the sub-pixel glyph-snapping
+                                // difference between the on-screen text path
+                                // and this offscreen layer — without it the
+                                // silhouette looks like it was rendered in a
+                                // slightly different font when the background
+                                // is transparent and the text edge is the only
+                                // visible part of the shadow. Also makes the
+                                // shadow read as a proper soft drop shadow.
+                                .blur(2.dp)
                                 .drawWithContent {
                                     drawContent()
                                     drawRect(

@@ -677,6 +677,7 @@
     <string name="nav_route_failed">Ruttjänsten är otillgänglig — använder raka linjer</string>
     <string name="nav_routing">Hittar rutten…</string>
     <string name="nav_save_failed">Kunde inte spara rutten</string>
+    <string name="nav_route_saved">Rutten sparad</string>
     <string name="nav_save_home">Spara som Hem</string>
     <string name="nav_save_work">Spara som Jobb</string>
     <string name="nav_search_hint">Sök adress eller plats</string>
