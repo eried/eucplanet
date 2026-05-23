@@ -444,7 +444,7 @@ class NavigationEngine @Inject constructor(
             now - lastWrongWayMs > WRONG_WAY_COOLDOWN_MS
         ) {
             lastWrongWayMs = now
-            voiceService.announceEvent(context.getString(R.string.voice_nav_wrong_way))
+            voiceService.announceEvent(context.getString(R.string.nav_off_route))
         }
         if (offFor > REROUTE_AFTER_MS && !rerouteInFlight &&
             route.travelMode != TravelMode.STRAIGHT
@@ -628,12 +628,21 @@ class NavigationEngine @Inject constructor(
             Proximity.HOT -> context.getString(R.string.voice_prox_hot)
             Proximity.WARM -> context.getString(R.string.voice_prox_warmer)
             Proximity.COLD -> {
-                // Escalate a sustained drift: a stretched wrong-way shout on
-                // the 3rd cold cue in a row, an even-longer one on the 5th. The
-                // orientation and distance (base) are still spoken either way.
+                // Escalating cold ladder: each step in an unbroken cold streak
+                // names the drift in slightly stronger language; once the
+                // rider has been "freezing cold" for two more cues without
+                // warming up, switch to a deadpan "Are we there yet?" that
+                // sticks for every cold cue after.
+                //   1-2 → "getting colder"
+                //     3 → "even colder"
+                //     4 → "getting colder"
+                //     5 → "freezing cold"
+                //     6 → "getting colder"
+                //   7+ → "Are we there yet?" (sticks)
                 when (coldStreak) {
-                    3 -> context.getString(R.string.voice_nav_wrong_way)
-                    5 -> context.getString(R.string.voice_nav_wrong_way_extreme)
+                    3 -> context.getString(R.string.voice_prox_even_colder)
+                    5 -> context.getString(R.string.voice_prox_freezing)
+                    in 7..Int.MAX_VALUE -> context.getString(R.string.voice_prox_lost)
                     else -> context.getString(R.string.voice_prox_colder)
                 }
             }

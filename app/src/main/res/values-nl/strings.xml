@@ -775,6 +775,9 @@
     <string name="voice_nav_prepare">Over %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Begin met rijden</string>
     <string name="voice_prox_colder">het wordt kouder</string>
+    <string name="voice_prox_even_colder">nog kouder</string>
+    <string name="voice_prox_freezing">ijskoud</string>
+    <string name="voice_prox_lost">Zijn we er al?</string>
     <string name="voice_prox_hot">je bent heel dichtbij</string>
     <string name="voice_prox_warmer">het wordt warmer</string>
     <string name="watch_show_navigation">Navigatie tonen</string>

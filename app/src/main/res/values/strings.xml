@@ -1045,8 +1045,6 @@
 
     <!-- Spoken navigation -->
     <string name="voice_nav_start_riding">Start riding</string>
-    <string name="voice_nav_wrong_way" translatable="false">Wroooooooooooong waaaaaay!</string>
-    <string name="voice_nav_wrong_way_extreme" translatable="false">Wroooooooooooooooooooong waaaaaaaaaaaaaaay!</string>
     <string name="voice_nav_prepare">In %1$s, %2$s</string>
     <string name="voice_nav_now">%1$s now</string>
     <string name="voice_nav_arrived">You have arrived at your destination</string>
@@ -1055,6 +1053,9 @@
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
     <string name="voice_prox_warmer">getting warmer</string>
     <string name="voice_prox_colder">getting colder</string>
+    <string name="voice_prox_even_colder">even colder</string>
+    <string name="voice_prox_freezing">freezing cold</string>
+    <string name="voice_prox_lost">Are we there yet?</string>
     <string name="voice_prox_hot">you are very close</string>
     <string name="voice_dist_m">%1$d meters</string>
     <string name="voice_dist_km">%1$s kilometers</string>

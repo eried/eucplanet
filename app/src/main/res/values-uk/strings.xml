@@ -776,6 +776,9 @@
     <string name="voice_nav_prepare">Через %1$s %2$s</string>
     <string name="voice_nav_start_riding">Поїхали</string>
     <string name="voice_prox_colder">стає холодніше</string>
+    <string name="voice_prox_even_colder">ще холодніше</string>
+    <string name="voice_prox_freezing">лютий мороз</string>
+    <string name="voice_prox_lost">Ми вже приїхали?</string>
     <string name="voice_prox_hot">ви зовсім близько</string>
     <string name="voice_prox_warmer">стає тепліше</string>
     <string name="watch_show_navigation">Показувати навігацію</string>

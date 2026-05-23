@@ -775,6 +775,9 @@
     <string name="voice_nav_prepare">En %1$s, %2$s</string>
     <string name="voice_nav_start_riding">A rodar</string>
     <string name="voice_prox_colder">te estás enfriando</string>
+    <string name="voice_prox_even_colder">aún más frío</string>
+    <string name="voice_prox_freezing">un frío que pela</string>
+    <string name="voice_prox_lost">¿Ya llegamos?</string>
     <string name="voice_prox_hot">estás muy cerca</string>
     <string name="voice_prox_warmer">te estás calentando</string>
     <string name="watch_show_navigation">Mostrar navegación</string>

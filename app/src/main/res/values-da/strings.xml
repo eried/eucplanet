@@ -740,6 +740,9 @@
     <string name="voice_nav_prepare">Om %1$s skal du %2$s</string>
     <string name="voice_nav_start_riding">Begynd at køre</string>
     <string name="voice_prox_colder">det bliver koldere</string>
+    <string name="voice_prox_even_colder">endnu koldere</string>
+    <string name="voice_prox_freezing">iskoldt</string>
+    <string name="voice_prox_lost">Er vi der snart?</string>
     <string name="voice_prox_hot">du er meget tæt på</string>
     <string name="voice_prox_warmer">det bliver varmere</string>
     <string name="watch_show_navigation">Vis navigation</string>

@@ -739,6 +739,9 @@
     <string name="voice_nav_prepare">%1$s后,%2$s</string>
     <string name="voice_nav_start_riding">开始骑行</string>
     <string name="voice_prox_colder">越来越冷了</string>
+    <string name="voice_prox_even_colder">更冷了</string>
+    <string name="voice_prox_freezing">冰天雪地</string>
+    <string name="voice_prox_lost">我们到了吗？</string>
     <string name="voice_prox_hot">你已经非常接近了</string>
     <string name="voice_prox_warmer">越来越热了</string>
     <string name="watch_show_navigation">显示导航</string>

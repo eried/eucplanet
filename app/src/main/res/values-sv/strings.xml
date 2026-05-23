@@ -739,6 +739,9 @@
     <string name="voice_nav_prepare">Om %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Börja åk</string>
     <string name="voice_prox_colder">det blir kallare</string>
+    <string name="voice_prox_even_colder">ännu kallare</string>
+    <string name="voice_prox_freezing">iskallt</string>
+    <string name="voice_prox_lost">Är vi framme snart?</string>
     <string name="voice_prox_hot">du är väldigt nära</string>
     <string name="voice_prox_warmer">det blir varmare</string>
     <string name="watch_show_navigation">Visa navigering</string>

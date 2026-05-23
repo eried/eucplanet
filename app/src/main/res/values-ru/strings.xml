@@ -791,6 +791,9 @@
     <string name="voice_nav_prepare">Через %1$s %2$s</string>
     <string name="voice_nav_start_riding">В путь</string>
     <string name="voice_prox_colder">становится холоднее</string>
+    <string name="voice_prox_even_colder">ещё холоднее</string>
+    <string name="voice_prox_freezing">жуткий мороз</string>
+    <string name="voice_prox_lost">Мы уже приехали?</string>
     <string name="voice_prox_hot">вы совсем рядом</string>
     <string name="voice_prox_warmer">становится теплее</string>
     <string name="watch_show_navigation">Показывать навигацию</string>
