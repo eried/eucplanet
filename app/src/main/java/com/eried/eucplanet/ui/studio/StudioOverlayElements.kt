@@ -105,7 +105,14 @@ data class StudioElementData(
      * same trick). Empty in replay mode; the overlay then derives its trail
      * from [history] and the dot from the scrubbed wheelData row.
      */
-    val liveGForceTrail: List<Offset> = emptyList()
+    val liveGForceTrail: List<Offset> = emptyList(),
+    /**
+     * Base64 `data:image/png` URL of the rider's custom marker photo (set
+     * in the Navigator), or null when none. The MAP overlay element draws
+     * this in place of its default dot marker when its
+     * [OverlayElement.mapUseCustomMarker] flag is on and a photo is set.
+     */
+    val riderMarkerPhotoDataUrl: String? = null
 )
 
 /** Compose [Color] -> the 0xAARRGGBB [Long] stored in [OverlayElement]. */
@@ -1350,6 +1357,27 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
 
         val fg = Color(element.foreground)
 
+        // Decode the rider's custom marker photo once per data-url so the
+        // canvas can stamp it on every frame without re-parsing base64. The
+        // result already has a circular alpha mask burned in (see
+        // UserMarkerCropDialog.renderCircleCrop), so we just draw it as-is.
+        // Null when the toggle is off OR no photo is set OR decode failed.
+        val markerPhoto: ImageBitmap? = remember(
+            element.mapUseCustomMarker, data.riderMarkerPhotoDataUrl
+        ) {
+            if (!element.mapUseCustomMarker) return@remember null
+            val url = data.riderMarkerPhotoDataUrl ?: return@remember null
+            val comma = url.indexOf(',')
+            if (comma <= 0) return@remember null
+            runCatching {
+                val bytes = android.util.Base64.decode(
+                    url.substring(comma + 1), android.util.Base64.DEFAULT
+                )
+                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    ?.asImageBitmap()
+            }.getOrNull()
+        }
+
         androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
             // Touch tilesReady so a tile finishing schedules a redraw.
             tilesReady
@@ -1429,10 +1457,40 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 }
             }
 
-            // Position marker — always at the canvas centre, white ring + dot.
-            drawCircle(color = fg.copy(alpha = 0.20f), radius = 18f, center = Offset(cx, cy))
-            drawCircle(color = Color.White, radius = 11f, center = Offset(cx, cy))
-            drawCircle(color = fg, radius = 8f, center = Offset(cx, cy))
+            // Position marker — always at the canvas centre. When the rider
+            // has a custom photo (already a circular PNG from the Navigator
+            // crop dialog) we draw it instead of the default white-ring + dot
+            // and add the soft fg halo plus a thin white outline so it still
+            // pops on busy tiles. Falls back to the original 3-circle marker
+            // when no photo is available or the toggle is off.
+            val photo = markerPhoto
+            if (photo != null) {
+                val r = 13f
+                val d = r * 2f
+                // Soft halo for legibility on bright satellite tiles.
+                drawCircle(
+                    color = fg.copy(alpha = 0.20f), radius = r + 6f,
+                    center = Offset(cx, cy)
+                )
+                // Thin white outline ring so the photo separates from tiles.
+                drawCircle(
+                    color = Color.White, radius = r + 1.5f,
+                    center = Offset(cx, cy)
+                )
+                drawImage(
+                    image = photo,
+                    dstOffset = androidx.compose.ui.unit.IntOffset(
+                        (cx - r).roundToInt(), (cy - r).roundToInt()
+                    ),
+                    dstSize = androidx.compose.ui.unit.IntSize(
+                        d.roundToInt(), d.roundToInt()
+                    )
+                )
+            } else {
+                drawCircle(color = fg.copy(alpha = 0.20f), radius = 18f, center = Offset(cx, cy))
+                drawCircle(color = Color.White, radius = 11f, center = Offset(cx, cy))
+                drawCircle(color = fg, radius = 8f, center = Offset(cx, cy))
+            }
         }
     }
 }

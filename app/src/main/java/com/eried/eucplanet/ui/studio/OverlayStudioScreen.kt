@@ -135,6 +135,7 @@ fun OverlayStudioScreen(
     val selectedId by viewModel.selectedElementId.collectAsState()
     val liveWheelData by viewModel.wheelData.collectAsState()
     val liveGForceTrail by viewModel.liveGForceTrail.collectAsState()
+    val riderMarkerPhoto by viewModel.riderMarkerPhotoDataUrl.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val wheelName by viewModel.wheelName.collectAsState()
     val connected by viewModel.connected.collectAsState()
@@ -902,7 +903,8 @@ fun OverlayStudioScreen(
                         // trail (dot is just the last entry). Replay leaves
                         // this empty; the overlay falls back to wheelData /
                         // history derived from the scrubbed trip row.
-                        liveGForceTrail = if (replayMode) emptyList() else liveGForceTrail
+                        liveGForceTrail = if (replayMode) emptyList() else liveGForceTrail,
+                        riderMarkerPhotoDataUrl = riderMarkerPhoto
                     ),
                     editable = editable,
                     selectedId = selectedId,
@@ -1353,6 +1355,7 @@ fun OverlayStudioScreen(
                     inUseKeys = requestedCameras.toSet(),
                     dimmed = panelsDimmed,
                     styleExpanded = styleSheetExpanded,
+                    hasCustomRiderMarker = !riderMarkerPhoto.isNullOrEmpty(),
                     onToggleDim = { panelsDimmed = !panelsDimmed },
                     onStyleExpandedChange = { styleSheetExpanded = it },
                     onChange = viewModel::updateElement,

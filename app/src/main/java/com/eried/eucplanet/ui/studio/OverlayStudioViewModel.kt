@@ -176,6 +176,21 @@ class OverlayStudioViewModel @Inject constructor(
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /**
+     * Base64 `data:image/png` URL of the rider's custom marker photo (set in
+     * the Navigator) or null when none has been picked. Exposed here so the
+     * Map overlay element can opt into using it as its rider marker instead
+     * of the default white-ring + dot, gated by `OverlayElement.mapUseCustomMarker`.
+     * Updates live: if the rider changes their photo in the Navigator while
+     * the Studio is open, the next frame picks it up.
+     */
+    val riderMarkerPhotoDataUrl: StateFlow<String?> = settingsRepository.settings
+        .map { it.navUserMarkerPhotoDataUrl }
+        .stateIn(
+            viewModelScope, SharingStarted.Eagerly,
+            initialSettings.navUserMarkerPhotoDataUrl
+        )
+
     val wheelName: StateFlow<String> = combine(
         wheelRepository.modelName,
         wheelRepository.connectedBrand,

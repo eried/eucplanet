@@ -1458,6 +1458,13 @@ fun ElementConfigSheet(
     inUseKeys: Set<String>,
     dimmed: Boolean,
     styleExpanded: Boolean,
+    /**
+     * True when the rider has a custom marker photo saved
+     * (`AppSettings.navUserMarkerPhotoDataUrl != null`). Controls whether the
+     * MAP element shows an active "Prefer customized marker" toggle or just a
+     * hint pointing the rider to the Navigator to set one.
+     */
+    hasCustomRiderMarker: Boolean,
     onToggleDim: () -> Unit,
     onStyleExpandedChange: (Boolean) -> Unit,
     onChange: (OverlayElement) -> Unit,
@@ -1671,6 +1678,22 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_map_trace),
                     element.mapTrace
                 ) { onChange(element.copy(mapTrace = it)) }
+                // Custom-marker preference. Only meaningful when the rider
+                // has set a photo in the Navigator — until then we show a
+                // hint instead of a dead toggle so it's obvious where to go.
+                if (hasCustomRiderMarker) {
+                    ToggleRow(
+                        stringResource(R.string.studio_cfg_map_use_custom_marker),
+                        element.mapUseCustomMarker
+                    ) { onChange(element.copy(mapUseCustomMarker = it)) }
+                } else {
+                    Text(
+                        stringResource(R.string.studio_cfg_map_use_custom_marker_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                    )
+                }
                 // The map's configurable colour is its border (the trace and
                 // dot share it). The fill is a fixed neutral — it only shows
                 // for a moment while the tiles load.

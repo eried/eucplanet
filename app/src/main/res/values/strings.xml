@@ -866,6 +866,8 @@
     <string name="studio_cfg_map_zoom">Zoom</string>
     <string name="studio_cfg_map_rotate">Rotate with movement</string>
     <string name="studio_cfg_map_trace">Show trace</string>
+    <string name="studio_cfg_map_use_custom_marker">Prefer customized marker</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Set your photo in Navigator → Customize my marker</string>
     <string name="studio_cfg_camera_label">Camera</string>
     <string name="studio_cfg_replace_image">Replace image</string>
     <string name="studio_cfg_chroma_key">Make a colour transparent</string>

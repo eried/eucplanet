@@ -194,6 +194,15 @@ data class OverlayElement(
     val mapTrace: Boolean = true,
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
     val mapBorderWidth: Float = 2f,
+    /**
+     * When the rider has set a custom marker photo in the Navigator
+     * (`AppSettings.navUserMarkerPhotoDataUrl`), draw that photo as the
+     * map widget's rider marker instead of the plain white-ring + dot.
+     * Defaults to true so anyone who already has a photo gets it without
+     * touching settings; when no photo is set, the renderer falls back
+     * to the default dot regardless of this flag.
+     */
+    val mapUseCustomMarker: Boolean = true,
     /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
     val gForceScale: Float = 1f,
     /** G-Force dot smoothing — 0 snaps instantly, 1 makes the dot heavy/slow. */
