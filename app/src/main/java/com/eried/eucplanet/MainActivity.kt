@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
 
     private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -63,11 +64,30 @@ class MainActivity : AppCompatActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
+        // Now that the rider has finished the permission flow, kick off the
+        // global location stream so the Dashboard, Navigator and Studio all
+        // see a fix the moment they're opened instead of each having to
+        // start their own stream. startLocationUpdates() also seeds the
+        // StateFlow from the OS's cached last-known fix, so the UI shows
+        // a position effectively instantly when Maps / a weather widget /
+        // anyone else recently used GPS.
+        if (hasLocationPermission()) {
+            tripRepository.startLocationUpdates()
+        }
         val s = _settings.value
         if (s != null && s.voiceEnabled && !s.voiceOnlyWhenConnected && canStartWheelService()) {
             startForegroundService(Intent(this, WheelService::class.java))
         }
     }
+
+    /** True if either fine or coarse location is granted. */
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            this, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 
     private fun canStartWheelService(): Boolean {
         val hasBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
@@ -121,6 +141,15 @@ class MainActivity : AppCompatActivity() {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
                 if (first) {
+                    // Prime the location stream on cold launches where the
+                    // permission was already granted on a previous run -- on
+                    // a freshly-granted launch the permissionLauncher
+                    // callback above handles this, but on subsequent launches
+                    // no callback fires and the Dashboard would otherwise sit
+                    // without a fix until the rider opens Navigator / Studio.
+                    if (hasLocationPermission()) {
+                        tripRepository.startLocationUpdates()
+                    }
                     if (it.language.isBlank()) {
                         // First launch ever: persist the detected supported
                         // locale so the in-app picker has the right initial

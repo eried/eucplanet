@@ -476,10 +476,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   function buildUserIcon(){
     var hasPhoto = userPhotoDataUrl != null;
-    // Marker head diameter in px. Slightly smaller for the plain
-    // (no-photo) marker so it sits modestly on the map, slightly larger
-    // when there's a custom photo so the avatar is legible.
-    var headPx = hasPhoto ? 42 : 30;
+    // Marker head diameter in px. The plain (no-photo) marker is kept
+    // small so it sits unobtrusively on the map (a dot of "you are here"
+    // without dominating nearby map labels). The customized one stays
+    // larger because the avatar inside needs the room to be legible.
+    var headPx = hasPhoto ? 42 : 18;
     var tailPx = Math.round(headPx * 7 / 6); // teardrop height, 1.17x head
     var photoPx = Math.round(headPx * 0.72); // inner photo: ~72% of head
 

@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -116,6 +117,24 @@ class TripRepository @Inject constructor(
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
+        // Refuse early starts before the rider has granted a location
+        // permission. FusedLocationProviderClient does NOT throw on
+        // requestLocationUpdates when the permission is missing on modern
+        // devices -- it just silently registers a queue that delivers no
+        // fixes. Combined with the `locationUpdatesActive` dedup below, an
+        // early call from NavigationOverlayViewModel (which composes before
+        // the permission dialog is even shown) was effectively poisoning
+        // the listener: no fixes ever flowed, no later call could re-register.
+        val hasLoc = androidx.core.content.ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED ||
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context, android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!hasLoc) {
+            Log.d(TAG, "startLocationUpdates: no location permission yet, skipping")
+            return
+        }
         if (locationUpdatesActive) {
             Log.d(TAG, "Location updates already active, skipping")
             return
@@ -127,6 +146,58 @@ class TripRepository @Inject constructor(
             fusedLocationClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper())
             locationUpdatesActive = true
             Log.i(TAG, "Location updates started (PRIORITY_HIGH_ACCURACY, 1Hz)")
+            // Two-pronged warmup so the UI sees a fix as fast as possible:
+            //
+            //   1. lastLocation reads Play Services' shared cache. If any app
+            //      on the phone (Maps, weather, ride-share, even our own
+            //      previous launch) has touched GPS recently, this returns
+            //      instantly. On a brand-new install where Play Services has
+            //      not yet seen this UID, the cache often comes back null --
+            //      so we ALSO kick off:
+            //
+            //   2. getCurrentLocation actively requests a single fresh fix
+            //      using HIGH_ACCURACY. This wakes the GPS engine on its own
+            //      schedule (independent of requestLocationUpdates' first
+            //      callback), and on a phone where GPS is already warm from
+            //      another app it comes back in a second or two -- much
+            //      faster than waiting for requestLocationUpdates to deliver
+            //      its first periodic fix.
+            //
+            // Both write to _currentLocation only if it is still null, so
+            // whichever finishes first wins and a slow path can never
+            // overwrite a fresher fix that landed via the live callback.
+            try {
+                fusedLocationClient.lastLocation.addOnSuccessListener { cached ->
+                    if (cached != null && _currentLocation.value == null) {
+                        Log.i(
+                            TAG,
+                            "Seeded from cached last-known fix " +
+                                "lat=${"%.6f".format(cached.latitude)} " +
+                                "lon=${"%.6f".format(cached.longitude)} " +
+                                "acc=${"%.1f".format(cached.accuracy)}m " +
+                                "age=${(System.currentTimeMillis() - cached.time)}ms"
+                        )
+                        _currentLocation.value = cached
+                    }
+                }
+                val cts = CancellationTokenSource()
+                fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY, cts.token
+                ).addOnSuccessListener { fresh ->
+                    if (fresh != null && _currentLocation.value == null) {
+                        Log.i(
+                            TAG,
+                            "Seeded from active getCurrentLocation " +
+                                "lat=${"%.6f".format(fresh.latitude)} " +
+                                "lon=${"%.6f".format(fresh.longitude)} " +
+                                "acc=${"%.1f".format(fresh.accuracy)}m"
+                        )
+                        _currentLocation.value = fresh
+                    }
+                }
+            } catch (e: SecurityException) {
+                Log.w(TAG, "lastLocation / getCurrentLocation denied", e)
+            }
         } catch (e: SecurityException) {
             Log.e(TAG, "Location permission missing", e)
         } catch (e: Exception) {
