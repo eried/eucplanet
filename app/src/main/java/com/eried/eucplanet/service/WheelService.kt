@@ -238,6 +238,20 @@ class WheelService : LifecycleService() {
 
         when (intent?.action) {
             ACTION_CONNECT -> {
+                // Hard guard against starting a BLE connection before the
+                // rider has granted BLUETOOTH_CONNECT. BluetoothGatt's
+                // binder will throw a SecurityException straight out of
+                // native code if we proceed without it, taking the whole
+                // process down — including any system permission dialog
+                // that's currently in front. Bail silently here; the
+                // Dashboard's autoConnectIfNeeded already gates on the
+                // same permission, this is the belt to its braces.
+                val canBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                    hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                if (!canBt) {
+                    Log.w(TAG, "ACTION_CONNECT before BLUETOOTH_CONNECT granted — skipping")
+                    return START_NOT_STICKY
+                }
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
                 val name = intent.getStringExtra(EXTRA_NAME)
                 if (address != null) {

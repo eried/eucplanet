@@ -298,6 +298,23 @@ class DashboardViewModel @Inject constructor(
     private fun autoConnectIfNeeded() {
         viewModelScope.launch {
             val settings = settingsRepository.get()
+            // Skip auto-connect entirely until the rider has granted
+            // BLUETOOTH_CONNECT. Without it, BleConnectionManager.connect()
+            // throws a SecurityException out of the BluetoothGatt binder and
+            // the process dies — and on a first-run flow with a backup-restored
+            // lastDeviceAddress this fires before the rider has seen the
+            // permission dialog, taking the activity down with it and
+            // leaving the system permission UI orphaned over the launcher.
+            // The Dashboard re-arms auto-connect on the next launch once
+            // the permission is in place (this VM is created fresh each
+            // process start), so no manual retry is needed.
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return@launch
+            }
             if (settings.autoConnect && settings.lastDeviceAddress != null &&
                 connectionState.value == ConnectionState.DISCONNECTED
             ) {
