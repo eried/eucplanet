@@ -156,8 +156,30 @@ internal const val ROUTE_BUILDER_HTML: String = """
       lastManualRotateMs = Date.now();
     }
   }, { passive: true });
+  // During a 2-finger gesture, leaflet-rotate updates marker positions
+  // continuously (every frame) but the SVG path layers only re-transform
+  // on the moveend / zoom 'tween' boundaries. Inside the gesture, route
+  // line + radius circles visually lag the markers, so the trace appears
+  // to drift away from the stop pins. We force a renderer redraw on every
+  // touchmove, throttled to one per animation frame so we don't melt the
+  // CPU. The throttle drops back to false on the next rAF tick.
+  var redrawPending = false;
+  function redrawPathsNow(){
+    if (routeLine) routeLine.redraw();
+    rings.forEach(function(r){ r.redraw(); });
+    if (connector) connector.redraw();
+  }
   mapEl.addEventListener('touchmove', function(e){
-    if (e.touches.length >= 2) lastManualRotateMs = Date.now();
+    if (e.touches.length >= 2) {
+      lastManualRotateMs = Date.now();
+      if (!redrawPending) {
+        redrawPending = true;
+        requestAnimationFrame(function(){
+          redrawPending = false;
+          redrawPathsNow();
+        });
+      }
+    }
   }, { passive: true });
   mapEl.addEventListener('touchend', function(e){
     if (e.touches.length === 0) {
@@ -409,8 +431,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
     }
     if (added > 0) arrowLayer.addTo(map);
   }
-  // Arrows are rendered in screen-space, so refresh on zoom/pan-end.
-  map.on('zoomend moveend', function(){
+  // Arrows are rendered in screen-space, so refresh on every event that
+  // changes the projection of the route into the viewport: zoom, pan AND
+  // rotate. Without 'rotate' here, the chevrons kept their pre-rotation
+  // angle after each auto-follow tween step and looked tilted off the
+  // route line.
+  map.on('zoomend moveend rotate', function(){
     if (travelMode === 'STRAIGHT' && routeLine){
       var geom = routeLine.getLatLngs().map(function(ll){ return [ll.lat, ll.lng]; });
       drawArrows(geom, routeColorFor(travelMode));

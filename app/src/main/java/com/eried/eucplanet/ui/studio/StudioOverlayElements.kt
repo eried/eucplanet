@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -1443,53 +1444,88 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                         val o = project(p.latitude, p.longitude)
                         if (i == 0) path.moveTo(o.x, o.y) else path.lineTo(o.x, o.y)
                     }
-                    // A dark casing under the bright line so it reads on any tile.
+                    // A dark casing under the bright line so it reads on any
+                    // tile. Both strokes are deliberately bold so the trace
+                    // is easy to follow on a video frame: bright line 10 px,
+                    // casing 16 px (≈ 2.5x the original 4 / 7 widths).
                     drawPath(
                         path = path,
                         color = Color.Black.copy(alpha = 0.45f),
-                        style = Stroke(width = 7f, cap = StrokeCap.Round)
+                        style = Stroke(width = 16f, cap = StrokeCap.Round)
                     )
                     drawPath(
                         path = path,
                         color = fg,
-                        style = Stroke(width = 4f, cap = StrokeCap.Round)
+                        style = Stroke(width = 10f, cap = StrokeCap.Round)
                     )
                 }
             }
 
-            // Position marker — always at the canvas centre. Both the plain
-            // and the photo variants now share the same outer-dimensions so
-            // they read as the same "you are here" pin, just with or without
-            // an avatar inside. Roughly twice the size of the original tiny
-            // dot, matching the Navigator's idle (no-photo) marker so the
-            // rider's visual identity is consistent across screens.
+            // Position marker — mirrors the Navigator's idle / customized
+            // marker styling so the rider's "you are here" reads the same in
+            // both places. Size is proportional to the widget (this widget
+            // can be tiny or huge depending on element.width), so the marker
+            // always lands at the same visual weight relative to its frame
+            // rather than getting lost on a big widget or eating a small one.
+            // Clamped to sane absolute bounds so it doesn't disappear on a
+            // mini widget or balloon on a maximised one.
             val photo = markerPhoto
-            val r = 26f   // outer halo radius
-            val ringR = 16f  // white outline ring around the head / photo
-            val headR = 14f  // filled head / photo radius
-            // Soft halo for legibility on bright satellite tiles.
+            val widgetMin = kotlin.math.min(w, h)
+            val headD = if (photo != null)
+                (widgetMin * 0.14f).coerceIn(46f, 96f)
+            else
+                // Slightly smaller for the plain marker -- 8% of widget min,
+                // clamped 26..54 -- so it sits modestly between map labels
+                // rather than dominating the trace.
+                (widgetMin * 0.08f).coerceIn(26f, 54f)
+            val headR = headD / 2f
+            // Thin black outline + soft drop shadow, just like the Navigator's
+            // .user-pin-body CSS, so the marker pops on any tile style.
+            val borderW = (headD * 0.10f).coerceAtLeast(2.5f)
             drawCircle(
-                color = fg.copy(alpha = 0.20f), radius = r,
-                center = Offset(cx, cy)
-            )
-            // Thin white outline ring so the head / photo separates from tiles.
-            drawCircle(
-                color = Color.White, radius = ringR,
-                center = Offset(cx, cy)
+                color = Color.Black.copy(alpha = 0.35f),
+                radius = headR + 2.5f,
+                center = Offset(cx, cy + 2f)   // soft drop shadow
             )
             if (photo != null) {
-                val d = headR * 2f
-                drawImage(
-                    image = photo,
-                    dstOffset = androidx.compose.ui.unit.IntOffset(
-                        (cx - headR).roundToInt(), (cy - headR).roundToInt()
-                    ),
-                    dstSize = androidx.compose.ui.unit.IntSize(
-                        d.roundToInt(), d.roundToInt()
+                // White outline first so the photo separates from busy tiles.
+                drawCircle(color = Color.White, radius = headR, center = Offset(cx, cy))
+                // Force the photo into a circular clip rather than trusting the
+                // bitmap's own alpha mask -- riders complained the customized
+                // marker rendered as "a square with a circle on top", which
+                // happens when the stored PNG's transparent corners didn't make
+                // it through (older crop-dialog output, hardware-accelerated
+                // PorterDuff quirks, etc.). The clip is authoritative now.
+                val clipPath = Path().apply {
+                    addOval(
+                        androidx.compose.ui.geometry.Rect(
+                            cx - headR, cy - headR, cx + headR, cy + headR
+                        )
                     )
+                }
+                clipPath(clipPath) {
+                    drawImage(
+                        image = photo,
+                        dstOffset = androidx.compose.ui.unit.IntOffset(
+                            (cx - headR).roundToInt(), (cy - headR).roundToInt()
+                        ),
+                        dstSize = androidx.compose.ui.unit.IntSize(
+                            headD.roundToInt(), headD.roundToInt()
+                        )
+                    )
+                }
+                drawCircle(
+                    color = Color.Black, radius = headR,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = borderW)
                 )
             } else {
                 drawCircle(color = fg, radius = headR, center = Offset(cx, cy))
+                drawCircle(
+                    color = Color.Black, radius = headR,
+                    center = Offset(cx, cy),
+                    style = Stroke(width = borderW)
+                )
             }
         }
     }
