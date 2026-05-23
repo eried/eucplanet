@@ -69,6 +69,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -106,7 +109,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -119,6 +124,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
+import kotlinx.coroutines.launch
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -175,6 +181,12 @@ fun SettingsScreen(
     val isConnected by viewModel.isConnected.collectAsState()
     val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    // One snackbar host for every transient confirmation in Settings — cloud
+    // backup success / failure, cheat-console toasts. Replaces the older
+    // Android Toast popups so the styling matches Overlay Studio / Navigator
+    // (Material3 Snackbar, no app-icon decoration, swipe to dismiss).
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
     var cheatSheet by remember { mutableStateOf<com.eried.eucplanet.cheats.CheatState.Result.ShowSheet?>(null) }
     cheatSheet?.let { sheet ->
         androidx.compose.material3.AlertDialog(
@@ -462,7 +474,7 @@ fun SettingsScreen(
             EngineSoundSection(settings, viewModel, engineParked)
         },
         SectionDef("cloud", titleCloud, Icons.Default.Archive, corpusCloud) {
-            CloudTab(settings, viewModel)
+            CloudTab(settings, viewModel, snackbar, snackbarScope)
         },
         SectionDef("alarms", titleAlarms, Icons.Default.NotificationsActive, corpusAlarms) {
             AlarmSettingsContent()
@@ -517,7 +529,7 @@ fun SettingsScreen(
                                             cheatSheet = result
                                         }
                                         is com.eried.eucplanet.cheats.CheatState.Result.OpenUrl -> {
-                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
                                             try {
                                                 ctxLocal.startActivity(
                                                     android.content.Intent(
@@ -528,7 +540,7 @@ fun SettingsScreen(
                                             } catch (_: Throwable) { /* no browser installed */ }
                                         }
                                         is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
-                                            Toast.makeText(ctxLocal, result.toast, Toast.LENGTH_SHORT).show()
+                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
                                         }
                                     }
                                     searchQuery = ""
@@ -549,8 +561,10 @@ fun SettingsScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
+        val settingsFocusManager = androidx.compose.ui.platform.LocalFocusManager.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -559,6 +573,18 @@ fun SettingsScreen(
                 .onGloballyPositioned {
                     if (scrollContainerTop == null) {
                         scrollContainerTop = it.positionInWindow().y
+                    }
+                }
+                // Drop the keyboard the moment the rider touches anything in
+                // the settings list. Once they've left the search field for a
+                // real interaction (toggle, dialog, sub-screen, collapsible
+                // expand) the IME is just a 50%-screen obstacle. requireUnconsumed
+                // = false so we see the down even when the underlying widget
+                // already grabbed it; we only read, never consume.
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                        settingsFocusManager.clearFocus()
                     }
                 }
                 .verticalScroll(scrollState)
@@ -1720,7 +1746,9 @@ private fun SwitchSettingWithDesc(
 @Composable
 private fun CloudTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+    viewModel: SettingsViewModel,
+    snackbar: androidx.compose.material3.SnackbarHostState,
+    snackbarScope: kotlinx.coroutines.CoroutineScope
 ) {
     val context = LocalContext.current
     val cloudEvent by viewModel.cloudEvent.collectAsState()
@@ -1765,7 +1793,7 @@ private fun CloudTab(
             CloudEvent.SyncNoFolder -> sSyncNoFolder
             is CloudEvent.SyncFinished -> context.getString(R.string.sync_finished, event.count)
         }
-        if (msg != null) Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        if (msg != null) snackbarScope.launch { snackbar.showSnackbar(msg) }
         viewModel.consumeCloudEvent()
     }
 

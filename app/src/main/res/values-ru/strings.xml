@@ -671,6 +671,8 @@
     <string name="nav_depart">В путь</string>
     <string name="nav_dir_ahead">впереди</string>
     <string name="nav_dir_behind">позади вас</string>
+    <string name="nav_dir_behind_left">сзади, слева</string>
+    <string name="nav_dir_behind_right">сзади, справа</string>
     <string name="nav_dir_left">слева от вас</string>
     <string name="nav_dir_right">справа от вас</string>
     <string name="nav_dir_slight_left">чуть левее</string>
@@ -714,7 +716,7 @@
     <string name="nav_no_results">Ничего не найдено</string>
     <string name="nav_off_route">Вне маршрута</string>
     <string name="nav_open">Открыть навигатор</string>
-    <string name="nav_pin_center">Показать на карте</string>
+    <string name="nav_pin_center">Центрировать на карте</string>
     <string name="nav_pin_remove">Удалить</string>
     <string name="nav_pin_set_my_location">Перенести на моё местоположение</string>
     <string name="nav_prox_cold">Холоднее</string>
@@ -743,7 +745,7 @@
     <string name="nav_setting_endpoints_hint">Бесплатные публичные сервисы OpenStreetMap, аккаунт не нужен. Меняйте только чтобы указать на собственный сервер</string>
     <string name="nav_setting_geocoder_url">URL поиска адресов</string>
     <string name="nav_setting_offroute">Допуск отклонения от маршрута</string>
-    <string name="nav_setting_offroute_desc">Насколько можно отклониться от маршрута до срабатывания «не туда»</string>
+    <string name="nav_setting_offroute_desc">Насколько далеко от маршрута до срабатывания оповещения "вне маршрута"</string>
     <string name="nav_setting_open_builder">Открыть конструктор маршрутов</string>
     <string name="nav_setting_params">Параметры навигации</string>
     <string name="nav_setting_router_url">URL маршрутизации</string>
@@ -788,6 +790,7 @@
     <string name="voice_nav_goal_reached">Остановка достигнута</string>
     <string name="voice_nav_hunt">%1$s %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s в %2$s</string>
     <string name="voice_nav_now">%1$s сейчас</string>
     <string name="voice_nav_prepare">Через %1$s %2$s</string>
     <string name="voice_nav_start_riding">В путь</string>

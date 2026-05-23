@@ -619,6 +619,8 @@
     <string name="nav_depart">出发</string>
     <string name="nav_dir_ahead">在前方</string>
     <string name="nav_dir_behind">在你身后</string>
+    <string name="nav_dir_behind_left">在你身后偏左</string>
+    <string name="nav_dir_behind_right">在你身后偏右</string>
     <string name="nav_dir_left">在你左侧</string>
     <string name="nav_dir_right">在你右侧</string>
     <string name="nav_dir_slight_left">偏左</string>
@@ -662,7 +664,7 @@
     <string name="nav_no_results">未找到匹配结果</string>
     <string name="nav_off_route">已偏离路线</string>
     <string name="nav_open">打开导航</string>
-    <string name="nav_pin_center">在地图上显示</string>
+    <string name="nav_pin_center">在地图上居中</string>
     <string name="nav_pin_remove">移除</string>
     <string name="nav_pin_set_my_location">设为我的位置</string>
     <string name="nav_prox_cold">变冷了</string>
@@ -691,7 +693,7 @@
     <string name="nav_setting_endpoints_hint">免费的公共 OpenStreetMap 服务,无需账号。仅在需要指向你自己的服务器时才更改。</string>
     <string name="nav_setting_geocoder_url">地址搜索 URL</string>
     <string name="nav_setting_offroute">偏航容差</string>
-    <string name="nav_setting_offroute_desc">偏离路线多远才触发\"走错路\"提示</string>
+    <string name="nav_setting_offroute_desc">偏离路线多远后触发偏航提醒</string>
     <string name="nav_setting_open_builder">打开路线编辑器</string>
     <string name="nav_setting_params">导航参数</string>
     <string name="nav_setting_router_url">路线规划 URL</string>
@@ -736,6 +738,7 @@
     <string name="voice_nav_goal_reached">已到达途经点</string>
     <string name="voice_nav_hunt">%1$s在%3$s%2$s</string>
     <string name="voice_nav_hunt_prox">%1$s,%2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s 距离 %2$s</string>
     <string name="voice_nav_now">现在%1$s</string>
     <string name="voice_nav_prepare">%1$s后,%2$s</string>
     <string name="voice_nav_start_riding">开始骑行</string>

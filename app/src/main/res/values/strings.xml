@@ -13,6 +13,7 @@
     <string name="crash_log_delete_all">Delete all</string>
     <string name="crash_log_delete_all_warning">Delete every saved crash log? This cannot be undone.</string>
     <string name="action_save">Save</string>
+    <string name="action_apply">Apply</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_test">Test</string>
@@ -961,12 +962,19 @@
     <string name="nav_max_stops">Up to a destination and 24 stops</string>
     <string name="nav_pin_set_my_location">Set to my location</string>
     <string name="nav_pin_remove">Remove</string>
-    <string name="nav_pin_center">Show on map</string>
+    <string name="nav_pin_center">Center on map</string>
     <string name="nav_save_home">Save as Home</string>
+    <string name="nav_customize_marker">Customize my marker</string>
+    <string name="nav_customize_marker_short">Customize</string>
+    <string name="nav_remove_marker_photo">Reset my marker</string>
+    <string name="nav_remove_marker_photo_short">Reset</string>
+    <string name="nav_crop_hint">Drag to position, pinch to zoom</string>
     <string name="nav_save_work">Save as Work</string>
     <string name="nav_self_title">Your location</string>
     <string name="nav_self_add_stop">Add as a stop</string>
     <string name="nav_clear_confirm">Discard the current route?</string>
+    <string name="nav_load_confirm">Replace the current route with the loaded GPX?</string>
+    <string name="nav_menu_load_short">Load</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_stop_short">Stop navigation</string>
@@ -1031,6 +1039,8 @@
     <string name="nav_dir_slight_left">slightly left</string>
     <string name="nav_dir_slight_right">slightly right</string>
     <string name="nav_dir_behind">behind you</string>
+    <string name="nav_dir_behind_left">behind you, on your left</string>
+    <string name="nav_dir_behind_right">behind you, on your right</string>
     <string name="nav_hunt_primary">%1$s %2$s</string>
     <string name="nav_label_next_stop">Next stop</string>
     <string name="nav_label_destination">Destination</string>
@@ -1052,6 +1062,7 @@
     <string name="voice_nav_goal_reached">Stop reached</string>
     <string name="voice_nav_hunt">%1$s is %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s is %2$s away</string>
     <string name="voice_prox_warmer">getting warmer</string>
     <string name="voice_prox_colder">getting colder</string>
     <string name="voice_prox_even_colder">even colder</string>
@@ -1069,7 +1080,7 @@
     <string name="nav_setting_arrival_radius">Arrival radius</string>
     <string name="nav_setting_arrival_radius_desc">How close counts as reaching a stop</string>
     <string name="nav_setting_offroute">Off-route tolerance</string>
-    <string name="nav_setting_offroute_desc">How far off the route before \"wrong way\" triggers</string>
+    <string name="nav_setting_offroute_desc">How far off the route before the off-route alert triggers</string>
     <string name="nav_setting_default_mode">Default travel mode</string>
     <string name="nav_setting_open_builder">Open route builder</string>
     <string name="nav_setting_params">Navigation parameters</string>

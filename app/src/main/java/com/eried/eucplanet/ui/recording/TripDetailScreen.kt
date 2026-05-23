@@ -7,6 +7,10 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
+import androidx.compose.foundation.gestures.drag
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -598,6 +602,7 @@ private fun ChartCard(
     val tooltipFg = MaterialTheme.colorScheme.onSurface
 
     var touchX by remember { mutableStateOf<Float?>(null) }
+    val haptics = LocalHapticFeedback.current
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -621,20 +626,25 @@ private fun ChartCard(
                     .fillMaxWidth()
                     .height(80.dp)
                     .pointerInput(values) {
+                        // Long-press to scrub. A simple down-and-drag does NOT
+                        // activate the cursor — that gesture is reserved for the
+                        // parent column's vertical scroll. Once the rider holds
+                        // their finger for ~longPressTimeoutMillis without lifting
+                        // or moving past touchSlop, we vibrate, claim the gesture,
+                        // and start tracking horizontal drag until they lift.
                         awaitEachGesture {
                             val down = awaitFirstDown(requireUnconsumed = false)
-                            touchX = down.position.x
-                            down.consume()
-                            while (true) {
-                                val ev = awaitPointerEvent()
-                                val change = ev.changes.firstOrNull() ?: break
-                                if (!change.pressed) {
-                                    touchX = null
-                                    break
-                                }
+                            val longPress =
+                                awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
+                            // Long-press confirmed — the chart now owns the gesture.
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                            longPress.consume()
+                            touchX = longPress.position.x
+                            drag(longPress.id) { change ->
                                 touchX = change.position.x
                                 change.consume()
                             }
+                            touchX = null
                         }
                     }
             ) {

@@ -656,6 +656,8 @@
     <string name="nav_depart">Вирушаймо</string>
     <string name="nav_dir_ahead">попереду</string>
     <string name="nav_dir_behind">позаду вас</string>
+    <string name="nav_dir_behind_left">позаду, ліворуч</string>
+    <string name="nav_dir_behind_right">позаду, праворуч</string>
     <string name="nav_dir_left">ліворуч від вас</string>
     <string name="nav_dir_right">праворуч від вас</string>
     <string name="nav_dir_slight_left">трохи ліворуч</string>
@@ -699,7 +701,7 @@
     <string name="nav_no_results">Збігів не знайдено</string>
     <string name="nav_off_route">Поза маршрутом</string>
     <string name="nav_open">Відкрити навігатор</string>
-    <string name="nav_pin_center">Показати на карті</string>
+    <string name="nav_pin_center">Центрувати на карті</string>
     <string name="nav_pin_remove">Вилучити</string>
     <string name="nav_pin_set_my_location">Встановити на моє місце</string>
     <string name="nav_prox_cold">Холодніше</string>
@@ -728,7 +730,7 @@
     <string name="nav_setting_endpoints_hint">Безкоштовні публічні сервіси OpenStreetMap, обліковий запис не потрібен. Змінюйте, лише щоб вказати власний сервер</string>
     <string name="nav_setting_geocoder_url">URL пошуку адрес</string>
     <string name="nav_setting_offroute">Допуск відхилення від маршруту</string>
-    <string name="nav_setting_offroute_desc">Наскільки далеко від маршруту, перш ніж спрацює \"не туди\"</string>
+    <string name="nav_setting_offroute_desc">Як далеко від маршруту, перш ніж сповіщення про відхилення спрацює</string>
     <string name="nav_setting_open_builder">Відкрити конструктор маршрутів</string>
     <string name="nav_setting_params">Параметри навігації</string>
     <string name="nav_setting_router_url">URL маршрутизації</string>
@@ -773,6 +775,7 @@
     <string name="voice_nav_goal_reached">Зупинку досягнуто</string>
     <string name="voice_nav_hunt">%1$s %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s за %2$s</string>
     <string name="voice_nav_now">%1$s зараз</string>
     <string name="voice_nav_prepare">Через %1$s %2$s</string>
     <string name="voice_nav_start_riding">Поїхали</string>

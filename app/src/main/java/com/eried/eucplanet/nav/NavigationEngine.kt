@@ -47,7 +47,7 @@ import kotlin.math.abs
  *
  * Two modes:
  *  - [NavMode.TURN_BY_TURN] — follows the routed polyline, announcing each
- *    maneuver and flagging "wrong way" / re-routing when the rider drifts off.
+ *    maneuver and flagging off-route / re-routing when the rider drifts off.
  *  - [NavMode.TREASURE_HUNT] — no street-by-street steps; just the direction
  *    and distance to the next goal, with warmer/colder proximity cues.
  */
@@ -79,8 +79,8 @@ class NavigationEngine @Inject constructor(
         // Off-route handling — deliberately unhurried so a brief GPS wobble or
         // a cut corner does not nag the rider.
         private const val OFF_ROUTE_GRACE_MS = 8_000L
-        private const val WRONG_WAY_VOICE_AFTER_MS = 14_000L
-        private const val WRONG_WAY_COOLDOWN_MS = 35_000L
+        private const val OFF_ROUTE_VOICE_AFTER_MS = 14_000L
+        private const val OFF_ROUTE_VOICE_COOLDOWN_MS = 35_000L
         private const val REROUTE_AFTER_MS = 22_000L
 
         // How long the "arrived" banner lingers before the popup self-clears.
@@ -119,6 +119,21 @@ class NavigationEngine @Inject constructor(
                     else null
             }
         }
+        // Live navigation parameters: arrival radius, off-route tolerance,
+        // voice toggle and imperial units. Used to snapshot only at start();
+        // now they re-flow whenever the rider edits a setting mid-trip, so
+        // the Navigation Settings shortcut in the builder menu is meaningful
+        // even with guidance running. Per-waypoint radii (Waypoint.radiusM)
+        // still override the global. The engine reads the cached fields on
+        // every fix, so updates take effect on the next GPS update.
+        scope.launch {
+            settingsRepository.settings.collect { s ->
+                imperial = s.imperialUnits
+                voiceEnabled = s.navVoiceEnabled
+                arrivalRadiusM = s.navArrivalRadiusM.toDouble()
+                offRouteToleranceM = s.navOffRouteToleranceM.toDouble()
+            }
+        }
     }
 
     @Volatile private var initJob: Job? = null
@@ -145,7 +160,13 @@ class NavigationEngine @Inject constructor(
     private var executedManeuver = -1
     private var offRouteSinceMs = 0L
     private var backOnRouteSinceMs = 0L
-    private var lastWrongWayMs = 0L
+    private var lastOffRouteVoiceMs = 0L
+    // Tracks whether we already spoke the distance-only "pre-move" cue for
+    // the current navigation session (or current goal). Cleared on stop()
+    // and whenever the active goal advances. Without this gate the rider
+    // would hear "Goal 1 is 300 metres away" every time onFix() ran while
+    // standing still.
+    private var preMoveCueSpoken = false
     private var rerouteInFlight = false
     private var waypointAlongM: List<Double> = emptyList()
 
@@ -231,17 +252,6 @@ class NavigationEngine @Inject constructor(
         Log.i(TAG, "Navigation stopped")
     }
 
-    /**
-     * Dev cheat: speaks a wrong-way shout with a randomly stretched run of
-     * o's and a's, so the elongated voice cue can be heard without riding
-     * off-route. Triggered by typing "wrongway" in the builder search box.
-     */
-    fun cheatWrongWay() {
-        val o = "o".repeat((3..20).random())
-        val a = "a".repeat((2..16).random())
-        voiceService.announceEvent("Wr${o}ng w${a}y!")
-    }
-
     fun setMinimized(minimized: Boolean) {
         _navState.value = _navState.value.copy(minimized = minimized)
     }
@@ -270,7 +280,7 @@ class NavigationEngine @Inject constructor(
         executedManeuver = -1
         offRouteSinceMs = 0L
         backOnRouteSinceMs = 0L
-        lastWrongWayMs = 0L
+        lastOffRouteVoiceMs = 0L
         rerouteInFlight = false
         // 1, not 0 — waypoint 0 is the rider's start point, never a goal.
         currentGoal = 1
@@ -280,6 +290,7 @@ class NavigationEngine @Inject constructor(
         coldStreak = 0
         arrivalHandled = false
         lastSyncedReached = 0
+        preMoveCueSpoken = false
     }
 
     // --- per-fix processing ------------------------------------------------------
@@ -306,13 +317,36 @@ class NavigationEngine @Inject constructor(
 
         val h = heading
         if (h == null) {
-            // No travel direction yet — ask the rider to get going.
+            // No travel direction yet — we cannot say "ahead / left / right"
+            // because we don't know which way the rider is FACING. But we DO
+            // know where the next goal is and how far away — so the popup
+            // shows the distance, and a one-shot cue speaks it once on the
+            // first fix. Without this the rider only hears "Start riding"
+            // and has no idea how far the goal is until they start moving
+            // and a heading materializes.
+            val goal = route.waypoints.getOrNull(currentGoal)
+            val distToGoal = if (goal != null) {
+                GeoMath.distanceM(point, goal.point())
+            } else Double.NaN
+            val distanceText = if (!distToGoal.isNaN()) {
+                NavFormat.distance(context, distToGoal, imperial)
+            } else ""
             _navState.value = _navState.value.copy(
                 waiting = true,
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
-                distanceText = ""
+                distanceText = distanceText
             )
+            if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
+                preMoveCueSpoken = true
+                voiceService.announceEvent(
+                    context.getString(
+                        R.string.voice_nav_hunt_distance,
+                        goalLabel(currentGoal),
+                        NavFormat.spokenDistance(context, distToGoal, imperial)
+                    )
+                )
+            }
             return
         }
 
@@ -438,12 +472,12 @@ class NavigationEngine @Inject constructor(
             _navState.value = _navState.value.copy(offRoute = true)
             Log.i(TAG, "off-route declared (offFor=${offFor}ms)")
         }
-        // The spoken "wrong way" waits well past the visual flag, so a short
-        // detour clears itself before the rider is ever told off.
-        if (voiceEnabled && offFor > WRONG_WAY_VOICE_AFTER_MS &&
-            now - lastWrongWayMs > WRONG_WAY_COOLDOWN_MS
+        // The spoken off-route cue waits well past the visual flag, so a
+        // short detour clears itself before the rider is ever told off.
+        if (voiceEnabled && offFor > OFF_ROUTE_VOICE_AFTER_MS &&
+            now - lastOffRouteVoiceMs > OFF_ROUTE_VOICE_COOLDOWN_MS
         ) {
-            lastWrongWayMs = now
+            lastOffRouteVoiceMs = now
             voiceService.announceEvent(context.getString(R.string.nav_off_route))
         }
         if (offFor > REROUTE_AFTER_MS && !rerouteInFlight &&
@@ -537,6 +571,11 @@ class NavigationEngine @Inject constructor(
             currentGoal++
             lastGoalDistM = Double.NaN
             lastProximity = null
+            // Re-arm the pre-move distance cue for the new goal — if the
+            // rider stops between goals (e.g. checkpoint break) and motion
+            // resumes pointing toward goal N+1, they hear how far that one
+            // is even before a heading is re-established.
+            preMoveCueSpoken = false
             if (currentGoal >= goals.size) {
                 handleArrival()
                 return
@@ -710,15 +749,32 @@ class NavigationEngine @Inject constructor(
         )
     }
 
-    /** Heading-relative direction word for Treasure Hunt ("on your left", etc.). */
+    /**
+     * Heading-relative direction word for Treasure Hunt. Buckets the relative
+     * bearing into six bands per side, so the back-diagonals ("behind you, on
+     * your right") read distinct from sideways or straight behind:
+     *
+     *     |rel|  0..25   25..65   65..110   110..155   >=155
+     *      word  ahead   slight   side      back-diag  behind
+     *
+     * Sign of rel picks left vs right.
+     */
     private fun directionText(relBearing: Double): String {
         val a = abs(relBearing)
         return context.getString(
             when {
                 a <= 25 -> R.string.nav_dir_ahead
                 a >= 155 -> R.string.nav_dir_behind
-                relBearing > 0 -> if (a <= 65) R.string.nav_dir_slight_right else R.string.nav_dir_right
-                else -> if (a <= 65) R.string.nav_dir_slight_left else R.string.nav_dir_left
+                relBearing > 0 -> when {
+                    a <= 65 -> R.string.nav_dir_slight_right
+                    a <= 110 -> R.string.nav_dir_right
+                    else -> R.string.nav_dir_behind_right
+                }
+                else -> when {
+                    a <= 65 -> R.string.nav_dir_slight_left
+                    a <= 110 -> R.string.nav_dir_left
+                    else -> R.string.nav_dir_behind_left
+                }
             }
         )
     }

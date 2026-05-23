@@ -8,7 +8,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.SideEffect
 import androidx.core.content.FileProvider
 import androidx.compose.animation.core.Animatable
@@ -21,6 +23,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -259,9 +262,14 @@ fun DashboardScreen(
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
     val toastContext = LocalContext.current
+    // Unified Material3 snackbar host — replaces the older Toast popups so the
+    // dashboard styles match Overlay Studio / Navigator / Settings (no system
+    // icon, swipe-to-dismiss).
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.cloudToasts.collect { resId ->
-            Toast.makeText(toastContext, resId, Toast.LENGTH_SHORT).show()
+            snackbarScope.launch { snackbar.showSnackbar(toastContext.getString(resId)) }
         }
     }
 
@@ -372,6 +380,7 @@ fun DashboardScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = {
@@ -999,11 +1008,8 @@ fun DashboardScreen(
                     enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
                     onClick = {
                         if (lockBlockedBySpeed) {
-                            Toast.makeText(
-                                toastContext,
-                                R.string.lock_blocked_in_motion_toast,
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
+                            snackbarScope.launch { snackbar.showSnackbar(msg) }
                         } else {
                             viewModel.onLockToggle()
                         }

@@ -91,6 +91,32 @@ class RouteBuilderViewModel @Inject constructor(
     private val _mapType = MutableStateFlow("DARK")
     val mapType: StateFlow<String> = _mapType.asStateFlow()
 
+    /** Persisted custom rider-marker photo as a base64 data URL, or null
+     *  when the rider hasn't set one (fall back to the default puck). */
+    private val _userMarkerPhoto = MutableStateFlow<String?>(null)
+    val userMarkerPhoto: StateFlow<String?> = _userMarkerPhoto.asStateFlow()
+
+    /** Last (centre, zoom) the rider was looking at on the map. Cached
+     *  in-memory only (per VM lifetime) so a sub-navigation to Settings and
+     *  back doesn't reset the view to the world-fit default. The JS side
+     *  posts this back on every moveend / zoomend. */
+    data class MapView(val lat: Double, val lng: Double, val zoom: Float)
+    private val _savedView = MutableStateFlow<MapView?>(null)
+    val savedView: StateFlow<MapView?> = _savedView.asStateFlow()
+
+    fun setSavedView(lat: Double, lng: Double, zoom: Float) {
+        _savedView.value = MapView(lat, lng, zoom)
+    }
+
+    /** Sets the rider-marker photo (or clears it) and persists to settings. */
+    fun setUserMarkerPhoto(dataUrl: String?) {
+        _userMarkerPhoto.value = dataUrl
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            settingsRepository.update(s.copy(navUserMarkerPhotoDataUrl = dataUrl))
+        }
+    }
+
     /** Bumped whenever the map should redraw; [fit] asks it to re-frame bounds. */
     data class MapRender(val version: Int, val fit: Boolean)
     private val _mapRender = MutableStateFlow(MapRender(0, false))
@@ -125,6 +151,15 @@ class RouteBuilderViewModel @Inject constructor(
     /** Default arrival radius (metres) for waypoints with no custom value. */
     private var defaultRadiusM: Int = 40
 
+    /** True right after a load or save — Clear route then needs no confirm.
+     *  Declared BEFORE the init block because the location collector and the
+     *  nav-progress collector inside init both call scheduleRecompute(),
+     *  which writes to this flow. If it were declared lower in the class,
+     *  Kotlin's in-order property init would leave it null and the very first
+     *  fast cached GPS fix would NPE the app on the route-builder screen. */
+    private val _routeClean = MutableStateFlow(false)
+    val routeClean: StateFlow<Boolean> = _routeClean.asStateFlow()
+
     init {
         // The route builder needs a live fix for the "my location" button.
         // WheelService owns the GPS lifecycle in general; this is an idempotent
@@ -139,6 +174,7 @@ class RouteBuilderViewModel @Inject constructor(
             defaultRadiusM = s.navArrivalRadiusM
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
+            _userMarkerPhoto.value = s.navUserMarkerPhotoDataUrl
             // The builder's route is disposable across an app restart: the
             // rider's preferred travel mode (above) is preserved, but the
             // pins only persist if they save a GPX. Restore the saved route
@@ -153,6 +189,32 @@ class RouteBuilderViewModel @Inject constructor(
                         _route.value = existing
                         bumpRender(fit = true)
                     }
+                }
+            }
+        }
+        // While navigation is running, drop already-reached stops from the
+        // builder's visible waypoint list so the map matches reality. The
+        // engine's navState carries the index of the *next* unvisited goal;
+        // each time that advances, we trim the corresponding stops from the
+        // head of [_waypoints]. The map redraws automatically from the
+        // bumpRender() call inside the trim. When nav stops, the saved
+        // navCurrentRouteJson holds whatever is left, so the next time the
+        // builder is opened it reflects the trimmed route too.
+        viewModelScope.launch {
+            navigationEngine.navState.collect { nav ->
+                if (!nav.active || nav.arrived) return@collect
+                val reachedDests = (nav.goalIndex - 1).coerceAtLeast(0)
+                if (reachedDests <= 0) return@collect
+                val current = _waypoints.value
+                // The list always starts with the rider's origin (index 0).
+                // Reaching N destinations means the first N+1 entries (origin
+                // + N visited stops) are behind us.
+                val dropCount = (reachedDests + 1).coerceAtMost(current.size - 1)
+                if (dropCount <= 1) return@collect
+                val remaining = listOf(current.first()) + current.drop(dropCount)
+                if (remaining.size != current.size) {
+                    _waypoints.value = remaining
+                    bumpRender(fit = false)
                 }
             }
         }
@@ -271,14 +333,6 @@ class RouteBuilderViewModel @Inject constructor(
 
     fun search(query: String) {
         searchJob?.cancel()
-        // Dev cheat: typing "wrongway" in the search box speaks a randomly
-        // stretched wrong-way shout, for testing the elongated voice cue.
-        if (query.trim().equals("wrongway", ignoreCase = true)) {
-            navigationEngine.cheatWrongWay()
-            _searchResults.value = emptyList()
-            _searching.value = false
-            return
-        }
         if (query.isBlank()) {
             _searchResults.value = emptyList()
             _searching.value = false
@@ -550,9 +604,7 @@ class RouteBuilderViewModel @Inject constructor(
         savePreset(Waypoint(it.latitude, it.longitude), home = false)
     }
 
-    /** True right after a load or save — Clear route then needs no confirm. */
-    private val _routeClean = MutableStateFlow(false)
-    val routeClean: StateFlow<Boolean> = _routeClean.asStateFlow()
+    // Declaration moved up earlier in the file — see the top of the class.
 
     /**
      * The kind of preset added last ("HOME" / "WORK"), or null if the last

@@ -47,7 +47,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -134,15 +137,30 @@ fun RouteBuilderScreen(
     val workPlace by viewModel.work.collectAsState()
     // While guidance runs the map is read-only: no search, no stop editing.
     val navRunning by viewModel.navRunning.collectAsState()
+    // Persisted custom marker photo (base64 data URL or null).
+    val markerPhoto by viewModel.userMarkerPhoto.collectAsState()
+    // When a freshly-picked image is decoded, it lands here and the crop
+    // dialog opens. Cleared on cancel or after the crop result is saved.
+    var pendingMarkerSource by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     val routeClean by viewModel.routeClean.collectAsState()
     var selfMenuOpen by remember { mutableStateOf(false) }
+    // Screen-space offset where the self menu should anchor. Pushed in from
+    // the JS bridge when the rider taps their own marker so the menu opens
+    // *at* the marker instead of at the centre of the map.
+    var selfMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
     var clearConfirmOpen by remember { mutableStateOf(false) }
+    // The picked GPX waiting on a "replace the current route?" confirmation.
+    // Held only after the rider has actually chosen a file (asking BEFORE
+    // the picker would be confusing — they may cancel out, and the prompt
+    // would be for nothing). Null when no pending choice.
+    var pendingGpxUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var markerMenuIndex by remember { mutableStateOf(-1) }
     // Screen position of the tapped marker, so its menu opens at the pin.
     var markerMenuOffset by remember { mutableStateOf(DpOffset.Zero) }
 
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     var menuOpen by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
@@ -190,11 +208,33 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady, mapRender) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
+        // If the rider has a saved view (they were already looking somewhere
+        // and we just came back from a sub-screen like Navigation Parameters),
+        // pretend nothing needs to fit — let the saved view re-apply via the
+        // LaunchedEffect below. Otherwise honour the requested fit.
+        val fit = mapRender.fit && viewModel.savedView.value == null
         wv.evaluateJavascript(
             "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                "${jsString(viewModel.geometryJson())},${mapRender.fit});",
+                "${jsString(viewModel.geometryJson())},$fit);",
             null
         )
+    }
+
+    // Restore the saved map view (centre + zoom) once, the moment the page
+    // becomes ready — this is what makes "go to Settings and swipe back"
+    // not snap the map to the world view. Keyed ONLY on pageReady so a
+    // user pan that updates savedView doesn't re-fire this effect (which
+    // would call nativeRecenter on every drag — an infinite move-end
+    // recursion).
+    //
+    // Stored in the VM only, no settings persistence: a fresh app launch
+    // starts from the rider's current location like before; only
+    // within-session sub-navigation restores.
+    LaunchedEffect(pageReady) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        val v = viewModel.savedView.value ?: return@LaunchedEffect
+        wv.evaluateJavascript("nativeRecenter(${v.lat}, ${v.lng}, ${v.zoom});", null)
     }
 
     // Keep the saved Home / Work places shown on the map.
@@ -207,13 +247,55 @@ fun RouteBuilderScreen(
         }
     }
 
-    // Keep the "you are here" dot live.
+    // Push the custom rider-marker photo (or clear it) into the map JS so
+    // the teardrop/circle uses it as soon as the value changes. Keyed on
+    // both photo + pageReady so the photo lands as soon as Leaflet is up.
+    LaunchedEffect(pageReady, markerPhoto) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        val arg = markerPhoto?.let { "'" + it + "'" } ?: "''"
+        wv.evaluateJavascript("nativeSetUserPhoto($arg);", null)
+    }
+
+    // The crop dialog only mounts once a freshly-picked image has been
+    // decoded into a Bitmap. On Apply, the resulting 64×64 circular crop is
+    // encoded to base64 and persisted; the saved value flows back through
+    // [markerPhoto] above to update the map.
+    pendingMarkerSource?.let { src ->
+        UserMarkerCropDialog(
+            source = src,
+            onCancel = { pendingMarkerSource = null },
+            onApply = { cropped ->
+                viewModel.setUserMarkerPhoto(cropped.toBase64DataUrl())
+                pendingMarkerSource = null
+            }
+        )
+    }
+
+    // Keep the "you are here" pin live. Switches between two visuals based
+    // on speed: a teardrop pointing in the direction of travel when the
+    // rider is moving, a plain round puck when stationary. Hysteresis on
+    // the threshold means a single GPS-noise spike doesn't flick the marker
+    // shape: we need a SUSTAINED speed over ~2.5 m/s to call the rider
+    // "moving", then they need to drop below ~1.0 m/s before going back to
+    // "still". Without this, while standing the marker would visibly grow
+    // / shrink as the bearing flickered with GPS jitter.
+    val movingOnMps = 2.5f
+    val movingOffMps = 1.0f
+    var lastSentMoving by remember { mutableStateOf(false) }
     LaunchedEffect(pageReady, userLocation) {
         val wv = webView ?: return@LaunchedEffect
         val loc = userLocation ?: return@LaunchedEffect
-        if (pageReady) {
-            wv.evaluateJavascript("nativeSetUser(${loc.latitude},${loc.longitude});", null)
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetUser(${loc.latitude},${loc.longitude});", null)
+        val sp = if (loc.hasSpeed()) loc.speed else 0f
+        val newMoving = if (lastSentMoving) sp >= movingOffMps else sp >= movingOnMps
+        if (newMoving && loc.hasBearing()) {
+            wv.evaluateJavascript("nativeSetUserHeading(${loc.bearing});", null)
+        } else if (!newMoving && lastSentMoving) {
+            wv.evaluateJavascript("nativeSetUserStill();", null)
         }
+        lastSentMoving = newMoving
     }
 
     // First load: frame the map on the rider instead of the whole world.
@@ -243,13 +325,71 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Mirror the nav-running state into the map. When locked, the JS swaps
+    // numbered pins for small dots and the arrival-radius ring becomes the
+    // dominant visual (the rider rides INTO the area, not to a pin). Drag
+    // and map-click are inert. We re-call nativeRender with the current
+    // waypoints + geometry right after so the new pin style applies
+    // immediately, without waiting for the next stop change.
+    LaunchedEffect(pageReady, navRunning) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript(
+            "nativeSetNavLocked(${if (navRunning) "true" else "false"});",
+            null
+        )
+        wv.evaluateJavascript(
+            "nativeRender(${jsString(viewModel.waypointsJson())}," +
+                "${jsString(viewModel.geometryJson())},false);",
+            null
+        )
+    }
+
+    // Push the current travel mode (DRIVING / CYCLING / WALKING / STRAIGHT)
+    // into the map so the route line uses the matching colour, and STRAIGHT
+    // mode gets the chevron arrows along its (otherwise featureless) line.
+    LaunchedEffect(pageReady, travelMode) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetTravelMode('${travelMode.name}');", null)
+    }
+
     val saveLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/gpx+xml")
     ) { uri -> uri?.let { viewModel.saveGpx(it) } }
 
     val loadLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
-    ) { uri -> uri?.let { viewModel.loadGpx(it) } }
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        // If the current route is an unsaved multi-stop one, confirm before
+        // overwriting it — we already have the file, just hold the URI and
+        // pop the dialog now. Otherwise load straight away.
+        val needConfirm = viewModel.waypoints.value.size > 1 &&
+            !viewModel.routeClean.value
+        if (needConfirm) {
+            pendingGpxUri = uri
+        } else {
+            viewModel.loadGpx(uri)
+        }
+    }
+
+    // Photo picker for the custom rider-marker. The picked image is decoded
+    // immediately so the crop dialog can show it; the dialog then renders a
+    // 64×64 circular crop and the result is base64-encoded into settings.
+    val markerPhotoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val bmp = runCatching {
+                context.contentResolver.openInputStream(uri)?.use {
+                    android.graphics.BitmapFactory.decodeStream(it)
+                }
+            }.getOrNull()
+            if (bmp != null) pendingMarkerSource = bmp
+        }
+    }
 
     // Starting navigation — Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
@@ -319,6 +459,9 @@ fun RouteBuilderScreen(
                                 // Android has no registered MIME for ".gpx", so
                                 // such files resolve to octet-stream; that entry
                                 // has to stay or real GPX files would be hidden.
+                                // If the rider's current route is unsaved and
+                                // multi-stop, we'll prompt AFTER they pick a
+                                // file (so cancelling the picker is silent).
                                 loadLauncher.launch(
                                     arrayOf(
                                         "application/gpx+xml", "application/xml",
@@ -337,7 +480,17 @@ fun RouteBuilderScreen(
                             hasWork = workPlace != null,
                             onClearHome = viewModel::clearHome,
                             onClearWork = viewModel::clearWork,
-                            onNavSettings = onOpenNavSettings
+                            onNavSettings = onOpenNavSettings,
+                            onCustomizeMarker = {
+                                markerPhotoPicker.launch(
+                                    androidx.activity.result.PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
+                            },
+                            onResetMarker = { viewModel.setUserMarkerPhoto(null) },
+                            hasCustomMarker = markerPhoto != null,
+                            navRunning = navRunning
                         )
                     }
                 }
@@ -373,10 +526,30 @@ fun RouteBuilderScreen(
                                         viewModel.moveWaypoint(i, lat, lng)
                                     }
                                 },
-                                selfTap = { selfMenuOpen = true },
+                                selfTap = { x, y ->
+                                    selfMenuOffset = DpOffset(x.dp, y.dp)
+                                    selfMenuOpen = true
+                                },
+                                mapViewChanged = { lat, lng, zoom ->
+                                    viewModel.setSavedView(lat, lng, zoom)
+                                },
                                 markerTapped = { idx, x, y ->
-                                    markerMenuIndex = idx
-                                    markerMenuOffset = DpOffset(x.dp, y.dp)
+                                    // While navigation is running the only sensible
+                                    // action on a stop is to recenter the map onto
+                                    // it — Save as Home / Work would mid-trip change
+                                    // the saved place which the rider isn't asking
+                                    // for. Skip the menu entirely and pan straight
+                                    // to the pin.
+                                    if (viewModel.navRunning.value) {
+                                        waypoints.getOrNull(idx)?.let { wp ->
+                                            webView?.evaluateJavascript(
+                                                "nativeCenterOn(${wp.lat},${wp.lng});", null
+                                            )
+                                        }
+                                    } else {
+                                        markerMenuIndex = idx
+                                        markerMenuOffset = DpOffset(x.dp, y.dp)
+                                    }
                                 }
                             ),
                             "AndroidNav"
@@ -430,6 +603,7 @@ fun RouteBuilderScreen(
                                     .fillMaxWidth()
                                     .clickable {
                                         searchText = ""
+                                        focusManager.clearFocus()
                                         viewModel.addPreset(
                                             place, if (label == "Home") "HOME" else "WORK"
                                         )
@@ -476,6 +650,7 @@ fun RouteBuilderScreen(
                             TextButton(
                                 onClick = {
                                     searchText = ""
+                                    focusManager.clearFocus()
                                     viewModel.pickSearchResult(result)
                                 },
                                 modifier = Modifier.fillMaxWidth()
@@ -586,21 +761,33 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // Rider-position menu — a simple dropdown near the map centre.
-            Box(modifier = Modifier.align(Alignment.Center)) {
+            // Rider-position menu — anchored at the rider's marker via
+            // selfMenuOffset (the JS bridge pushes the marker's screen-space
+            // position on tap). TopStart alignment lets the offset be the
+            // absolute pixel position the menu opens at.
+            Box(modifier = Modifier.align(Alignment.TopStart)) {
                 DropdownMenu(
                     expanded = selfMenuOpen,
-                    onDismissRequest = { selfMenuOpen = false }
+                    onDismissRequest = { selfMenuOpen = false },
+                    offset = selfMenuOffset
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.nav_save_home)) },
-                        onClick = { selfMenuOpen = false; viewModel.saveSelfAsHome() }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.nav_save_work)) },
-                        onClick = { selfMenuOpen = false; viewModel.saveSelfAsWork() }
-                    )
-                    if (waypoints.isNotEmpty()) {
+                    if (homePlace == null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_save_home)) },
+                            onClick = { selfMenuOpen = false; viewModel.saveSelfAsHome() }
+                        )
+                    }
+                    if (workPlace == null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_save_work)) },
+                            onClick = { selfMenuOpen = false; viewModel.saveSelfAsWork() }
+                        )
+                    }
+                    // "Add stop here" is hidden while navigation is running:
+                    // dropping a new stop mid-trip would re-solve the route
+                    // around it, which is destructive (same reason map taps
+                    // and pin drags are gated in the JS layer).
+                    if (waypoints.isNotEmpty() && !navRunning) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.nav_self_add_stop)) },
                             onClick = {
@@ -611,31 +798,68 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
+                    // Marker-customization cluster — separated from the
+                    // place-saving / add-stop items above because the actions
+                    // affect a different thing (the rider's avatar, not the
+                    // route). Short labels because the context (your-marker
+                    // menu) already implies "your marker". The divider only
+                    // renders when something ELSE is also in the menu — a
+                    // lone divider on top of Customize looks pointless.
+                    val hasAddStop = waypoints.isNotEmpty() && !navRunning
+                    val hasOtherItems = homePlace == null || workPlace == null || hasAddStop
+                    if (hasOtherItems) HorizontalDivider()
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.nav_customize_marker_short)) },
+                        onClick = {
+                            selfMenuOpen = false
+                            markerPhotoPicker.launch(
+                                androidx.activity.result.PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                        }
+                    )
+                    if (markerPhoto != null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_remove_marker_photo_short)) },
+                            onClick = {
+                                selfMenuOpen = false
+                                viewModel.setUserMarkerPhoto(null)
+                            }
+                        )
+                    }
                 }
             }
 
-            // Stop-marker menu — save that stop as a Home / Work preset. Anchored
-            // at the tapped pin via markerMenuOffset.
+            // Stop-marker menu — save that stop as a Home / Work preset.
+            // Anchored at the tapped pin via markerMenuOffset. Each "Save as"
+            // option only shows when that slot is empty; once Home (or Work)
+            // is saved the option vanishes from this menu and reappears only
+            // after the rider forgets it via the main menu.
             Box(modifier = Modifier.align(Alignment.TopStart)) {
                 DropdownMenu(
                     expanded = markerMenuIndex >= 0,
                     onDismissRequest = { markerMenuIndex = -1 },
                     offset = markerMenuOffset
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.nav_save_home)) },
-                        onClick = {
-                            val i = markerMenuIndex; markerMenuIndex = -1
-                            if (i >= 0) viewModel.saveWaypointAsHome(i)
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.nav_save_work)) },
-                        onClick = {
-                            val i = markerMenuIndex; markerMenuIndex = -1
-                            if (i >= 0) viewModel.saveWaypointAsWork(i)
-                        }
-                    )
+                    if (homePlace == null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_save_home)) },
+                            onClick = {
+                                val i = markerMenuIndex; markerMenuIndex = -1
+                                if (i >= 0) viewModel.saveWaypointAsHome(i)
+                            }
+                        )
+                    }
+                    if (workPlace == null) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.nav_save_work)) },
+                            onClick = {
+                                val i = markerMenuIndex; markerMenuIndex = -1
+                                if (i >= 0) viewModel.saveWaypointAsWork(i)
+                            }
+                        )
+                    }
                 }
             }
 
@@ -652,6 +876,30 @@ fun RouteBuilderScreen(
                     },
                     dismissButton = {
                         TextButton(onClick = { clearConfirmOpen = false }) {
+                            Text(stringResource(R.string.action_cancel))
+                        }
+                    }
+                )
+            }
+
+            // Confirm before replacing an unsaved multi-stop route with the
+            // GPX the rider just picked. We already have the URI in hand —
+            // confirming "Replace?" only makes sense AFTER a file is chosen,
+            // because cancelling the picker should be a no-op.
+            val pendingUri = pendingGpxUri
+            if (pendingUri != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { pendingGpxUri = null },
+                    title = { Text(stringResource(R.string.nav_menu_load)) },
+                    text = { Text(stringResource(R.string.nav_load_confirm)) },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            pendingGpxUri = null
+                            viewModel.loadGpx(pendingUri)
+                        }) { Text(stringResource(R.string.nav_menu_load_short)) }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { pendingGpxUri = null }) {
                             Text(stringResource(R.string.action_cancel))
                         }
                     }
@@ -675,25 +923,49 @@ private fun BuilderMenu(
     hasWork: Boolean,
     onClearHome: () -> Unit,
     onClearWork: () -> Unit,
-    onNavSettings: () -> Unit
+    onNavSettings: () -> Unit,
+    onCustomizeMarker: () -> Unit,
+    onResetMarker: () -> Unit,
+    hasCustomMarker: Boolean,
+    navRunning: Boolean
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         // "Start navigation" is omitted here — it is already a primary button.
-        // Save / Clear only make sense once the route actually has stops.
+        // Save is allowed even while nav is running so the rider can capture
+        // the remaining stops as a GPX checkpoint (the trim from
+        // syncBuilderRoute means the saved file only contains stops still
+        // ahead). Load / Clear stay hidden during nav — both would replace
+        // the running route, which is destructive.
         if (hasStops) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_save)) },
                 onClick = { onDismiss(); onSave() }
             )
         }
-        DropdownMenuItem(
-            text = { Text(stringResource(R.string.nav_menu_load)) },
-            onClick = { onDismiss(); onLoad() }
-        )
-        if (hasStops) {
+        if (!navRunning) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_menu_load)) },
+                onClick = { onDismiss(); onLoad() }
+            )
+        }
+        if (hasStops && !navRunning) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.nav_menu_clear)) },
                 onClick = { onDismiss(); onClear() }
+            )
+        }
+        // Marker-customization group, bounded by separators above and below
+        // so the rider's-avatar actions read as a distinct cluster from the
+        // route / settings items.
+        HorizontalDivider()
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.nav_customize_marker)) },
+            onClick = { onDismiss(); onCustomizeMarker() }
+        )
+        if (hasCustomMarker) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.nav_remove_marker_photo)) },
+                onClick = { onDismiss(); onResetMarker() }
             )
         }
         HorizontalDivider()
@@ -833,9 +1105,31 @@ private fun BottomPanel(
                     )
                 )
                 // Travel mode (icons) + a Start button, combined into one row.
+                // The mode row dims to 40% alpha while nav is running so the
+                // "selected mode pill" doesn't read as enabled. Functional
+                // disable is also on each SegmentedButton.
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.weight(1f)) {
+                    SingleChoiceSegmentedButtonRow(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(if (navRunning) Modifier.alpha(0.4f) else Modifier)
+                    ) {
                         modes.forEachIndexed { index, (mode, icon, labelRes) ->
+                            // Icon tint matches the route line colour for that
+                            // mode so the chip visually previews what the line
+                            // on the map will look like. Cool→warm activity
+                            // gradient — see routeColorFor() in MapHtml.kt for
+                            // the full reasoning.
+                            //   Walk     sky blue   #03A9F4
+                            //   Bike     green      #4CAF50
+                            //   Drive    orange     #FB8C00 (not red)
+                            //   Straight magenta    #E91E63
+                            val modeColor = when (mode) {
+                                TravelMode.WALKING  -> Color(0xFF03A9F4)
+                                TravelMode.CYCLING  -> Color(0xFFFB8C00)
+                                TravelMode.DRIVING  -> Color(0xFFE53935)
+                                TravelMode.STRAIGHT -> Color(0xFF43A047)
+                            }
                             SegmentedButton(
                                 selected = travelMode == mode,
                                 onClick = { onModeChange(mode) },
@@ -846,6 +1140,7 @@ private fun BottomPanel(
                                 Icon(
                                     icon,
                                     contentDescription = stringResource(labelRes),
+                                    tint = modeColor,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -896,8 +1191,11 @@ private fun BottomPanel(
                                             .padding(vertical = 2.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        // A single stop cannot be reordered — leave the handle dim and inert.
-                                        val canReorder = waypoints.size > 1
+                                        // The drag handle is inert when there is only one stop, AND
+                                        // also while guidance is running (mid-trip resorting would
+                                        // recompute the live route — destructive). Both states dim
+                                        // the icon to the disabled-tint to read as "not tappable".
+                                        val canReorder = waypoints.size > 1 && !navRunning
                                         Icon(
                                             Icons.Default.DragHandle,
                                             contentDescription = stringResource(R.string.nav_drag_stop),
@@ -911,13 +1209,15 @@ private fun BottomPanel(
                                                 .copy(alpha = if (canReorder) 1f else 0.3f)
                                         )
                                         Spacer(Modifier.width(10.dp))
-                                        // Long-press the row to open its options menu.
+                                        // Tap the row to recentre the map on this stop (works
+                                        // whether navigation is running or not). Long-press still
+                                        // opens the options menu.
                                         Row(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .combinedClickable(
-                                                    onClick = {},
+                                                    onClick = { onCenterPin(index) },
                                                     onLongClick = {
                                                         haptic.performHapticFeedback(
                                                             HapticFeedbackType.LongPress
@@ -964,7 +1264,9 @@ private fun BottomPanel(
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
-                                        // Quick-access remove — locked while guiding.
+                                        // Quick-access remove — locked while guiding. The icon
+                                        // also DIMS when locked (was hard-coded red regardless of
+                                        // enabled state, so it still looked tappable).
                                         IconButton(
                                             onClick = { onRemove(index) },
                                             enabled = !navRunning
@@ -973,7 +1275,10 @@ private fun BottomPanel(
                                                 Icons.Default.Delete,
                                                 contentDescription =
                                                     stringResource(R.string.nav_remove_stop),
-                                                tint = MaterialTheme.colorScheme.error,
+                                                tint = if (navRunning)
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                        .copy(alpha = 0.38f)
+                                                else MaterialTheme.colorScheme.error,
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }
@@ -986,15 +1291,26 @@ private fun BottomPanel(
                                             text = { Text(stringResource(R.string.nav_pin_center)) },
                                             onClick = { rowMenu = false; onCenterPin(index) }
                                         )
-                                        HorizontalDivider()
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.nav_save_home)) },
-                                            onClick = { rowMenu = false; onSaveHome(index) }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(R.string.nav_save_work)) },
-                                            onClick = { rowMenu = false; onSaveWork(index) }
-                                        )
+                                        // Save as Home / Work only when both:
+                                        //   a) the slot is not already filled (no point
+                                        //      "saving" a Home when one exists — clutter)
+                                        //   b) navigation is not running (mid-trip
+                                        //      changes to Home / Work are surprising)
+                                        val canSaveHome = !navRunning && home == null
+                                        val canSaveWork = !navRunning && work == null
+                                        if (canSaveHome || canSaveWork) HorizontalDivider()
+                                        if (canSaveHome) {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.nav_save_home)) },
+                                                onClick = { rowMenu = false; onSaveHome(index) }
+                                            )
+                                        }
+                                        if (canSaveWork) {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.nav_save_work)) },
+                                                onClick = { rowMenu = false; onSaveWork(index) }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -1015,8 +1331,9 @@ private fun BottomPanel(
 private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
-    private val selfTap: () -> Unit,
-    private val markerTapped: (Int, Int, Int) -> Unit
+    private val selfTap: (Int, Int) -> Unit,
+    private val markerTapped: (Int, Int, Int) -> Unit,
+    private val mapViewChanged: (Double, Double, Float) -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
 
@@ -1031,13 +1348,18 @@ private class NavJsBridge(
     }
 
     @JavascriptInterface
-    fun onSelfTap() {
-        main.post { selfTap() }
+    fun onSelfTap(x: Int, y: Int) {
+        main.post { selfTap(x, y) }
     }
 
     @JavascriptInterface
     fun onMarkerTapped(index: Int, x: Int, y: Int) {
         main.post { markerTapped(index, x, y) }
+    }
+
+    @JavascriptInterface
+    fun onMapViewChanged(lat: Double, lng: Double, zoom: Float) {
+        main.post { mapViewChanged(lat, lng, zoom) }
     }
 }
 

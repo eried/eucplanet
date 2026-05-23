@@ -636,6 +636,8 @@
     <string name="nav_depart">Sett i gang</string>
     <string name="nav_dir_ahead">rett fram</string>
     <string name="nav_dir_behind">bak deg</string>
+    <string name="nav_dir_behind_left">bak deg, til venstre</string>
+    <string name="nav_dir_behind_right">bak deg, til høyre</string>
     <string name="nav_dir_left">til venstre for deg</string>
     <string name="nav_dir_right">til høyre for deg</string>
     <string name="nav_dir_slight_left">litt til venstre</string>
@@ -679,7 +681,7 @@
     <string name="nav_no_results">Ingen treff funnet</string>
     <string name="nav_off_route">Utenfor ruten</string>
     <string name="nav_open">Åpne navigatoren</string>
-    <string name="nav_pin_center">Vis på kartet</string>
+    <string name="nav_pin_center">Sentrer på kartet</string>
     <string name="nav_pin_remove">Fjern</string>
     <string name="nav_pin_set_my_location">Sett til min posisjon</string>
     <string name="nav_prox_cold">Kaldere</string>
@@ -708,7 +710,7 @@
     <string name="nav_setting_endpoints_hint">Gratis offentlige OpenStreetMap-tjenester, ingen konto nødvendig. Endre bare for å peke mot din egen server</string>
     <string name="nav_setting_geocoder_url">URL for adressesøk</string>
     <string name="nav_setting_offroute">Toleranse for avvik fra ruten</string>
-    <string name="nav_setting_offroute_desc">Hvor langt utenfor ruten før \"feil vei\" utløses</string>
+    <string name="nav_setting_offroute_desc">Hvor langt fra ruten før varselet om at du er av ruta utløses</string>
     <string name="nav_setting_open_builder">Åpne rutebyggeren</string>
     <string name="nav_setting_params">Navigasjonsparametere</string>
     <string name="nav_setting_router_url">Rute-URL</string>
@@ -753,6 +755,7 @@
     <string name="voice_nav_goal_reached">Stopp nådd</string>
     <string name="voice_nav_hunt">%1$s er %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s er %2$s unna</string>
     <string name="voice_nav_now">%1$s nå</string>
     <string name="voice_nav_prepare">Om %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Begynn å kjøre</string>

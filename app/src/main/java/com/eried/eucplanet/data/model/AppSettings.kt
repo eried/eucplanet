@@ -220,7 +220,7 @@ data class AppSettings(
     val navVoiceEnabled: Boolean = true,
     /** Radius (meters) within which a waypoint / goal counts as "reached". */
     val navArrivalRadiusM: Int = 50,
-    /** Perpendicular distance (meters) off the route before "wrong way" triggers. */
+    /** Perpendicular distance (meters) off the route before the off-route alert triggers. */
     val navOffRouteToleranceM: Int = 40,
     /** Default travel mode for new routes: CYCLING / DRIVING / WALKING / STRAIGHT. */
     val navDefaultTravelMode: String = "STRAIGHT",
@@ -240,6 +240,13 @@ data class AppSettings(
     val navCurrentRouteJson: String? = null,
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
     val navMapType: String = "LIGHT",
+    /**
+     * Custom user-marker photo as a `data:image/png;base64,…` URL, or null
+     * for the default circle/teardrop marker. Captured by the rider via the
+     * "Customize my marker" crop dialog at 64×64, ~3–5 KB encoded — same
+     * size order as a saved nav route.
+     */
+    val navUserMarkerPhotoDataUrl: String? = null,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,

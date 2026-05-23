@@ -636,6 +636,8 @@
     <string name="nav_depart">Los geht\'s</string>
     <string name="nav_dir_ahead">voraus</string>
     <string name="nav_dir_behind">hinter dir</string>
+    <string name="nav_dir_behind_left">hinter dir, links</string>
+    <string name="nav_dir_behind_right">hinter dir, rechts</string>
     <string name="nav_dir_left">links von dir</string>
     <string name="nav_dir_right">rechts von dir</string>
     <string name="nav_dir_slight_left">leicht links</string>
@@ -679,7 +681,7 @@
     <string name="nav_no_results">Keine Treffer gefunden</string>
     <string name="nav_off_route">Nicht auf der Route</string>
     <string name="nav_open">Navigator öffnen</string>
-    <string name="nav_pin_center">Auf Karte zeigen</string>
+    <string name="nav_pin_center">Auf Karte zentrieren</string>
     <string name="nav_pin_remove">Entfernen</string>
     <string name="nav_pin_set_my_location">Auf meinen Standort setzen</string>
     <string name="nav_prox_cold">Kälter</string>
@@ -708,7 +710,7 @@
     <string name="nav_setting_endpoints_hint">Kostenlose öffentliche OpenStreetMap-Dienste, kein Konto nötig. Nur ändern, um auf deinen eigenen Server zu verweisen</string>
     <string name="nav_setting_geocoder_url">URL für Adresssuche</string>
     <string name="nav_setting_offroute">Toleranz für Routenabweichung</string>
-    <string name="nav_setting_offroute_desc">Wie weit du von der Route abweichen darfst, bevor \"Falsche Richtung\" ausgelöst wird</string>
+    <string name="nav_setting_offroute_desc">Wie weit von der Route entfernt, bevor die Routenabweichungs-Warnung ausgelöst wird</string>
     <string name="nav_setting_open_builder">Routenplaner öffnen</string>
     <string name="nav_setting_params">Navigationsparameter</string>
     <string name="nav_setting_router_url">Routing-URL</string>
@@ -753,6 +755,7 @@
     <string name="voice_nav_goal_reached">Halt erreicht</string>
     <string name="voice_nav_hunt">%1$s ist %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s ist %2$s entfernt</string>
     <string name="voice_nav_now">Jetzt %1$s</string>
     <string name="voice_nav_prepare">In %1$s %2$s</string>
     <string name="voice_nav_start_riding">Losfahren</string>

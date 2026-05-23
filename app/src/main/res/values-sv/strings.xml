@@ -619,6 +619,8 @@
     <string name="nav_depart">Kör iväg</string>
     <string name="nav_dir_ahead">framför dig</string>
     <string name="nav_dir_behind">bakom dig</string>
+    <string name="nav_dir_behind_left">bakom dig, till vänster</string>
+    <string name="nav_dir_behind_right">bakom dig, till höger</string>
     <string name="nav_dir_left">till vänster om dig</string>
     <string name="nav_dir_right">till höger om dig</string>
     <string name="nav_dir_slight_left">snett till vänster</string>
@@ -662,7 +664,7 @@
     <string name="nav_no_results">Inga träffar hittades</string>
     <string name="nav_off_route">Utanför rutten</string>
     <string name="nav_open">Öppna navigatorn</string>
-    <string name="nav_pin_center">Visa på kartan</string>
+    <string name="nav_pin_center">Centrera på kartan</string>
     <string name="nav_pin_remove">Ta bort</string>
     <string name="nav_pin_set_my_location">Sätt till min plats</string>
     <string name="nav_prox_cold">Kallare</string>
@@ -691,7 +693,7 @@
     <string name="nav_setting_endpoints_hint">Gratis publika OpenStreetMap-tjänster, inget konto behövs. Ändra bara om du vill peka mot din egen server</string>
     <string name="nav_setting_geocoder_url">URL för adressökning</string>
     <string name="nav_setting_offroute">Tolerans utanför rutt</string>
-    <string name="nav_setting_offroute_desc">Hur långt från rutten innan \"fel väg\" utlöses</string>
+    <string name="nav_setting_offroute_desc">Hur långt från rutten innan varningen om avvikelse utlöses</string>
     <string name="nav_setting_open_builder">Öppna ruttbyggaren</string>
     <string name="nav_setting_params">Navigeringsparametrar</string>
     <string name="nav_setting_router_url">Rutt-URL</string>
@@ -736,6 +738,7 @@
     <string name="voice_nav_goal_reached">Stopp nått</string>
     <string name="voice_nav_hunt">%1$s är %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s är %2$s bort</string>
     <string name="voice_nav_now">%1$s nu</string>
     <string name="voice_nav_prepare">Om %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Börja åk</string>

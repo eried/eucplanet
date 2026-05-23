@@ -656,6 +656,8 @@
     <string name="nav_depart">Ruszaj</string>
     <string name="nav_dir_ahead">przed Tobą</string>
     <string name="nav_dir_behind">za Tobą</string>
+    <string name="nav_dir_behind_left">za tobą, po lewej</string>
+    <string name="nav_dir_behind_right">za tobą, po prawej</string>
     <string name="nav_dir_left">po Twojej lewej</string>
     <string name="nav_dir_right">po Twojej prawej</string>
     <string name="nav_dir_slight_left">lekko w lewo</string>
@@ -699,7 +701,7 @@
     <string name="nav_no_results">Nie znaleziono pasujących wyników</string>
     <string name="nav_off_route">Poza trasą</string>
     <string name="nav_open">Otwórz nawigator</string>
-    <string name="nav_pin_center">Pokaż na mapie</string>
+    <string name="nav_pin_center">Wyśrodkuj na mapie</string>
     <string name="nav_pin_remove">Usuń</string>
     <string name="nav_pin_set_my_location">Ustaw na moją lokalizację</string>
     <string name="nav_prox_cold">Zimniej</string>
@@ -728,7 +730,7 @@
     <string name="nav_setting_endpoints_hint">Darmowe publiczne usługi OpenStreetMap, bez konta. Zmieniaj tylko, aby wskazać własny serwer</string>
     <string name="nav_setting_geocoder_url">Adres URL wyszukiwania adresów</string>
     <string name="nav_setting_offroute">Tolerancja zejścia z trasy</string>
-    <string name="nav_setting_offroute_desc">Jak daleko od trasy, zanim uruchomi się \"zła droga\"</string>
+    <string name="nav_setting_offroute_desc">Jak daleko od trasy zanim wywoła się alert o zboczeniu z trasy</string>
     <string name="nav_setting_open_builder">Otwórz kreator tras</string>
     <string name="nav_setting_params">Parametry nawigacji</string>
     <string name="nav_setting_router_url">Adres URL wyznaczania trasy</string>
@@ -773,6 +775,7 @@
     <string name="voice_nav_goal_reached">Dotarłeś do przystanku</string>
     <string name="voice_nav_hunt">%1$s jest %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s w odległości %2$s</string>
     <string name="voice_nav_now">%1$s teraz</string>
     <string name="voice_nav_prepare">Za %1$s %2$s</string>
     <string name="voice_nav_start_riding">Zacznij jazdę</string>

@@ -619,6 +619,8 @@
     <string name="nav_depart">En route</string>
     <string name="nav_dir_ahead">devant vous</string>
     <string name="nav_dir_behind">derrière vous</string>
+    <string name="nav_dir_behind_left">derrière vous, à gauche</string>
+    <string name="nav_dir_behind_right">derrière vous, à droite</string>
     <string name="nav_dir_left">sur votre gauche</string>
     <string name="nav_dir_right">sur votre droite</string>
     <string name="nav_dir_slight_left">légèrement à gauche</string>
@@ -662,7 +664,7 @@
     <string name="nav_no_results">Aucun résultat trouvé</string>
     <string name="nav_off_route">Hors itinéraire</string>
     <string name="nav_open">Ouvrir le navigateur</string>
-    <string name="nav_pin_center">Afficher sur la carte</string>
+    <string name="nav_pin_center">Centrer sur la carte</string>
     <string name="nav_pin_remove">Retirer</string>
     <string name="nav_pin_set_my_location">Définir sur ma position</string>
     <string name="nav_prox_cold">Plus froid</string>
@@ -691,7 +693,7 @@
     <string name="nav_setting_endpoints_hint">Services publics gratuits OpenStreetMap, sans compte requis. À modifier uniquement pour pointer vers votre propre serveur</string>
     <string name="nav_setting_geocoder_url">URL de recherche d\'adresse</string>
     <string name="nav_setting_offroute">Tolérance hors itinéraire</string>
-    <string name="nav_setting_offroute_desc">Écart par rapport à l\'itinéraire avant le déclenchement de « mauvaise direction »</string>
+    <string name="nav_setting_offroute_desc">À quelle distance de l\'itinéraire l\'alerte hors itinéraire se déclenche</string>
     <string name="nav_setting_open_builder">Ouvrir le créateur d\'itinéraire</string>
     <string name="nav_setting_params">Paramètres de navigation</string>
     <string name="nav_setting_router_url">URL de calcul d\'itinéraire</string>
@@ -736,6 +738,7 @@
     <string name="voice_nav_goal_reached">Arrêt atteint</string>
     <string name="voice_nav_hunt">%1$s est %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s est à %2$s</string>
     <string name="voice_nav_now">%1$s maintenant</string>
     <string name="voice_nav_prepare">Dans %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Commencez à rouler</string>

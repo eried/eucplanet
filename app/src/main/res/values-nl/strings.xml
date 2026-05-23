@@ -655,6 +655,8 @@
     <string name="nav_depart">Vertrekken</string>
     <string name="nav_dir_ahead">recht voor je</string>
     <string name="nav_dir_behind">achter je</string>
+    <string name="nav_dir_behind_left">achter je, links</string>
+    <string name="nav_dir_behind_right">achter je, rechts</string>
     <string name="nav_dir_left">aan je linkerkant</string>
     <string name="nav_dir_right">aan je rechterkant</string>
     <string name="nav_dir_slight_left">iets naar links</string>
@@ -698,7 +700,7 @@
     <string name="nav_no_results">Geen resultaten gevonden</string>
     <string name="nav_off_route">Buiten de route</string>
     <string name="nav_open">Navigator openen</string>
-    <string name="nav_pin_center">Tonen op kaart</string>
+    <string name="nav_pin_center">Centreren op kaart</string>
     <string name="nav_pin_remove">Verwijderen</string>
     <string name="nav_pin_set_my_location">Op mijn locatie zetten</string>
     <string name="nav_prox_cold">Kouder</string>
@@ -727,7 +729,7 @@
     <string name="nav_setting_endpoints_hint">Gratis publieke OpenStreetMap-services, geen account nodig. Wijzig alleen om naar je eigen server te verwijzen</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
-    <string name="nav_setting_offroute_desc">Hoe ver van de route voordat \"verkeerde kant\" wordt geactiveerd</string>
+    <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de "uit route"-melding wordt geactiveerd</string>
     <string name="nav_setting_open_builder">Routebouwer openen</string>
     <string name="nav_setting_params">Navigatieparameters</string>
     <string name="nav_setting_router_url">Routerings-URL</string>
@@ -772,6 +774,7 @@
     <string name="voice_nav_goal_reached">Stop bereikt</string>
     <string name="voice_nav_hunt">%1$s is %2$s %3$s</string>
     <string name="voice_nav_hunt_prox">%1$s, %2$s</string>
+    <string name="voice_nav_hunt_distance">%1$s is %2$s verderop</string>
     <string name="voice_nav_now">%1$s nu</string>
     <string name="voice_nav_prepare">Over %1$s, %2$s</string>
     <string name="voice_nav_start_riding">Begin met rijden</string>

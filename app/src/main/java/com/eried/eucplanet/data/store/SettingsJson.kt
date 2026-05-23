@@ -185,6 +185,7 @@ object SettingsJson {
         put("navRouterUrl", s.navRouterUrl)
         put("navCurrentRouteJson", s.navCurrentRouteJson)
         put("navMapType", s.navMapType)
+        put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("watchShowNavigation", s.watchShowNavigation)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
@@ -347,6 +348,9 @@ object SettingsJson {
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
         navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
         navMapType = j.optString("navMapType", base.navMapType),
+        navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
+            j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
+        else base.navUserMarkerPhotoDataUrl,
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
