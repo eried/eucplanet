@@ -175,20 +175,24 @@ class RouteBuilderViewModel @Inject constructor(
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
             _userMarkerPhoto.value = s.navUserMarkerPhotoDataUrl
-            // The builder's route is disposable across an app restart: the
-            // rider's preferred travel mode (above) is preserved, but the
-            // pins only persist if they save a GPX. Restore the saved route
-            // ONLY while a navigation session is still running, since the
-            // engine keeps it up to date as each stop is reached.
-            if (navigationEngine.isActive) {
-                NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
-                    if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
-                        routeName = existing.name
-                        _travelMode.value = existing.travelMode
-                        _waypoints.value = existing.waypoints
-                        _route.value = existing
-                        bumpRender(fit = true)
-                    }
+            // Restore whatever route is in settings. This used to be gated on
+            // `navigationEngine.isActive`, but that gating meant stopping nav
+            // from the floating cue (which leaves the Builder unmounted, so
+            // the engine is no longer active by the time the Builder is
+            // re-opened) silently looked like a route deletion — the JSON was
+            // still on disk, the Builder just refused to read it. Stopping
+            // from the in-Builder "Stop navigation" button didn't have this
+            // symptom because the Builder VM stayed alive across the stop.
+            // navCurrentRouteJson is cleared explicitly by the engine on
+            // arrival and by the Builder on Clear / load-replace, so it is
+            // already the right source of truth — restore it unconditionally.
+            NavRoute.fromJson(s.navCurrentRouteJson)?.let { existing ->
+                if (existing.waypoints.isNotEmpty() || existing.geometry.isNotEmpty()) {
+                    routeName = existing.name
+                    _travelMode.value = existing.travelMode
+                    _waypoints.value = existing.waypoints
+                    _route.value = existing
+                    bumpRender(fit = true)
                 }
             }
         }

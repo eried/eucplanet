@@ -91,10 +91,23 @@ class MainActivity : AppCompatActivity() {
         wearBridge.pingWatchToWake()
     }
 
+    /**
+     * Guards [requestMissingPermissions] so we only ever fire it once per
+     * MainActivity instance, even though the LaunchedEffect that drives it
+     * may recompose. False until the first prompt has been shown.
+     */
+    private var permissionsAsked = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        requestMissingPermissions()
+        // requestMissingPermissions() is intentionally NOT called here.
+        // On a clean install, asking before setContent runs means the runtime
+        // permission dialogs come up over a black activity — the rider thinks
+        // the app crashed, and the system has been seen to drop the empty-
+        // looking activity while they are still reading the rationale. The
+        // LaunchedEffect inside setContent below fires once the first frame is
+        // composed, so the dialog always lands on top of a real UI.
 
         lifecycleScope.launch {
             settingsRepository.settings.collect {
@@ -144,6 +157,16 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val s by _settings.collectAsState()
+            // Ask for the BLE / location / notification permissions on the
+            // first composition. Doing it from Compose (instead of onCreate)
+            // means the activity is fully drawn before the system dialog
+            // appears — see the comment on permissionsAsked.
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                if (!permissionsAsked) {
+                    permissionsAsked = true
+                    requestMissingPermissions()
+                }
+            }
             EucPlanetTheme(
                 themeMode = s?.themeMode ?: "black",
                 accentColor = s?.accentColor ?: "blue"
