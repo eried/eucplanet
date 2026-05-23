@@ -72,6 +72,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -161,9 +162,16 @@ fun RouteBuilderScreen(
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchFocused by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val density = androidx.compose.ui.platform.LocalDensity.current
     var menuOpen by remember { mutableStateOf(false) }
     var panelExpanded by rememberSaveable { mutableStateOf(true) }
     var webView by remember { mutableStateOf<WebView?>(null) }
+    // The bottom stops panel's measured height in pixels, used to offset
+    // recenter / tap-stop centring so the target lands in the centre of
+    // the VISIBLE map area rather than behind the panel. Updated via
+    // onSizeChanged so it always matches reality (the previous 300 / 80 dp
+    // estimate was both too coarse AND ignored the rider's content sizes).
+    var panelHeightPx by remember { mutableStateOf(0) }
     // Cover the map until the first GPS fix lands, so the rider never sees it
     // snap from world view to their location. Skip drops the gate immediately.
     var locationGateDone by remember { mutableStateOf(false) }
@@ -409,7 +417,10 @@ fun RouteBuilderScreen(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    // 80 % alpha so the map shows through the top bar (the
+                    // map area extends under it via the contentWindowInsets
+                    // override below).
+                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
                 ),
                 navigationIcon = {
                     IconButton(onClick = onExit) {
@@ -497,7 +508,25 @@ fun RouteBuilderScreen(
             )
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+        // Net pixel offset applied when recentering: the rider's latlng
+        // should land at the centre of the VISIBLE map area, which is
+        // (top_bar_height + bottom_panel_height) / 2 px ABOVE the WebView's
+        // geometric centre when bottom > top, BELOW when top > bottom.
+        // Passing this delta (positive = shift map south so rider appears
+        // north of centre) instead of just the panel height is what makes
+        // the rider end up in the visible middle rather than against the
+        // top bar.
+        val topBarPx = with(density) { padding.calculateTopPadding().toPx() }
+        val recenterOffsetPx = (panelHeightPx - topBarPx) / 2f
+        // The map fills the WHOLE screen, including the strip behind the
+        // top bar -- the bar is now 80 % translucent so the map shows
+        // through it. We still apply the BOTTOM padding so the bottom
+        // panel and the FABs don't clash with the system nav bar.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = padding.calculateBottomPadding())
+        ) {
             // --- Map ---
             androidx.compose.ui.viewinterop.AndroidView(
                 modifier = Modifier.fillMaxSize(),
@@ -543,7 +572,7 @@ fun RouteBuilderScreen(
                                     if (viewModel.navRunning.value) {
                                         waypoints.getOrNull(idx)?.let { wp ->
                                             webView?.evaluateJavascript(
-                                                "nativeCenterOn(${wp.lat},${wp.lng});", null
+                                                "nativeCenterOn(${wp.lat},${wp.lng},$recenterOffsetPx);", null
                                             )
                                         }
                                     } else {
@@ -582,6 +611,11 @@ fun RouteBuilderScreen(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .fillMaxWidth()
+                        // Outer Box no longer applies the top inset (the map
+                        // fills the area behind the translucent app bar), so
+                        // restore it HERE -- otherwise the dropdown lands at
+                        // y = 0 / behind the search field.
+                        .padding(top = padding.calculateTopPadding())
                         .padding(horizontal = 12.dp, vertical = 4.dp),
                     shape = RoundedCornerShape(12.dp),
                     color = MaterialTheme.colorScheme.surface,
@@ -606,6 +640,15 @@ fun RouteBuilderScreen(
                                         focusManager.clearFocus()
                                         viewModel.addPreset(
                                             place, if (label == "Home") "HOME" else "WORK"
+                                        )
+                                        // Pan to the freshly-added preset so the
+                                        // rider can see WHERE it dropped without
+                                        // hunting -- the map is full-screen
+                                        // behind the search results, so the new
+                                        // pin can easily be off-screen.
+                                        webView?.evaluateJavascript(
+                                            "nativeCenterOn(${place.lat},${place.lng},$recenterOffsetPx);",
+                                            null
                                         )
                                     }
                                     .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -693,8 +736,14 @@ fun RouteBuilderScreen(
                     onClick = {
                         val l = viewModel.recenterOnUser()
                         if (l != null) {
+                            // Tell the JS how much of the map's bottom is
+                            // occluded by the stops panel so the rider's pin
+                            // ends up in the middle of the VISIBLE map area,
+                            // not buried under the dock. Expanded panel ≈
+                            // 300 dp; collapsed (just the header row) ≈ 80 dp.
                             webView?.evaluateJavascript(
-                                "nativeRecenter(${l.latitude},${l.longitude},16);", null
+                                "nativeRecenter(${l.latitude},${l.longitude},16,$recenterOffsetPx);",
+                                null
                             )
                         } else {
                             scope.launch {
@@ -728,7 +777,7 @@ fun RouteBuilderScreen(
                     onCenterPin = { idx ->
                         waypoints.getOrNull(idx)?.let { wp ->
                             webView?.evaluateJavascript(
-                                "nativeCenterOn(${wp.lat},${wp.lng});", null
+                                "nativeCenterOn(${wp.lat},${wp.lng},$recenterOffsetPx);", null
                             )
                         }
                     },
@@ -737,7 +786,8 @@ fun RouteBuilderScreen(
                     onStartNavigation = startNav,
                     onStopNavigation = viewModel::stopNavigation,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
-                    navRunning = navRunning && !navStarting
+                    navRunning = navRunning && !navStarting,
+                    modifier = Modifier.onSizeChanged { sz -> panelHeightPx = sz.height }
                 )
             }
 
@@ -1038,12 +1088,20 @@ private fun BottomPanel(
     val haptic = LocalHapticFeedback.current
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        color = MaterialTheme.colorScheme.surface,
+        // Square corners (no rounded top) so the panel reads as a clean
+        // dock at the bottom of the map. 80 % alpha lets the map (and the
+        // route line that often runs right up against the bottom edge)
+        // peek through, so the rider sees more context.
+        shape = RoundedCornerShape(0.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.80f),
         tonalElevation = 6.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            // Header: title + count/distance + collapse chevron.
+            // Header: title + count/distance + COMPACT start/stop + collapse chevron.
+            // The compact start/stop sits inline so a rider with the panel
+            // collapsed (i.e. the big Start button is hidden) can still kick
+            // off / cancel navigation without expanding -- the action they
+            // actually need most often is right there.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(R.string.nav_waypoints),
@@ -1068,6 +1126,27 @@ private fun BottomPanel(
                     )
                 }
                 Spacer(Modifier.weight(1f))
+                // Compact start / stop. Hidden when expanded (the big button
+                // at the bottom of the expanded panel does the same job) and
+                // when there is nothing to start (no waypoints, no fix yet).
+                // Uses the SAME filled-Button style as the big one in the
+                // expanded panel so both Start / Stop controls look like
+                // the same action -- a translucent / black-looking
+                // TextButton next to a coloured filled Button was reading
+                // as two different things.
+                if (!expanded && (navRunning || canStartNavigation)) {
+                    val label = stringResource(
+                        if (navRunning) R.string.nav_stop_short
+                        else R.string.nav_start_short
+                    )
+                    Button(
+                        onClick = {
+                            if (navRunning) onStopNavigation() else onStartNavigation()
+                        },
+                        contentPadding = androidx.compose.foundation.layout
+                            .PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) { Text(label) }
+                }
                 IconButton(onClick = onToggle) {
                     Icon(
                         if (expanded) Icons.Default.KeyboardArrowDown
@@ -1079,7 +1158,22 @@ private fun BottomPanel(
                 }
             }
 
-            if (expanded) {
+            // Expand / collapse is animated -- a hard show/hide on the
+            // travel-mode chips + waypoint list felt jarring, especially with
+            // the new 80 % translucent panel where you can SEE the map content
+            // jump as the rectangle resizes. AnimatedVisibility with the
+            // default expand/shrink + fade gives the right "drawer slides
+            // open" feel.
+            androidx.compose.animation.AnimatedVisibility(
+                visible = expanded,
+                enter = androidx.compose.animation.expandVertically(
+                    expandFrom = Alignment.Top
+                ) + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.shrinkVertically(
+                    shrinkTowards = Alignment.Top
+                ) + androidx.compose.animation.fadeOut()
+            ) {
+              Column {
                 Spacer(Modifier.height(8.dp))
                 // Travel mode selector.
                 val modes = listOf(
@@ -1162,19 +1256,45 @@ private fun BottomPanel(
 
                 Spacer(Modifier.height(8.dp))
 
+                // Highwater "minimum height" so the list does NOT shrink as
+                // the rider deletes stops -- a shrinking list causes the rows
+                // below (and the Start button) to creep up, and a second /
+                // third quick Delete tap easily lands on the Start button by
+                // accident. We measure the column at its TALLEST so far
+                // (across edits AND across waypoints.isEmpty() flips) and
+                // pin a min-height to that value. The lock resets when the
+                // rider collapses the panel (signal that they're done
+                // editing). Measured in PX (px-int -> dp via density) so the
+                // size matches reality regardless of row content / wrapping,
+                // not the previous fixed 48 dp-per-row estimate.
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                var stableMinH by remember { mutableStateOf(0) }
+                if (!expanded && stableMinH != 0) {
+                    LaunchedEffect(expanded) { stableMinH = 0 }
+                }
+                val minHDp = with(density) { stableMinH.toDp() }
                 if (waypoints.isEmpty()) {
-                    Text(
-                        stringResource(R.string.nav_empty_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 6.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = minHDp, max = 234.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.nav_empty_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 6.dp)
+                        )
+                    }
                 } else {
                     Column(
                         modifier = Modifier
                             // ~4.5 stop rows tall — the half row hints it scrolls.
-                            .heightIn(max = 234.dp)
+                            .heightIn(min = minHDp, max = 234.dp)
                             .verticalScroll(rememberScrollState())
+                            .onSizeChanged { sz ->
+                                if (sz.height > stableMinH) stableMinH = sz.height
+                            }
                     ) {
                         ReorderableColumn(
                             list = waypoints,
@@ -1317,7 +1437,8 @@ private fun BottomPanel(
                         }
                     }
                 }
-            }
+              }   // Column
+            }     // AnimatedVisibility
         }
     }
 }

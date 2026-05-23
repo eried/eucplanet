@@ -202,7 +202,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
   function tickAutoFollow(){
     if (autoFollowHeading && userMoving && !twoFingerActive &&
         Date.now() - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS) {
-      var target = userHeading;
+      // leaflet-rotate's setBearing(B) applies `rotate(B°)` CSS to the
+      // rotatePane, which rotates content CW by B. To put compass heading
+      // H at the TOP of the screen we need B = -H (so compass 0 / N
+      // stays at screen 0 when H = 0, and compass H ends up at 0 when
+      // we rotate the map by -H). Using +H here was the cause of the
+      // "map is 180° off" report for non-cardinal headings.
+      var target = -userHeading;
       var current = map.getBearing();
       // Wrap delta into [-180, 180] so we always rotate the short way.
       var delta = ((target - current + 540) % 360) - 180;
@@ -640,11 +646,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // with the heading on a north-up map.
     //
     // When the map is rotated (heading-up auto-follow or a manual twist),
-    // the marker sits in the no-rotate pane so we need to subtract the map
-    // bearing here, otherwise the head would over-rotate. On a north-up
-    // map (bearing = 0) this collapses to rot = userHeading.
+    // the marker sits in the no-rotate pane so its CSS rotation has to be
+    // (heading + bearing): on a north-up map (bearing = 0) this collapses
+    // to rot = userHeading; with heading-up (bearing = -heading) it
+    // collapses to rot = 0 so the head points at screen-top, which is
+    // exactly where the heading direction appears on the rotated map.
     var bearing = (map && map.getBearing) ? map.getBearing() : 0;
-    var rot = userHeading - bearing;
+    var rot = userHeading + bearing;
     return L.divIcon({
       className: '',
       html: '<div class="user-pin" style="width:' + headPx + 'px;height:' +
@@ -700,16 +708,44 @@ internal const val ROUTE_BUILDER_HTML: String = """
     if (userMarker) userMarker.setIcon(buildUserIcon());
   };
 
-  window.nativeRecenter = function(lat, lng, zoom){
+  // Compute the map-center latlng that puts a TARGET latlng at the centre
+  // of the VISIBLE area. The caller passes the NET screen-pixel offset
+  // by which the rider should appear ABOVE the WebView's geometric centre
+  // -- this is (bottomOcclusion - topOcclusion) / 2 (or negative when the
+  // top bar is taller than the panel). In our layout the translucent top
+  // bar covers ~348 px and the stops panel covers a larger amount; the
+  // visible centre therefore sits ABOVE the WebView centre by that net /2.
+  //
+  // The shift has to account for the map's current bearing -- shifting
+  // the projected center "south" in world coords is only "south on
+  // screen" when bearing = 0. With heading-up enabled the map is rotated;
+  // pushing south in projection moves the rider toward whichever screen
+  // direction "world south" currently maps to (which is why the marker
+  // was landing top-right while riding east). The world-shift we need
+  // for a screen-down shift of (0, offset) is (sin(B), cos(B)) * offset
+  // in projection pixels, where B is the bearing in radians.
+  function centerLatLngFor(lat, lng, zoom, screenOffsetPx){
+    if (!screenOffsetPx) return [lat, lng];
+    var pt = map.project([lat, lng], zoom);
+    var bearingDeg = (map.getBearing) ? map.getBearing() : 0;
+    var rad = bearingDeg * Math.PI / 180;
+    pt.x += screenOffsetPx * Math.sin(rad);
+    pt.y += screenOffsetPx * Math.cos(rad);
+    return map.unproject(pt, zoom);
+  }
+
+  window.nativeRecenter = function(lat, lng, zoom, bottomOffsetPx){
     // Re-check the container size first so the target really lands centred
     // even if the WebView resized after the map was created.
     map.invalidateSize();
-    map.setView([lat, lng], zoom);
+    map.setView(centerLatLngFor(lat, lng, zoom, bottomOffsetPx), zoom);
   };
 
-  // Pan (keeping the current zoom) so a point sits in the centre of the view.
-  window.nativeCenterOn = function(lat, lng){
-    map.panTo([lat, lng]);
+  // Pan (keeping the current zoom) so a point sits in the centre of the
+  // view. Takes the same optional bottomOffsetPx as nativeRecenter so the
+  // caller can keep the target above the stops panel.
+  window.nativeCenterOn = function(lat, lng, bottomOffsetPx){
+    map.panTo(centerLatLngFor(lat, lng, map.getZoom(), bottomOffsetPx));
   };
 
   // The rider's theme accent — recolours the route line and connector.
