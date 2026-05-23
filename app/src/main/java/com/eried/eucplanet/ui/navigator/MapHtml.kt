@@ -120,42 +120,71 @@ internal const val ROUTE_BUILDER_HTML: String = """
     rotate: true,
     touchRotate: true,
     bearing: 0,
-    rotateControl: false
+    rotateControl: false,
+    // Pin pinch-zoom to the map's pixel center instead of the touch
+    // midpoint. The plugin processes rotate + zoom + pan together inside
+    // one two-finger gesture; when the zoom anchor is the touch midpoint,
+    // small unintended pinch creep shifts the center mid-rotate and the
+    // rotated route line / radius circles drift away from their markers.
+    // Pinning to 'center' keeps the rotation pivot fixed.
+    touchZoom: 'center'
   });
   var tileLayer = null;
 
   // --- Auto-orient: snap the map's bearing to follow the rider's heading,
   // but back off whenever the rider twists the map manually so we don't
-  // fight their gesture. The map's bearing is in DEGREES (CSS-style: +CW).
-  // To put the heading "up" on screen, bearing must be set to -heading.
+  // fight their gesture. Leaflet-rotate uses CSS-convention bearing
+  // (positive = CW). To put the rider's heading "up" on screen, world
+  // direction θ has to show at screen θ - bearing; setting bearing =
+  // heading parks the heading direction at the top of the screen.
   var autoFollowHeading = true;
   var lastManualRotateMs = 0;
-  // After a manual rotate stops, wait this long before resuming auto-follow.
+  var twoFingerActive = false;
+  // After the rider lets go of a two-finger gesture, wait this long before
+  // resuming heading-up auto-follow.
   var MANUAL_ROTATE_HOLD_MS = 6000;
-  map.on('rotate', function(){
-    // Distinguish rider-driven rotates (during touchRotate gesture) from our
-    // own programmatic setBearing calls: the touch handler in the plugin
-    // calls setBearing while _rotating is true.
-    if (map.touchRotate && map.touchRotate._enabled && map._rotating) {
+
+  // Detect manual two-finger gestures on the map container. The plugin's
+  // TouchGestures handler does its own thing; we just need to know when
+  // the rider is touching with two fingers so we can pause the auto-follow
+  // tween (otherwise the next animation frame snaps the map back and the
+  // rider's twist appears to do nothing / drift).
+  var mapEl = document.getElementById('map');
+  mapEl.addEventListener('touchstart', function(e){
+    if (e.touches.length >= 2) {
+      twoFingerActive = true;
       lastManualRotateMs = Date.now();
     }
+  }, { passive: true });
+  mapEl.addEventListener('touchmove', function(e){
+    if (e.touches.length >= 2) lastManualRotateMs = Date.now();
+  }, { passive: true });
+  mapEl.addEventListener('touchend', function(e){
+    if (e.touches.length === 0) {
+      twoFingerActive = false;
+      lastManualRotateMs = Date.now();
+    }
+  }, { passive: true });
+  mapEl.addEventListener('touchcancel', function(){
+    twoFingerActive = false;
+    lastManualRotateMs = Date.now();
+  }, { passive: true });
+
+  // Re-render the rider marker on every bearing change so its head keeps
+  // pointing at the rider's world heading, not the screen-relative one.
+  // (Markers sit in the no-rotate pane and don't rotate with the map.)
+  map.on('rotate', function(){
+    if (userMarker) userMarker.setIcon(buildUserIcon());
   });
+
   function tickAutoFollow(){
-    if (autoFollowHeading && userMoving) {
-      if (Date.now() - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS) {
-        // leaflet-rotate uses CSS-convention bearing (positive = CW). To put
-        // the rider's heading "up" on screen, world direction θ has to show
-        // at screen θ - bearing; setting θ - bearing = 0 (i.e. bearing =
-        // heading) parks the heading direction at the top of the screen.
-        var target = userHeading;
-        var current = map.getBearing();
-        // Wrap delta into [-180, 180] so we always rotate the short way.
-        var delta = ((target - current + 540) % 360) - 180;
-        if (Math.abs(delta) > 0.5) {
-          map.setBearing(current + delta * 0.18);
-          if (userMarker) userMarker.setIcon(buildUserIcon());
-        }
-      }
+    if (autoFollowHeading && userMoving && !twoFingerActive &&
+        Date.now() - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS) {
+      var target = userHeading;
+      var current = map.getBearing();
+      // Wrap delta into [-180, 180] so we always rotate the short way.
+      var delta = ((target - current + 540) % 360) - 180;
+      if (Math.abs(delta) > 0.5) map.setBearing(current + delta * 0.18);
     }
     requestAnimationFrame(tickAutoFollow);
   }
