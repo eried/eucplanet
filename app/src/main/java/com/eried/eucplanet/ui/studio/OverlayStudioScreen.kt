@@ -134,6 +134,7 @@ fun OverlayStudioScreen(
     val preset by viewModel.preset.collectAsState()
     val selectedId by viewModel.selectedElementId.collectAsState()
     val liveWheelData by viewModel.wheelData.collectAsState()
+    val liveGForceTrail by viewModel.liveGForceTrail.collectAsState()
     val trips by viewModel.trips.collectAsState()
     val wheelName by viewModel.wheelName.collectAsState()
     val connected by viewModel.connected.collectAsState()
@@ -338,6 +339,18 @@ fun OverlayStudioScreen(
         requestedKeys = requestedCameras,
         enabled = cameraNeeded && hasCameraPermission
     )
+    // While a full-screen config sheet is on top, the camera viewports behind it
+    // are invisible — keep the cameras' capture session open (instant return)
+    // but skip the YUV→Bitmap fan-out. With two cameras this saves ~1.2 cores
+    // of frame conversion and the bitmap allocation churn that was tipping the
+    // editor into "Suspending all threads" GC storms when sliders were dragged.
+    // Keyed on `hub` too so a hub recreated by a camera re-bind inherits the
+    // current pause state.
+    LaunchedEffect(sheet, hub) {
+        val pause = sheet !is StudioSheet.None
+        hub.convertPaused = pause
+        android.util.Log.i("StudioCam", "convertPaused=$pause sheet=$sheet")
+    }
 
     // --- Permissions -------------------------------------------------------
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -764,12 +777,16 @@ fun OverlayStudioScreen(
     }
 
     // Android can quietly stop delivering sensor events while the app is
-    // backgrounded; re-arm the IMU when the studio returns to the foreground
-    // so the G-Force overlay keeps updating after an app switch.
+    // backgrounded; re-arm the IMU when the studio returns to the foreground.
+    // Hook ON_RESUME (not ON_START) because a quick task-switch often only
+    // pauses the activity — ON_START would miss the bounce. Also re-arm on
+    // ON_START as a belt-and-braces for the cold-return case.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val obs = LifecycleEventObserver { _, e ->
-            if (e == Lifecycle.Event.ON_START) viewModel.refreshSensors()
+            if (e == Lifecycle.Event.ON_START || e == Lifecycle.Event.ON_RESUME) {
+                viewModel.refreshSensors()
+            }
         }
         lifecycleOwner.lifecycle.addObserver(obs)
         onDispose { lifecycleOwner.lifecycle.removeObserver(obs) }
@@ -880,7 +897,12 @@ fun OverlayStudioScreen(
                         distanceUnit = viewModel.distanceUnit,
                         tempUnit = viewModel.tempUnit,
                         clockTimeMs = clockTimeMs,
-                        stopwatchMs = stopwatchMs
+                        stopwatchMs = stopwatchMs,
+                        // Live mode feeds the G-Force overlay its 50 Hz rolling
+                        // trail (dot is just the last entry). Replay leaves
+                        // this empty; the overlay falls back to wheelData /
+                        // history derived from the scrubbed trip row.
+                        liveGForceTrail = if (replayMode) emptyList() else liveGForceTrail
                     ),
                     editable = editable,
                     selectedId = selectedId,

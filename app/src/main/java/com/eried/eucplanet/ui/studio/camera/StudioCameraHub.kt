@@ -99,6 +99,19 @@ class StudioCameraHub {
     /** The live Camera2 binding, kept so teardown can close it directly. */
     internal var binding: CameraBinding? = null
 
+    /**
+     * When true, frame conversion (YUV → ARGB → Bitmap) is skipped — the reader
+     * is still drained so the camera keeps delivering, but each [Feed] just
+     * closes the latest image instead of fanning row work out to the row pool.
+     * Use this while a full-screen config sheet is on top: the cameras keep
+     * their session open (so reopening the view is instant) but the per-frame
+     * CPU + bitmap churn is gone. Two-camera concurrent operation burns ~1.2
+     * cores of conversion otherwise, which is what froze the editor when the
+     * smoothing slider drag layered recompositions on top.
+     */
+    @Volatile
+    var convertPaused: Boolean = false
+
     fun frame(key: String): ImageBitmap? = frames[key]
     fun isLive(key: String): Boolean = key in liveKeys
     fun info(key: String): StudioCameraInfo? = cameras.firstOrNull { it.key == key }
@@ -425,10 +438,19 @@ internal class CameraBinding(
                 .get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)
         }.getOrNull()?.toList().orEmpty()
         if (ranges.isEmpty()) return null
-        // Highest ceiling, then highest floor — a fixed [60,60]-style range
-        // keeps video at a steady rate instead of letting it dip.
-        val best = ranges.maxWithOrNull(compareBy({ it.upper }, { it.lower }))
-        Log.i(TAG, "Camera $deviceId fps range -> $best")
+        // Cap at 30 fps. Each frame is YUV → ARGB → Bitmap on the rowPool, so a
+        // single 60 fps camera burns roughly the same CPU as 30 fps × 2 — and
+        // two 60 fps cameras together saturate the device, starving the
+        // RenderThread + GC and freezing the UI. 30 is more than enough for
+        // both preview and recording.
+        // Preference order: fixed [30,30] > anything with upper == 30 > highest
+        // upper ≤ 30 > lowest range overall (better to dip than to burn).
+        val cap = 30
+        val best = ranges.firstOrNull { it.lower == cap && it.upper == cap }
+            ?: ranges.filter { it.upper == cap }.maxByOrNull { it.lower }
+            ?: ranges.filter { it.upper <= cap }.maxByOrNull { it.upper }
+            ?: ranges.minByOrNull { it.upper }
+        Log.i(TAG, "Camera $deviceId fps range -> $best (capped at $cap)")
         return best
     }
 
@@ -605,6 +627,13 @@ private class Feed(
         // Copy the planes off the Image fast, then release it — conversion is
         // slow and must not stall the reader's limited buffer pool.
         val image = runCatching { reader.acquireLatestImage() }.getOrNull() ?: return
+        // If a config sheet is on top the converted frame is invisible anyway;
+        // drain the reader so the camera stays healthy but skip the YUV→Bitmap
+        // work. This is what unfreezes the editor with two cameras streaming.
+        if (hub.convertPaused) {
+            runCatching { image.close() }
+            return
+        }
         val frame = try {
             YuvFrame.copyFrom(image)
         } catch (t: Throwable) {

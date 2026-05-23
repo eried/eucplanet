@@ -5,6 +5,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.SystemClock
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -71,6 +73,19 @@ class PhoneSensorRepository @Inject constructor(
     // sheet, the Overlay Studio). The listener is registered while it is > 0.
     private var refCount = 0
     private var registered = false
+
+    // Sensor callbacks are delivered on the Looper that registerListener was
+    // called from — when that's the main thread, sensor events get queued
+    // behind Compose recomposition and frame draws. With two cameras + a busy
+    // Studio canvas the main thread can fall ~hundreds of ms behind, which is
+    // exactly when the G-Force overlay "freezes". A dedicated HandlerThread
+    // means events flow regardless of what the UI thread is doing.
+    // The thread can also be torn down and recreated when a normal refresh
+    // doesn't restore the stream (see [forceRebuild]) — Android can park a
+    // listener in a state where re-register on the same Handler still doesn't
+    // deliver events, and a brand-new Looper kicks it loose.
+    private var sensorThread: HandlerThread = HandlerThread("PhoneIMU-sensor").also { it.start() }
+    private var sensorHandler: Handler = Handler(sensorThread.looper)
     // Periodic re-register heartbeat — Android can quietly stop delivering
     // events to a non-wake-up sensor while the AP sleeps (screen off mid-ride);
     // re-registering every 15 s self-heals it as long as the AP has been woken
@@ -111,8 +126,9 @@ class PhoneSensorRepository @Inject constructor(
         val s = linearAccel ?: return
         // SENSOR_DELAY_GAME (~20 ms) gives a smooth trail in the crosshair
         // without pegging the CPU. SENSOR_DELAY_UI (~60 ms) felt choppy on
-        // a Pixel 6 during a tilt test.
-        val ok = sm.registerListener(listener, s, SensorManager.SENSOR_DELAY_GAME)
+        // a Pixel 6 during a tilt test. Handler-bound overload keeps callbacks
+        // off the main thread (see sensorHandler comment).
+        val ok = sm.registerListener(listener, s, SensorManager.SENSOR_DELAY_GAME, sensorHandler)
         registered = ok
         lastRegisterElapsedMs = SystemClock.elapsedRealtime()
         Log.i(TAG, "register ok=$ok sensor=${s.name} wakeUp=${s.isWakeUpSensor} reportingMode=${s.reportingMode}")
@@ -134,27 +150,43 @@ class PhoneSensorRepository @Inject constructor(
     @Synchronized
     fun start() {
         refCount++
-        Log.i(TAG, "start refCount=$refCount")
+        Log.i(TAG, "start refCount=$refCount from=${callerTag()}")
         if (refCount == 1) {
             register()
             heartbeat = scope.launch {
+                // Two-strike recovery — first stall triggers a normal refresh
+                // (unregister + register on the same Handler), a *second*
+                // consecutive stall escalates to a HandlerThread rebuild because
+                // Android can wedge a listener in a state where re-register on
+                // the existing Looper still delivers no events.
+                var consecutiveStalls = 0
                 while (isActive) {
-                    delay(15_000L)
+                    delay(3_000L)
                     val count = eventsSinceLastTick
                     eventsSinceLastTick = 0
                     val now = SystemClock.elapsedRealtime()
                     val sinceLastEvent = if (lastEventElapsedMs == 0L) -1L else (now - lastEventElapsedMs)
                     val sinceRegister = if (lastRegisterElapsedMs == 0L) -1L else (now - lastRegisterElapsedMs)
+                    // "Stalled" = no events, OR a trickle so slow the rider would
+                    // perceive the dot as frozen. SENSOR_DELAY_GAME ought to give
+                    // us ~150 / 3 s; under 10 means the stream is effectively dead.
+                    val stalled = registered && (count < 10L ||
+                        (lastEventElapsedMs != 0L && sinceLastEvent > 1_500L))
                     Log.i(
                         TAG,
-                        "tick events/15s=$count sinceLastEventMs=$sinceLastEvent registered=$registered sinceRegisterMs=$sinceRegister refCount=$refCount"
+                        "tick events/3s=$count sinceLastEventMs=$sinceLastEvent registered=$registered sinceRegisterMs=$sinceRegister refCount=$refCount stalled=$stalled"
                     )
-                    // If we got zero events but we are supposed to be registered,
-                    // try to self-heal by re-registering. This is the actual fix;
-                    // the log line above tells us how often we hit it.
-                    if (count == 0L && registered) {
-                        Log.w(TAG, "no events in 15s while registered — forcing refresh")
-                        refresh()
+                    if (stalled) {
+                        consecutiveStalls++
+                        if (consecutiveStalls == 1) {
+                            Log.w(TAG, "stall #1 — refresh()")
+                            refresh()
+                        } else {
+                            Log.w(TAG, "stall #$consecutiveStalls — forceRebuild()")
+                            forceRebuild()
+                        }
+                    } else {
+                        consecutiveStalls = 0
                     }
                 }
             }
@@ -167,7 +199,7 @@ class PhoneSensorRepository @Inject constructor(
     fun stop() {
         if (refCount <= 0) return
         refCount--
-        Log.i(TAG, "stop refCount=$refCount")
+        Log.i(TAG, "stop refCount=$refCount from=${callerTag()}")
         if (refCount == 0) {
             heartbeat?.cancel()
             heartbeat = null
@@ -186,6 +218,33 @@ class PhoneSensorRepository @Inject constructor(
         Log.i(TAG, "refresh refCount=$refCount registered=$registered")
         unregister()
         register()
+    }
+
+    /**
+     * Heavy-handed recovery: tear down the HandlerThread the listener is
+     * attached to, spin up a new one, and re-register. Used when a normal
+     * [refresh] cannot get events flowing again — Android can park a listener
+     * in a state where re-register on the same Looper still delivers nothing.
+     */
+    @Synchronized
+    fun forceRebuild() {
+        if (refCount <= 0) return
+        Log.w(TAG, "forceRebuild refCount=$refCount")
+        unregister()
+        // Quit the old looper so the dead handler can't deliver a stray event.
+        sensorThread.quitSafely()
+        sensorThread = HandlerThread("PhoneIMU-sensor").also { it.start() }
+        sensorHandler = Handler(sensorThread.looper)
+        register()
+    }
+
+    /** First app stack frame above the start/stop call, for "who called me" diagnostics. */
+    private fun callerTag(): String {
+        val trace = Throwable().stackTrace
+        // 0 = this method, 1 = start/stop, 2 = caller
+        val frame = trace.getOrNull(2) ?: return "?"
+        val cls = frame.className.substringAfterLast('.')
+        return "$cls.${frame.methodName}:${frame.lineNumber}"
     }
 
     companion object {

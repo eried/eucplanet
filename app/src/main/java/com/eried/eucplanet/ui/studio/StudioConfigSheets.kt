@@ -1616,24 +1616,29 @@ fun ElementConfigSheet(
             }
 
             if (element.type == OverlayElementType.G_FORCE) {
+                // Trail length 2–20 s. The trail is rebuilt per frame so longer
+                // windows are expensive, and beyond ~20 s the rider's actual
+                // motion path stops being useful anyway.
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_trail_label),
                     stringResource(R.string.studio_cfg_time_window_fmt, element.graphWindowSec),
-                    element.graphWindowSec.toFloat(), 2f, 30f
+                    element.graphWindowSec.coerceIn(2, 20).toFloat(), 2f, 20f, steps = 17
                 ) { onChange(element.copy(graphWindowSec = it.toInt())) }
                 // Outer-ring g value. A smaller scale magnifies small
                 // movements, making them more evident on the recording.
+                // Discrete 0.25 g stops from 0.5 g to 4 g (14 intervals → 13
+                // intermediate snap points) — this also kills the slider-drag
+                // recomposition storm because onChange only fires once per snap.
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_g_scale),
                     "%.2f g".format(element.gForceScale),
-                    element.gForceScale, 0.25f, 4f
+                    element.gForceScale.coerceIn(0.5f, 4f), 0.5f, 4f, steps = 13
                 ) { onChange(element.copy(gForceScale = it)) }
-                // Movement smoothing — higher makes the dot heavier and slower.
-                LabeledSlider(
-                    stringResource(R.string.studio_cfg_g_smoothing),
-                    "%.0f%%".format(element.gForceSmoothing * 100f),
-                    element.gForceSmoothing, 0f, 1f
-                ) { onChange(element.copy(gForceSmoothing = it)) }
+                // Smoothing slider was removed — the trail and dot now share
+                // their 50 Hz data source and stay visually connected without
+                // any artificial easing, the same way the live-data crosshair
+                // does it. gForceSmoothing remains on the data model for
+                // back-compat with saved presets but has no rendering effect.
             }
 
             if (element.type == OverlayElementType.MAP) {
@@ -2112,6 +2117,13 @@ private fun LabeledSlider(
     steps: Int = 0,
     onChange: (Float) -> Unit
 ) {
+    // Material3 Slider fires onValueChange on every drag tick even when the
+    // (snapped) value hasn't moved, so without this filter a stepped slider
+    // can still pump the whole preset graph at 60 Hz during a drag. Track the
+    // last value we forwarded and skip duplicates — for continuous sliders the
+    // value also bounces a few times per pixel; epsilon-compare on those.
+    var lastReported by remember(min, max, steps) { mutableStateOf(value) }
+    val epsilon = if (steps > 0) 0f else (max - min) * 0.001f
     Column(Modifier.padding(top = 8.dp)) {
         Row(Modifier.fillMaxWidth()) {
             Text(label, Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
@@ -2119,7 +2131,13 @@ private fun LabeledSlider(
         }
         Slider(
             value = value.coerceIn(min, max),
-            onValueChange = { onChange(it.coerceIn(min, max)) },
+            onValueChange = {
+                val v = it.coerceIn(min, max)
+                if (kotlin.math.abs(v - lastReported) > epsilon || v != lastReported) {
+                    lastReported = v
+                    onChange(v)
+                }
+            },
             valueRange = min..max,
             steps = steps
         )

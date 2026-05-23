@@ -52,10 +52,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
@@ -94,7 +96,15 @@ data class StudioElementData(
     /** Wall-clock millis a CLOCK element shows — live now, or the replay row. */
     val clockTimeMs: Long = System.currentTimeMillis(),
     /** Elapsed millis for a CLOCK in STOPWATCH style. */
-    val stopwatchMs: Long = 0L
+    val stopwatchMs: Long = 0L,
+    /**
+     * Live (~50 Hz) rolling G-Force trail buffer, shared by the G-Force dot
+     * AND its comet trail — the dot is just the last sample in this list, so
+     * they always stay visually connected (the dashboard's crosshair uses the
+     * same trick). Empty in replay mode; the overlay then derives its trail
+     * from [history] and the dot from the scrubbed wheelData row.
+     */
+    val liveGForceTrail: List<Offset> = emptyList()
 )
 
 /** Compose [Color] -> the 0xAARRGGBB [Long] stored in [OverlayElement]. */
@@ -129,7 +139,20 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     } else {
         elements
     }
-    shown.forEach { element ->
+    // Draw the selected element LAST so it (and its handle chrome — delete,
+    // configure, resize, rotate) lands on top of every other element. Without
+    // this, the chrome of a back-of-z-order element can be occluded by other
+    // elements in front of it, and tapping the configure icon ends up hitting
+    // whatever is drawn over it. Original list order is preserved among the
+    // non-selected siblings so the rider's chosen stacking is otherwise kept.
+    val ordered = if (editable && selectedId != null &&
+        shown.any { it.id == selectedId }
+    ) {
+        shown.filter { it.id != selectedId } + shown.first { it.id == selectedId }
+    } else {
+        shown
+    }
+    ordered.forEach { element ->
         // Keyed by id so Compose never reuses one element's box (and its edit
         // chrome) for another — that reuse made a stale onConfigure / onDelete
         // fire for the wrong element.
@@ -448,6 +471,13 @@ private fun ElementContent(element: OverlayElement, data: StudioElementData) {
     }
 }
 
+/** Max source samples used to build a G-Force trail Path. With the studio
+ *  history sampled at ~10 Hz and trails capped at 20 s, the upper bound is
+ *  ~200 points — we keep all of them up to this ceiling so the curve has
+ *  proper resolution. The cost is still small (one quadratic-Bezier Path,
+ *  built once per dial per frame, drawn in five overlapping passes). */
+private const val TRAIL_MAX_POINTS = 200
+
 /**
  * A circular crosshair plotting live lateral × forward G-force with a fading
  * comet trail — the studio twin of the dashboard's GForceCrosshair. The trail
@@ -460,27 +490,42 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
     // Trail hue is the dot colour mixed toward black so the tail reads as a
     // darker shade and the bright live dot stays the focal point.
     val trailColor = androidx.compose.ui.graphics.lerp(fg, Color.Black, 0.45f)
-    // Comet trail points (lateral, forward) within the configured window,
-    // anchored to the latest sample so a stale clock doesn't freeze scrolling.
-    val windowMs = element.graphWindowSec * 1000L
-    val trail = remember(data.history, element.graphWindowSec) {
+    // Single source of truth for both trail and dot:
+    //   • Live mode → the viewModel's rolling 50 Hz IMU trail. The dot is the
+    //     last entry; the comet is the preceding samples. They cannot visually
+    //     disconnect because they're the same data — the dashboard's
+    //     crosshair uses this exact pattern.
+    //   • Replay mode → derive the same shape from the trip CSV row history
+    //     (already in `data.history` at ~10 Hz), so scrubbing the timeline
+    //     animates the trail back through the recorded motion.
+    val windowSec = element.graphWindowSec.coerceIn(2, 20)
+    val trail = if (data.liveGForceTrail.isNotEmpty()) {
+        // 50 Hz × seconds, plus 15% exit-fade buffer so the oldest segments
+        // can fade their alpha to 0 *before* being removed from the array —
+        // a hard cutoff makes the curve geometry visibly snap.
+        val take = ((windowSec * 50f) * 1.15f).toInt().coerceAtLeast(2)
+        val src = data.liveGForceTrail
+        if (src.size > take) src.subList(src.size - take, src.size) else src
+    } else {
+        // Replay path: derive from the scrubbed trip history.
+        val windowMs = windowSec * 1000L
+        val extWindowMs = (windowMs * 115L) / 100L
         val last = data.history.lastOrNull()?.timeMs ?: 0L
         data.history
-            .filter { it.timeMs >= last - windowMs }
+            .filter { it.timeMs >= last - extWindowMs }
             .map { Offset(it.data.accelX, it.data.accelY) }
     }
     // Outer-ring g value — the scale goes down to 0.25 g for tiny movements.
     val maxG = element.gForceScale.coerceIn(0.25f, 6f)
-    // Eased live dot — gForceSmoothing makes the movement feel heavy / slow.
-    val smoothMs = (element.gForceSmoothing.coerceIn(0f, 1f) * 900f).toInt().coerceAtLeast(1)
-    val liveG by animateOffsetAsState(
-        targetValue = Offset(
-            data.wheelData.accelX.coerceIn(-maxG, maxG),
-            data.wheelData.accelY.coerceIn(-maxG, maxG)
-        ),
-        animationSpec = tween(smoothMs),
-        label = "gforce-dot"
-    )
+    // The dot sits at the most recent trail sample — that's how the dashboard
+    // does it and why the two stay rigidly connected. No tween, no smoothing,
+    // no separate source of dot position.
+    val head = trail.lastOrNull()
+    val liveG = if (head != null) {
+        Offset(head.x.coerceIn(-maxG, maxG), head.y.coerceIn(-maxG, maxG))
+    } else {
+        Offset.Zero
+    }
     Box(
         Modifier
             .fillMaxWidth()
@@ -509,75 +554,116 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             drawLine(grid, Offset(0f, cy), Offset(w, cy), strokeWidth = 1f, pathEffect = dash)
             drawLine(grid, Offset(cx, 0f), Offset(cx, h), strokeWidth = 1f, pathEffect = dash)
 
-            // Comet tail — Catmull-Rom-smoothed curve through the trail points
-            // (tension 0.5), each segment sub-sampled into small strokes so it
-            // reads as one continuous curve. Stroke width + alpha taper along
-            // the tail (sqrt curve) so only the oldest end really fades out.
+            // Comet tail. Two-pass smooth path:
+            //   1) the *full* trail as a quadratic-smoothed Path — drawn once
+            //      with a moderate stroke / low alpha (the older fading body).
+            //   2) the most-recent third of the trail as a second Path — drawn
+            //      thicker / brighter on top (the bright comet head).
+            // One Path-build + two drawPath calls per dial replaces the per-
+            // segment drawLine loop that was making four dials look glitchy and
+            // expensive. drawPath uses Skia's native stroker so the curve looks
+            // smooth even with a modest point count.
             if (trail.size >= 2) {
-                val n = trail.size
-                val mapped = trail.map { p ->
-                    Offset(
-                        cx + p.x.coerceIn(-maxG, maxG) * unit,
-                        cy - p.y.coerceIn(-maxG, maxG) * unit
-                    )
+                val srcN = trail.size
+                val stride = (srcN / TRAIL_MAX_POINTS).coerceAtLeast(1)
+                // Down-sampled, screen-space trail. FloatArray pair avoids the
+                // ~N Offset allocations the previous map { Offset(...) } made.
+                val visN = ((srcN + stride - 1) / stride).coerceAtLeast(2)
+                val xs = FloatArray(visN)
+                val ys = FloatArray(visN)
+                var w = 0
+                var i = 0
+                while (i < srcN && w < visN) {
+                    val p = trail[i]
+                    xs[w] = cx + p.x.coerceIn(-maxG, maxG) * unit
+                    ys[w] = cy - p.y.coerceIn(-maxG, maxG) * unit
+                    w++
+                    i += stride
                 }
-                val sub = 12
-                for (i in 1 until n) {
-                    val p0 = mapped[(i - 2).coerceAtLeast(0)]
-                    val p1 = mapped[i - 1]
-                    val p2 = mapped[i]
-                    val p3 = mapped[(i + 1).coerceAtMost(n - 1)]
-                    val age = i / (n - 1).toFloat()
-                    val visible = kotlin.math.sqrt(age)
-                    val alpha = 0.06f + 0.24f * visible
-                    val stroke = 2.5f + 6.5f * visible
-                    var prev = p1
-                    for (s in 1..sub) {
-                        val t = s / sub.toFloat()
-                        val t2 = t * t
-                        val t3 = t2 * t
-                        val x = 0.5f * (
-                            (2f * p1.x) +
-                            (-p0.x + p2.x) * t +
-                            (2f * p0.x - 5f * p1.x + 4f * p2.x - p3.x) * t2 +
-                            (-p0.x + 3f * p1.x - 3f * p2.x + p3.x) * t3
-                        )
-                        val y = 0.5f * (
-                            (2f * p1.y) +
-                            (-p0.y + p2.y) * t +
-                            (2f * p0.y - 5f * p1.y + 4f * p2.y - p3.y) * t2 +
-                            (-p0.y + 3f * p1.y - 3f * p2.y + p3.y) * t3
-                        )
-                        val cur = Offset(x, y)
-                        drawLine(
-                            color = trailColor.copy(alpha = alpha),
-                            start = prev,
-                            end = cur,
-                            strokeWidth = stroke,
-                            cap = StrokeCap.Round
-                        )
-                        prev = cur
+                val n = w
+
+                // Per-segment rendering with a continuous alpha curve AND a
+                // smooth Bezier shape. Each iteration draws ONE quadratic
+                // Bezier sub-path centred on a single source point — the path
+                // starts at the midpoint with the previous point, curves
+                // through the current point as the Bezier control, and ends
+                // at the midpoint with the next point. Consecutive segments
+                // share their endpoint midpoints, giving C1 continuity (no
+                // visible kinks). Each segment gets its own alpha + width, so
+                // the exit fade and head taper both work at the per-sample
+                // resolution we need. The Path is reused across iterations
+                // (reset() clears it) so there's no per-frame allocation.
+                //
+                // ~100 drawPath calls per dial × 4 dials = ~400 per frame.
+                val maxAlpha = 0.85f       // head alpha (freshest)
+                val exitFraction = 0.15f   // oldest 15% = exit fade
+                val boundaryAlpha = 0.10f  // alpha at exit/body boundary
+                val maxWidth = 14f         // stroke width at the tail
+                val minWidth = 10f         // stroke width at the head
+                val path = Path()
+                for (k in 0 until n) {
+                    val pos = k.toFloat() / (n - 1).coerceAtLeast(1)
+                    val alpha = if (pos < exitFraction) {
+                        (pos / exitFraction) * boundaryAlpha
+                    } else {
+                        boundaryAlpha + (pos - exitFraction) /
+                            (1f - exitFraction) * (maxAlpha - boundaryAlpha)
                     }
+                    if (alpha < 0.01f) continue
+                    val width = maxWidth - pos * (maxWidth - minWidth)
+                    path.reset()
+                    // Start: midpoint with the previous sample (or the very
+                    // first sample itself when there is no previous).
+                    if (k == 0) {
+                        path.moveTo(xs[0], ys[0])
+                    } else {
+                        path.moveTo(
+                            (xs[k - 1] + xs[k]) * 0.5f,
+                            (ys[k - 1] + ys[k]) * 0.5f
+                        )
+                    }
+                    // Bezier through the current sample toward the midpoint
+                    // with the next; degenerates to a lineTo for the tail.
+                    if (k == n - 1) {
+                        if (k > 0) path.lineTo(xs[k], ys[k])
+                    } else {
+                        path.quadraticBezierTo(
+                            xs[k], ys[k],
+                            (xs[k] + xs[k + 1]) * 0.5f,
+                            (ys[k] + ys[k + 1]) * 0.5f
+                        )
+                    }
+                    drawPath(
+                        path = path,
+                        color = trailColor.copy(alpha = alpha),
+                        style = Stroke(
+                            width = width,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
                 }
             }
 
             // Live dot — eased toward the current lateral / forward G-force.
+            // Slightly larger than the previous radii so the head reads as the
+            // focal point even with the brighter, thicker comet tail.
             val gx = liveG.x.coerceIn(-maxG, maxG)
             val gy = liveG.y.coerceIn(-maxG, maxG)
             val center = Offset(cx + gx * unit, cy - gy * unit)
-            drawCircle(color = fg.copy(alpha = 0.15f), radius = 24f, center = center)
-            drawCircle(color = fg.copy(alpha = 0.30f), radius = 18f, center = center)
-            drawCircle(color = fg, radius = 13f, center = center)
+            drawCircle(color = fg.copy(alpha = 0.15f), radius = 30f, center = center)
+            drawCircle(color = fg.copy(alpha = 0.30f), radius = 23f, center = center)
+            drawCircle(color = fg, radius = 17f, center = center)
             drawCircle(
                 color = Color.White,
-                radius = 13f,
+                radius = 17f,
                 center = center,
-                style = Stroke(width = 2f)
+                style = Stroke(width = 2.5f)
             )
             drawCircle(
                 color = Color.White.copy(alpha = 0.85f),
-                radius = 4f,
-                center = Offset(center.x - 4f, center.y - 4f)
+                radius = 5f,
+                center = Offset(center.x - 5f, center.y - 5f)
             )
         }
     }

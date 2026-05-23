@@ -303,13 +303,21 @@ class WheelRepository @Inject constructor(
             }
         }
 
+        // The wheel-data merge needs IMU samples for its lifetime (we feed them
+        // into accelX / accelY / gForce regardless of BLE state — the IMU is
+        // the phone's, not the wheel's). Hold a single start ref forever so
+        // BLE disconnect flaps can't tear the listener down out from under
+        // active consumers like the Overlay Studio. The matching stop() lives
+        // on no code path — this is a singleton, the IMU is cheap, and any
+        // attempt to "balance" this with a stop reintroduces the bug.
+        phoneSensorRepository.start()
+
         // React to connection state changes
         scope.launch {
             bleManager.connectionState.collect { state ->
                 when (state) {
                     ConnectionState.CONNECTED -> {
                         reconcileNextSettings = true
-                        phoneSensorRepository.start()
                         startInitSequence()
                         // Restore the per-wheel saved parameters (tiltback,
                         // alarm, safety, calibration). Profile is keyed by
@@ -330,7 +338,6 @@ class WheelRepository @Inject constructor(
                         _modelName.value = null
                         _firmwareVersion.value = null
                         _maxSpeedCap.value = DEFAULT_MAX_SPEED_KMH
-                        phoneSensorRepository.stop()
                         _wheelData.value =
                             _wheelData.value.copy(
                                 totalDistance = 0f, gForce = 0f,

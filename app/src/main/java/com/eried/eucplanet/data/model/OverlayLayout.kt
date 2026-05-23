@@ -156,8 +156,10 @@ data class OverlayElement(
     /** Append the app version number under / after the name. */
     val badgeShowVersion: Boolean = false,
 
-    // DATA_GRAPH — rolling window length in seconds.
-    val graphWindowSec: Int = 60,
+    // DATA_GRAPH — rolling window length in seconds. Also reused as the G-Force
+    // trail length when the element is a G_FORCE; 10 s shows a corner without
+    // making the comet look stretched.
+    val graphWindowSec: Int = 10,
 
     // DATA_DIAL / DATA_BAR — the value the gauge treats as full (min is 0).
     val gaugeMax: Float = 100f,
@@ -193,9 +195,9 @@ data class OverlayElement(
     /** Map border thickness in dp (0 = no border). Border colour is [foreground]. */
     val mapBorderWidth: Float = 2f,
     /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
-    val gForceScale: Float = 1.5f,
+    val gForceScale: Float = 1f,
     /** G-Force dot smoothing — 0 snaps instantly, 1 makes the dot heavy/slow. */
-    val gForceSmoothing: Float = 0.35f,
+    val gForceSmoothing: Float = 0.2f,
     /** DATA_BAR: show the numeric value above the bar (false = just the bar). */
     val barShowValue: Boolean = true
 )
