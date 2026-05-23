@@ -392,15 +392,63 @@ fun RouteBuilderScreen(
     // Photo picker for the custom rider-marker. The picked image is decoded
     // immediately so the crop dialog can show it; the dialog then renders a
     // 64×64 circular crop and the result is base64-encoded into settings.
+    //
+    // The decode is downsampled to a sane preview size -- a 12 megapixel
+    // gallery photo is multi-megabyte of pixel data and dragging it inside
+    // the crop dialog re-uploads that texture to the GPU every frame,
+    // hanging the UI thread. ~1024 px on the long edge is plenty for the
+    // 64 px output anyway.
     val markerPhotoPicker = rememberLauncherForActivityResult(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             val bmp = runCatching {
-                context.contentResolver.openInputStream(uri)?.use {
-                    android.graphics.BitmapFactory.decodeStream(it)
+                // Two-pass decode: first probe the size to compute an
+                // inSampleSize that brings the long edge to ~1024 px, then
+                // decode for real. BitmapFactory.Options.inSampleSize must
+                // be a power of two; we round UP so we never end up larger
+                // than the target.
+                //
+                // Real-world phone photos easily hit 50+ megapixels (the
+                // crash log showed a 191 MB bitmap from a single picture),
+                // and Android's RecordingCanvas has a hard 100 MB limit per
+                // bitmap. Going above the limit takes the activity down
+                // with "Canvas: trying to draw too large(...) bitmap".
+                val targetLongEdge = 1024
+                val probe = android.graphics.BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
                 }
+                context.contentResolver.openInputStream(uri)?.use {
+                    android.graphics.BitmapFactory.decodeStream(it, null, probe)
+                }
+                val long = maxOf(probe.outWidth, probe.outHeight).coerceAtLeast(1)
+                var sample = 1
+                while (long / sample > targetLongEdge) sample *= 2
+                val opts = android.graphics.BitmapFactory.Options().apply {
+                    inSampleSize = sample
+                    inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
+                }
+                val decoded = context.contentResolver.openInputStream(uri)?.use {
+                    android.graphics.BitmapFactory.decodeStream(it, null, opts)
+                }
+                // Belt-to-the-braces: inSampleSize is a HINT (some decoders
+                // -- HEIC, certain Pixel ones -- return a bitmap larger than
+                // requested), so explicitly cap the long edge via
+                // createScaledBitmap if needed.
+                if (decoded != null) {
+                    val curLong = maxOf(decoded.width, decoded.height)
+                    if (curLong > targetLongEdge) {
+                        val scale = targetLongEdge.toFloat() / curLong
+                        val nw = (decoded.width * scale).toInt().coerceAtLeast(1)
+                        val nh = (decoded.height * scale).toInt().coerceAtLeast(1)
+                        val scaled = android.graphics.Bitmap.createScaledBitmap(
+                            decoded, nw, nh, true
+                        )
+                        if (scaled !== decoded) decoded.recycle()
+                        scaled
+                    } else decoded
+                } else null
             }.getOrNull()
             if (bmp != null) pendingMarkerSource = bmp
         }
