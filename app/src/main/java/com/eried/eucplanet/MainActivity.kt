@@ -122,15 +122,24 @@ class MainActivity : AppCompatActivity() {
                 }
                 if (first) {
                     if (it.language.isBlank()) {
-                        // First launch ever: pick a supported locale that matches
-                        // the phone's system language and persist the choice.
-                        // AppCompatDelegate persists the applied locale across
-                        // launches, so we don't re-apply on every cold start —
-                        // the user's pick in Settings (which calls
-                        // LocaleHelper.apply directly) is the only other path.
+                        // First launch ever: persist the detected supported
+                        // locale so the in-app picker has the right initial
+                        // value, but DO NOT call LocaleHelper.apply().
+                        // setApplicationLocales triggers an Activity.recreate
+                        // on every running activity, and on a clean install
+                        // this fires while the runtime permission dialogs are
+                        // open — the recreate races with the dialog and the
+                        // rebuilt activity ends up behind the launcher,
+                        // leaving the rider answering permissions over the
+                        // home screen. Skipping the apply is safe: with no
+                        // AppCompatDelegate override, Android falls back to
+                        // the system locale (which is exactly what detect
+                        // mapped from), so the UI ends up in the same
+                        // language anyway. The user's later pick in Settings
+                        // calls LocaleHelper.apply directly when they ARE
+                        // overriding the system.
                         val detected = com.eried.eucplanet.util.LocaleHelper.detectSystemLanguage()
                         settingsRepository.update(it.copy(language = detected))
-                        com.eried.eucplanet.util.LocaleHelper.apply(detected)
                     } else {
                         // Settings.language and the OS-level per-app locale can
                         // drift (e.g. user changes language via Android System
