@@ -172,6 +172,13 @@ fun RouteBuilderScreen(
     // onSizeChanged so it always matches reality (the previous 300 / 80 dp
     // estimate was both too coarse AND ignored the rider's content sizes).
     var panelHeightPx by remember { mutableStateOf(0) }
+    // Top app bar measured height in pixels. We can't rely on the Scaffold
+    // PaddingValues here because with enableEdgeToEdge() the Scaffold's
+    // contentWindowInsets behaviour differs across themes and the value
+    // can come back smaller than the actually-rendered bar height. We
+    // measure the TopAppBar ourselves so the recenter offset always
+    // matches what the rider sees on screen.
+    var topBarHeightPx by remember { mutableStateOf(0) }
     // Cover the map until the first GPS fix lands, so the rider never sees it
     // snap from world view to their location. Skip drops the gate immediately.
     var locationGateDone by remember { mutableStateOf(false) }
@@ -416,6 +423,7 @@ fun RouteBuilderScreen(
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
+                modifier = Modifier.onSizeChanged { sz -> topBarHeightPx = sz.height },
                 colors = TopAppBarDefaults.topAppBarColors(
                     // 80 % alpha so the map shows through the top bar (the
                     // map area extends under it via the contentWindowInsets
@@ -510,14 +518,35 @@ fun RouteBuilderScreen(
     ) { padding ->
         // Net pixel offset applied when recentering: the rider's latlng
         // should land at the centre of the VISIBLE map area, which is
-        // (top_bar_height + bottom_panel_height) / 2 px ABOVE the WebView's
-        // geometric centre when bottom > top, BELOW when top > bottom.
+        // (panel_height - top_bar_height) / 2 px ABOVE the WebView's
+        // geometric centre when panel > bar, BELOW when bar > panel.
         // Passing this delta (positive = shift map south so rider appears
         // north of centre) instead of just the panel height is what makes
         // the rider end up in the visible middle rather than against the
         // top bar.
-        val topBarPx = with(density) { padding.calculateTopPadding().toPx() }
-        val recenterOffsetPx = (panelHeightPx - topBarPx) / 2f
+        //
+        // Until the panel + top bar have been laid out once we fall back to
+        // sensible estimates so a recenter pressed on the very first frame
+        // still lands the rider plausibly rather than overshooting one way
+        // or the other. After the first measurement, the values are replaced
+        // by the real measurements automatically. Recomputed on every
+        // recomposition because both sources are State, so the click handler
+        // always reads the latest value.
+        val effectivePanelPx =
+            if (panelHeightPx > 0) panelHeightPx
+            else with(density) { 300.dp.toPx().toInt() }
+        val effectiveTopBarPx =
+            if (topBarHeightPx > 0) topBarHeightPx
+            else with(density) { 88.dp.toPx().toInt() }
+        // Map's coordinate space is CSS pixels (Leaflet projects at the
+        // WebView's CSS size, not its device-pixel size). We measured the
+        // panel + bar in DEVICE pixels via onSizeChanged, so divide by the
+        // density factor to convert before handing the offset to JS --
+        // otherwise the rider ends up DPR-x shifted (typical phones have
+        // DPR=2.6..3.5, hence the "rider parks against the top bar"
+        // symptom: a 66 dp shift becomes 198 device-px on screen).
+        val recenterOffsetPx =
+            (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
         // The map fills the WHOLE screen, including the strip behind the
         // top bar -- the bar is now 80 % translucent so the map shows
         // through it. We still apply the BOTTOM padding so the bottom

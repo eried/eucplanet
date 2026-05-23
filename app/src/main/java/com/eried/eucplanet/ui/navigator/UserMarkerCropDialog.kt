@@ -139,6 +139,14 @@ fun UserMarkerCropDialog(
         // absolute positioning here so the buttons can never be clipped off
         // the bottom of the dialog window (the Column / weight version
         // could end up off-screen on some screen sizes).
+        // The picked Bitmap converted to ImageBitmap ONCE per source. The
+        // previous code called source.asImageBitmap() inline in the Image
+        // composable, which built a brand-new ImageBitmap on EVERY
+        // recomposition -- and dragging the photo triggers a recomposition
+        // per pointer event (60 Hz), so the dialog effectively reallocated
+        // a multi-megabyte texture per frame and hung the UI thread within
+        // a second or two.
+        val sourceImageBitmap = remember(source) { source.asImageBitmap() }
         Box(modifier = Modifier.fillMaxSize()) {
             // The image, drawn FIRST so the dim overlay covers it.
             Box(
@@ -146,7 +154,7 @@ fun UserMarkerCropDialog(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    bitmap = source.asImageBitmap(),
+                    bitmap = sourceImageBitmap,
                     contentDescription = null,
                     modifier = Modifier
                         .size(
