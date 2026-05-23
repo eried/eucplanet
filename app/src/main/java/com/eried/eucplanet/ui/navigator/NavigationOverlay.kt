@@ -253,22 +253,24 @@ private fun CenterPopup(
             )
 
             Spacer(Modifier.height(6.dp))
-            Text(
-                state.primaryText,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = ink,
-                textAlign = TextAlign.Center,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (state.distanceText.isNotBlank()) {
+            // One-line, brief cue: distance + the short direction / turn
+            // phrase. The old layout had a verbose primary line ("Find stop
+            // 3 head behind you on your right") + a giant separate distance
+            // number, eating two lines for what reads better as "300 m
+            // behind you on your right". maxLines=1 with ellipsis keeps the
+            // popup compact even on a small phone.
+            val cueLine = listOf(state.distanceText, state.primaryText)
+                .filter { it.isNotBlank() }
+                .joinToString(" ")
+            if (cueLine.isNotBlank()) {
                 Text(
-                    state.distanceText,
-                    style = MaterialTheme.typography.displaySmall,
+                    cueLine,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = ink,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             val sub = subline(state)

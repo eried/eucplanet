@@ -184,6 +184,7 @@ object SettingsJson {
         put("navGeocoderUrl", s.navGeocoderUrl)
         put("navRouterUrl", s.navRouterUrl)
         put("navCurrentRouteJson", s.navCurrentRouteJson)
+        put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("watchShowNavigation", s.watchShowNavigation)
@@ -347,6 +348,7 @@ object SettingsJson {
         navGeocoderUrl = j.optString("navGeocoderUrl", base.navGeocoderUrl),
         navRouterUrl = j.optString("navRouterUrl", base.navRouterUrl),
         navCurrentRouteJson = j.optStringOrNull("navCurrentRouteJson", base.navCurrentRouteJson),
+        navCurrentRouteSavedAt = j.optLong("navCurrentRouteSavedAt", base.navCurrentRouteSavedAt),
         navMapType = j.optString("navMapType", base.navMapType),
         navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
             j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }

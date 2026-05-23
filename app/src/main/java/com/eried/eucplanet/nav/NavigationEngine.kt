@@ -175,6 +175,10 @@ class NavigationEngine @Inject constructor(
     private var lastGoalDistM = Double.NaN
     private var lastProximity: Proximity? = null
     private var lastHuntVoiceMs = 0L
+    // Distance to goal the last time we spoke a warmer/colder/hotter cue.
+    // Lets us suppress the next cue when the rider has barely moved -- GPS
+    // noise alone would otherwise cycle warm/cold while they stand still.
+    private var lastVoicedGoalDistM = Double.NaN
     // Unbroken run of "getting colder" voice cues — escalates to a wrong-way
     // shout; any "warmer" / "hot" cue resets it back to zero.
     private var coldStreak = 0
@@ -286,6 +290,7 @@ class NavigationEngine @Inject constructor(
         currentGoal = 1
         lastGoalDistM = Double.NaN
         lastProximity = null
+        lastVoicedGoalDistM = Double.NaN
         lastHuntVoiceMs = 0L
         coldStreak = 0
         arrivalHandled = false
@@ -571,6 +576,7 @@ class NavigationEngine @Inject constructor(
             currentGoal++
             lastGoalDistM = Double.NaN
             lastProximity = null
+            lastVoicedGoalDistM = Double.NaN
             // Re-arm the pre-move distance cue for the new goal — if the
             // rider stops between goals (e.g. checkpoint break) and motion
             // resumes pointing toward goal N+1, they hear how far that one
@@ -602,9 +608,12 @@ class NavigationEngine @Inject constructor(
             mode = NavMode.TREASURE_HUNT,
             arrow = GeoMath.arrowFor(rel),
             relativeBearingDeg = rel.toFloat(),
-            primaryText = context.getString(
-                R.string.nav_hunt_primary, goalLabel(currentGoal), directionText(rel)
-            ),
+            // Just the direction phrase ("behind you on your right", "ahead",
+            // …) -- the popup renders it next to distanceText as a single
+            // brief line ("300 m behind you on your right"). The stop label
+            // appears in the top bar of the popup, not here, so we don't
+            // double it up and force a 2-line wrap.
+            primaryText = directionText(rel),
             distanceText = NavFormat.distance(context, dist, imperial),
             nextStreet = "",
             proximity = proximity,
@@ -612,12 +621,27 @@ class NavigationEngine @Inject constructor(
             goalCount = (goals.size - 1).coerceAtLeast(1)
         )
 
-        // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL while moving.
+        // Voice cadence: speak on a fresh goal or every HUNT_VOICE_INTERVAL
+        // while moving -- BUT suppress when the rider has barely moved since
+        // the last cue. Without this, a stationary rider hears "colder" /
+        // "warmer" every 45 s purely from GPS jitter (~5 m amplitude is
+        // routine even with a clear sky). The bar is "substantial movement",
+        // defined relative to the goal's arrival radius: half the radius,
+        // never less than 20 m so a generous goal doesn't drown out genuinely
+        // small but meaningful progress. Once-per-fresh-goal cues bypass the
+        // filter (lastVoicedGoalDistM = NaN after the goal advance).
         if (voiceEnabled && now - lastHuntVoiceMs > HUNT_VOICE_INTERVAL_MS) {
-            lastHuntVoiceMs = now
-            // Count an unbroken run of "colder" cues; warmer / hot resets it.
-            coldStreak = if (proximity == Proximity.COLD) coldStreak + 1 else 0
-            speakHunt(currentGoal, dist, rel, proximity, coldStreak)
+            val effectiveRadius = (target.radiusM ?: arrivalRadiusM)
+            val noiseThresholdM = maxOf(20.0, effectiveRadius / 2.0)
+            val moved = if (lastVoicedGoalDistM.isNaN()) Double.POSITIVE_INFINITY
+                else kotlin.math.abs(dist - lastVoicedGoalDistM)
+            if (moved >= noiseThresholdM) {
+                lastHuntVoiceMs = now
+                lastVoicedGoalDistM = dist
+                // Count an unbroken run of "colder" cues; warmer / hot resets it.
+                coldStreak = if (proximity == Proximity.COLD) coldStreak + 1 else 0
+                speakHunt(currentGoal, dist, rel, proximity, coldStreak)
+            }
         }
 
         syncBuilderRoute(currentGoal - 1)
@@ -645,7 +669,18 @@ class NavigationEngine @Inject constructor(
                     geometry = emptyList(),
                     maneuvers = emptyList()
                 ).toJson().toString()
-                settingsRepository.update(s.copy(navCurrentRouteJson = json))
+                // Re-stamp the freshness timestamp on every trim so the
+                // Builder treats this as a "live" navigation even after
+                // hours of riding -- only really old entries (likely
+                // Google-Auto-Backup ghosts from a previous install) get
+                // gated out on re-open.
+                settingsRepository.update(
+                    s.copy(
+                        navCurrentRouteJson = json,
+                        navCurrentRouteSavedAt = if (remaining.isEmpty())
+                            0L else System.currentTimeMillis()
+                    )
+                )
             }
         }
     }
@@ -711,7 +746,9 @@ class NavigationEngine @Inject constructor(
         scope.launch {
             runCatching {
                 val s = settingsRepository.get()
-                settingsRepository.update(s.copy(navCurrentRouteJson = ""))
+                settingsRepository.update(
+                    s.copy(navCurrentRouteJson = "", navCurrentRouteSavedAt = 0L)
+                )
             }
         }
         // Leave the "arrived" banner up briefly, then clear the popup. The job

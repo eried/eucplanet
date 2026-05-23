@@ -238,6 +238,14 @@ data class AppSettings(
      * survives an app restart. Null when no route is set.
      */
     val navCurrentRouteJson: String? = null,
+    /**
+     * Epoch millis when [navCurrentRouteJson] was last written. Used as a
+     * freshness gate on Builder open so a route that survived a Google Auto
+     * Backup -> reinstall round-trip (or just an app left untouched for days)
+     * doesn't reappear as ghost stops the rider doesn't recognise. 0 = never
+     * stamped, treated as stale.
+     */
+    val navCurrentRouteSavedAt: Long = 0L,
     /** Route Builder map style: DARK / LIGHT / SATELLITE. */
     val navMapType: String = "LIGHT",
     /**
