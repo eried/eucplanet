@@ -1249,7 +1249,12 @@ private fun BottomPanel(
                 //     duration of the panel before fading the button IN,
                 //     so it doesn't appear mid-animation while the panel
                 //     body is still shrinking past it.
-                val canShowCompact = navRunning || canStartNavigation
+                // Compact button is ALWAYS visible when the panel is
+                // collapsed (it's the only way to start nav from the
+                // collapsed state), even when no stops are placed yet --
+                // it just sits there disabled so the rider knows where
+                // to look.
+                val canShowCompact = true
                 var compactArmed by remember { mutableStateOf(!expanded) }
                 LaunchedEffect(expanded) {
                     if (expanded) {
@@ -1285,6 +1290,10 @@ private fun BottomPanel(
                                 else -> onStartNavigation()
                             }
                         },
+                        // Disabled when there's no work to do (no stops +
+                        // no live nav). New route + Stop nav are always
+                        // actionable when they apply.
+                        enabled = allPassed || navRunning || canStartNavigation,
                         contentPadding = androidx.compose.foundation.layout
                             .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         // Fixed width holds the longest label ('Stop navigation')
