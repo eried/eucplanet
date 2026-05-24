@@ -846,13 +846,27 @@ class NavigationEngine @Inject constructor(
             arrived = true,
             offRoute = false
         )
+        // Mark this goal as 'passed' inside the persisted route IMMEDIATELY
+        // -- not via the VM. The VM may not be alive at the moment of
+        // arrival (rider on another screen), so leaving the persistence to
+        // the VM's collector loses the mark when the user comes back
+        // outside the dismiss window. With this write the goal is
+        // durable as soon as the engine sees the rider in radius.
+        val justArrivedGoal = activeRoute?.waypoints?.lastOrNull()?.point()
+        if (justArrivedGoal != null) {
+            scope.launch { markGoalPassedInPersist(justArrivedGoal) }
+        }
         // The job has two stages:
         //   1) wait ARRIVAL_PRE_ANNOUNCE_MS -- gives the VM a chance to
         //      advanceLeg (which resets arrivalHandled = false and cancels
         //      this job). If we still own the arrival, commit the
         //      'Arrived' text + voice. This is the FINAL-stop path.
-        //   2) wait the remaining dismiss-window, then clear the saved
-        //      route and stop nav.
+        //   2) wait the remaining dismiss-window, then call stop(). The
+        //      navCurrentRouteJson is NOT cleared here -- the rider's
+        //      completed route (now full of passed flags) stays on disk
+        //      so the navigator screen restores it with flags + 'New
+        //      route' button on the next open. Only user-initiated
+        //      Clear / New route erases.
         arrivalJob = scope.launch {
             delay(ARRIVAL_PRE_ANNOUNCE_MS)
             if (!arrivalHandled) return@launch
@@ -866,13 +880,35 @@ class NavigationEngine @Inject constructor(
             }
             delay(ARRIVAL_DISMISS_MS - ARRIVAL_PRE_ANNOUNCE_MS)
             if (!arrivalHandled) return@launch
-            runCatching {
-                val s = settingsRepository.get()
-                settingsRepository.update(
-                    s.copy(navCurrentRouteJson = "", navCurrentRouteSavedAt = 0L)
-                )
+            stop()
+        }
+    }
+
+    /** Persists passed=true on whatever saved waypoint matches [goal] (by
+     *  lat/lng). Called from handleArrival so the mark survives a VM that
+     *  isn't alive at the moment of arrival. */
+    private suspend fun markGoalPassedInPersist(goal: GeoPoint) {
+        runCatching {
+            val s = settingsRepository.get()
+            val existing = NavRoute.fromJson(s.navCurrentRouteJson) ?: return@runCatching
+            var changed = false
+            val updatedWps = existing.waypoints.map { w ->
+                val match = !w.passed &&
+                    kotlin.math.abs(w.lat - goal.lat) < 1e-6 &&
+                    kotlin.math.abs(w.lng - goal.lng) < 1e-6
+                if (match) {
+                    changed = true
+                    w.copy(passed = true)
+                } else w
             }
-            if (arrivalHandled) stop()
+            if (!changed) return@runCatching
+            settingsRepository.update(
+                s.copy(
+                    navCurrentRouteJson =
+                        existing.copy(waypoints = updatedWps).toJson().toString(),
+                    navCurrentRouteSavedAt = System.currentTimeMillis()
+                )
+            )
         }
     }
 
