@@ -671,14 +671,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
       className:'',
       html:'<div class="wp-passed">' +
         '<svg viewBox="0 0 24 24" width="24" height="24">' +
-        // Pole (vertical line, slightly thick).
+        // Pole (vertical line).
         '<rect x="4" y="3" width="2.5" height="18" fill="#3A3F4A"/>' +
-        // Flag triangle waving right, white with a green check.
+        // Flag banner: white with a thin grey border.
         '<path d="M6.5 4 H19 L15.5 8 L19 12 H6.5 Z" ' +
         'fill="#FFFFFF" stroke="#3A3F4A" stroke-width="0.8"/>' +
-        '<path d="M9 8 L11 10 L15 6" fill="none" ' +
-        'stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round" ' +
-        'stroke-linejoin="round"/>' +
         '</svg></div>',
       // 24x24 icon; anchor at the bottom of the pole so the flag plants
       // ON the stop's lat/lng.

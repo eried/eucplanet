@@ -875,6 +875,7 @@ fun RouteBuilderScreen(
                     onSaveWork = viewModel::saveWaypointAsWork,
                     onStartNavigation = startNav,
                     onStopNavigation = viewModel::stopNavigation,
+                    onClearRoute = viewModel::clear,
                     canStartNavigation = userLocation != null && waypoints.isNotEmpty(),
                     navRunning = navRunning && !navStarting,
                     modifier = Modifier.onSizeChanged { sz -> panelHeightPx = sz.height }
@@ -1172,10 +1173,14 @@ private fun BottomPanel(
     onSaveWork: (Int) -> Unit,
     onStartNavigation: () -> Unit,
     onStopNavigation: () -> Unit,
+    onClearRoute: () -> Unit,
     canStartNavigation: Boolean,
     navRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
+    // When every stop is passed, the rider's journey is complete -- the
+    // Start/Stop control becomes a "New route" reset instead.
+    val allPassed = waypoints.isNotEmpty() && waypoints.all { it.passed }
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     Surface(
@@ -1259,12 +1264,19 @@ private fun BottomPanel(
                     )
                 ) {
                     val label = stringResource(
-                        if (navRunning) R.string.nav_stop_short
-                        else R.string.nav_start_short
+                        when {
+                            allPassed -> R.string.nav_menu_clear
+                            navRunning -> R.string.nav_stop_short
+                            else -> R.string.nav_start_short
+                        }
                     )
                     Button(
                         onClick = {
-                            if (navRunning) onStopNavigation() else onStartNavigation()
+                            when {
+                                allPassed -> onClearRoute()
+                                navRunning -> onStopNavigation()
+                                else -> onStartNavigation()
+                            }
                         },
                         contentPadding = androidx.compose.foundation.layout
                             .PaddingValues(horizontal = 12.dp, vertical = 4.dp)
@@ -1365,13 +1377,20 @@ private fun BottomPanel(
                     }
                     Spacer(Modifier.width(8.dp))
                     Button(
-                        onClick = if (navRunning) onStopNavigation else onStartNavigation,
-                        enabled = navRunning || canStartNavigation
+                        onClick = when {
+                            allPassed -> onClearRoute
+                            navRunning -> onStopNavigation
+                            else -> onStartNavigation
+                        },
+                        enabled = allPassed || navRunning || canStartNavigation
                     ) {
                         Text(
                             stringResource(
-                                if (navRunning) R.string.nav_stop_short
-                                else R.string.nav_start_short
+                                when {
+                                    allPassed -> R.string.nav_menu_clear
+                                    navRunning -> R.string.nav_stop_short
+                                    else -> R.string.nav_start_short
+                                }
                             )
                         )
                     }

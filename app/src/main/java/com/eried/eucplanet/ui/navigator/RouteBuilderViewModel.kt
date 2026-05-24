@@ -302,7 +302,15 @@ class RouteBuilderViewModel @Inject constructor(
                     }
                 }
                 val nextNonPassed = updated.firstOrNull { !it.passed }
-                if (nextNonPassed == null) return@collect
+                if (nextNonPassed == null) {
+                    // Final stop reached -- drop the leftover route line +
+                    // dashed preview so the map shows just the flag-marked
+                    // stops instead of a stranded green stub.
+                    _route.value = null
+                    _routing.value = false
+                    bumpRender(fit = false)
+                    return@collect
+                }
                 val originLoc = currentLocation.value ?: return@collect
                 val originWp = Waypoint(originLoc.latitude, originLoc.longitude)
                 val mode = _travelMode.value
