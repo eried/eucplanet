@@ -184,10 +184,6 @@ class NavigationEngine @Inject constructor(
     private var coldStreak = 0
 
     private var arrivalHandled = false
-    /** Whether the one-shot "already inside the first stop's radius" check has
-     *  fired. Limited to the very first fix after Start so that a noisy fix
-     *  cannot consume multiple stops at once. */
-    private var firstFixAdvanceAttempted = false
     // Destinations already visited and mirrored to the builder's saved route.
     private var lastSyncedReached = 0
 
@@ -326,7 +322,6 @@ class NavigationEngine @Inject constructor(
         rerouteInFlight = false
         // 1, not 0 — waypoint 0 is the rider's start point, never a goal.
         currentGoal = 1
-        firstFixAdvanceAttempted = false
         lastGoalDistM = Double.NaN
         lastProximity = null
         lastVoicedGoalDistM = Double.NaN
@@ -367,18 +362,17 @@ class NavigationEngine @Inject constructor(
             // shows the distance, and a one-shot cue speaks it once on the
             // first fix.
             //
-            // If the rider pressed Start while ALREADY inside the FIRST
-            // stop's arrival radius, advance past it so they don't sit on
-            // "Start riding" forever next to a stop that is already done.
-            // We only ever do this for the FIRST stop (currentGoal == 1
-            // means we are still on the first unvisited destination) and
-            // we only check that ONE stop -- not a chain -- so a noisy
-            // first fix that happens to land inside several radii at once
-            // doesn't sweep the whole route away.
-            if (!firstFixAdvanceAttempted && currentGoal == 1 &&
-                route.waypoints.size > 1
-            ) {
-                firstFixAdvanceAttempted = true
+            // If the rider is INSIDE the current goal's arrival radius
+            // before any heading materialises, advance past it. We are
+            // always on a single-leg route now (origin + one stop) so
+            // currentGoal here is always 1 and waypoints[1] is that one
+            // stop; advancing past it triggers handleArrival, which the
+            // VM picks up to mark the stop passed and request the next
+            // leg. The check has no "first fix only" gate any more --
+            // a delayed / cached first fix used to skip this branch and
+            // leave the rider stuck on 'Start riding' next to a stop
+            // they were on top of.
+            if (currentGoal == 1 && route.waypoints.size > 1) {
                 val g = route.waypoints[1]
                 val d = GeoMath.distanceM(point, g.point())
                 if (d <= (g.radiusM ?: arrivalRadiusM)) {
