@@ -75,6 +75,15 @@ internal const val ROUTE_BUILDER_HTML: String = """
     border:2px solid #000;box-sizing:border-box;
     box-shadow:0 1px 4px rgba(0,0,0,0.7);
   }
+  /* Stops the rider already reached during the active navigation. Drawn
+     as a small flag so the eye can scan "future" stops past the done
+     ones without confusing them with the next-stop / final pins. The
+     shadow keeps the icon readable on light basemap tiles. */
+  .wp-passed{
+    width:24px;height:24px;
+    line-height:0;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+  }
   /* Direction chevron for STRAIGHT-mode routes — two stroked lines meeting
      at a point (shape: > pointing forward along the segment). Rendered as an
      SVG inside a rotating wrapper so we get crisp anti-aliased strokes and
@@ -653,16 +662,27 @@ internal const val ROUTE_BUILDER_HTML: String = """
     });
   }
   // A stop the rider has already reached during this nav. Drawn as a
-  // tiny flag instead of a full marker so it reads as "done -- ignore
-  // me" but is still tappable to recentre on its old position.
+  // small grey flag (pole + waving banner with a check) so it clearly
+  // reads as "done", but is still tappable to recentre on its old
+  // position. Anchor at the pole's base so the icon sits ON the stop
+  // coords (not floating above them).
   function iconForPassed(){
     return L.divIcon({
       className:'',
       html:'<div class="wp-passed">' +
-        '<svg viewBox="0 0 24 24" width="18" height="18">' +
-        '<path fill="#8C8C90" d="M4 3v18h2v-7h11l-2-4 2-4H6V3z"/>' +
+        '<svg viewBox="0 0 24 24" width="24" height="24">' +
+        // Pole (vertical line, slightly thick).
+        '<rect x="4" y="3" width="2.5" height="18" fill="#3A3F4A"/>' +
+        // Flag triangle waving right, white with a green check.
+        '<path d="M6.5 4 H19 L15.5 8 L19 12 H6.5 Z" ' +
+        'fill="#FFFFFF" stroke="#3A3F4A" stroke-width="0.8"/>' +
+        '<path d="M9 8 L11 10 L15 6" fill="none" ' +
+        'stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round" ' +
+        'stroke-linejoin="round"/>' +
         '</svg></div>',
-      iconSize:[20,20], iconAnchor:[6,18]
+      // 24x24 icon; anchor at the bottom of the pole so the flag plants
+      // ON the stop's lat/lng.
+      iconSize:[24,24], iconAnchor:[5,22]
     });
   }
 
@@ -826,8 +846,8 @@ internal const val ROUTE_BUILDER_HTML: String = """
     var wps = JSON.parse(wpJson);
     var geom = JSON.parse(geomJson);
 
-    markers.forEach(function(m){ map.removeLayer(m); });
-    rings.forEach(function(r){ map.removeLayer(r); });
+    markers.forEach(function(m){ if (m) map.removeLayer(m); });
+    rings.forEach(function(r){ if (r) map.removeLayer(r); });
     markers = [];
     rings = [];
     // Find the FIRST non-passed stop. While navLocked, it gets the green
@@ -837,8 +857,14 @@ internal const val ROUTE_BUILDER_HTML: String = """
       if (!wps[k].passed) { firstActiveIdx = k; break; }
     }
     nextActiveMarkerIdx = firstActiveIdx;
+    // Visible label counter for non-passed stops: every non-passed pin
+    // gets the next consecutive number starting at 1, regardless of how
+    // many passed stops sit before it in the array. Avoids the "where's
+    // stop 1?" confusion after the first stop turns into a flag.
+    var visibleLabel = 0;
     wps.forEach(function(w, i){
       var isPassed = !!w.passed;
+      if (!isPassed) visibleLabel++;
       var isNext = navLocked && !isPassed && i === firstActiveIdx;
       var stopColor = isNext ? '#66BB6A' : (isPassed ? '#8C8C90' : '#FFA726');
       // Passed stops don't get a radius ring -- they're done and clutter
@@ -863,7 +889,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
         draggable: !navLocked && !isPassed,
         icon: isPassed
           ? iconForPassed()
-          : (navLocked ? iconForLocked(stopColor) : iconFor(i + 1, stopColor))
+          : (navLocked ? iconForLocked(stopColor) : iconFor(visibleLabel, stopColor))
       });
       m.on('dragstart', function(){
         // Drop the solved route; show the dashed preview while dragging.
