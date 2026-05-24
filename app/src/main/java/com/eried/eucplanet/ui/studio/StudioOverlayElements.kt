@@ -1308,12 +1308,12 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         // size between the new 50 dp minimum and a full-canvas dial.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            // Anchor the readout JUST above the strip's top edge so it
-            // visually sits on the plinth rather than floating in the
-            // middle of the bounding rect. Padding = stripDp + 4 dp clears
-            // both the strip and the round-cap region of the progress arc.
+            // Sit the readout right ON the strip's top edge (text baseline
+            // basically touches the plinth). stripDp / 2 sinks the bottom
+            // of the text halfway into the strip area, giving the
+            // "speedometer reading on a base" look the rider was after.
             modifier = if (isSemi)
-                Modifier.padding(bottom = stripDp + 4.dp)
+                Modifier.padding(bottom = stripDp / 2f)
             else Modifier
         ) {
             androidx.compose.material3.Text(
