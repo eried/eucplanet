@@ -205,23 +205,38 @@ fun UserMarkerCropDialog(
             // Buttons anchored at the centre and offset down by the circle
             // radius + a small gap, so they sit JUST BELOW the visible crop
             // circle on every screen size.
+            // Solid-filled buttons so they read clearly against any
+            // underlying photo. The old translucent text buttons could
+            // blend with bright / busy crops.
             Row(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = circleRadiusDp + 28.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                TextButton(onClick = onCancel) {
-                    Text(stringResource(R.string.action_cancel), color = Color.White)
-                }
-                TextButton(onClick = {
-                    val out = renderCircleCrop(
-                        source, scale, offsetX, offsetY,
-                        displayBaseW, displayBaseH, circleRadiusPx
+                androidx.compose.material3.Button(
+                    onClick = onCancel,
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF333344),
+                        contentColor = Color.White
                     )
-                    onApply(out)
-                }) {
-                    Text(stringResource(R.string.action_apply), color = Color.White)
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+                androidx.compose.material3.Button(
+                    onClick = {
+                        val out = renderCircleCrop(
+                            source, scale, offsetX, offsetY,
+                            displayBaseW, displayBaseH, circleRadiusPx
+                        )
+                        onApply(out)
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(stringResource(R.string.action_apply))
                 }
             }
         }

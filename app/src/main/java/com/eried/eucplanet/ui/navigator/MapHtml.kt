@@ -622,16 +622,14 @@ internal const val ROUTE_BUILDER_HTML: String = """
   };
 
   function colorFor(i, n){
-    // Final destination: red. Used regardless of how many stops exist --
-    // a single-stop route IS the destination, so it lands here first.
-    if (i === n - 1) return '#EF5350';
-    // First remaining stop = the next one the rider is heading to: green.
-    // Stops drop off the head of the list as they're reached, so the
-    // colour automatically migrates to the new "next" without per-marker
-    // state.
-    if (i === 0) return '#66BB6A';
-    // Everything between next-stop and destination: orange. (Used to be
-    // the rider's accent colour, but blue blended with the route line.)
+    // While navigating, the FIRST remaining stop (the current goal) is
+    // green; everything else, including the final destination, is orange.
+    // The green migrates automatically as stops drop off the head of the
+    // list when reached.
+    // While not navigating, every stop is orange -- no special
+    // destination styling, no green next-stop hint until the rider
+    // commits to going.
+    if (navLocked && i === 0) return '#66BB6A';
     return '#FFA726';
   }
 
@@ -698,8 +696,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
   }
   function drawPreview(wps){
     clearPreview();
-    if (!navLocked) return;
     if (!wps || wps.length < 2) return;
+    // Drawn in BOTH navigation and route-building modes: every leg
+    // beyond the first is a straight-line preview now (the router is
+    // only ever asked about origin -> first stop). The first stop
+    // itself is the END of the solved leg; the dashed preview begins
+    // there and chains through the remaining stops.
     var pts = wps.map(function(w){ return [w.lat, w.lng]; });
     previewLine = L.polyline(pts, {
       color: '#FFA726',
@@ -708,7 +710,6 @@ internal const val ROUTE_BUILDER_HTML: String = """
       dashArray: '8 9',
       interactive: false
     }).addTo(map);
-    // Arrows mirroring the dashed direction, same colour, light density.
     drawArrows(pts, '#FFA726');
   }
 

@@ -505,15 +505,13 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         lastRouteOrigin = GeoPoint(origin.latitude, origin.longitude)
-        // While navigation is running we solve only the NEXT leg
-        // (origin -> first remaining stop). Stops after that are drawn on
-        // the map as a dashed straight-line preview and not routed --
-        // re-routing happens once the next stop is reached. While the
-        // rider is still planning (nav not running) we still solve the
-        // full multi-stop preview so the listed total distance / ETA make
-        // sense before they hit Start.
-        val routedTargets = if (navigationEngine.isActive)
-            dests.take(1) else dests
+        // We ALWAYS solve only the next leg (origin -> first stop), in
+        // both navigation and route-building. Subsequent stops are drawn
+        // as a straight-line dashed preview, never sent to the router. A
+        // multi-stop OSRM solve was burning request budget on legs the
+        // rider may never reach (after a re-plan) and offering little
+        // value vs. just showing the order.
+        val routedTargets = dests.take(1)
         val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
         // Drop the stale solution; show the dashed preview + spinner meanwhile.
         _route.value = null
