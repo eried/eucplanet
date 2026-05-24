@@ -298,6 +298,12 @@ class RouteBuilderViewModel @Inject constructor(
                         routingService.route(routeName, legWps, mode, routerUrl)
                             ?: RoutingService.straightLineRoute(routeName, legWps)
                     }
+                    android.util.Log.i(
+                        "RouteBuilderVM",
+                        "ARRIVE-NEW-LEG nextStop=(${nextNonPassed.lat},${nextNonPassed.lng}) " +
+                            "originUsed=(${originLoc.latitude},${originLoc.longitude}) " +
+                            "legGeomPts=${computed.geometry.size} legDistM=${"%.1f".format(computed.totalDistanceM)}"
+                    )
                     _route.value = computed.copy(waypoints = updated.filter { !it.passed })
                     _routing.value = false
                     bumpRender(fit = false)
@@ -713,6 +719,10 @@ class RouteBuilderViewModel @Inject constructor(
                 put("passed", w.passed)
             })
         }
+        android.util.Log.i(
+            "RouteBuilderVM",
+            "WP-JSON passedFlags=${_waypoints.value.map { it.passed }}"
+        )
         return arr.toString()
     }
 
