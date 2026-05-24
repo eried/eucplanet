@@ -350,20 +350,22 @@ private fun StudioElementBox(
                     // GPU, no per-frame pixel work; small elements make it
                     // effectively free.
                     if (element.shadow) {
-                        // GPU-cheap shadow: render the content() twice, once
-                        // into an offscreen compositing layer that is
-                        // translated and tinted to be the shadow, then
-                        // normally on top as the foreground. The shadow Box
-                        // uses matchParentSize so it sizes to whatever the
-                        // foreground content's natural bounds turn out to be
-                        // (the Box parent's size is determined by the
-                        // foreground render below).
+                        // GPU-cheap shadow: render content() twice. The
+                        // shadow Box has NO matchParentSize so its child
+                        // receives the SAME wrap constraints as the
+                        // foreground content() below. Equal constraints
+                        // means BoxWithConstraints-based widgets (the App
+                        // badge sizes its icon as a fraction of available
+                        // width) produce identical sizes in both copies --
+                        // matchParentSize gave the shadow a fixed-size
+                        // constraint that shrank the badge icon to ~60% of
+                        // the foreground icon and made the shadow look
+                        // smaller than the badge.
                         val shadowRad =
                             Math.toRadians(element.shadowAngle.toDouble())
                         val shadowTint = Color(element.shadowColor)
                         Box(
                             Modifier
-                                .matchParentSize()
                                 .graphicsLayer {
                                     val dist = element.shadowDistance.dp.toPx()
                                     translationX =
@@ -1172,11 +1174,11 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     // dome -- a small rounded-bottom strip below the diameter hides the
     // round-cap overshoot at the progress arc's endpoints and gives the
     // widget a finished silhouette instead of a hard-cut flat bottom.
-    // 0.58 = (dome radius w/2) + (strip 8% of width) divided by w. The
-    // strip is generous enough to fully enclose the progress-arc round
-    // caps and give the dial a substantial flat bottom that doesn't read
-    // as a hairline.
-    val aspect = if (isSemi) (1f / 0.58f) else 1f
+    // 0.62 = (dome radius w/2) + (strip 12% of width) divided by w. The
+    // strip is a visible base in its own right -- thick enough to read as
+    // a deliberate plinth rather than a thin lip, and to comfortably hold
+    // the round caps of the progress arc at every dial size.
+    val aspect = if (isSemi) (1f / 0.62f) else 1f
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
@@ -1296,10 +1298,10 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             // Lift the readout above the strip so the text sits inside the
-            // dome, not over the rounded-bottom strip. ~14% of w lands it
-            // safely above the (now thicker) strip's top edge at every size.
+            // dome, not over the rounded-bottom strip. ~18% of w lands it
+            // safely above the strip's top edge at every size.
             modifier = if (isSemi)
-                Modifier.padding(bottom = (w * 0.14f).dp)
+                Modifier.padding(bottom = (w * 0.18f).dp)
             else Modifier
         ) {
             androidx.compose.material3.Text(
