@@ -246,21 +246,38 @@ class RouteBuilderViewModel @Inject constructor(
         // bumpRender() call inside the trim. When nav stops, the saved
         // navCurrentRouteJson holds whatever is left, so the next time the
         // builder is opened it reflects the trimmed route too.
+        // While navigation is running, each leg is a single-destination
+        // route (origin -> next stop). When the engine reports the leg's
+        // goal as reached (nav.arrived), we drop the reached stop from
+        // the destination list and, if any stops remain, build a new
+        // single-destination route to the new "next" and hand it to the
+        // engine via advanceLeg() so guidance continues without ending
+        // the nav session.
         viewModelScope.launch {
             navigationEngine.navState.collect { nav ->
-                if (!nav.active || nav.arrived) return@collect
-                val reachedDests = (nav.goalIndex - 1).coerceAtLeast(0)
-                if (reachedDests <= 0) return@collect
-                // _waypoints holds DESTINATIONS only (the rider's origin is
-                // synthesised inside scheduleRecompute, never stored here).
-                // So drop exactly the reached count off the head.
+                if (!nav.active || !nav.arrived) return@collect
                 val current = _waypoints.value
-                val dropCount = reachedDests.coerceAtMost(current.size)
-                if (dropCount <= 0) return@collect
-                val remaining = current.drop(dropCount)
-                if (remaining.size != current.size) {
-                    _waypoints.value = remaining
+                if (current.isEmpty()) return@collect
+                val remaining = current.drop(1)
+                _waypoints.value = remaining
+                bumpRender(fit = false)
+                if (remaining.isEmpty()) return@collect
+                val originLoc = currentLocation.value ?: return@collect
+                val originWp = Waypoint(originLoc.latitude, originLoc.longitude)
+                val nextStop = remaining.first()
+                val mode = _travelMode.value
+                val legWps = listOf(originWp, nextStop)
+                viewModelScope.launch {
+                    val computed = if (mode == TravelMode.STRAIGHT) {
+                        RoutingService.straightLineRoute(routeName, legWps)
+                    } else {
+                        routingService.route(routeName, legWps, mode, routerUrl)
+                            ?: RoutingService.straightLineRoute(routeName, legWps)
+                    }
+                    _route.value = computed.copy(waypoints = remaining)
+                    _routing.value = false
                     bumpRender(fit = false)
+                    navigationEngine.advanceLeg(computed)
                 }
             }
         }
@@ -488,7 +505,16 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         lastRouteOrigin = GeoPoint(origin.latitude, origin.longitude)
-        val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + dests
+        // While navigation is running we solve only the NEXT leg
+        // (origin -> first remaining stop). Stops after that are drawn on
+        // the map as a dashed straight-line preview and not routed --
+        // re-routing happens once the next stop is reached. While the
+        // rider is still planning (nav not running) we still solve the
+        // full multi-stop preview so the listed total distance / ETA make
+        // sense before they hit Start.
+        val routedTargets = if (navigationEngine.isActive)
+            dests.take(1) else dests
+        val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
         // Drop the stale solution; show the dashed preview + spinner meanwhile.
         _route.value = null
         _routing.value = true

@@ -721,6 +721,7 @@
     <string name="nav_start_short">Start navigasjon</string>
     <string name="nav_stop_short">Stopp navigasjon</string>
     <string name="nav_stops_left">%1$d stopp igjen</string>
+    <string name="nav_next_distance">Neste: %1$s</string>
     <string name="nav_tap_on_self">Hold inne et stopp i Stopp-listen for å sette det til posisjonen din</string>
     <string name="nav_title">Rutebygger</string>
     <string name="nav_turn_left">Sving til venstre</string>

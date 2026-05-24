@@ -741,6 +741,7 @@
     <string name="nav_start_short">Почати навігацію</string>
     <string name="nav_stop_short">Зупинити навігацію</string>
     <string name="nav_stops_left">Залишилось зупинок: %1$d</string>
+    <string name="nav_next_distance">Наступна: %1$s</string>
     <string name="nav_tap_on_self">У списку зупинок утримуйте зупинку, щоб встановити її на ваше місце</string>
     <string name="nav_title">Конструктор маршрутів</string>
     <string name="nav_turn_left">Поверніть ліворуч</string>

@@ -704,6 +704,7 @@
     <string name="nav_start_short">Lancer la navigation</string>
     <string name="nav_stop_short">Arrêter la navigation</string>
     <string name="nav_stops_left">%1$d arrêts restants</string>
+    <string name="nav_next_distance">Suivant : %1$s</string>
     <string name="nav_tap_on_self">Dans la liste des arrêts, appuyez longuement sur un arrêt pour le définir sur votre position</string>
     <string name="nav_title">Créateur d\'itinéraire</string>
     <string name="nav_turn_left">Tournez à gauche</string>

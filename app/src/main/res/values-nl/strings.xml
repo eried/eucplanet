@@ -740,6 +740,7 @@
     <string name="nav_start_short">Navigatie starten</string>
     <string name="nav_stop_short">Navigatie stoppen</string>
     <string name="nav_stops_left">Nog %1$d stops</string>
+    <string name="nav_next_distance">Volgende: %1$s</string>
     <string name="nav_tap_on_self">Druk in de Stops-lijst lang op een stop om die op je locatie te zetten</string>
     <string name="nav_title">Routebouwer</string>
     <string name="nav_turn_left">Sla linksaf</string>

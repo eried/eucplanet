@@ -740,6 +740,7 @@
     <string name="nav_start_short">Avvia navigazione</string>
     <string name="nav_stop_short">Ferma navigazione</string>
     <string name="nav_stops_left">%1$d fermate rimaste</string>
+    <string name="nav_next_distance">Prossima: %1$s</string>
     <string name="nav_tap_on_self">Nell\'elenco Fermate, tieni premuta una fermata per impostarla sulla tua posizione</string>
     <string name="nav_title">Creatore di percorsi</string>
     <string name="nav_turn_left">Gira a sinistra</string>

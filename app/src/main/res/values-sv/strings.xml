@@ -704,6 +704,7 @@
     <string name="nav_start_short">Starta navigering</string>
     <string name="nav_stop_short">Stoppa navigering</string>
     <string name="nav_stops_left">%1$d stopp kvar</string>
+    <string name="nav_next_distance">Nästa: %1$s</string>
     <string name="nav_tap_on_self">Långtryck på ett stopp i Stopp-listan för att sätta det till din plats</string>
     <string name="nav_title">Ruttbyggare</string>
     <string name="nav_turn_left">Sväng vänster</string>

@@ -1210,8 +1210,14 @@ private fun BottomPanel(
                 if (routing) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else if (routeDistanceM != null && routeDistanceM > 0) {
+                    // While navigating, the solved route only spans the next
+                    // leg (origin -> next stop), so its total IS the next-stop
+                    // distance. Prefix it with "Next:" so the rider can tell
+                    // at a glance this isn't the multi-stop total any more.
+                    val distText = NavFormat.distance(context, routeDistanceM, imperial)
                     Text(
-                        NavFormat.distance(context, routeDistanceM, imperial),
+                        if (navRunning) stringResource(R.string.nav_next_distance, distText)
+                        else distText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold

@@ -355,10 +355,21 @@ internal const val ROUTE_BUILDER_HTML: String = """
           newZoom = currentZoom + (targetZoom - currentZoom) * ZOOM_TWEEN_RATE;
         }
       }
-      // Target center at the (possibly tweened) new zoom, with the
-      // panel-offset baked in so the rider lands at the visible centre.
+      // Target centre: the midpoint between the rider and the next
+      // stop, so BOTH points stay symmetrically inside the visible
+      // (unoccluded) area at the current zoom. When there is no next
+      // stop, fall back to the rider's own position. The
+      // panel-offset shift still applies so the visible centre lands
+      // in the unoccluded zone (between top bar and stops flyout).
+      var centerLat = riderLL.lat;
+      var centerLng = riderLL.lng;
+      if (markers.length > 0) {
+        var nextLL2 = markers[0].getLatLng();
+        centerLat = (riderLL.lat + nextLL2.lat) / 2;
+        centerLng = (riderLL.lng + nextLL2.lng) / 2;
+      }
       var targetCenter = centerLatLngFor(
-        riderLL.lat, riderLL.lng, newZoom, navRecenterOffsetPx
+        centerLat, centerLng, newZoom, navRecenterOffsetPx
       );
       var c = map.getCenter();
       var dLat = targetCenter.lat - c.lat;
@@ -554,8 +565,10 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   var markers = [];       // draggable stop pins (one per waypoint, index-aligned)
   var rings = [];         // dotted arrival-radius circles, one per stop
-  var routeLine = null;   // solid: the solved route
+  var routeLine = null;   // solid: the solved route (next leg only when nav)
   var connector = null;   // dashed: drag / pre-route preview
+  var previewLine = null; // dashed: nav preview from next stop through the
+                          // rest of the remaining stops (no routing, straight)
   var userMarker = null;
   var accentColor = '#4FC3F7';   // the rider's theme accent, pushed from native
   // While navigation is running we deliberately freeze the builder: pins
@@ -672,6 +685,31 @@ internal const val ROUTE_BUILDER_HTML: String = """
   }
   function clearConnector(){
     if (connector){ map.removeLayer(connector); connector = null; }
+  }
+
+  // During navigation the solid `routeLine` only spans the active leg
+  // (origin -> next stop). The remaining stops (next -> rest) are shown
+  // as a straight-line dashed preview so the rider knows the
+  // upcoming order without committing routing budget for legs they
+  // haven't reached yet. previewLine is regenerated on every
+  // nativeRender call -- cheap, runs only when navLocked && >=2 stops.
+  function clearPreview(){
+    if (previewLine){ map.removeLayer(previewLine); previewLine = null; }
+  }
+  function drawPreview(wps){
+    clearPreview();
+    if (!navLocked) return;
+    if (!wps || wps.length < 2) return;
+    var pts = wps.map(function(w){ return [w.lat, w.lng]; });
+    previewLine = L.polyline(pts, {
+      color: '#FFA726',
+      weight: 4,
+      opacity: 0.75,
+      dashArray: '8 9',
+      interactive: false
+    }).addTo(map);
+    // Arrows mirroring the dashed direction, same colour, light density.
+    drawArrows(pts, '#FFA726');
   }
 
   // Travel-mode → polyline colour. Cool→warm activity gradient: each step up
@@ -850,6 +888,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
       // STRAIGHT routes get direction arrows along the line — without road
       // geometry there's no other directional cue.
       if (travelMode === 'STRAIGHT') drawArrows(geom, routeColor);
+      // During navigation the solid leg only spans origin -> next stop.
+      // Continue the visual line through the remaining stops with a
+      // dashed straight-line preview so the rider knows the order
+      // before reaching the next stop.
+      drawPreview(wps);
     } else if (markers.length >= 1){
       // No geometry yet (routing in progress).
       //
@@ -869,6 +912,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
       if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
       clearArrows();
       clearConnector();
+      clearPreview();
     }
 
     if (fit){

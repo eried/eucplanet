@@ -704,6 +704,7 @@
     <string name="nav_start_short">开始导航</string>
     <string name="nav_stop_short">停止导航</string>
     <string name="nav_stops_left">还剩 %1$d 个途经点</string>
+    <string name="nav_next_distance">下一个：%1$s</string>
     <string name="nav_tap_on_self">在途经点列表中,长按某个途经点即可将其设为你的位置</string>
     <string name="nav_title">路线编辑器</string>
     <string name="nav_turn_left">左转</string>

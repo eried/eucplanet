@@ -982,6 +982,7 @@
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_stop_short">Stop navigation</string>
     <string name="nav_stops_left">%1$d stops left</string>
+    <string name="nav_next_distance">Next: %1$s</string>
     <string name="nav_last_stop">Last stop</string>
     <string name="nav_need_destination">Add a destination first</string>
     <string name="nav_map_style">Map style</string>

@@ -756,6 +756,7 @@
     <string name="nav_start_short">Начать навигацию</string>
     <string name="nav_stop_short">Остановить навигацию</string>
     <string name="nav_stops_left">Осталось остановок: %1$d</string>
+    <string name="nav_next_distance">Следующая: %1$s</string>
     <string name="nav_tap_on_self">В списке остановок удерживайте остановку, чтобы перенести её на ваше местоположение</string>
     <string name="nav_title">Конструктор маршрутов</string>
     <string name="nav_turn_left">Поверните налево</string>

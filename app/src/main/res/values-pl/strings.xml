@@ -741,6 +741,7 @@
     <string name="nav_start_short">Rozpocznij nawigację</string>
     <string name="nav_stop_short">Zatrzymaj nawigację</string>
     <string name="nav_stops_left">Pozostało %1$d przystanków</string>
+    <string name="nav_next_distance">Następny: %1$s</string>
     <string name="nav_tap_on_self">Na liście Przystanki przytrzymaj stop, aby ustawić go na Twoją lokalizację</string>
     <string name="nav_title">Kreator tras</string>
     <string name="nav_turn_left">Skręć w lewo</string>

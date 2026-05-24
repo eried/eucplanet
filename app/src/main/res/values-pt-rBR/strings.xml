@@ -740,6 +740,7 @@
     <string name="nav_start_short">Iniciar navegação</string>
     <string name="nav_stop_short">Parar navegação</string>
     <string name="nav_stops_left">%1$d paradas restantes</string>
+    <string name="nav_next_distance">Próxima: %1$s</string>
     <string name="nav_tap_on_self">Na lista de Paradas, pressione e segure uma parada para defini-la como sua localização</string>
     <string name="nav_title">Construtor de rotas</string>
     <string name="nav_turn_left">Vire à esquerda</string>

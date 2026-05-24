@@ -705,6 +705,7 @@
     <string name="nav_start_short">Start navigation</string>
     <string name="nav_stop_short">Stop navigation</string>
     <string name="nav_stops_left">%1$d stop tilbage</string>
+    <string name="nav_next_distance">Næste: %1$s</string>
     <string name="nav_tap_on_self">Hold et stop nede på listen over stop for at sætte det til din position</string>
     <string name="nav_title">Ruteplanlægger</string>
     <string name="nav_turn_left">Drej til venstre</string>

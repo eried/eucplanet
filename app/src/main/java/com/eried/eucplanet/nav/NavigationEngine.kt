@@ -184,6 +184,10 @@ class NavigationEngine @Inject constructor(
     private var coldStreak = 0
 
     private var arrivalHandled = false
+    /** Whether the one-shot "already inside the first stop's radius" check has
+     *  fired. Limited to the very first fix after Start so that a noisy fix
+     *  cannot consume multiple stops at once. */
+    private var firstFixAdvanceAttempted = false
     // Destinations already visited and mirrored to the builder's saved route.
     private var lastSyncedReached = 0
 
@@ -242,6 +246,40 @@ class NavigationEngine @Inject constructor(
         }
     }
 
+    /**
+     * Mid-trip leg swap. Replaces the active route with [newRoute] without
+     * stopping GPS / the foreground service or announcing arrival -- used by
+     * the multi-stop nav flow where each leg is solved independently and the
+     * engine moves on to the next leg the moment the rider reaches a stop.
+     * The route's goal is whatever destination is at index 1; same as the
+     * leg used by [start].
+     */
+    fun advanceLeg(newRoute: NavRoute) {
+        if (!isActive) return
+        scope.launch {
+            activeRoute = newRoute
+            resetRuntimeState()
+            waypointAlongM = if (newRoute.geometry.size >= 2) {
+                newRoute.waypoints.mapNotNull {
+                    GeoMath.nearestOnPolyline(it.point(), newRoute.geometry)?.alongM
+                }
+            } else emptyList()
+            // Keep active = true so the rider's UI doesn't blink between
+            // "navigating" and "done"; just refresh the goal counters and
+            // drop back to waiting/start-riding until the first fix on the
+            // new leg arrives.
+            _navState.value = _navState.value.copy(
+                waiting = true,
+                arrived = false,
+                offRoute = false,
+                primaryText = context.getString(R.string.nav_start_riding),
+                distanceText = "",
+                goalIndex = 1,
+                goalCount = (newRoute.waypoints.size - 1).coerceAtLeast(1)
+            )
+        }
+    }
+
     /** Ends guidance and clears the popup. Safe to call from any thread. */
     fun stop() {
         initJob?.cancel(); initJob = null
@@ -288,6 +326,7 @@ class NavigationEngine @Inject constructor(
         rerouteInFlight = false
         // 1, not 0 — waypoint 0 is the rider's start point, never a goal.
         currentGoal = 1
+        firstFixAdvanceAttempted = false
         lastGoalDistM = Double.NaN
         lastProximity = null
         lastVoicedGoalDistM = Double.NaN
@@ -328,25 +367,31 @@ class NavigationEngine @Inject constructor(
             // shows the distance, and a one-shot cue speaks it once on the
             // first fix.
             //
-            // Advance over any goal the rider is already INSIDE the arrival
-            // radius of: if they pressed Start while standing on top of the
-            // first stop, the engine would otherwise stay stuck on "Start
-            // riding" forever because the proximity check normally runs
-            // only after a heading is established.
-            while (currentGoal < route.waypoints.size) {
-                val g = route.waypoints[currentGoal]
+            // If the rider pressed Start while ALREADY inside the FIRST
+            // stop's arrival radius, advance past it so they don't sit on
+            // "Start riding" forever next to a stop that is already done.
+            // We only ever do this for the FIRST stop (currentGoal == 1
+            // means we are still on the first unvisited destination) and
+            // we only check that ONE stop -- not a chain -- so a noisy
+            // first fix that happens to land inside several radii at once
+            // doesn't sweep the whole route away.
+            if (!firstFixAdvanceAttempted && currentGoal == 1 &&
+                route.waypoints.size > 1
+            ) {
+                firstFixAdvanceAttempted = true
+                val g = route.waypoints[1]
                 val d = GeoMath.distanceM(point, g.point())
                 if (d <= (g.radiusM ?: arrivalRadiusM)) {
-                    currentGoal++
+                    currentGoal = 2
                     lastGoalDistM = Double.NaN
                     lastProximity = null
                     lastVoicedGoalDistM = Double.NaN
                     preMoveCueSpoken = false
-                } else break
-            }
-            if (currentGoal >= route.waypoints.size) {
-                if (!arrivalHandled) handleArrival()
-                return
+                    if (currentGoal >= route.waypoints.size) {
+                        if (!arrivalHandled) handleArrival()
+                        return
+                    }
+                }
             }
             val goal = route.waypoints.getOrNull(currentGoal)
             val distToGoal = if (goal != null) {
@@ -765,22 +810,21 @@ class NavigationEngine @Inject constructor(
         if (voiceEnabled) {
             voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
         }
-        // The trip succeeded — clear the saved builder route so re-opening the
-        // builder starts fresh instead of restoring a finished route. The trip
-        // recording (the CSV trace) is separate and is left untouched.
-        scope.launch {
+        // Leave the "arrived" banner up briefly, then clear the popup. The job
+        // is tracked so a stop()/start() within the window cancels it — it must
+        // not tear down a navigation session that was meanwhile restarted.
+        // The saved-builder-route clear happens HERE (after the delay), not
+        // immediately, so an advanceLeg() call right after an intermediate
+        // arrival can cancel it without losing the rider's planned remainder.
+        arrivalJob = scope.launch {
+            delay(ARRIVAL_DISMISS_MS)
+            if (!arrivalHandled) return@launch
             runCatching {
                 val s = settingsRepository.get()
                 settingsRepository.update(
                     s.copy(navCurrentRouteJson = "", navCurrentRouteSavedAt = 0L)
                 )
             }
-        }
-        // Leave the "arrived" banner up briefly, then clear the popup. The job
-        // is tracked so a stop()/start() within the window cancels it — it must
-        // not tear down a navigation session that was meanwhile restarted.
-        arrivalJob = scope.launch {
-            delay(ARRIVAL_DISMISS_MS)
             if (arrivalHandled) stop()
         }
     }
