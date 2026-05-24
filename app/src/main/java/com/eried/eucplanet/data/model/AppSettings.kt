@@ -376,8 +376,9 @@ data class AppSettings(
     // --- Overlay Studio replay export ---
     // Output format for the Replay-mode photo / video export. Stored as stable
     // keys so the format set can change without a settings migration.
-    /** Replay photo export format: "PNG" (alpha) or "JPG" (chroma-filled). */
-    val studioReplayPhotoFormat: String = "PNG",
+    /** Replay photo export format: "WEBP" (alpha, fast), "PNG" (alpha,
+     *  larger / slower) or "JPG" (chroma-filled). */
+    val studioReplayPhotoFormat: String = "WEBP",
     /** Replay video export format: "GIF" (1-bit alpha), "APNG" (alpha) or "MP4" (chroma-filled). */
     val studioReplayVideoFormat: String = "MP4",
     /**

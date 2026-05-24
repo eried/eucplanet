@@ -509,13 +509,13 @@ fun OverlayStudioScreen(
     // --- Photo snapshot ----------------------------------------------------
     LaunchedEffect(capturing) {
         if (capturing) {
-            // Replay snapshots honour the chosen photo format. Live snapshots
-            // stay JPEG. Force-opaque + chroma fill only apply on
-            // alpha-LESS formats (JPG) -- alpha-capable PNG / WEBP keep
-            // transparency as-is regardless of the toggles, because that's
-            // the whole point of picking those formats.
+            // Replay snapshots honour the chosen photo format. Live
+            // snapshots default to WebP -- alpha-capable like PNG, but
+            // ~3-10x faster to encode and roughly half the file size for
+            // typical studio composites. Force-opaque + chroma still only
+            // apply on alpha-LESS formats.
             val photoFormat =
-                if (replayMode) exportPrefs.photoFormat else ReplayPhotoFormat.JPG
+                if (replayMode) exportPrefs.photoFormat else ReplayPhotoFormat.WEBP
             val opaqueExport = !photoFormat.hasAlpha && exportPrefs.forceOpaque
             if (opaqueExport) renderForceOpaque = true
             delay(160) // let the element selection chrome clear for a clean frame

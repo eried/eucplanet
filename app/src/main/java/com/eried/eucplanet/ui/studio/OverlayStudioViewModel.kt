@@ -69,7 +69,7 @@ enum class ReplayVideoFormat(
 
 /** The rider's Replay-mode output-format choices. */
 data class ReplayExportPrefs(
-    val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.PNG,
+    val photoFormat: ReplayPhotoFormat = ReplayPhotoFormat.WEBP,
     val videoFormat: ReplayVideoFormat = ReplayVideoFormat.MP4,
     /** ARGB chroma fill for alpha-less formats (JPG, MP4). */
     val chromaColor: Long = 0xFF00FF00L,
