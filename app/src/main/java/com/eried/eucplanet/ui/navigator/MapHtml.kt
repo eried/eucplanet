@@ -924,7 +924,18 @@ internal const val ROUTE_BUILDER_HTML: String = """
       markers.push(m);
     });
 
-    if (geom.length >= 2){
+    // If every stop is passed, the trip is over. Drop the leftover
+    // route line, dashed previews and arrows so the map shows only
+    // the planted flags. (Without this, the JS would otherwise fall
+    // into the 'keep previous line because markers exist' branch and
+    // strand a green stub on the map.)
+    var allPassed = wps.length > 0 && wps.every(function(w){ return !!w.passed; });
+    if (allPassed) {
+      if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+      clearArrows();
+      clearConnector();
+      clearPreview();
+    } else if (geom.length >= 2){
       // A solved route — solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
       // 80% opaque so the path stands out without obscuring the basemap.
@@ -966,7 +977,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
     if (fit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
       if (pts.length >= 2){
-        map.fitBounds(L.latLngBounds(pts).pad(0.25));
+        // maxZoom: 17 keeps the auto-fit from snapping to the highest
+        // possible level on tight bounds (origin a few meters from the
+        // first stop) -- without it the rider saw a 'street-level' flash
+        // on first map open before the next render relaxed the zoom.
+        map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 17 });
       } else if (pts.length === 1){
         map.setView(pts[0], 16);
       }

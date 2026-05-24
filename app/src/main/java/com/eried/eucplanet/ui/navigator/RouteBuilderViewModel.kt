@@ -328,10 +328,19 @@ class RouteBuilderViewModel @Inject constructor(
                             "originUsed=(${originLoc.latitude},${originLoc.longitude}) " +
                             "legGeomPts=${computed.geometry.size} legDistM=${"%.1f".format(computed.totalDistanceM)}"
                     )
-                    _route.value = computed.copy(waypoints = updated.filter { !it.passed })
+                    // Hold the full destination list (including the just-passed
+                    // ones) so the map still shows flags + remaining pins.
+                    _route.value = computed.copy(waypoints = updated)
                     _routing.value = false
                     bumpRender(fit = false)
                     navigationEngine.advanceLeg(computed)
+                    // Second bump after a tiny delay forces the WebView to
+                    // pick up the new leg's geometry even when the first
+                    // render fired before Compose had committed _route's
+                    // new value. Without this the rider saw the OLD line
+                    // pointing at the just-passed flag until they moved.
+                    kotlinx.coroutines.delay(50)
+                    bumpRender(fit = false)
                 }
             }
         }

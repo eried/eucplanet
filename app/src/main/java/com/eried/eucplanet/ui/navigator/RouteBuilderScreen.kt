@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -1279,7 +1280,11 @@ private fun BottomPanel(
                             }
                         },
                         contentPadding = androidx.compose.foundation.layout
-                            .PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                            .PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        // Fixed width holds the longest label ('Stop navigation')
+                        // so the row doesn't reflow when the state flips between
+                        // Start / Stop / New route.
+                        modifier = Modifier.widthIn(min = 150.dp)
                     ) { Text(label) }
                 }
                 IconButton(onClick = onToggle) {
@@ -1382,7 +1387,10 @@ private fun BottomPanel(
                             navRunning -> onStopNavigation
                             else -> onStartNavigation
                         },
-                        enabled = allPassed || navRunning || canStartNavigation
+                        enabled = allPassed || navRunning || canStartNavigation,
+                        // Hold the row's width steady across Start/Stop/New
+                        // route (matches the compact button width above).
+                        modifier = Modifier.widthIn(min = 180.dp)
                     ) {
                         Text(
                             stringResource(
@@ -1542,21 +1550,22 @@ private fun BottomPanel(
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
-                                        // Quick-access remove — locked while guiding. The icon
-                                        // also DIMS when locked (was hard-coded red regardless of
-                                        // enabled state, so it still looked tappable).
+                                        // Quick-access remove — locked while guiding AND on
+                                        // already-passed stops (they're a record of the trip,
+                                        // not editable). Icon dims when not tappable.
+                                        val canDelete = !navRunning && !waypoint.passed
                                         IconButton(
                                             onClick = { onRemove(index) },
-                                            enabled = !navRunning
+                                            enabled = canDelete
                                         ) {
                                             Icon(
                                                 Icons.Default.Delete,
                                                 contentDescription =
                                                     stringResource(R.string.nav_remove_stop),
-                                                tint = if (navRunning)
-                                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                                        .copy(alpha = 0.38f)
-                                                else MaterialTheme.colorScheme.error,
+                                                tint = if (canDelete)
+                                                    MaterialTheme.colorScheme.error
+                                                else MaterialTheme.colorScheme.onSurfaceVariant
+                                                    .copy(alpha = 0.38f),
                                                 modifier = Modifier.size(20.dp)
                                             )
                                         }

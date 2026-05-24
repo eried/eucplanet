@@ -85,6 +85,11 @@ class NavigationEngine @Inject constructor(
 
         // How long the "arrived" banner lingers before the popup self-clears.
         private const val ARRIVAL_DISMISS_MS = 9_000L
+        // Grace window between an arrival firing and the engine committing
+        // the visible 'Arrived' cue. If the VM calls advanceLeg inside this
+        // window (intermediate stop -> next leg), the cue is skipped and the
+        // rider transitions directly to the new leg without an Arrived flash.
+        private const val ARRIVAL_PRE_ANNOUNCE_MS = 2_000L
 
         // Treasure Hunt voice cadence + proximity hysteresis.
         private const val HUNT_VOICE_INTERVAL_MS = 45_000L
@@ -253,6 +258,12 @@ class NavigationEngine @Inject constructor(
     fun advanceLeg(newRoute: NavRoute) {
         if (!isActive) return
         scope.launch {
+            Log.i(
+                TAG,
+                "ADVANCE-LEG newRoute wpCount=${newRoute.waypoints.size} " +
+                    "first=${newRoute.waypoints.firstOrNull()?.point()} " +
+                    "last=${newRoute.waypoints.lastOrNull()?.point()}"
+            )
             activeRoute = newRoute
             resetRuntimeState()
             waypointAlongM = if (newRoute.geometry.size >= 2) {
@@ -375,7 +386,13 @@ class NavigationEngine @Inject constructor(
             if (currentGoal == 1 && route.waypoints.size > 1) {
                 val g = route.waypoints[1]
                 val d = GeoMath.distanceM(point, g.point())
-                if (d <= (g.radiusM ?: arrivalRadiusM)) {
+                val r = (g.radiusM ?: arrivalRadiusM)
+                Log.i(
+                    TAG,
+                    "WAIT-CHECK currentGoal=1 d=${"%.1f".format(d)}m radius=${r.toInt()}m " +
+                        "wpSize=${route.waypoints.size} arrivalHandled=$arrivalHandled"
+                )
+                if (d <= r) {
                     currentGoal = 2
                     lastGoalDistM = Double.NaN
                     lastProximity = null
@@ -817,25 +834,37 @@ class NavigationEngine @Inject constructor(
     private fun handleArrival() {
         if (arrivalHandled) return
         arrivalHandled = true
+        // Set arrived=true so the VM's collector can react (mark this stop
+        // passed, build the next leg, call advanceLeg). DO NOT touch
+        // primaryText / distanceText yet -- if this is an intermediate
+        // stop, advanceLeg will overwrite navState with the next leg's
+        // 'Start riding' state inside ARRIVAL_PRE_ANNOUNCE_MS and the
+        // rider never sees the 'Arrived' cue. Only after that grace
+        // window do we commit the visible/spoken 'Arrived'.
         _navState.value = _navState.value.copy(
             waiting = false,
             arrived = true,
-            offRoute = false,
-            arrow = ArrowDir.STRAIGHT,
-            primaryText = context.getString(R.string.nav_arrived),
-            distanceText = ""
+            offRoute = false
         )
-        if (voiceEnabled) {
-            voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
-        }
-        // Leave the "arrived" banner up briefly, then clear the popup. The job
-        // is tracked so a stop()/start() within the window cancels it — it must
-        // not tear down a navigation session that was meanwhile restarted.
-        // The saved-builder-route clear happens HERE (after the delay), not
-        // immediately, so an advanceLeg() call right after an intermediate
-        // arrival can cancel it without losing the rider's planned remainder.
+        // The job has two stages:
+        //   1) wait ARRIVAL_PRE_ANNOUNCE_MS -- gives the VM a chance to
+        //      advanceLeg (which resets arrivalHandled = false and cancels
+        //      this job). If we still own the arrival, commit the
+        //      'Arrived' text + voice. This is the FINAL-stop path.
+        //   2) wait the remaining dismiss-window, then clear the saved
+        //      route and stop nav.
         arrivalJob = scope.launch {
-            delay(ARRIVAL_DISMISS_MS)
+            delay(ARRIVAL_PRE_ANNOUNCE_MS)
+            if (!arrivalHandled) return@launch
+            _navState.value = _navState.value.copy(
+                arrow = ArrowDir.STRAIGHT,
+                primaryText = context.getString(R.string.nav_arrived),
+                distanceText = ""
+            )
+            if (voiceEnabled) {
+                voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
+            }
+            delay(ARRIVAL_DISMISS_MS - ARRIVAL_PRE_ANNOUNCE_MS)
             if (!arrivalHandled) return@launch
             runCatching {
                 val s = settingsRepository.get()
