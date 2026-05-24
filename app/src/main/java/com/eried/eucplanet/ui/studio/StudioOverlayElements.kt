@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -220,6 +221,11 @@ private fun StudioElementBox(
     val gridX = gridStepPx / widthPx
     val gridY = gridStepPx / heightPx
     fun snapFx(v: Float, step: Float) = if (snapToGrid) (kotlin.math.round(v / step) * step) else v
+    // Lower bound for resize: keep the rotate handle (bottom-start) and the
+    // resize grip (bottom-end) visually separated. Each is 30 dp; with their
+    // 14 dp outward offsets, a width below ~80 dp makes the two grips touch
+    // and become indistinguishable.
+    val minWidthFrac = with(LocalDensity.current) { 80.dp.toPx() } / widthPx
     // While snap-to-grid is ON, render every element AT its snapped position
     // and size -- non-destructively, the saved values stay exact until the
     // rider actually moves / resizes the element themselves. Drag and resize
@@ -239,7 +245,13 @@ private fun StudioElementBox(
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
 
     Box(
-        Modifier.offset(x = containerW * effX, y = containerH * effY)
+        Modifier
+            .offset(x = containerW * effX, y = containerH * effY)
+            // Belt-and-suspenders with the list reorder in StudioElementLayer:
+            // give the selected element an explicit zIndex so even if some
+            // ancestor compositor reshuffles drawing order, the element and
+            // its handle chrome still float above un-selected siblings.
+            .then(if (selected) Modifier.zIndex(2f) else Modifier)
     ) {
         Box(
             // widthIn(max) — not width() — so the selection frame and border
@@ -342,54 +354,36 @@ private fun StudioElementBox(
                         val shadowRad =
                             Math.toRadians(element.shadowAngle.toDouble())
                         val shadowTint = Color(element.shadowColor)
-                        // Previous implementation rendered the content into a
-                        // separate offscreen graphicsLayer at an offset. Each
-                        // Compose Text composition re-laid out glyphs from
-                        // scratch, and the layouts subtly disagreed on sub-
-                        // pixel kerning ("EUC" looked aligned with its shadow
-                        // but "Planet" drifted further from its shadow at the
-                        // far end of the word). To get the shadow pixel-
-                        // identical to the foreground we render the content
-                        // ONCE into a GraphicsLayer at the parent's position,
-                        // then draw that same layer twice -- first with an
-                        // offset + tint as the shadow, then unmodified as the
-                        // foreground. No second text layout pass, so any
-                        // letter that aligns aligns identically.
-                        val layer = rememberGraphicsLayer()
+                        // Behind: a tinted, blurred, offset copy of the
+                        // content. We render content() twice (once here for
+                        // the shadow, once below for the foreground) which
+                        // can leave a sub-pixel kerning drift on multi-line
+                        // text -- accepted because the previous attempt at a
+                        // recorded GraphicsLayer made the App badge invisible.
                         Box(
                             Modifier
                                 .matchParentSize()
-                                .drawWithContent {
-                                    layer.record { this@drawWithContent.drawContent() }
+                                .graphicsLayer {
                                     val dist = element.shadowDistance.dp.toPx()
-                                    val dx = dist * kotlin.math.cos(shadowRad).toFloat()
-                                    val dy = dist * kotlin.math.sin(shadowRad).toFloat()
-                                    val str = element.shadowStrength.coerceIn(0f, 1f)
-                                    // Shadow pass: translate + tint the
-                                    // already-recorded pixels. SrcAtop keeps
-                                    // the tint inside the content silhouette
-                                    // (otherwise the whole bounding rect
-                                    // would become the shadow colour).
-                                    layer.alpha = str
-                                    layer.colorFilter =
-                                        androidx.compose.ui.graphics.ColorFilter.tint(
-                                            shadowTint,
-                                            androidx.compose.ui.graphics.BlendMode.SrcAtop
-                                        )
-                                    translate(dx, dy) { drawLayer(layer) }
-                                    // Foreground pass: restore neutral state
-                                    // and draw the SAME recorded pixels.
-                                    layer.colorFilter = null
-                                    layer.alpha = 1f
-                                    drawLayer(layer)
+                                    translationX =
+                                        dist * kotlin.math.cos(shadowRad).toFloat()
+                                    translationY =
+                                        dist * kotlin.math.sin(shadowRad).toFloat()
+                                    alpha = element.shadowStrength.coerceIn(0f, 1f)
+                                    compositingStrategy =
+                                        CompositingStrategy.Offscreen
+                                }
+                                .blur(2.dp)
+                                .drawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        color = shadowTint,
+                                        blendMode = BlendMode.SrcAtop
+                                    )
                                 }
                         ) { content() }
-                    } else {
-                        // No shadow -- single, plain content render. (The
-                        // shadow branch above already emits content via its
-                        // own recorded layer; we don't want both.)
-                        content()
                     }
+                    content()
                 }
 
                 if (selected) {
@@ -444,13 +438,22 @@ private fun StudioElementBox(
                                         snapFx(e.height, gridY)
                                     else contentSize.height / heightPx
                                     val nw = (baseW + drag.x / widthPx)
-                                        .coerceIn(0.08f, 1.5f)
+                                        .coerceIn(minWidthFrac, 1.5f)
                                     val nh = (baseH + drag.y / heightPx)
                                         .coerceIn(0.04f, 1.5f)
+                                    // Dials are hard-locked to an aspect (1:1
+                                    // for full, 2:1 for semicircle); storing a
+                                    // height does nothing useful and only
+                                    // surfaces stale values in Manage. Keep
+                                    // height at 0 so the renderer follows
+                                    // aspectRatio. Other widgets store both.
+                                    val newH = if (
+                                        e.type == OverlayElementType.DATA_DIAL
+                                    ) 0f else snapFx(nh, gridY)
                                     onChange(
                                         e.copy(
                                             width = snapFx(nw, gridX),
-                                            height = snapFx(nh, gridY)
+                                            height = newH
                                         )
                                     )
                                 }
@@ -1163,6 +1166,10 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     // Dial aspect / arc geometry depends on style:
     //   FULL       -> 1:1, classic 270 deg arc (135 .. 405).
     //   SEMICIRCLE -> 2:1, upper-half-only 180 deg arc (180 .. 360).
+    // Aspect is HARD-LOCKED -- a dial drawn into any other rectangle ends
+    // up with a circle inscribed in part of the box and dead space in the
+    // rest, which looks broken. The bottom-right resize handle on a dial
+    // therefore only scales width (and the rider keeps a coherent dial).
     val isSemi = element.dialStyle == "SEMICIRCLE"
     val aspect = if (isSemi) 2f else 1f
     val arcStart = if (isSemi) 180f else 135f
@@ -1170,10 +1177,7 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
-            .then(
-                if (element.height > 0f) Modifier.fillMaxHeight()
-                else Modifier.aspectRatio(aspect)
-            )
+            .aspectRatio(aspect)
             .background(
                 Color(element.background),
                 if (isSemi) RoundedCornerShape(

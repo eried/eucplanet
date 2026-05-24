@@ -720,6 +720,7 @@
     <string name="studio_grant">Giv adgang</string>
     <string name="studio_image_failed">Kunne ikke indlæse det billede</string>
     <string name="studio_no_folder">Vælg en backup-mappe først for at kunne gemme forudindstillinger</string>
+    <string name="studio_your_presets_empty">Ingen gemte forudindstillinger endnu. Gem dit nuværende layout for at tilføje en.</string>
     <string name="studio_not_connected">Ikke forbundet</string>
     <string name="studio_open">Åbn Overlay Studio</string>
     <string name="studio_photo_failed">Kunne ikke gemme billedet</string>
@@ -879,7 +880,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Turdistance</string>
     <string name="studio_metric_voltage">Spænding</string>
-    <string name="studio_no_folder_body">Der er ikke valgt en backup-mappe. Gemte forudindstillinger kræver en backup-mappe, så hver enkelt kan være sin egen fil.</string>
+    <string name="studio_no_folder_body">Vælg en backup-mappe for at gemme forudindstillinger</string>
     <string name="studio_pane_camera_access_needed">Kameraadgang kræves</string>
     <string name="studio_pane_camera_conflict">%1$s kan ikke køre sammen med et andet kamera på denne enhed</string>
     <string name="studio_pane_camera_unavailable">Kamera ikke tilgængeligt</string>
@@ -991,4 +992,15 @@
     <string name="external_gps_caption">Tænd din RaceBox og tryk på Par for at søge. Når den er parret, fører fart og G-kraft appen live og gemmes i CSV-en for hver tur</string>
     <string name="gps_prioritize_external_desc">Når en enhed er tilsluttet, brug den til fart, position og G-kraft i stedet for telefonen</string>
     <string name="studio_cfg_show_value">Vis værdi</string>
+    <string name="studio_cfg_unit_position">Enhed</string>
+    <string name="studio_cfg_unit_left">Før</string>
+    <string name="studio_cfg_unit_right">Efter</string>
+    <string name="studio_cfg_dial_style">Skive stil</string>
+    <string name="studio_cfg_dial_full">Hel ring</string>
+    <string name="studio_cfg_dial_semi">Halvcirkel</string>
+    <string name="studio_snap_to_grid">Tilpas til gitter</string>
+    <string name="studio_overwrite_title">Overskriv forudindstilling?</string>
+    <string name="studio_overwrite_body">En forudindstilling ved navn \"%1$s\" findes allerede.</string>
+    <string name="studio_overwrite_confirm">Overskriv</string>
+
 </resources>

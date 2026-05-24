@@ -736,6 +736,7 @@
     <string name="studio_grant">Zugriff erteilen</string>
     <string name="studio_image_failed">Dieses Bild konnte nicht geladen werden</string>
     <string name="studio_no_folder">Wähle zuerst einen Backup-Ordner, um Presets zu speichern</string>
+    <string name="studio_your_presets_empty">Noch keine gespeicherten Presets. Speichere dein aktuelles Layout, um eines hinzuzufügen.</string>
     <string name="studio_not_connected">Nicht verbunden</string>
     <string name="studio_open">Overlay Studio öffnen</string>
     <string name="studio_photo_failed">Das Foto konnte nicht gespeichert werden</string>
@@ -894,7 +895,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Fahrtstrecke</string>
     <string name="studio_metric_voltage">Spannung</string>
-    <string name="studio_no_folder_body">Es ist kein Backup-Ordner festgelegt. Gespeicherte Presets brauchen einen Backup-Ordner, damit jedes seine eigene Datei sein kann.</string>
+    <string name="studio_no_folder_body">Wähle einen Backup-Ordner, um Presets zu speichern</string>
     <string name="studio_pane_camera_access_needed">Kamerazugriff erforderlich</string>
     <string name="studio_pane_camera_conflict">%1$s kann auf diesem Gerät nicht zusammen mit einer anderen Kamera laufen</string>
     <string name="studio_pane_camera_unavailable">Kamera nicht verfügbar</string>
@@ -1006,4 +1007,15 @@
     <string name="external_gps_caption">Schalte deine RaceBox ein und tippe auf Koppeln, um zu suchen. Nach dem Koppeln liefern Geschwindigkeit und G-Kraft die App live und werden im CSV jeder Fahrt gespeichert</string>
     <string name="gps_prioritize_external_desc">Wenn ein Gerät verbunden ist, dieses für Geschwindigkeit, Position und G-Kraft statt des Telefons verwenden</string>
     <string name="studio_cfg_show_value">Wert anzeigen</string>
+    <string name="studio_cfg_unit_position">Einheit</string>
+    <string name="studio_cfg_unit_left">Vorher</string>
+    <string name="studio_cfg_unit_right">Nachher</string>
+    <string name="studio_cfg_dial_style">Zifferblattstil</string>
+    <string name="studio_cfg_dial_full">Vollring</string>
+    <string name="studio_cfg_dial_semi">Halbkreis</string>
+    <string name="studio_snap_to_grid">Am Raster ausrichten</string>
+    <string name="studio_overwrite_title">Preset überschreiben?</string>
+    <string name="studio_overwrite_body">Ein Preset namens \"%1$s\" existiert bereits.</string>
+    <string name="studio_overwrite_confirm">Überschreiben</string>
+
 </resources>

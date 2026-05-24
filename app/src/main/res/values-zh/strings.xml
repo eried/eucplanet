@@ -719,6 +719,7 @@
     <string name="studio_grant">授予权限</string>
     <string name="studio_image_failed">无法加载该图片</string>
     <string name="studio_no_folder">请先设置备份文件夹才能保存预设</string>
+    <string name="studio_your_presets_empty">尚无已保存的预设。保存当前布局以添加一个。</string>
     <string name="studio_not_connected">未连接</string>
     <string name="studio_open">打开叠加工作室</string>
     <string name="studio_photo_failed">无法保存照片</string>
@@ -877,7 +878,7 @@
     <string name="studio_metric_temperature">温度</string>
     <string name="studio_metric_trip_distance">行程距离</string>
     <string name="studio_metric_voltage">电压</string>
-    <string name="studio_no_folder_body">尚未设置备份文件夹。已保存的预设需要一个备份文件夹,以便每个预设各自存为一个文件。</string>
+    <string name="studio_no_folder_body">设置备份文件夹以保存预设</string>
     <string name="studio_pane_camera_access_needed">需要相机权限</string>
     <string name="studio_pane_camera_conflict">%1$s 无法与此设备上的另一个相机同时运行</string>
     <string name="studio_pane_camera_unavailable">相机不可用</string>
@@ -989,4 +990,15 @@
     <string name="external_gps_caption">打开你的 RaceBox 并点按「配对」扫描。配对后，速度和 G 力会实时传入应用，并保存到每次行程的 CSV。</string>
     <string name="gps_prioritize_external_desc">连接设备后，用它代替手机提供速度、位置和 G 力。</string>
     <string name="studio_cfg_show_value">显示数值</string>
+    <string name="studio_cfg_unit_position">单位</string>
+    <string name="studio_cfg_unit_left">前</string>
+    <string name="studio_cfg_unit_right">后</string>
+    <string name="studio_cfg_dial_style">表盘样式</string>
+    <string name="studio_cfg_dial_full">完整环形</string>
+    <string name="studio_cfg_dial_semi">半圆</string>
+    <string name="studio_snap_to_grid">对齐到网格</string>
+    <string name="studio_overwrite_title">覆盖预设？</string>
+    <string name="studio_overwrite_body">已存在名为 \"%1$s\" 的预设。</string>
+    <string name="studio_overwrite_confirm">覆盖</string>
+
 </resources>

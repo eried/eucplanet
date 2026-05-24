@@ -756,6 +756,7 @@
     <string name="studio_grant">Надати доступ</string>
     <string name="studio_image_failed">Не вдалося завантажити це зображення</string>
     <string name="studio_no_folder">Спершу вкажіть папку резервних копій, щоб зберігати пресети</string>
+    <string name="studio_your_presets_empty">Збережених пресетів ще немає. Збережіть поточний макет, щоб додати.</string>
     <string name="studio_not_connected">Не підключено</string>
     <string name="studio_open">Відкрити Overlay Studio</string>
     <string name="studio_photo_failed">Не вдалося зберегти фото</string>
@@ -914,7 +915,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_trip_distance">Відстань поїздки</string>
     <string name="studio_metric_voltage">Напруга</string>
-    <string name="studio_no_folder_body">Папку резервних копій не вказано. Збереженим пресетам потрібна така папка, щоб кожен став окремим файлом.</string>
+    <string name="studio_no_folder_body">Виберіть папку резервних копій для збереження пресетів</string>
     <string name="studio_pane_camera_access_needed">Потрібен доступ до камери</string>
     <string name="studio_pane_camera_conflict">%1$s не може працювати разом з іншою камерою на цьому пристрої</string>
     <string name="studio_pane_camera_unavailable">Камера недоступна</string>
@@ -1026,4 +1027,15 @@
     <string name="external_gps_caption">Увімкніть RaceBox і торкніться «Парувати» для пошуку. Після парування швидкість і перевантаження передаються в застосунок наживо та зберігаються в CSV кожної поїздки</string>
     <string name="gps_prioritize_external_desc">Коли пристрій підключено, використовувати його для швидкості, позиції та G-сили замість телефона</string>
     <string name="studio_cfg_show_value">Показувати значення</string>
+    <string name="studio_cfg_unit_position">Одиниця</string>
+    <string name="studio_cfg_unit_left">До</string>
+    <string name="studio_cfg_unit_right">Після</string>
+    <string name="studio_cfg_dial_style">Стиль циферблата</string>
+    <string name="studio_cfg_dial_full">Повне коло</string>
+    <string name="studio_cfg_dial_semi">Півколо</string>
+    <string name="studio_snap_to_grid">Прив’язка до сітки</string>
+    <string name="studio_overwrite_title">Перезаписати пресет?</string>
+    <string name="studio_overwrite_body">Пресет «%1$s» вже існує.</string>
+    <string name="studio_overwrite_confirm">Перезаписати</string>
+
 </resources>

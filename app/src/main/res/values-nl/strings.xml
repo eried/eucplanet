@@ -755,6 +755,7 @@
     <string name="studio_grant">Toegang geven</string>
     <string name="studio_image_failed">Die afbeelding kon niet geladen worden</string>
     <string name="studio_no_folder">Stel eerst een back-upmap in om presets op te slaan</string>
+    <string name="studio_your_presets_empty">Nog geen opgeslagen presets. Sla je huidige lay-out op om er een toe te voegen.</string>
     <string name="studio_not_connected">Niet verbonden</string>
     <string name="studio_open">Overlay Studio openen</string>
     <string name="studio_photo_failed">De foto kon niet opgeslagen worden</string>
@@ -913,7 +914,7 @@
     <string name="studio_metric_temperature">Temperatuur</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>
     <string name="studio_metric_voltage">Spanning</string>
-    <string name="studio_no_folder_body">Er is geen back-upmap ingesteld. Opgeslagen presets hebben een back-upmap nodig zodat elke preset een eigen bestand kan zijn.</string>
+    <string name="studio_no_folder_body">Stel een back-upmap in om presets op te slaan</string>
     <string name="studio_pane_camera_access_needed">Cameratoegang nodig</string>
     <string name="studio_pane_camera_conflict">%1$s kan niet samen met een andere camera op dit apparaat draaien</string>
     <string name="studio_pane_camera_unavailable">Camera niet beschikbaar</string>
@@ -1025,4 +1026,15 @@
     <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit</string>
     <string name="gps_prioritize_external_desc">Als een apparaat verbonden is, gebruik het voor snelheid, positie en G-kracht in plaats van de telefoon</string>
     <string name="studio_cfg_show_value">Waarde tonen</string>
+    <string name="studio_cfg_unit_position">Eenheid</string>
+    <string name="studio_cfg_unit_left">Voor</string>
+    <string name="studio_cfg_unit_right">Na</string>
+    <string name="studio_cfg_dial_style">Wijzerstijl</string>
+    <string name="studio_cfg_dial_full">Volledige ring</string>
+    <string name="studio_cfg_dial_semi">Halve cirkel</string>
+    <string name="studio_snap_to_grid">Op raster uitlijnen</string>
+    <string name="studio_overwrite_title">Preset overschrijven?</string>
+    <string name="studio_overwrite_body">Er bestaat al een preset met de naam \"%1$s\".</string>
+    <string name="studio_overwrite_confirm">Overschrijven</string>
+
 </resources>

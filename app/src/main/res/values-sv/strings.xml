@@ -719,6 +719,7 @@
     <string name="studio_grant">Ge åtkomst</string>
     <string name="studio_image_failed">Kunde inte läsa in den bilden</string>
     <string name="studio_no_folder">Ange en säkerhetskopieringsmapp först för att spara förinställningar</string>
+    <string name="studio_your_presets_empty">Inga sparade förinställningar ännu. Spara din nuvarande layout för att lägga till en.</string>
     <string name="studio_not_connected">Inte ansluten</string>
     <string name="studio_open">Öppna Overlay Studio</string>
     <string name="studio_photo_failed">Kunde inte spara fotot</string>
@@ -877,7 +878,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Resans distans</string>
     <string name="studio_metric_voltage">Spänning</string>
-    <string name="studio_no_folder_body">Ingen säkerhetskopieringsmapp är vald. Sparade förinställningar behöver en säkerhetskopieringsmapp så att var och en kan vara sin egen fil.</string>
+    <string name="studio_no_folder_body">Välj en säkerhetskopieringsmapp för att spara förinställningar</string>
     <string name="studio_pane_camera_access_needed">Kameraåtkomst behövs</string>
     <string name="studio_pane_camera_conflict">%1$s kan inte köras samtidigt som en annan kamera på den här enheten</string>
     <string name="studio_pane_camera_unavailable">Kameran är inte tillgänglig</string>
@@ -989,4 +990,15 @@
     <string name="external_gps_caption">Slå på din RaceBox och tryck på Para för att söka. När den är parad matar fart och G-kraft appen live och sparas i CSV-filen för varje tur</string>
     <string name="gps_prioritize_external_desc">När en enhet är ansluten, använd den för fart, position och G-kraft i stället för telefonen</string>
     <string name="studio_cfg_show_value">Visa värde</string>
+    <string name="studio_cfg_unit_position">Enhet</string>
+    <string name="studio_cfg_unit_left">Före</string>
+    <string name="studio_cfg_unit_right">Efter</string>
+    <string name="studio_cfg_dial_style">Urtavlestil</string>
+    <string name="studio_cfg_dial_full">Hel ring</string>
+    <string name="studio_cfg_dial_semi">Halvcirkel</string>
+    <string name="studio_snap_to_grid">Fäst mot rutnät</string>
+    <string name="studio_overwrite_title">Skriva över förinställning?</string>
+    <string name="studio_overwrite_body">En förinställning med namnet \"%1$s\" finns redan.</string>
+    <string name="studio_overwrite_confirm">Skriv över</string>
+
 </resources>

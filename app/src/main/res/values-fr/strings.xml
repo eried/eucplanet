@@ -719,6 +719,7 @@
     <string name="studio_grant">Accorder l\'accès</string>
     <string name="studio_image_failed">Impossible de charger cette image</string>
     <string name="studio_no_folder">Choisissez d\'abord un dossier de sauvegarde pour enregistrer les préréglages</string>
+    <string name="studio_your_presets_empty">Aucun préréglage enregistré. Enregistrez votre mise en page actuelle pour en ajouter un.</string>
     <string name="studio_not_connected">Non connectée</string>
     <string name="studio_open">Ouvrir Overlay Studio</string>
     <string name="studio_photo_failed">Impossible d\'enregistrer la photo</string>
@@ -877,7 +878,7 @@
     <string name="studio_metric_temperature">Température</string>
     <string name="studio_metric_trip_distance">Distance du trajet</string>
     <string name="studio_metric_voltage">Tension</string>
-    <string name="studio_no_folder_body">Aucun dossier de sauvegarde n\'est défini. Les préréglages enregistrés ont besoin d\'un dossier de sauvegarde pour que chacun soit son propre fichier.</string>
+    <string name="studio_no_folder_body">Choisissez un dossier de sauvegarde pour enregistrer les préréglages</string>
     <string name="studio_pane_camera_access_needed">Accès à la caméra requis</string>
     <string name="studio_pane_camera_conflict">%1$s ne peut pas fonctionner avec une autre caméra sur cet appareil</string>
     <string name="studio_pane_camera_unavailable">Caméra indisponible</string>
@@ -989,4 +990,15 @@
     <string name="external_gps_caption">Allume ta RaceBox et appuie sur Associer pour rechercher. Une fois associée, sa vitesse et sa force G alimentent l\'appli en direct et sont enregistrées dans le CSV de chaque trajet</string>
     <string name="gps_prioritize_external_desc">Quand un appareil est connecté, utiliser sa vitesse, sa position et sa force G plutôt que le téléphone</string>
     <string name="studio_cfg_show_value">Afficher la valeur</string>
+    <string name="studio_cfg_unit_position">Unité</string>
+    <string name="studio_cfg_unit_left">Avant</string>
+    <string name="studio_cfg_unit_right">Après</string>
+    <string name="studio_cfg_dial_style">Style de cadran</string>
+    <string name="studio_cfg_dial_full">Anneau complet</string>
+    <string name="studio_cfg_dial_semi">Demi-cercle</string>
+    <string name="studio_snap_to_grid">Aligner sur la grille</string>
+    <string name="studio_overwrite_title">Écraser le préréglage ?</string>
+    <string name="studio_overwrite_body">Un préréglage nommé \"%1$s\" existe déjà.</string>
+    <string name="studio_overwrite_confirm">Écraser</string>
+
 </resources>

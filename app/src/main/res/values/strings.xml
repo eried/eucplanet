@@ -681,6 +681,7 @@
     <string name="studio_preset_loaded">Preset loaded</string>
     <string name="studio_preset_failed">Could not save the preset</string>
     <string name="studio_no_folder">Set a backup folder first to save presets</string>
+    <string name="studio_your_presets_empty">No saved presets yet. Save your current layout to add one.</string>
 
     <!-- Studio: render progress overlay -->
     <string name="studio_rendering">Rendering</string>
@@ -734,7 +735,7 @@
     <string name="studio_save_preset_body">Presets are saved as individual .json files in your backup folder, under overlays/</string>
     <string name="studio_save_preset_name_label">Preset name</string>
     <string name="studio_save_btn">Save</string>
-    <string name="studio_no_folder_body">No backup folder is set. Saved presets need a backup folder so each one can be its own file.</string>
+    <string name="studio_no_folder_body">Set up a backup folder to save presets</string>
 
     <!-- Studio: load preset sheet -->
     <string name="studio_load_preset_title">Load preset</string>
@@ -1122,7 +1123,7 @@
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV</string>
     <string name="gps_prioritize_external_desc">When a device is connected, use it for speed, position and G-Force instead of the phone</string>
     <string name="studio_cfg_show_value">Show value</string>
-    <string name="studio_cfg_unit_position">Unit position</string>
+    <string name="studio_cfg_unit_position">Unit</string>
     <string name="studio_cfg_unit_left">Before value</string>
     <string name="studio_cfg_unit_right">After value</string>
     <string name="studio_cfg_dial_style">Dial style</string>

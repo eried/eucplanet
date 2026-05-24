@@ -818,10 +818,22 @@ fun LoadPresetSheet(
                 }
             }
 
+            // "Your presets" is always shown: the section's value to the
+            // rider doesn't depend on whether they happen to have any yet --
+            // when empty (no folder set, or folder set but no files) we
+            // surface the right next-step (folder picker / hint) right where
+            // the saved presets would otherwise appear.
+            SectionLabel(stringResource(R.string.studio_section_your_presets))
             if (!folderAvailable) {
                 FolderWarning(onOpenFolderSettings)
-            } else if (presets.isNotEmpty()) {
-                SectionLabel(stringResource(R.string.studio_section_your_presets))
+            } else if (presets.isEmpty()) {
+                Text(
+                    stringResource(R.string.studio_your_presets_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 6.dp, horizontal = 4.dp)
+                )
+            } else {
                 presets.forEach { name ->
                     PresetRow(
                         name = name,
@@ -1484,6 +1496,30 @@ fun ElementConfigSheet(
         ) {
             SheetHeader(element.type.label())
 
+            // Metric chooser comes first whenever the widget has one: the
+            // metric is the widget's identity (a SPEED graph vs a BATTERY
+            // graph is functionally a different widget), so the rider sees
+            // and picks that before anything else.
+            val isGauge = element.type == OverlayElementType.DATA_DIAL ||
+                element.type == OverlayElementType.DATA_BAR
+            val hasMetric = element.type == OverlayElementType.DATA_VALUE ||
+                element.type == OverlayElementType.DATA_GRAPH || isGauge
+            if (hasMetric) {
+                Text(
+                    stringResource(R.string.studio_cfg_metric_label),
+                    fontWeight = FontWeight.SemiBold
+                )
+                MetricPicker(element.metric) { key ->
+                    onChange(
+                        if (isGauge) element.copy(
+                            metric = key,
+                            gaugeMax = StudioMetric.fromKey(key).defaultMax
+                        ) else element.copy(metric = key)
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+
             if (element.type == OverlayElementType.TEXT) {
                 OutlinedTextField(
                     value = element.text,
@@ -1566,23 +1602,6 @@ fun ElementConfigSheet(
                 Spacer(Modifier.height(8.dp))
             }
 
-            val isGauge = element.type == OverlayElementType.DATA_DIAL ||
-                element.type == OverlayElementType.DATA_BAR
-            if (element.type == OverlayElementType.DATA_VALUE ||
-                element.type == OverlayElementType.DATA_GRAPH || isGauge
-            ) {
-                Text(stringResource(R.string.studio_cfg_metric_label), fontWeight = FontWeight.SemiBold)
-                MetricPicker(element.metric) { key ->
-                    onChange(
-                        if (isGauge) element.copy(
-                            metric = key,
-                            gaugeMax = StudioMetric.fromKey(key).defaultMax
-                        ) else element.copy(metric = key)
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-            }
-
             if (isGauge) {
                 val metricMax = StudioMetric.fromKey(element.metric).defaultMax
                 LabeledSlider(
@@ -1596,17 +1615,12 @@ fun ElementConfigSheet(
             if (element.type == OverlayElementType.DATA_VALUE ||
                 element.type == OverlayElementType.DATA_BAR
             ) {
-                ToggleRow(stringResource(R.string.studio_cfg_show_label), element.showLabel) {
-                    onChange(element.copy(showLabel = it))
-                }
-                if (element.type == OverlayElementType.DATA_BAR) {
-                    ToggleRow(
-                        stringResource(R.string.studio_cfg_show_value), element.barShowValue
-                    ) { onChange(element.copy(barShowValue = it)) }
-                }
                 if (element.type == OverlayElementType.DATA_VALUE) {
                     // Unit-label position: BEFORE the value (LEFT) or AFTER
                     // it (RIGHT). For "km/h 42" / "42 km/h" style overlays.
+                    // Sits above the Show-label toggle so the rider settles
+                    // identity (metric + unit placement) before binary
+                    // visibility toggles.
                     Text(
                         stringResource(R.string.studio_cfg_unit_position),
                         fontWeight = FontWeight.SemiBold
@@ -1623,6 +1637,14 @@ fun ElementConfigSheet(
                             )
                         }
                     }
+                }
+                ToggleRow(stringResource(R.string.studio_cfg_show_label), element.showLabel) {
+                    onChange(element.copy(showLabel = it))
+                }
+                if (element.type == OverlayElementType.DATA_BAR) {
+                    ToggleRow(
+                        stringResource(R.string.studio_cfg_show_value), element.barShowValue
+                    ) { onChange(element.copy(barShowValue = it)) }
                 }
             }
             if (element.type == OverlayElementType.DATA_DIAL) {

@@ -736,6 +736,7 @@
     <string name="studio_grant">Conceder acceso</string>
     <string name="studio_image_failed">No se pudo cargar esa imagen</string>
     <string name="studio_no_folder">Elige primero una carpeta de respaldo para guardar ajustes preestablecidos</string>
+    <string name="studio_your_presets_empty">Aún no hay presets guardados. Guarda tu diseño actual para añadir uno.</string>
     <string name="studio_not_connected">Sin conexión</string>
     <string name="studio_open">Abrir Overlay Studio</string>
     <string name="studio_photo_failed">No se pudo guardar la foto</string>
@@ -894,7 +895,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_trip_distance">Distancia del viaje</string>
     <string name="studio_metric_voltage">Voltaje</string>
-    <string name="studio_no_folder_body">No hay carpeta de respaldo configurada. Los ajustes preestablecidos guardados necesitan una carpeta de respaldo para que cada uno sea su propio archivo.</string>
+    <string name="studio_no_folder_body">Configura una carpeta de respaldo para guardar presets</string>
     <string name="studio_pane_camera_access_needed">Se necesita acceso a la cámara</string>
     <string name="studio_pane_camera_conflict">%1$s no puede funcionar junto a otra cámara en este dispositivo</string>
     <string name="studio_pane_camera_unavailable">Cámara no disponible</string>
@@ -1006,4 +1007,15 @@
     <string name="external_gps_caption">Enciende tu RaceBox y toca Vincular para buscar. Una vez vinculado, su velocidad y fuerza G alimentan la app en vivo y se guardan en el CSV de cada viaje</string>
     <string name="gps_prioritize_external_desc">Cuando hay un dispositivo conectado, úsalo para velocidad, posición y fuerza G en vez del teléfono</string>
     <string name="studio_cfg_show_value">Mostrar valor</string>
+    <string name="studio_cfg_unit_position">Unidad</string>
+    <string name="studio_cfg_unit_left">Antes</string>
+    <string name="studio_cfg_unit_right">Después</string>
+    <string name="studio_cfg_dial_style">Estilo de dial</string>
+    <string name="studio_cfg_dial_full">Anillo completo</string>
+    <string name="studio_cfg_dial_semi">Semicírculo</string>
+    <string name="studio_snap_to_grid">Ajustar a cuadrícula</string>
+    <string name="studio_overwrite_title">¿Sobrescribir preset?</string>
+    <string name="studio_overwrite_body">Ya existe un preset llamado \"%1$s\".</string>
+    <string name="studio_overwrite_confirm">Sobrescribir</string>
+
 </resources>
