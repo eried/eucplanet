@@ -32,6 +32,30 @@ internal const val ROUTE_BUILDER_HTML: String = """
 <script src="leaflet-rotate.js"></script>
 <style>
   html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#0b0f19;}
+  /* Suppress all tile transitions / opacity ramps. Leaflet's default
+     CSS fades each tile in via an opacity transition; with our 60 Hz
+     auto-follow tween that fade is restarted on tiles entering /
+     leaving the buffer ring, which the rider sees as the map "blinking"
+     while it pans. Hard-pinning each tile to opaque + no transitions
+     stops the flicker entirely. */
+  .leaflet-tile { opacity: 1 !important; transition: none !important; }
+  .leaflet-tile-container { transition: none !important; }
+  .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
+  /* Force GPU compositing on the panes we animate. Without explicit
+     hints, the browser would re-decide between CPU and GPU compositing
+     each frame and the in-between layer was where the white/blue flash
+     came from. translate3d coerces a hardware layer; backface-visibility
+     hidden + transform-style preserve-3d keep the layer rendered through
+     sub-pixel transform updates. */
+  .leaflet-pane,
+  .leaflet-tile-pane,
+  .leaflet-tile-container,
+  .leaflet-rotate-pane {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
   /* Stop marker — circle with the stop's number inside. The original
      pin/teardrop shape was nice but it conflicts visually with the rider's
      own teardrop ("you are here" + arrow); circles read as static targets
@@ -127,7 +151,22 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // small unintended pinch creep shifts the center mid-rotate and the
     // rotated route line / radius circles drift away from their markers.
     // Pinning to 'center' keeps the rotation pivot fixed.
-    touchZoom: 'center'
+    touchZoom: 'center',
+    // Allow fractional zoom so the auto-fit tween can creep smoothly
+    // (default zoomSnap=1 snaps to integer steps which would jolt the
+    // map between integer zoom levels in a tween loop).
+    zoomSnap: 0,
+    // Suppress per-tile fade-in. With the auto-follow tween calling
+    // setView every animation frame, tiles that flip to a new visual
+    // scale would fade in 60 times a second, reading as a constant
+    // background "blink" while panning + rotating.
+    fadeAnimation: false,
+    // Don't run Leaflet's own zoom animator -- we already tween the
+    // zoom manually each frame, and the built-in animator would layer
+    // a second CSS transform on top of ours, producing a brief mid-
+    // animation visual hiccup ("blink").
+    zoomAnimation: false,
+    markerZoomAnimation: false
   });
   var tileLayer = null;
 
@@ -170,8 +209,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
     if (connector) connector.redraw();
   }
   mapEl.addEventListener('touchmove', function(e){
+    // ANY touch movement (single or two-finger) counts as the rider
+    // manually moving the map -- single-finger pans should pause the
+    // auto-follow camera too, otherwise the moment they release the
+    // map snaps back and undoes what they were trying to see.
+    lastManualRotateMs = Date.now();
     if (e.touches.length >= 2) {
-      lastManualRotateMs = Date.now();
       if (!redrawPending) {
         redrawPending = true;
         requestAnimationFrame(function(){
@@ -192,27 +235,209 @@ internal const val ROUTE_BUILDER_HTML: String = """
     lastManualRotateMs = Date.now();
   }, { passive: true });
 
-  // Re-render the rider marker on every bearing change so its head keeps
+  // Re-render the rider marker on bearing changes so its head keeps
   // pointing at the rider's world heading, not the screen-relative one.
   // (Markers sit in the no-rotate pane and don't rotate with the map.)
+  //
+  // THROTTLED: only rebuild when the bearing has moved at least 1.5 deg
+  // since the last rebuild. Without this, the auto-follow tween fires
+  // setBearing at 60 Hz and each fired 'rotate' event would tear down
+  // and re-create the entire marker divIcon DOM -- a per-frame DOM
+  // rebuild that the browser couldn't paint cleanly, producing a visible
+  // flash on every pan / zoom / rotate tick.
+  var lastIconBearing = NaN;
   map.on('rotate', function(){
-    if (userMarker) userMarker.setIcon(buildUserIcon());
+    if (!userMarker) return;
+    var b = map.getBearing();
+    if (isNaN(lastIconBearing) || Math.abs(b - lastIconBearing) >= 1.5) {
+      lastIconBearing = b;
+      userMarker.setIcon(buildUserIcon());
+    }
   });
 
+  // Auto-follow is ONLY active while a navigation session is running
+  // (navLocked == true). With no nav, the rider may be planning a route
+  // and a self-rotating / self-panning map would be hostile. Within a
+  // running nav we both:
+  //   1) Slowly rotate the map so the rider's heading is at screen-top.
+  //   2) Slowly pan the map so the rider's marker stays at the centre of
+  //      the visible (non-occluded) area.
+  // Both use the same heavy tween rate so the motion feels like one
+  // continuous, deliberate camera move rather than two separate effects.
+  //
+  // ROTATE_TWEEN_RATE -- fraction of remaining delta applied per frame.
+  //   0.18 used to be ~0.4 s to settle (too snappy; GPS jitter rocked
+  //   the map back and forth). 0.04 is ~2 s to settle: "heavy steering
+  //   wheel" feel, and short heading wobbles never propagate visibly.
+  // ROTATE_START_DELAY_MS -- how long the rider must be MOVING before
+  //   we start rotating at all. Prevents a quick correction at a
+  //   stoplight from triggering a full half-rotation the rider would
+  //   have to wait to unwind.
+  var ROTATE_TWEEN_RATE = 0.015;
+  var ROTATE_START_DELAY_MS = 3000;
+  // Duration of the cosine-ease rotation when a new target heading
+  // settles in. The tween still re-targets continuously (smoothedHeading
+  // chases userHeading at ROTATE_TWEEN_RATE), but the actual map
+  // setBearing call interpolates from where the bearing IS to where the
+  // smoothed heading SAYS over this duration with an ease-in-ease-out
+  // curve, which feels more deliberate than the exponential decay.
+  var ROTATE_EASE_MS = 3500;
+  // Auto-zoom is DISABLED in the tween for now (rate 0). Each tween call
+  // to setView would briefly invoke GridLayer._setView, and any tween
+  // step that crossed an integer rounded-zoom boundary would trigger a
+  // level-container swap inside Leaflet -- the old level's tiles got
+  // unmounted before the new level's tiles finished loading, so the
+  // entire tile layer briefly disappeared. Rather than fight Leaflet's
+  // tile bookkeeping any further during a continuous tween, we pin the
+  // zoom to wherever the rider was when navigation started (or last
+  // pressed Recenter). They can adjust it manually with a pinch; the
+  // pan + rotate auto-follow still works.
+  var ZOOM_TWEEN_RATE = 0.0;
+  // Padding kept around even though auto-zoom is off, in case we re-
+  // enable a constrained variant later.
+  var ZOOM_FIT_PADDING_PX = 80;
+  // CSS-pixel offset for vertical visible-centre. Pushed in from Kotlin
+  // whenever the bottom panel / top bar size changes -- 0 until
+  // measured. The pan tween puts the rider's lat/lng above the map's
+  // geometric centre by this many CSS px.
+  var navRecenterOffsetPx = 0;
+  window.nativeSetRecenterOffset = function(px){
+    navRecenterOffsetPx = px || 0;
+  };
+  var movingSinceMs = 0;
+  // The smoothed heading the auto-follow tween chases. NaN means "no
+  // value yet"; will be set the first time userMoving flips to true.
+  var smoothedHeading = NaN;
+  // Current ease-in-ease-out rotation animation. null means "no active
+  // rotation, current bearing IS the target". Otherwise has {from,
+  // delta, to, startMs}.
+  var bearingEase = null;
   function tickAutoFollow(){
-    if (autoFollowHeading && userMoving && !twoFingerActive &&
-        Date.now() - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS) {
-      // leaflet-rotate's setBearing(B) applies `rotate(B°)` CSS to the
-      // rotatePane, which rotates content CW by B. To put compass heading
-      // H at the TOP of the screen we need B = -H (so compass 0 / N
-      // stays at screen 0 when H = 0, and compass H ends up at 0 when
-      // we rotate the map by -H). Using +H here was the cause of the
-      // "map is 180° off" report for non-cardinal headings.
-      var target = -userHeading;
-      var current = map.getBearing();
-      // Wrap delta into [-180, 180] so we always rotate the short way.
-      var delta = ((target - current + 540) % 360) - 180;
-      if (Math.abs(delta) > 0.5) map.setBearing(current + delta * 0.18);
+    var now = Date.now();
+    var canFollow = autoFollowHeading && navLocked && !twoFingerActive &&
+        now - lastManualRotateMs > MANUAL_ROTATE_HOLD_MS;
+    if (!canFollow) {
+      movingSinceMs = 0;
+      smoothedHeading = NaN;
+      requestAnimationFrame(tickAutoFollow);
+      return;
+    }
+    // Auto-pan + auto-zoom. Runs even when the rider is stationary so a
+    // pan-and-release drifts back to centre. We compute the desired
+    // pan target and the desired zoom, then commit them in a SINGLE
+    // map.setView call -- separate panTo + setZoom each frame caused
+    // Leaflet to refresh its layer transforms twice per tick, which
+    // showed up as the map "blinking" while the auto-pan and auto-zoom
+    // tweens were both active.
+    if (userMarker) {
+      var riderLL = userMarker.getLatLng();
+      var currentZoom = map.getZoom();
+      // Target zoom: fit (rider, next stop) in view via direct Mercator
+      // math (more reliable than map.getBoundsZoom on a rotated map).
+      // Solve 2^Z = visible_px * 156543 * cos(lat) / distance_metres
+      // for Z. Subtract 1 so the rider has a bit of breathing room
+      // around both points instead of fitting them edge-to-edge.
+      var newZoom = currentZoom;
+      if (markers.length > 0) {
+        var nextLL = markers[0].getLatLng();
+        var distM = riderLL.distanceTo(nextLL);
+        if (distM < 1) distM = 1;
+        var size = map.getSize();
+        var visW = Math.max(64, size.x - 2 * ZOOM_FIT_PADDING_PX);
+        var occluded = 2 * Math.abs(navRecenterOffsetPx);
+        var visH = Math.max(64, size.y - occluded - 2 * ZOOM_FIT_PADDING_PX);
+        var visible = Math.min(visW, visH);
+        var lat = (riderLL.lat + nextLL.lat) / 2;
+        var mPerPxZ0 = 156543.03392 * Math.cos(lat * Math.PI / 180);
+        var targetZoom = Math.log2(visible * mPerPxZ0 / distM) - 1;
+        targetZoom = Math.max(10, Math.min(19, targetZoom));
+        if (Math.abs(targetZoom - currentZoom) > 0.05) {
+          newZoom = currentZoom + (targetZoom - currentZoom) * ZOOM_TWEEN_RATE;
+        }
+      }
+      // Target center at the (possibly tweened) new zoom, with the
+      // panel-offset baked in so the rider lands at the visible centre.
+      var targetCenter = centerLatLngFor(
+        riderLL.lat, riderLL.lng, newZoom, navRecenterOffsetPx
+      );
+      var c = map.getCenter();
+      var dLat = targetCenter.lat - c.lat;
+      var dLng = targetCenter.lng - c.lng;
+      var lerpedCenter = [
+        c.lat + dLat * ROTATE_TWEEN_RATE,
+        c.lng + dLng * ROTATE_TWEEN_RATE
+      ];
+      var moved = Math.abs(dLat) > 1e-7 || Math.abs(dLng) > 1e-7;
+      var zoomed = Math.abs(newZoom - currentZoom) > 1e-4;
+      if (moved || zoomed) {
+        // Tell the tile layer to freeze tile DOM mutation for this
+        // tick + a small buffer. _setView still updates the SVG
+        // renderer and the markers' positions, but the tile layer
+        // only re-applies the visual scale -- existing tiles stay,
+        // no _addTile/_removeTile churn, no level swap when crossing
+        // an integer zoom boundary. The freeze auto-releases when
+        // the tween stops calling setView for >300 ms.
+        window.tileFreezeTillMs = Date.now() + 300;
+        map.setView(lerpedCenter, newZoom, { animate: false });
+      }
+    }
+    // Auto-rotate: only while actually moving (so a stopped rider isn't
+    // being spun by GPS heading noise).
+    if (!userMoving) {
+      movingSinceMs = 0;
+      smoothedHeading = NaN;
+      requestAnimationFrame(tickAutoFollow);
+      return;
+    }
+    if (movingSinceMs === 0) movingSinceMs = now;
+    if (isNaN(smoothedHeading)) smoothedHeading = userHeading;
+    var hDelta = ((userHeading - smoothedHeading + 540) % 360) - 180;
+    smoothedHeading = (smoothedHeading + hDelta * ROTATE_TWEEN_RATE + 360) % 360;
+    if (now - movingSinceMs < ROTATE_START_DELAY_MS) {
+      requestAnimationFrame(tickAutoFollow);
+      return;
+    }
+    // leaflet-rotate's setBearing(B) applies `rotate(B deg)` CSS to the
+    // rotatePane, which rotates content CW by B. To put the rider's
+    // heading H at the TOP of the screen we need B = -H.
+    //
+    // Ease-in-ease-out using a cosine curve, retargeted any time the
+    // smoothed heading drifts >0.5 deg from the current ease target.
+    // The exponential-decay tween we used before only eased OUT (fast
+    // at start, slow at end); riders wanted both halves of the curve
+    // so a course correction starts gently before accelerating into
+    // the rotation.
+    var target = -smoothedHeading;
+    var current = map.getBearing();
+    var delta = ((target - current + 540) % 360) - 180;
+    if (Math.abs(delta) > 0.5) {
+      // Retarget the ease whenever the desired bearing has shifted
+      // notably from where we were heading. The from-value is what we
+      // BLEND from -- the current map bearing, so the curve picks up
+      // from wherever the previous tween left off without a jolt.
+      if (!bearingEase ||
+          Math.abs(((bearingEase.to - target + 540) % 360) - 180) > 0.5) {
+        bearingEase = {
+          from: current,
+          delta: delta,
+          to: target,
+          startMs: now
+        };
+      }
+      var p = (now - bearingEase.startMs) / ROTATE_EASE_MS;
+      if (p >= 1) {
+        map.setBearing(bearingEase.to);
+        bearingEase = null;
+      } else {
+        // "Smootherstep" -- 6t^5 - 15t^4 + 10t^3. Compared to a cosine
+        // ease (0.5 * (1 - cos(pi*t))) this is FLATTER at both ends and
+        // STEEPER in the middle, giving the "slow slow slow ---- ROTATE
+        // FAST ---- slow slow slow" feel the rider asked for.
+        var eased = p * p * p * (p * (p * 6 - 15) + 10);
+        map.setBearing(bearingEase.from + bearingEase.delta * eased);
+      }
+    } else {
+      bearingEase = null;
     }
     requestAnimationFrame(tickAutoFollow);
   }
@@ -223,18 +448,68 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
   window.nativeSetMapType = function(type){
     var url, opts;
+    // keepBuffer: 4 -- the default 2 leaves a ring of unloaded tiles JUST
+    // outside the visible area. On a rotated map, those unloaded corners
+    // peek INTO the visible region as the map auto-pans / auto-rotates,
+    // flashing the dark background between tiles ("blue blink"). Loading
+    // a fatter ring of tiles around the viewport hides the background.
+    // updateWhenIdle: false -- we want tiles to keep loading while the
+    // tween is in flight, not waiting for it to settle.
     if (type === 'SATELLITE'){
       url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-      opts = {maxZoom:19};
+      opts = {maxZoom:19, keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
     } else if (type === 'LIGHT'){
       url = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
-      opts = {maxZoom:19, subdomains:'abcd'};
+      opts = {maxZoom:19, subdomains:'abcd', keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
     } else {
       url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
-      opts = {maxZoom:19, subdomains:'abcd'};
+      opts = {maxZoom:19, subdomains:'abcd', keepBuffer:8, updateWhenIdle:false, updateWhenZooming:false, updateInterval:1000};
     }
     if (tileLayer){ map.removeLayer(tileLayer); }
     tileLayer = L.tileLayer(url, opts).addTo(map);
+    // ---- Deep-clamp tile-layer mutation during the auto-follow tween.
+    //
+    // Symptoms we are fighting:
+    //   * Every setView call ends up in GridLayer._setView, which
+    //     reaches _updateLevels + _resetGrid + _update + _pruneTiles.
+    //     At 60 Hz, this is a continuous DOM churn that makes the tile
+    //     pane "blink".
+    //   * When the zoom crosses an integer boundary, _updateLevels
+    //     swaps the visible level container -- the old level is
+    //     hidden BEFORE the new one is fully ready, so the whole
+    //     layer briefly disappears.
+    //
+    // The fix: while the auto-follow tween is in flight (any time the
+    // window flag tileFreezeTillMs is in the future), the tile layer's
+    // _setView becomes a no-op that only re-applies the visual scale.
+    // Tiles stay in place (they're at the integer zoom that was active
+    // when the freeze started); they just stretch / compress via CSS
+    // to match the fractional zoom. Once the freeze releases, normal
+    // _setView resumes and tiles re-fetch at the right resolution.
+    var originalSetView = L.GridLayer.prototype._setView;
+    var originalPruneTiles = L.GridLayer.prototype._pruneTiles;
+    tileLayer._setView = function (center, zoom) {
+      // Always update the visual scale so the existing tiles slide
+      // with the map, even during the freeze.
+      this._setZoomTransforms(center, zoom);
+      if (window.tileFreezeTillMs && Date.now() < window.tileFreezeTillMs) return;
+      return originalSetView.apply(this, arguments);
+    };
+    // While the freeze is in effect, don't let _pruneTiles run -- the
+    // GridLayer otherwise removes the old-zoom tiles the moment the
+    // tile-zoom rounding changes, then waits for the new-zoom tiles to
+    // load. That gap was the visible "the layer disappears the whole
+    // movement" the rider reported. With pruning suspended, old tiles
+    // remain in the DOM (scaled by _setZoomTransforms) until the
+    // freeze releases, after which a single _setView call refetches
+    // properly.
+    tileLayer._pruneTiles = function () {
+      if (window.tileFreezeTillMs && Date.now() < window.tileFreezeTillMs) return;
+      return originalPruneTiles.apply(this, arguments);
+    };
+    // viewprereset still goes through Map._resetView; suppress the
+    // tile-DOM wipe entirely as before.
+    tileLayer._invalidateAll = function () {};
   };
   window.nativeSetMapType('DARK');
 
@@ -442,7 +717,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // rotate. Without 'rotate' here, the chevrons kept their pre-rotation
   // angle after each auto-follow tween step and looked tilted off the
   // route line.
-  map.on('zoomend moveend rotate', function(){
+  // Redraw arrows on every map view change. The arrow icons live in the
+  // no-rotate marker pane with screen-pixel positions baked in at draw
+  // time, so they need re-projecting on EVERY pan / zoom / rotate to
+  // stay glued to the route line. With the auto-follow tween calling
+  // setView at 60 Hz we listen to the per-frame `move` event too --
+  // without that, arrows drifted off the line during a slow pan.
+  map.on('move zoom rotate', function(){
     if (travelMode === 'STRAIGHT' && routeLine){
       var geom = routeLine.getLatLngs().map(function(ll){ return [ll.lat, ll.lng]; });
       drawArrows(geom, routeColorFor(travelMode));
@@ -512,12 +793,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
       markers.push(m);
     });
 
-    if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
-    clearArrows();
     if (geom.length >= 2){
       // A solved route — solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
       // 80% opaque so the path stands out without obscuring the basemap.
+      if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
+      clearArrows();
       clearConnector();
       var routeColor = routeColorFor(travelMode);
       routeLine = L.polyline(geom, {color: routeColor, weight: 6, opacity: 0.80}).addTo(map);
@@ -525,10 +806,23 @@ internal const val ROUTE_BUILDER_HTML: String = """
       // geometry there's no other directional cue.
       if (travelMode === 'STRAIGHT') drawArrows(geom, routeColor);
     } else if (markers.length >= 1){
-      // No geometry yet (routing in progress) — keep the dashed preview,
-      // which runs from the rider's position through the stops.
-      drawConnector();
+      // No geometry yet (routing in progress).
+      //
+      // The dashed preview-connector is reserved for the rider actively
+      // DRAGGING a stop -- the marker drag handlers (m.on('drag', ...)
+      // below) call drawConnector themselves. Everywhere ELSE -- mid-
+      // recompute, mid-navigation re-solve, even just-after-add-stop --
+      // we leave the previous solid routeLine in place and DON'T draw
+      // dashes, because the flicker between solid and dashed was
+      // distracting. The router request usually returns within a second
+      // and the solid line refreshes; if it fails the rider's existing
+      // line is still a reasonable approximation.
+      // Intentionally NOT calling drawConnector or clearing routeLine
+      // here -- routeLine + arrows + (no-op) connector stay as they
+      // were.
     } else {
+      if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
+      clearArrows();
       clearConnector();
     }
 
@@ -638,21 +932,18 @@ internal const val ROUTE_BUILDER_HTML: String = """
         iconAnchor: [headPx / 2, headPx / 2]
       });
     }
-    // Moving: full teardrop with the ROUND HEAD pointing in the direction
-    // of travel (head = front, tail = behind, matching how a rider thinks
-    // about "where I'm going"). The CSS rotates the .user-pin-body by -45°
+    // Moving: full teardrop with the SHARP TIP pointing in the direction
+    // of travel -- riders read the pointy end as the compass-needle
+    // forward direction, NOT the round head. (Putting the head forward
+    // looked correct to me as the designer but every rider tester said
+    // "the arrow's backwards".) The CSS rotates .user-pin-body by -45 deg
     // which puts the head at top / tail at bottom when the wrapper isn't
-    // rotated -- so a wrapper rotation of `userHeading` aligns the head
-    // with the heading on a north-up map.
-    //
-    // When the map is rotated (heading-up auto-follow or a manual twist),
-    // the marker sits in the no-rotate pane so its CSS rotation has to be
-    // (heading + bearing): on a north-up map (bearing = 0) this collapses
-    // to rot = userHeading; with heading-up (bearing = -heading) it
-    // collapses to rot = 0 so the head points at screen-top, which is
-    // exactly where the heading direction appears on the rotated map.
+    // rotated, so we add 180 deg here to bring the tail to the top, then
+    // add userHeading + bearing to point that tail at the heading
+    // direction on the rotated map (heading-up: bearing = -heading,
+    // collapses to rot = 180 with tail straight up).
     var bearing = (map && map.getBearing) ? map.getBearing() : 0;
-    var rot = userHeading + bearing;
+    var rot = userHeading + bearing + 180;
     return L.divIcon({
       className: '',
       html: '<div class="user-pin" style="width:' + headPx + 'px;height:' +
@@ -739,6 +1030,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // even if the WebView resized after the map was created.
     map.invalidateSize();
     map.setView(centerLatLngFor(lat, lng, zoom, bottomOffsetPx), zoom);
+    // Count programmatic recenters as a "manual interaction" so the
+    // auto-follow tween doesn't immediately yank the map back. The rider
+    // tapped recenter because they want to SEE this view; auto-follow
+    // resumes after the standard grace period.
+    lastManualRotateMs = Date.now();
   };
 
   // Pan (keeping the current zoom) so a point sits in the centre of the
@@ -746,6 +1042,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // caller can keep the target above the stops panel.
   window.nativeCenterOn = function(lat, lng, bottomOffsetPx){
     map.panTo(centerLatLngFor(lat, lng, map.getZoom(), bottomOffsetPx));
+    // Same grace-period reset as nativeRecenter -- without this, during
+    // an active navigation the auto-follow tween's next frame slides the
+    // map straight back to the rider, so tapping a stop's name in the
+    // list looked like it did nothing.
+    lastManualRotateMs = Date.now();
   };
 
   // The rider's theme accent — recolours the route line and connector.

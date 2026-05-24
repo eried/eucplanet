@@ -1004,6 +1004,8 @@
     <string name="nav_need_two">Add at least two stops to navigate.</string>
     <string name="nav_routing">Finding the route…</string>
     <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
+    <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
+    <string name="nav_search_no_results">No results for that address</string>
     <string name="nav_save_failed">Could not save the route</string>
     <string name="nav_route_saved">Route saved</string>
     <string name="nav_load_failed">Could not read that GPX file</string>

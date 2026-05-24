@@ -241,7 +241,14 @@ private fun StudioElementBox(
                 )
                 .then(
                     if (editable) Modifier.pointerInput(element.id) {
-                        detectTapGestures(onTap = { onSelect() })
+                        // Single tap selects the element (so the rider can
+                        // drag / resize it); double-tap opens the Properties
+                        // pane directly -- it's the "I want to edit THIS"
+                        // gesture, parallel to double-tap-to-zoom on photos.
+                        detectTapGestures(
+                            onTap = { onSelect() },
+                            onDoubleTap = { onConfigure() }
+                        )
                     } else Modifier
                 )
         ) {

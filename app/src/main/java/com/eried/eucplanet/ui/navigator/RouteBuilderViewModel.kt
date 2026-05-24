@@ -54,6 +54,8 @@ class RouteBuilderViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
+    private val incomingShareRepository:
+        com.eried.eucplanet.data.repository.IncomingShareRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -173,6 +175,18 @@ class RouteBuilderViewModel @Inject constructor(
         // WheelService owns the GPS lifecycle in general; this is an idempotent
         // nudge so location works even when no wheel is connected.
         tripRepository.startLocationUpdates()
+
+        // Consume any "Share to EUC Planet" hand-off pending from MainActivity.
+        // Runs on every Pending update so multiple shares in a session are all
+        // honoured. take() clears the slot atomically so we never process the
+        // same payload twice.
+        viewModelScope.launch {
+            incomingShareRepository.pending.collect { p ->
+                if (p == null) return@collect
+                val req = incomingShareRepository.take() ?: return@collect
+                handleIncomingShare(req)
+            }
+        }
         viewModelScope.launch {
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
@@ -264,6 +278,43 @@ class RouteBuilderViewModel @Inject constructor(
      */
     fun notifyTapOnSelf() {
         _messages.tryEmit(R.string.nav_tap_on_self)
+    }
+
+    /**
+     * Apply a "Share to EUC Planet" payload from MainActivity. Coordinates
+     * jump straight to addWaypoint with a fit-to-bounds; a search query
+     * is geocoded against the rider's current location and the first hit
+     * is added. While guidance is already running we refuse the add and
+     * surface a snackbar -- editing the route mid-trip would also need
+     * us to interrupt the engine to re-solve, which is hostile.
+     */
+    private fun handleIncomingShare(
+        req: com.eried.eucplanet.data.repository.IncomingShareRepository.Pending
+    ) {
+        if (navigationEngine.isActive) {
+            _messages.tryEmit(R.string.nav_cant_add_while_running)
+            return
+        }
+        val lat = req.lat
+        val lng = req.lng
+        if (lat != null && lng != null) {
+            addWaypoint(lat, lng, name = req.label.orEmpty(), fit = true)
+            return
+        }
+        val q = req.query
+        if (q.isNullOrBlank()) return
+        viewModelScope.launch {
+            val origin = currentLocation.value?.let {
+                GeoPoint(it.latitude, it.longitude)
+            }
+            val results = routingService.geocode(q, geocoderUrl, origin)
+            val first = results.firstOrNull()
+            if (first != null) {
+                addWaypoint(first.lat, first.lng, name = first.name, fit = true)
+            } else {
+                _messages.tryEmit(R.string.nav_search_no_results)
+            }
+        }
     }
 
     fun addWaypoint(lat: Double, lng: Double, name: String = "", fit: Boolean = false) {

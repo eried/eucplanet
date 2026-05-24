@@ -65,6 +65,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.filled.Opacity
@@ -292,7 +293,10 @@ fun StudioToolsFlyout(
                 }
                 HorizontalDivider(Modifier.padding(vertical = 4.dp))
                 FlyoutSection(stringResource(R.string.studio_flyout_section_elements))
-                FlyoutItem(Icons.Default.Layers, stringResource(R.string.studio_flyout_manage), enabled = hasElements) {
+                // Manage elements stays enabled even with no elements --
+                // the sheet now also hosts the Add button, so it's a valid
+                // entry point for building a layout from scratch.
+                FlyoutItem(Icons.Default.Layers, stringResource(R.string.studio_flyout_manage)) {
                     onDismiss(); onManageElements()
                 }
                 FlyoutItem(
@@ -2203,9 +2207,13 @@ private fun OverlayElement.summary(): String = when (type) {
 @Composable
 fun ManageElementsSheet(
     elements: List<OverlayElement>,
+    canAddElement: Boolean,
+    canChangePanes: Boolean,
     onMove: (Int, Int) -> Unit,
     onSelect: (String) -> Unit,
     onDelete: (String) -> Unit,
+    onAddElement: () -> Unit,
+    onChangePanes: () -> Unit,
     dimmed: Boolean,
     onToggleDim: () -> Unit,
     onDismiss: () -> Unit
@@ -2218,20 +2226,33 @@ fun ManageElementsSheet(
                 .verticalScroll(rememberScrollState())
         ) {
             SheetHeader(stringResource(R.string.studio_manage_title))
-            if (elements.isEmpty()) {
-                Text(
-                    stringResource(R.string.studio_manage_empty),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-            } else {
-                Text(
-                    stringResource(R.string.studio_manage_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+            // Compact action buttons under the title. Both mirror the
+            // matching entries in the tools flyout (same icon, same label
+            // string) so the actions read as identical regardless of where
+            // the rider invokes them. Sized to their content so the row
+            // doesn't look top-heavy.
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 4.dp, bottom = 10.dp)
+            ) {
+                FilledTonalButton(
+                    onClick = onAddElement,
+                    enabled = canAddElement
+                ) {
+                    Icon(Icons.Default.Widgets, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.studio_flyout_add))
+                }
+                FilledTonalButton(
+                    onClick = onChangePanes,
+                    enabled = canChangePanes
+                ) {
+                    Icon(Icons.Default.Dashboard, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.studio_flyout_panes))
+                }
+            }
+            if (elements.isNotEmpty()) {
                 ReorderableColumn(
                     list = elements,
                     onSettle = { from, to -> onMove(from, to) },

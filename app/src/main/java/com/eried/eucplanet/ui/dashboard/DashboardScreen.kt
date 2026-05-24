@@ -1147,6 +1147,12 @@ fun DashboardScreen(
                         shape = RoundedCornerShape(20.dp),
                         color = MaterialTheme.colorScheme.surface
                     ) {
+                      // Debug builds get a big translucent "DEBUG" stamped
+                      // over the About dialog so the rider can tell at a
+                      // glance whether they're on a debug APK (signed with
+                      // the debug key, no Play store) vs the release one.
+                      // Drawn last so it floats above every tab's content.
+                      Box(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.padding(20.dp)) {
                             Box(
                                 modifier = Modifier
@@ -1541,6 +1547,21 @@ fun DashboardScreen(
                                 }
                             }
                         }
+                        if (com.eried.eucplanet.BuildConfig.DEBUG) {
+                            // "DEV" stamped giant over the About panel for
+                            // debug builds -- shorter than "DEBUG" so we can
+                            // make it BIGGER without wrapping on a phone-
+                            // width dialog. 40 % alpha so it doesn't obscure
+                            // the text underneath.
+                            Text(
+                                "DEV",
+                                fontSize = 180.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.Red.copy(alpha = 0.40f),
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                      }  // Box (debug-overlay wrapper)
                     }
                     crashMenuFor?.let { target ->
                         androidx.compose.material3.AlertDialog(

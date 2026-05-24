@@ -41,6 +41,8 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
+    @Inject lateinit var incomingShareRepository:
+        com.eried.eucplanet.data.repository.IncomingShareRepository
 
     private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -118,9 +120,40 @@ class MainActivity : AppCompatActivity() {
      */
     private var permissionsAsked = false
 
+    /**
+     * Reads an Android Share / VIEW intent for an address or geo: URI,
+     * parses it via [IncomingShareRepository.parse], and stashes the
+     * result for the Navigator to pick up. Returns true if anything
+     * usable was found, so onCreate / onNewIntent can decide whether to
+     * route to the Builder.
+     */
+    private fun consumeShareIntent(intent: Intent?): Boolean {
+        intent ?: return false
+        val raw = when (intent.action) {
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            Intent.ACTION_VIEW -> intent.data?.toString()
+            else -> null
+        }?.trim().orEmpty()
+        if (raw.isEmpty()) return false
+        val parsed = com.eried.eucplanet.data.repository
+            .IncomingShareRepository.parse(raw) ?: return false
+        incomingShareRepository.offer(parsed)
+        return true
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // The launchMode is "standard"; a second SEND will start a new
+        // task. This onNewIntent handles the case where Android delivers
+        // the intent to an already-running instance instead (singleTop
+        // semantics, which we get when the rider just shared again).
+        consumeShareIntent(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        consumeShareIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
         // permission dialogs come up over a black activity — the rider thinks
@@ -214,6 +247,22 @@ class MainActivity : AppCompatActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    // When a Share-to-app intent dropped a pending stop into
+                    // the repository (see consumeShareIntent), jump straight
+                    // to the route builder. The Builder's own LaunchedEffect
+                    // then consumes the request and either drops the pin or
+                    // surfaces a snackbar.
+                    val pendingShare by incomingShareRepository.pending
+                        .collectAsState()
+                    androidx.compose.runtime.LaunchedEffect(pendingShare) {
+                        if (pendingShare != null) {
+                            runCatching {
+                                navController.navigate("route_builder") {
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    }
                     // The navigation popup floats above the whole nav graph so
                     // turn cues stay visible on any screen while guiding.
                     Box(modifier = Modifier.fillMaxSize()) {

@@ -340,17 +340,16 @@ fun OverlayStudioScreen(
         requestedKeys = requestedCameras,
         enabled = cameraNeeded && hasCameraPermission
     )
-    // While a full-screen config sheet is on top, the camera viewports behind it
-    // are invisible — keep the cameras' capture session open (instant return)
-    // but skip the YUV→Bitmap fan-out. With two cameras this saves ~1.2 cores
-    // of frame conversion and the bitmap allocation churn that was tipping the
-    // editor into "Suspending all threads" GC storms when sliders were dragged.
-    // Keyed on `hub` too so a hub recreated by a camera re-bind inherits the
-    // current pause state.
-    LaunchedEffect(sheet, hub) {
-        val pause = sheet !is StudioSheet.None
-        hub.convertPaused = pause
-        android.util.Log.i("StudioCam", "convertPaused=$pause sheet=$sheet")
+    // Camera conversion is never paused: a paused feed shows the rider the
+    // LAST converted frame frozen behind the translucent scrim, which reads
+    // as "the dialog is a screenshot, the app is broken". Recording also
+    // keeps capturing live frames regardless, so a frozen preview misleads
+    // about what's actually being recorded. The GC pressure that motivated
+    // the original pause needs to be addressed at its source (reusing
+    // Bitmaps in the YUV→Bitmap fan-out, throttling slider recomposition)
+    // rather than by hiding the feed.
+    LaunchedEffect(hub) {
+        hub.convertPaused = false
     }
 
     // --- Permissions -------------------------------------------------------
@@ -795,12 +794,26 @@ fun OverlayStudioScreen(
 
     // Track physical rotation so the control icons can counter-rotate (the
     // layout itself never rotates — that would scramble the viewport panes).
+    //
+    // The naive `((orientation + 45) / 90) * 90` snap flipped on the 45 deg
+    // line, so a phone tilted just past portrait-into-landscape would
+    // bounce the rotation back and forth as the rider's grip drifted by a
+    // degree or two. We now require the orientation to land >65 deg away
+    // from the CURRENT rotation before flipping -- a 20 deg hysteresis
+    // band on either side of each 45 deg quadrant edge. The rider has to
+    // actually rotate the phone, not just hold it slightly off-axis.
     DisposableEffect(Unit) {
         val listener = object : OrientationEventListener(context) {
             override fun onOrientationChanged(orientation: Int) {
                 if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) return
-                val snapped = (((orientation + 45) / 90) * 90) % 360
-                if (snapped != deviceRotation) deviceRotation = snapped
+                val candidate = (((orientation + 45) / 90) * 90) % 360
+                if (candidate == deviceRotation) return
+                // Shortest signed angular distance from `orientation` to
+                // `deviceRotation`, in (-180, 180].
+                val diff = ((orientation - deviceRotation + 540) % 360) - 180
+                if (kotlin.math.abs(diff) > 65) {
+                    deviceRotation = candidate
+                }
             }
         }
         if (listener.canDetectOrientation()) listener.enable()
@@ -868,7 +881,13 @@ fun OverlayStudioScreen(
                     onTapEmpty = { viewModel.selectElement(null) },
                     onDoubleTapEmpty = {
                         if (canAddElement) sheet = StudioSheet.AddElement
-                    }
+                    },
+                    // Long-press on empty canvas is now a shortcut to the
+                    // Manage Elements sheet (parallel to long-pressing the
+                    // "..." button at the top). The Add button lives inside
+                    // that sheet too, so the rider has a one-gesture entry
+                    // to building / editing the layout from anywhere.
+                    onLongPressEmpty = { sheet = StudioSheet.ManageElements }
                 )
                 StudioElementLayer(
                     // While an opaque export is in progress, force every element
@@ -1022,12 +1041,19 @@ fun OverlayStudioScreen(
                         background = Color(0xCC1E1E26),
                         size = 48.dp,
                         iconRotation = iconRot,
-                        onLongClick = {
-                            if (canAddElement) sheet = StudioSheet.AddElement
-                        },
+                        // Long-press is the shortcut to the Manage Elements
+                        // sheet (which also has its own Add button, so it
+                        // covers every element action). Double-tap toggles
+                        // Replay <-> Live -- the rider's other-most-common
+                        // mode flip, and it has no slider sheet to clash
+                        // with.
+                        onLongClick = { sheet = StudioSheet.ManageElements },
                         onDoubleClick = {
-                            if (preset.elements.isNotEmpty()) {
-                                sheet = StudioSheet.ManageElements
+                            if (replayMode) {
+                                studioMode = StudioMode.LIVE
+                                replayPlaying = false
+                            } else {
+                                studioMode = StudioMode.REPLAY
                             }
                         }
                     ) { menuOpen = true }
@@ -1227,12 +1253,19 @@ fun OverlayStudioScreen(
         StudioSheet.None -> {}
         StudioSheet.ManageElements -> ManageElementsSheet(
             elements = preset.elements,
+            canAddElement = canAddElement,
+            // Panes button mirrors the tools-flyout's "Panes" entry: layout
+            // change is hidden during a replay (the background is the trip's
+            // checkerboard, so picking camera panes there is moot).
+            canChangePanes = !replayMode,
             onMove = { from, to -> viewModel.moveElement(from, to) },
             onSelect = { id ->
                 viewModel.selectElement(id)
                 sheet = StudioSheet.None
             },
             onDelete = { viewModel.removeElement(it) },
+            onAddElement = { sheet = StudioSheet.AddElement },
+            onChangePanes = { sheet = StudioSheet.LayoutPicker },
             dimmed = panelsDimmed,
             onToggleDim = { panelsDimmed = !panelsDimmed },
             onDismiss = { sheet = StudioSheet.None }

@@ -142,6 +142,7 @@ fun StudioViewportLayer(
     onConfigDivider: () -> Unit,
     onTapEmpty: () -> Unit,
     onDoubleTapEmpty: () -> Unit,
+    onLongPressEmpty: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (replayMode) {
@@ -168,7 +169,8 @@ fun StudioViewportLayer(
                         if (editable) Modifier.pointerInput(index) {
                             detectTapGestures(
                                 onTap = { onTapEmpty() },
-                                onDoubleTap = { onDoubleTapEmpty() }
+                                onDoubleTap = { onDoubleTapEmpty() },
+                                onLongPress = { onLongPressEmpty() }
                             )
                         } else Modifier
                     )

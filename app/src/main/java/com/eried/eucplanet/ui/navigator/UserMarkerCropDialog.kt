@@ -115,11 +115,17 @@ fun UserMarkerCropDialog(
     var offsetY by remember { mutableFloatStateOf(0f) }
 
     // Clamp pan so the image's smaller edge never enters the crop circle.
+    // When the photo is at minScale it just exactly covers the circle, so
+    // (halfW - circleRadiusPx) is mathematically 0 but float precision can
+    // make it infinitesimally negative -- which then turns coerceIn into
+    // coerceIn(+1e-5, -1e-5) and throws IllegalArgumentException, killing
+    // the gesture coroutine mid-drag and freezing the dialog. Floor each
+    // limit to 0 so the range is always valid.
     fun clampPan() {
         val halfW = displayBaseW * scale / 2f
         val halfH = displayBaseH * scale / 2f
-        val limX = halfW - circleRadiusPx
-        val limY = halfH - circleRadiusPx
+        val limX = (halfW - circleRadiusPx).coerceAtLeast(0f)
+        val limY = (halfH - circleRadiusPx).coerceAtLeast(0f)
         offsetX = offsetX.coerceIn(-limX, limX)
         offsetY = offsetY.coerceIn(-limY, limY)
     }

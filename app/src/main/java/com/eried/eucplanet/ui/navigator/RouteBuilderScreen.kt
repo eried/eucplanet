@@ -595,6 +595,15 @@ fun RouteBuilderScreen(
         // symptom: a 66 dp shift becomes 198 device-px on screen).
         val recenterOffsetPx =
             (effectivePanelPx - effectiveTopBarPx) / 2f / density.density
+        // Push the recenter offset to JS whenever it changes -- the
+        // auto-follow pan tween (only active during navigation) uses it
+        // to keep the rider centred in the visible map area as the map
+        // glides under them.
+        LaunchedEffect(pageReady, recenterOffsetPx) {
+            val wv = webView ?: return@LaunchedEffect
+            if (!pageReady) return@LaunchedEffect
+            wv.evaluateJavascript("nativeSetRecenterOffset($recenterOffsetPx);", null)
+        }
         // The map fills the WHOLE screen, including the strip behind the
         // top bar -- the bar is now 80 % translucent so the map shows
         // through it. We still apply the BOTTOM padding so the bottom
@@ -1206,12 +1215,37 @@ private fun BottomPanel(
                 // Compact start / stop. Hidden when expanded (the big button
                 // at the bottom of the expanded panel does the same job) and
                 // when there is nothing to start (no waypoints, no fix yet).
-                // Uses the SAME filled-Button style as the big one in the
-                // expanded panel so both Start / Stop controls look like
-                // the same action -- a translucent / black-looking
-                // TextButton next to a coloured filled Button was reading
-                // as two different things.
-                if (!expanded && (navRunning || canStartNavigation)) {
+                //
+                // Animation rule:
+                //   * Expanding -- the compact button vanishes INSTANTLY
+                //     (zero-duration exit), so the panel grows into the
+                //     space cleanly without the button overlapping the
+                //     animation.
+                //   * Collapsing -- we wait the full AnimatedVisibility
+                //     duration of the panel before fading the button IN,
+                //     so it doesn't appear mid-animation while the panel
+                //     body is still shrinking past it.
+                val canShowCompact = navRunning || canStartNavigation
+                var compactArmed by remember { mutableStateOf(!expanded) }
+                LaunchedEffect(expanded) {
+                    if (expanded) {
+                        compactArmed = false
+                    } else {
+                        // Match the panel collapse animation (~300 ms
+                        // default for shrinkVertically + fadeOut) with a
+                        // tiny buffer so the button starts fading in
+                        // right as the panel settles.
+                        kotlinx.coroutines.delay(320)
+                        compactArmed = true
+                    }
+                }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = canShowCompact && compactArmed,
+                    enter = androidx.compose.animation.fadeIn(),
+                    exit = androidx.compose.animation.fadeOut(
+                        animationSpec = androidx.compose.animation.core.tween(0)
+                    )
+                ) {
                     val label = stringResource(
                         if (navRunning) R.string.nav_stop_short
                         else R.string.nav_start_short
