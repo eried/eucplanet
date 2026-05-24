@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -312,37 +315,54 @@ private fun StudioElementBox(
                         val shadowRad =
                             Math.toRadians(element.shadowAngle.toDouble())
                         val shadowTint = Color(element.shadowColor)
+                        // Previous implementation rendered the content into a
+                        // separate offscreen graphicsLayer at an offset. Each
+                        // Compose Text composition re-laid out glyphs from
+                        // scratch, and the layouts subtly disagreed on sub-
+                        // pixel kerning ("EUC" looked aligned with its shadow
+                        // but "Planet" drifted further from its shadow at the
+                        // far end of the word). To get the shadow pixel-
+                        // identical to the foreground we render the content
+                        // ONCE into a GraphicsLayer at the parent's position,
+                        // then draw that same layer twice -- first with an
+                        // offset + tint as the shadow, then unmodified as the
+                        // foreground. No second text layout pass, so any
+                        // letter that aligns aligns identically.
+                        val layer = rememberGraphicsLayer()
                         Box(
                             Modifier
                                 .matchParentSize()
-                                .graphicsLayer {
-                                    val dist = element.shadowDistance.dp.toPx()
-                                    translationX =
-                                        dist * kotlin.math.cos(shadowRad).toFloat()
-                                    translationY =
-                                        dist * kotlin.math.sin(shadowRad).toFloat()
-                                    alpha = element.shadowStrength.coerceIn(0f, 1f)
-                                    compositingStrategy = CompositingStrategy.Offscreen
-                                }
-                                // 2 dp blur masks the sub-pixel glyph-snapping
-                                // difference between the on-screen text path
-                                // and this offscreen layer — without it the
-                                // silhouette looks like it was rendered in a
-                                // slightly different font when the background
-                                // is transparent and the text edge is the only
-                                // visible part of the shadow. Also makes the
-                                // shadow read as a proper soft drop shadow.
-                                .blur(2.dp)
                                 .drawWithContent {
-                                    drawContent()
-                                    drawRect(
-                                        color = shadowTint,
-                                        blendMode = BlendMode.SrcAtop
-                                    )
+                                    layer.record { this@drawWithContent.drawContent() }
+                                    val dist = element.shadowDistance.dp.toPx()
+                                    val dx = dist * kotlin.math.cos(shadowRad).toFloat()
+                                    val dy = dist * kotlin.math.sin(shadowRad).toFloat()
+                                    val str = element.shadowStrength.coerceIn(0f, 1f)
+                                    // Shadow pass: translate + tint the
+                                    // already-recorded pixels. SrcAtop keeps
+                                    // the tint inside the content silhouette
+                                    // (otherwise the whole bounding rect
+                                    // would become the shadow colour).
+                                    layer.alpha = str
+                                    layer.colorFilter =
+                                        androidx.compose.ui.graphics.ColorFilter.tint(
+                                            shadowTint,
+                                            androidx.compose.ui.graphics.BlendMode.SrcAtop
+                                        )
+                                    translate(dx, dy) { drawLayer(layer) }
+                                    // Foreground pass: restore neutral state
+                                    // and draw the SAME recorded pixels.
+                                    layer.colorFilter = null
+                                    layer.alpha = 1f
+                                    drawLayer(layer)
                                 }
                         ) { content() }
+                    } else {
+                        // No shadow -- single, plain content render. (The
+                        // shadow branch above already emits content via its
+                        // own recorded layer; we don't want both.)
+                        content()
                     }
-                    content()
                 }
 
                 if (selected) {
