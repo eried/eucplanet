@@ -273,6 +273,12 @@ class RouteBuilderViewModel @Inject constructor(
                 arrivalProcessed = true
                 val current = _waypoints.value
                 val nextIdx = current.indexOfFirst { !it.passed }
+                android.util.Log.i(
+                    "RouteBuilderVM",
+                    "ARRIVE-COLLECT active=true arrived=true " +
+                        "wpCount=${current.size} nextNonPassedIdx=$nextIdx " +
+                        "passedFlags=${current.map { it.passed }}"
+                )
                 if (nextIdx < 0) return@collect
                 val updated = current.toMutableList().apply {
                     this[nextIdx] = this[nextIdx].copy(passed = true)

@@ -449,7 +449,20 @@ class NavigationEngine @Inject constructor(
 
         val hit = GeoMath.nearestOnPolyline(point, route.geometry) ?: return
         val distToEnd = (route.totalDistanceM - hit.alongM).coerceAtLeast(0.0)
-        val finalRadius = route.waypoints.lastOrNull()?.radiusM ?: arrivalRadiusM
+        val finalRadiusFromWp = route.waypoints.lastOrNull()?.radiusM
+        val finalRadius = finalRadiusFromWp ?: arrivalRadiusM
+        Log.i(
+            TAG,
+            "ARRIVE-CHECK distToEnd=${"%.1f".format(distToEnd)}m " +
+                "directToEnd=${
+                    "%.1f".format(
+                        route.waypoints.lastOrNull()
+                            ?.let { GeoMath.distanceM(point, it.point()) } ?: -1.0
+                    )
+                }m radius=${finalRadius.toInt()}m " +
+                "(wpRadius=${finalRadiusFromWp?.toInt() ?: "null"} default=${arrivalRadiusM.toInt()}) " +
+                "arrivalHandled=$arrivalHandled wpCount=${route.waypoints.size}"
+        )
         Log.i(
             TAG,
             "TBT offBy=${"%.0f".format(hit.distanceM)}m along=${"%.0f".format(hit.alongM)}" +
