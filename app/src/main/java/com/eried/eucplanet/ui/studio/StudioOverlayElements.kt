@@ -209,12 +209,14 @@ private fun StudioElementBox(
     onChange: (OverlayElement) -> Unit,
     content: @Composable () -> Unit
 ) {
-    // 5 dp grid in canvas-fraction units. Used by both the drag and the
+    // 10 dp grid in canvas-fraction units. Used by both the drag and the
     // resize handlers when snapToGrid is on, so all four numbers (x, y,
-    // width, height) land on the same 5 dp lattice everywhere. Density-aware
-    // so the grid feels the same on phones and tablets (raw pixels would be
-    // sub-dp on a high-density screen and snap to nothing visible).
-    val gridStepPx = with(LocalDensity.current) { 5.dp.toPx() }
+    // width, height) land on the same 10 dp lattice everywhere. Density-
+    // aware so the grid feels the same on phones and tablets (raw pixels
+    // would be sub-dp on a high-density screen and snap to nothing
+    // visible). 10 dp is coarse enough that the snap is immediately
+    // obvious on drag without preventing fine positioning.
+    val gridStepPx = with(LocalDensity.current) { 10.dp.toPx() }
     val gridX = gridStepPx / widthPx
     val gridY = gridStepPx / heightPx
     fun snapFx(v: Float, step: Float) = if (snapToGrid) (kotlin.math.round(v / step) * step) else v

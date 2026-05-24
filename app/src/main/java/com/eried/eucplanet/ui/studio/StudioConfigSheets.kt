@@ -2293,15 +2293,6 @@ fun ManageElementsSheet(
                     Text(stringResource(R.string.studio_flyout_panes))
                 }
             }
-            // Snap-to-grid toggle. When ON, all subsequent drag / resize
-            // operations round to a 5 dp grid. Already-placed elements
-            // that the rider hasn't touched keep their exact coords --
-            // re-toggling OFF doesn't revert; this is a "future moves
-            // snap" mode, not a "snap everything everywhere" command.
-            // Mirrored at the bottom of the sheet so a rider scrolled to
-            // the end of a long element list can still reach the toggle
-            // without scrolling back up.
-            SnapToGridRow(snapToGrid, onSnapToGrid)
             if (elements.isNotEmpty()) {
                 ReorderableColumn(
                     list = elements,
@@ -2318,11 +2309,13 @@ fun ManageElementsSheet(
                         )
                     }
                 }
-                // The bottom copy: only meaningful when there's a list
-                // long enough to scroll past — with zero elements the top
-                // toggle is already at the bottom.
-                SnapToGridRow(snapToGrid, onSnapToGrid)
             }
+            // Snap-to-grid lives at the bottom so it stays adjacent to the
+            // element list — the action it affects — instead of competing
+            // with Add / Panes at the top of the sheet. When ON, drag &
+            // resize round to a 5 dp grid; untouched elements stay at
+            // their exact saved coords (re-toggling OFF restores them).
+            SnapToGridRow(snapToGrid, onSnapToGrid)
         }
     }
 }
@@ -2353,7 +2346,7 @@ private fun ManageElementRow(
     // Show the same coordinates the canvas is drawing: while snap-to-grid is
     // ON, both render and list reflect the snapped values; toggling OFF
     // restores the un-snapped originals so the user sees the round-trip.
-    val gridStepPx = with(LocalDensity.current) { 5.dp.toPx() }
+    val gridStepPx = with(LocalDensity.current) { 10.dp.toPx() }
     // 1280 px / 2856 px is a reasonable "typical phone canvas" denominator for
     // labelling -- the saved values are fractional so the exact canvas size
     // doesn't change WHICH lattice value snaps where, only the granularity of
@@ -2390,9 +2383,18 @@ private fun ManageElementRow(
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(element.summary(), fontWeight = FontWeight.Medium, maxLines = 1)
+            // All positions and sizes are stored as fractions of the canvas,
+            // so the layout scales between portrait / landscape and any
+            // canvas size. We surface the same percentages here.
+            // Height is shown only when the rider has explicitly stretched
+            // the element vertically; an h of 0 means "use natural aspect".
+            val hPct = if (element.height > 0f)
+                "${snapPct(element.height, refH)}%" else "auto"
             Text(
                 "x ${snapPct(element.x, refW)}%   " +
-                    "y ${snapPct(element.y, refH)}%",
+                    "y ${snapPct(element.y, refH)}%   " +
+                    "w ${snapPct(element.width, refW)}%   " +
+                    "h $hPct",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
