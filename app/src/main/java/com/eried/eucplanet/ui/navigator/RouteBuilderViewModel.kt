@@ -285,6 +285,22 @@ class RouteBuilderViewModel @Inject constructor(
                 }
                 _waypoints.value = updated
                 bumpRender(fit = false)
+                // Mirror the new passed flags to the on-disk saved route so a
+                // VM re-creation (rider leaves and re-enters the navigator
+                // tab) doesn't blow them away when init re-reads the JSON.
+                viewModelScope.launch {
+                    runCatching {
+                        val current = _route.value ?: return@runCatching
+                        val s = settingsRepository.get()
+                        settingsRepository.update(
+                            s.copy(
+                                navCurrentRouteJson =
+                                    current.copy(waypoints = updated).toJson().toString(),
+                                navCurrentRouteSavedAt = System.currentTimeMillis()
+                            )
+                        )
+                    }
+                }
                 val nextNonPassed = updated.firstOrNull { !it.passed }
                 if (nextNonPassed == null) return@collect
                 val originLoc = currentLocation.value ?: return@collect

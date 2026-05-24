@@ -110,6 +110,7 @@ data class NavRoute(
             waypoints.forEach { w ->
                 arr.put(JSONObject().apply {
                     put("lat", w.lat); put("lng", w.lng); put("name", w.name)
+                    if (w.passed) put("passed", true)
                 })
             }
         })
@@ -140,7 +141,12 @@ data class NavRoute(
             val waypoints = j.optJSONArray("waypoints")?.let { arr ->
                 (0 until arr.length()).map { i ->
                     val o = arr.getJSONObject(i)
-                    Waypoint(o.getDouble("lat"), o.getDouble("lng"), o.optString("name"))
+                    Waypoint(
+                        lat = o.getDouble("lat"),
+                        lng = o.getDouble("lng"),
+                        name = o.optString("name"),
+                        passed = o.optBoolean("passed", false)
+                    )
                 }
             } ?: emptyList()
             val geomArr = j.optJSONArray("geometry") ?: JSONArray()
