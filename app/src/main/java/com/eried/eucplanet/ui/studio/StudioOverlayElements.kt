@@ -350,61 +350,41 @@ private fun StudioElementBox(
                     // GPU, no per-frame pixel work; small elements make it
                     // effectively free.
                     if (element.shadow) {
-                        // Record the content once into a GraphicsLayer, then
-                        // draw that recorded layer twice: tinted+offset for
-                        // the shadow, then unmodified for the foreground.
-                        // Rendering from the SAME recorded pixels guarantees
-                        // the shadow tracks every glyph identically at every
-                        // badge size -- the previous two-pass approach
-                        // re-composed content() twice, so multi-line text
-                        // (EUC vs Planet) picked up sub-pixel kerning drift
-                        // that grew worse on resize.
-                        //
-                        // The size = size.toIntSize() in record() is the
-                        // critical bit: without an explicit size the layer
-                        // stays 0x0 and drawLayer paints nothing, which is
-                        // what made an earlier attempt invisible.
+                        // GPU-cheap shadow: render the content() twice, once
+                        // into an offscreen compositing layer that is
+                        // translated and tinted to be the shadow, then
+                        // normally on top as the foreground. The shadow Box
+                        // uses matchParentSize so it sizes to whatever the
+                        // foreground content's natural bounds turn out to be
+                        // (the Box parent's size is determined by the
+                        // foreground render below).
                         val shadowRad =
                             Math.toRadians(element.shadowAngle.toDouble())
                         val shadowTint = Color(element.shadowColor)
-                        val layer = rememberGraphicsLayer()
                         Box(
                             Modifier
                                 .matchParentSize()
-                                .drawWithContent {
-                                    layer.record(
-                                        size = androidx.compose.ui.unit.IntSize(
-                                            size.width.toInt().coerceAtLeast(1),
-                                            size.height.toInt().coerceAtLeast(1)
-                                        )
-                                    ) {
-                                        this@drawWithContent.drawContent()
-                                    }
+                                .graphicsLayer {
                                     val dist = element.shadowDistance.dp.toPx()
-                                    val dx =
+                                    translationX =
                                         dist * kotlin.math.cos(shadowRad).toFloat()
-                                    val dy =
+                                    translationY =
                                         dist * kotlin.math.sin(shadowRad).toFloat()
-                                    val str = element.shadowStrength.coerceIn(0f, 1f)
-                                    // Shadow pass: tint the layer pixels
-                                    // (SrcAtop keeps the colour inside the
-                                    // content silhouette), translate, draw.
-                                    layer.alpha = str
-                                    layer.colorFilter =
-                                        androidx.compose.ui.graphics.ColorFilter.tint(
-                                            shadowTint,
-                                            androidx.compose.ui.graphics.BlendMode.SrcAtop
-                                        )
-                                    translate(dx, dy) { drawLayer(layer) }
-                                    // Foreground pass: same pixels, no tint.
-                                    layer.colorFilter = null
-                                    layer.alpha = 1f
-                                    drawLayer(layer)
+                                    alpha = element.shadowStrength.coerceIn(0f, 1f)
+                                    compositingStrategy =
+                                        CompositingStrategy.Offscreen
+                                }
+                                .blur(2.dp)
+                                .drawWithContent {
+                                    drawContent()
+                                    drawRect(
+                                        color = shadowTint,
+                                        blendMode = BlendMode.SrcAtop
+                                    )
                                 }
                         ) { content() }
-                    } else {
-                        content()
                     }
+                    content()
                 }
 
                 if (selected) {
@@ -1187,8 +1167,16 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val bg = Color(element.background)
     val isSemi = element.dialStyle == "SEMICIRCLE"
     // Aspect is HARD-LOCKED, see comment in StudioElementBox: the dial's
-    // geometry only makes sense at 1:1 (full ring) or 2:1 (semicircle).
-    val aspect = if (isSemi) 2f else 1f
+    // geometry only makes sense at 1:1 (full ring) or ~1.82:1 (semicircle).
+    // The semicircle box is intentionally a touch TALLER than a pure 2:1
+    // dome -- a small rounded-bottom strip below the diameter hides the
+    // round-cap overshoot at the progress arc's endpoints and gives the
+    // widget a finished silhouette instead of a hard-cut flat bottom.
+    // 0.58 = (dome radius w/2) + (strip 8% of width) divided by w. The
+    // strip is generous enough to fully enclose the progress-arc round
+    // caps and give the dial a substantial flat bottom that doesn't read
+    // as a hairline.
+    val aspect = if (isSemi) (1f / 0.58f) else 1f
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
@@ -1197,39 +1185,61 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     ) {
         val w = maxWidth.value
         // Background + progress arc share one Canvas so the geometry stays in
-        // perfect lockstep at every size. For SEMICIRCLE we draw a true
-        // half-disc (flat diameter on the bottom, perfect 180 deg dome on
-        // top) -- not a rounded-corner rect, which the previous version did
-        // and which looked like an "elongated pill". For FULL we keep a
-        // standard 270 deg sweep on a circle inscribed in the square box.
+        // perfect lockstep at every size.
         androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
             val pad = 12.dp.toPx()
             if (isSemi) {
-                // Box w x h with h = w/2. The semicircle outline is the top
-                // half of a circle of radius = h, centred at (w/2, h).
-                val r = size.height
-                val cx = size.width / 2f
-                val cy = size.height
-                // Bounding rect of the FULL circle that produces this arc.
-                val bgRect = androidx.compose.ui.geometry.Rect(
-                    cx - r, cy - r, cx + r, cy + r
-                )
+                // Dome (top half of a circle radius = w/2 centred at
+                // (w/2, w/2)) plus a strip below it that fills the remaining
+                // height with rounded bottom corners. Strip height = total
+                // height - dome radius.
+                val w = size.width
+                val h = size.height
+                val r = w / 2f
+                val cx = w / 2f
+                val domeBottom = r
+                val stripH = (h - r).coerceAtLeast(0f)
+                val cornerR = stripH.coerceAtMost(12.dp.toPx())
                 val bgPath = androidx.compose.ui.graphics.Path().apply {
-                    moveTo(bgRect.left, cy)
+                    // Traverse clockwise: start at left end of diameter,
+                    // up over the dome, down the right strip, round the
+                    // bottom-right, across, round the bottom-left, back up
+                    // to the start.
+                    moveTo(0f, domeBottom)
                     arcTo(
-                        rect = bgRect,
+                        rect = androidx.compose.ui.geometry.Rect(0f, 0f, w, w),
                         startAngleDegrees = 180f,
                         sweepAngleDegrees = 180f,
                         forceMoveTo = false
                     )
-                    lineTo(bgRect.right, cy)
+                    lineTo(w, h - cornerR)
+                    arcTo(
+                        rect = androidx.compose.ui.geometry.Rect(
+                            w - 2f * cornerR, h - 2f * cornerR, w, h
+                        ),
+                        startAngleDegrees = 0f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+                    lineTo(cornerR, h)
+                    arcTo(
+                        rect = androidx.compose.ui.geometry.Rect(
+                            0f, h - 2f * cornerR, 2f * cornerR, h
+                        ),
+                        startAngleDegrees = 90f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
                     close()
                 }
                 drawPath(bgPath, color = bg)
-                // Progress arc -- a stroked half-circle aligned so its
-                // diameter sits on the flat bottom of the dial.
+                // Progress arc -- a stroked half-circle whose diameter sits
+                // exactly on the dome's flat edge (the meeting line with
+                // the bottom strip). The strip below absorbs any round-cap
+                // overshoot.
                 val strokeW = (r * 0.18f).coerceAtMost(r * 0.5f)
                 val progR = r - pad - strokeW / 2f
+                val cy = domeBottom
                 val progRect = androidx.compose.ui.geometry.Rect(
                     cx - progR, cy - progR, cx + progR, cy + progR
                 )
@@ -1285,8 +1295,11 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         // size between the new 50 dp minimum and a full-canvas dial.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            // Lift the readout above the strip so the text sits inside the
+            // dome, not over the rounded-bottom strip. ~14% of w lands it
+            // safely above the (now thicker) strip's top edge at every size.
             modifier = if (isSemi)
-                Modifier.padding(bottom = (w * 0.04f).dp)
+                Modifier.padding(bottom = (w * 0.14f).dp)
             else Modifier
         ) {
             androidx.compose.material3.Text(

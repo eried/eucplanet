@@ -938,22 +938,15 @@ private fun PresetRow(
 
 @Composable
 private fun FolderWarning(onOpenFolderSettings: () -> Unit) {
+    // Calm, neutral copy + no error icon -- this is a setup hint, not a
+    // failure. The Settings-shortcut button below carries the action.
     Column {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                Icons.Default.FolderOff,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error
-            )
-            Spacer(Modifier.width(12.dp))
-            Text(
-                stringResource(R.string.studio_no_folder_body),
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+        Text(
+            stringResource(R.string.studio_no_folder_body),
+            style = MaterialTheme.typography.bodySmall
+        )
         Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onOpenFolderSettings) {
-            // Opens that exact Settings section, so it carries its name.
             Text(stringResource(R.string.tab_cloud))
         }
     }

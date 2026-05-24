@@ -914,7 +914,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_trip_distance">Distância da viagem</string>
     <string name="studio_metric_voltage">Tensão</string>
-    <string name="studio_no_folder_body">Defina uma pasta de backup para salvar predefinições</string>
+    <string name="studio_no_folder_body">Defina uma pasta de backup para carregar e salvar predefinições</string>
     <string name="studio_pane_camera_access_needed">Acesso à câmera necessário</string>
     <string name="studio_pane_camera_conflict">%1$s não pode funcionar junto com outra câmera neste dispositivo</string>
     <string name="studio_pane_camera_unavailable">Câmera indisponível</string>
@@ -1029,9 +1029,9 @@
     <string name="studio_cfg_unit_position">Unidade</string>
     <string name="studio_cfg_unit_left">Antes</string>
     <string name="studio_cfg_unit_right">Depois</string>
-    <string name="studio_cfg_dial_style">Estilo do mostrador</string>
-    <string name="studio_cfg_dial_full">Anel completo</string>
-    <string name="studio_cfg_dial_semi">Semicírculo</string>
+    <string name="studio_cfg_dial_style">Mostrador</string>
+    <string name="studio_cfg_dial_full">Círculo</string>
+    <string name="studio_cfg_dial_semi">Meio</string>
     <string name="studio_snap_to_grid">Ajustar à grade</string>
     <string name="studio_overwrite_title">Sobrescrever predefinição?</string>
     <string name="studio_overwrite_body">Já existe uma predefinição chamada \"%1$s\".</string>

@@ -914,7 +914,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_trip_distance">Distanza del viaggio</string>
     <string name="studio_metric_voltage">Tensione</string>
-    <string name="studio_no_folder_body">Imposta una cartella di backup per salvare i preset</string>
+    <string name="studio_no_folder_body">Imposta una cartella di backup per caricare e salvare i preset</string>
     <string name="studio_pane_camera_access_needed">Accesso alla fotocamera necessario</string>
     <string name="studio_pane_camera_conflict">%1$s non può funzionare insieme a un\'altra fotocamera su questo dispositivo</string>
     <string name="studio_pane_camera_unavailable">Fotocamera non disponibile</string>
@@ -1029,9 +1029,9 @@
     <string name="studio_cfg_unit_position">Unità</string>
     <string name="studio_cfg_unit_left">Prima</string>
     <string name="studio_cfg_unit_right">Dopo</string>
-    <string name="studio_cfg_dial_style">Stile quadrante</string>
-    <string name="studio_cfg_dial_full">Anello completo</string>
-    <string name="studio_cfg_dial_semi">Semicerchio</string>
+    <string name="studio_cfg_dial_style">Quadrante</string>
+    <string name="studio_cfg_dial_full">Cerchio</string>
+    <string name="studio_cfg_dial_semi">Mezzo</string>
     <string name="studio_snap_to_grid">Allinea alla griglia</string>
     <string name="studio_overwrite_title">Sovrascrivere il preset?</string>
     <string name="studio_overwrite_body">Esiste già un preset chiamato \"%1$s\".</string>

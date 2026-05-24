@@ -878,7 +878,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Resans distans</string>
     <string name="studio_metric_voltage">Spänning</string>
-    <string name="studio_no_folder_body">Välj en säkerhetskopieringsmapp för att spara förinställningar</string>
+    <string name="studio_no_folder_body">Välj en säkerhetskopieringsmapp för att läsa in och spara förinställningar</string>
     <string name="studio_pane_camera_access_needed">Kameraåtkomst behövs</string>
     <string name="studio_pane_camera_conflict">%1$s kan inte köras samtidigt som en annan kamera på den här enheten</string>
     <string name="studio_pane_camera_unavailable">Kameran är inte tillgänglig</string>
@@ -993,9 +993,9 @@
     <string name="studio_cfg_unit_position">Enhet</string>
     <string name="studio_cfg_unit_left">Före</string>
     <string name="studio_cfg_unit_right">Efter</string>
-    <string name="studio_cfg_dial_style">Urtavlestil</string>
-    <string name="studio_cfg_dial_full">Hel ring</string>
-    <string name="studio_cfg_dial_semi">Halvcirkel</string>
+    <string name="studio_cfg_dial_style">Urtavla</string>
+    <string name="studio_cfg_dial_full">Cirkel</string>
+    <string name="studio_cfg_dial_semi">Halv</string>
     <string name="studio_snap_to_grid">Fäst mot rutnät</string>
     <string name="studio_overwrite_title">Skriva över förinställning?</string>
     <string name="studio_overwrite_body">En förinställning med namnet \"%1$s\" finns redan.</string>

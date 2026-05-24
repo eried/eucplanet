@@ -930,7 +930,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_trip_distance">Пробег за поездку</string>
     <string name="studio_metric_voltage">Напряжение</string>
-    <string name="studio_no_folder_body">Выберите папку для копий, чтобы сохранять пресеты</string>
+    <string name="studio_no_folder_body">Выберите папку для копий, чтобы загружать и сохранять пресеты</string>
     <string name="studio_pane_camera_access_needed">Нужен доступ к камере</string>
     <string name="studio_pane_camera_conflict">%1$s не может работать вместе с другой камерой на этом устройстве</string>
     <string name="studio_pane_camera_unavailable">Камера недоступна</string>
@@ -1045,9 +1045,9 @@
     <string name="studio_cfg_unit_position">Единица</string>
     <string name="studio_cfg_unit_left">До</string>
     <string name="studio_cfg_unit_right">После</string>
-    <string name="studio_cfg_dial_style">Стиль шкалы</string>
-    <string name="studio_cfg_dial_full">Полный круг</string>
-    <string name="studio_cfg_dial_semi">Полукруг</string>
+    <string name="studio_cfg_dial_style">Шкала</string>
+    <string name="studio_cfg_dial_full">Круг</string>
+    <string name="studio_cfg_dial_semi">Половина</string>
     <string name="studio_snap_to_grid">Привязать к сетке</string>
     <string name="studio_overwrite_title">Перезаписать пресет?</string>
     <string name="studio_overwrite_body">Пресет «%1$s» уже существует.</string>

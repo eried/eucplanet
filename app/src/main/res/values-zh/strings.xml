@@ -878,7 +878,7 @@
     <string name="studio_metric_temperature">温度</string>
     <string name="studio_metric_trip_distance">行程距离</string>
     <string name="studio_metric_voltage">电压</string>
-    <string name="studio_no_folder_body">设置备份文件夹以保存预设</string>
+    <string name="studio_no_folder_body">设置备份文件夹以加载和保存预设</string>
     <string name="studio_pane_camera_access_needed">需要相机权限</string>
     <string name="studio_pane_camera_conflict">%1$s 无法与此设备上的另一个相机同时运行</string>
     <string name="studio_pane_camera_unavailable">相机不可用</string>
@@ -993,9 +993,9 @@
     <string name="studio_cfg_unit_position">单位</string>
     <string name="studio_cfg_unit_left">前</string>
     <string name="studio_cfg_unit_right">后</string>
-    <string name="studio_cfg_dial_style">表盘样式</string>
-    <string name="studio_cfg_dial_full">完整环形</string>
-    <string name="studio_cfg_dial_semi">半圆</string>
+    <string name="studio_cfg_dial_style">表盘</string>
+    <string name="studio_cfg_dial_full">圆</string>
+    <string name="studio_cfg_dial_semi">半</string>
     <string name="studio_snap_to_grid">对齐到网格</string>
     <string name="studio_overwrite_title">覆盖预设？</string>
     <string name="studio_overwrite_body">已存在名为 \"%1$s\" 的预设。</string>

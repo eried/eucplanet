@@ -915,7 +915,7 @@
     <string name="studio_metric_temperature">Температура</string>
     <string name="studio_metric_trip_distance">Відстань поїздки</string>
     <string name="studio_metric_voltage">Напруга</string>
-    <string name="studio_no_folder_body">Виберіть папку резервних копій для збереження пресетів</string>
+    <string name="studio_no_folder_body">Виберіть папку резервних копій для завантаження і збереження пресетів</string>
     <string name="studio_pane_camera_access_needed">Потрібен доступ до камери</string>
     <string name="studio_pane_camera_conflict">%1$s не може працювати разом з іншою камерою на цьому пристрої</string>
     <string name="studio_pane_camera_unavailable">Камера недоступна</string>
@@ -1030,9 +1030,9 @@
     <string name="studio_cfg_unit_position">Одиниця</string>
     <string name="studio_cfg_unit_left">До</string>
     <string name="studio_cfg_unit_right">Після</string>
-    <string name="studio_cfg_dial_style">Стиль циферблата</string>
-    <string name="studio_cfg_dial_full">Повне коло</string>
-    <string name="studio_cfg_dial_semi">Півколо</string>
+    <string name="studio_cfg_dial_style">Циферблат</string>
+    <string name="studio_cfg_dial_full">Коло</string>
+    <string name="studio_cfg_dial_semi">Половина</string>
     <string name="studio_snap_to_grid">Прив’язка до сітки</string>
     <string name="studio_overwrite_title">Перезаписати пресет?</string>
     <string name="studio_overwrite_body">Пресет «%1$s» вже існує.</string>

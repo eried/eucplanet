@@ -914,7 +914,7 @@
     <string name="studio_metric_temperature">Temperatuur</string>
     <string name="studio_metric_trip_distance">Ritafstand</string>
     <string name="studio_metric_voltage">Spanning</string>
-    <string name="studio_no_folder_body">Stel een back-upmap in om presets op te slaan</string>
+    <string name="studio_no_folder_body">Stel een back-upmap in om presets te laden en op te slaan</string>
     <string name="studio_pane_camera_access_needed">Cameratoegang nodig</string>
     <string name="studio_pane_camera_conflict">%1$s kan niet samen met een andere camera op dit apparaat draaien</string>
     <string name="studio_pane_camera_unavailable">Camera niet beschikbaar</string>
@@ -1029,9 +1029,9 @@
     <string name="studio_cfg_unit_position">Eenheid</string>
     <string name="studio_cfg_unit_left">Voor</string>
     <string name="studio_cfg_unit_right">Na</string>
-    <string name="studio_cfg_dial_style">Wijzerstijl</string>
-    <string name="studio_cfg_dial_full">Volledige ring</string>
-    <string name="studio_cfg_dial_semi">Halve cirkel</string>
+    <string name="studio_cfg_dial_style">Wijzer</string>
+    <string name="studio_cfg_dial_full">Cirkel</string>
+    <string name="studio_cfg_dial_semi">Half</string>
     <string name="studio_snap_to_grid">Op raster uitlijnen</string>
     <string name="studio_overwrite_title">Preset overschrijven?</string>
     <string name="studio_overwrite_body">Er bestaat al een preset met de naam \"%1$s\".</string>

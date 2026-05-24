@@ -915,7 +915,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_trip_distance">Długość trasy</string>
     <string name="studio_metric_voltage">Napięcie</string>
-    <string name="studio_no_folder_body">Ustaw folder kopii zapasowej, aby zapisywać presety</string>
+    <string name="studio_no_folder_body">Ustaw folder kopii zapasowej, aby wczytywać i zapisywać presety</string>
     <string name="studio_pane_camera_access_needed">Wymagany dostęp do aparatu</string>
     <string name="studio_pane_camera_conflict">%1$s nie może działać równolegle z innym aparatem na tym urządzeniu</string>
     <string name="studio_pane_camera_unavailable">Aparat niedostępny</string>
@@ -1030,9 +1030,9 @@
     <string name="studio_cfg_unit_position">Jednostka</string>
     <string name="studio_cfg_unit_left">Przed</string>
     <string name="studio_cfg_unit_right">Po</string>
-    <string name="studio_cfg_dial_style">Styl tarczy</string>
-    <string name="studio_cfg_dial_full">Pełny pierścień</string>
-    <string name="studio_cfg_dial_semi">Półokrąg</string>
+    <string name="studio_cfg_dial_style">Tarcza</string>
+    <string name="studio_cfg_dial_full">Koło</string>
+    <string name="studio_cfg_dial_semi">Połowa</string>
     <string name="studio_snap_to_grid">Przyciągaj do siatki</string>
     <string name="studio_overwrite_title">Nadpisać preset?</string>
     <string name="studio_overwrite_body">Preset o nazwie \"%1$s\" już istnieje.</string>

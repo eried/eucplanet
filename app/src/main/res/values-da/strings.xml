@@ -880,7 +880,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Turdistance</string>
     <string name="studio_metric_voltage">Spænding</string>
-    <string name="studio_no_folder_body">Vælg en backup-mappe for at gemme forudindstillinger</string>
+    <string name="studio_no_folder_body">Vælg en backup-mappe for at indlæse og gemme forudindstillinger</string>
     <string name="studio_pane_camera_access_needed">Kameraadgang kræves</string>
     <string name="studio_pane_camera_conflict">%1$s kan ikke køre sammen med et andet kamera på denne enhed</string>
     <string name="studio_pane_camera_unavailable">Kamera ikke tilgængeligt</string>
@@ -995,9 +995,9 @@
     <string name="studio_cfg_unit_position">Enhed</string>
     <string name="studio_cfg_unit_left">Før</string>
     <string name="studio_cfg_unit_right">Efter</string>
-    <string name="studio_cfg_dial_style">Skive stil</string>
-    <string name="studio_cfg_dial_full">Hel ring</string>
-    <string name="studio_cfg_dial_semi">Halvcirkel</string>
+    <string name="studio_cfg_dial_style">Skive</string>
+    <string name="studio_cfg_dial_full">Cirkel</string>
+    <string name="studio_cfg_dial_semi">Halv</string>
     <string name="studio_snap_to_grid">Tilpas til gitter</string>
     <string name="studio_overwrite_title">Overskriv forudindstilling?</string>
     <string name="studio_overwrite_body">En forudindstilling ved navn \"%1$s\" findes allerede.</string>

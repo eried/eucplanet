@@ -895,7 +895,7 @@
     <string name="studio_metric_temperature">Temperatur</string>
     <string name="studio_metric_trip_distance">Fahrtstrecke</string>
     <string name="studio_metric_voltage">Spannung</string>
-    <string name="studio_no_folder_body">Wähle einen Backup-Ordner, um Presets zu speichern</string>
+    <string name="studio_no_folder_body">Wähle einen Backup-Ordner, um Presets zu laden und zu speichern</string>
     <string name="studio_pane_camera_access_needed">Kamerazugriff erforderlich</string>
     <string name="studio_pane_camera_conflict">%1$s kann auf diesem Gerät nicht zusammen mit einer anderen Kamera laufen</string>
     <string name="studio_pane_camera_unavailable">Kamera nicht verfügbar</string>
@@ -1010,9 +1010,9 @@
     <string name="studio_cfg_unit_position">Einheit</string>
     <string name="studio_cfg_unit_left">Vorher</string>
     <string name="studio_cfg_unit_right">Nachher</string>
-    <string name="studio_cfg_dial_style">Zifferblattstil</string>
-    <string name="studio_cfg_dial_full">Vollring</string>
-    <string name="studio_cfg_dial_semi">Halbkreis</string>
+    <string name="studio_cfg_dial_style">Anzeige</string>
+    <string name="studio_cfg_dial_full">Kreis</string>
+    <string name="studio_cfg_dial_semi">Halb</string>
     <string name="studio_snap_to_grid">Am Raster ausrichten</string>
     <string name="studio_overwrite_title">Preset überschreiben?</string>
     <string name="studio_overwrite_body">Ein Preset namens \"%1$s\" existiert bereits.</string>
