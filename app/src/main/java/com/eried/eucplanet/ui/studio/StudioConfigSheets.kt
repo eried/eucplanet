@@ -1604,6 +1604,45 @@ fun ElementConfigSheet(
                         stringResource(R.string.studio_cfg_show_value), element.barShowValue
                     ) { onChange(element.copy(barShowValue = it)) }
                 }
+                if (element.type == OverlayElementType.DATA_VALUE) {
+                    // Unit-label position: BEFORE the value (LEFT) or AFTER
+                    // it (RIGHT). For "km/h 42" / "42 km/h" style overlays.
+                    Text(
+                        stringResource(R.string.studio_cfg_unit_position),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(
+                            "RIGHT" to stringResource(R.string.studio_cfg_unit_right),
+                            "LEFT" to stringResource(R.string.studio_cfg_unit_left)
+                        ).forEach { (key, lbl) ->
+                            FilterChip(
+                                selected = element.unitPosition == key,
+                                onClick = { onChange(element.copy(unitPosition = key)) },
+                                label = { Text(lbl) }
+                            )
+                        }
+                    }
+                }
+            }
+            if (element.type == OverlayElementType.DATA_DIAL) {
+                // Full ring vs upper-half "speedometer" arc.
+                Text(
+                    stringResource(R.string.studio_cfg_dial_style),
+                    fontWeight = FontWeight.SemiBold
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf(
+                        "FULL" to stringResource(R.string.studio_cfg_dial_full),
+                        "SEMICIRCLE" to stringResource(R.string.studio_cfg_dial_semi)
+                    ).forEach { (key, lbl) ->
+                        FilterChip(
+                            selected = element.dialStyle == key,
+                            onClick = { onChange(element.copy(dialStyle = key)) },
+                            label = { Text(lbl) }
+                        )
+                    }
+                }
             }
 
             if (element.type == OverlayElementType.APP_BADGE) {
@@ -2209,11 +2248,13 @@ fun ManageElementsSheet(
     elements: List<OverlayElement>,
     canAddElement: Boolean,
     canChangePanes: Boolean,
+    snapToGrid: Boolean,
     onMove: (Int, Int) -> Unit,
     onSelect: (String) -> Unit,
     onDelete: (String) -> Unit,
     onAddElement: () -> Unit,
     onChangePanes: () -> Unit,
+    onSnapToGrid: (Boolean) -> Unit,
     dimmed: Boolean,
     onToggleDim: () -> Unit,
     onDismiss: () -> Unit
@@ -2251,6 +2292,22 @@ fun ManageElementsSheet(
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.studio_flyout_panes))
                 }
+            }
+            // Snap-to-grid toggle. When ON, all subsequent drag / resize
+            // operations round to a 5 px grid. Already-placed elements
+            // that the rider hasn't touched keep their exact coords --
+            // re-toggling OFF doesn't revert; this is a "future moves
+            // snap" mode, not a "snap everything everywhere" command.
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 6.dp)
+            ) {
+                androidx.compose.material3.Switch(
+                    checked = snapToGrid,
+                    onCheckedChange = onSnapToGrid
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(stringResource(R.string.studio_snap_to_grid))
             }
             if (elements.isNotEmpty()) {
                 ReorderableColumn(

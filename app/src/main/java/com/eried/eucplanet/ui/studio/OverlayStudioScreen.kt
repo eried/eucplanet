@@ -198,6 +198,11 @@ fun OverlayStudioScreen(
     var replaySpeed by remember { mutableStateOf(1f) }
     var replayPlaying by remember { mutableStateOf(false) }
     var panelsDimmed by remember { mutableStateOf(false) }
+    // When ON, drag / resize handlers snap to a 5 px grid (in canvas-
+    // fraction units). Persists across navigation through Manage so the
+    // rider doesn't need to keep re-enabling it; resets per Studio open
+    // because it's an editor-mode preference, not a persisted setting.
+    var snapToGrid by remember { mutableStateOf(false) }
     val replayMode = studioMode == StudioMode.REPLAY
     // Overlays read this: trip telemetry while replaying, live telemetry otherwise.
     val wheelData = if (replayMode) {
@@ -927,6 +932,7 @@ fun OverlayStudioScreen(
                     ),
                     editable = editable,
                     selectedId = selectedId,
+                    snapToGrid = snapToGrid,
                     onSelect = {
                         viewModel.selectElement(it)
                         viewModel.bringToFront(it)
@@ -1258,6 +1264,7 @@ fun OverlayStudioScreen(
             // change is hidden during a replay (the background is the trip's
             // checkerboard, so picking camera panes there is moot).
             canChangePanes = !replayMode,
+            snapToGrid = snapToGrid,
             onMove = { from, to -> viewModel.moveElement(from, to) },
             onSelect = { id ->
                 viewModel.selectElement(id)
@@ -1266,6 +1273,7 @@ fun OverlayStudioScreen(
             onDelete = { viewModel.removeElement(it) },
             onAddElement = { sheet = StudioSheet.AddElement },
             onChangePanes = { sheet = StudioSheet.LayoutPicker },
+            onSnapToGrid = { snapToGrid = it },
             dimmed = panelsDimmed,
             onToggleDim = { panelsDimmed = !panelsDimmed },
             onDismiss = { sheet = StudioSheet.None }
@@ -1295,13 +1303,17 @@ fun OverlayStudioScreen(
             },
             onDismiss = { sheet = StudioSheet.None }
         )
-        StudioSheet.SavePreset -> SavePresetDialog(
-            folderAvailable = folderAvailable,
-            onSave = { name ->
+        StudioSheet.SavePreset -> {
+            // Track a pending-overwrite confirmation: the rider tried to save
+            // under a name that already matches one of the on-disk presets.
+            // We hand the actual write off only after they confirm; cancelling
+            // returns to the save dialog with the typed name preserved.
+            var pendingOverwriteName by remember { mutableStateOf<String?>(null) }
+            val existingNames = remember(savedPresets) {
+                savedPresets.map { it.trim().lowercase() }.toSet()
+            }
+            fun doSave(name: String) {
                 viewModel.savePresetAs(name) { result ->
-                    // Confirm a successful save the same way a failure is
-                    // surfaced — saving a preset is a deliberate file-picker
-                    // round-trip and the rider needs to know it landed.
                     val msg = when (result) {
                         PresetSaveResult.SAVED -> R.string.studio_preset_saved
                         PresetSaveResult.NO_FOLDER -> R.string.studio_no_folder
@@ -1312,13 +1324,43 @@ fun OverlayStudioScreen(
                     }
                 }
                 sheet = StudioSheet.None
-            },
-            onOpenFolderSettings = {
-                sheet = StudioSheet.None
-                onOpenBackupSettings()
-            },
-            onDismiss = { sheet = StudioSheet.None }
-        )
+            }
+            SavePresetDialog(
+                folderAvailable = folderAvailable,
+                onSave = { name ->
+                    val trimmed = name.trim()
+                    if (trimmed.lowercase() in existingNames) {
+                        pendingOverwriteName = trimmed
+                    } else {
+                        doSave(trimmed)
+                    }
+                },
+                onOpenFolderSettings = {
+                    sheet = StudioSheet.None
+                    onOpenBackupSettings()
+                },
+                onDismiss = { sheet = StudioSheet.None }
+            )
+            val pending = pendingOverwriteName
+            if (pending != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { pendingOverwriteName = null },
+                    title = { Text(stringResource(R.string.studio_overwrite_title)) },
+                    text = { Text(stringResource(R.string.studio_overwrite_body, pending)) },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(onClick = {
+                            pendingOverwriteName = null
+                            doSave(pending)
+                        }) { Text(stringResource(R.string.studio_overwrite_confirm)) }
+                    },
+                    dismissButton = {
+                        androidx.compose.material3.TextButton(onClick = {
+                            pendingOverwriteName = null
+                        }) { Text(stringResource(R.string.action_cancel)) }
+                    }
+                )
+            }
+        }
         StudioSheet.LoadPreset -> LoadPresetSheet(
             folderAvailable = folderAvailable,
             presets = savedPresets,

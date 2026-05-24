@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -133,6 +135,7 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     editable: Boolean,
     selectedId: String?,
     replayMode: Boolean = false,
+    snapToGrid: Boolean = false,
     onSelect: (String) -> Unit,
     onConfigure: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -174,6 +177,7 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
                 heightPx = heightPx,
                 editable = editable,
                 selected = editable && element.id == selectedId,
+                snapToGrid = snapToGrid,
                 onSelect = { onSelect(element.id) },
                 onConfigure = { onConfigure(element.id) },
                 onDelete = { onDelete(element.id) },
@@ -194,12 +198,19 @@ private fun StudioElementBox(
     heightPx: Float,
     editable: Boolean,
     selected: Boolean,
+    snapToGrid: Boolean = false,
     onSelect: () -> Unit,
     onConfigure: () -> Unit,
     onDelete: () -> Unit,
     onChange: (OverlayElement) -> Unit,
     content: @Composable () -> Unit
 ) {
+    // 5 px grid in canvas-fraction units. Used by both the drag and the
+    // resize handlers when snapToGrid is on, so all four numbers (x, y,
+    // width, height) land on the same 5 px lattice everywhere.
+    val gridX = 5f / widthPx
+    val gridY = 5f / heightPx
+    fun snapFx(v: Float, step: Float) = if (snapToGrid) (kotlin.math.round(v / step) * step) else v
     val live by rememberUpdatedState(element)
     val accent = StudioControlAccent
     // A distinct accent for the rotate handle so it is never confused with the
@@ -216,8 +227,19 @@ private fun StudioElementBox(
             // widthIn(max) — not width() — so the selection frame and border
             // wrap the element's real content (text pills size to their text;
             // graphs / camera / image still fill the chosen width).
+            //
+            // heightIn(max) is applied ONLY when element.height > 0 (the rider
+            // explicitly stretched it vertically); without that, the renderer
+            // keeps using its natural aspect ratio and the bounding Box wraps
+            // accordingly. With height > 0, the renderer fills the constrained
+            // height and the fixed-ratio default is overridden.
             Modifier
                 .widthIn(max = containerW * element.width)
+                .then(
+                    if (element.height > 0f)
+                        Modifier.heightIn(max = containerH * element.height)
+                    else Modifier
+                )
                 .then(
                     if (editable) Modifier.pointerInput(element.id) {
                         detectDragGestures(
@@ -230,10 +252,12 @@ private fun StudioElementBox(
                             // Elements may sit partly / fully off-screen; the
                             // edit chrome stays clamped on-screen (below) so a
                             // stray element is always still reachable.
+                            val nx = (e.x + drag.x / widthPx).coerceIn(-1f, 1f)
+                            val ny = (e.y + drag.y / heightPx).coerceIn(-1f, 1f)
                             onChange(
                                 e.copy(
-                                    x = (e.x + drag.x / widthPx).coerceIn(-1f, 1f),
-                                    y = (e.y + drag.y / heightPx).coerceIn(-1f, 1f)
+                                    x = snapFx(nx, gridX),
+                                    y = snapFx(ny, gridY)
                                 )
                             )
                         }
@@ -345,10 +369,26 @@ private fun StudioElementBox(
                                 detectDragGestures { change, drag ->
                                     change.consume()
                                     val e = live
+                                    // Drag the bottom-right grip in BOTH axes:
+                                    // horizontal updates width, vertical updates
+                                    // height (height stored as a fraction of the
+                                    // canvas like width). If the rider has only
+                                    // moved horizontally so far, height stays 0
+                                    // and the natural aspect-ratio rule keeps
+                                    // applying. As soon as they drag vertically
+                                    // the value snaps to a non-zero height and
+                                    // the renderer switches to free-resize.
+                                    val curH =
+                                        if (e.height > 0f) e.height
+                                        else contentSize.height / heightPx
+                                    val nw = (e.width + drag.x / widthPx)
+                                        .coerceIn(0.08f, 1.5f)
+                                    val nh = (curH + drag.y / heightPx)
+                                        .coerceIn(0.04f, 1.5f)
                                     onChange(
                                         e.copy(
-                                            width = (e.width + drag.x / widthPx)
-                                                .coerceIn(0.08f, 1.5f)
+                                            width = snapFx(nw, gridX),
+                                            height = snapFx(nh, gridY)
                                         )
                                     )
                                 }
@@ -930,19 +970,30 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
                 )
             }
             Row(verticalAlignment = Alignment.Bottom) {
+                val unit = metric.unitText(
+                    context, data.speedUnit, data.distanceUnit, data.tempUnit
+                )
+                val valueText = metric.formatted(
+                    data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
+                )
+                val unitOnLeft = element.unitPosition == "LEFT"
+                if (unit.isNotEmpty() && unitOnLeft) {
+                    androidx.compose.material3.Text(
+                        text = "$unit ",
+                        color = Color(element.foreground).copy(alpha = 0.75f),
+                        fontSize = (w * 0.12f).coerceIn(9f, 40f).sp,
+                        modifier = Modifier.padding(bottom = (w * 0.04f).dp),
+                        maxLines = 1
+                    )
+                }
                 androidx.compose.material3.Text(
-                    text = metric.formatted(
-                        data.wheelData, data.speedUnit, data.distanceUnit, data.tempUnit
-                    ),
+                    text = valueText,
                     color = Color(element.foreground),
                     fontWeight = FontWeight.Bold,
                     fontSize = (w * 0.34f).coerceIn(18f, 120f).sp,
                     maxLines = 1
                 )
-                val unit = metric.unitText(
-                    context, data.speedUnit, data.distanceUnit, data.tempUnit
-                )
-                if (unit.isNotEmpty()) {
+                if (unit.isNotEmpty() && !unitOnLeft) {
                     androidx.compose.material3.Text(
                         text = " $unit",
                         color = Color(element.foreground).copy(alpha = 0.75f),
@@ -976,7 +1027,13 @@ private fun DataGraphElement(element: OverlayElement, data: StudioElementData) {
         Modifier
             .fillMaxWidth()
             .background(Color(element.background), RoundedCornerShape(8.dp))
-            .aspectRatio(2.2f)
+            .then(
+                // Free-resize when the rider has dragged the bottom edge
+                // (element.height > 0). Otherwise fall back to the default
+                // 2.2:1 reading-friendly aspect.
+                if (element.height > 0f) Modifier.fillMaxHeight()
+                else Modifier.aspectRatio(2.2f)
+            )
             .padding(8.dp)
     ) {
         val w = maxWidth.value
@@ -1026,11 +1083,27 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val fraction = (value / element.gaugeMax.coerceAtLeast(1f)).coerceIn(0f, 1f)
     val fill = Color(element.foreground)
     val track = fill.copy(alpha = 0.2f)
+    // Dial aspect / arc geometry depends on style:
+    //   FULL       -> 1:1, classic 270 deg arc (135 .. 405).
+    //   SEMICIRCLE -> 2:1, upper-half-only 180 deg arc (180 .. 360).
+    val isSemi = element.dialStyle == "SEMICIRCLE"
+    val aspect = if (isSemi) 2f else 1f
+    val arcStart = if (isSemi) 180f else 135f
+    val arcSweep = if (isSemi) 180f else 270f
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
-            .background(Color(element.background), CircleShape)
+            .then(
+                if (element.height > 0f) Modifier.fillMaxHeight()
+                else Modifier.aspectRatio(aspect)
+            )
+            .background(
+                Color(element.background),
+                if (isSemi) RoundedCornerShape(
+                    topStartPercent = 50, topEndPercent = 50,
+                    bottomStartPercent = 8, bottomEndPercent = 8
+                ) else CircleShape
+            )
             .padding(12.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -1041,12 +1114,12 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
             val topLeft = Offset((size.width - side) / 2f, (size.height - side) / 2f)
             val arcSize = Size(side, side)
             drawArc(
-                color = track, startAngle = 135f, sweepAngle = 270f, useCenter = false,
+                color = track, startAngle = arcStart, sweepAngle = arcSweep, useCenter = false,
                 topLeft = topLeft, size = arcSize,
                 style = Stroke(width = strokeW, cap = StrokeCap.Round)
             )
             drawArc(
-                color = fill, startAngle = 135f, sweepAngle = 270f * fraction,
+                color = fill, startAngle = arcStart, sweepAngle = arcSweep * fraction,
                 useCenter = false, topLeft = topLeft, size = arcSize,
                 style = Stroke(width = strokeW, cap = StrokeCap.Round)
             )
@@ -1309,7 +1382,10 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
     Box(
         Modifier
             .fillMaxWidth()
-            .aspectRatio(1f)
+            .then(
+                if (element.height > 0f) Modifier.fillMaxHeight()
+                else Modifier.aspectRatio(1f)
+            )
             .clip(RoundedCornerShape(12.dp))
             // A neutral fill — only ever seen for the moment before the first
             // tiles arrive. The configurable colour is the border.

@@ -122,6 +122,7 @@ object OverlayPresetJson {
         put("x", el.x.toDouble())
         put("y", el.y.toDouble())
         put("width", el.width.toDouble())
+        put("height", el.height.toDouble())
         put("rotationDeg", el.rotationDeg.toDouble())
         put("opacity", el.opacity.toDouble())
         put("shadow", el.shadow)
@@ -155,6 +156,8 @@ object OverlayPresetJson {
         put("gForceScale", el.gForceScale.toDouble())
         put("gForceSmoothing", el.gForceSmoothing.toDouble())
         put("barShowValue", el.barShowValue)
+        put("dialStyle", el.dialStyle)
+        put("unitPosition", el.unitPosition)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -167,6 +170,7 @@ object OverlayPresetJson {
             x = o.optDouble("x", d.x.toDouble()).toFloat(),
             y = o.optDouble("y", d.y.toDouble()).toFloat(),
             width = o.optDouble("width", d.width.toDouble()).toFloat(),
+            height = o.optDouble("height", d.height.toDouble()).toFloat(),
             rotationDeg = o.optDouble("rotationDeg", d.rotationDeg.toDouble()).toFloat(),
             opacity = o.optDouble("opacity", d.opacity.toDouble()).toFloat(),
             shadow = o.optBoolean("shadow", d.shadow),
@@ -211,7 +215,9 @@ object OverlayPresetJson {
             mapUseCustomMarker = o.optBoolean("mapUseCustomMarker", d.mapUseCustomMarker),
             gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat(),
             gForceSmoothing = o.optDouble("gForceSmoothing", d.gForceSmoothing.toDouble()).toFloat(),
-            barShowValue = o.optBoolean("barShowValue", d.barShowValue)
+            barShowValue = o.optBoolean("barShowValue", d.barShowValue),
+            dialStyle = o.optString("dialStyle", d.dialStyle),
+            unitPosition = o.optString("unitPosition", d.unitPosition)
         )
     }
 

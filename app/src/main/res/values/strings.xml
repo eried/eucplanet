@@ -1122,4 +1122,14 @@
     <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV</string>
     <string name="gps_prioritize_external_desc">When a device is connected, use it for speed, position and G-Force instead of the phone</string>
     <string name="studio_cfg_show_value">Show value</string>
+    <string name="studio_cfg_unit_position">Unit position</string>
+    <string name="studio_cfg_unit_left">Before value</string>
+    <string name="studio_cfg_unit_right">After value</string>
+    <string name="studio_cfg_dial_style">Dial style</string>
+    <string name="studio_cfg_dial_full">Full ring</string>
+    <string name="studio_cfg_dial_semi">Semicircle</string>
+    <string name="studio_snap_to_grid">Snap to grid</string>
+    <string name="studio_overwrite_title">Overwrite preset?</string>
+    <string name="studio_overwrite_body">A preset named \"%1$s\" already exists.</string>
+    <string name="studio_overwrite_confirm">Overwrite</string>
 </resources>

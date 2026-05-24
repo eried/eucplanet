@@ -123,11 +123,18 @@ data class OverlayElement(
     val id: String = UUID.randomUUID().toString(),
     val type: OverlayElementType,
 
-    // Placement — top-left corner and width as a fraction of the screen.
-    // Height follows from the element's content / image aspect ratio.
+    // Placement — top-left corner + width as a fraction of the screen.
+    // Height is OPTIONAL: when 0 (legacy default), the element renders
+    // at whatever aspect ratio its content prefers (square map, 2.2:1
+    // graph, etc.). When the rider explicitly resizes vertically via the
+    // bottom handle, the value is stored here as a fraction of the
+    // canvas, breaking the fixed aspect for THIS element. Renderers
+    // that don't yet support free vertical sizing (camera viewports,
+    // image cards) just ignore it.
     val x: Float = 0.08f,
     val y: Float = 0.08f,
     val width: Float = 0.4f,
+    val height: Float = 0f,
     val rotationDeg: Float = 0f,
     val opacity: Float = 1f,
     /** Draw a soft drop shadow behind the element so it reads on bright video. */
@@ -208,7 +215,19 @@ data class OverlayElement(
     /** G-Force dot smoothing — 0 snaps instantly, 1 makes the dot heavy/slow. */
     val gForceSmoothing: Float = 0.2f,
     /** DATA_BAR: show the numeric value above the bar (false = just the bar). */
-    val barShowValue: Boolean = true
+    val barShowValue: Boolean = true,
+    /**
+     * DATA_DIAL style. FULL = the classic ¾ ring (135° start, 270° sweep);
+     * SEMICIRCLE = only the upper half, an arc from 180° to 360°. Riders
+     * who want a "speedometer head-up" look use SEMICIRCLE.
+     */
+    val dialStyle: String = "FULL",
+    /**
+     * DATA_VALUE unit-label position. RIGHT (default) shows the unit AFTER
+     * the value ("42 km/h"); LEFT shows it before ("km/h 42") for layouts
+     * that want the unit prefix-aligned with other left-justified labels.
+     */
+    val unitPosition: String = "RIGHT"
 )
 
 /**
