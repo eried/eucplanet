@@ -2294,21 +2294,14 @@ fun ManageElementsSheet(
                 }
             }
             // Snap-to-grid toggle. When ON, all subsequent drag / resize
-            // operations round to a 5 px grid. Already-placed elements
+            // operations round to a 5 dp grid. Already-placed elements
             // that the rider hasn't touched keep their exact coords --
             // re-toggling OFF doesn't revert; this is a "future moves
             // snap" mode, not a "snap everything everywhere" command.
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 6.dp)
-            ) {
-                androidx.compose.material3.Switch(
-                    checked = snapToGrid,
-                    onCheckedChange = onSnapToGrid
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(stringResource(R.string.studio_snap_to_grid))
-            }
+            // Mirrored at the bottom of the sheet so a rider scrolled to
+            // the end of a long element list can still reach the toggle
+            // without scrolling back up.
+            SnapToGridRow(snapToGrid, onSnapToGrid)
             if (elements.isNotEmpty()) {
                 ReorderableColumn(
                     list = elements,
@@ -2319,13 +2312,33 @@ fun ManageElementsSheet(
                         ManageElementRow(
                             element = element,
                             dragHandle = Modifier.draggableHandle(),
+                            snapToGrid = snapToGrid,
                             onSelect = { onSelect(element.id) },
                             onDelete = { onDelete(element.id) }
                         )
                     }
                 }
+                // The bottom copy: only meaningful when there's a list
+                // long enough to scroll past — with zero elements the top
+                // toggle is already at the bottom.
+                SnapToGridRow(snapToGrid, onSnapToGrid)
             }
         }
+    }
+}
+
+@Composable
+private fun SnapToGridRow(snapToGrid: Boolean, onSnapToGrid: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 6.dp)
+    ) {
+        androidx.compose.material3.Switch(
+            checked = snapToGrid,
+            onCheckedChange = onSnapToGrid
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(stringResource(R.string.studio_snap_to_grid))
     }
 }
 
@@ -2333,9 +2346,27 @@ fun ManageElementsSheet(
 private fun ManageElementRow(
     element: OverlayElement,
     dragHandle: Modifier,
+    snapToGrid: Boolean,
     onSelect: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // Show the same coordinates the canvas is drawing: while snap-to-grid is
+    // ON, both render and list reflect the snapped values; toggling OFF
+    // restores the un-snapped originals so the user sees the round-trip.
+    val gridStepPx = with(LocalDensity.current) { 5.dp.toPx() }
+    // 1280 px / 2856 px is a reasonable "typical phone canvas" denominator for
+    // labelling -- the saved values are fractional so the exact canvas size
+    // doesn't change WHICH lattice value snaps where, only the granularity of
+    // the percentage display. Using a representative size keeps the displayed
+    // percentage consistent with what the rider sees mid-edit.
+    val refW = 1280f
+    val refH = 2856f
+    fun snapPct(v: Float, refPx: Float): Int {
+        val raw = v * 100f
+        if (!snapToGrid) return raw.roundToInt()
+        val stepPct = gridStepPx / refPx * 100f
+        return (kotlin.math.round(raw / stepPct) * stepPct).roundToInt()
+    }
     Row(
         Modifier
             .fillMaxWidth()
@@ -2360,8 +2391,8 @@ private fun ManageElementRow(
         Column(Modifier.weight(1f)) {
             Text(element.summary(), fontWeight = FontWeight.Medium, maxLines = 1)
             Text(
-                "x ${(element.x * 100).roundToInt()}%   " +
-                    "y ${(element.y * 100).roundToInt()}%",
+                "x ${snapPct(element.x, refW)}%   " +
+                    "y ${snapPct(element.y, refH)}%",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

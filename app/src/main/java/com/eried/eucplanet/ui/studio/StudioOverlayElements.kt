@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
@@ -208,12 +209,24 @@ private fun StudioElementBox(
     onChange: (OverlayElement) -> Unit,
     content: @Composable () -> Unit
 ) {
-    // 5 px grid in canvas-fraction units. Used by both the drag and the
+    // 5 dp grid in canvas-fraction units. Used by both the drag and the
     // resize handlers when snapToGrid is on, so all four numbers (x, y,
-    // width, height) land on the same 5 px lattice everywhere.
-    val gridX = 5f / widthPx
-    val gridY = 5f / heightPx
+    // width, height) land on the same 5 dp lattice everywhere. Density-aware
+    // so the grid feels the same on phones and tablets (raw pixels would be
+    // sub-dp on a high-density screen and snap to nothing visible).
+    val gridStepPx = with(LocalDensity.current) { 5.dp.toPx() }
+    val gridX = gridStepPx / widthPx
+    val gridY = gridStepPx / heightPx
     fun snapFx(v: Float, step: Float) = if (snapToGrid) (kotlin.math.round(v / step) * step) else v
+    // While snap-to-grid is ON, render every element AT its snapped position
+    // and size -- non-destructively, the saved values stay exact until the
+    // rider actually moves / resizes the element themselves. Drag and resize
+    // handlers compute their delta from these snapped values so the first
+    // touch doesn't visually jump back to the un-snapped origin.
+    val effX = snapFx(element.x, gridX)
+    val effY = snapFx(element.y, gridY)
+    val effW = snapFx(element.width, gridX)
+    val effH = if (element.height > 0f) snapFx(element.height, gridY) else 0f
     val live by rememberUpdatedState(element)
     val accent = StudioControlAccent
     // A distinct accent for the rotate handle so it is never confused with the
@@ -224,7 +237,7 @@ private fun StudioElementBox(
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
 
     Box(
-        Modifier.offset(x = containerW * element.x, y = containerH * element.y)
+        Modifier.offset(x = containerW * effX, y = containerH * effY)
     ) {
         Box(
             // widthIn(max) — not width() — so the selection frame and border
@@ -237,10 +250,16 @@ private fun StudioElementBox(
             // accordingly. With height > 0, the renderer fills the constrained
             // height and the fixed-ratio default is overridden.
             Modifier
-                .widthIn(max = containerW * element.width)
+                .widthIn(max = containerW * effW)
                 .then(
-                    if (element.height > 0f)
-                        Modifier.heightIn(max = containerH * element.height)
+                    if (effH > 0f)
+                        // Floor the rendered height at the element's own
+                        // minimum so over-zealous resizing can't shrink a
+                        // widget (e.g. a linear bar) to nothing visible.
+                        Modifier.heightIn(
+                            min = minRenderedHeightDp(element.type),
+                            max = containerH * effH
+                        )
                     else Modifier
                 )
                 .then(
@@ -255,8 +274,14 @@ private fun StudioElementBox(
                             // Elements may sit partly / fully off-screen; the
                             // edit chrome stays clamped on-screen (below) so a
                             // stray element is always still reachable.
-                            val nx = (e.x + drag.x / widthPx).coerceIn(-1f, 1f)
-                            val ny = (e.y + drag.y / heightPx).coerceIn(-1f, 1f)
+                            // Drag starts from the SNAPPED visual position when
+                            // snap-mode is on, not from the (possibly off-grid)
+                            // saved value — otherwise the very first drag tick
+                            // would jump the element back to its raw coords.
+                            val baseX = snapFx(e.x, gridX)
+                            val baseY = snapFx(e.y, gridY)
+                            val nx = (baseX + drag.x / widthPx).coerceIn(-1f, 1f)
+                            val ny = (baseY + drag.y / heightPx).coerceIn(-1f, 1f)
                             onChange(
                                 e.copy(
                                     x = snapFx(nx, gridX),
@@ -369,10 +394,20 @@ private fun StudioElementBox(
                     // The edit chrome lives inside the rotated layer, so the
                     // config / delete row and the resize grip track the element
                     // at whatever angle it sits.
+                    //
+                    // wrapContentWidth(unbounded) lets the Row keep its full
+                    // intrinsic width even when the element is narrower than
+                    // the two buttons combined -- without it, a thin element
+                    // (small badge, low-height bar) would clip the Close
+                    // button down to nothing.
                     Row(
                         Modifier
                             .align(Alignment.TopEnd)
-                            .offset(y = (-42).dp),
+                            .offset(y = (-42).dp)
+                            .wrapContentWidth(
+                                align = Alignment.End,
+                                unbounded = true
+                            ),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         ChromeButton(Icons.Default.Build, accent, onConfigure)
@@ -398,12 +433,17 @@ private fun StudioElementBox(
                                     // applying. As soon as they drag vertically
                                     // the value snaps to a non-zero height and
                                     // the renderer switches to free-resize.
-                                    val curH =
-                                        if (e.height > 0f) e.height
-                                        else contentSize.height / heightPx
-                                    val nw = (e.width + drag.x / widthPx)
+                                    // Like the drag handler above: base the
+                                    // delta off the SNAPPED dimensions so the
+                                    // first resize tick doesn't jump back to
+                                    // the raw saved size.
+                                    val baseW = snapFx(e.width, gridX)
+                                    val baseH = if (e.height > 0f)
+                                        snapFx(e.height, gridY)
+                                    else contentSize.height / heightPx
+                                    val nw = (baseW + drag.x / widthPx)
                                         .coerceIn(0.08f, 1.5f)
-                                    val nh = (curH + drag.y / heightPx)
+                                    val nh = (baseH + drag.y / heightPx)
                                         .coerceIn(0.04f, 1.5f)
                                     onChange(
                                         e.copy(
@@ -535,6 +575,21 @@ private fun ChromeButton(
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
     }
+}
+
+/**
+ * Per-type lower bound on the rendered height. Free-resize lets riders shrink
+ * elements vertically, but each type has a point below which it stops being a
+ * usable widget (a linear bar with no visible fill, a label with clipped text).
+ * Applied as a floor on the heightIn modifier so the saved value can still go
+ * lower without breaking the render.
+ */
+private fun minRenderedHeightDp(type: OverlayElementType): androidx.compose.ui.unit.Dp = when (type) {
+    OverlayElementType.DATA_BAR -> 32.dp
+    OverlayElementType.DATA_GRAPH -> 36.dp
+    OverlayElementType.MAP -> 60.dp
+    OverlayElementType.FLOATING_CAMERA -> 60.dp
+    else -> 16.dp
 }
 
 /** Dispatch to the per-type renderer. */
