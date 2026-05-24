@@ -211,7 +211,7 @@ data class AppSettings(
      */
     val gpsPrioritizeExternal: Boolean = true,
     /** Show the extra-GPS speed indicator on the dashboard speed dial. */
-    val gpsShowOnDashboard: Boolean = true,
+    val gpsShowOnDashboard: Boolean = false,
 
     // --- Navigator ---
     // In-app navigation: the route builder, live turn-by-turn guidance and the
