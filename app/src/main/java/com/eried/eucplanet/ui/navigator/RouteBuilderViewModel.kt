@@ -195,6 +195,14 @@ class RouteBuilderViewModel @Inject constructor(
                 handleIncomingShare(req)
             }
         }
+        // Signal raised once the persisted route (if any) has been read
+        // back into _waypoints / _route. The arrived collector below
+        // awaits this BEFORE processing any nav events, so a VM that was
+        // just re-created mid-navigation (e.g. rider switched tabs and
+        // came back during the arrival dismiss window) can't see
+        // arrived=true with a still-empty _waypoints and skip the
+        // passed-mark for the stop the rider just reached.
+        val restoreReady = kotlinx.coroutines.CompletableDeferred<Unit>()
         viewModelScope.launch {
             val s = settingsRepository.get()
             geocoderUrl = s.navGeocoderUrl.ifBlank { RoutingService.DEFAULT_GEOCODER }
@@ -237,6 +245,9 @@ class RouteBuilderViewModel @Inject constructor(
                     }
                 }
             }
+            // Signal restore-complete after the section above finishes --
+            // independent of whether anything was actually restored.
+            restoreReady.complete(Unit)
         }
         // While navigation is running, drop already-reached stops from the
         // builder's visible waypoint list so the map matches reality. The
@@ -264,6 +275,13 @@ class RouteBuilderViewModel @Inject constructor(
         // would see two or three stops vanish from one physical arrival.
         var arrivalProcessed = false
         viewModelScope.launch {
+            // Wait until the persisted route has been read back into
+            // _waypoints before processing arrival events. Without this,
+            // a VM re-created during the engine's post-arrival window
+            // would observe arrived=true with _waypoints still empty,
+            // skip the mark, and the rider would see the entire route
+            // disappear when the engine's stop() finally fired.
+            restoreReady.await()
             navigationEngine.navState.collect { nav ->
                 if (!nav.active || !nav.arrived) {
                     arrivalProcessed = false
