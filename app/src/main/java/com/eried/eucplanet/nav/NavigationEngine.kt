@@ -189,6 +189,14 @@ class NavigationEngine @Inject constructor(
     private var coldStreak = 0
 
     private var arrivalHandled = false
+    /** True after the engine has fired ANY arrival in this navigation session.
+     *  Used to disable the heading-null 'rider is already inside the goal's
+     *  radius' shortcut on subsequent legs -- it should only ever fire on the
+     *  FIRST leg (the 'rider started on top of a stop' case). For follow-on
+     *  legs, the rider must physically move (heading established) before any
+     *  arrival can fire, otherwise stops 1 and 2 cascade in a single fix
+     *  when they happen to be near each other. */
+    private var anyArrivalHappened = false
     // Destinations already visited and mirrored to the builder's saved route.
     private var lastSyncedReached = 0
 
@@ -221,6 +229,10 @@ class NavigationEngine @Inject constructor(
             activeRoute = route
             navMode = mode
             resetRuntimeState()
+            // Reset 'any arrival fired in this session' here, NOT in
+            // resetRuntimeState (which advanceLeg also calls -- the flag
+            // is intentionally preserved across legs).
+            anyArrivalHappened = false
             waypointAlongM = if (route.geometry.size >= 2) {
                 route.waypoints.mapNotNull {
                     GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM
@@ -383,7 +395,16 @@ class NavigationEngine @Inject constructor(
             // a delayed / cached first fix used to skip this branch and
             // leave the rider stuck on 'Start riding' next to a stop
             // they were on top of.
-            if (currentGoal == 1 && route.waypoints.size > 1) {
+            // Heading-null shortcut: only on the FIRST leg of the trip
+            // (anyArrivalHappened == false). For follow-on legs the rider
+            // must actually move and trigger arrival via the TBT /
+            // Treasure-Hunt paths -- otherwise two close-together stops
+            // cascade in one fix because, right after advanceLeg, the
+            // rider is still standing on the previous flag while the
+            // new leg's goal sits inside the same 50 m radius.
+            if (!anyArrivalHappened &&
+                currentGoal == 1 && route.waypoints.size > 1
+            ) {
                 val g = route.waypoints[1]
                 val d = GeoMath.distanceM(point, g.point())
                 val r = (g.radiusM ?: arrivalRadiusM)
@@ -834,6 +855,7 @@ class NavigationEngine @Inject constructor(
     private fun handleArrival() {
         if (arrivalHandled) return
         arrivalHandled = true
+        anyArrivalHappened = true
         // Set arrived=true so the VM's collector can react (mark this stop
         // passed, build the next leg, call advanceLeg). DO NOT touch
         // primaryText / distanceText yet -- if this is an intermediate
