@@ -1168,27 +1168,38 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val track = fill.copy(alpha = 0.2f)
     val bg = Color(element.background)
     val isSemi = element.dialStyle == "SEMICIRCLE"
-    // Aspect is HARD-LOCKED, see comment in StudioElementBox: the dial's
-    // geometry only makes sense at 1:1 (full ring) or ~1.82:1 (semicircle).
-    // The semicircle box is intentionally a touch TALLER than a pure 2:1
-    // dome -- a small rounded-bottom strip below the diameter hides the
-    // round-cap overshoot at the progress arc's endpoints and gives the
-    // widget a finished silhouette instead of a hard-cut flat bottom.
-    // 0.62 = (dome radius w/2) + (strip 12% of width) divided by w. The
-    // strip is a visible base in its own right -- thick enough to read as
-    // a deliberate plinth rather than a thin lip, and to comfortably hold
-    // the round caps of the progress arc at every dial size.
-    val aspect = if (isSemi) (1f / 0.62f) else 1f
+    // Geometry:
+    //   FULL -> 1:1, classic 270 deg arc.
+    //   SEMICIRCLE -> dome (radius w/2) on top, a fixed-ish-dp rounded
+    //   strip below. The strip is sized in dp (clamped 10..24 dp) instead
+    //   of as a fraction of width so a small dial gets a visible base and
+    //   a big dial does not get a slab-sized one. The strip's job is to
+    //   read as a deliberate plinth and to absorb the progress arc's
+    //   round-cap overshoot at the diameter.
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
-            .aspectRatio(aspect),
+            .then(
+                if (isSemi) Modifier  // height computed below
+                else Modifier.aspectRatio(1f)
+            ),
         contentAlignment = if (isSemi) Alignment.BottomCenter else Alignment.Center
     ) {
-        val w = maxWidth.value
+        val dialW: Dp = maxWidth
+        val stripDp: Dp = if (isSemi)
+            (dialW * 0.12f).coerceIn(10.dp, 24.dp)
+        else 0.dp
+        val targetH: Dp = if (isSemi) dialW / 2f + stripDp else dialW
+        val w = dialW.value
         // Background + progress arc share one Canvas so the geometry stays in
-        // perfect lockstep at every size.
-        androidx.compose.foundation.Canvas(Modifier.fillMaxSize()) {
+        // perfect lockstep at every size. Canvas is sized to the target
+        // dimensions so the dome takes width x (width/2) and the strip
+        // occupies the remaining stripDp at the bottom.
+        androidx.compose.foundation.Canvas(
+            Modifier
+                .fillMaxWidth()
+                .height(targetH)
+        ) {
             val pad = 12.dp.toPx()
             if (isSemi) {
                 // Dome (top half of a circle radius = w/2 centred at
@@ -1297,11 +1308,12 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
         // size between the new 50 dp minimum and a full-canvas dial.
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            // Lift the readout above the strip so the text sits inside the
-            // dome, not over the rounded-bottom strip. ~18% of w lands it
-            // safely above the strip's top edge at every size.
+            // Anchor the readout JUST above the strip's top edge so it
+            // visually sits on the plinth rather than floating in the
+            // middle of the bounding rect. Padding = stripDp + 4 dp clears
+            // both the strip and the round-cap region of the progress arc.
             modifier = if (isSemi)
-                Modifier.padding(bottom = (w * 0.18f).dp)
+                Modifier.padding(bottom = stripDp + 4.dp)
             else Modifier
         ) {
             androidx.compose.material3.Text(
