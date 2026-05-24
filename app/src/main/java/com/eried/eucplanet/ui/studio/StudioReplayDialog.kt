@@ -457,6 +457,14 @@ private fun ExportFormatChooser(
             )
         }
         if (optionsOpen) {
+            // Chroma + force-opaque only apply to alpha-less formats (JPG /
+            // MP4). When BOTH the chosen photo and video formats carry
+            // alpha, those controls are inert -- dim them so the rider
+            // sees they have no effect rather than wondering why their
+            // PNG / GIF still shows transparency.
+            val opaqueAffects =
+                !prefs.photoFormat.hasAlpha || !prefs.videoFormat.hasAlpha
+            val ctrlAlpha = if (opaqueAffects) 1f else 0.4f
             Text(
                 stringResource(R.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
@@ -477,10 +485,13 @@ private fun ExportFormatChooser(
             Text(
                 stringResource(R.string.studio_export_chroma),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f),
+                color = Color.White.copy(alpha = 0.6f * ctrlAlpha),
                 modifier = Modifier.padding(bottom = 6.dp)
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                Modifier.alpha(ctrlAlpha),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 chromaPresets.forEach { (labelRes, argb) ->
                     val selected = argb == prefs.chromaColor
                     Box(
@@ -494,7 +505,11 @@ private fun ExportFormatChooser(
                                 else Color.White.copy(alpha = 0.4f),
                                 shape = CircleShape
                             )
-                            .clickable { onChromaColor(argb) },
+                            .then(
+                                if (opaqueAffects)
+                                    Modifier.clickable { onChromaColor(argb) }
+                                else Modifier
+                            ),
                         contentAlignment = Alignment.Center
                     ) {
                         if (selected) {
@@ -512,14 +527,20 @@ private fun ExportFormatChooser(
                 }
             }
 
-            // Force-opaque — a half-transparent element would blend with the
-            // chroma fill of an alpha-less format.
+            // Force-opaque — a partly-transparent element would blend with
+            // the chroma fill of an alpha-less format. Disabled when both
+            // picked formats carry alpha (the toggle would have no effect).
             Spacer(Modifier.height(12.dp))
             Row(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable { onForceOpaque(!prefs.forceOpaque) }
+                    .alpha(ctrlAlpha)
+                    .then(
+                        if (opaqueAffects)
+                            Modifier.clickable { onForceOpaque(!prefs.forceOpaque) }
+                        else Modifier
+                    )
                     .padding(vertical = 4.dp, horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -530,7 +551,8 @@ private fun ExportFormatChooser(
                 )
                 Switch(
                     checked = prefs.forceOpaque,
-                    onCheckedChange = { onForceOpaque(it) },
+                    onCheckedChange = if (opaqueAffects)
+                        { v -> onForceOpaque(v) } else null,
                     colors = SwitchDefaults.colors(
                         checkedThumbColor = StudioControlAccent,
                         checkedTrackColor = StudioControlAccent.copy(alpha = 0.45f)
@@ -543,7 +565,7 @@ private fun ExportFormatChooser(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 2.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.6f)
+                color = Color.White.copy(alpha = 0.6f * ctrlAlpha)
             )
         }
         Spacer(Modifier.height(4.dp))
