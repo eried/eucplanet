@@ -684,7 +684,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
   }
 
   function markerPts(){
-    return markers.map(function(m){ var ll = m.getLatLng(); return [ll.lat, ll.lng]; });
+    // Passed stops are EXCLUDED -- the drag connector should treat them
+    // as if they aren't part of the in-progress route. Keeps the dashed
+    // preview line away from already-completed flags while the rider
+    // re-arranges the pending stops.
+    return markers
+      .filter(function(m){ return !m._passed; })
+      .map(function(m){ var ll = m.getLatLng(); return [ll.lat, ll.lng]; });
   }
 
   // Dashed line straight through the current marker positions. Shown while a
@@ -842,6 +848,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
   window.nativeRender = function(wpJson, geomJson, fit){
     var wps = JSON.parse(wpJson);
     var geom = JSON.parse(geomJson);
+    // Cache the latest payload so refreshRouteVisibility() (called when
+    // the user marker crosses a passed flag's radius boundary) can
+    // re-render without waiting for a native nativeRender call.
+    lastWps = wps;
+    lastGeom = geom;
+    userInsidePassedFlag = riderInsideAnyPassedFlag();
 
     markers.forEach(function(m){ if (m) map.removeLayer(m); });
     rings.forEach(function(r){ if (r) map.removeLayer(r); });
@@ -854,14 +866,8 @@ internal const val ROUTE_BUILDER_HTML: String = """
       if (!wps[k].passed) { firstActiveIdx = k; break; }
     }
     nextActiveMarkerIdx = firstActiveIdx;
-    // Visible label counter for non-passed stops: every non-passed pin
-    // gets the next consecutive number starting at 1, regardless of how
-    // many passed stops sit before it in the array. Avoids the "where's
-    // stop 1?" confusion after the first stop turns into a flag.
-    var visibleLabel = 0;
     wps.forEach(function(w, i){
       var isPassed = !!w.passed;
-      if (!isPassed) visibleLabel++;
       var isNext = navLocked && !isPassed && i === firstActiveIdx;
       var stopColor = isNext ? '#66BB6A' : (isPassed ? '#8C8C90' : '#FFA726');
       // Passed stops don't get a radius ring -- they're done and clutter
@@ -886,7 +892,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
         draggable: !navLocked && !isPassed,
         icon: isPassed
           ? iconForPassed()
-          : (navLocked ? iconForLocked(stopColor) : iconFor(visibleLabel, stopColor))
+          : (navLocked ? iconForLocked(stopColor) : iconFor(i + 1, stopColor))
       });
       m.on('dragstart', function(){
         // Drop the solved route; show the dashed preview while dragging.
@@ -920,6 +926,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
           AndroidNav.onMarkerTapped(idx, Math.round(mp.x), Math.round(mp.y));
         };
       })(i));
+      m._passed = isPassed;
       m.addTo(map);
       markers.push(m);
     });
@@ -930,11 +937,25 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // into the 'keep previous line because markers exist' branch and
     // strand a green stub on the map.)
     var allPassed = wps.length > 0 && wps.every(function(w){ return !!w.passed; });
+    // Right after the rider passes a stop they're standing INSIDE that
+    // flag's arrival radius -- the new leg's origin is the same point,
+    // so a line would visibly originate from the flag and read as a
+    // 'leftover path to the goal'. We suppress the routeLine until the
+    // rider has moved beyond the flag's radius; nativeSetUser's
+    // boundary detector re-renders when that happens.
     if (allPassed) {
       if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
       clearArrows();
       clearConnector();
       clearPreview();
+    } else if (userInsidePassedFlag) {
+      // Rider on a just-passed flag: hide the leg line + arrows; keep
+      // the dashed straight-line preview through the remaining stops
+      // so the rider can still see the order.
+      if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+      clearArrows();
+      clearConnector();
+      drawPreview(wps);
     } else if (geom.length >= 2){
       // A solved route — solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
@@ -1110,6 +1131,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
   window.nativeSetUser = function(lat, lng){
     var p = [lat, lng];
+    var wasInside = userInsidePassedFlag;
     if (!userMarker){
       userMarker = L.marker(p, {
         icon: buildUserIcon(),
@@ -1120,7 +1142,36 @@ internal const val ROUTE_BUILDER_HTML: String = """
     } else {
       userMarker.setLatLng(p);
     }
+    // Re-evaluate "rider inside a passed flag's radius"; when this flips
+    // we need to redraw so the routeLine appears (rider left the flag)
+    // or disappears (rider entered another passed flag's radius).
+    userInsidePassedFlag = riderInsideAnyPassedFlag();
+    if (wasInside !== userInsidePassedFlag) {
+      refreshRouteVisibility();
+    }
   };
+
+  // True while the rider's marker is inside ANY passed stop's arrival
+  // radius. Read by nativeRender to suppress routeLine when true; the
+  // user-marker update above keeps it in sync.
+  var userInsidePassedFlag = false;
+  var lastWps = [];
+  var lastGeom = [];
+  function riderInsideAnyPassedFlag(){
+    if (!userMarker) return false;
+    var u = userMarker.getLatLng();
+    for (var i = 0; i < lastWps.length; i++) {
+      var w = lastWps[i];
+      if (!w.passed) continue;
+      if (u.distanceTo([w.lat, w.lng]) <= (w.radius || 40)) return true;
+    }
+    return false;
+  }
+  function refreshRouteVisibility(){
+    // No-op if no waypoint snapshot yet (very early init).
+    if (!lastWps.length) return;
+    window.nativeRender(JSON.stringify(lastWps), JSON.stringify(lastGeom), false);
+  }
 
   // Push the rider's heading in degrees. Only called when the rider is
   // moving fast enough that GPS bearing is meaningful (see Kotlin: speed-

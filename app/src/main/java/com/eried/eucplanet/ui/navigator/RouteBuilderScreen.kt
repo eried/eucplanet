@@ -1467,13 +1467,17 @@ private fun BottomPanel(
                                             .padding(vertical = 2.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        // The drag handle is inert when there is only one stop, AND
-                                        // also while guidance is running (mid-trip resorting would
-                                        // recompute the live route — destructive), AND when this
-                                        // stop has already been passed (it's a record now, not
-                                        // something to reorder).
+                                        // Drag/reorder lock states:
+                                        //   * disabled while nav is running (mid-trip resort
+                                        //     would destroy the live route)
+                                        //   * disabled when only one stop is left
+                                        //   * disabled when the whole route is done (allPassed
+                                        //     -- the rider is expected to hit 'New route')
+                                        // A passed stop sitting alongside still-pending stops
+                                        // CAN be dragged / removed -- the rider might want to
+                                        // re-add it or reshuffle the remaining list.
                                         val canReorder =
-                                            waypoints.size > 1 && !navRunning && !waypoint.passed
+                                            waypoints.size > 1 && !navRunning && !allPassed
                                         Icon(
                                             Icons.Default.DragHandle,
                                             contentDescription = stringResource(R.string.nav_drag_stop),
@@ -1550,10 +1554,12 @@ private fun BottomPanel(
                                                 modifier = Modifier.weight(1f)
                                             )
                                         }
-                                        // Quick-access remove — locked while guiding AND on
-                                        // already-passed stops (they're a record of the trip,
-                                        // not editable). Icon dims when not tappable.
-                                        val canDelete = !navRunning && !waypoint.passed
+                                        // Quick-access remove. Locked while nav is running;
+                                        // locked when the whole route is allPassed (rider
+                                        // should hit 'New route'). A single passed stop
+                                        // alongside pending ones IS removable -- treat it
+                                        // like any other entry once nav is stopped.
+                                        val canDelete = !navRunning && !allPassed
                                         IconButton(
                                             onClick = { onRemove(index) },
                                             enabled = canDelete
