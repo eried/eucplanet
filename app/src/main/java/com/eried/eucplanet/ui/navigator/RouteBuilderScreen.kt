@@ -538,7 +538,15 @@ fun RouteBuilderScreen(
                                 )
                             },
                             onClear = {
-                                if (waypoints.size > 1 && !routeClean) {
+                                // Skip the 'Start a new route?' confirmation when:
+                                //   * there's nothing meaningful to confirm
+                                //     discarding (single stop / freshly-loaded
+                                //     'clean' route), OR
+                                //   * every stop is already passed -- the trip
+                                //     is over, the rider's intent is unambiguous.
+                                val allPassed = waypoints.isNotEmpty() &&
+                                    waypoints.all { it.passed }
+                                if (waypoints.size > 1 && !routeClean && !allPassed) {
                                     clearConfirmOpen = true
                                 } else viewModel.clear()
                             },
@@ -1215,11 +1223,9 @@ private fun BottomPanel(
                 Spacer(Modifier.width(12.dp))
                 if (routing) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                } else if (routeDistanceM != null && routeDistanceM > 0) {
-                    // While navigating, the solved route only spans the next
-                    // leg (origin -> next stop), so its total IS the next-stop
-                    // distance. Prefix it with "Next:" so the rider can tell
-                    // at a glance this isn't the multi-stop total any more.
+                } else if (!allPassed && routeDistanceM != null && routeDistanceM > 0) {
+                    // Hidden when the trip is over (allPassed) -- there is no
+                    // 'next' distance to show; the rider should hit New route.
                     val distText = NavFormat.distance(context, routeDistanceM, imperial)
                     Text(
                         if (navRunning) stringResource(R.string.nav_next_distance, distText)
@@ -1339,14 +1345,16 @@ private fun BottomPanel(
                     )
                 )
                 // Travel mode (icons) + a Start button, combined into one row.
-                // The mode row dims to 40% alpha while nav is running so the
-                // "selected mode pill" doesn't read as enabled. Functional
-                // disable is also on each SegmentedButton.
+                // The mode row dims to 40% alpha while nav is running OR
+                // when the trip is over (allPassed) so the "selected mode
+                // pill" doesn't read as enabled. Functional disable is
+                // also on each SegmentedButton.
+                val modesLocked = navRunning || allPassed
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     SingleChoiceSegmentedButtonRow(
                         modifier = Modifier
                             .weight(1f)
-                            .then(if (navRunning) Modifier.alpha(0.4f) else Modifier)
+                            .then(if (modesLocked) Modifier.alpha(0.4f) else Modifier)
                     ) {
                         modes.forEachIndexed { index, (mode, icon, labelRes) ->
                             // Icon tint matches the route line colour for that
@@ -1367,7 +1375,7 @@ private fun BottomPanel(
                             SegmentedButton(
                                 selected = travelMode == mode,
                                 onClick = { onModeChange(mode) },
-                                enabled = !navRunning,
+                                enabled = !modesLocked,
                                 shape = SegmentedButtonDefaults.itemShape(index, modes.size),
                                 icon = {}
                             ) {

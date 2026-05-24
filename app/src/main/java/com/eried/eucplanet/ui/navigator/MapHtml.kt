@@ -998,11 +998,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
     if (fit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
       if (pts.length >= 2){
-        // maxZoom: 17 keeps the auto-fit from snapping to the highest
-        // possible level on tight bounds (origin a few meters from the
-        // first stop) -- without it the rider saw a 'street-level' flash
-        // on first map open before the next render relaxed the zoom.
-        map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 17 });
+        // maxZoom: 15 keeps the auto-fit from snapping to a building-level
+        // view on tight bounds (origin a few meters from the first stop)
+        // -- 17 was still too tight on short legs and made the map flash
+        // 'right on top of the rider' on first open.
+        map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 15 });
       } else if (pts.length === 1){
         map.setView(pts[0], 16);
       }
