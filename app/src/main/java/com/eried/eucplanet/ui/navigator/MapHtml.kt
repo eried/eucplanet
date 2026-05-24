@@ -798,6 +798,11 @@ internal const val ROUTE_BUILDER_HTML: String = """
         // Drop the solved route; show the dashed preview while dragging.
         if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
         drawConnector();
+        // Tell Kotlin so it suppresses route recompute (GPS jitter would
+        // otherwise yank the preview out from under the rider's finger).
+        if (window.AndroidNav && AndroidNav.onMarkerDragStart) {
+          AndroidNav.onMarkerDragStart();
+        }
       });
       m.on('drag', (function(idx){
         // Keep the stop's radius ring under the pin while dragging, so the

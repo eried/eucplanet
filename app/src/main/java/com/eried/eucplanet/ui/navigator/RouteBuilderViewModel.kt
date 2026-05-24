@@ -170,6 +170,14 @@ class RouteBuilderViewModel @Inject constructor(
     private val _routeClean = MutableStateFlow(false)
     val routeClean: StateFlow<Boolean> = _routeClean.asStateFlow()
 
+    /** True while the rider is actively dragging a stop (either a map pin
+     *  or a list row in the reorder list). While true, scheduleRecompute()
+     *  is a no-op -- GPS-shift recomputes mid-drag yank the dashed preview
+     *  out from under the rider's finger and feel like the app is
+     *  fighting them. A trailing recompute fires once the drag ends. */
+    private val _userDragging = MutableStateFlow(false)
+    private var recomputeQueuedDuringDrag = false
+
     init {
         // The route builder needs a live fix for the "my location" button.
         // WheelService owns the GPS lifecycle in general; this is an idempotent
@@ -443,7 +451,29 @@ class RouteBuilderViewModel @Inject constructor(
 
     // --- Routing -----------------------------------------------------------------
 
+    private var pendingRecomputeFit = false
+
+    /** Called by the screen when the rider starts / stops dragging a stop. */
+    fun setUserDragging(dragging: Boolean) {
+        if (_userDragging.value == dragging) return
+        _userDragging.value = dragging
+        // Once the drag ends, flush any recompute the GPS or list reorder
+        // wanted to fire mid-drag.
+        if (!dragging && recomputeQueuedDuringDrag) {
+            recomputeQueuedDuringDrag = false
+            scheduleRecompute(fit = pendingRecomputeFit)
+            pendingRecomputeFit = false
+        }
+    }
+
     private fun scheduleRecompute(fit: Boolean) {
+        if (_userDragging.value) {
+            // The rider's finger is on a stop. Don't yank the preview now;
+            // remember we owe one and fire it after dragend.
+            recomputeQueuedDuringDrag = true
+            pendingRecomputeFit = pendingRecomputeFit || fit
+            return
+        }
         _routeClean.value = false
         routeJob?.cancel()
         enrichJob?.cancel()

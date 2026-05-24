@@ -641,6 +641,8 @@ fun RouteBuilderScreen(
                                         viewModel.moveWaypoint(i, lat, lng)
                                     }
                                 },
+                                markerDragStart = { viewModel.setUserDragging(true) },
+                                markerDragEnd = { viewModel.setUserDragging(false) },
                                 selfTap = { x, y ->
                                     selfMenuOffset = DpOffset(x.dp, y.dp)
                                     selfMenuOpen = true
@@ -860,6 +862,8 @@ fun RouteBuilderScreen(
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
                     onReorder = viewModel::reorderWaypoints,
+                    onListReorderStart = { viewModel.setUserDragging(true) },
+                    onListReorderEnd = { viewModel.setUserDragging(false) },
                     onCenterPin = { idx ->
                         waypoints.getOrNull(idx)?.let { wp ->
                             webView?.evaluateJavascript(
@@ -1161,6 +1165,8 @@ private fun BottomPanel(
     imperial: Boolean,
     onRemove: (Int) -> Unit,
     onReorder: (Int, Int) -> Unit,
+    onListReorderStart: () -> Unit,
+    onListReorderEnd: () -> Unit,
     onCenterPin: (Int) -> Unit,
     onSaveHome: (Int) -> Unit,
     onSaveWork: (Int) -> Unit,
@@ -1409,8 +1415,14 @@ private fun BottomPanel(
                     ) {
                         ReorderableColumn(
                             list = waypoints,
-                            onSettle = if (navRunning) { _, _ -> } else onReorder,
-                            onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                            onSettle = if (navRunning) { _, _ -> } else { from, to ->
+                                onListReorderEnd()
+                                onReorder(from, to)
+                            },
+                            onMove = {
+                                onListReorderStart()
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) { index, waypoint, _ ->
                             key("${waypoint.lat},${waypoint.lng},${waypoint.name},$index") {
@@ -1563,6 +1575,8 @@ private fun BottomPanel(
 private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
+    private val markerDragStart: () -> Unit,
+    private val markerDragEnd: () -> Unit,
     private val selfTap: (Int, Int) -> Unit,
     private val markerTapped: (Int, Int, Int) -> Unit,
     private val mapViewChanged: (Double, Double, Float) -> Unit
@@ -1576,7 +1590,15 @@ private class NavJsBridge(
 
     @JavascriptInterface
     fun onMarkerDragged(index: Int, lat: Double, lng: Double) {
-        main.post { markerDragged(index, lat, lng) }
+        main.post {
+            markerDragEnd()
+            markerDragged(index, lat, lng)
+        }
+    }
+
+    @JavascriptInterface
+    fun onMarkerDragStart() {
+        main.post { markerDragStart() }
     }
 
     @JavascriptInterface
