@@ -958,7 +958,7 @@
     <string name="studio_export_format">Utdataformat</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
-    <string name="studio_export_chroma">Chroma key-färg</string>
+    <string name="studio_export_chroma">Chromakey</string>
     <string name="studio_export_options">Utdataalternativ</string>
     <string name="studio_export_scale">Skala</string>
     <string name="studio_chroma_magenta">Magenta</string>

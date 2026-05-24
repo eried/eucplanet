@@ -994,7 +994,7 @@
     <string name="studio_export_format">Formato de salida</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
-    <string name="studio_export_chroma">Color de croma</string>
+    <string name="studio_export_chroma">Clave de croma</string>
     <string name="studio_export_options">Opciones de salida</string>
     <string name="studio_export_scale">Escala</string>
     <string name="studio_chroma_magenta">Magenta</string>

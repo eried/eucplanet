@@ -958,7 +958,7 @@
     <string name="studio_export_format">输出格式</string>
     <string name="studio_export_photo">照片</string>
     <string name="studio_export_video">视频</string>
-    <string name="studio_export_chroma">色键颜色</string>
+    <string name="studio_export_chroma">色键</string>
     <string name="studio_export_options">输出选项</string>
     <string name="studio_export_scale">缩放</string>
     <string name="studio_chroma_magenta">品红</string>

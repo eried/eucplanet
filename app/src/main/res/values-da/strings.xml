@@ -960,7 +960,7 @@
     <string name="studio_export_format">Outputformat</string>
     <string name="studio_export_photo">Foto</string>
     <string name="studio_export_video">Video</string>
-    <string name="studio_export_chroma">Chroma key-farve</string>
+    <string name="studio_export_chroma">Chroma key</string>
     <string name="studio_export_options">Outputindstillinger</string>
     <string name="studio_export_scale">Skalering</string>
     <string name="studio_chroma_magenta">Magenta</string>

@@ -510,26 +510,34 @@ fun OverlayStudioScreen(
     LaunchedEffect(capturing) {
         if (capturing) {
             // Replay snapshots honour the chosen photo format. Live snapshots
-            // stay JPEG. PNG / WEBP keep the transparent background; JPG has no
-            // alpha so it composites onto the chroma colour.
+            // stay JPEG.
             val photoFormat =
                 if (replayMode) exportPrefs.photoFormat else ReplayPhotoFormat.JPG
-            // JPG lacks alpha — when the rider asked for opaque overlays, flag
-            // the recording layer to draw every element at 100% opacity.
-            val opaqueExport = !photoFormat.hasAlpha && exportPrefs.forceOpaque
+            // Force-opaque applies to EVERY photo format when the rider checks
+            // it: alpha-capable PNG / WEBP previously ignored the toggle
+            // because the "format has alpha" gate skipped the flag, but the
+            // rider's intent ("no transparency in the output") is independent
+            // of the container's capabilities. JPG always opaque.
+            val opaqueExport =
+                !photoFormat.hasAlpha || exportPrefs.forceOpaque
             if (opaqueExport) renderForceOpaque = true
             delay(160) // let the element selection chrome clear for a clean frame
             val bmp = runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }
                 .getOrNull()
             val uri = bmp?.let { src ->
+                // When the export is opaque, flatten every format onto the
+                // chroma colour so there are no remaining transparent
+                // pixels (PNG / WEBP would otherwise keep their alpha
+                // channel even after renderForceOpaque sets element opacity
+                // to 1, because viewport gaps + image elements can still
+                // carry transparency).
+                val flat = if (opaqueExport)
+                    flattenOntoChroma(src, exportPrefs.chromaColor)
+                else src
                 when (photoFormat) {
-                    ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, src)
-                    ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, src)
-                    ReplayPhotoFormat.JPG ->
-                        // JPEG has no alpha — flatten onto the chroma colour first.
-                        StudioCapture.saveJpeg(
-                            context, flattenOntoChroma(src, exportPrefs.chromaColor)
-                        )
+                    ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, flat)
+                    ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, flat)
+                    ReplayPhotoFormat.JPG -> StudioCapture.saveJpeg(context, flat)
                 }
             }
             val photoMime = when (photoFormat) {
@@ -577,9 +585,10 @@ fun OverlayStudioScreen(
         val videoFormat = exportPrefs.videoFormat
         val chroma = exportPrefs.chromaColor
         val savedPos = replayPosMs
-        // MP4 lacks alpha — when the rider asked for opaque overlays, draw every
-        // element at 100% opacity so nothing blends with the chroma fill.
-        val opaqueExport = !videoFormat.hasAlpha && exportPrefs.forceOpaque
+        // Force-opaque applies to every video format when the rider checks it,
+        // same as the photo path: GIF / APNG previously ignored the toggle
+        // because of an alpha-capability gate. MP4 always opaque.
+        val opaqueExport = !videoFormat.hasAlpha || exportPrefs.forceOpaque
         if (opaqueExport) renderForceOpaque = true
         // The saved-file Uri, captured per format so the success snackbar can
         // offer a "View" action: MP4 from the encoder, GIF / APNG from the
@@ -690,9 +699,14 @@ fun OverlayStudioScreen(
                                 StudioGifEncoder(stream, ew, eh, frameMs) else null
                             val apng = if (videoFormat == ReplayVideoFormat.APNG)
                                 StudioApngEncoder(stream, ew, eh, frameMs, frameCount) else null
+                            // When force-opaque is on, every frame is flattened
+                            // onto the chroma colour before encoding so no
+                            // transparency leaks through.
+                            fun prep(b: android.graphics.Bitmap): android.graphics.Bitmap =
+                                if (opaqueExport) flattenOntoChroma(b, chroma) else b
                             withContext(Dispatchers.IO) {
-                                gif?.addFrame(first)
-                                apng?.addFrame(first)
+                                gif?.addFrame(prep(first))
+                                apng?.addFrame(prep(first))
                             }
                             renderProgress = 1f / frameCount
                             for (i in 1 until frameCount) {
@@ -703,9 +717,10 @@ fun OverlayStudioScreen(
                                 replayPosMs = replayStartMs + i * stepMs
                                 repeat(2) { withFrameNanos {} }
                                 val frame = graphicsLayer.toImageBitmap().asAndroidBitmap()
+                                val toEncode = prep(frame)
                                 withContext(Dispatchers.IO) {
-                                    gif?.addFrame(frame)
-                                    apng?.addFrame(frame)
+                                    gif?.addFrame(toEncode)
+                                    apng?.addFrame(toEncode)
                                 }
                                 renderProgress = (i + 1f) / frameCount
                             }

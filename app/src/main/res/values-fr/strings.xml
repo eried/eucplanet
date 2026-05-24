@@ -958,7 +958,7 @@
     <string name="studio_export_format">Format de sortie</string>
     <string name="studio_export_photo">Photo</string>
     <string name="studio_export_video">Vidéo</string>
-    <string name="studio_export_chroma">Couleur d\'incrustation</string>
+    <string name="studio_export_chroma">Clé chroma</string>
     <string name="studio_export_options">Options de sortie</string>
     <string name="studio_export_scale">Échelle</string>
     <string name="studio_chroma_magenta">Magenta</string>
