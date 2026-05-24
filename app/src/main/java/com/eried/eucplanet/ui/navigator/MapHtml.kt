@@ -486,30 +486,52 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // when the freeze started); they just stretch / compress via CSS
     // to match the fractional zoom. Once the freeze releases, normal
     // _setView resumes and tiles re-fetch at the right resolution.
-    var originalSetView = L.GridLayer.prototype._setView;
-    var originalPruneTiles = L.GridLayer.prototype._pruneTiles;
-    tileLayer._setView = function (center, zoom) {
-      // Always update the visual scale so the existing tiles slide
-      // with the map, even during the freeze.
-      this._setZoomTransforms(center, zoom);
-      if (window.tileFreezeTillMs && Date.now() < window.tileFreezeTillMs) return;
-      return originalSetView.apply(this, arguments);
-    };
-    // While the freeze is in effect, don't let _pruneTiles run -- the
-    // GridLayer otherwise removes the old-zoom tiles the moment the
-    // tile-zoom rounding changes, then waits for the new-zoom tiles to
-    // load. That gap was the visible "the layer disappears the whole
-    // movement" the rider reported. With pruning suspended, old tiles
-    // remain in the DOM (scaled by _setZoomTransforms) until the
-    // freeze releases, after which a single _setView call refetches
-    // properly.
-    tileLayer._pruneTiles = function () {
-      if (window.tileFreezeTillMs && Date.now() < window.tileFreezeTillMs) return;
-      return originalPruneTiles.apply(this, arguments);
-    };
-    // viewprereset still goes through Map._resetView; suppress the
-    // tile-DOM wipe entirely as before.
+    // Surgical patches on the tile layer to make continuous setView
+    // calls (the auto-follow tween) gentle:
+    //
+    // 1) `_invalidateAll` permanently no-op'd. The default fires on
+    //    viewprereset and yanks every tile DOM element, then setView
+    //    adds them back -- a one-frame gap with the background visible.
+    //    Real tile-source switches go through removeLayer+addLayer.
+    //
+    // 2) `_updateLevels` keeps ALL existing level containers in the
+    //    DOM. The default removes any level with no children, and the
+    //    sister-call _pruneTiles then empties the old level when zoom
+    //    changes -- so the moment we cross an integer zoom boundary,
+    //    the old level loses its tiles AND its container, before the
+    //    new level's tiles have finished loading. With this override,
+    //    the previous-zoom container (and its already-loaded tiles)
+    //    stays parked behind the new level until manually replaced --
+    //    no visible "blue" gap during zoom transitions.
     tileLayer._invalidateAll = function () {};
+    tileLayer._updateLevels = function () {
+      var zoom = this._tileZoom;
+      var maxZoom = this.options.maxZoom;
+      if (zoom === undefined) return undefined;
+      // Just re-stack z-indices; don't remove any level container.
+      for (var z in this._levels) {
+        var zn = Number(z);
+        this._levels[z].el.style.zIndex = maxZoom - Math.abs(zoom - zn);
+        if (this._onUpdateLevel) this._onUpdateLevel(zn);
+      }
+      var level = this._levels[zoom];
+      if (!level) {
+        level = this._levels[zoom] = {};
+        level.el = L.DomUtil.create(
+          'div', 'leaflet-tile-container leaflet-zoom-animated', this._container
+        );
+        level.el.style.zIndex = maxZoom;
+        level.origin = this._map.project(
+          this._map.unproject(this._map.getPixelOrigin()), zoom
+        ).round();
+        level.zoom = zoom;
+        this._setZoomTransform(level, this._map.getCenter(), this._map.getZoom());
+        L.Util.falseFn(level.el.offsetWidth);
+        if (this._onCreateLevel) this._onCreateLevel(level);
+      }
+      this._level = level;
+      return level;
+    };
   };
   window.nativeSetMapType('DARK');
 
@@ -717,18 +739,28 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // rotate. Without 'rotate' here, the chevrons kept their pre-rotation
   // angle after each auto-follow tween step and looked tilted off the
   // route line.
-  // Redraw arrows on every map view change. The arrow icons live in the
-  // no-rotate marker pane with screen-pixel positions baked in at draw
-  // time, so they need re-projecting on EVERY pan / zoom / rotate to
-  // stay glued to the route line. With the auto-follow tween calling
-  // setView at 60 Hz we listen to the per-frame `move` event too --
-  // without that, arrows drifted off the line during a slow pan.
-  map.on('move zoom rotate', function(){
-    if (travelMode === 'STRAIGHT' && routeLine){
-      var geom = routeLine.getLatLngs().map(function(ll){ return [ll.lat, ll.lng]; });
-      drawArrows(geom, routeColorFor(travelMode));
-    }
-  });
+  // Redraw arrows only when their CSS rotation can have meaningfully
+  // changed -- i.e., the map bearing has shifted enough that the
+  // chevron's screen-pixel direction is now noticeably off the segment.
+  // Pure pan doesn't need a redraw (the arrow markers are anchored to
+  // a lat/lng and Leaflet moves them with the map automatically).
+  // Pure zoom only changes spacing, not direction.
+  // The previous code redrew on every `move` -- with the auto-follow
+  // tween firing setView 60 Hz, that was a full clearArrows + N new
+  // divIcons per frame: blink.
+  var lastArrowBearing = NaN;
+  function maybeRedrawArrows() {
+    if (travelMode !== 'STRAIGHT' || !routeLine) return;
+    var b = map.getBearing();
+    if (!isNaN(lastArrowBearing) && Math.abs(b - lastArrowBearing) < 5) return;
+    lastArrowBearing = b;
+    var geom = routeLine.getLatLngs().map(function (ll) { return [ll.lat, ll.lng]; });
+    drawArrows(geom, routeColorFor(travelMode));
+  }
+  // moveend / zoomend cover the "final" redraw once the auto-follow
+  // settles, so the arrows snap to the exact bearing without waiting
+  // for a 5 deg threshold to trip.
+  map.on('rotate moveend zoomend', maybeRedrawArrows);
 
   window.nativeRender = function(wpJson, geomJson, fit){
     var wps = JSON.parse(wpJson);
