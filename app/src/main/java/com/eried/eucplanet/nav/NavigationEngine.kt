@@ -326,9 +326,28 @@ class NavigationEngine @Inject constructor(
             // because we don't know which way the rider is FACING. But we DO
             // know where the next goal is and how far away — so the popup
             // shows the distance, and a one-shot cue speaks it once on the
-            // first fix. Without this the rider only hears "Start riding"
-            // and has no idea how far the goal is until they start moving
-            // and a heading materializes.
+            // first fix.
+            //
+            // Advance over any goal the rider is already INSIDE the arrival
+            // radius of: if they pressed Start while standing on top of the
+            // first stop, the engine would otherwise stay stuck on "Start
+            // riding" forever because the proximity check normally runs
+            // only after a heading is established.
+            while (currentGoal < route.waypoints.size) {
+                val g = route.waypoints[currentGoal]
+                val d = GeoMath.distanceM(point, g.point())
+                if (d <= (g.radiusM ?: arrivalRadiusM)) {
+                    currentGoal++
+                    lastGoalDistM = Double.NaN
+                    lastProximity = null
+                    lastVoicedGoalDistM = Double.NaN
+                    preMoveCueSpoken = false
+                } else break
+            }
+            if (currentGoal >= route.waypoints.size) {
+                if (!arrivalHandled) handleArrival()
+                return
+            }
             val goal = route.waypoints.getOrNull(currentGoal)
             val distToGoal = if (goal != null) {
                 GeoMath.distanceM(point, goal.point())
@@ -336,12 +355,18 @@ class NavigationEngine @Inject constructor(
             val distanceText = if (!distToGoal.isNaN()) {
                 NavFormat.distance(context, distToGoal, imperial)
             } else ""
+            // Mirror currentGoal into navState so the VM trim drops stops
+            // we already advanced past in the loop above.
+            val goalCount = (route.waypoints.size - 1).coerceAtLeast(1)
             _navState.value = _navState.value.copy(
                 waiting = true,
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
-                distanceText = distanceText
+                distanceText = distanceText,
+                goalIndex = currentGoal.coerceIn(1, goalCount),
+                goalCount = goalCount
             )
+            syncBuilderRoute((currentGoal - 1).coerceAtLeast(0))
             if (voiceEnabled && !preMoveCueSpoken && !distToGoal.isNaN()) {
                 preMoveCueSpoken = true
                 voiceService.announceEvent(

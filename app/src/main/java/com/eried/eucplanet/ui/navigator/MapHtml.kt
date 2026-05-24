@@ -609,9 +609,17 @@ internal const val ROUTE_BUILDER_HTML: String = """
   };
 
   function colorFor(i, n){
-    if (i === 0) return '#66BB6A';
+    // Final destination: red. Used regardless of how many stops exist --
+    // a single-stop route IS the destination, so it lands here first.
     if (i === n - 1) return '#EF5350';
-    return accentColor;
+    // First remaining stop = the next one the rider is heading to: green.
+    // Stops drop off the head of the list as they're reached, so the
+    // colour automatically migrates to the new "next" without per-marker
+    // state.
+    if (i === 0) return '#66BB6A';
+    // Everything between next-stop and destination: orange. (Used to be
+    // the rider's accent colour, but blue blended with the route line.)
+    return '#FFA726';
   }
 
   function iconFor(label, color){

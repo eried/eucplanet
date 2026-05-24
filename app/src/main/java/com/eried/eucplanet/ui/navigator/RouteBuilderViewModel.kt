@@ -251,13 +251,13 @@ class RouteBuilderViewModel @Inject constructor(
                 if (!nav.active || nav.arrived) return@collect
                 val reachedDests = (nav.goalIndex - 1).coerceAtLeast(0)
                 if (reachedDests <= 0) return@collect
+                // _waypoints holds DESTINATIONS only (the rider's origin is
+                // synthesised inside scheduleRecompute, never stored here).
+                // So drop exactly the reached count off the head.
                 val current = _waypoints.value
-                // The list always starts with the rider's origin (index 0).
-                // Reaching N destinations means the first N+1 entries (origin
-                // + N visited stops) are behind us.
-                val dropCount = (reachedDests + 1).coerceAtMost(current.size - 1)
-                if (dropCount <= 1) return@collect
-                val remaining = listOf(current.first()) + current.drop(dropCount)
+                val dropCount = reachedDests.coerceAtMost(current.size)
+                if (dropCount <= 0) return@collect
+                val remaining = current.drop(dropCount)
                 if (remaining.size != current.size) {
                     _waypoints.value = remaining
                     bumpRender(fit = false)
