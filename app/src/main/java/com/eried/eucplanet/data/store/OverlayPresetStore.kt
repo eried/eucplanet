@@ -39,19 +39,37 @@ class OverlayPresetStore @Inject constructor(
         private const val PRESET_SUFFIX = ".json"
         /** Bundled starter presets ship here; the rider can load but not edit them. */
         private const val BUNDLED_DIR = "overlay_presets"
+        /** First-launch layout the rider sees before they save anything — kept
+         *  outside [BUNDLED_DIR] so it doesn't pollute the Load Starter list. */
+        private const val DEFAULT_ASSET = "overlay_default.json"
     }
 
     private val draftFile: File get() = File(context.filesDir, DRAFT_FILE)
 
-    /** The throwaway working layout, or a fresh default if none was saved. */
+    /**
+     * The throwaway working layout. On first launch (no draft yet) we hand the
+     * rider the bundled default layout from assets so the studio opens with a
+     * useful starting composition rather than an empty canvas; once they edit
+     * and the draft is written, this branch is never hit again on this device.
+     */
     suspend fun loadDraft(): OverlayPreset = withContext(Dispatchers.IO) {
-        if (!draftFile.exists()) return@withContext OverlayPreset()
+        if (!draftFile.exists()) return@withContext loadBundledDefault() ?: OverlayPreset()
         runCatching {
             OverlayPresetJson.fromJson(JSONObject(draftFile.readText()))
         }.getOrElse {
             Log.w(TAG, "Draft unreadable, starting fresh", it)
-            OverlayPreset()
+            loadBundledDefault() ?: OverlayPreset()
         }
+    }
+
+    /** First-launch layout from assets; null if missing or unreadable. */
+    private fun loadBundledDefault(): OverlayPreset? = runCatching {
+        context.assets.open(DEFAULT_ASSET).use { stream ->
+            OverlayPresetJson.fromJson(JSONObject(stream.readBytes().decodeToString()))
+        }
+    }.getOrElse {
+        Log.w(TAG, "Bundled default preset unreadable", it)
+        null
     }
 
     /** Persist the current working layout. Best-effort; failures are logged. */
