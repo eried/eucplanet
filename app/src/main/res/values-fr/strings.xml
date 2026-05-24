@@ -610,7 +610,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Vous êtes arrivé</string>
     <string name="nav_arrived_goal">Objectif %1$d atteint</string>
-    <string name="nav_clear_confirm">Abandonner l\'itinéraire actuel ?</string>
+    <string name="nav_clear_confirm">Démarrer un nouvel itinéraire ?</string>
+    <string name="nav_clear_confirm_body">Vos arrêts actuels seront effacés.</string>
     <string name="nav_clear_home">Oublier le domicile</string>
     <string name="nav_clear_work">Oublier le travail</string>
     <string name="nav_close">Terminer la navigation</string>

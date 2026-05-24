@@ -610,7 +610,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">已到达</string>
     <string name="nav_arrived_goal">已到达目标点 %1$d</string>
-    <string name="nav_clear_confirm">放弃当前路线?</string>
+    <string name="nav_clear_confirm">开始新路线？</string>
+    <string name="nav_clear_confirm_body">当前的停靠点将被清除。</string>
     <string name="nav_clear_home">清除家</string>
     <string name="nav_clear_work">清除公司</string>
     <string name="nav_close">结束导航</string>

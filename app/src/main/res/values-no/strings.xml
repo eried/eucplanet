@@ -627,7 +627,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Du er framme</string>
     <string name="nav_arrived_goal">Nådde mål %1$d</string>
-    <string name="nav_clear_confirm">Forkaste den nåværende ruten?</string>
+    <string name="nav_clear_confirm">Starte en ny rute?</string>
+    <string name="nav_clear_confirm_body">De nåværende stoppene fjernes.</string>
     <string name="nav_clear_home">Glem Hjem</string>
     <string name="nav_clear_work">Glem Jobb</string>
     <string name="nav_close">Avslutt navigasjon</string>

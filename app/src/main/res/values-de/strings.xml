@@ -627,7 +627,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Du bist angekommen</string>
     <string name="nav_arrived_goal">Ziel %1$d erreicht</string>
-    <string name="nav_clear_confirm">Aktuelle Route verwerfen?</string>
+    <string name="nav_clear_confirm">Neue Route starten?</string>
+    <string name="nav_clear_confirm_body">Die aktuellen Stopps werden gelöscht.</string>
     <string name="nav_clear_home">Zuhause vergessen</string>
     <string name="nav_clear_work">Arbeit vergessen</string>
     <string name="nav_close">Navigation beenden</string>

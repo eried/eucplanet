@@ -1007,8 +1007,8 @@ fun RouteBuilderScreen(
             if (clearConfirmOpen) {
                 androidx.compose.material3.AlertDialog(
                     onDismissRequest = { clearConfirmOpen = false },
-                    title = { Text(stringResource(R.string.nav_menu_clear)) },
-                    text = { Text(stringResource(R.string.nav_clear_confirm)) },
+                    title = { Text(stringResource(R.string.nav_clear_confirm)) },
+                    text = { Text(stringResource(R.string.nav_clear_confirm_body)) },
                     confirmButton = {
                         TextButton(onClick = {
                             clearConfirmOpen = false; viewModel.clear()

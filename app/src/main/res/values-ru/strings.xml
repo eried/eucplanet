@@ -662,7 +662,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Вы на месте</string>
     <string name="nav_arrived_goal">Достигнута точка %1$d</string>
-    <string name="nav_clear_confirm">Сбросить текущий маршрут?</string>
+    <string name="nav_clear_confirm">Начать новый маршрут?</string>
+    <string name="nav_clear_confirm_body">Текущие остановки будут удалены.</string>
     <string name="nav_clear_home">Забыть дом</string>
     <string name="nav_clear_work">Забыть работу</string>
     <string name="nav_close">Завершить навигацию</string>

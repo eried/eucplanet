@@ -975,7 +975,8 @@
     <string name="nav_save_work">Save as Work</string>
     <string name="nav_self_title">Your location</string>
     <string name="nav_self_add_stop">Add as a stop</string>
-    <string name="nav_clear_confirm">Discard the current route?</string>
+    <string name="nav_clear_confirm">Start a new route?</string>
+    <string name="nav_clear_confirm_body">Your current stops will be cleared.</string>
     <string name="nav_load_confirm">Replace the current route with the loaded GPX?</string>
     <string name="nav_menu_load_short">Load</string>
     <string name="nav_tap_on_self">In the Stops list, long-press a stop to set it to your location</string>

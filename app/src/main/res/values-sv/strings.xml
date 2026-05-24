@@ -610,7 +610,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Du är framme</string>
     <string name="nav_arrived_goal">Mål %1$d nått</string>
-    <string name="nav_clear_confirm">Vill du kasta den aktuella rutten?</string>
+    <string name="nav_clear_confirm">Starta en ny rutt?</string>
+    <string name="nav_clear_confirm_body">Dina nuvarande stopp rensas.</string>
     <string name="nav_clear_home">Glöm Hem</string>
     <string name="nav_clear_work">Glöm Jobb</string>
     <string name="nav_close">Avsluta navigeringen</string>

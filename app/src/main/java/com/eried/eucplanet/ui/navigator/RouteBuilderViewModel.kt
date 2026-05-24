@@ -254,9 +254,23 @@ class RouteBuilderViewModel @Inject constructor(
         // to the new "next" and call advanceLeg so guidance continues
         // without ending the nav session. If they're all passed, the
         // final destination arrival stands.
+        //
+        // arrivalProcessed guards against the collector firing more than
+        // once per arrival: the routing call after each arrival is async
+        // (advanceLeg only resets navState.arrived AFTER the new route
+        // resolves), and other navState fields keep changing meanwhile,
+        // re-emitting navState with arrived=true. Without this guard,
+        // each re-emission marked another stop as passed -- the rider
+        // would see two or three stops vanish from one physical arrival.
+        var arrivalProcessed = false
         viewModelScope.launch {
             navigationEngine.navState.collect { nav ->
-                if (!nav.active || !nav.arrived) return@collect
+                if (!nav.active || !nav.arrived) {
+                    arrivalProcessed = false
+                    return@collect
+                }
+                if (arrivalProcessed) return@collect
+                arrivalProcessed = true
                 val current = _waypoints.value
                 val nextIdx = current.indexOfFirst { !it.passed }
                 if (nextIdx < 0) return@collect
@@ -816,15 +830,32 @@ class RouteBuilderViewModel @Inject constructor(
         // rider never sees the button flash to "Stop navigation".
         onStarted()
         viewModelScope.launch {
-            // Position 0 is always the rider; the listed pins are destinations.
-            val navWps = listOf(Waypoint(loc.latitude, loc.longitude)) + dests
+            // Single-leg routing on Start, same as scheduleRecompute --
+            // the engine is handed [origin, first non-passed stop] only.
+            // Without this, the initial nav frame briefly showed the full
+            // multi-stop solid route before the first advanceLeg trimmed
+            // it. Subsequent stops still render as the dashed orange
+            // preview, fed off the full _waypoints list.
+            val nextNonPassed = dests.firstOrNull { !it.passed } ?: dests.first()
+            val legWps = listOf(
+                Waypoint(loc.latitude, loc.longitude),
+                nextNonPassed
+            )
             val tMode = _travelMode.value
             val navRoute = if (tMode == TravelMode.STRAIGHT) {
-                RoutingService.straightLineRoute(routeName, navWps)
+                RoutingService.straightLineRoute(routeName, legWps)
             } else {
-                routingService.route(routeName, navWps, tMode, routerUrl)
-                    ?: RoutingService.straightLineRoute(routeName, navWps)
+                routingService.route(routeName, legWps, tMode, routerUrl)
+                    ?: RoutingService.straightLineRoute(routeName, legWps)
             }
+            // Mirror the new leg into _route so the map redraws with the
+            // single-leg solid line + dashed-preview view immediately, not
+            // whatever multi-stop preview was there from the builder. The
+            // full destination list lives in waypoints so dashed previews
+            // still chain through them.
+            _route.value = navRoute.copy(waypoints = dests)
+            _routing.value = false
+            bumpRender(fit = false)
             navigationEngine.start(navRoute, mode)
             // Keep the saved builder route in sync with what's being navigated
             // (minus the prepended rider pin) so re-opening the builder during

@@ -646,7 +646,8 @@
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
     <string name="nav_arrived">Je bent aangekomen</string>
     <string name="nav_arrived_goal">Doel %1$d bereikt</string>
-    <string name="nav_clear_confirm">De huidige route weggooien?</string>
+    <string name="nav_clear_confirm">Een nieuwe route starten?</string>
+    <string name="nav_clear_confirm_body">Je huidige stops worden gewist.</string>
     <string name="nav_clear_home">Thuis vergeten</string>
     <string name="nav_clear_work">Werk vergeten</string>
     <string name="nav_close">Navigatie beëindigen</string>
