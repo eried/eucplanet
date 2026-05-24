@@ -23,7 +23,12 @@ data class Waypoint(
     /** Human-readable label (an address, a search result, or "Pin 2"). */
     val name: String = "",
     /** Custom arrival radius in metres; null falls back to the global default. */
-    val radiusM: Double? = null
+    val radiusM: Double? = null,
+    /** True once the rider has reached this stop during the current
+     *  navigation. Passed stops stay in the list (rendered as struck-
+     *  through, no longer green) so the rider can still see and tap
+     *  back to them, but the router treats them as done. */
+    val passed: Boolean = false
 ) {
     fun point() = GeoPoint(lat, lng)
 }

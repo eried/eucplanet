@@ -685,7 +685,7 @@
     <string name="nav_map_style">Styl mapy</string>
     <string name="nav_max_stops">Maksymalnie cel i 24 przystanków</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_clear">Wyczyść trasę</string>
+    <string name="nav_menu_clear">Nowa trasa</string>
     <string name="nav_menu_exit">Powrót do pulpitu</string>
     <string name="nav_menu_load">Wczytaj trasę (GPX)</string>
     <string name="nav_menu_save">Zapisz trasę (GPX)</string>

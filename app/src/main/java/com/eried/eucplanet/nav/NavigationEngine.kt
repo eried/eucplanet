@@ -463,7 +463,18 @@ class NavigationEngine @Inject constructor(
                 " offRoute=${_navState.value.offRoute}"
         )
 
-        if (!arrivalHandled && distToEnd <= finalRadius) {
+        // Arrival fires when EITHER:
+        //   - the along-route remaining distance is inside the radius, OR
+        //   - the rider's straight-line distance to the final waypoint
+        //     point is inside the radius
+        // The straight-line check catches the case where the rider cut a
+        // corner / left the road right next to the stop -- their projection
+        // on the route polyline can still be far from the end, so distToEnd
+        // alone misses arrivals the rider can physically see they made.
+        val lastWp = route.waypoints.lastOrNull()
+        val directDistToEnd = lastWp?.let { GeoMath.distanceM(point, it.point()) }
+            ?: Double.MAX_VALUE
+        if (!arrivalHandled && (distToEnd <= finalRadius || directDistToEnd <= finalRadius)) {
             handleArrival()
             return
         }

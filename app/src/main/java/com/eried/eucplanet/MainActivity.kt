@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
@@ -264,7 +265,15 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     // The navigation popup floats above the whole nav graph so
-                    // turn cues stay visible on any screen while guiding.
+                    // turn cues stay visible on any screen while guiding,
+                    // EXCEPT on the navigator map itself -- the map already
+                    // shows the cue (and the rider doesn't want a popup
+                    // covering the very thing they came here to see). The
+                    // watch keeps receiving cues regardless of the phone
+                    // overlay being suppressed, so the wrist still vibrates
+                    // / updates when the rider's on the map screen.
+                    val currentRoute by navController.currentBackStackEntryAsState()
+                    val onMapScreen = currentRoute?.destination?.route == "route_builder"
                     Box(modifier = Modifier.fillMaxSize()) {
                         NavGraph(navController = navController)
                         com.eried.eucplanet.ui.navigator.NavigationOverlay(
@@ -274,7 +283,8 @@ class MainActivity : AppCompatActivity() {
                                         launchSingleTop = true
                                     }
                                 }
-                            }
+                            },
+                            suppressOnPhone = onMapScreen
                         )
                     }
                 }

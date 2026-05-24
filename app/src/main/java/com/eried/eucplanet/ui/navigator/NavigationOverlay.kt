@@ -84,6 +84,12 @@ private const val POPUP_TIMEOUT_MS = 5_000L
 @Composable
 fun NavigationOverlay(
     onOpenMap: () -> Unit = {},
+    // When true, the on-phone overlay is hidden but `cueVisible` is still
+    // mirrored to the engine -- so the watch keeps showing nav cues even
+    // though the phone is on a screen that already conveys them (the
+    // navigator map). Setting `cueVisible` independent of phone visibility
+    // means the watch keeps its setting honoured.
+    suppressOnPhone: Boolean = false,
     viewModel: NavigationOverlayViewModel = hiltViewModel()
 ) {
     val state by viewModel.navState.collectAsState()
@@ -119,7 +125,7 @@ fun NavigationOverlay(
     Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         // Only the big centred arrow popup — no minimized pill or other widget.
         AnimatedVisibility(
-            visible = state.active && !state.minimized && popupShown,
+            visible = !suppressOnPhone && state.active && !state.minimized && popupShown,
             enter = fadeIn() + scaleIn(initialScale = 0.85f),
             exit = fadeOut() + scaleOut(targetScale = 0.85f),
             modifier = Modifier.align(Alignment.Center)

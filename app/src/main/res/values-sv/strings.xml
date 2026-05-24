@@ -648,7 +648,7 @@
     <string name="nav_map_style">Kartstil</string>
     <string name="nav_max_stops">Upp till en destination och 24 stopp</string>
     <string name="nav_menu">Meny</string>
-    <string name="nav_menu_clear">Rensa rutt</string>
+    <string name="nav_menu_clear">Ny rutt</string>
     <string name="nav_menu_exit">Tillbaka till instrumentpanelen</string>
     <string name="nav_menu_load">Läs in rutt (GPX)</string>
     <string name="nav_menu_save">Spara rutt (GPX)</string>

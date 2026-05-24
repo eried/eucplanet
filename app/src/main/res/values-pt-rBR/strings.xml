@@ -684,7 +684,7 @@
     <string name="nav_map_style">Estilo do mapa</string>
     <string name="nav_max_stops">Até um destino e 24 paradas</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_clear">Apagar rota</string>
+    <string name="nav_menu_clear">Nova rota</string>
     <string name="nav_menu_exit">Voltar ao painel</string>
     <string name="nav_menu_load">Carregar rota (GPX)</string>
     <string name="nav_menu_save">Salvar rota (GPX)</string>

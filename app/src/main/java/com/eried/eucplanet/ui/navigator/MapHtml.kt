@@ -338,8 +338,8 @@ internal const val ROUTE_BUILDER_HTML: String = """
       // for Z. Subtract 1 so the rider has a bit of breathing room
       // around both points instead of fitting them edge-to-edge.
       var newZoom = currentZoom;
-      if (markers.length > 0) {
-        var nextLL = markers[0].getLatLng();
+      if (nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
+        var nextLL = markers[nextActiveMarkerIdx].getLatLng();
         var distM = riderLL.distanceTo(nextLL);
         if (distM < 1) distM = 1;
         var size = map.getSize();
@@ -363,8 +363,8 @@ internal const val ROUTE_BUILDER_HTML: String = """
       // in the unoccluded zone (between top bar and stops flyout).
       var centerLat = riderLL.lat;
       var centerLng = riderLL.lng;
-      if (markers.length > 0) {
-        var nextLL2 = markers[0].getLatLng();
+      if (nextActiveMarkerIdx >= 0 && nextActiveMarkerIdx < markers.length) {
+        var nextLL2 = markers[nextActiveMarkerIdx].getLatLng();
         centerLat = (riderLL.lat + nextLL2.lat) / 2;
         centerLng = (riderLL.lng + nextLL2.lng) / 2;
       }
@@ -569,6 +569,10 @@ internal const val ROUTE_BUILDER_HTML: String = """
   var connector = null;   // dashed: drag / pre-route preview
   var previewLine = null; // dashed: nav preview from next stop through the
                           // rest of the remaining stops (no routing, straight)
+  // Index of the first non-passed marker in [markers]. -1 when every
+  // marker is passed (or there are no markers). Used by the auto-follow
+  // tween so it pans toward the next ACTIVE stop, never a done one.
+  var nextActiveMarkerIdx = -1;
   var userMarker = null;
   var accentColor = '#4FC3F7';   // the rider's theme accent, pushed from native
   // While navigation is running we deliberately freeze the builder: pins
@@ -622,14 +626,10 @@ internal const val ROUTE_BUILDER_HTML: String = """
   };
 
   function colorFor(i, n){
-    // While navigating, the FIRST remaining stop (the current goal) is
-    // green; everything else, including the final destination, is orange.
-    // The green migrates automatically as stops drop off the head of the
-    // list when reached.
-    // While not navigating, every stop is orange -- no special
-    // destination styling, no green next-stop hint until the rider
-    // commits to going.
-    if (navLocked && i === 0) return '#66BB6A';
+    // The colours assume the marker array INCLUDES passed stops at the
+    // head -- the caller filters / inspects passed at the marker site
+    // before deciding green vs orange / flag. This helper is the
+    // baseline orange.
     return '#FFA726';
   }
 
@@ -650,6 +650,19 @@ internal const val ROUTE_BUILDER_HTML: String = """
       className:'',
       html:'<div class="wp-lock" style="background:'+color+';border-color:'+color+'"></div>',
       iconSize:[14,14], iconAnchor:[7,7]
+    });
+  }
+  // A stop the rider has already reached during this nav. Drawn as a
+  // tiny flag instead of a full marker so it reads as "done -- ignore
+  // me" but is still tappable to recentre on its old position.
+  function iconForPassed(){
+    return L.divIcon({
+      className:'',
+      html:'<div class="wp-passed">' +
+        '<svg viewBox="0 0 24 24" width="18" height="18">' +
+        '<path fill="#8C8C90" d="M4 3v18h2v-7h11l-2-4 2-4H6V3z"/>' +
+        '</svg></div>',
+      iconSize:[20,20], iconAnchor:[6,18]
     });
   }
 
@@ -696,13 +709,13 @@ internal const val ROUTE_BUILDER_HTML: String = """
   }
   function drawPreview(wps){
     clearPreview();
-    if (!wps || wps.length < 2) return;
-    // Drawn in BOTH navigation and route-building modes: every leg
-    // beyond the first is a straight-line preview now (the router is
-    // only ever asked about origin -> first stop). The first stop
-    // itself is the END of the solved leg; the dashed preview begins
-    // there and chains through the remaining stops.
-    var pts = wps.map(function(w){ return [w.lat, w.lng]; });
+    if (!wps) return;
+    // Only the NON-PASSED stops form the upcoming preview chain --
+    // passed stops are done and shouldn't be connected by lines any
+    // more. We need at least two of them to draw a connector at all.
+    var active = wps.filter(function(w){ return !w.passed; });
+    if (active.length < 2) return;
+    var pts = active.map(function(w){ return [w.lat, w.lng]; });
     previewLine = L.polyline(pts, {
       color: '#FFA726',
       weight: 4,
@@ -817,29 +830,40 @@ internal const val ROUTE_BUILDER_HTML: String = """
     rings.forEach(function(r){ map.removeLayer(r); });
     markers = [];
     rings = [];
+    // Find the FIRST non-passed stop. While navLocked, it gets the green
+    // "next goal" colour; everything else (passed or future) is orange.
+    var firstActiveIdx = -1;
+    for (var k = 0; k < wps.length; k++) {
+      if (!wps[k].passed) { firstActiveIdx = k; break; }
+    }
+    nextActiveMarkerIdx = firstActiveIdx;
     wps.forEach(function(w, i){
-      // Dotted radius area around each stop (the arrival radius from Settings).
-      // Thicker / more opaque while nav is locked — the ring IS the stop now,
-      // since pins are not draggable and the rider needs to know where the
-      // approach zone is.
-      var ringColor = colorFor(i, wps.length);
-      var ring = L.circle([w.lat, w.lng], {
-        radius: w.radius || 40,
-        color: ringColor,
-        weight: navLocked ? 3 : 2,
-        opacity: 0.9,
-        fill: true,
-        fillColor: ringColor,
-        fillOpacity: navLocked ? 0.18 : 0.10,
-        dashArray:'5 7', interactive:false
-      });
-      ring.addTo(map);
-      rings.push(ring);
+      var isPassed = !!w.passed;
+      var isNext = navLocked && !isPassed && i === firstActiveIdx;
+      var stopColor = isNext ? '#66BB6A' : (isPassed ? '#8C8C90' : '#FFA726');
+      // Passed stops don't get a radius ring -- they're done and clutter
+      // the map. Future stops get the dotted ring as before.
+      if (!isPassed) {
+        var ring = L.circle([w.lat, w.lng], {
+          radius: w.radius || 40,
+          color: stopColor,
+          weight: navLocked ? 3 : 2,
+          opacity: 0.9,
+          fill: true,
+          fillColor: stopColor,
+          fillOpacity: navLocked ? 0.18 : 0.10,
+          dashArray:'5 7', interactive:false
+        });
+        ring.addTo(map);
+        rings.push(ring);
+      } else {
+        rings.push(null);  // keep index alignment with markers[]
+      }
       var m = L.marker([w.lat, w.lng], {
-        draggable: !navLocked,
-        icon: navLocked
-          ? iconForLocked(colorFor(i, wps.length))
-          : iconFor(i + 1, colorFor(i, wps.length))
+        draggable: !navLocked && !isPassed,
+        icon: isPassed
+          ? iconForPassed()
+          : (navLocked ? iconForLocked(stopColor) : iconFor(i + 1, stopColor))
       });
       m.on('dragstart', function(){
         // Drop the solved route; show the dashed preview while dragging.

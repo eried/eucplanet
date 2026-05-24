@@ -648,7 +648,7 @@
     <string name="nav_map_style">地图样式</string>
     <string name="nav_max_stops">最多一个目的地和 24 个途经点</string>
     <string name="nav_menu">菜单</string>
-    <string name="nav_menu_clear">清除路线</string>
+    <string name="nav_menu_clear">新路线</string>
     <string name="nav_menu_exit">返回主屏</string>
     <string name="nav_menu_load">加载路线 (GPX)</string>
     <string name="nav_menu_save">保存路线 (GPX)</string>

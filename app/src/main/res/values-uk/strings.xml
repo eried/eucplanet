@@ -685,7 +685,7 @@
     <string name="nav_map_style">Стиль карти</string>
     <string name="nav_max_stops">До пункту призначення та 24 зупинок</string>
     <string name="nav_menu">Меню</string>
-    <string name="nav_menu_clear">Очистити маршрут</string>
+    <string name="nav_menu_clear">Новий маршрут</string>
     <string name="nav_menu_exit">Назад на панель</string>
     <string name="nav_menu_load">Завантажити маршрут (GPX)</string>
     <string name="nav_menu_save">Зберегти маршрут (GPX)</string>

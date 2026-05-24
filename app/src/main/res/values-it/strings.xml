@@ -684,7 +684,7 @@
     <string name="nav_map_style">Stile mappa</string>
     <string name="nav_max_stops">Fino a una destinazione e 24 fermate</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_clear">Cancella percorso</string>
+    <string name="nav_menu_clear">Nuovo percorso</string>
     <string name="nav_menu_exit">Torna alla dashboard</string>
     <string name="nav_menu_load">Carica percorso (GPX)</string>
     <string name="nav_menu_save">Salva percorso (GPX)</string>

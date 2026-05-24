@@ -953,7 +953,7 @@
     <string name="nav_menu">Menu</string>
     <string name="nav_menu_save">Save route (GPX)</string>
     <string name="nav_menu_load">Load route (GPX)</string>
-    <string name="nav_menu_clear">Clear route</string>
+    <string name="nav_menu_clear">New route</string>
     <string name="nav_clear_home">Forget Home</string>
     <string name="nav_clear_work">Forget Work</string>
     <string name="nav_menu_exit">Back to dashboard</string>

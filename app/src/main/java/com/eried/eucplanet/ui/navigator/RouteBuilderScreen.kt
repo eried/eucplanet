@@ -1442,9 +1442,11 @@ private fun BottomPanel(
                                     ) {
                                         // The drag handle is inert when there is only one stop, AND
                                         // also while guidance is running (mid-trip resorting would
-                                        // recompute the live route — destructive). Both states dim
-                                        // the icon to the disabled-tint to read as "not tappable".
-                                        val canReorder = waypoints.size > 1 && !navRunning
+                                        // recompute the live route — destructive), AND when this
+                                        // stop has already been passed (it's a record now, not
+                                        // something to reorder).
+                                        val canReorder =
+                                            waypoints.size > 1 && !navRunning && !waypoint.passed
                                         Icon(
                                             Icons.Default.DragHandle,
                                             contentDescription = stringResource(R.string.nav_drag_stop),
@@ -1507,7 +1509,15 @@ private fun BottomPanel(
                                                 waypointLabel(
                                                     index, waypoints.size, waypoint.name
                                                 ),
-                                                style = MaterialTheme.typography.bodyMedium,
+                                                style = MaterialTheme.typography.bodyMedium.copy(
+                                                    textDecoration = if (waypoint.passed)
+                                                        androidx.compose.ui.text.style.TextDecoration.LineThrough
+                                                    else null
+                                                ),
+                                                color = if (waypoint.passed)
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                        .copy(alpha = 0.6f)
+                                                else Color.Unspecified,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                                 modifier = Modifier.weight(1f)

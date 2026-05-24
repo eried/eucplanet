@@ -247,26 +247,30 @@ class RouteBuilderViewModel @Inject constructor(
         // navCurrentRouteJson holds whatever is left, so the next time the
         // builder is opened it reflects the trimmed route too.
         // While navigation is running, each leg is a single-destination
-        // route (origin -> next stop). When the engine reports the leg's
-        // goal as reached (nav.arrived), we drop the reached stop from
-        // the destination list and, if any stops remain, build a new
-        // single-destination route to the new "next" and hand it to the
-        // engine via advanceLeg() so guidance continues without ending
-        // the nav session.
+        // route (origin -> next non-passed stop). On arrival, mark the
+        // first non-passed stop as passed (don't remove -- the rider
+        // still wants to see it in the list, struck-through). If any
+        // non-passed stops remain, build a new single-destination route
+        // to the new "next" and call advanceLeg so guidance continues
+        // without ending the nav session. If they're all passed, the
+        // final destination arrival stands.
         viewModelScope.launch {
             navigationEngine.navState.collect { nav ->
                 if (!nav.active || !nav.arrived) return@collect
                 val current = _waypoints.value
-                if (current.isEmpty()) return@collect
-                val remaining = current.drop(1)
-                _waypoints.value = remaining
+                val nextIdx = current.indexOfFirst { !it.passed }
+                if (nextIdx < 0) return@collect
+                val updated = current.toMutableList().apply {
+                    this[nextIdx] = this[nextIdx].copy(passed = true)
+                }
+                _waypoints.value = updated
                 bumpRender(fit = false)
-                if (remaining.isEmpty()) return@collect
+                val nextNonPassed = updated.firstOrNull { !it.passed }
+                if (nextNonPassed == null) return@collect
                 val originLoc = currentLocation.value ?: return@collect
                 val originWp = Waypoint(originLoc.latitude, originLoc.longitude)
-                val nextStop = remaining.first()
                 val mode = _travelMode.value
-                val legWps = listOf(originWp, nextStop)
+                val legWps = listOf(originWp, nextNonPassed)
                 viewModelScope.launch {
                     val computed = if (mode == TravelMode.STRAIGHT) {
                         RoutingService.straightLineRoute(routeName, legWps)
@@ -274,7 +278,7 @@ class RouteBuilderViewModel @Inject constructor(
                         routingService.route(routeName, legWps, mode, routerUrl)
                             ?: RoutingService.straightLineRoute(routeName, legWps)
                     }
-                    _route.value = computed.copy(waypoints = remaining)
+                    _route.value = computed.copy(waypoints = updated.filter { !it.passed })
                     _routing.value = false
                     bumpRender(fit = false)
                     navigationEngine.advanceLeg(computed)
@@ -505,13 +509,20 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         lastRouteOrigin = GeoPoint(origin.latitude, origin.longitude)
-        // We ALWAYS solve only the next leg (origin -> first stop), in
-        // both navigation and route-building. Subsequent stops are drawn
-        // as a straight-line dashed preview, never sent to the router. A
-        // multi-stop OSRM solve was burning request budget on legs the
-        // rider may never reach (after a re-plan) and offering little
-        // value vs. just showing the order.
-        val routedTargets = dests.take(1)
+        // Always solve only the next leg (origin -> first non-passed
+        // stop), in both navigation and route-building. Passed stops
+        // are kept in the list but skipped here; subsequent stops are
+        // drawn as a straight-line dashed preview, never sent to the
+        // router.
+        val nextNonPassed = dests.firstOrNull { !it.passed }
+        if (nextNonPassed == null) {
+            lastRouteOrigin = null
+            _route.value = null
+            _routing.value = false
+            bumpRender(fit)
+            return
+        }
+        val routedTargets = listOf(nextNonPassed)
         val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
         // Drop the stale solution; show the dashed preview + spinner meanwhile.
         _route.value = null
@@ -679,6 +690,7 @@ class RouteBuilderViewModel @Inject constructor(
             arr.put(JSONObject().apply {
                 put("lat", w.lat); put("lng", w.lng); put("name", w.name)
                 put("radius", w.radiusM ?: defaultRadiusM.toDouble())
+                put("passed", w.passed)
             })
         }
         return arr.toString()

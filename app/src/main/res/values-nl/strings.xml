@@ -684,7 +684,7 @@
     <string name="nav_map_style">Kaartstijl</string>
     <string name="nav_max_stops">Tot een bestemming en 24 stops</string>
     <string name="nav_menu">Menu</string>
-    <string name="nav_menu_clear">Route wissen</string>
+    <string name="nav_menu_clear">Nieuwe route</string>
     <string name="nav_menu_exit">Terug naar dashboard</string>
     <string name="nav_menu_load">Route laden (GPX)</string>
     <string name="nav_menu_save">Route opslaan (GPX)</string>
