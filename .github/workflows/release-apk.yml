@@ -127,6 +127,20 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Verify checkout supports the slim flag
+        run: |
+          # The `-PembedWear=false` path was added after v0.8.11 was tagged.
+          # If we're firing against an older ref that doesn't carry the flag,
+          # we'd silently build a 60 MB fat APK without realising it — and
+          # then overwrite the manually-uploaded slim APK on the release.
+          # Hard-fail with a clear message so the operator knows to either
+          # cherry-pick the flag onto that tag, or upload the slim APK by
+          # hand.
+          if ! grep -q "embedWear" app/build.gradle.kts; then
+            echo "::error::This ref does not contain the embedWear Gradle flag (added after v0.8.11). The workflow would silently build a fat APK. Skipping."
+            exit 1
+          fi
+
       - name: Build slim release APK (no embedded wear)
         run: |
           ./gradlew :app:assembleRelease -PembedWear=false --no-daemon --stacktrace
