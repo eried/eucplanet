@@ -53,8 +53,8 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 - Optional Wear OS popup mirror so the next-turn arrow shows up on your wrist.
 
 ### Overlay Studio
-- Records video (and stills) from the phone camera with a fully customisable on-screen telemetry overlay: data tiles, dial / bar gauges, rolling graphs, free text with `{speed}`-style variables, mini-map, badge, layered cameras.
-- Layout presets saved as `.json`. Export plain MP4 for the final clip or transparent overlay for compositing on top of footage shot with another camera.
+- Records video and stills with a customisable on-screen telemetry overlay: dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras.
+- Save layouts as JSON presets. Export plain MP4 for the final clip, or transparent overlay for compositing on top of footage from another camera.
 
 ### Wheel Control
 - Horn, light toggle, wheel lock, legal-mode speed cap, voice announcements, all one tap away.
@@ -83,7 +83,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 ### Integrations
 - **Flic 2 buttons**: pair up to two buttons.
 - **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
-- **External GPS**: pair a RaceBox (or any name-prefix-matched BLE GPS) for centimetre-class speed + altitude without burning the phone radio. Falls back to phone GPS automatically.
+- **External GPS**: pair a RaceBox (or any compatible BLE GPS) for centimetre-class speed and altitude without burning the phone radio. Falls back to phone GPS automatically.
 - **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
 
 ---
@@ -119,8 +119,12 @@ I got tired of:
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` implementation in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes connect-time by the BLE-advertised name. Spec docs for each family live under [`docs/protocols/`](docs/protocols/). To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md), record a single labelled riding session and we can usually map a new wheel in one pass. PRs welcome. Bug reports go on [GitHub Issues](../../issues); feature ideas and votes live on the community board at [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes by the BLE-advertised name at connect time. Spec docs live under [`docs/protocols/`](docs/protocols/).
+
+To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — one labelled riding session is usually enough.
+
+PRs welcome. Bug reports → [GitHub Issues](../../issues). Feature ideas and votes → [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
 ## License
 
-TBD (likely MIT). The Flic 2 SDK and any third-party dependencies retain their own licenses.
+MIT. The Flic 2 SDK and any third-party dependencies retain their own licenses.
