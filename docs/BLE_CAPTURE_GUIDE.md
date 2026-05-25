@@ -13,12 +13,31 @@ unlocks it.
 
 You can email everything to the maintainer or attach to a GitHub issue.
 
+## Before you start
+
+A clean trace is much more useful than a long messy one. A 30-second checklist:
+
+- Phone fully charged or on a cable. The session is short but the bug-report
+  pulls afterward are CPU-heavy and will throttle on a hot phone.
+- Disconnect every *other* BLE device for the duration of the capture:
+  smartwatch, earbuds, fitness trackers, second EUC. The snoop log records
+  every paired device on the radio, and unrelated traffic makes the wheel's
+  packets harder to pick out.
+- Have a stopwatch ready (a separate phone, a kitchen timer, or just use
+  the lock-screen clock).
+- Put the phone's clock somewhere visible in your screenshots — same time
+  reference everywhere makes correlation trivial.
+
 ## 1. Turn on Bluetooth logging
 
 1. Settings, About phone, tap **Build number** seven times until it says
    you are now a developer
 2. Settings, System, **Developer options**, turn on
    **Enable Bluetooth HCI snoop log**
+   - Some OEM ROMs label it slightly differently: **Enable Bluetooth HCI
+     snoop logging**, **Bluetooth packet log**, or hide it under a
+     **Wireless debugging** sub-menu. The setting is always in Developer
+     options though.
 3. Toggle Bluetooth off, then back on (this starts a fresh log)
 4. Force-stop your wheel's manufacturer app, then reopen it
 
@@ -74,8 +93,10 @@ app is showing to the bytes the wheel sent at that moment.
    **Interactive**
 2. Wait for the notification, then share the resulting zip
 3. The file we need is inside the zip at
-   `FS/data/misc/bluetooth/logs/btsnoop_hci.log`. If you can't find it,
-   just send the whole zip.
+   `FS/data/misc/bluetooth/logs/btsnoop_hci.log`. On Android 14+ the same
+   file sometimes shows up directly at `data/misc/bluetooth/logs/` (no
+   `FS/` prefix) — both work. If you can't find it, just send the whole
+   zip; it's only a few MB.
 
 ### Samsung phones
 
@@ -104,9 +125,20 @@ To get the `.log` file:
 Go back to Developer options and turn **Bluetooth HCI snoop log** off when
 you're done. You only need it during the capture.
 
-## 6. Send everything back
+## 6. Quick sanity check before sending
 
-Bundle the `.log` and `.cfa` files, your notes, and the screenshots. A
-zip via email or a GitHub issue works.
+Before you bundle and send, eyeball the `.log` / `.cfa` file size. A real
+capture of a five-minute session with the wheel app actively connected is
+usually between **500 KB and 10 MB**. Anything under ~50 KB means the
+snoop log toggle didn't take effect or Bluetooth was never restarted —
+re-do step 1 and try again. Anything over ~50 MB usually means there's
+a lot of unrelated BLE traffic in the trace; turn off other paired
+devices and re-capture, or just send what you have and note it.
+
+## 7. Send everything back
+
+Bundle the `.log` / `.cfa`, your notes, and the screenshots. A zip via
+email or a GitHub issue works. If the bundle is over ~25 MB GitHub will
+reject the attachment — use any cloud share you trust and link to it.
 
 Thanks for helping out.

@@ -87,13 +87,25 @@ android {
     }
 }
 
+// Wear companion embedding: scoped to the release variant of the Play-Store
+// build and toggleable via -PembedWear=false. The wear module is a non-standalone
+// companion (com.google.android.wearable.standalone="false" in wear/AndroidManifest.xml),
+// so it has to ride inside the phone AAB for Google Play to auto-deliver it to a
+// paired Wear OS device. Debug builds and the GitHub-sideload APK don't need that
+// auto-delivery path, so we keep them slim (60 MB -> 20 MB phone APK).
+//
+// Note: `wearApp` is a legacy AGP DSL (Wear OS 1.x era). It still works in AGP 8.7
+// and has no slated removal date. There's no 1:1 modern replacement for the
+// embedded-companion model — Google steers everything toward standalone wear apps,
+// which doesn't fit this app. If wearApp ever gets removed, the fallback is a
+// custom Gradle task that drops the wear APK + descriptor XML into
+// app/build/.../res/raw/android_wear_micro_apk.{apk,xml} ourselves.
+val embedWear = (project.findProperty("embedWear") as? String)?.lowercase() != "false"
+
 dependencies {
-    // Wear companion: embed the wear APK so Play auto-delivers it to a paired
-    // watch when this phone app is installed. The wear module is a non-standalone
-    // companion (declared via com.google.android.wearable.standalone="false" in
-    // wear/AndroidManifest.xml), so it must ride along with the phone install
-    // rather than ship as its own Play listing.
-    wearApp(project(":wear"))
+    if (embedWear) {
+        "releaseWearApp"(project(":wear"))
+    }
 
     // Compose
     val composeBom = platform(libs.compose.bom)

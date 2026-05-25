@@ -6,6 +6,10 @@ under `app/src/main/java/com/cooper/wheellog/utils/`. Goal of the audit is
 fix planning, not implementation. Items here are deferred to a focused
 follow-up session.
 
+Last re-snapshotted 2026-05-25. Items shipped in earlier patch cycles have
+been folded back into the OK rows; the "Priority" section at the bottom now
+lists only the remaining work.
+
 Format:
 - **OK** = formula and field offsets match WheelLog (any difference is internal
   units only).
@@ -25,11 +29,11 @@ Reference: `GotwayAdapter.java`.
 |---|---|
 | Speed (0x00 offset 4) | OK |
 | Phase current (0x00 offset 10) | OK |
-| Battery current (0x07 offset 2) | MISMATCH — sign inverted vs WheelLog (`* -1`) |
-| PWM from 0x00 | MISMATCH — scale unclear, needs labelled capture |
-| True PWM (0x07 offset 8) | MISMATCH — likely missing `* 100` factor |
+| Battery current (0x07 offset 2) | OK (sign-inverted at parse, matches WheelLog) |
+| PWM from 0x00 | OK — three-way derived/hwPWM/extras dispatch via `derivedPwmPct` |
+| True PWM (0x07 offset 8) | OK (raw value treated as percent directly) |
 | Voltage (0x00 offset 2) | OK (raw u16 BE * scaler) |
-| Voltage scaler indices 5/6 | MISMATCH — we have 2.25/2.50; WheelLog has 2.50/2.25 (idx5=168V, idx6=151V) |
+| Voltage scaler indices 5/6 | OK (151 V → 2.25, 168 V → 2.50, matches WheelLog) |
 | 1.875 (126 V) tier | Custom extension — RS/EX2 land here, not in WheelLog |
 | Temperature MPU6050 | OK |
 | Temperature MPU6500 (SmirnoV FW) | MISSING (parser) — SmirnoV formula `(short/333.87 + 21.00)*100` |
@@ -43,7 +47,7 @@ Reference: `GotwayAdapter.java`.
 | Tilt-back sentinel (>=200 vs WheelLog >=100) | OK — our 200 is safer for Master Pro etc. |
 | LED mode (Live B offset 13) | MISSING (parser) |
 | Power-off time (Live B offset 8..9) | MISSING (parser) |
-| Smart-BMS frames 0x01 voltage gating | MISMATCH — we override unconditionally; WheelLog gates on `autoVoltage` user pref |
+| Smart-BMS frames 0x01 voltage gating | OK — `parseBmsSummary` returns null (pragmatic equivalent of WheelLog's `autoVoltage`-off default) |
 | Smart-BMS 0x02/0x03 cells / temps / semi-V | MISSING (parser) — returned as null |
 | 0xFF Alexovik PID frame | MISSING (parser) — low priority, SmirnoV FW only |
 | Frame validity + re-sync at sizes 5/6 | OK |
@@ -89,10 +93,10 @@ Reference: `KingsongAdapter.java`.
 | PWM (0xF5 offset 15) | OK |
 | CPU load (0xF5 offset 14) | MISSING (parser) |
 | Voltage (0xA9 offset 2 u16 LE / 100) | OK |
-| Battery % curve endpoints | MISMATCH — slight divergence (e.g. 67 V class: ours 53.2-67.2, WheelLog 50.00-66.00 classic) |
+| Battery % curve endpoints | OK — using WheelLog "classic" centivolt integer-div formula |
 | "Better percents" 4-knot curve | MISSING (parser) — only "classic" linear |
 | Temperature (0xA9 offset 12 + 0xB9 offset 14) | OK |
-| Trip distance vs total odometer | MISMATCH **(HIGH IMPACT)** — semantics swapped. 0xA9 offset 6 = lifetime odo (we map to trip), 0xB9 offset 2 = trip (we also map to trip and overwrite) |
+| Trip distance vs total odometer | OK — 0xA9 offset 6 → `totalDistance`, 0xB9 offset 2 → `tripDistance` |
 | KS-18L imperial-mode mile scaler (`* 0.83`) | MISSING (parser) — KS-18L riders in mile mode see wrong distance |
 | Mode byte sentinel (0xE0) | OK |
 | Light / horn / pedal mode commands | OK |
@@ -117,7 +121,8 @@ Reference: `KingsongAdapter.java`.
 | KS-S22 | OK |
 | KS-F18P | OK |
 | KS-F22P | OK |
-| KS-16X, KS-16XF | MISSING (model) — important: wrong battery class without it |
+| KS-16X | OK (84 V) |
+| KS-16XF | MISSING (model) |
 | KS-18L, KS-18LH, KS-18LY | MISSING (model) — KS-18L is also the wheel with the imperial scaler |
 | KS-S16P | MISSING (model) |
 | RockWheel (prefix "RW" / "ROCKW") | MISSING (model) — WheelLog reroutes through KingSong protocol; we don't recognise |
@@ -146,14 +151,14 @@ Reference: `InmotionAdapter.java`.
 | Trip distance (LE @ 48) | OK |
 | Total odometer (LE @ 44) — V8/V10 family | OK |
 | Total odometer — R0 reads u64 (we read u32) | MISMATCH (HIGH for R0 riders) |
-| Total odometer — L6 reads u64 then * 100 (we read u32 * 100) | MISMATCH |
+| Total odometer — L6 reads u64 then * 100 (we read u32 * 100) | PARTIAL — cm→m conversion fixed (u32 × 100); u64 upper bits still ignored |
 | Total odometer — legacy R/V3 series `long@44 / 5.711e7` | MISSING (parser) — garbage total odo on R1*/R2*/V3* |
 | Roll @72 zeroed for V8F / V8S | MISMATCH — WheelLog zeroes them; we read stale value |
 | Roll @72 zeroed for V10 family | OK |
-| Slow-info model decode (bytes 104/107 as 3-digit decimal) | MISMATCH **(HIGH IMPACT)** — we read as packed BCD nibbles; V10/V10F/V10S/V10T/V10FT and R-series never resolve from telemetry, fall back to BLE-name only |
-| Serial number byte order | MISMATCH — ours iterates 0..7, WheelLog iterates 7..0; **serial reads backwards** |
+| Slow-info model decode (bytes 104/107 as 3-digit decimal) | OK — `id = high*100 + low`, V10 family + R-series now resolve from telemetry |
+| Serial number byte order | OK — reads 7..0 |
 | Firmware decode | OK |
-| Pedal-tilt encode byte order | MISMATCH **(HIGH IMPACT)** — WheelLog uses BE-in-LE-slot pattern `t[3],t[2],t[1],t[0]`; we use LE. **Sets the wrong tilt angle when the rider adjusts pedals.** |
+| Pedal-tilt encode byte order | OK — BE-in-LE-slot slot reversal matches WheelLog (false alarm in original audit) |
 | Max-speed encode byte order | OK |
 | Pedal-sensitivity encode / decode | OK |
 | Volume encode / decode | OK |
@@ -203,9 +208,10 @@ implementation; only internal consistency can be audited.
 | Settings: maxSpeed @9, alarm1 @11, pedalAdj @15 | OK |
 | Settings: alarm2 @13 | MISSING (parser) |
 | Settings: classicMode @ byte19 bit0 | MISMATCH — we parse it then route `offroadMode=false`; WheelLog sets `setRideMode(classicMode)` |
-| Settings: mute / transport / handle / autoLight / soundWave / splitMode / volume / beamBrightness / splitAccel / splitBreak | MISSING (parser) — mostly low-priority polish, but mute/transport are user-visible |
-| Light command | MISMATCH **(HIGH IMPACT)** — we send V14 single-byte `[0x4B, on]`; V12 needs `[0x50, low, high]`. **V12 light toggles probably don't work.** |
-| Alarm-speed write | MISSING (parser, command) — WheelLog sends `[0x3e, lo1, hi1, lo2, hi2]` for V12; we return null |
+| Settings: mute / transport | OK |
+| Settings: handle / autoLight / soundWave / splitMode / volume / beamBrightness / splitAccel / splitBreak | MISSING (parser) — low-priority polish |
+| Light command | OK — V12 two-beam `[0x50, v, v]` form via `InMotionV2LegacyCommands` |
+| Alarm-speed write | OK — `[0x3e, …]` routed via `setAlarmSpeedCommit` |
 | Light-brightness write `[0x2b, low, high]` | MISSING (command) |
 | Horn (`[0x51, 0x18, 0x01]`) | OK |
 | setMaxSpeed byte order | OK |
@@ -238,12 +244,12 @@ Reference: `VeteranAdapter.java`.
 | Voltage (u16 BE @ 4, /100) | OK |
 | `current` field — actually phase current, not bus | MISMATCH — WheelLog stores it via `setPhaseCurrent` and derives bus via `wd.calculateCurrent()`. Our downstream UI labels it as bus current. |
 | Battery (BMS pnum 0/4 @69, @71 /100) | OK |
-| PWM (u16 BE @ 34, gated by `hasValidPwm(model)`) | MISMATCH — we gate by enum-from-name; WheelLog gates by `mVer >= 2` from offset 28. Generic-named wheels mis-routed. |
-| Battery % | MISMATCH — branches on enum-from-name only, single linear segment. WheelLog branches on `mVer` and has multi-segment curves with upper clamps. Sherman L (mVer 6, 151 V class) currently routed through Sherman 100 V curve. |
+| PWM (u16 BE @ 34, gated by `hasValidPwm(model)`) | OK — composite check `mVer ≥ 2 ‖ hasValidPwm(resolvedModel)` |
+| Battery % | PARTIAL — now per-resolved-model classes (`mVer`-keyed), but still single linear segment per class. WheelLog has multi-segment curves with upper clamps. |
 | Temperature (i16 BE @ 18 / 100) | OK |
 | Trip distance (rev BE u32 @ 8) | OK |
 | Total odometer (rev BE u32 @ 12) | OK |
-| `mVer` byte at offset 28 — `getUint16BE / 1000` | MISSING (parser) **(ROOT CAUSE — high leverage)**. Drives battery curve, PWM gate, beep variant, getModel, cell count. Single fix unlocks 4+ downstream bugs. |
+| `mVer` byte at offset 28 — `getUint16BE / 1000` | OK — parsed and surfaced via `VeteranModel.fromMVer`; drives battery curve + PWM gate |
 | Charging mode @ 22 | MISSING (parser) |
 | Auto-off / sleep timer @ 20 | MISSING (parser) |
 | Speed alert @ 24 (* 10) | MISSING (parser) |
@@ -264,18 +270,18 @@ Reference: `VeteranAdapter.java`.
 | Model | Status |
 |---|---|
 | SHERMAN (mVer 0/1, 100 V) | OK |
-| ABRAMS — currently 168 V | MISMATCH — should be 100 V class (mVer 2 in WheelLog) |
+| ABRAMS (mVer 2, 100 V) | OK — corrected from 168 V |
 | SHERMAN_S (mVer 3, 134 V) | OK |
-| SHERMAN_MAX | MISMATCH — no WheelLog equivalent. Drop, or pin to mVer 1 |
+| SHERMAN_MAX | MISMATCH — kept for backward compat; no WheelLog equivalent |
 | PATTON (mVer 4, 134 V) | OK |
 | LYNX (mVer 5, 151 V) | OK |
-| SHERMAN_L (mVer 6, 151 V) | MISSING (model) |
-| PATTON_S (mVer 7, 134 V) | MISSING (model) |
-| ORYX (mVer 8, 218 V dual-pack) | MISSING (model) |
-| LYNX_S (mVer 9, 151 V) | MISSING (model) |
-| NOSFET_APEX (mVer 42, 151 V) | MISSING (model) |
-| NOSFET_AERO (mVer 43, 134 V) | MISSING (model) |
-| NOSFET_AEON (mVer 44, 151 V) | MISSING (model) |
+| SHERMAN_L (mVer 6, 151 V) | OK |
+| PATTON_S (mVer 7, 134 V) | OK |
+| ORYX (mVer 8, 218 V dual-pack) | OK |
+| LYNX_S (mVer 9, 151 V) | OK |
+| NOSFET_APEX (mVer 42, 151 V) | OK |
+| NOSFET_AERO (mVer 43, 134 V) | OK |
+| NOSFET_AEON (mVer 44, 151 V) | OK |
 
 ---
 
@@ -298,9 +304,9 @@ Reference: `NinebotAdapter.java` + `NinebotZAdapter.java`.
 | Temperature (i16 LE @ 22 / 10) | OK |
 | Trip distance (u16 LE @ 18 * 10 m) | OK |
 | Total odometer (u32 LE @ 14 m) | OK |
-| Light command | MISMATCH **(HIGH IMPACT for Z riders)** — `setLight` writes param `0xC6` (LED preset mode); should be `DriveFlags 0xD3` bit 2 with read-modify-write. **Z headlight toggle does nothing useful.** |
+| Light command | OK — `setDriveFlags` with bit-2 read-modify-write |
 | Tail-light command (DriveFlags bit 1) | MISSING (command) |
-| DriveFlags caching from poll | MISSING (parser) — code TODO already noted. Without it, any DRL / light / tail-light write clobbers the other bits. |
+| DriveFlags caching from poll | OK — `lastDriveFlags` cached on each poll for RMW writes |
 | Pedal sensitivity encode / decode | OK |
 | Volume (param 0xF5, value << 3) | OK |
 | Lock read / write | OK |
@@ -317,7 +323,8 @@ Reference: `NinebotAdapter.java` + `NinebotZAdapter.java`.
 | Model | Status |
 |---|---|
 | Ninebot Z (single hardcoded in WheelLog) | OK |
-| Ninebot Z6, Z10, Mini Plus | OK (richer than WheelLog) |
+| Ninebot Z6, Z10 | OK |
+| Ninebot Mini Plus | PARTIAL — routed to Z6 alias via `fromReportedName`, no dedicated enum entry |
 | Ninebot Z8, Z11 | MISSING (model) — no WheelLog data either, but real wheels exist |
 | Legacy One E / E+ / S2 / Mini / Mini Pro | OK |
 | One T / One S / Z10 variants | MISSING (model) — completeness |
@@ -326,35 +333,37 @@ Reference: `NinebotAdapter.java` + `NinebotZAdapter.java`.
 
 ## Priority for the follow-up fix session
 
-1. **HIGH IMPACT — visible wrong readings:**
-   - [DONE v0.6.6] KingSong: trip / total odometer semantically swapped at parse time
-   - [DONE v0.6.6] InMotion V1: V10 family never resolves from telemetry (slow-info raw-decimal decode)
-   - [N/A — false alarm] InMotion V1: pedal-tilt write byte order; verified slot order matches WheelLog after re-reading MathsUtil.getBytes (BE) + slot reversal == LE on wire
-   - [DONE v0.6.6] InMotion V1: serial reads backwards (now reads 7..0)
-   - [DEFERRED] InMotion V1: legacy R / V3 mileage divisor missing — those models aren't in our enum yet
-   - [PARTIAL] InMotion V1: R0 / L6 mileage encoding — L6 cm-to-m fixed; R0 u64 read deferred until we have a labelled capture
-   - [DONE v0.6.6] InMotion V2 (V12): light command (sub-cmd 0x50 two-beam dispatch)
-   - [DONE v0.6.6] InMotion V2 (V12): alarm-speed (sub-cmd 0x3e two-tier dispatch)
-   - [DONE v0.6.6] Veteran: ABRAMS at 168 V -> corrected to 100 V class
-   - [DONE v0.6.6] Veteran: `mVer` byte parse + model resolution from firmware major
-   - [DEFERRED] Veteran: `current` is phase, label clarification (downstream cosmetic)
-   - [DONE v0.6.6] Ninebot Z: `setLight` rewritten as DriveFlags read-modify-write (bit 2)
-   - [DONE v0.6.6] Begode: 0x07 battery current sign inverted
-   - [DEFERRED] Begode: total odometer parse (no in-app surface yet)
-   - [DEFERRED] Begode: alert byte 8-alarm bitfield (no in-app surface yet)
+The HIGH-impact items from the first audit cycle (KingSong odometer swap,
+InMotion V1 model decode + serial byte order, V12 light + alarm-speed,
+Veteran `mVer` + missing models + ABRAMS voltage, Ninebot Z light, Begode
+0x07 current sign, voltage scaler indices, PWM dispatch) have shipped. The
+remaining list is mostly polish and longer-tail model coverage.
+
+1. **HIGH IMPACT — still pending:**
+   - InMotion V1: legacy R / V3 mileage divisor (also missing from enum)
+   - InMotion V1: R0 u64 odometer encoding (need a labelled capture)
+   - InMotion V1: L6 u64 odometer upper-32-bit branch
+   - InMotion V1: alert frame `0x0F780101` (7 alert codes never dispatched)
+   - InMotion V2 (V12): `classicMode` parsed but `offroadMode=false` hardcoded; never wires `classicMode` itself
+   - InMotion V2 (V12): light-brightness write `[0x2b, low, high]` (no `0x2B` opcode)
+   - Begode: MPU6500 SmirnoV temperature formula
+   - Begode: alert byte (Live B offset 14, 8 alarm bits — over-V/over-T/transport never surface)
+   - Begode: total odometer parse (no in-app surface yet)
+   - KingSong: KS-18L imperial-mode mile scaler (`* 0.83`) — and the model itself
 
 2. **MEDIUM — missing models that route into wrong battery class:**
-   - KingSong: KS-16X, KS-18L (+ imperial scaler), KS-18LH, KS-S16P, RockWheel
+   - KingSong: KS-18L, KS-18LH, KS-18LY, KS-S16P, KS-16XF, RockWheel
    - InMotion V1: V3 / R1 / R2 series (16 models, 3 different speed factors)
-   - [DONE v0.6.6] Veteran: Sherman L / Patton S / Oryx / Lynx S / Nosfet ×3 (mVer-keyed registry entries added)
    - Begode: Nikola, Monster, Hero HS/HT split, RS HS/HT split
+   - Ninebot: Z8, Z11, One T, One S, dedicated Mini Plus, Z10 variants
+   - Veteran: SHERMAN_MAX still present without WheelLog equivalent — drop or pin to mVer 1
 
 3. **LOW — additional fields and polish:**
-   - Begode: LED mode @13, power-off time @8..9, settings bitfield (pedals / speed-alarms / roll-angle), MPU6500 temp formula, gating BMS voltage override behind `autoVoltage`, smart-BMS cells / temps / semi-V parsing
-   - KingSong: CPU load @14, fan flag @12, immediate 0xA4 echo, BMS pages, better-percents curve
-   - InMotion V1: alert frame `0x0F780101`, roll zero-out for V8F/V8S, PIN retry, pedal-tilt readback, PWM/power derivation
-   - InMotion V2 (V12): alarmSpeed2, mute / transport / handle button / autoLight / soundWave / splitMode settings, light-brightness write
-   - Veteran: charge mode / sleep timer / speedAlert / speedTiltback / firmware string / pedalsMode echo, sticky CRC, BMS aggregates
-   - Ninebot: power = V * I, Mini voltage zero-out, DriveFlags caching, tail-light setter, serial stitching, Z firmware nibble decode, signed-speed `abs()`
+   - Begode: LED mode @13, power-off time @8..9, settings bitfield (pedals / speed-alarms / roll-angle), motor-temp scale @0x07 offset 6, reverse-sign `gotwayNegative`, smart-BMS cells / temps / semi-V parsing, 0xFF Alexovik PID frame
+   - KingSong: CPU load @14, fan flag @12, immediate 0xA4 echo (still queued), BMS pages, better-percents 4-knot curve, LED mode/strobe
+   - InMotion V1: roll zero-out for V8F/V8S, PIN handshake retry (currently single send), pedal-tilt readback @56, PWM/power derivation hook, better-percents toggle, R1S=1000 / R1T=3810 speed factors
+   - InMotion V2 (V12): alarmSpeed2 @13, mute / transport / handle button / autoLight / soundWave / splitMode / volume / beamBrightness / splitAccel / splitBreak settings
+   - Veteran: `current` field is phase (label clarification), charge mode @22, sleep timer @20, speedAlert @24, speedTiltback @26, firmware string @28, pedalsMode echo @30, beep/horn variant auto-pick by mVer, sticky CRC across short/long frames, BMS aggregates (`getCellsForWheel`), battery-% multi-segment upper-clamp
+   - Ninebot: `power = V * I`, Mini voltage zero-out, tail-light setter (DriveFlags bit 1), Legacy serial 3-param stitching (0x10/0x11/0x12), Z firmware nibble decode, signed-speed `abs()` for Legacy default / Mini, avg speed / op time / error / alarm / escstatus
 
 This document is fix-list, not action-yet. Tackle in priority order.

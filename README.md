@@ -24,7 +24,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 > | **Experimental** | InMotion V11, V13, V9 | In the model registry; please file a wheel report if you try them |
 > | Not yet | Onewheel and other non-EUC vehicles | Different protocol family, out of scope |
 >
-> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner, telemetry verification is the fastest path to upgrading the tier.
+> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, InMotion V2 / V14 / V12 / P6, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner, telemetry verification is the fastest path to upgrading the tier.
 >
 > Want to help add a wheel that's not on the list? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md), record one labelled riding session and we can usually map it in a single pass.
 

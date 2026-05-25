@@ -1,0 +1,149 @@
+name: Release APK
+
+# On every push of a `v*` tag (e.g. v0.8.11), build a slim release-signed
+# phone APK — slim meaning WITHOUT the embedded wear companion APK — and
+# attach it to the matching GitHub release. The fat AAB that goes to Play
+# Console still gets built locally and uploaded by hand at release time.
+#
+# Why slim? The Play AAB embeds the wear APK so Google Play auto-delivers
+# it to a paired Wear OS watch. Sideload users who download the APK from
+# GitHub don't need that path — many of them don't even own a watch — so
+# we save them ~40 MB by stripping the embedded wear from the GitHub copy.
+# The companion wear APK is uploaded to the same release as its own file
+# (`wear-release.apk`) for sideloaders who do want it.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   RELEASE_KEYSTORE   — base64-encoded contents of the release .jks file
+#                        (locally: `base64 -w0 path/to/release.jks > out.txt`)
+#   KEYSTORE_PASSWORD  — store password
+#   KEY_ALIAS          — signing key alias
+#   KEY_PASSWORD       — key password
+#
+# If any secret is missing the workflow short-circuits with a clear message
+# rather than producing an unsigned APK by accident.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to attach the slim APK to (e.g. v0.8.11)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  slim-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve target tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.ref }}
+          fetch-depth: 1
+
+      - name: Verify signing secrets are configured
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -z "$RELEASE_KEYSTORE" ]  && missing+=(RELEASE_KEYSTORE)
+          [ -z "$KEYSTORE_PASSWORD" ] && missing+=(KEYSTORE_PASSWORD)
+          [ -z "$KEY_ALIAS" ]         && missing+=(KEY_ALIAS)
+          [ -z "$KEY_PASSWORD" ]      && missing+=(KEY_PASSWORD)
+          if [ "${#missing[@]}" -gt 0 ]; then
+            echo "::error::Release signing secrets missing: ${missing[*]}"
+            echo "::error::Add them in Settings → Secrets and variables → Actions, then re-run this workflow."
+            exit 1
+          fi
+
+      - name: Restore release keystore
+        env:
+          RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
+        run: |
+          # Decode the keystore into a known path that keystore.properties
+          # below will point at via storeFile=release.jks (resolved relative
+          # to rootProject).
+          echo "$RELEASE_KEYSTORE" | base64 -d > release.jks
+          # Sanity-check we got a real keystore, not a truncated or
+          # whitespace-mangled secret.
+          test -s release.jks
+          file release.jks | grep -qi keystore || {
+            echo "::error::Decoded RELEASE_KEYSTORE does not look like a keystore. Re-encode with: base64 -w0 release.jks"
+            exit 1
+          }
+
+      - name: Write keystore.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Build slim release APK (no embedded wear)
+        run: |
+          ./gradlew :app:assembleRelease -PembedWear=false --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Stage APK with versioned filename
+        id: stage
+        run: |
+          tag="${{ steps.tag.outputs.ref }}"
+          stripped="${tag#v}"
+          out="EUC-Planet-${stripped}-phone-slim.apk"
+          cp app/build/outputs/apk/release/app-release.apk "/tmp/${out}"
+          ls -la "/tmp/${out}"
+          echo "name=${out}" >> "$GITHUB_OUTPUT"
+
+      - name: Attach slim APK to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.tag.outputs.ref }}"
+          # If a previous run uploaded the same slim filename, drop it first
+          # so the upload below doesn't 422. Tolerate the asset not existing.
+          existing="EUC-Planet-${tag#v}-phone-slim.apk"
+          gh release delete-asset "$tag" "$existing" --yes 2>/dev/null || true
+          gh release upload "$tag" "/tmp/${{ steps.stage.outputs.name }}" --clobber
+
+      - name: Wipe sensitive files
+        if: always()
+        run: |
+          # Don't leave the decoded keystore or its properties on the runner
+          # disk (defence in depth — the runner is single-use, but in case
+          # this workflow grows steps that upload the workspace later on).
+          rm -f release.jks keystore.properties
