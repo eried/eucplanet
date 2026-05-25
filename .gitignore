@@ -36,3 +36,5 @@ delete.html
 # Stray build-output paths that have leaked into the repo before
 **/eucplanet_*.png
 **/build/eucplanet_*
+
+test-out/

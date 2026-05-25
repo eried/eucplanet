@@ -316,18 +316,23 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_GPS_SOURCE, gps?.second ?: "")
                 // Navigation popup mirror. navShow folds in the rider's watch
                 // opt-in and the phone popup's minimized state; when it is off
-                // the payload fields are zeroed so a stale instruction can't
-                // linger on the watch or trigger a phantom wrist buzz.
+                // K_NAV_ACTIVE is false and the watch hides the overlay (with
+                // a fade). The content fields (primary, distance, arrived,
+                // angle) are NOT zeroed alongside navShow -- the watch's
+                // AnimatedVisibility re-reads them during the fade animation,
+                // and clearing them mid-fade would swap the Flag icon back to
+                // a Navigation arrow and blank the "You have arrived" text
+                // while the popup is still on screen visibly fading out.
                 val nav = navigationEngine.navState.value
                 // cueVisible folds in the phone popup's transient timeout, so
                 // the watch shows nav only while the phone's popup is on screen.
                 val navShow = nav.active && !nav.minimized && nav.cueVisible &&
                     settings.watchShowNavigation
                 dataMap.putBoolean(K_NAV_ACTIVE, navShow)
-                dataMap.putFloat(K_NAV_ANGLE, if (navShow) nav.arrowAngleDeg() else 0f)
-                dataMap.putString(K_NAV_PRIMARY, if (navShow) nav.primaryText else "")
-                dataMap.putString(K_NAV_DISTANCE, if (navShow) nav.distanceText else "")
-                dataMap.putBoolean(K_NAV_ARRIVED, navShow && nav.arrived)
+                dataMap.putFloat(K_NAV_ANGLE, nav.arrowAngleDeg())
+                dataMap.putString(K_NAV_PRIMARY, nav.primaryText)
+                dataMap.putString(K_NAV_DISTANCE, nav.distanceText)
+                dataMap.putBoolean(K_NAV_ARRIVED, nav.arrived)
                 // DataItems dedupe by content. Bumping a timestamp guarantees
                 // the watch sees every snapshot when the values stop changing
                 // (e.g. wheel idle, but we want the connection-state heartbeat).

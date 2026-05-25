@@ -115,8 +115,21 @@ class RouteBuilderViewModel @Inject constructor(
     val savedView: StateFlow<MapView?> = _savedView.asStateFlow()
 
     fun setSavedView(lat: Double, lng: Double, zoom: Float) {
+        // Throttle the log; this fires on every moveend (including each
+        // auto-follow tween frame's setView, ~60 Hz when the rider is
+        // navigating) and would otherwise dominate logcat.
+        val now = System.currentTimeMillis()
+        if (now - lastSavedViewLogMs > 500) {
+            lastSavedViewLogMs = now
+            android.util.Log.i(
+                "RouteBuilderVM",
+                "SAVED-VIEW lat=${"%.5f".format(lat)} lng=${"%.5f".format(lng)} " +
+                    "zoom=${"%.2f".format(zoom)}"
+            )
+        }
         _savedView.value = MapView(lat, lng, zoom)
     }
+    private var lastSavedViewLogMs = 0L
 
     /** Sets the rider-marker photo (or clears it) and persists to settings. */
     fun setUserMarkerPhoto(dataUrl: String?) {
@@ -240,11 +253,35 @@ class RouteBuilderViewModel @Inject constructor(
                         routeName = existing.name
                         _travelMode.value = existing.travelMode
                         _waypoints.value = existing.waypoints
-                        _route.value = existing
+                        // Only adopt the persisted route as _route when it
+                        // actually carries geometry. With the new "stops +
+                        // travel mode only" persistence, geometry is
+                        // always empty -- overwriting _route with an empty
+                        // leg here would clobber whatever the activeLeg
+                        // observer just put in (during active nav) and
+                        // erase the freshly-drawn green line on every
+                        // re-entry of the Builder.
+                        if (existing.geometry.isNotEmpty()) {
+                            _route.value = existing
+                        }
                         bumpRender(fit = true)
+                        // Recompute the route fresh from the restored stops
+                        // -- in draft mode this fills _route with the
+                        // current router's solution; during active nav the
+                        // engine's activeLeg observer already owns _route
+                        // so we skip.
+                        if (!navigationEngine.isActive) {
+                            scheduleRecompute(fit = false)
+                        }
                     }
                 }
             }
+            android.util.Log.i(
+                "RouteBuilderVM",
+                "RESTORE engineActive=${navigationEngine.isActive} isFresh=$isFresh " +
+                    "savedAt=${s.navCurrentRouteSavedAt} " +
+                    "_waypoints=${_waypoints.value.size}"
+            )
             // Signal restore-complete after the section above finishes --
             // independent of whether anything was actually restored.
             restoreReady.complete(Unit)
@@ -282,13 +319,34 @@ class RouteBuilderViewModel @Inject constructor(
             // skip the mark, and the rider would see the entire route
             // disappear when the engine's stop() finally fired.
             restoreReady.await()
+            android.util.Log.i("RouteBuilderVM", "COLLECT-READY")
             navigationEngine.navState.collect { nav ->
+                android.util.Log.i(
+                    "RouteBuilderVM",
+                    "NAV-STATE active=${nav.active} arrived=${nav.arrived} " +
+                        "arrivalProcessed=$arrivalProcessed wpCount=${_waypoints.value.size}"
+                )
                 if (!nav.active || !nav.arrived) {
                     arrivalProcessed = false
                     return@collect
                 }
                 if (arrivalProcessed) return@collect
                 arrivalProcessed = true
+                // The engine is now the sole orchestrator of multi-stop
+                // progress: it writes passed=true to the saved JSON itself
+                // and (for intermediate stops) builds the next leg + calls
+                // advanceLeg from inside its own scope. The Navigator VM
+                // used to race the engine's intermediate-flash window by
+                // running its own leg-building coroutine and calling
+                // advanceLeg the instant arrived=true fired -- which
+                // emitted arrived=false again and yanked the "Reached
+                // goal N" popup off-screen ~150 ms in. Now we just mirror
+                // the passed flag into the visible list so the marker
+                // flips to a flag immediately; the engine's saved-JSON
+                // write below is the source of truth on disk, and
+                // _route is updated by the engine's advanceLeg-driven
+                // navState emission picked up by other observers /
+                // bumpRender paths.
                 val current = _waypoints.value
                 val nextIdx = current.indexOfFirst { !it.passed }
                 android.util.Log.i(
@@ -303,22 +361,6 @@ class RouteBuilderViewModel @Inject constructor(
                 }
                 _waypoints.value = updated
                 bumpRender(fit = false)
-                // Mirror the new passed flags to the on-disk saved route so a
-                // VM re-creation (rider leaves and re-enters the navigator
-                // tab) doesn't blow them away when init re-reads the JSON.
-                viewModelScope.launch {
-                    runCatching {
-                        val current = _route.value ?: return@runCatching
-                        val s = settingsRepository.get()
-                        settingsRepository.update(
-                            s.copy(
-                                navCurrentRouteJson =
-                                    current.copy(waypoints = updated).toJson().toString(),
-                                navCurrentRouteSavedAt = System.currentTimeMillis()
-                            )
-                        )
-                    }
-                }
                 val nextNonPassed = updated.firstOrNull { !it.passed }
                 if (nextNonPassed == null) {
                     // Final stop reached -- drop the leftover route line +
@@ -329,37 +371,43 @@ class RouteBuilderViewModel @Inject constructor(
                     bumpRender(fit = false)
                     return@collect
                 }
-                val originLoc = currentLocation.value ?: return@collect
-                val originWp = Waypoint(originLoc.latitude, originLoc.longitude)
-                val mode = _travelMode.value
-                val legWps = listOf(originWp, nextNonPassed)
-                viewModelScope.launch {
-                    val computed = if (mode == TravelMode.STRAIGHT) {
-                        RoutingService.straightLineRoute(routeName, legWps)
-                    } else {
-                        routingService.route(routeName, legWps, mode, routerUrl)
-                            ?: RoutingService.straightLineRoute(routeName, legWps)
-                    }
-                    android.util.Log.i(
-                        "RouteBuilderVM",
-                        "ARRIVE-NEW-LEG nextStop=(${nextNonPassed.lat},${nextNonPassed.lng}) " +
-                            "originUsed=(${originLoc.latitude},${originLoc.longitude}) " +
-                            "legGeomPts=${computed.geometry.size} legDistM=${"%.1f".format(computed.totalDistanceM)}"
-                    )
-                    // Hold the full destination list (including the just-passed
-                    // ones) so the map still shows flags + remaining pins.
-                    _route.value = computed.copy(waypoints = updated)
-                    _routing.value = false
-                    bumpRender(fit = false)
-                    navigationEngine.advanceLeg(computed)
-                    // Second bump after a tiny delay forces the WebView to
-                    // pick up the new leg's geometry even when the first
-                    // render fired before Compose had committed _route's
-                    // new value. Without this the rider saw the OLD line
-                    // pointing at the just-passed flag until they moved.
-                    kotlinx.coroutines.delay(50)
-                    bumpRender(fit = false)
-                }
+                // The new leg's geometry is mirrored from the engine's
+                // activeLeg observer below -- the engine builds the next
+                // leg synchronously inside handleArrival BEFORE the flag
+                // flash, so by the time we get here the map should
+                // already have redrawn to the new green line. Refresh
+                // _route's waypoint list in place so the map markers
+                // pick up the new "passed" flag immediately while we
+                // wait for the engine's leg emission.
+                _route.value = _route.value?.copy(waypoints = updated)
+                bumpRender(fit = false)
+            }
+        }
+        // The engine is the source of truth for which leg is being
+        // navigated. Mirror its activeLeg into _route so the map's green
+        // polyline always matches what the rider is being guided along
+        // -- without this the map only redrew when GPS movement passed
+        // ORIGIN_REROUTE_M, leaving a stale leg drawn between goal
+        // transitions if the rider stopped moving on arrival (the common
+        // case at a goal). The full waypoint list is grafted on so the
+        // passed-flag markers continue to render alongside the leg.
+        viewModelScope.launch {
+            navigationEngine.activeLeg.collect { leg ->
+                if (leg == null) return@collect
+                // No isActive gate -- the engine only sets activeLeg while
+                // navigation is running, and gating on a separate flag risks
+                // racing the StateFlow update order (activeLeg arriving
+                // before navState.active flips true on start()).
+                val merged = leg.copy(waypoints = _waypoints.value.ifEmpty { leg.waypoints })
+                android.util.Log.i(
+                    "RouteBuilderVM",
+                    "ACTIVE-LEG-OBS legGeomPts=${leg.geometry.size} " +
+                        "mergedWpCount=${merged.waypoints.size} " +
+                        "passedFlags=${merged.waypoints.map { it.passed }}"
+                )
+                _route.value = merged
+                _routing.value = false
+                bumpRender(fit = false)
             }
         }
         // Position 0 is always the rider, so a fresh fix shifts the route's
@@ -432,6 +480,7 @@ class RouteBuilderViewModel @Inject constructor(
         // A plain stop was just added — clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
+        persistDraft()
         scheduleRecompute(fit = fit)
     }
 
@@ -443,6 +492,7 @@ class RouteBuilderViewModel @Inject constructor(
         // the role until the next route solves and re-resolves the address.
         list[index] = list[index].copy(lat = lat, lng = lng, name = "")
         _waypoints.value = list
+        persistDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -451,6 +501,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (index !in list.indices) return
         list.removeAt(index)
         _waypoints.value = list
+        persistDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -459,6 +510,7 @@ class RouteBuilderViewModel @Inject constructor(
         if (from !in list.indices || to !in list.indices) return
         list.add(to, list.removeAt(from))
         _waypoints.value = list
+        persistDraft()
         scheduleRecompute(fit = false)
     }
 
@@ -469,7 +521,51 @@ class RouteBuilderViewModel @Inject constructor(
             val s = settingsRepository.get()
             settingsRepository.update(s.copy(navDefaultTravelMode = mode.name))
         }
+        persistDraft()
         scheduleRecompute(fit = false)
+    }
+
+    /**
+     * Mirror the current draft (stops + travel mode) into the persisted
+     * navCurrentRouteJson so it survives navigating away from the Builder
+     * and back. Skipped while guidance is running -- the [NavigationEngine]
+     * owns the JSON then (syncBuilderRoute trims passed stops as the rider
+     * progresses, and a draft overwrite from here would race with it).
+     *
+     * Stops emptying out clears the JSON; otherwise we write a thin route
+     * with no geometry / maneuvers (the Builder recomputes those when it
+     * re-opens). The savedAt timestamp is bumped so the next VM init's
+     * isFresh check passes; the 24 h RESTORE_TTL keeps Google Auto Backup
+     * from resurrecting drafts on a fresh install.
+     */
+    private fun persistDraft() {
+        if (navigationEngine.isActive) return
+        val wps = _waypoints.value
+        val mode = _travelMode.value
+        val name = routeName
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            if (wps.isEmpty()) {
+                settingsRepository.update(
+                    s.copy(navCurrentRouteJson = null, navCurrentRouteSavedAt = 0L)
+                )
+                return@launch
+            }
+            val route = NavRoute(
+                name = name,
+                waypoints = wps,
+                travelMode = mode,
+                geometry = emptyList(),
+                maneuvers = emptyList(),
+                totalDistanceM = 0.0
+            )
+            settingsRepository.update(
+                s.copy(
+                    navCurrentRouteJson = route.toJson().toString(),
+                    navCurrentRouteSavedAt = System.currentTimeMillis()
+                )
+            )
+        }
     }
 
     fun clear() {
@@ -570,6 +666,19 @@ class RouteBuilderViewModel @Inject constructor(
             // remember we owe one and fire it after dragend.
             recomputeQueuedDuringDrag = true
             pendingRecomputeFit = pendingRecomputeFit || fit
+            return
+        }
+        if (navigationEngine.isActive) {
+            // While guidance is running the engine is the authoritative
+            // source of `_route` via its activeLeg StateFlow (mirrored in
+            // the observer above). The location collector still fires
+            // here on every GPS shift > ORIGIN_REROUTE_M, but letting it
+            // launch a recompute snapshots `_waypoints` AT THAT INSTANT
+            // -- and right after an arrival the snapshot can land before
+            // the arrival collector marks the just-reached goal passed.
+            // The 300 ms-debounced coroutine then writes a leg
+            // rider->just-passed-goal back into _route, overwriting the
+            // engine's correct rider->next-goal leg. So: bail.
             return
         }
         _routeClean.value = false
@@ -871,6 +980,10 @@ class RouteBuilderViewModel @Inject constructor(
         _route.value?.geometry?.forEach { p ->
             arr.put(JSONArray().put(p.lat).put(p.lng))
         }
+        android.util.Log.i(
+            "RouteBuilderVM",
+            "GEOM-JSON pts=${_route.value?.geometry?.size ?: 0}"
+        )
         return arr.toString()
     }
 
@@ -930,10 +1043,18 @@ class RouteBuilderViewModel @Inject constructor(
             // draft. The engine clears this again once the trip is finished.
             runCatching {
                 val s = settingsRepository.get()
+                // Persist stops + travel mode only -- cached geometry /
+                // maneuvers / totalDistance are recomputed on the next
+                // open so prefs stay small and the JSON survives router
+                // changes / map updates cleanly.
                 settingsRepository.update(
                     s.copy(
-                        navCurrentRouteJson =
-                            navRoute.copy(waypoints = dests).toJson().toString(),
+                        navCurrentRouteJson = navRoute.copy(
+                            waypoints = dests,
+                            geometry = emptyList(),
+                            maneuvers = emptyList(),
+                            totalDistanceM = 0.0
+                        ).toJson().toString(),
                         navCurrentRouteSavedAt = System.currentTimeMillis()
                     )
                 )

@@ -1,6 +1,26 @@
 package com.eried.eucplanet.ui.navigator
 
 /**
+ * Background colour matching the first tiles the rider will see for each
+ * map style, used as the page bg + WebView bg before tiles arrive. Without
+ * this, the page painted dark navy regardless of the saved style and the
+ * rider got a "dark flash" before the LIGHT / SATELLITE tiles replaced it.
+ */
+internal fun mapTypeInitialBg(mapType: String): String = when (mapType) {
+    "LIGHT" -> "#dedede"      // CARTO Positron's pre-tile gray
+    "SATELLITE" -> "#1a1a1a"  // dominant near-black of Esri World Imagery oceans
+    else -> "#0b0f19"          // CARTO Dark Matter / fallback
+}
+
+/** Substitute the saved map style and matching bg colour into the HTML
+ *  template so the very first paint already targets the rider's choice
+ *  instead of seeding a dark tile layer and tearing it down. */
+internal fun routeBuilderHtmlFor(mapType: String): String =
+    ROUTE_BUILDER_HTML
+        .replace("__INITIAL_MAP_TYPE__", mapType)
+        .replace("__INITIAL_BG__", mapTypeInitialBg(mapType))
+
+/**
  * The self-contained HTML document for the Route Builder's Leaflet map.
  *
  * Leaflet itself ships as bundled assets (`assets/leaflet.js` + `leaflet.css`);
@@ -20,7 +40,13 @@ package com.eried.eucplanet.ui.navigator
  * pins are joined by a dashed connector; once a route comes back it is drawn
  * as a solid line.
  */
-internal const val ROUTE_BUILDER_HTML: String = """
+// The HTML+JS document is split into two const halves because a single
+// raw string literal hits the JVM's 65535-byte UTF-8 limit on constant
+// pool entries. Splitting + concatenating at runtime sidesteps that --
+// the limit is on individual constant entries, not on String values.
+internal val ROUTE_BUILDER_HTML: String = ROUTE_BUILDER_HTML_1 + ROUTE_BUILDER_HTML_2
+
+private const val ROUTE_BUILDER_HTML_1: String = """
 <!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <link rel="stylesheet" href="leaflet.css"/>
@@ -31,7 +57,7 @@ internal const val ROUTE_BUILDER_HTML: String = """
      instantiate the map with rotate:true below to opt in. -->
 <script src="leaflet-rotate.js"></script>
 <style>
-  html,body,#map{margin:0;padding:0;width:100%;height:100%;background:#0b0f19;}
+  html,body,#map{margin:0;padding:0;width:100%;height:100%;background:__INITIAL_BG__;}
   /* Suppress all tile transitions / opacity ramps. Leaflet's default
      CSS fades each tile in via an opacity transition; with our 60 Hz
      auto-follow tween that fade is restarted on tiles entering /
@@ -362,6 +388,19 @@ internal const val ROUTE_BUILDER_HTML: String = """
         targetZoom = Math.max(10, Math.min(19, targetZoom));
         if (Math.abs(targetZoom - currentZoom) > 0.05) {
           newZoom = currentZoom + (targetZoom - currentZoom) * ZOOM_TWEEN_RATE;
+          // Throttle to ~once/sec so the log is readable; only print when
+          // targetZoom is at a clamp boundary (19 = "max zoom" complaint)
+          // or when the tween crosses an integer-zoom step.
+          if (!window._lastZoomLogMs) window._lastZoomLogMs = 0;
+          var atClamp = targetZoom >= 18.95 || targetZoom <= 10.05;
+          if (atClamp || Date.now() - window._lastZoomLogMs > 1000) {
+            window._lastZoomLogMs = Date.now();
+            console.log('AUTOFOLLOW-ZOOM nextIdx=' + nextActiveMarkerIdx +
+              ' distM=' + distM.toFixed(1) +
+              ' targetZ=' + targetZoom.toFixed(2) +
+              ' curZ=' + currentZoom.toFixed(2) +
+              ' newZ=' + newZoom.toFixed(2));
+          }
         }
       }
       // Target centre: the midpoint between the rider and the next
@@ -466,7 +505,15 @@ internal const val ROUTE_BUILDER_HTML: String = """
   setTimeout(function(){ requestAnimationFrame(tickAutoFollow); }, 500);
 
   // Swappable base map: dark / light streets / satellite imagery, all key-less.
+  var currentMapType = '';
   window.nativeSetMapType = function(type){
+    // Idempotent: a redundant call for the same type (the screen's
+    // pageReady-triggered LaunchedEffect fires nativeSetMapType after
+    // the HTML's template-driven init has already set the same one)
+    // would otherwise removeLayer + re-create the tile layer for no
+    // reason, briefly blanking the map.
+    if (type === currentMapType) return;
+    currentMapType = type;
     var url, opts;
     // keepBuffer: 4 -- the default 2 leaves a ring of unloaded tiles JUST
     // outside the visible area. On a rotated map, those unloaded corners
@@ -487,6 +534,16 @@ internal const val ROUTE_BUILDER_HTML: String = """
     }
     if (tileLayer){ map.removeLayer(tileLayer); }
     tileLayer = L.tileLayer(url, opts).addTo(map);
+    // Tell the screen as soon as the first ring of tiles has actually
+    // rendered, so the locating cover can fade out only once the map
+    // looks like a map. We pass through to the native bridge only on
+    // the FIRST load -- subsequent layer swaps (user cycling style)
+    // don't need to re-fire the gate logic.
+    tileLayer.once('load', function(){
+      if (window.AndroidNav && AndroidNav.onTilesLoaded) {
+        AndroidNav.onTilesLoaded();
+      }
+    });
     // ---- Deep-clamp tile-layer mutation during the auto-follow tween.
     //
     // Symptoms we are fighting:
@@ -553,7 +610,12 @@ internal const val ROUTE_BUILDER_HTML: String = """
       return level;
     };
   };
-  window.nativeSetMapType('DARK');
+  // Initial tile layer matches the rider's saved map style so the first
+  // paint isn't a dark Carto Dark Matter that gets immediately torn
+  // down for the rider's LIGHT / SATELLITE choice. The placeholder is
+  // substituted by Kotlin (see routeBuilderHtmlFor) before the page
+  // loads, so by the time this line runs the right tile URL is fetched.
+  window.nativeSetMapType('__INITIAL_MAP_TYPE__');
 
   map.setView([20,0], 2);
 
@@ -598,9 +660,9 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // STRAIGHT routes also get arrow decorations because the line itself is
   // featureless (no junctions / road geometry to imply direction).
   var travelMode = 'DRIVING';
-  // Arrow decorations layer for STRAIGHT mode — populated by drawArrows(),
-  // cleared every render so it never lingers across mode changes.
-  var arrowLayer = null;
+  // Arrow decorations are now split into routeArrowLayer + previewArrow-
+  // Layer (see further below) so the rider->next-goal chevrons and the
+  // orange preview chevrons can coexist. Keep this comment as a marker.
 
   map.on('click', function(e){
     if (!window.AndroidNav) return;
@@ -633,7 +695,9 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // and toggle draggability. The native side passes the current waypoints
     // and geometry through render() right after toggling the lock.
   };
+"""
 
+private const val ROUTE_BUILDER_HTML_2: String = """
   function colorFor(i, n){
     // The colours assume the marker array INCLUDES passed stops at the
     // head -- the caller filters / inspects passed at the marker site
@@ -727,26 +791,31 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // upcoming order without committing routing budget for legs they
   // haven't reached yet. previewLine is regenerated on every
   // nativeRender call -- cheap, runs only when navLocked && >=2 stops.
+  var previewLineGeom = null;
   function clearPreview(){
     if (previewLine){ map.removeLayer(previewLine); previewLine = null; }
+    previewLineGeom = null;
+    clearPreviewArrows();
   }
+  // The previewLine now uses byte-for-byte the same options as the
+  // drag connector (which scales correctly through pinch zoom even
+  // though it IS dashed). The only diffs are colour and lack of
+  // dashArray sometimes broke other dashed lines under leaflet-rotate
+  // -- using comma-separated dashArray + lineCap:'round' replicates
+  // the exact connector recipe that proved itself working.
   function drawPreview(wps){
     clearPreview();
     if (!wps) return;
-    // Only the NON-PASSED stops form the upcoming preview chain --
-    // passed stops are done and shouldn't be connected by lines any
-    // more. We need at least two of them to draw a connector at all.
     var active = wps.filter(function(w){ return !w.passed; });
     if (active.length < 2) return;
     var pts = active.map(function(w){ return [w.lat, w.lng]; });
+    previewLineGeom = pts;
     previewLine = L.polyline(pts, {
       color: '#FFA726',
-      weight: 4,
-      opacity: 0.75,
-      dashArray: '8 9',
-      interactive: false
+      weight: 5, opacity: 0.80,
+      dashArray: '8,12', lineCap: 'round'
     }).addTo(map);
-    drawArrows(pts, '#FFA726');
+    drawPreviewArrows(pts, '#FFA726');
   }
 
   // Travel-mode → polyline colour. Cool→warm activity gradient: each step up
@@ -764,27 +833,44 @@ internal const val ROUTE_BUILDER_HTML: String = """
   // The Kotlin SegmentedButton icons mirror these exact colours so the chosen
   // mode chip visually previews the line that will be drawn.
   function routeColorFor(mode){
-    if (mode === 'CYCLING')  return '#FB8C00';
+    if (mode === 'CYCLING')  return '#E91E63';
     if (mode === 'WALKING')  return '#03A9F4';
     if (mode === 'STRAIGHT') return '#43A047';
     if (mode === 'DRIVING')  return '#E53935';
     return accentColor;
   }
 
-  function clearArrows(){
-    if (arrowLayer){ map.removeLayer(arrowLayer); arrowLayer = null; }
+  // Two SEPARATE arrow layers, because routeLine (rider -> next goal) and
+  // previewLine (orange chain through remaining stops) can coexist and
+  // each wants its own chevrons. The drag connector reuses the route
+  // layer since it never coexists with routeLine.
+  var routeArrowLayer = null;
+  var previewArrowLayer = null;
+
+  function clearRouteArrows(){
+    if (routeArrowLayer){
+      map.removeLayer(routeArrowLayer); routeArrowLayer = null;
+    }
   }
-  // Direction chevrons for STRAIGHT-mode routes. One chevron at the centre of
-  // each segment between consecutive waypoints — or TWO chevrons (at 1/3 and
-  // 2/3) when a single segment is long enough on screen that one arrow would
-  // be lonely in a stretch of empty line. Very short segments get nothing,
-  // they're shorter than the chevron itself. Chevrons are two stroked SVG
-  // lines meeting at a point (shape: ">"), rotated to match the segment's
-  // bearing. No shadow; the route line is already high-contrast.
-  function drawArrows(geom, color){
-    clearArrows();
-    if (!geom || geom.length < 2) return;
-    arrowLayer = L.layerGroup();
+  function clearPreviewArrows(){
+    if (previewArrowLayer){
+      map.removeLayer(previewArrowLayer); previewArrowLayer = null;
+    }
+  }
+  function clearArrows(){
+    clearRouteArrows();
+    clearPreviewArrows();
+  }
+
+  // Internal: build (but don't attach) a layerGroup of chevrons placed at
+  // segment midpoints (or 1/3 + 2/3 for long segments). Returns null if
+  // no segment is wide enough on screen to fit a chevron at this zoom.
+  // Chevrons are two stroked SVG lines meeting at a point (shape: ">"),
+  // rotated to match the segment's screen-space bearing. No shadow; the
+  // route line is already high-contrast.
+  function buildArrowsLayer(geom, color){
+    if (!geom || geom.length < 2) return null;
+    var layer = L.layerGroup();
     var pts = geom.map(function(g){ return map.latLngToContainerPoint([g[0], g[1]]); });
     var added = 0;
     for (var i = 1; i < pts.length; i++){
@@ -811,39 +897,88 @@ internal const val ROUTE_BUILDER_HTML: String = """
                 deg.toFixed(1) + 'deg)">' + svg + '</div>',
           iconSize: [24, 24], iconAnchor: [12, 12]
         });
-        arrowLayer.addLayer(L.marker(ll, { icon: icon, interactive: false, keyboard: false }));
+        layer.addLayer(L.marker(ll, { icon: icon, interactive: false, keyboard: false }));
         added++;
       }
     }
-    if (added > 0) arrowLayer.addTo(map);
+    return added > 0 ? layer : null;
   }
-  // Arrows are rendered in screen-space, so refresh on every event that
-  // changes the projection of the route into the viewport: zoom, pan AND
-  // rotate. Without 'rotate' here, the chevrons kept their pre-rotation
-  // angle after each auto-follow tween step and looked tilted off the
-  // route line.
-  // Redraw arrows only when their CSS rotation can have meaningfully
-  // changed -- i.e., the map bearing has shifted enough that the
-  // chevron's screen-pixel direction is now noticeably off the segment.
-  // Pure pan doesn't need a redraw (the arrow markers are anchored to
-  // a lat/lng and Leaflet moves them with the map automatically).
-  // Pure zoom only changes spacing, not direction.
-  // The previous code redrew on every `move` -- with the auto-follow
-  // tween firing setView 60 Hz, that was a full clearArrows + N new
-  // divIcons per frame: blink.
+
+  // Public: draw chevrons on the rider->next-goal line. Drag connector and
+  // routeLine both use this (they never coexist).
+  function drawArrows(geom, color){
+    clearRouteArrows();
+    var layer = buildArrowsLayer(geom, color);
+    if (layer){
+      routeArrowLayer = layer;
+      layer.addTo(map);
+    }
+  }
+  // Public: draw chevrons on the orange dashed preview chain.
+  function drawPreviewArrows(geom, color){
+    clearPreviewArrows();
+    var layer = buildArrowsLayer(geom, color);
+    if (layer){
+      previewArrowLayer = layer;
+      layer.addTo(map);
+    }
+  }
+
+  // True iff routeLine should currently be carrying chevrons: either the
+  // rider is in STRAIGHT mode (no real road geometry will ever arrive) or
+  // routeLine is a 2-point straight-line fallback (engine's pre-routing
+  // line, or routing failed and we got the straight fallback). For any
+  // routed multi-point polyline we omit the chevrons since they're "the
+  // real path now."
+  function routeLineWantsArrows(){
+    if (!routeLine) return false;
+    if (travelMode === 'STRAIGHT') return true;
+    return routeLine.getLatLngs().length === 2;
+  }
+
+  // Refresh both arrow layers whenever the projection of either line into
+  // the viewport changes. The arrows are placed in screen-space (so zoom
+  // changes which segments are long enough to qualify, and rotate changes
+  // chevron angles). Pan doesn't need a redraw -- markers are anchored
+  // to lat/lng and Leaflet moves them automatically.
+  //
+  // Rotate fires ~60 Hz during auto-follow; throttle it by a bearing-
+  // delta so we don't clear+rebuild the layer every animation tick.
+  // moveend and zoomend fire once when the gesture settles, so they
+  // always redraw (otherwise zoom-out leaves stale arrows: segments
+  // shrink below the 60 px threshold but the old chevrons stay placed).
   var lastArrowBearing = NaN;
-  function maybeRedrawArrows() {
-    if (travelMode !== 'STRAIGHT' || !routeLine) return;
+  function redrawArrowsNow(){
+    lastArrowBearing = map.getBearing();
+    if (routeLineWantsArrows()){
+      var rGeom = routeLine.getLatLngs().map(function(ll){
+        return [ll.lat, ll.lng];
+      });
+      drawArrows(rGeom, routeColorFor(travelMode));
+    } else {
+      clearRouteArrows();
+    }
+    if (previewLineGeom){
+      drawPreviewArrows(previewLineGeom, '#FFA726');
+    } else {
+      clearPreviewArrows();
+    }
+  }
+  function maybeRedrawArrowsRotate(){
     var b = map.getBearing();
     if (!isNaN(lastArrowBearing) && Math.abs(b - lastArrowBearing) < 5) return;
-    lastArrowBearing = b;
-    var geom = routeLine.getLatLngs().map(function (ll) { return [ll.lat, ll.lng]; });
-    drawArrows(geom, routeColorFor(travelMode));
+    redrawArrowsNow();
   }
-  // moveend / zoomend cover the "final" redraw once the auto-follow
-  // settles, so the arrows snap to the exact bearing without waiting
-  // for a 5 deg threshold to trip.
-  map.on('rotate moveend zoomend', maybeRedrawArrows);
+  map.on('rotate', maybeRedrawArrowsRotate);
+  map.on('moveend zoomend', redrawArrowsNow);
+  // What makes the drag connector track zoom correctly is the
+  // continuous setLatLngs(...) it gets on every drag tick -- that
+  // call forces the renderer's _updatePath, which is the only thing
+  // that bypasses leaflet-rotate's _update override. Do the exact
+  // same for previewLine on every zoom/move tick during the pinch.
+  map.on('zoom move', function(){
+    if (previewLine) previewLine.setLatLngs(previewLine.getLatLngs());
+  });
 
   window.nativeRender = function(wpJson, geomJson, fit){
     var wps = JSON.parse(wpJson);
@@ -895,8 +1030,14 @@ internal const val ROUTE_BUILDER_HTML: String = """
           : (navLocked ? iconForLocked(stopColor) : iconFor(i + 1, stopColor))
       });
       m.on('dragstart', function(){
-        // Drop the solved route; show the dashed preview while dragging.
+        // Drop the solved route AND the orange straight-line preview that
+        // chains the remaining stops -- both are stale the moment the
+        // rider starts moving a pin, and leaving the preview on the map
+        // alongside the new drag connector double-draws the segments
+        // past the first stop. The preview redraws after dragend once
+        // the recompute lands.
         if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
+        clearPreview();
         drawConnector();
         // Tell Kotlin so it suppresses route recompute (GPS jitter would
         // otherwise yank the preview out from under the rider's finger).
@@ -937,25 +1078,28 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // into the 'keep previous line because markers exist' branch and
     // strand a green stub on the map.)
     var allPassed = wps.length > 0 && wps.every(function(w){ return !!w.passed; });
-    // Right after the rider passes a stop they're standing INSIDE that
-    // flag's arrival radius -- the new leg's origin is the same point,
-    // so a line would visibly originate from the flag and read as a
-    // 'leftover path to the goal'. We suppress the routeLine until the
-    // rider has moved beyond the flag's radius; nativeSetUser's
-    // boundary detector re-renders when that happens.
+    console.log('RENDER wps=' + wps.length + ' passed=[' +
+      wps.map(function(w){return w.passed?'T':'F';}).join(',') +
+      '] geom=' + geom.length + ' allPassed=' + allPassed +
+      ' insidePassed=' + userInsidePassedFlag +
+      ' travelMode=' + travelMode + ' navLocked=' + navLocked +
+      ' fit=' + fit + ' zoomBefore=' + map.getZoom().toFixed(2));
+    // When every stop is passed the trip is over; drop the leftover
+    // route line, dashed previews and arrows so the map shows only the
+    // planted flags. Otherwise we always render the leg geometry as the
+    // solid line below -- the engine emits a fresh rider->next-goal leg
+    // synchronously inside handleArrival, so even standing inside a
+    // just-passed flag the line points to the next goal. (The old
+    // userInsidePassedFlag suppression made sense back when the active
+    // leg spanned origin->final-goal and would visibly originate from
+    // the flag the rider was sitting on; with single-leg legs the
+    // origin IS the rider, and hiding the line broke STRAIGHT mode +
+    // 2-stop routes where no orange preview line is drawn either.)
     if (allPassed) {
       if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
       clearArrows();
       clearConnector();
       clearPreview();
-    } else if (userInsidePassedFlag) {
-      // Rider on a just-passed flag: hide the leg line + arrows; keep
-      // the dashed straight-line preview through the remaining stops
-      // so the rider can still see the order.
-      if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
-      clearArrows();
-      clearConnector();
-      drawPreview(wps);
     } else if (geom.length >= 2){
       // A solved route — solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
@@ -964,10 +1108,20 @@ internal const val ROUTE_BUILDER_HTML: String = """
       clearArrows();
       clearConnector();
       var routeColor = routeColorFor(travelMode);
+      console.log('RENDER -> drawing routeLine pts=' + geom.length +
+        ' first=' + JSON.stringify(geom[0]) + ' last=' + JSON.stringify(geom[geom.length-1]) +
+        ' color=' + routeColor);
       routeLine = L.polyline(geom, {color: routeColor, weight: 6, opacity: 0.80}).addTo(map);
-      // STRAIGHT routes get direction arrows along the line — without road
-      // geometry there's no other directional cue.
-      if (travelMode === 'STRAIGHT') drawArrows(geom, routeColor);
+      // Chevrons on the rider->next-goal line in two cases:
+      //   * STRAIGHT mode (we'll never get road geometry, the line IS the
+      //     route — arrows are permanent).
+      //   * Any 2-point line in DRIVING/CYCLING/WALKING (the engine's
+      //     straight-line fallback before routing returns, or after
+      //     routing failed). The chevrons vanish on the next render
+      //     once the real routed polyline arrives.
+      if (travelMode === 'STRAIGHT' || geom.length === 2) {
+        drawArrows(geom, routeColor);
+      }
       // During navigation the solid leg only spans origin -> next stop.
       // Continue the visual line through the remaining stops with a
       // dashed straight-line preview so the rider knows the order
@@ -997,6 +1151,9 @@ internal const val ROUTE_BUILDER_HTML: String = """
 
     if (fit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
+      console.log('RENDER fit applied pts=' + pts.length +
+        ' first=' + JSON.stringify(pts[0]) +
+        ' last=' + JSON.stringify(pts[pts.length - 1]));
       if (pts.length >= 2){
         // maxZoom: 15 keeps the auto-fit from snapping to a building-level
         // view on tight bounds (origin a few meters from the first stop)
@@ -1232,6 +1389,10 @@ internal const val ROUTE_BUILDER_HTML: String = """
     // Re-check the container size first so the target really lands centred
     // even if the WebView resized after the map was created.
     map.invalidateSize();
+    console.log('NATIVE-RECENTER lat=' + lat.toFixed(5) +
+      ' lng=' + lng.toFixed(5) + ' zoom=' + zoom +
+      ' bottomOff=' + (bottomOffsetPx || 0) +
+      ' navLocked=' + navLocked);
     map.setView(centerLatLngFor(lat, lng, zoom, bottomOffsetPx), zoom);
     // Count programmatic recenters as a "manual interaction" so the
     // auto-follow tween doesn't immediately yank the map back. The rider

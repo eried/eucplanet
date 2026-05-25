@@ -83,17 +83,24 @@ class NavigationEngine @Inject constructor(
         private const val OFF_ROUTE_VOICE_COOLDOWN_MS = 35_000L
         private const val REROUTE_AFTER_MS = 22_000L
 
-        // How long the "arrived" banner lingers before the popup self-clears.
+        // How long the final "Arrived" banner lingers before the popup
+        // self-clears via stop().
         private const val ARRIVAL_DISMISS_MS = 9_000L
-        // Grace window between an arrival firing and the engine committing
-        // the visible 'Arrived' cue. If the VM calls advanceLeg inside this
-        // window (intermediate stop -> next leg), the cue is skipped and the
-        // rider transitions directly to the new leg without an Arrived flash.
-        private const val ARRIVAL_PRE_ANNOUNCE_MS = 2_000L
+        // How long an intermediate "Goal reached" flag flash stays up
+        // before the engine swaps to the next leg's "Start riding" state.
+        // Long enough to be readable, short enough to feel snappy.
+        private const val INTERMEDIATE_FLASH_MS = 1_500L
 
         // Treasure Hunt voice cadence + proximity hysteresis.
         private const val HUNT_VOICE_INTERVAL_MS = 45_000L
         private const val PROX_BAND_M = 4.0
+
+        // How far the rider must move from the previous arrival point before
+        // the heading-null shortcut is allowed to fire arrival on the next
+        // leg. Below this threshold the rider is still effectively standing
+        // on the just-passed stop and any "in radius" reading for the next
+        // stop is a same-fix cascade, not real progress.
+        private const val MIN_INTER_STOP_MOVE_M = 30.0
     }
 
     // Every mutation of the engine's runtime state happens inside a coroutine
@@ -106,6 +113,14 @@ class NavigationEngine @Inject constructor(
 
     private val _navState = MutableStateFlow(NavState())
     val navState: StateFlow<NavState> = _navState.asStateFlow()
+
+    // The single-leg route the engine is currently navigating. Mirrored to
+    // the Builder VM so the map's green polyline always matches the engine's
+    // authoritative leg -- without this, after reaching a goal the map
+    // wouldn't redraw to the next leg until the rider physically moved
+    // enough to trigger the VM's distance-gated scheduleRecompute.
+    private val _activeLeg = MutableStateFlow<NavRoute?>(null)
+    val activeLeg: StateFlow<NavRoute?> = _activeLeg.asStateFlow()
 
     val isActive: Boolean get() = _navState.value.active
 
@@ -189,14 +204,19 @@ class NavigationEngine @Inject constructor(
     private var coldStreak = 0
 
     private var arrivalHandled = false
-    /** True after the engine has fired ANY arrival in this navigation session.
-     *  Used to disable the heading-null 'rider is already inside the goal's
-     *  radius' shortcut on subsequent legs -- it should only ever fire on the
-     *  FIRST leg (the 'rider started on top of a stop' case). For follow-on
-     *  legs, the rider must physically move (heading established) before any
-     *  arrival can fire, otherwise stops 1 and 2 cascade in a single fix
-     *  when they happen to be near each other. */
-    private var anyArrivalHappened = false
+    /** Position of the last stop the rider arrived at, used to gate the
+     *  heading-null 'rider is already inside the goal's radius' shortcut on
+     *  follow-on legs. Without a gate, two stops that fall within 2x the
+     *  arrival radius of each other would cascade in a single fix -- the
+     *  rider stands on stop 1, advanceLeg fires for stop 2, and the very
+     *  next heading-null fix sees the rider also inside stop 2's radius
+     *  before they have physically moved. The gate is position-based, not
+     *  arrival-count-based: as soon as the rider has moved
+     *  [MIN_INTER_STOP_MOVE_M] from the last arrival point, the shortcut
+     *  is re-armed so they can arrive at the next stop even before heading
+     *  re-establishes (GPS teleport during testing, or a slow walk where
+     *  the heading window hasn't filled). */
+    private var lastArrivalPoint: GeoPoint? = null
     // Destinations already visited and mirrored to the builder's saved route.
     private var lastSyncedReached = 0
 
@@ -227,12 +247,13 @@ class NavigationEngine @Inject constructor(
             routerUrl = RoutingService.effectiveRouterUrl(s.navRouterUrl)
 
             activeRoute = route
+            _activeLeg.value = route
             navMode = mode
             resetRuntimeState()
-            // Reset 'any arrival fired in this session' here, NOT in
-            // resetRuntimeState (which advanceLeg also calls -- the flag
+            // Reset the position-based arrival gate here, NOT in
+            // resetRuntimeState (which advanceLeg also calls -- the gate
             // is intentionally preserved across legs).
-            anyArrivalHappened = false
+            lastArrivalPoint = null
             waypointAlongM = if (route.geometry.size >= 2) {
                 route.waypoints.mapNotNull {
                     GeoMath.nearestOnPolyline(it.point(), route.geometry)?.alongM
@@ -277,24 +298,44 @@ class NavigationEngine @Inject constructor(
                     "last=${newRoute.waypoints.lastOrNull()?.point()}"
             )
             activeRoute = newRoute
+            _activeLeg.value = newRoute
             resetRuntimeState()
             waypointAlongM = if (newRoute.geometry.size >= 2) {
                 newRoute.waypoints.mapNotNull {
                     GeoMath.nearestOnPolyline(it.point(), newRoute.geometry)?.alongM
                 }
             } else emptyList()
+            // Compute the initial distance to the new goal from the rider's
+            // current position so the popup pops with the real distance
+            // already filled in, not an empty placeholder that updates one
+            // second later when the next GPS fix arrives.
+            val loc = tripRepository.currentLocation.value
+            val goal = newRoute.waypoints.getOrNull(1)?.point()
+            val distanceText = if (loc != null && goal != null) {
+                NavFormat.distance(
+                    context,
+                    GeoMath.distanceM(GeoPoint(loc.latitude, loc.longitude), goal),
+                    imperial
+                )
+            } else ""
             // Keep active = true so the rider's UI doesn't blink between
-            // "navigating" and "done"; just refresh the goal counters and
-            // drop back to waiting/start-riding until the first fix on the
-            // new leg arrives.
+            // "navigating" and "done". popupTick bumps so the overlay
+            // re-shows the cue card for the new leg even if primaryText
+            // is unchanged ("Start riding" -> "Start riding") -- without
+            // the bump the popup would have already faded out from the
+            // previous leg and the rider would miss the transition.
             _navState.value = _navState.value.copy(
                 waiting = true,
                 arrived = false,
                 offRoute = false,
+                arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_start_riding),
-                distanceText = "",
+                distanceText = distanceText,
+                nextStreet = "",
+                proximity = null,
                 goalIndex = 1,
-                goalCount = (newRoute.waypoints.size - 1).coerceAtLeast(1)
+                goalCount = (newRoute.waypoints.size - 1).coerceAtLeast(1),
+                popupTick = _navState.value.popupTick + 1
             )
         }
     }
@@ -306,10 +347,15 @@ class NavigationEngine @Inject constructor(
         rerouteJob?.cancel(); rerouteJob = null
         arrivalJob?.cancel(); arrivalJob = null
         activeRoute = null
-        _navState.value = NavState(active = false)
-        // Re-assert the cleared state on the engine thread so a fix that was
-        // already mid-flight when we cancelled can't leave a stale frame behind.
-        scope.launch { _navState.value = NavState(active = false) }
+        _activeLeg.value = null
+        // Preserve the arrival frame's visible content while flipping `active`
+        // off -- the popup's fade-out reads navState during the animation,
+        // and nuking to NavState(active=false) would visibly swap the Flag
+        // icon back to a Navigation arrow mid-fade as `arrived` and
+        // `primaryText` cleared underneath. Only `active` matters for
+        // gating; the rest naturally resets on the next start().
+        _navState.value = _navState.value.copy(active = false)
+        scope.launch { _navState.value = _navState.value.copy(active = false) }
         Log.i(TAG, "Navigation stopped")
     }
 
@@ -359,6 +405,13 @@ class NavigationEngine @Inject constructor(
 
     private fun onFix(loc: Location) {
         val route = activeRoute ?: return
+        // After arrival has fired, navState holds either the final 'Arrived'
+        // frame (waiting on stop()) or the intermediate 'Goal N reached'
+        // frame (waiting on advanceLeg). A new GPS fix must not overwrite
+        // it -- otherwise the heading-null branch below would re-emit
+        // primaryText='Start riding' and the rider would see Arrived /
+        // Goal reached flash back to riding for one frame.
+        if (arrivalHandled) return
         val now = System.currentTimeMillis()
         val point = GeoPoint(loc.latitude, loc.longitude)
 
@@ -395,16 +448,19 @@ class NavigationEngine @Inject constructor(
             // a delayed / cached first fix used to skip this branch and
             // leave the rider stuck on 'Start riding' next to a stop
             // they were on top of.
-            // Heading-null shortcut: only on the FIRST leg of the trip
-            // (anyArrivalHappened == false). For follow-on legs the rider
-            // must actually move and trigger arrival via the TBT /
-            // Treasure-Hunt paths -- otherwise two close-together stops
-            // cascade in one fix because, right after advanceLeg, the
-            // rider is still standing on the previous flag while the
-            // new leg's goal sits inside the same 50 m radius.
-            if (!anyArrivalHappened &&
-                currentGoal == 1 && route.waypoints.size > 1
-            ) {
+            // Heading-null shortcut: armed on the first leg
+            // (lastArrivalPoint == null) and re-armed on follow-on legs
+            // once the rider has moved MIN_INTER_STOP_MOVE_M from the
+            // stop they last arrived at. The gate prevents two stops
+            // that fall within 2x the arrival radius of each other from
+            // cascading in one fix (rider standing on stop 1 + stop 2
+            // also in radius), while still letting the rider arrive at
+            // the next stop via the heading-null path when they have
+            // actually reached it.
+            val armed = lastArrivalPoint?.let { last ->
+                GeoMath.distanceM(point, last) > MIN_INTER_STOP_MOVE_M
+            } ?: true
+            if (armed && currentGoal == 1 && route.waypoints.size > 1) {
                 val g = route.waypoints[1]
                 val d = GeoMath.distanceM(point, g.point())
                 val r = (g.radiusM ?: arrivalRadiusM)
@@ -639,6 +695,7 @@ class NavigationEngine @Inject constructor(
                     // we are still navigating the very same route.
                     if (fresh != null && activeRoute === route) {
                         activeRoute = fresh
+                        _activeLeg.value = fresh
                         waypointAlongM = fresh.waypoints.mapNotNull {
                             GeoMath.nearestOnPolyline(it.point(), fresh.geometry)?.alongM
                         }
@@ -793,7 +850,8 @@ class NavigationEngine @Inject constructor(
                 val json = if (remaining.isEmpty()) "" else route.copy(
                     waypoints = remaining,
                     geometry = emptyList(),
-                    maneuvers = emptyList()
+                    maneuvers = emptyList(),
+                    totalDistanceM = 0.0
                 ).toJson().toString()
                 // Re-stamp the freshness timestamp on every trim so the
                 // Builder treats this as a "live" navigation even after
@@ -855,83 +913,177 @@ class NavigationEngine @Inject constructor(
     private fun handleArrival() {
         if (arrivalHandled) return
         arrivalHandled = true
-        anyArrivalHappened = true
-        // Set arrived=true so the VM's collector can react (mark this stop
-        // passed, build the next leg, call advanceLeg). DO NOT touch
-        // primaryText / distanceText yet -- if this is an intermediate
-        // stop, advanceLeg will overwrite navState with the next leg's
-        // 'Start riding' state inside ARRIVAL_PRE_ANNOUNCE_MS and the
-        // rider never sees the 'Arrived' cue. Only after that grace
-        // window do we commit the visible/spoken 'Arrived'.
-        _navState.value = _navState.value.copy(
-            waiting = false,
-            arrived = true,
-            offRoute = false
-        )
-        // Mark this goal as 'passed' inside the persisted route IMMEDIATELY
-        // -- not via the VM. The VM may not be alive at the moment of
-        // arrival (rider on another screen), so leaving the persistence to
-        // the VM's collector loses the mark when the user comes back
-        // outside the dismiss window. With this write the goal is
-        // durable as soon as the engine sees the rider in radius.
         val justArrivedGoal = activeRoute?.waypoints?.lastOrNull()?.point()
-        if (justArrivedGoal != null) {
-            scope.launch { markGoalPassedInPersist(justArrivedGoal) }
-        }
-        // The job has two stages:
-        //   1) wait ARRIVAL_PRE_ANNOUNCE_MS -- gives the VM a chance to
-        //      advanceLeg (which resets arrivalHandled = false and cancels
-        //      this job). If we still own the arrival, commit the
-        //      'Arrived' text + voice. This is the FINAL-stop path.
-        //   2) wait the remaining dismiss-window, then call stop(). The
-        //      navCurrentRouteJson is NOT cleared here -- the rider's
-        //      completed route (now full of passed flags) stays on disk
-        //      so the navigator screen restores it with flags + 'New
-        //      route' button on the next open. Only user-initiated
-        //      Clear / New route erases.
-        arrivalJob = scope.launch {
-            delay(ARRIVAL_PRE_ANNOUNCE_MS)
-            if (!arrivalHandled) return@launch
+        lastArrivalPoint = justArrivedGoal
+        Log.i(TAG, "HANDLE-ARRIVAL goal=$justArrivedGoal")
+        // Engine is the sole orchestrator of multi-stop progress: the
+        // Navigator VM may not be alive at arrival (tapping Start pops the
+        // Navigator off the backstack), so the engine itself decides
+        // whether the trip ends here or continues to the next stop.
+        //
+        // The intermediate path shows a brief "Goal N reached" flag flash
+        // BEFORE building the next leg, so the popup pops with the
+        // correct content from frame zero -- without this, the flag would
+        // briefly carry the previous leg's primaryText ("Start riding"),
+        // then change. onFix is gated on arrivalHandled so a fresh GPS
+        // fix landing during the flash window cannot overwrite the
+        // navState.
+        scope.launch {
+            val info = markPassedAndFindNext(justArrivedGoal)
+            if (info != null && info.nextStop != null) {
+                // Build the next leg BEFORE the flash window so the map's
+                // green polyline redraws to it while the popup still says
+                // "Reached goal N". Publishing _activeLeg here lets the
+                // Builder VM mirror the new geometry immediately, without
+                // depending on the rider physically moving to trigger
+                // scheduleRecompute or on a fragile local VM rebuild that
+                // bails when currentLocation briefly reports null.
+                val nextLeg = buildNextLeg(info.nextStop, info.routeForLeg)
+                if (nextLeg != null) _activeLeg.value = nextLeg
+                _navState.value = _navState.value.copy(
+                    waiting = false,
+                    arrived = true,
+                    offRoute = false,
+                    // Arrival is the highest-priority cue: if the rider
+                    // had previously minimized the popup (tapping the
+                    // map button also minimizes as a side effect), an
+                    // intermediate or final arrival forcibly un-minimizes
+                    // so the "Reached goal N" / "You have arrived" banner
+                    // surfaces over every screen, including the map.
+                    minimized = false,
+                    arrow = ArrowDir.STRAIGHT,
+                    primaryText = context.getString(
+                        R.string.nav_arrived_goal,
+                        info.justArrivedIndex
+                    ),
+                    distanceText = "",
+                    nextStreet = "",
+                    proximity = null,
+                    goalIndex = info.justArrivedIndex,
+                    goalCount = info.totalGoals,
+                    popupTick = _navState.value.popupTick + 1
+                )
+                if (voiceEnabled) {
+                    voiceService.announceEvent(
+                        context.getString(R.string.voice_nav_goal_reached)
+                    )
+                }
+                delay(INTERMEDIATE_FLASH_MS)
+                if (nextLeg != null) {
+                    advanceLeg(nextLeg)
+                } else {
+                    // Couldn't build a leg (no current location yet) -- fall
+                    // back to ending nav gracefully instead of hanging on
+                    // the arrived frame forever.
+                    Log.i(TAG, "ENGINE-ADVANCE no leg built -- stopping")
+                    stop()
+                }
+                return@launch
+            }
             _navState.value = _navState.value.copy(
+                waiting = false,
+                arrived = true,
+                offRoute = false,
+                // Final arrival forcibly un-minimizes -- see the same
+                // reasoning on the intermediate emit above.
+                minimized = false,
                 arrow = ArrowDir.STRAIGHT,
                 primaryText = context.getString(R.string.nav_arrived),
-                distanceText = ""
+                distanceText = "",
+                nextStreet = "",
+                proximity = null,
+                popupTick = _navState.value.popupTick + 1
             )
             if (voiceEnabled) {
                 voiceService.announceEvent(context.getString(R.string.voice_nav_arrived))
             }
-            delay(ARRIVAL_DISMISS_MS - ARRIVAL_PRE_ANNOUNCE_MS)
-            if (!arrivalHandled) return@launch
-            stop()
+            arrivalJob = scope.launch {
+                delay(ARRIVAL_DISMISS_MS)
+                if (!arrivalHandled) return@launch
+                stop()
+            }
         }
     }
 
-    /** Persists passed=true on whatever saved waypoint matches [goal] (by
-     *  lat/lng). Called from handleArrival so the mark survives a VM that
-     *  isn't alive at the moment of arrival. */
-    private suspend fun markGoalPassedInPersist(goal: GeoPoint) {
-        runCatching {
+    private data class ArrivalInfo(
+        val nextStop: Waypoint?,
+        val routeForLeg: NavRoute,
+        val justArrivedIndex: Int,
+        val totalGoals: Int
+    )
+
+    /** Marks the just-arrived stop passed in the persisted multi-stop route
+     *  and returns enough context to drive the next handleArrival step:
+     *  the next non-passed stop (or null if this was the final), plus the
+     *  1-based goal-number of the stop we just reached so the popup can
+     *  show "Reached goal N". Returns null when the saved route is gone
+     *  or has no matching waypoint -- the caller falls back to the
+     *  final-arrival flow. */
+    private suspend fun markPassedAndFindNext(justArrivedGoal: GeoPoint?): ArrivalInfo? {
+        if (justArrivedGoal == null) return null
+        return runCatching {
             val s = settingsRepository.get()
-            val existing = NavRoute.fromJson(s.navCurrentRouteJson) ?: return@runCatching
-            var changed = false
-            val updatedWps = existing.waypoints.map { w ->
+            val existing = NavRoute.fromJson(s.navCurrentRouteJson)
+                ?: return@runCatching null
+            var justArrivedIndex = -1
+            val updatedWps = existing.waypoints.mapIndexed { idx, w ->
                 val match = !w.passed &&
-                    kotlin.math.abs(w.lat - goal.lat) < 1e-6 &&
-                    kotlin.math.abs(w.lng - goal.lng) < 1e-6
+                    kotlin.math.abs(w.lat - justArrivedGoal.lat) < 1e-6 &&
+                    kotlin.math.abs(w.lng - justArrivedGoal.lng) < 1e-6
                 if (match) {
-                    changed = true
+                    justArrivedIndex = idx + 1
                     w.copy(passed = true)
                 } else w
             }
-            if (!changed) return@runCatching
-            settingsRepository.update(
-                s.copy(
-                    navCurrentRouteJson =
-                        existing.copy(waypoints = updatedWps).toJson().toString(),
-                    navCurrentRouteSavedAt = System.currentTimeMillis()
-                )
+            Log.i(
+                TAG,
+                "PERSIST-MARK justArrivedIndex=$justArrivedIndex " +
+                    "waypoints=${updatedWps.map { it.passed }}"
             )
+            if (justArrivedIndex > 0) {
+                settingsRepository.update(
+                    s.copy(
+                        navCurrentRouteJson = existing.copy(
+                            waypoints = updatedWps,
+                            geometry = emptyList(),
+                            maneuvers = emptyList(),
+                            totalDistanceM = 0.0
+                        ).toJson().toString(),
+                        navCurrentRouteSavedAt = System.currentTimeMillis()
+                    )
+                )
+            }
+            val updatedRoute = existing.copy(waypoints = updatedWps)
+            val nextNonPassed = updatedWps.firstOrNull { !it.passed }
+            ArrivalInfo(
+                nextStop = nextNonPassed,
+                routeForLeg = updatedRoute,
+                justArrivedIndex = justArrivedIndex.coerceAtLeast(1),
+                totalGoals = updatedWps.size
+            )
+        }.getOrNull()
+    }
+
+    /** Builds an [origin -> nextStop] leg from the rider's current location.
+     *  Returns null when no location fix is available -- the caller bails
+     *  out of the multi-stop flow instead of advancing to a placeholder
+     *  leg the rider can't possibly follow. */
+    private suspend fun buildNextLeg(nextStop: Waypoint, route: NavRoute): NavRoute? {
+        val loc = tripRepository.currentLocation.value ?: return null
+        val mode = route.travelMode
+        val legWps = listOf(Waypoint(loc.latitude, loc.longitude), nextStop)
+        val newLeg = if (mode == TravelMode.STRAIGHT) {
+            RoutingService.straightLineRoute(route.name, legWps)
+        } else {
+            routingService.route(route.name, legWps, mode, routerUrl)
+                ?: RoutingService.straightLineRoute(route.name, legWps)
         }
+        Log.i(
+            TAG,
+            "ENGINE-ADVANCE next=$nextStop legGeomPts=${newLeg.geometry.size} " +
+                "legDistM=${"%.1f".format(newLeg.totalDistanceM)}"
+        )
+        return newLeg
     }
 
     // --- text helpers ------------------------------------------------------------

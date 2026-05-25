@@ -34,6 +34,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.ElectricScooter
 import androidx.compose.material.icons.filled.Navigation
@@ -177,12 +178,13 @@ private fun NavWatchOverlay(state: WatchState, accent: Color) {
                 .padding(horizontal = 16.dp)
         ) {
             Icon(
-                imageVector = Icons.Filled.Navigation,
+                imageVector = if (state.navArrived) Icons.Filled.Flag
+                              else Icons.Filled.Navigation,
                 contentDescription = null,
                 tint = accent,
                 modifier = Modifier
                     .size(74.dp)
-                    .rotate(angle)
+                    .rotate(if (state.navArrived) 0f else angle)
             )
             Spacer(Modifier.height(8.dp))
             if (state.navPrimary.isNotBlank()) {

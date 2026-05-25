@@ -180,14 +180,29 @@ fun RouteBuilderScreen(
     // measure the TopAppBar ourselves so the recenter offset always
     // matches what the rider sees on screen.
     var topBarHeightPx by remember { mutableStateOf(0) }
-    // Cover the map until the first GPS fix lands, so the rider never sees it
-    // snap from world view to their location. Skip drops the gate immediately.
-    var locationGateDone by remember { mutableStateOf(false) }
-    LaunchedEffect(userLocation) {
-        if (userLocation != null) locationGateDone = true
-    }
     var pageReady by remember { mutableStateOf(false) }
     var didInitialCenter by remember { mutableStateOf(false) }
+    // True once the WebView's first nativeRender has completed -- i.e.,
+    // the map has been fitBounds'd / setView'd to the rider's area
+    // instead of Leaflet's init [20,0] zoom 2 world view.
+    var firstRenderApplied by remember { mutableStateOf(false) }
+    // True once at least one tile in the active layer has rendered (the
+    // Leaflet tile layer fires 'load' when all currently visible tiles
+    // are in). Together with firstRenderApplied this is the "the map
+    // looks like a map" cue we hold the locating cover behind.
+    var tilesLoaded by remember { mutableStateOf(false) }
+    // Cover the map until the GPS fix lands AND the first nativeRender
+    // has settled the view AND the tile layer has rendered. The cover
+    // fades out -- so the rider sees the locating panel smoothly cross-
+    // dissolve into the live map, with no white blink, no world-view
+    // of Africa, no dark flash. Each precondition addresses one of the
+    // staged glitches the previous fixes left behind.
+    var locationGateDone by remember { mutableStateOf(false) }
+    LaunchedEffect(userLocation, firstRenderApplied, tilesLoaded) {
+        if (userLocation != null && firstRenderApplied && tilesLoaded) {
+            locationGateDone = true
+        }
+    }
 
     BackHandler { onExit() }
 
@@ -221,20 +236,30 @@ fun RouteBuilderScreen(
     }
 
     // Push map redraws into the WebView once the page is ready.
-    LaunchedEffect(pageReady, mapRender) {
+    //
+    // Collect mapRender directly instead of using it as a LaunchedEffect
+    // key -- the keyed form lets Compose coalesce rapid bumpRender calls
+    // (e.g. restore's bumpRender(fit=true) followed an instant later by
+    // the activeLeg observer's bumpRender(fit=false)) and only the
+    // LATEST value triggers the body. With navigation active that meant
+    // the fit=true frame got dropped, the map opened at world zoom 2,
+    // and the auto-follow tween couldn't claw it back. Collecting
+    // processes every distinct emission so each bumpRender drives one
+    // nativeRender, in order.
+    LaunchedEffect(pageReady) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
-        // If the rider has a saved view (they were already looking somewhere
-        // and we just came back from a sub-screen like Navigation Parameters),
-        // pretend nothing needs to fit — let the saved view re-apply via the
-        // LaunchedEffect below. Otherwise honour the requested fit.
-        val fit = mapRender.fit && viewModel.savedView.value == null
-        wv.evaluateJavascript(
-            "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                "${jsString(viewModel.geometryJson())},$fit);",
-            null
-        )
+        viewModel.mapRender.collect { mr ->
+            val fit = mr.fit && viewModel.savedView.value == null
+            wv.evaluateJavascript(
+                "nativeRender(${jsString(viewModel.waypointsJson())}," +
+                    "${jsString(viewModel.geometryJson())},$fit);"
+            ) {
+                if (!firstRenderApplied) firstRenderApplied = true
+            }
+        }
     }
+
 
     // Restore the saved map view (centre + zoom) once, the moment the page
     // becomes ready — this is what makes "go to Settings and swipe back"
@@ -249,7 +274,18 @@ fun RouteBuilderScreen(
     LaunchedEffect(pageReady) {
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
-        val v = viewModel.savedView.value ?: return@LaunchedEffect
+        val v = viewModel.savedView.value
+        if (v == null) {
+            android.util.Log.i(
+                "RouteBuilderVM",
+                "MAP-OPEN no savedView -- auto-follow / fit will set view"
+            )
+            return@LaunchedEffect
+        }
+        android.util.Log.i(
+            "RouteBuilderVM",
+            "MAP-OPEN restoring savedView lat=${v.lat} lng=${v.lng} zoom=${v.zoom}"
+        )
         wv.evaluateJavascript("nativeRecenter(${v.lat}, ${v.lng}, ${v.zoom});", null)
     }
 
@@ -637,7 +673,18 @@ fun RouteBuilderScreen(
                         // file:///android_asset/ — without file access enabled
                         // they silently fail on API 30+ and the map is blank.
                         settings.allowFileAccess = true
-                        setBackgroundColor(android.graphics.Color.parseColor("#0b0f19"))
+                        // Match the WebView bg to the rider's chosen map style
+                        // so the first frame painted before tiles arrive isn't
+                        // a dark navy that clashes with a LIGHT / SATELLITE
+                        // tile choice. mapType is collected at the top of this
+                        // composable; we read its snapshot value here for the
+                        // initial paint and re-apply on every recomposition
+                        // below in case the rider cycles the style.
+                        setBackgroundColor(
+                            android.graphics.Color.parseColor(
+                                mapTypeInitialBg(viewModel.mapType.value)
+                            )
+                        )
                         addJavascriptInterface(
                             NavJsBridge(
                                 mapClick = { lat, lng ->
@@ -658,6 +705,9 @@ fun RouteBuilderScreen(
                                 },
                                 mapViewChanged = { lat, lng, zoom ->
                                     viewModel.setSavedView(lat, lng, zoom)
+                                },
+                                tilesLoaded = {
+                                    if (!tilesLoaded) tilesLoaded = true
                                 },
                                 markerTapped = { idx, x, y ->
                                     // While navigation is running the only sensible
@@ -685,8 +735,22 @@ fun RouteBuilderScreen(
                                 pageReady = true
                             }
                         }
+                        webChromeClient = object : android.webkit.WebChromeClient() {
+                            override fun onConsoleMessage(
+                                consoleMessage: android.webkit.ConsoleMessage
+                            ): Boolean {
+                                android.util.Log.i(
+                                    "RouteBuilderJS",
+                                    "${consoleMessage.messageLevel()} " +
+                                        "${consoleMessage.sourceId()}:${consoleMessage.lineNumber()} " +
+                                        consoleMessage.message()
+                                )
+                                return true
+                            }
+                        }
                         loadDataWithBaseURL(
-                            "file:///android_asset/", ROUTE_BUILDER_HTML,
+                            "file:///android_asset/",
+                            routeBuilderHtmlFor(viewModel.mapType.value),
                             "text/html", "UTF-8", null
                         )
                         webView = this
@@ -701,6 +765,50 @@ fun RouteBuilderScreen(
                     wv.destroy()
                 }
             )
+
+            // Locating cover — sits IMMEDIATELY above the WebView in z-order
+            // so the bottom stops panel, FABs, top app bar (and every other
+            // overlay added below) draw on top of it. The rider never sees
+            // the cover swallow the panel: only the map area itself fades
+            // from the map-style colour to the live tiles once they load.
+            //
+            // The Locating UI is hidden for the first 800 ms so the common
+            // hot-path (cached fix, fast tiles ~200-400 ms) shows a clean
+            // tinted cover that fades to the map. Only if the wait drags
+            // on does the rider see the spinner + Finding-your-location.
+            var showLocatingUi by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(800)
+                if (!locationGateDone) showLocatingUi = true
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = !locationGateDone,
+                enter = androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(0)
+                ),
+                exit = androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(400)
+                )
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = androidx.compose.ui.graphics.Color(
+                        android.graphics.Color.parseColor(
+                            mapTypeInitialBg(mapType)
+                        )
+                    )
+                ) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        if (showLocatingUi) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator()
+                                Spacer(Modifier.height(16.dp))
+                                Text(stringResource(R.string.nav_locating))
+                            }
+                        }
+                    }
+                }
+            }
 
             // --- Search results overlay ---
             if (!navRunning && (searchFocused || searching || searchResults.isNotEmpty())) {
@@ -891,25 +999,11 @@ fun RouteBuilderScreen(
                 )
             }
 
-            // Locating gate — hides the world-view-to-location jump.
-            if (!locationGateDone) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                            Spacer(Modifier.height(16.dp))
-                            Text(stringResource(R.string.nav_locating))
-                            Spacer(Modifier.height(18.dp))
-                            TextButton(onClick = { locationGateDone = true }) {
-                                Text(stringResource(R.string.nav_skip_locating))
-                            }
-                        }
-                    }
-                }
-            }
+            // Locating gate is rendered right after the WebView (further up
+            // in this Box) so it covers only the map area, not the top bar
+            // or the bottom stops panel / FABs which sit on top of it in
+            // z-order. See the AnimatedVisibility just below the AndroidView
+            // for the actual cover.
 
             // Rider-position menu — anchored at the rider's marker via
             // selfMenuOffset (the JS bridge pushes the marker's screen-space
@@ -1368,16 +1462,15 @@ private fun BottomPanel(
                         modes.forEachIndexed { index, (mode, icon, labelRes) ->
                             // Icon tint matches the route line colour for that
                             // mode so the chip visually previews what the line
-                            // on the map will look like. Cool→warm activity
-                            // gradient — see routeColorFor() in MapHtml.kt for
-                            // the full reasoning.
+                            // on the map will look like. Keep in sync with
+                            // routeColorFor() in MapHtml.kt.
                             //   Walk     sky blue   #03A9F4
-                            //   Bike     green      #4CAF50
-                            //   Drive    orange     #FB8C00 (not red)
-                            //   Straight magenta    #E91E63
+                            //   Bike     magenta    #E91E63
+                            //   Drive    red        #E53935
+                            //   Straight green      #43A047
                             val modeColor = when (mode) {
                                 TravelMode.WALKING  -> Color(0xFF03A9F4)
-                                TravelMode.CYCLING  -> Color(0xFFFB8C00)
+                                TravelMode.CYCLING  -> Color(0xFFE91E63)
                                 TravelMode.DRIVING  -> Color(0xFFE53935)
                                 TravelMode.STRAIGHT -> Color(0xFF43A047)
                             }
@@ -1646,7 +1739,8 @@ private class NavJsBridge(
     private val markerDragEnd: () -> Unit,
     private val selfTap: (Int, Int) -> Unit,
     private val markerTapped: (Int, Int, Int) -> Unit,
-    private val mapViewChanged: (Double, Double, Float) -> Unit
+    private val mapViewChanged: (Double, Double, Float) -> Unit,
+    private val tilesLoaded: () -> Unit
 ) {
     private val main = Handler(Looper.getMainLooper())
 
@@ -1681,6 +1775,11 @@ private class NavJsBridge(
     @JavascriptInterface
     fun onMapViewChanged(lat: Double, lng: Double, zoom: Float) {
         main.post { mapViewChanged(lat, lng, zoom) }
+    }
+
+    @JavascriptInterface
+    fun onTilesLoaded() {
+        main.post { tilesLoaded() }
     }
 }
 

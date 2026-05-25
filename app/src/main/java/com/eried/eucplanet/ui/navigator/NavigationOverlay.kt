@@ -124,15 +124,40 @@ fun NavigationOverlay(
 
     Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
         // Only the big centred arrow popup — no minimized pill or other widget.
+        // Suppress only when the rider is on the map and NOT on an arrival
+        // frame -- the final / intermediate "goal reached" banner has to
+        // surface everywhere (including the map screen and the dashboard)
+        // because it tells the rider the trip / leg is over.
+        val shouldSuppress = suppressOnPhone && !state.arrived
         AnimatedVisibility(
-            visible = !suppressOnPhone && state.active && !state.minimized && popupShown,
+            visible = !shouldSuppress && state.active && !state.minimized && popupShown,
             enter = fadeIn() + scaleIn(initialScale = 0.85f),
             exit = fadeOut() + scaleOut(targetScale = 0.85f),
             modifier = Modifier.align(Alignment.Center)
         ) {
+            // Freeze the per-button disabled flags so the X / Map icons
+            // don't visibly snap back to "enabled" while the popup is
+            // fading out (state.arrived stays true through stop(), but
+            // we still want a stable last-visible appearance during the
+            // exit animation, independent of any future navState
+            // mutation while the fade is in flight).
+            val mapDisabledLatched = remember { mutableStateOf(suppressOnPhone) }
+            val closeDisabledLatched = remember {
+                mutableStateOf(state.arrived && state.goalIndex >= state.goalCount)
+            }
+            LaunchedEffect(popupShown, suppressOnPhone, state.arrived,
+                state.goalIndex, state.goalCount) {
+                if (popupShown) {
+                    mapDisabledLatched.value = suppressOnPhone
+                    closeDisabledLatched.value =
+                        state.arrived && state.goalIndex >= state.goalCount
+                }
+            }
             CenterPopup(
                 onOpenMap = onOpenMap,
                 state = state,
+                onMapScreen = mapDisabledLatched.value,
+                closeDisabled = closeDisabledLatched.value,
                 onMinimize = { viewModel.setMinimized(true) },
                 onClose = { showEndConfirm = true }
             )
@@ -165,7 +190,9 @@ private fun CenterPopup(
     state: NavState,
     onOpenMap: () -> Unit,
     onMinimize: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onMapScreen: Boolean = false,
+    closeDisabled: Boolean = false
 ) {
     // The popup is the inverse of the app background so it stands out: a
     // white card with black content over the dark dashboard (and vice versa).
@@ -226,13 +253,20 @@ private fun CenterPopup(
                     modifier = Modifier.weight(1f)
                 )
                 // Minimizes the popup and opens the full map screen.
+                // Greyed out when the rider is already on the map -- the
+                // tap would just minimize without any visible navigation.
+                // `onMapScreen` is the latched flag so the icon stays
+                // stable while the popup fades out.
+                val mapButtonDisabled = onMapScreen
                 IconButton(
                     onClick = { onMinimize(); onOpenMap() },
+                    enabled = !mapButtonDisabled,
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
                         Icons.Default.Map, stringResource(R.string.nav_map_style),
-                        tint = ink, modifier = Modifier.size(22.dp)
+                        tint = if (mapButtonDisabled) ink.copy(alpha = 0.35f) else ink,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
                 IconButton(onClick = onMinimize, modifier = Modifier.size(36.dp)) {
@@ -241,10 +275,23 @@ private fun CenterPopup(
                         tint = ink, modifier = Modifier.size(22.dp)
                     )
                 }
-                IconButton(onClick = onClose, modifier = Modifier.size(36.dp)) {
+                // Greyed out only on the final arrival, when there is
+                // no remaining non-passed stop and "end navigation"
+                // would have no effect (nav is already tearing itself
+                // down on the 9 s dismiss timer). Intermediate arrivals
+                // keep the X enabled so the rider can still abort with
+                // stops left ahead. `closeDisabled` is the latched
+                // version so the icon doesn't snap back during the
+                // popup's fade-out.
+                IconButton(
+                    onClick = onClose,
+                    enabled = !closeDisabled,
+                    modifier = Modifier.size(36.dp)
+                ) {
                     Icon(
                         Icons.Default.Close, stringResource(R.string.nav_close),
-                        tint = AccentRed, modifier = Modifier.size(22.dp)
+                        tint = if (closeDisabled) AccentRed.copy(alpha = 0.35f) else AccentRed,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }

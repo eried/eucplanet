@@ -44,11 +44,12 @@ fun TripActionDialog(
                     stringResource(R.string.trip_action_share_file),
                     stringResource(R.string.trip_action_share_file_desc)
                 ) { onDismiss(); onShareFile() }
-                TripActionRow(
-                    Icons.Default.Public,
-                    stringResource(R.string.trip_action_view_online),
-                    stringResource(R.string.trip_action_view_online_desc)
-                ) { onDismiss(); onViewOnline() }
+                // View Online hidden for now -- the embedded WebView
+                // can't render the viewer's backdrop-filter panels and
+                // we ran into a stack of edge cases (panel zero-height,
+                // header-overlap, scaling) we don't have time to wrap
+                // up. Re-enable once the in-app viewer is solid or
+                // we've migrated to Chrome Custom Tabs.
                 TripActionRow(
                     Icons.Default.History,
                     stringResource(R.string.trip_action_replay),
