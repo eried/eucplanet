@@ -27,8 +27,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 221
-        versionName = "0.8.10"
+        versionCode = 222
+        versionName = "0.8.11"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -88,6 +88,13 @@ android {
 }
 
 dependencies {
+    // Wear companion: embed the wear APK so Play auto-delivers it to a paired
+    // watch when this phone app is installed. The wear module is a non-standalone
+    // companion (declared via com.google.android.wearable.standalone="false" in
+    // wear/AndroidManifest.xml), so it must ride along with the phone install
+    // rather than ship as its own Play listing.
+    wearApp(project(":wear"))
+
     // Compose
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
