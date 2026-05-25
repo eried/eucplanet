@@ -94,12 +94,17 @@ android {
 // paired Wear OS device. Debug builds and the GitHub-sideload APK don't need that
 // auto-delivery path, so we keep them slim (60 MB -> 20 MB phone APK).
 //
-// Note: `wearApp` is a legacy AGP DSL (Wear OS 1.x era). It still works in AGP 8.7
-// and has no slated removal date. There's no 1:1 modern replacement for the
-// embedded-companion model — Google steers everything toward standalone wear apps,
-// which doesn't fit this app. If wearApp ever gets removed, the fallback is a
-// custom Gradle task that drops the wear APK + descriptor XML into
-// app/build/.../res/raw/android_wear_micro_apk.{apk,xml} ourselves.
+// Note: `wearApp` is a legacy AGP DSL (Wear OS 1.x era). On our AGP (8.7.3) it
+// works silently with no deprecation warning. AGP 8.x through 8.13 keeps it.
+// **AGP 9.0.1 (January 2026) removes the DSL entirely** ("AGP 9.0 removes support
+// for embedding Wear OS apps, which is no longer supported in Play"), so any
+// upgrade to 9.x will break this build. See:
+//   https://developer.android.com/build/releases/agp-9-0-0-release-notes
+// Migration path when forced off 8.x: switch to Play Multi-APK delivery — drop
+// this line, ship `wear-release.aab` as a separate AAB on the same applicationId
+// to the Wear OS form-factor track in Play Console. Same end-user behaviour
+// (Play auto-installs the watch app on paired devices when the phone app
+// installs), just packaged as two AABs in one release instead of one embedded.
 val embedWear = (project.findProperty("embedWear") as? String)?.lowercase() != "false"
 
 dependencies {

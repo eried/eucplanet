@@ -367,3 +367,204 @@ remaining list is mostly polish and longer-tail model coverage.
    - Ninebot: `power = V * I`, Mini voltage zero-out, tail-light setter (DriveFlags bit 1), Legacy serial 3-param stitching (0x10/0x11/0x12), Z firmware nibble decode, signed-speed `abs()` for Legacy default / Mini, avg speed / op time / error / alarm / escstatus
 
 This document is fix-list, not action-yet. Tackle in priority order.
+
+
+---
+
+## Phase-2 gaps (2026-05-25 deep audit)
+
+Items below were surfaced by a second-pass audit that read the whole
+WheelLog tree, not just the per-family parser headers. They sit *on top*
+of the per-family tables above, not inside them. Most rider-visible
+improvements live here.
+
+### Cross-cutting
+
+- **Wheel-emitted alert frames feed nothing.** Our `AlarmEngine` evaluates
+  only user-defined `metric ≥ threshold` rules over telemetry. WheelLog has
+  a parallel layer that fires from **wheel-emitted alert bytes** —
+  Begode Live B byte 14 (8 alarm bits: over-V / over-T / transport / etc.),
+  InMotion V1 frame `0x0F780101` (7 codes: tilt start, tiltback, fall,
+  low-battery, speed cut-off, high load, bad cell), InMotion V2 7-byte
+  error bitfield with named flags across MOS / motor / battery / board
+  sensors, controller comm, motor block, output saturation, posture, lock,
+  DFU, key long-press, Ninebot Z `errorcode` / `alarmcode`. Riders today
+  get **no early warning** from the wheel itself — only our reactive
+  thresholds. **Propose:** new `WheelAlarmRouter` that translates each
+  family's "the wheel said X" into a fixed list of named alarms
+  (`low-battery`, `high-temp`, `over-current`, `transport-mode`, `fall`,
+  `posture`, `motor-block`, `lift`, `no-load`) the engine fires alongside
+  user rules. This is the single highest-impact gap across the codebase.
+
+- **No wheel-detection by service UUID.** Our `BleScanner.isLikelyWheel`
+  (`ble/BleScanner.kt:89-141`) routes purely by name regex. WheelLog's
+  `detectWheel` keys on **GATT service UUIDs** loaded from a JSON config,
+  and only uses name strings for known exceptions. Riders with renamed
+  wheels (common — many people put their name in the BLE name) are
+  invisible to our scanner. **Propose:** add a post-connect verification
+  step that reads the primary service list and reroutes if the name-based
+  guess doesn't match. Also: RockWheel (name `RW` / `ROCKW*`) advertises on
+  Begode's UUID but speaks the KingSong protocol — force the KingSong
+  adapter regardless of UUID when the name matches.
+
+- **Two-tier PWM alarm + warning dwell missing.** WheelLog has
+  `warningPwm` independent of the speed-tier alarm and two-stage
+  `alarmFactor1/2` for early advisory beep before the wheel itself tilts
+  back. Our `AlarmRule` flattens to one threshold. **Propose:** PWM-band
+  rules with two thresholds + dwell time at `data/model/AlarmRule.kt`.
+
+### Begode
+
+- **Firmware-banner tag set is wider.** Banner reply yields one of `GW`,
+  `JN`, `CF`, `BF`, `NAME`, `MPU`. `BegodeParser.hwPwmFirmware`
+  (`ble/BegodeParser.kt:54`) only flips on CF/BF. **Propose:** read `MPU`
+  to disambiguate MPU6050 vs MPU6500 — this is what solves the SmirnoV
+  temperature-formula gap at the source.
+- **Alarm-mode preset write (`o`/`u`/`i`/`I`) missing.** 4-mode setting
+  (Mode 0 30-35 km/h, Mode 1 35-45, Mode 2 80% PWM, Mode 3 CF custom).
+  **Propose:** `BegodeCommands.setAlarmMode(0..3)`.
+- **Alexovik (SmirnoV) PID surface.** Whole tuning surface (extreme mode,
+  braking current, P/I/D factors, current Q-P/Q-I/D-P/D-I, dynamic comp,
+  trick mode) sits behind the 0xFF frame the parser drops at
+  `ble/BegodeParser.kt:157-162`. **Propose:** Service Mode "Alexovik" tab.
+- **0x01 PWM-limit + BMS-ID surface.** Frame 0x01 bytes 2-3 carry the
+  wheel's own PWM-tiltback threshold and byte 19 carries BMS index. We
+  drop the frame at `ble/BegodeParser.kt:153`. **Propose:** parse — this
+  is "what the wheel thinks its own tiltback is", useful for the Compare
+  tab.
+- **0x02/0x03 BMS cell pages.** Byte 18 = `0x02`/`0x03` (BMS1/2), byte
+  19 = pNum 0..3, cells at `(i+1)*2` (BE u16 / 1000 V), global cell index
+  `i + pNum*8`. Up to 30 cells. Currently dropped. **Propose:** stitch
+  pages keyed on pNum into a 30-cell list + the 0x01 pack-V/I / two temps
+  / semi-V.
+
+### KingSong
+
+- **F-series extended BMS (0xD0).** Structurally different layout from
+  0xF1/0xF2 — cell count at byte 21, cells from byte 22, variable temp
+  block, then current / voltage / remaining-% / cycles / factory-capacity
+  / env temps + humidity. F18P / F22P only. **Propose:** dedicated 0xD0
+  decoder keyed on F-series model.
+- **Standard BMS pNum dispatch.** 0xF1/0xF2 byte 17 = pNum: `0x00`
+  voltage / current / remaining / factory / cycles, `0x01` 6 temps + MOS,
+  `0x02..0x05` cell blocks, `0x06` finalises with min/max/diff and
+  averages. Needs a per-BMS-page state machine, not a single per-frame
+  decode.
+- **Commands exist but no UI surface.** `KingsongCommands` has
+  `setChargeLimit` (:138), `setGyroSwitchOff` (:152), `setGyroFrontTrim`
+  (:160), `powerOff` (:75). **Propose:** wire to Settings → Wheel.
+- **LED-mode 0x6C + Strobe 0x53 writes missing.** Dominant differentiator
+  on S22 / F22P — riders look for it. **Propose:** add builders.
+
+### InMotion V1
+
+- **BMS query built but never parsed.** `InMotionV1Commands.getBatteryCells`
+  (`ble/InMotionV1Commands.kt:37-42`) sends the request; the response on
+  CAN ID `0x0F550114` with cells-page selector is dispatched to
+  `parseSlowInfo` which doesn't decode cells. **Propose:** add cells-page
+  decode + plumb to BMS panel.
+- **PIN handshake retry count = 6.** WheelLog literally checks
+  `if (passwordSent < 6)` and retransmits per tick. Our single-send is the
+  audit-flagged gap; the magic number to copy is 6.
+- **`InMotionV1Commands.playSound(index)` exposed only as horn.**
+  Arbitrary index supported. **Propose:** Service Mode sound-bank picker.
+
+### InMotion V2 (V11 / V12 / V13 / V14)
+
+- **Settings-frame fields skipped.** Confirmed V12 offsets WheelLog
+  reads that we don't: alarmSpeed2 +13, fancierMode +19 bit 4, comfort
+  sensitivity +20, classic sensitivity +21, speakerVolume +22,
+  **lowBeamBrightness +26, highBeamBrightness +27**, **splitAccel +31,
+  splitBreak +32**, mute +39 bit 0, handleButton +39 bit 2, autoLight
+  +39 bit 3, transportMode +39 bit 6, soundWave +40 bit 2, splitMode +41
+  bit 0. Our `InMotionV2ParserV12.parseSettings` (`:137-167`) reads only
+  maxSpeed / alarm1 / pedalsAdjust / standby / classic / fancier / mute /
+  transport. **Propose:** extend.
+- **V13/V14 add Go-Home +32 bit 2 and Berm Angle +34 bit 5.** Our V14
+  parseSettings (`ble/InMotionV2Parser.kt:91-128`) reads only DRL bit.
+  **Propose:** add.
+- **Many writes missing.** WheelLog has dedicated builders for
+  `setAutoLight`, `setSoundWave`, `setSplitMode`, `setBermAngleMode`,
+  `setFan`, `setFanQuiet`, `setGoHome`, `setHandleButton`,
+  `setSplitAccelBreak`, `wheelCalibration`, `wheelCalibrationTurn`,
+  `wheelCalibrationBalance`. **Calibrate alone** is a >2× ride-quality
+  complaint absorber for V12 / V13 / V14 wheels with drifted pedals.
+- **Light-brightness write (V12HS).** Independent low/high beam sliders
+  riders use heavily. **Propose:**
+  `InMotionV2LegacyCommands.setBeamBrightness(low, high)`.
+- **V11 error bitfield.** 7-byte error block with per-bit decode across
+  iPhase / Bus / Motor Hall / Battery / IMU / ControllerCom1/2 /
+  BleCom1/2 / MosTemp / MotorTemp / BatteryTemp / BoardTemp / Fan / RTC /
+  ExternalRom / VBusSensor / VBatterySensor / CantPowerOff / UnderV /
+  OverV / OverBusCurrent / LowBattery / OverBoardTemp / OverSpeed /
+  OutputSaturation / MotorSpin / MotorBlock / Posture / RiskBehaviour /
+  NoLoad / NoSelfTest / Compatibility / PowerKeyLongPress / ForceDfu /
+  Lock / CPUOverTemp / IMUOverTemp / HwCompatibility / FanLowSpeed.
+  V11 owners never see fault diagnostics. **Propose:**
+  `InMotionV2Parser.parseErrors(data)` → list of named flags →
+  `WheelAlarmRouter`.
+
+### Veteran
+
+- **mVer ≥ 5 + len > 46 gate on smart-BMS long-frame.** Our
+  `VeteranParser.feed` (`:115-116`) accepts any LEN > 38 as long-frame
+  candidate. Narrow the gate to drop misframed garbage that aligns with
+  `DC 5A 5C ... long_LEN`.
+- **Cell-aggregation surface.** Compute `minCell / maxCell / cellDiff /
+  total / avg` during pnum 3/7 iteration. **Dashboard "cell delta = 0.12 V"
+  is the canonical pre-failure indicator for an aging cell.**
+- **Extra frame-validity checks.** byte 22 == `0x00`, byte 30 ∈ {0x00,
+  0x07}, byte 23 & 0xFE == `0x00`. Our `tryExtractFrame` (`:111-139`)
+  checks magic + CRC only. **Propose:** add the three byte checks to drop
+  bogus frames on noisy connections.
+- **Beep variant by mVer.** mVer < 3 → legacy `b` byte; mVer ≥ 3 → 14-byte
+  blob. `VeteranCommands.horn()` (`:37`) always sends the v3 blob.
+  Original Sherman owners (mVer 0/1) silently get no horn.
+
+### Ninebot
+
+- **Z LiveData payload — more fields.** Confirmed offsets we ignore:
+  `errorcode` @0, `alarmcode` @2, `escstatus` @4, `avgspeed` @12,
+  `operatingtime` @20. Our `parseZTelemetry` (`ble/NinebotParser.kt:171-193`)
+  reads only battery / speed / dists / temp / V / I. **Propose:** extend
+  + feed `errorcode`/`alarmcode` to the alert router; surface `avgspeed`
+  and `operatingtime` on the dashboard.
+- **LED-segment colour writes (params 0xC8 / 0xCA / 0xCC / 0xCE).** Four
+  separate per-segment writes. We only have `setLedMode` (0xC6 selector).
+  **Propose:** `NinebotCommands.setLedSegmentColor(segment 0..3, r, g, b)`.
+- **Mini voltage zero-out — actual rule.** WheelLog forces `voltage = 0`
+  when `protoVersion == 2` (Mini) because its BMS doesn't report. We
+  read whatever junk is at offset 24. **Propose:** force `voltage = 0f` in
+  the Mini branch of `parseLegacyTelemetry`.
+- **Legacy serial stitching uses 0x10 / 0x13 / 0x16** — *not* 0x10 / 0x11 /
+  0x12 as the earlier audit said. Three separate reads, stitched in
+  order. (Fix the audit + the planned fix together.)
+
+### Recommended phase-2 priority (rider impact, descending)
+
+1. **WheelAlarmRouter + wheel-emitted alert frames across all six families.**
+   The single highest-impact gap. Wires Begode Live B byte 14 + InMotion V1
+   `0x0F780101` + InMotion V2 7-byte error block + Ninebot Z
+   `errorcode`/`alarmcode` into a common router that pushes named alarms
+   into `AlarmEngine`.
+2. **InMotion V2 calibrate + missing setting writes.** `wheelCalibration`,
+   `setAutoLight`, `setSplitAccelBreak`, `setHandleButton`,
+   `setBermAngleMode`, `setFan`, beam-brightness. V12HS riders ask for
+   these constantly.
+3. **InMotion V1 PIN retry (6×) + alert frame.** Single change unlocks
+   robust reconnect after BLE flap, plus surfaces all 7 alert codes.
+4. **Veteran cell-diff + frame-validity tightening.** Cell-diff is the
+   pre-failure indicator riders monitor; the extra byte checks cut
+   spurious decodes.
+5. **KingSong BMS pNum dispatch (0xF1/F2 + D0 for F-series).** Per-cell
+   view matches WheelLog's deepest BMS feature.
+6. **Begode 0x01/0x02/0x03 BMS + 0x01 PWM-limit field.** Same rider
+   value as KS BMS; PWM-limit also feeds the Compare tab.
+7. **Ninebot Z extra LiveData fields.** Alert router + avg speed +
+   operating time.
+8. **Service-UUID detection + RockWheel rerouting.** Renamed-wheel
+   riders stop being invisible.
+
+Lower-priority polish (Alexovik PID set, KS LED/strobe, V1 sound bank,
+Ninebot LED segments, Begode MPU tag, KS gyro/charge-limit UI) is fine
+to ride along whenever the nearby file is open.
