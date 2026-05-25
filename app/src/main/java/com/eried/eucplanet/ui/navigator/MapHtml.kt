@@ -699,11 +699,11 @@ private const val ROUTE_BUILDER_HTML_1: String = """
 
 private const val ROUTE_BUILDER_HTML_2: String = """
   function colorFor(i, n){
-    // The colours assume the marker array INCLUDES passed stops at the
-    // head -- the caller filters / inspects passed at the marker site
-    // before deciding green vs orange / flag. This helper is the
-    // baseline orange.
-    return '#FFA726';
+    // The marker array INCLUDES passed stops at the head; callers filter
+    // / inspect passed at the marker site before deciding green vs
+    // inactive grey / flag. This helper is the baseline inactive grey
+    // -- light slate so it doesn't fight the gold preview chain.
+    return '#BDBDBD';
   }
 
   function iconFor(label, color){
@@ -811,11 +811,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var pts = active.map(function(w){ return [w.lat, w.lng]; });
     previewLineGeom = pts;
     previewLine = L.polyline(pts, {
-      color: '#FFA726',
+      color: '#FFCA28',
       weight: 5, opacity: 0.80,
       dashArray: '8,12', lineCap: 'round'
     }).addTo(map);
-    drawPreviewArrows(pts, '#FFA726');
+    drawPreviewArrows(pts, '#FFCA28');
   }
 
   // Travel-mode → polyline colour. Cool→warm activity gradient: each step up
@@ -833,10 +833,14 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   // The Kotlin SegmentedButton icons mirror these exact colours so the chosen
   // mode chip visually previews the line that will be drawn.
   function routeColorFor(mode){
-    if (mode === 'CYCLING')  return '#E91E63';
-    if (mode === 'WALKING')  return '#03A9F4';
-    if (mode === 'STRAIGHT') return '#43A047';
-    if (mode === 'DRIVING')  return '#E53935';
+    // Lavender walk, teal bike, soft-orange car, sky-blue straight.
+    // Chosen for readability on Dark / Light / Satellite basemaps and
+    // clear separation from the gold preview chain (#FFCA28) + green
+    // next-stop (#66BB6A).
+    if (mode === 'CYCLING')  return '#26A69A';
+    if (mode === 'WALKING')  return '#7E57C2';
+    if (mode === 'STRAIGHT') return '#42A5F5';
+    if (mode === 'DRIVING')  return '#FB8C00';
     return accentColor;
   }
 
@@ -959,7 +963,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       clearRouteArrows();
     }
     if (previewLineGeom){
-      drawPreviewArrows(previewLineGeom, '#FFA726');
+      drawPreviewArrows(previewLineGeom, '#FFCA28');
     } else {
       clearPreviewArrows();
     }
@@ -1004,7 +1008,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     wps.forEach(function(w, i){
       var isPassed = !!w.passed;
       var isNext = navLocked && !isPassed && i === firstActiveIdx;
-      var stopColor = isNext ? '#66BB6A' : (isPassed ? '#8C8C90' : '#FFA726');
+      var stopColor = isNext ? '#66BB6A' : (isPassed ? '#757575' : '#BDBDBD');
       // Passed stops don't get a radius ring -- they're done and clutter
       // the map. Future stops get the dotted ring as before.
       if (!isPassed) {
@@ -1149,22 +1153,23 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       clearPreview();
     }
 
-    if (fit){
+    // Fit on the native fit=true OR the first render that has data.
+    // The native LaunchedEffect collects mapRender only after pageReady,
+    // so the restore-time fit=true emission gets replaced by later
+    // fit=false bumps and the JS would otherwise sit at zoom 2 forever.
+    var wantFit = fit || (!hasInitialFit && (geom.length >= 2 || wps.length >= 1));
+    if (wantFit){
       var pts = (geom.length >= 2) ? geom : wps.map(function(w){ return [w.lat, w.lng]; });
-      console.log('RENDER fit applied pts=' + pts.length +
-        ' first=' + JSON.stringify(pts[0]) +
-        ' last=' + JSON.stringify(pts[pts.length - 1]));
       if (pts.length >= 2){
-        // maxZoom: 15 keeps the auto-fit from snapping to a building-level
-        // view on tight bounds (origin a few meters from the first stop)
-        // -- 17 was still too tight on short legs and made the map flash
-        // 'right on top of the rider' on first open.
         map.fitBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 15 });
+        hasInitialFit = true;
       } else if (pts.length === 1){
         map.setView(pts[0], 16);
+        hasInitialFit = true;
       }
     }
   };
+  var hasInitialFit = false;
 
   // Saved Home / Work places — always shown, drawn behind the stops.
   var placeMarkers = [];

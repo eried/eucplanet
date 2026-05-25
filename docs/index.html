@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet</title>
-<meta name="description" content="No-nonsense, free, open-source EUC riding app: live telemetry, smart alarms, Wear OS watch dial. Tested on InMotion V14 and P6; preview support for KingSong, Begode, Veteran, Ninebot and more.">
+<meta name="description" content="No-nonsense, free, open-source EUC riding app: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial. Tested on InMotion V14 and P6; preview support for KingSong, Begode, Veteran, Ninebot and more.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   body {
@@ -84,8 +84,28 @@
   }
   .gallery-thumbs {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
+  }
+  .gallery-wear {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  .gallery-wear a { display: block; line-height: 0; }
+  .gallery-wear img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    border: 1px solid #30363d;
+    background: #000;
+    transition: transform 120ms ease, border-color 120ms ease;
+  }
+  .gallery-wear a:hover img {
+    transform: translateY(-2px);
+    border-color: #58a6ff;
   }
   .gallery-featured a, .gallery-thumbs a { display: block; line-height: 0; }
   .gallery-featured img, .gallery-thumbs img {
@@ -121,7 +141,7 @@
   </header>
 
   <section>
-    <p>Free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense. Tested on the <strong>InMotion V14</strong> and <strong>P6</strong>, with preliminary V12 support and preview adapters for KingSong, Veteran, Begode (including high-voltage wheels), the InMotion V1 family, and Ninebot. Wear OS companion in the box.</p>
+    <p>Free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense. Live telemetry, turn-by-turn navigation, an on-screen telemetry overlay for video recording, a Wear OS dial, and a trip recorder, all in the same app. Tested on the <strong>InMotion V14</strong> and <strong>P6</strong>, with preliminary V12 support and preview adapters for KingSong, Veteran, Begode (including high-voltage wheels), the InMotion V1 family, and Ninebot.</p>
     <div class="links secondary-row">
       <a class="btn blue" href="https://ideas.ried.no/euc-planet">Share an idea</a>
       <a class="btn blue" href="https://eucviewer.ried.no">Trip viewer</a>
@@ -132,24 +152,40 @@
   <section>
     <h2>A look inside</h2>
     <div class="gallery-featured">
-      <a href="screenshots/main.png"><img src="screenshots/main.png" alt="Dashboard"></a>
-      <a href="screenshots/customalarms.png"><img src="screenshots/customalarms.png" alt="Custom alarms"></a>
-      <a href="screenshots/trips.png"><img src="screenshots/trips.png" alt="Trip list"></a>
-      <a href="screenshots/tripdetails.png"><img src="screenshots/tripdetails.png" alt="Trip detail"></a>
+      <a href="screenshots/dashboard.png"><img src="screenshots/dashboard.png" alt="Dashboard with speed dial and live tiles"></a>
+      <a href="screenshots/navigator.png"><img src="screenshots/navigator.png" alt="Turn-by-turn navigator with multi-stop route"></a>
+      <a href="screenshots/studio.png"><img src="screenshots/studio.png" alt="Overlay Studio — video recorder with telemetry"></a>
+      <a href="screenshots/compare.png"><img src="screenshots/compare.png" alt="Compare live data against past rides"></a>
     </div>
     <div class="gallery-thumbs">
-      <a href="screenshots/historicalcurrent.png"><img src="screenshots/historicalcurrent.png" alt="Historical graph"></a>
-      <a href="screenshots/voicesettings.png"><img src="screenshots/voicesettings.png" alt="Voice settings"></a>
-      <a href="screenshots/autolights.png"><img src="screenshots/autolights.png" alt="Auto lights"></a>
-      <a href="screenshots/autovolume.png"><img src="screenshots/autovolume.png" alt="Auto volume"></a>
-      <a href="screenshots/speedsettings.png"><img src="screenshots/speedsettings.png" alt="Speed settings"></a>
-      <a href="screenshots/settings.png"><img src="screenshots/settings.png" alt="Settings"></a>
+      <a href="screenshots/trips.png"><img src="screenshots/trips.png" alt="Trip list"></a>
+      <a href="screenshots/studio-export.png"><img src="screenshots/studio-export.png" alt="Studio transparent-overlay export"></a>
+      <a href="screenshots/navigator-sat.png"><img src="screenshots/navigator-sat.png" alt="Navigator over satellite imagery"></a>
+      <a href="screenshots/settings.png"><img src="screenshots/settings.png" alt="Custom units, themes and accent colors"></a>
+    </div>
+  </section>
+
+  <section>
+    <h2>On the wrist</h2>
+    <div class="gallery-wear">
+      <a href="screenshots/wear-dash.png"><img src="screenshots/wear-dash.png" alt="Wear OS speed dial"></a>
+      <a href="screenshots/wear-details.png"><img src="screenshots/wear-details.png" alt="Wear OS telemetry detail"></a>
+      <a href="screenshots/wear-navigation.png"><img src="screenshots/wear-navigation.png" alt="Wear OS turn arrow"></a>
+      <a href="screenshots/wear-goal.png"><img src="screenshots/wear-goal.png" alt="Wear OS goal reached flag"></a>
     </div>
   </section>
 
   <section>
     <h2>Built different</h2>
     <div class="features">
+      <div class="card">
+        <h3>Turn-by-turn navigator</h3>
+        <p>Multi-stop route builder with live guidance, off-route reroute, treasure-hunt mode, and an external-routing-friendly OSRM endpoint. Walk, bike, car, or straight-line — pick a mode, drop your stops, ride.</p>
+      </div>
+      <div class="card">
+        <h3>Overlay Studio</h3>
+        <p>Record video from the phone camera with a tunable on-screen telemetry overlay: speed dial, battery, PWM, GPS map, custom layout. Export plain MP4 or transparent overlay for editing on top of footage from another camera.</p>
+      </div>
       <div class="card">
         <h3>Modern &amp; fast</h3>
         <p>Pure black dark theme, low latency, built for glances while riding.</p>
@@ -167,8 +203,12 @@
         <p>Spoken reports and thresholds for speed, battery, PWM. In your language.</p>
       </div>
       <div class="card">
-        <h3>Trip recording</h3>
-        <p>GPS + telemetry exported as DarknessBot-compatible CSV.</p>
+        <h3>Trip recording &amp; compare</h3>
+        <p>GPS + telemetry exported as DarknessBot-compatible CSV. Overlay any past ride on the dashboard chart to compare speed, current, temperature side by side.</p>
+      </div>
+      <div class="card">
+        <h3>External GPS support</h3>
+        <p>Pair a RaceBox or similar BLE GPS for centimetre-class speed and altitude without draining the phone radio.</p>
       </div>
       <div class="card">
         <h3>Multi-wheel</h3>
@@ -176,11 +216,7 @@
       </div>
       <div class="card">
         <h3>Wear OS companion</h3>
-        <p>Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries and controls.</p>
-      </div>
-      <div class="card">
-        <h3>Developer options</h3>
-        <p>Service Mode records every BLE byte, fires hand-typed commands, inspects each byte offset live, and attaches a wheel-state snapshot to a bug report. Tap the dashboard version, then tap-and-hold the About logo. <a href="service.html">How it works</a>.</p>
+        <p>Watch app for Galaxy Watch Ultra and other Wear OS 5+ watches. Phone holds the link, watch shows live speed, batteries, navigation cues, and quick controls (horn / light / voice).</p>
       </div>
     </div>
   </section>

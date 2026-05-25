@@ -1464,15 +1464,15 @@ private fun BottomPanel(
                             // mode so the chip visually previews what the line
                             // on the map will look like. Keep in sync with
                             // routeColorFor() in MapHtml.kt.
-                            //   Walk     sky blue   #03A9F4
-                            //   Bike     magenta    #E91E63
-                            //   Drive    red        #E53935
-                            //   Straight green      #43A047
+                            //   Walk     lavender    #7E57C2
+                            //   Bike     teal        #26A69A
+                            //   Drive    soft orange #FB8C00
+                            //   Straight sky blue    #42A5F5
                             val modeColor = when (mode) {
-                                TravelMode.WALKING  -> Color(0xFF03A9F4)
-                                TravelMode.CYCLING  -> Color(0xFFE91E63)
-                                TravelMode.DRIVING  -> Color(0xFFE53935)
-                                TravelMode.STRAIGHT -> Color(0xFF43A047)
+                                TravelMode.WALKING  -> Color(0xFF7E57C2)
+                                TravelMode.CYCLING  -> Color(0xFF26A69A)
+                                TravelMode.DRIVING  -> Color(0xFFFB8C00)
+                                TravelMode.STRAIGHT -> Color(0xFF42A5F5)
                             }
                             SegmentedButton(
                                 selected = travelMode == mode,

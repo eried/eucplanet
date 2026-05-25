@@ -33,7 +33,7 @@
 <div class="container">
   <header>
     <h1>Privacy Policy</h1>
-    <p class="sub">EUC Planet Android app · Last updated 2026-04-19</p>
+    <p class="sub">EUC Planet Android app · Last updated 2026-05-25</p>
   </header>
 
   <p>EUC Planet is an open-source companion app for electric unicycles. It is published and maintained by Erwin Ried. This page describes what the app accesses on your device and what happens to that data.</p>
@@ -52,6 +52,7 @@
     <li><strong>Precise location (GPS)</strong> — only while a trip is being recorded or while the Recording screen is open, so the recorded CSV contains coordinates, altitude, and GPS speed. Location is <em>never</em> used for advertising, identification, or sent to any server by the app.</li>
     <li><strong>Notifications</strong> — to show the ongoing connection notification and deliver alarm alerts.</li>
     <li><strong>Foreground service</strong> — to keep the BLE connection and GPS tracking alive while the screen is off during a ride.</li>
+    <li><strong>Camera + microphone (opt-in)</strong> — only when you open <em>Overlay Studio</em> and start recording. The Studio is a self-contained video / photo recorder for capturing rides with a live telemetry overlay; the captured files land in your own device storage and the app never streams them anywhere.</li>
     <li><strong>Storage access (optional)</strong> — if you enable cloud sync, you pick a folder yourself through Android's file picker (Google Drive, OneDrive, Dropbox, local, etc.). The app only reads/writes inside that folder. You can revoke access at any time through Android settings.</li>
   </ul>
 
@@ -66,7 +67,8 @@
     <li>No account, no login, no email, no phone number.</li>
     <li>No analytics events, crash reports, or usage metrics sent off-device.</li>
     <li>No advertising identifiers.</li>
-    <li>No contact list, call log, SMS, camera, microphone, or photo access.</li>
+    <li>No contact list, call log, SMS, or photo-library access.</li>
+    <li>The camera and microphone are only ever opened from inside <em>Overlay Studio</em> while you have its recording screen open. Footage stays on your device.</li>
   </ul>
 
   <h2>Permissions explained</h2>
@@ -74,9 +76,10 @@
     <li><code>BLUETOOTH_SCAN</code>, <code>BLUETOOTH_CONNECT</code> — required to find and control the wheel. The scan is flagged <code>neverForLocation</code>.</li>
     <li><code>ACCESS_FINE_LOCATION</code>, <code>ACCESS_COARSE_LOCATION</code> — only used to record your position while a trip is being recorded.</li>
     <li><code>FOREGROUND_SERVICE</code>, <code>FOREGROUND_SERVICE_CONNECTED_DEVICE</code>, <code>FOREGROUND_SERVICE_LOCATION</code> — to keep the wheel connection and GPS running in the background while you ride.</li>
+    <li><code>CAMERA</code>, <code>RECORD_AUDIO</code> — only used by <em>Overlay Studio</em> while you have its recording screen open. Both prompts appear the first time you tap the Studio's record button and can be revoked at any time in Android Settings.</li>
     <li><code>POST_NOTIFICATIONS</code> — to show the connection status and alerts.</li>
     <li><code>VIBRATE</code> — for alarm haptic feedback.</li>
-    <li><code>INTERNET</code> — used only when you explicitly upload trip files to your chosen cloud provider through the Android sync stack.</li>
+    <li><code>INTERNET</code> — used only when you explicitly upload trip files to your chosen cloud provider through the Android sync stack, and when the in-app Navigator queries the OSRM routing endpoint to solve a turn-by-turn route. Routing requests contain only the start + stop coordinates you're solving for; no identifiers are attached.</li>
   </ul>
 
   <h2>Data retention and deletion</h2>

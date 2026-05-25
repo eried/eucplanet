@@ -6,7 +6,7 @@
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
-An open-source Android companion app for **electric unicycles**, with a Wear OS companion for Galaxy Watch Ultra and other Wear OS 5+ watches.
+An open-source Android companion app for **electric unicycles**. Live telemetry, turn-by-turn navigator, on-screen telemetry overlay for video recording, and a Wear OS dial.
 
 Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.
 
@@ -32,9 +32,11 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 
 ## Gallery
 
-<img src="docs/screenshots/main.png" width="22%" alt="Dashboard" /> <img src="docs/screenshots/customalarms.png" width="22%" alt="Custom alarms" /> <img src="docs/screenshots/trips.png" width="22%" alt="Historical graph" /> <img src="docs/screenshots/tripdetails.png" width="22%" alt="Trip detail" />
+<img src="docs/screenshots/dashboard.png" width="22%" alt="Dashboard" /> <img src="docs/screenshots/navigator.png" width="22%" alt="Turn-by-turn navigator" /> <img src="docs/screenshots/studio.png" width="22%" alt="Overlay Studio" /> <img src="docs/screenshots/compare.png" width="22%" alt="Compare" />
 
-<img src="docs/screenshots/historicalcurrent.png" width="14%" alt="Trip list" /> <img src="docs/screenshots/voicesettings.png" width="14%" alt="Voice settings" /> <img src="docs/screenshots/autolights.png" width="14%" alt="Auto lights" /> <img src="docs/screenshots/autovolume.png" width="14%" alt="Auto volume" /> <img src="docs/screenshots/speedsettings.png" width="14%" alt="Speed settings" /> <img src="docs/screenshots/settings.png" width="14%" alt="Settings" />
+<img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/navigator-sat.png" width="22%" alt="Navigator over satellite" /> <img src="docs/screenshots/settings.png" width="22%" alt="Settings" />
+
+<img src="docs/screenshots/wear-dash.png" width="16%" alt="Wear OS dial" /> <img src="docs/screenshots/wear-details.png" width="16%" alt="Wear OS telemetry detail" /> <img src="docs/screenshots/wear-navigation.png" width="16%" alt="Wear OS turn arrow" /> <img src="docs/screenshots/wear-goal.png" width="16%" alt="Wear OS arrival flag" />
 
 ---
 
@@ -44,6 +46,15 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 - Live speed, battery %, voltage, amps, temperature, PWM load, trip distance.
 - Tap any tile to jump to a historical graph.
 - Imperial or metric units.
+
+### Turn-by-turn navigator
+- Multi-stop route builder on a map (walk / bike / car / straight-line modes).
+- Live guidance with voice cues, off-route reroute, sticky GPS, and a Treasure Hunt proximity mode for unmarked destinations.
+- Optional Wear OS popup mirror so the next-turn arrow shows up on your wrist.
+
+### Overlay Studio
+- Records video (and stills) from the phone camera with a fully customisable on-screen telemetry overlay: data tiles, dial / bar gauges, rolling graphs, free text with `{speed}`-style variables, mini-map, badge, layered cameras.
+- Layout presets saved as `.json`. Export plain MP4 for the final clip or transparent overlay for compositing on top of footage shot with another camera.
 
 ### Wheel Control
 - Horn, light toggle, wheel lock, legal-mode speed cap, voice announcements, all one tap away.
@@ -72,7 +83,8 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 ### Integrations
 - **Flic 2 buttons**: pair up to two buttons.
 - **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
-- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
+- **External GPS**: pair a RaceBox (or any name-prefix-matched BLE GPS) for centimetre-class speed + altitude without burning the phone radio. Falls back to phone GPS automatically.
+- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
 
 ---
 
@@ -81,6 +93,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 - Android 10 (API 29) or newer.
 - A supported wheel (see the support-tier table at the top of this README). The V14 and P6 are the most thoroughly tested today; KingSong / Begode / Veteran / InMotion V1 / Ninebot wheels work in preview and need community testing to graduate to "verified".
 - Bluetooth + location permissions (location is required by Android for BLE scanning).
+- Camera + microphone permission (optional): only requested the first time you open Overlay Studio.
 - Wear OS companion (optional): Wear OS 5 or newer, paired through the Wear OS by Google app.
 
 ## Install
