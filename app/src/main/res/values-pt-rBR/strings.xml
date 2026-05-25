@@ -713,7 +713,7 @@
     <string name="nav_role_destination">Destino</string>
     <string name="nav_role_start">Início</string>
     <string name="nav_route_distance">Distância da rota: %1$s</string>
-    <string name="nav_route_failed">Serviço de rotas indisponível — usando linhas retas</string>
+    <string name="nav_route_failed">Serviço de rotas indisponível,usando linhas retas</string>
     <string name="nav_routing">Calculando a rota…</string>
     <string name="nav_save_failed">Não foi possível salvar a rota</string>
     <string name="nav_route_saved">Rota salva</string>
@@ -901,7 +901,7 @@
     <string name="studio_layout_grid_4">Grade 2 × 2</string>
     <string name="studio_layout_title">Visores de câmera</string>
     <string name="studio_load_preset_title">Carregar predefinição</string>
-    <string name="studio_manage_empty">Nenhum elemento ainda — use Adicionar elemento para colocar um.</string>
+    <string name="studio_manage_empty">Nenhum elemento ainda,use Adicionar elemento para colocar um.</string>
     <string name="studio_manage_hint">Arraste para reordenar, toque em uma linha para selecioná-la</string>
     <string name="studio_manage_title">Gerenciar elementos</string>
     <string name="studio_metric_battery">Bateria</string>

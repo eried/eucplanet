@@ -677,7 +677,7 @@
     <string name="nav_role_destination">Destination</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Ruttavstånd: %1$s</string>
-    <string name="nav_route_failed">Ruttjänsten är otillgänglig — använder raka linjer</string>
+    <string name="nav_route_failed">Ruttjänsten är otillgänglig,använder raka linjer</string>
     <string name="nav_routing">Hittar rutten…</string>
     <string name="nav_save_failed">Kunde inte spara rutten</string>
     <string name="nav_route_saved">Rutten sparad</string>
@@ -865,7 +865,7 @@
     <string name="studio_layout_grid_4">2 × 2-rutnät</string>
     <string name="studio_layout_title">Kamerarutor</string>
     <string name="studio_load_preset_title">Läs in förinställning</string>
-    <string name="studio_manage_empty">Inga element ännu — använd Lägg till element för att placera ett.</string>
+    <string name="studio_manage_empty">Inga element ännu,använd Lägg till element för att placera ett.</string>
     <string name="studio_manage_hint">Dra för att ändra ordning, tryck på en rad för att markera den</string>
     <string name="studio_manage_title">Hantera element</string>
     <string name="studio_metric_battery">Batteri</string>

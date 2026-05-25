@@ -714,7 +714,7 @@
     <string name="nav_role_destination">Пункт призначення</string>
     <string name="nav_role_start">Початок</string>
     <string name="nav_route_distance">Довжина маршруту: %1$s</string>
-    <string name="nav_route_failed">Сервіс маршрутизації недоступний — використовуємо прямі лінії</string>
+    <string name="nav_route_failed">Сервіс маршрутизації недоступний,використовуємо прямі лінії</string>
     <string name="nav_routing">Прокладаємо маршрут…</string>
     <string name="nav_save_failed">Не вдалося зберегти маршрут</string>
     <string name="nav_route_saved">Маршрут збережено</string>
@@ -902,7 +902,7 @@
     <string name="studio_layout_grid_4">Сітка 2 × 2</string>
     <string name="studio_layout_title">Вікна камер</string>
     <string name="studio_load_preset_title">Завантажити пресет</string>
-    <string name="studio_manage_empty">Елементів поки немає — додайте через «Додати елемент».</string>
+    <string name="studio_manage_empty">Елементів поки немає,додайте через «Додати елемент».</string>
     <string name="studio_manage_hint">Перетягуй, щоб змінити порядок, торкнись рядка, щоб вибрати</string>
     <string name="studio_manage_title">Керування елементами</string>
     <string name="studio_metric_battery">Заряд</string>

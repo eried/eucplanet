@@ -25,7 +25,7 @@ A clean trace is much more useful than a long messy one. A 30-second checklist:
   packets harder to pick out.
 - Have a stopwatch ready (a separate phone, a kitchen timer, or just use
   the lock-screen clock).
-- Put the phone's clock somewhere visible in your screenshots — same time
+- Put the phone's clock somewhere visible in your screenshots; same time
   reference everywhere makes correlation trivial.
 
 ## 1. Turn on Bluetooth logging
@@ -95,7 +95,7 @@ app is showing to the bytes the wheel sent at that moment.
 3. The file we need is inside the zip at
    `FS/data/misc/bluetooth/logs/btsnoop_hci.log`. On Android 14+ the same
    file sometimes shows up directly at `data/misc/bluetooth/logs/` (no
-   `FS/` prefix) — both work. If you can't find it, just send the whole
+   `FS/` prefix); both work. If you can't find it, just send the whole
    zip; it's only a few MB.
 
 ### Samsung phones
@@ -130,8 +130,8 @@ you're done. You only need it during the capture.
 Before you bundle and send, eyeball the `.log` / `.cfa` file size. A real
 capture of a five-minute session with the wheel app actively connected is
 usually between **500 KB and 10 MB**. Anything under ~50 KB means the
-snoop log toggle didn't take effect or Bluetooth was never restarted —
-re-do step 1 and try again. Anything over ~50 MB usually means there's
+snoop log toggle didn't take effect or Bluetooth was never restarted.
+Re-do step 1 and try again. Anything over ~50 MB usually means there's
 a lot of unrelated BLE traffic in the trace; turn off other paired
 devices and re-capture, or just send what you have and note it.
 
@@ -139,6 +139,6 @@ devices and re-capture, or just send what you have and note it.
 
 Bundle the `.log` / `.cfa`, your notes, and the screenshots. A zip via
 email or a GitHub issue works. If the bundle is over ~25 MB GitHub will
-reject the attachment — use any cloud share you trust and link to it.
+reject the attachment; use any cloud share you trust and link to it.
 
 Thanks for helping out.

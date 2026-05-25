@@ -694,7 +694,7 @@
     <string name="nav_role_destination">Ziel</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Routenlänge: %1$s</string>
-    <string name="nav_route_failed">Routing-Dienst nicht verfügbar — es werden Luftlinien verwendet</string>
+    <string name="nav_route_failed">Routing-Dienst nicht verfügbar,es werden Luftlinien verwendet</string>
     <string name="nav_routing">Route wird gesucht…</string>
     <string name="nav_save_failed">Route konnte nicht gespeichert werden</string>
     <string name="nav_route_saved">Route gespeichert</string>
@@ -882,7 +882,7 @@
     <string name="studio_layout_grid_4">2 × 2 Raster</string>
     <string name="studio_layout_title">Kameraansichten</string>
     <string name="studio_load_preset_title">Preset laden</string>
-    <string name="studio_manage_empty">Noch keine Elemente — füge mit „Element hinzufügen“ eines hinzu.</string>
+    <string name="studio_manage_empty">Noch keine Elemente,füge mit „Element hinzufügen“ eines hinzu.</string>
     <string name="studio_manage_hint">Zum Umsortieren ziehen, tippe auf eine Zeile, um sie auszuwählen</string>
     <string name="studio_manage_title">Elemente verwalten</string>
     <string name="studio_metric_battery">Akku</string>

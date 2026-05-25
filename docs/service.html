@@ -55,7 +55,7 @@
     <li><code>RX</code> / <code>TX</code> raw bytes (one BLE chunk per line)</li>
     <li><code>CMD</code> test command + label</li>
     <li><code>NOTE</code> reassembled frames + internal events</li>
-    <li><code>COMMENT</code> your free-text notes (or attached snapshots — see below)</li>
+    <li><code>COMMENT</code> your free-text notes (or attached snapshots:see below)</li>
     <li><code>INFO</code> session metadata: phone, Android, RAM/storage, BLE adapter, paired Wear node, wheel firmware</li>
   </ul>
   <p>Nothing leaves the device until you tap Share.</p>
@@ -71,10 +71,10 @@
 
   <h3>Wrap mode</h3>
   <ul>
-    <li><strong>Literal</strong> — exactly as typed (full frame, your own checksum).</li>
-    <li><strong>V2 extended</strong> — InMotion V12 / V14 / P6: prepends <code>aa aa 16 LL 02 21</code>, appends XOR checksum.</li>
-    <li><strong>V14 short</strong> — legacy InMotion control flags.</li>
-    <li><strong>KingSong</strong> / <strong>Ninebot legacy</strong> / <strong>InMotion V1</strong> — their respective framing.</li>
+    <li><strong>Literal</strong>:exactly as typed (full frame, your own checksum).</li>
+    <li><strong>V2 extended</strong>:InMotion V12 / V14 / P6: prepends <code>aa aa 16 LL 02 21</code>, appends XOR checksum.</li>
+    <li><strong>V14 short</strong>:legacy InMotion control flags.</li>
+    <li><strong>KingSong</strong> / <strong>Ninebot legacy</strong> / <strong>InMotion V1</strong>:their respective framing.</li>
   </ul>
   <p>Example. V2 extended around <code>60 50 01 01</code> (P6 headlight on):</p>
   <pre><code>aa aa 16 06 02 21 60 50 01 01 [xor]</code></pre>
@@ -82,13 +82,13 @@
   <h3>Presets</h3>
   <p>Common V2-ext sub-commands available as chips:</p>
   <ul>
-    <li><code>60 50 00 00</code> / <code>60 50 01 01</code> — headlight off / on</li>
-    <li><code>60 51 18 01</code> — horn beep</li>
-    <li><code>60 2f 00 / 01</code> — auto-headlight off / on</li>
-    <li><code>60 24 00 / 01</code> — 25 km/h clamp off / on</li>
-    <li><code>02 06</code> — info bundle</li>
-    <li><code>02 07</code> — realtime telemetry</li>
-    <li><code>20 20</code> — settings page A</li>
+    <li><code>60 50 00 00</code> / <code>60 50 01 01</code>:headlight off / on</li>
+    <li><code>60 51 18 01</code>:horn beep</li>
+    <li><code>60 2f 00 / 01</code>:auto-headlight off / on</li>
+    <li><code>60 24 00 / 01</code>:25 km/h clamp off / on</li>
+    <li><code>02 06</code>:info bundle</li>
+    <li><code>02 07</code>:realtime telemetry</li>
+    <li><code>20 20</code>:settings page A</li>
   </ul>
 
   <h2>Attach data to a comment</h2>

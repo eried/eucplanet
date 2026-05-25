@@ -713,7 +713,7 @@
     <string name="nav_role_destination">Destinazione</string>
     <string name="nav_role_start">Partenza</string>
     <string name="nav_route_distance">Distanza percorso: %1$s</string>
-    <string name="nav_route_failed">Servizio di routing non disponibile — uso linee rette</string>
+    <string name="nav_route_failed">Servizio di routing non disponibile,uso linee rette</string>
     <string name="nav_routing">Calcolo del percorso…</string>
     <string name="nav_save_failed">Impossibile salvare il percorso</string>
     <string name="nav_route_saved">Percorso salvato</string>
@@ -901,7 +901,7 @@
     <string name="studio_layout_grid_4">Griglia 2 × 2</string>
     <string name="studio_layout_title">Inquadrature della fotocamera</string>
     <string name="studio_load_preset_title">Carica preset</string>
-    <string name="studio_manage_empty">Ancora nessun elemento — usa Aggiungi elemento per inserirne uno.</string>
+    <string name="studio_manage_empty">Ancora nessun elemento,usa Aggiungi elemento per inserirne uno.</string>
     <string name="studio_manage_hint">Trascina per riordinare, tocca una riga per selezionarla</string>
     <string name="studio_manage_title">Gestisci elementi</string>
     <string name="studio_metric_battery">Batteria</string>

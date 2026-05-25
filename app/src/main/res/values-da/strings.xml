@@ -678,7 +678,7 @@
     <string name="nav_role_destination">Destination</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Rutens længde: %1$s</string>
-    <string name="nav_route_failed">Rutetjenesten er ikke tilgængelig — bruger lige linjer</string>
+    <string name="nav_route_failed">Rutetjenesten er ikke tilgængelig,bruger lige linjer</string>
     <string name="nav_routing">Finder ruten…</string>
     <string name="nav_save_failed">Kunne ikke gemme ruten</string>
     <string name="nav_route_saved">Rute gemt</string>
@@ -867,7 +867,7 @@
     <string name="studio_layout_grid_4">2 × 2-gitter</string>
     <string name="studio_layout_title">Kamerafelter</string>
     <string name="studio_load_preset_title">Indlæs forudindstilling</string>
-    <string name="studio_manage_empty">Ingen elementer endnu — brug Tilføj element for at placere et.</string>
+    <string name="studio_manage_empty">Ingen elementer endnu,brug Tilføj element for at placere et.</string>
     <string name="studio_manage_hint">Træk for at ændre rækkefølge, tryk på en række for at vælge den</string>
     <string name="studio_manage_title">Administrér elementer</string>
     <string name="studio_metric_battery">Batteri</string>

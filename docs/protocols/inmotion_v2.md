@@ -13,7 +13,7 @@ below.
 Original prose. The V14 / V12 / V11 layouts were cross-checked against
 public WheelLog research (GPLv3); the P6 layout is original work from
 labelled BLE captures against the user's hardware. No code copied. See
-Attribution at the end. Status: research-grade — V14 telemetry and the
+Attribution at the end. Status: research-grade, V14 telemetry and the
 extended-routing CONTROL packet shape are solid; P6 telemetry past
 voltage / current / speed / temperatures is partial and several fields
 are flagged. V12 HS/HT/Pro deviations have not been validated against
@@ -57,9 +57,9 @@ Advertised names observed:
 | Pattern | Examples | Notes |
 | --- | --- | --- |
 | `V14` | `V14`, `V14-AB12` | V14 50GB / 50S; some firmwares prepend the brand |
-| `Adventure-...` | `Adventure-1234` | V14 Adventure variant — same wire protocol as V14 |
+| `Adventure-...` | `Adventure-1234` | V14 Adventure variant, same wire protocol as V14 |
 | `V13` | `V13`, `V13-Pro-...` | V13 and V13 PRO |
-| `V12` | `V12`, `V12HS-...`, `V12S-...` | V12 HS / HT / Pro / V12S — the exact variant is only known after carType resolves |
+| `V12` | `V12`, `V12HS-...`, `V12S-...` | V12 HS / HT / Pro / V12S, the exact variant is only known after carType resolves |
 | `V11` | `V11`, `V11y-...` | V11 and V11y |
 | `P6-XXXXXXXX` | `P6-AB12CD34` | InMotion P6 e-scooter; **drives a separate command path** |
 
@@ -74,7 +74,7 @@ Detection strategy:
    extended-routing-only command set **before** the first init packet
    goes out. The P6 returns all zeros to the legacy carType query, so
    the family must be pinned from the name; see section 7.
-4. The `Adventure-` prefix is treated identically to `V14` — same wire
+4. The `Adventure-` prefix is treated identically to `V14`, same wire
    protocol, same parser. The carType byte then refines the display
    name to the exact V14 variant.
 
@@ -82,7 +82,7 @@ Detection strategy:
 ## 3. Frame structure
 
 V2 wraps a flat command/data payload in a BLE envelope with byte
-stuffing. There is no end trailer — the frame ends at the checksum
+stuffing. There is no end trailer, the frame ends at the checksum
 byte and the next `AA AA` starts the next frame.
 
 ```
@@ -153,7 +153,7 @@ implementation regardless of model.
 | --- | --- | --- |
 | `0x11` | INITIAL | First-boot info queries (carType / serial / firmware versions) |
 | `0x14` | DEFAULT | Steady-state queries (realtime, settings, statistics) and V14-legacy light writes |
-| `0x16` | EXTENDED | Routing-prefixed packets — all CONTROL writes on V12+ and every P6 packet, request/response both |
+| `0x16` | EXTENDED | Routing-prefixed packets, all CONTROL writes on V12+ and every P6 packet, request/response both |
 
 There is also an `0x13` flag used for the authentication handshake
 sub-protocol; see section 5.4. It is not a routing variant of the
@@ -174,7 +174,7 @@ boundaries:
    yet), keep it in the buffer for the next notification.
 
 A checksum mismatch is treated as "not yet a complete frame" rather
-than "corrupt frame" — production wheels do not corrupt frames in
+than "corrupt frame", production wheels do not corrupt frames in
 practice, but they do split them.
 
 ### 3.5 Checksum
@@ -234,7 +234,7 @@ screen.
 
 ### 4.2 V12 HS / HT / PRO realtime layout
 
-V12 packs values tighter — speed / torque / PWM sit at lower offsets,
+V12 packs values tighter, speed / torque / PWM sit at lower offsets,
 the two-pack battery split is collapsed into a single field, and the
 state byte moves earlier. All multi-byte values are little-endian.
 
@@ -248,7 +248,7 @@ state byte moves earlier. All multi-byte values are little-endian.
 | 10 | i16 LE | Battery power (signed) | raw × 100, in watts |
 | 12 | i16 LE | Motor power (signed) | watts |
 | 16 | i16 LE | Pitch angle (signed) | raw / 100, in degrees |
-| 18 | i16 LE | Pitch aim angle (signed) | raw / 100, in degrees — unused |
+| 18 | i16 LE | Pitch aim angle (signed) | raw / 100, in degrees, unused |
 | 20 | i16 LE | Roll angle (signed) | raw / 100, in degrees |
 | 22 | u16 LE | Trip distance | raw / 100, in km |
 | 24 | u16 LE | Battery level | raw / 100, in percent |
@@ -258,11 +258,11 @@ state byte moves earlier. All multi-byte values are little-endian.
 | 32 | u16 LE | Dynamic current limit | raw / 100, in amps |
 | 40 | u8 | Temp: MOS | section 4.4 |
 | 41 | u8 | Temp: motor | section 4.4 |
-| 42 | u8 | Temp: battery | always 0 — skipped |
+| 42 | u8 | Temp: battery | always 0, skipped |
 | 43 | u8 | Temp: board | section 4.4 |
 | 44 | u8 | Temp: CPU | section 4.4 |
 | 45 | u8 | Temp: IMU | section 4.4 |
-| 46 | u8 | Temp: lamp | always 0 — skipped |
+| 46 | u8 | Temp: lamp | always 0, skipped |
 | 54 | u8 | State byte | bits 0–2 pcMode, 3–5 mcMode, 6 motor active, 7 charging |
 | 55 | u8 | Light byte | bit 0 low beam, bit 1 high beam, bit 2 lifted |
 
@@ -315,12 +315,12 @@ routing `0x02 0x21`).
 | --- | --- | --- | --- |
 | `0x01` | MAIN_VERSION | both | Bootloader / hardware revision (rarely polled) |
 | `0x02` | MAIN_INFO | both | Multiplex: carType (sub `0x01`), serial (sub `0x02`), versions (sub `0x06`), and auth replies (`0x80`-family) |
-| `0x03` | DIAGNOSTIC | both | Reserved — issued by the official app's service mode, not used here |
+| `0x03` | DIAGNOSTIC | both | Reserved, issued by the official app's service mode, not used here |
 | `0x04` | REAL_TIME_INFO | both | Realtime telemetry, polled every 200 ms by default |
 | `0x05` | BATTERY_INFO | both | Per-cell battery telemetry (not implemented in this app) |
-| `0x10` | SOMETHING1 | both | Mandatory but ignored response — sent during init to mirror the official app |
+| `0x10` | SOMETHING1 | both | Mandatory but ignored response, sent during init to mirror the official app |
 | `0x11` | TOTAL_STATS | both | Lifetime mileage, ride time, power-on time |
-| `0x20` | SETTINGS | both | Settings page A — tiltback, alarm, pedal angle, modes, etc. |
+| `0x20` | SETTINGS | both | Settings page A, tiltback, alarm, pedal angle, modes, etc. |
 | `0x60` | CONTROL | phone -> wheel | Sub-command-dispatched control writes (see 5.3) |
 
 The packet layout for each query is `flags + length + cmd + data`;
@@ -331,7 +331,7 @@ exact byte sequences the app writes.
 
 | Sub | Description | Packet (DEFAULT, flags `0x11`) | Reply data layout |
 | --- | --- | --- | --- |
-| `0x01` | carType | `AA AA 11 02 02 01 ck` | `[0x01, mainSeries, series, type, …]` — `modelId = series*10 + type` |
+| `0x01` | carType | `AA AA 11 02 02 01 ck` | `[0x01, mainSeries, series, type, …]`, `modelId = series*10 + type` |
 | `0x02` | serial number | `AA AA 11 02 02 02 ck` | `[0x02, 16 ASCII bytes]` |
 | `0x06` | firmware versions | `AA AA 11 02 02 06 ck` | `[0x06, padding, driverBoard, …, mainBoard, …, BLE, …]` |
 
@@ -365,7 +365,7 @@ Every CONTROL write goes through EXTENDED framing
 | `0x2D` | SET_DRL | single byte `0` / `1` | V14 family; V12 has no DRL |
 | `0x31` | SET_LOCK | single byte `0` (unlock) / `1` (lock) | Requires EXTENDED framing on V12+; auth handshake (5.4) required first on V12+ |
 | `0x50` | SET_LIGHT | V14: single byte `0` / `1` ; V12 HS/HT/Pro: `[low, high]` two-beam pair | Single-byte form is silently ignored on V12 HS/HT/Pro |
-| `0x51` | PLAY_SOUND | V14: `[soundId, volume]` (canonical `[0x02, 0x64]`); V11 / V12 HS/HT/Pro / V12S / V9: `[soundId, 0x01]` (canonical `[0x18, 0x01]`) | "playBeep" vs "playSound" — wrong opcode is silently dropped |
+| `0x51` | PLAY_SOUND | V14: `[soundId, volume]` (canonical `[0x02, 0x64]`); V11 / V12 HS/HT/Pro / V12S / V9: `[soundId, 0x01]` (canonical `[0x18, 0x01]`) | "playBeep" vs "playSound", wrong opcode is silently dropped |
 
 For SET_MAX_SPEED: tiltback and alarm are each `(km/h × 100)` as
 u16 LE. Example: 30 km/h tiltback + 35 km/h alarm on V14 is
@@ -436,7 +436,7 @@ For V12 HS/HT/Pro the SETTINGS layout differs:
 | --- | --- | --- | --- |
 | 9 | u16 LE | Max speed (tiltback) | raw / 100, km/h |
 | 11 | i16 LE | Alarm speed 1 | raw / 100, km/h |
-| 13 | i16 LE | Alarm speed 2 | raw / 100, km/h — exposed as the single alarm threshold |
+| 13 | i16 LE | Alarm speed 2 | raw / 100, km/h, exposed as the single alarm threshold |
 | 15 | i16 LE | Pedal adjustment | raw / 10, degrees |
 | 17 | u16 LE | Standby delay | raw, seconds |
 | 19 | u8 | Mode flags | bit 0 classic ride mode, bit 4 fancier |
@@ -460,7 +460,7 @@ payload bytes (unescaped):
 
 XOR: 0x16 ^ 0x05 ^ 0x02 ^ 0x21 ^ 0x60 ^ 0x31 ^ 0x01 = 0x60
 
-Wire (no escape needed — no 0xAA or 0xA5 in the payload):
+Wire (no escape needed, no 0xAA or 0xA5 in the payload):
   AA AA 16 05 02 21 60 31 01 60
 ```
 
@@ -477,7 +477,7 @@ The InMotion P6 e-scooter is on the V2 wire family but only honors
 the **EXTENDED routing form**. Every query and every response uses
 `02 21 [sub]` / `21 02 [sub|0x80] …`; the legacy `02 [cmd]` queries
 return all zeros. This means a parser must know it's talking to a P6
-before sending the first init packet — the carType query (`02 01`)
+before sending the first init packet, the carType query (`02 01`)
 silently fails and would otherwise time out the connection.
 
 The app detects P6 by the BLE name prefix `P6-` (section 2). Once
@@ -501,9 +501,9 @@ detected:
 | `0x04` | both | Detailed-data query / response (motor + driver-board temperatures) |
 | `0x06` | both | Info bundle: serial number + firmware version |
 | `0x07` | both | Realtime telemetry |
-| `0x10` | both | Ride history — TLV-style layout, not yet reverse-engineered |
-| `0x11` | both | Total stats — TLV-style layout, not yet reverse-engineered |
-| `0x20` | both | Settings page A — 51-byte body, see 7.3 |
+| `0x10` | both | Ride history, TLV-style layout, not yet reverse-engineered |
+| `0x11` | both | Total stats, TLV-style layout, not yet reverse-engineered |
+| `0x20` | both | Settings page A, 51-byte body, see 7.3 |
 | `0x60` | phone -> wheel | CONTROL (same sub-cmd bytes as V14 where they apply, plus P6-specific ones) |
 
 ### 7.2 P6 realtime layout (sub `0x07`)
@@ -514,18 +514,18 @@ body, all multi-byte values little-endian.
 
 | Offset | Size | Field | Units / scale | Confidence |
 | --- | --- | --- | --- | --- |
-| 0 | u16 LE | Voltage | raw / 100, V | high — matches InMotion-app readout |
-| 2 | i16 LE | Current (signed) | raw / 100, A | high — matches at idle |
-| 8 | i16 LE | Speed (signed) | raw / 100, km/h | high — labelled riding capture, reverse riding decodes correctly only as signed |
-| 12 | i16 LE | Torque (signed) | raw / 100, N·m | medium — labelled capture: +5.05 at idle, -6.97 in reverse, +12.33 transitioning |
-| 14 | i16 LE | PWM (signed) | raw / 100, percent | medium — labelled capture: 1.75 % idle, 1.70-1.78 % rolling |
-| 20 | u16 LE | Battery 1 percent | raw / 100, percent | high — matches per-pack on-screen value |
-| 22 | u16 LE | Battery 2 percent | raw / 100, percent | high — matches per-pack on-screen value |
-| 28 | u8 | MOS temperature | direct °C | high — three labelled samples, exact match |
-| 31 | u8 | Motor temperature | `(byte − 145) / 1.5` °C | high — within 0.3 °C across 9 samples in two logs |
-| 58 | u32 LE | Lifetime odometer | raw / 100, km | high — three labelled riding samples, within rounding |
-| 78 | u8 | IMU temperature | `62 − byte` °C | low — only 3 data points, inverted-scale fit is unusual but matches |
-| 80 | u8 | PC mode | `0x49` = engaged, `0x00` = parked, `0xFD`/`0xFE` = pre-auth | high — tracks labelled park/sport toggle window |
+| 0 | u16 LE | Voltage | raw / 100, V | high, matches InMotion-app readout |
+| 2 | i16 LE | Current (signed) | raw / 100, A | high, matches at idle |
+| 8 | i16 LE | Speed (signed) | raw / 100, km/h | high, labelled riding capture, reverse riding decodes correctly only as signed |
+| 12 | i16 LE | Torque (signed) | raw / 100, N·m | medium, labelled capture: +5.05 at idle, -6.97 in reverse, +12.33 transitioning |
+| 14 | i16 LE | PWM (signed) | raw / 100, percent | medium, labelled capture: 1.75 % idle, 1.70-1.78 % rolling |
+| 20 | u16 LE | Battery 1 percent | raw / 100, percent | high, matches per-pack on-screen value |
+| 22 | u16 LE | Battery 2 percent | raw / 100, percent | high, matches per-pack on-screen value |
+| 28 | u8 | MOS temperature | direct °C | high, three labelled samples, exact match |
+| 31 | u8 | Motor temperature | `(byte − 145) / 1.5` °C | high, within 0.3 °C across 9 samples in two logs |
+| 58 | u32 LE | Lifetime odometer | raw / 100, km | high, three labelled riding samples, within rounding |
+| 78 | u8 | IMU temperature | `62 − byte` °C | low, only 3 data points, inverted-scale fit is unusual but matches |
+| 80 | u8 | PC mode | `0x49` = engaged, `0x00` = parked, `0xFD`/`0xFE` = pre-auth | high, tracks labelled park/sport toggle window |
 
 Fields not in the table above are not yet decoded. The parser leaves
 them at default so the dashboard reads blank rather than guessing.
@@ -605,13 +605,13 @@ was the source of an earlier "blinking 0 / value" temperature bug.
 
 | Topic | V14 | V12 HS / HT / PRO |
 | --- | --- | --- |
-| Realtime field layout | section 4.1 | section 4.2 — tighter packing, single battery field |
-| Settings field layout | section 5.5 — tiltback at offset 0 | section 5.5 — tiltback at offset 9 |
+| Realtime field layout | section 4.1 | section 4.2, tighter packing, single battery field |
+| Settings field layout | section 5.5, tiltback at offset 0 | section 5.5, tiltback at offset 9 |
 | SET_MAX_SPEED payload | 4 bytes (tilt + alarm) | 2 bytes (tilt only) |
 | Alarm threshold write | included in SET_MAX_SPEED | separate sub-cmd `0x3e`, two tiers in one packet |
-| SET_LIGHT payload | 1 byte `[on]` | 2 bytes `[low, high]` — V14 single-byte form is ignored |
+| SET_LIGHT payload | 1 byte `[on]` | 2 bytes `[low, high]`, V14 single-byte form is ignored |
 | Horn opcode | `playBeep` `[0x51, 0x02, 0x64]` | `playSound` `[0x51, 0x18, 0x01]` |
-| Temperature offset constant in `parseTemperature` | shared | shared (`176`) — but always-zero MOS / lamp slots at offsets 42 / 46 must be skipped |
+| Temperature offset constant in `parseTemperature` | shared | shared (`176`), but always-zero MOS / lamp slots at offsets 42 / 46 must be skipped |
 | Lock state in SETTINGS | byte 31 bit 2 | not reliably exposed; track locally |
 
 V11 sits between V14 and V12 HS/HT/PRO in command dispatch: it uses
@@ -635,7 +635,7 @@ name).
 | `hasLock` | yes (EXTENDED) | yes (EXTENDED) | yes (EXTENDED) | yes (DEFAULT or EXTENDED) | yes (EXTENDED) |
 | `hasMaxSpeed` | yes (tilt + alarm in one) | yes (tilt + alarm in one) | yes (tilt only; alarm via `0x3e`) | yes (tilt only) | yes (tilt only) |
 | `hasAlarmSpeed` | included in max-speed | included in max-speed | separate `0x3e` packet | not exposed | separate `0x3e` packet |
-| `hasVolume` | yes (`0x26`) | yes | yes | yes | unknown — `0x26` not yet tried |
+| `hasVolume` | yes (`0x26`) | yes | yes | yes | unknown, `0x26` not yet tried |
 | `hasDRL` | yes (`0x2D`) | yes | no | no | no (auto-headlight instead, `0x2F`) |
 | `needsAuthForLock` | yes (V12 and newer) | yes | yes | no on V11 | yes for **every** control write |
 | `requiresConnectAuth` | no | no | no | no | yes |
@@ -658,7 +658,7 @@ max-speed but the older `playSound` horn.
 - V12 work-mode bits 3–5 (`mcMode`) and bit 7 (`charging`) are read
   but not surfaced in the dashboard; no labelled capture distinguishes
   the mcMode values yet.
-- V12 lock-state in SETTINGS — WheelLog leaves this commented out
+- V12 lock-state in SETTINGS, WheelLog leaves this commented out
   and our parser keeps `lockState = 0`. Likely needs a labelled
   V12 lock/unlock capture to confirm.
 - P6 ride history (sub `0x10`) and total-stats (sub `0x11`) have a
@@ -673,7 +673,7 @@ max-speed but the older `playSound` horn.
   plausible range. The exact motor / driver-board offsets are
   pinned in the labelled capture but the layout differs across the
   firmware variants we've seen.
-- P6 headlight state in the realtime stream — preview4's "byte 84
+- P6 headlight state in the realtime stream, preview4's "byte 84
   bit 1" rule worked in a single labelled capture but the value is
   sticky on production firmware, so the repository now tracks user
   intent locally. A real stream-side state byte has not been found.
@@ -704,14 +704,14 @@ Primary research sources:
   that research; no code from WheelLog has been copied. Consult the
   upstream source for the canonical reference.
 - **InMotion app BLE captures against real hardware** for the P6
-  protocol — every offset, sub-command and formula in section 7 was
+  protocol, every offset, sub-command and formula in section 7 was
   derived from labelled captures recorded during user-led testing
   (`docs/P6_CAPTURE_LABELS.md`), not from any third-party source.
   The P6 is not in WheelLog's catalogue.
 
 License note: this app is MIT-licensed. WheelLog is GPLv3, which is
 incompatible with MIT. Quoting exact byte offsets, sub-cmd values and
-magic-byte sequences is fact, not copyrightable expression — those
+magic-byte sequences is fact, not copyrightable expression, those
 are reproduced freely. No GPLv3 source code is included.
 
 V8 / V8F / V8S / V10 family / V5 / L6 / R-series / V3 use the

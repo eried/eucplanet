@@ -677,7 +677,7 @@
     <string name="nav_role_destination">Destination</string>
     <string name="nav_role_start">Départ</string>
     <string name="nav_route_distance">Distance de l\'itinéraire : %1$s</string>
-    <string name="nav_route_failed">Service de calcul d\'itinéraire indisponible — tracé en lignes droites</string>
+    <string name="nav_route_failed">Service de calcul d\'itinéraire indisponible,tracé en lignes droites</string>
     <string name="nav_routing">Calcul de l\'itinéraire…</string>
     <string name="nav_save_failed">Impossible d\'enregistrer l\'itinéraire</string>
     <string name="nav_route_saved">Itinéraire enregistré</string>
@@ -865,7 +865,7 @@
     <string name="studio_layout_grid_4">Grille 2 × 2</string>
     <string name="studio_layout_title">Fenêtres caméra</string>
     <string name="studio_load_preset_title">Charger un préréglage</string>
-    <string name="studio_manage_empty">Aucun élément pour le moment — utilisez Ajouter un élément pour en placer un.</string>
+    <string name="studio_manage_empty">Aucun élément pour le moment,utilisez Ajouter un élément pour en placer un.</string>
     <string name="studio_manage_hint">Glissez pour réorganiser, touchez une ligne pour la sélectionner</string>
     <string name="studio_manage_title">Gérer les éléments</string>
     <string name="studio_metric_battery">Batterie</string>

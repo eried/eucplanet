@@ -885,7 +885,7 @@
 
     <!-- Studio: manage elements sheet -->
     <string name="studio_manage_title">Manage elements</string>
-    <string name="studio_manage_empty">No elements yet — use Add element to place one.</string>
+    <string name="studio_manage_empty">No elements yet,use Add element to place one.</string>
     <string name="studio_manage_hint">Drag to reorder, tap a row to select it</string>
     <string name="studio_cd_drag_reorder">Drag to reorder</string>
     <string name="studio_cd_delete_element">Delete element</string>
@@ -1006,7 +1006,7 @@
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
     <string name="nav_need_two">Add at least two stops to navigate.</string>
     <string name="nav_routing">Finding the route…</string>
-    <string name="nav_route_failed">Routing service unavailable — using straight lines</string>
+    <string name="nav_route_failed">Routing service unavailable,using straight lines</string>
     <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
     <string name="nav_search_no_results">No results for that address</string>
     <string name="nav_save_failed">Could not save the route</string>

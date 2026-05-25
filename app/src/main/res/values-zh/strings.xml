@@ -677,7 +677,7 @@
     <string name="nav_role_destination">目的地</string>
     <string name="nav_role_start">起点</string>
     <string name="nav_route_distance">路线距离:%1$s</string>
-    <string name="nav_route_failed">路线规划服务不可用 — 改用直线连接</string>
+    <string name="nav_route_failed">路线规划服务不可用,改用直线连接</string>
     <string name="nav_routing">正在规划路线…</string>
     <string name="nav_save_failed">无法保存路线</string>
     <string name="nav_route_saved">路线已保存</string>
@@ -865,7 +865,7 @@
     <string name="studio_layout_grid_4">2 × 2 网格</string>
     <string name="studio_layout_title">相机分屏</string>
     <string name="studio_load_preset_title">加载预设</string>
-    <string name="studio_manage_empty">暂无元素 — 使用「添加元素」放置一个。</string>
+    <string name="studio_manage_empty">暂无元素,使用「添加元素」放置一个。</string>
     <string name="studio_manage_hint">拖动以重新排序,点击某行可选中它。</string>
     <string name="studio_manage_title">管理元素</string>
     <string name="studio_metric_battery">电量</string>

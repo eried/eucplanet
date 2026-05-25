@@ -729,7 +729,7 @@
     <string name="nav_role_destination">Пункт назначения</string>
     <string name="nav_role_start">Старт</string>
     <string name="nav_route_distance">Длина маршрута: %1$s</string>
-    <string name="nav_route_failed">Сервис маршрутов недоступен — строим по прямым линиям</string>
+    <string name="nav_route_failed">Сервис маршрутов недоступен,строим по прямым линиям</string>
     <string name="nav_routing">Строим маршрут…</string>
     <string name="nav_save_failed">Не удалось сохранить маршрут</string>
     <string name="nav_route_saved">Маршрут сохранён</string>
@@ -917,7 +917,7 @@
     <string name="studio_layout_grid_4">Сетка 2 × 2</string>
     <string name="studio_layout_title">Окна камеры</string>
     <string name="studio_load_preset_title">Загрузить пресет</string>
-    <string name="studio_manage_empty">Элементов пока нет — используйте «Добавить элемент», чтобы разместить.</string>
+    <string name="studio_manage_empty">Элементов пока нет,используйте «Добавить элемент», чтобы разместить.</string>
     <string name="studio_manage_hint">Перетащите для изменения порядка, коснитесь строки, чтобы выбрать её</string>
     <string name="studio_manage_title">Управление элементами</string>
     <string name="studio_metric_battery">Заряд</string>

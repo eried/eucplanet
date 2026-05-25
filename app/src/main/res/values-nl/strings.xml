@@ -713,7 +713,7 @@
     <string name="nav_role_destination">Bestemming</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Routeafstand: %1$s</string>
-    <string name="nav_route_failed">Routeringsservice niet beschikbaar — rechte lijnen worden gebruikt</string>
+    <string name="nav_route_failed">Routeringsservice niet beschikbaar,rechte lijnen worden gebruikt</string>
     <string name="nav_routing">De route zoeken…</string>
     <string name="nav_save_failed">De route kon niet opgeslagen worden</string>
     <string name="nav_route_saved">Route opgeslagen</string>
@@ -901,7 +901,7 @@
     <string name="studio_layout_grid_4">2 × 2 raster</string>
     <string name="studio_layout_title">Camerapanelen</string>
     <string name="studio_load_preset_title">Preset laden</string>
-    <string name="studio_manage_empty">Nog geen elementen — gebruik Element toevoegen om er een te plaatsen.</string>
+    <string name="studio_manage_empty">Nog geen elementen,gebruik Element toevoegen om er een te plaatsen.</string>
     <string name="studio_manage_hint">Sleep om te ordenen, tik op een rij om die te selecteren</string>
     <string name="studio_manage_title">Elementen beheren</string>
     <string name="studio_metric_battery">Accu</string>

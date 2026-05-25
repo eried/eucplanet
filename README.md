@@ -121,7 +121,7 @@ I got tired of:
 
 The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes by the BLE-advertised name at connect time. Spec docs live under [`docs/protocols/`](docs/protocols/).
 
-To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) — one labelled riding session is usually enough.
+To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md); one labelled riding session is usually enough.
 
 PRs welcome. Bug reports → [GitHub Issues](../../issues). Feature ideas and votes → [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
 
