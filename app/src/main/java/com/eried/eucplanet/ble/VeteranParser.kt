@@ -17,12 +17,12 @@ import kotlin.math.roundToInt
  * come from docs/protocols/veteran.md.
  *
  * The parser is a small state machine driven by [feed]. A 100 ms gap without
- * continuation drops the partial buffer and re-syncs on the next magic — the
+ * continuation drops the partial buffer and re-syncs on the next magic; the
  * connection manager calls [feed] from the same coroutine that schedules
  * notifications, so wall-clock time on each call is the right re-sync clock.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 class VeteranParser {
@@ -57,7 +57,7 @@ class VeteranParser {
         val out = mutableListOf<Frame>()
         if (rawBytes.isEmpty()) return out
 
-        // Stale partial — the wheel paused mid-frame. Drop what we had so
+        // Stale partial: the wheel paused mid-frame. Drop what we had so
         // the new bytes can re-sync on their own magic; bytes inside the
         // dropped chunk that happened to look like a magic triple are gone
         // for good, but that's the right trade per spec.
@@ -93,7 +93,7 @@ class VeteranParser {
 
     /**
      * True when the buffer begins with the 3-byte Veteran magic. Until the
-     * full magic is in, we can't tell yet — return true so the buffer keeps
+     * full magic is in, we can't tell yet; return true so the buffer keeps
      * accumulating instead of getting trimmed prematurely.
      */
     private fun startsWithMagic(): Boolean {
@@ -184,7 +184,7 @@ class VeteranParser {
 
             // mVer from offset 28 (u16 BE / 1000 per WheelLog convention).
             // When non-zero this is the authoritative source for model id,
-            // battery curve, PWM gate, beep variant, and cell count —
+            // battery curve, PWM gate, beep variant, and cell count;
             // overrides the BLE-name match because many wheels advertise
             // as a generic "Veteran-xxxx" with no model token.
             val rawVersion = if (frame.size >= 30) ByteUtils.getUint16BE(frame, 28) else 0
@@ -239,7 +239,7 @@ class VeteranParser {
          */
         fun parseLongFrame(frame: ByteArray): BmsSlice? {
             // Smart-BMS frames carry pnum at offset 46. If the buffer is
-            // shorter than that, it's mis-framed — drop silently.
+            // shorter than that, it's mis-framed; drop silently.
             if (frame.size < 47) return null
             val pnum = frame[46].toInt() and 0xFF
 
@@ -335,7 +335,7 @@ class VeteranParser {
             // 134 V wheels (Patton + Patton S + Nosfet Aero) share their
             // own range, and 151 V wheels (Lynx + Sherman L + Lynx S +
             // Nosfet Apex + Nosfet Aeon) share theirs. Oryx is dual-pack
-            // 218 V — scaled from the 151 V curve since WheelLog's exact
+            // 218 V, scaled from the 151 V curve since WheelLog's exact
             // coefficients for that model weren't published when this was
             // written; flagged for refinement once an Oryx rider can sanity
             // check the readout.

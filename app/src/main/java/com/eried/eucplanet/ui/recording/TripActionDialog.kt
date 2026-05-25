@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
 
 /**
- * Chooser shown when the rider taps Share on a trip — three things to do with
+ * Chooser shown when the rider taps Share on a trip, three things to do with
  * the recorded ride, plus Cancel.
  */
 @Composable

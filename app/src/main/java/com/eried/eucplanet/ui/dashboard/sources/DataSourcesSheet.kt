@@ -171,7 +171,7 @@ fun DataSourcesSheet(
 
 /**
  * Tab bar with an inline live/offline dot next to each source label.
- * Compare tab gets no dot — it's not a single source.
+ * Compare tab gets no dot, it's not a single source.
  */
 @Composable
 private fun TabBar(
@@ -220,7 +220,7 @@ private fun TabBar(
 
 /**
  * Second tab row, only visible in compare mode. Same chip style as the top
- * row's source tabs so the user reads "the tabs ARE the picker — the top
+ * row's source tabs so the user reads "the tabs ARE the picker, the top
  * one is A, the new one below is B."
  */
 @Composable
@@ -328,7 +328,7 @@ private fun CompareTabChip(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            // Outlined when unselected — no filled background, just a border.
+            // Outlined when unselected, no filled background, just a border.
             // When selected it fills like the source chips so the active
             // state still reads obviously.
             .then(
@@ -430,9 +430,9 @@ private fun SourceTab(
                 color = source.color
             )
         }
-        // Freshness row — "Last update 3s ago" / "Updated just now" / "—".
+        // Freshness row, "Last update 3s ago" / "Updated just now" / "--".
         FreshnessRow(snapshot.lastUpdateMs, nowMs)
-        // G-force section — crosshair plus three numeric rows when the
+        // G-force section, crosshair plus three numeric rows when the
         // source claims IMU support.
         if (source.hasImu) {
             Spacer(Modifier.height(4.dp))
@@ -494,10 +494,10 @@ private fun formatDistance(meters: Double, imperial: Boolean): String {
 }
 
 /** "Last update Xs ago" line, recomputed against [nowMs] (ticks every 1s
- *  in the caller). Shows "—" when the source has never sent anything. */
+ *  in the caller). Shows "--" when the source has never sent anything. */
 @Composable
 private fun FreshnessRow(lastUpdateMs: Long?, nowMs: Long) {
-    val label = if (lastUpdateMs == null) "—" else {
+    val label = if (lastUpdateMs == null) "--" else {
         val elapsed = (nowMs - lastUpdateMs).coerceAtLeast(0L)
         when {
             elapsed < 1500L -> stringResource(com.eried.eucplanet.R.string.sources_fresh_just_now)
@@ -531,7 +531,7 @@ private fun ValueRow(label: String, value: String?, color: Color) {
     ) {
         Text(label, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
-            value ?: "—",
+            value ?: "--",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
             color = if (value != null) color else Color(0xFF707070)
@@ -674,7 +674,7 @@ private fun GForceCrosshair(
                     center = center,
                     style = Stroke(width = 2f)
                 )
-                // Offset highlight — sells the 3D sphere look. Sits up-left
+                // Offset highlight, sells the 3D sphere look. Sits up-left
                 // of centre as if a light source is above the dial.
                 drawCircle(
                     color = Color.White.copy(alpha = 0.85f),
@@ -688,7 +688,7 @@ private fun GForceCrosshair(
 
 /**
  * Compare body. A and B are picked from the top and bottom tab rows
- * respectively — no in-body picker. Renders a stack of graphical comparison
+ * respectively, no in-body picker. Renders a stack of graphical comparison
  * panels: line charts of the rolling time series for each pair of sources
  * that share a metric, plus the mini-map for position.
  */
@@ -714,7 +714,7 @@ private fun CompareTab(
         // wheel speed (decalibrated at ingest), so the buffer is invariant
         // to the rider's calibration offset. We multiply the wheel series
         // back up by the CURRENT calibration here so the chart line shows
-        // the same value the rider sees on the dial — once calibration
+        // the same value the rider sees on the dial, once calibration
         // converges, Δ on the chart → 0, which is the verification view.
         // The proposal math uses the raw series directly, which makes
         // "Apply" idempotent (re-applying a perfect calibration proposes
@@ -943,7 +943,7 @@ private fun ComparisonChart(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = deltaCurrent?.let { "Δ %+.1f%s".format(it, deltaSuffix) } ?: "—",
+                    text = deltaCurrent?.let { "Δ %+.1f%s".format(it, deltaSuffix) } ?: "--",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (deltaCurrent != null) MaterialTheme.colorScheme.onSurface
@@ -1075,19 +1075,19 @@ private fun CompareTableRow(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            valueA ?: "—",
+            valueA ?: "--",
             modifier = Modifier.weight(0.25f),
             fontSize = 13.sp,
             color = colorA
         )
         Text(
-            valueB ?: "—",
+            valueB ?: "--",
             modifier = Modifier.weight(0.25f),
             fontSize = 13.sp,
             color = colorB
         )
         Text(
-            delta ?: "—",
+            delta ?: "--",
             modifier = Modifier.weight(0.20f),
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
@@ -1167,7 +1167,7 @@ private fun LineChart(
             val pointsC = seriesC.points
             val allPoints = pointsA + pointsB + pointsC
             if (allPoints.size < 2) {
-                // Not enough data — paint a midline placeholder.
+                // Not enough data, paint a midline placeholder.
                 val midY = h / 2f
                 drawLine(
                     color = grid,
@@ -1291,7 +1291,7 @@ private fun LineChart(
                 drawText(measured, topLeft = Offset(3f, ty))
             }
 
-            // Scrub overlay (interactive == true) — draw a vertical line at
+            // Scrub overlay (interactive == true), draw a vertical line at
             // the rider's touch X, find the nearest sample on each series,
             // mark it with a dot, and stack value labels next to the line.
             val sx = scrubX

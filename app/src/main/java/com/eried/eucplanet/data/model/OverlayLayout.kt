@@ -3,13 +3,13 @@ package com.eried.eucplanet.data.model
 import java.util.UUID
 
 /**
- * Data model for the Overlay Studio — the video / photo recorder with fully
+ * Data model for the Overlay Studio, the video / photo recorder with fully
  * customisable data overlays.
  *
  * A whole studio configuration is one [OverlayPreset]: the viewport division
  * layout, the per-pane background sources, and the floating overlay elements.
  * Presets serialise to a single self-contained `.json` file (see
- * [com.eried.eucplanet.data.store.OverlayPresetJson]) — user images are
+ * [com.eried.eucplanet.data.store.OverlayPresetJson]), user images are
  * embedded as base64 so a preset can be copied between phones intact.
  *
  * Everything positional is stored as a 0..1 fraction of the screen so a preset
@@ -57,7 +57,7 @@ data class ViewportConfig(
     /** Camera frame rotation in degrees: one of 0 / 90 / 180 / 270. */
     val cameraOrientation: Int = 0,
     /**
-     * How the camera frame / source image fills its viewport — one of
+     * How the camera frame / source image fills its viewport, one of
      * "CROP" (fill, crop overflow), "FIT" (letterboxed) or "CENTER"
      * (original size, centred). Maps to a Compose [ContentScale]; GPU-only.
      */
@@ -68,9 +68,9 @@ data class ViewportConfig(
     val contrast: Float = 1f,
     /** Colour-grade saturation, 0..2 (1 = neutral). GPU ColorMatrix only. */
     val saturation: Float = 1f,
-    /** Filter preset — one of NONE / BW / SEPIA / WARM / COOL. GPU ColorMatrix only. */
+    /** Filter preset, one of NONE / BW / SEPIA / WARM / COOL. GPU ColorMatrix only. */
     val colorFilter: String = "NONE",
-    /** Digital zoom factor, 1..3 — a GPU graphicsLayer scale, no pixel work. */
+    /** Digital zoom factor, 1..3, a GPU graphicsLayer scale, no pixel work. */
     val zoom: Float = 1f,
     /** ARGB colour used when [source] is [ViewportSourceType.SOLID]. */
     val solidColor: Long = 0xFF101014L,
@@ -107,7 +107,7 @@ enum class OverlayElementType {
     FLOATING_CAMERA,
     /** A user-supplied image / clipart, embedded in the preset. */
     IMAGE,
-    /** A clock / watch — digital, analog, plain text, or a stopwatch. */
+    /** A clock / watch, digital, analog, plain text, or a stopwatch. */
     CLOCK,
     /** A circular crosshair plotting live lateral × forward G-force with a comet trail. */
     G_FORCE,
@@ -123,7 +123,7 @@ data class OverlayElement(
     val id: String = UUID.randomUUID().toString(),
     val type: OverlayElementType,
 
-    // Placement — top-left corner + width as a fraction of the screen.
+    // Placement, top-left corner + width as a fraction of the screen.
     // Height is OPTIONAL: when 0 (legacy default), the element renders
     // at whatever aspect ratio its content prefers (square map, 2.2:1
     // graph, etc.). When the rider explicitly resizes vertically via the
@@ -148,49 +148,49 @@ data class OverlayElement(
     /** Drop-shadow cast direction in degrees, 0..360 (45 = down-right). */
     val shadowAngle: Float = 45f,
 
-    // DATA_VALUE / DATA_GRAPH — which metric, see StudioMetric.
+    // DATA_VALUE / DATA_GRAPH, which metric, see StudioMetric.
     val metric: String = "SPEED",
     val showLabel: Boolean = true,
 
-    // TEXT — free text template; {speed}-style tokens resolve to live values.
+    // TEXT, free text template; {speed}-style tokens resolve to live values.
     val text: String = "This is a text",
     /** TEXT alignment: START / CENTER / END. */
     val textAlign: String = "START",
 
-    // APP_BADGE — layout options for the EUC Planet badge.
+    // APP_BADGE, layout options for the EUC Planet badge.
     /** Stack the icon above the text instead of placing them side by side. */
     val badgeStacked: Boolean = false,
     /** Append the app version number under / after the name. */
     val badgeShowVersion: Boolean = false,
 
-    // DATA_GRAPH — rolling window length in seconds. Also reused as the G-Force
+    // DATA_GRAPH, rolling window length in seconds. Also reused as the G-Force
     // trail length when the element is a G_FORCE; 10 s shows a corner without
     // making the comet look stretched.
     val graphWindowSec: Int = 10,
 
-    // DATA_DIAL / DATA_BAR — the value the gauge treats as full (min is 0).
+    // DATA_DIAL / DATA_BAR, the value the gauge treats as full (min is 0).
     val gaugeMax: Float = 100f,
 
     // Colours, ARGB longs. A fully-transparent background = "invisible".
     val foreground: Long = 0xFFFFFFFFL,
     val background: Long = 0x66000000L,
 
-    // FLOATING_CAMERA — which camera this PiP window shows (logical key).
+    // FLOATING_CAMERA, which camera this PiP window shows (logical key).
     val cameraKey: String = "FRONT",
 
-    // IMAGE — base64 PNG embedded directly in the preset so it travels with it.
+    // IMAGE, base64 PNG embedded directly in the preset so it travels with it.
     val imageData: String? = null,
     /** When true, pixels close to [chromaKeyColor] are made transparent. */
     val chromaKeyEnabled: Boolean = false,
     val chromaKeyColor: Long = 0xFF00FF00L,
-    /** 0..1 — how far a pixel may stray from the key colour and still drop out. */
+    /** 0..1, how far a pixel may stray from the key colour and still drop out. */
     val chromaKeyTolerance: Float = 0.14f,
 
-    // CLOCK — DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
+    // CLOCK, DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
     val clockStyle: String = "DIGITAL",
     val clockShowDate: Boolean = false,
 
-    // MAP — live mini-map options.
+    // MAP, live mini-map options.
     /** Tile style: STREET / DARK / SATELLITE. */
     val mapStyle: String = "STREET",
     /** Slippy-map tile zoom level, 10..19. */
@@ -210,9 +210,9 @@ data class OverlayElement(
      * to the default dot regardless of this flag.
      */
     val mapUseCustomMarker: Boolean = true,
-    /** G-Force widget scale — the g value at the outer ring. Lower = more sensitive. */
+    /** G-Force widget scale, the g value at the outer ring. Lower = more sensitive. */
     val gForceScale: Float = 1f,
-    /** G-Force dot smoothing — 0 snaps instantly, 1 makes the dot heavy/slow. */
+    /** G-Force dot smoothing, 0 snaps instantly, 1 makes the dot heavy/slow. */
     val gForceSmoothing: Float = 0.2f,
     /** DATA_BAR: show the numeric value above the bar (false = just the bar). */
     val barShowValue: Boolean = true,
@@ -247,7 +247,7 @@ data class OverlayPreset(
 ) {
     /**
      * Returns a copy with [viewports] and [dividers] resized to fit [newLayout]
-     * — extra panes are dropped, missing panes get a default camera source.
+     *, extra panes are dropped, missing panes get a default camera source.
      * Divider positions reset to the even defaults for the new layout.
      */
     fun withLayout(newLayout: ViewportLayout): OverlayPreset {

@@ -32,7 +32,7 @@ data class AlarmRule(
     /**
      * Where the buzz fires when [vibrateEnabled] is true: "PHONE", "WATCH",
      * or "BOTH". Defaults to BOTH so a rider gets the haptic on whichever
-     * device they're paying attention to — if no watch is paired, the WATCH
+     * device they're paying attention to, if no watch is paired, the WATCH
      * branch in [com.eried.eucplanet.wear.WatchVibrator] silently no-ops.
      * The storage key stays "BOTH" for backup/sync compatibility even though
      * the UI label is "All".
@@ -47,7 +47,7 @@ data class AlarmRule(
 enum class AlarmMetric(
     val labelRes: Int,
     val unit: String,
-    /** Name spoken by voice alarms — defaults to the on-screen label. */
+    /** Name spoken by voice alarms, defaults to the on-screen label. */
     val voiceLabelRes: Int = labelRes
 ) {
     SPEED(R.string.alarm_metric_speed, "km/h"),

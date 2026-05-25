@@ -10,7 +10,7 @@ import com.eried.eucplanet.util.ByteUtils
  * checksum applied. See docs/protocols/inmotion_v1.md section 6 for the table.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object InMotionV1Commands {
@@ -61,7 +61,7 @@ object InMotionV1Commands {
             byteArrayOf(if (on) 0x01 else 0x00, 0, 0, 0, 0, 0, 0, 0)
         )
 
-    /** Decorative under-glow LED — V8 family / V10 family / Glide 3 only. */
+    /** Decorative under-glow LED: V8 family / V10 family / Glide 3 only. */
     fun setDRL(on: Boolean): ByteArray =
         InMotionV1Protocol.buildFrame(
             CanId.REMOTE_CTRL,
@@ -77,7 +77,7 @@ object InMotionV1Commands {
             byteArrayOf(0xB2.toByte(), 0, 0, 0, 0x11, 0, 0, 0)
         )
 
-    /** Legacy horn for V8 / V5 / R-series / V3 / L6 — plays sound 4 instead. */
+    /** Legacy horn for V8 / V5 / R-series / V3 / L6: plays sound 4 instead. */
     fun hornLegacy(): ByteArray = playSound(4)
 
     fun playSound(index: Int): ByteArray =
@@ -86,7 +86,7 @@ object InMotionV1Commands {
             byteArrayOf((index and 0xFF).toByte(), 0, 0, 0, 0, 0, 0, 0)
         )
 
-    /** Speaker volume — V8F / V8S / V10 family / Glide 3 only. */
+    /** Speaker volume: V8F / V8S / V10 family / Glide 3 only. */
     fun setVolume(percent: Int): ByteArray {
         val v = ByteUtils.putUint16LE((percent.coerceIn(0, 100) * 100))
         return InMotionV1Protocol.buildFrame(
@@ -99,7 +99,7 @@ object InMotionV1Commands {
 
     /**
      * Set max speed (tiltback). Encoded as `(kmh * 1000)` u16 with HIGH byte
-     * at slot 4 and LOW byte at slot 5 — opposite of the rest of the
+     * at slot 4 and LOW byte at slot 5, opposite of the rest of the
      * protocol's little-endian convention. Spec section 6.2 worked example
      * is unambiguous: 30 km/h -> 30000 = 0x7530, wire = `75 30`. The spec's
      * type annotation says `LE` but the worked example takes precedence
@@ -138,7 +138,7 @@ object InMotionV1Commands {
         )
     }
 
-    /** Pedal tilt (horizon) in tenths of a degree — encoded as `(deg10 * 65536 / 10)` LE. */
+    /** Pedal tilt (horizon) in tenths of a degree, encoded as `(deg10 * 65536 / 10)` LE. */
     fun setPedalTilt(deg10: Int): ByteArray {
         val raw = ((deg10.toLong() * 65536L) / 10L).toInt()
         val b = ByteArray(4)

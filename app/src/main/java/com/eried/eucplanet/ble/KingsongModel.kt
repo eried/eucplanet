@@ -35,7 +35,7 @@ enum class KingsongModel(
          * Best-effort match of the wheel's reported name string to an enum
          * value. KingSong firmware reports names like "KS-S22-1234" or
          * "S22 100km/h"; we normalize to lowercase and look for the model
-         * token. Returns null when no obvious match — the adapter will
+         * token. Returns null when no obvious match; the adapter will
          * still operate, it just won't apply per-model capability nudges.
          */
         fun fromReportedName(name: String): KingsongModel? {

@@ -9,7 +9,7 @@ import com.eried.eucplanet.util.ByteUtils
  * docs/protocols/kingsong.md section 3 and section 6.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object KingsongCommands {
@@ -83,7 +83,7 @@ object KingsongCommands {
 
     /**
      * Wheel replies with the `0xB3` serial frame, whose ASCII payload spans
-     * payload+trailer slots — see KingsongParser for the unusual layout.
+     * payload+trailer slots; see KingsongParser for the unusual layout.
      */
     fun querySerial(): ByteArray = frame(Type.SERIAL_REQ)
 
@@ -104,7 +104,7 @@ object KingsongCommands {
 
     /**
      * Pedal hardness mode: 0=soft, 1=medium, 2=hard. Note the non-standard
-     * trailer byte `0x15` at offset 17 — verified across multiple firmwares.
+     * trailer byte `0x15` at offset 17, verified across multiple firmwares.
      */
     fun setPedalMode(mode: Int): ByteArray {
         val out = frame(Type.PEDAL_MODE) { f ->
@@ -133,7 +133,7 @@ object KingsongCommands {
 
     /**
      * Charge cutoff percentage (e.g. 80 / 90 / 100). Older KS-18L firmwares
-     * may silently ignore this — see spec open question 10.
+     * may silently ignore this; see spec open question 10.
      */
     fun setChargeLimit(percent: Int): ByteArray = frame(Type.WHEEL_PARAM) { f ->
         f[2] = 0x09

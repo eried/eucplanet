@@ -76,7 +76,7 @@ class WheelService : LifecycleService() {
                 hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
 
         if (!canUseLocation && !canUseBluetooth) {
-            Log.e(TAG, "No permission for either location or bluetooth FGS type — stopping")
+            Log.e(TAG, "No permission for either location or bluetooth FGS type, stopping")
             stopSelf()
             return
         }
@@ -112,7 +112,7 @@ class WheelService : LifecycleService() {
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
             settingsRepository.settings.collect { s ->
-                // Notification builder reads the speed unit without suspending —
+                // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
                 speedUnitCached = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s)
                 engineSoundEngine.applySettings(s)
@@ -161,13 +161,13 @@ class WheelService : LifecycleService() {
 
                     when (state) {
                         ConnectionState.CONNECTED -> {
-                            // Fresh connection — clear any session suspension of auto-lights
+                            // Fresh connection: clear any session suspension of auto-lights
                             automationManager.clearLightsSuspension()
                             if (settings.announceConnection) {
                                 voiceService.announceEvent(getString(R.string.voice_wheel_connected))
                             }
                             // Auto-record: start recording when wheel connects, unless the user
-                            // gated it on "start in motion" — then the telemetry handler starts it.
+                            // gated it on "start in motion"; then the telemetry handler starts it.
                             if (settings.autoRecord && !settings.autoRecordStartInMotion &&
                                 !tripRepository.recording.value) {
                                 lifecycleScope.launch { tripRepository.startRecording() }
@@ -209,7 +209,7 @@ class WheelService : LifecycleService() {
         if (canUseLocation) {
             tripRepository.startLocationUpdates()
         } else {
-            Log.w(TAG, "Location permission not granted — GPS tracking disabled")
+            Log.w(TAG, "Location permission not granted, GPS tracking disabled")
         }
 
         // Surface the next maneuver in the ongoing notification while navigating.
@@ -242,14 +242,14 @@ class WheelService : LifecycleService() {
                 // rider has granted BLUETOOTH_CONNECT. BluetoothGatt's
                 // binder will throw a SecurityException straight out of
                 // native code if we proceed without it, taking the whole
-                // process down — including any system permission dialog
+                // process down, including any system permission dialog
                 // that's currently in front. Bail silently here; the
                 // Dashboard's autoConnectIfNeeded already gates on the
                 // same permission, this is the belt to its braces.
                 val canBt = Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
                     hasPermission(Manifest.permission.BLUETOOTH_CONNECT)
                 if (!canBt) {
-                    Log.w(TAG, "ACTION_CONNECT before BLUETOOTH_CONNECT granted — skipping")
+                    Log.w(TAG, "ACTION_CONNECT before BLUETOOTH_CONNECT granted, skipping")
                     return START_NOT_STICKY
                 }
                 val address = intent.getStringExtra(EXTRA_ADDRESS)
@@ -282,7 +282,7 @@ class WheelService : LifecycleService() {
 
     override fun onDestroy() {
         // Send one last DataMap so the watch flips to its disconnected
-        // ("—") state instantly. If the process is hard-killed and this
+        // ("--") state instantly. If the process is hard-killed and this
         // line never runs, the watch's 3-s stale timer kicks in as
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
@@ -350,7 +350,7 @@ class WheelService : LifecycleService() {
     private fun checkLightTransition(current: Boolean, settings: com.eried.eucplanet.data.model.AppSettings) {
         val previous = lastLightOn
         lastLightOn = current
-        // Skip the first observation — that's the state we inherit on connect,
+        // Skip the first observation; that's the state we inherit on connect,
         // not a change the user should hear.
         if (previous == null || previous == current) return
         if (!settings.announceLights) return

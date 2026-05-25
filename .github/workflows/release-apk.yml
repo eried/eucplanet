@@ -1,23 +1,23 @@
 name: Release APK
 
 # On every push of a `v*` tag (e.g. v0.8.11), build a slim release-signed
-# phone APK — slim meaning WITHOUT the embedded wear companion APK — and
+# phone APK (slim meaning WITHOUT the embedded wear companion APK), and
 # attach it to the matching GitHub release. The fat AAB that goes to Play
 # Console still gets built locally and uploaded by hand at release time.
 #
 # Why slim? The Play AAB embeds the wear APK so Google Play auto-delivers
 # it to a paired Wear OS watch. Sideload users who download the APK from
-# GitHub don't need that path — many of them don't even own a watch — so
+# GitHub don't need that path (many of them don't even own a watch), so
 # we save them ~40 MB by stripping the embedded wear from the GitHub copy.
 # The companion wear APK is uploaded to the same release as its own file
 # (`wear-release.apk`) for sideloaders who do want it.
 #
 # Required repository secrets (Settings → Secrets and variables → Actions):
-#   RELEASE_KEYSTORE   — base64-encoded contents of the release .jks file
+#   RELEASE_KEYSTORE   : base64-encoded contents of the release .jks file
 #                        (locally: `base64 -w0 path/to/release.jks > out.txt`)
-#   KEYSTORE_PASSWORD  — store password
-#   KEY_ALIAS          — signing key alias
-#   KEY_PASSWORD       — key password
+#   KEYSTORE_PASSWORD  : store password
+#   KEY_ALIAS          : signing key alias
+#   KEY_PASSWORD       : key password
 #
 # If any secret is missing the workflow short-circuits with a clear message
 # rather than producing an unsigned APK by accident.
@@ -131,7 +131,7 @@ jobs:
         run: |
           # The `-PembedWear=false` path was added after v0.8.11 was tagged.
           # If we're firing against an older ref that doesn't carry the flag,
-          # we'd silently build a 60 MB fat APK without realising it — and
+          # we'd silently build a 60 MB fat APK without realising it, and
           # then overwrite the manually-uploaded slim APK on the release.
           # Hard-fail with a clear message so the operator knows to either
           # cherry-pick the flag onto that tag, or upload the slim APK by
@@ -172,6 +172,6 @@ jobs:
         if: always()
         run: |
           # Don't leave the decoded keystore or its properties on the runner
-          # disk (defence in depth — the runner is single-use, but in case
+          # disk (defence in depth: the runner is single-use, but in case
           # this workflow grows steps that upload the workspace later on).
           rm -f release.jks keystore.properties

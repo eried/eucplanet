@@ -48,7 +48,7 @@ object ByteUtils {
 
     /**
      * Veteran's distance fields are two big-endian u16s with the high word
-     * stored second — a serializer quirk specific to the LeaperKim firmware.
+     * stored second, a serializer quirk specific to the LeaperKim firmware.
      * Given bytes b0 b1 b2 b3 at the offset, the value is
      *   (b2 << 24) | (b3 << 16) | (b0 << 8) | b1.
      * Spec: docs/protocols/veteran.md section 4 ("Word-swapped 32-bit fields").

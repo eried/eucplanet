@@ -146,7 +146,7 @@ class ExternalGpsRepository @Inject constructor(
                             connectPaired()
                         }
                     }
-                    else -> { /* CONNECTING / INITIALIZING — let it complete */ }
+                    else -> { /* CONNECTING / INITIALIZING, let it complete */ }
                 }
             }
         }
@@ -265,7 +265,7 @@ class ExternalGpsRepository @Inject constructor(
         val address = pairedAddress() ?: return false
         val source = pairedSource() ?: return false
         val adapter = adapters.firstOrNull { it.source == source } ?: run {
-            Log.w(TAG, "No adapter for paired source $source — skipping connect")
+            Log.w(TAG, "No adapter for paired source $source, skipping connect")
             return false
         }
         // Any explicit connect call clears the user-disconnect veto so the
@@ -332,7 +332,7 @@ class ExternalGpsRepository @Inject constructor(
         while (System.currentTimeMillis() < end) {
             val s = _currentSample.value
             if (s != null) {
-                // applyAxisRemap was applied on entry — we want raw axes, so
+                // applyAxisRemap was applied on entry, we want raw axes, so
                 // re-resolve them by reversing the current map.
                 val (rx, ry, rz) = reverseRemap(s.accelXG, s.accelYG, s.accelZG)
                 if (rx != null) xs += rx

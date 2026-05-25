@@ -181,7 +181,7 @@ fun SettingsScreen(
     val isConnected by viewModel.isConnected.collectAsState()
     val engineParked by viewModel.engineParked.collectAsState()
     var searchQuery by rememberSaveable { mutableStateOf("") }
-    // One snackbar host for every transient confirmation in Settings — cloud
+    // One snackbar host for every transient confirmation in Settings, cloud
     // backup success / failure, cheat-console toasts. Replaces the older
     // Android Toast popups so the styling matches Overlay Studio / Navigator
     // (Material3 Snackbar, no app-icon decoration, swipe to dismiss).
@@ -662,7 +662,7 @@ private fun CollapsibleSection(
 ) {
     // Bring the section header into view when the rider explicitly toggles
     // it open. Skip the auto-scroll when the section was forced open by the
-    // search filter — otherwise every visible section fights for the scroll
+    // search filter, otherwise every visible section fights for the scroll
     // position as the rider types and the page jumps to the topmost match.
     val requester = remember { BringIntoViewRequester() }
     LaunchedEffect(expanded, autoExpandedByQuery) {
@@ -938,7 +938,7 @@ private fun UnitsSetting(
                     onClick = {
                         when (value) {
                             // Apply the preset but keep the per-unit rows
-                            // visible if they are already on screen — only a
+                            // visible if they are already on screen, only a
                             // fresh reopen hides them (see [expanded] init).
                             Units.UnitSystem.METRIC -> viewModel.applyUnitPreset(false)
                             Units.UnitSystem.IMPERIAL -> viewModel.applyUnitPreset(true)
@@ -1021,7 +1021,7 @@ private fun SpeedTab(
 
         // --- Speed calibration ---
         // Sits ABOVE the speed-limit sliders since the calibrated value is
-        // what the limits compare against. Always visible — disabled when no
+        // what the limits compare against. Always visible, disabled when no
         // wheel is connected because the value is keyed by the wheel's BLE
         // name and only loaded once we know which wheel we're talking to.
         SectionHeader(stringResource(R.string.section_speed_calibration))
@@ -1143,7 +1143,7 @@ private fun VoiceTab(
         }
         }   // end voiceEnabled BringIntoViewSection
 
-        // Navigation turn-by-turn voice guidance — uses the same row as the
+        // Navigation turn-by-turn voice guidance, uses the same row as the
         // announcement toggles below, so its preview button lines up with them.
         val navSample = stringResource(R.string.nav_arrived)
         AnnounceSwitchSetting(
@@ -1196,7 +1196,7 @@ private fun VoiceTab(
         val sBatteryEx = stringResource(R.string.voice_battery_fmt, 80)
         val sTempEx = stringResource(R.string.voice_temp_fmt, "32")
         val sLoadEx = stringResource(R.string.voice_load_fmt, "45")
-        // Preview must match what the voice actually says — imperial users
+        // Preview must match what the voice actually says, imperial users
         // get the miles variant so the page can't lie about the format.
         val sTripEx = stringResource(
             when (Units.effectiveDistanceUnit(settings)) {
@@ -1430,7 +1430,7 @@ private fun FlicTab(
             )
         }
 
-        // Scan section — only shown when there's an empty slot to fill.
+        // Scan section, only shown when there's an empty slot to fill.
         // Layout matches Volume Keys: hint sits outside the card as small italic
         // body text, action button sits inside the card and stretches full width
         // for an obvious tap target.
@@ -1438,7 +1438,7 @@ private fun FlicTab(
                 settings.flic3Address != null && settings.flic4Address != null
         if (!allSlotsFull) {
             HintText(stringResource(R.string.flic_scan_hint), small = true)
-            // No outer card here either — its 16 dp inner padding pushed
+            // No outer card here either, its 16 dp inner padding pushed
             // the button right of the hint above. Spinner + button now sit
             // directly in the section column so they share the column edge.
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1559,7 +1559,7 @@ private fun WatchTab(
                 }
             }
         }
-        // Supporting text after the control — it describes a consequence of
+        // Supporting text after the control, it describes a consequence of
         // the choice (battery cost), so it reads as a footnote, not a header.
         Text(
             stringResource(R.string.watch_update_rate_desc),
@@ -1642,7 +1642,7 @@ private fun WatchTab(
         SliderSetting(
             label = "",
             // Fixed -90 / 90 captions under the slider ends; the live angle is
-            // intentionally not shown — the thumb position is the feedback.
+            // intentionally not shown, the thumb position is the feedback.
             value = settings.watchDialRotationDeg.toFloat(),
             range = -90f..90f,
             unit = "°",
@@ -1652,7 +1652,7 @@ private fun WatchTab(
             onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
         )
 
-        // Hardware-button mappings hidden for now — Samsung Watch Ultra and
+        // Hardware-button mappings hidden for now, Samsung Watch Ultra and
         // most Galaxy Wear OS devices don't deliver KEYCODE_STEM_* events to
         // third-party apps. Keeping the AppSettings columns and dispatch
         // plumbing in place so the section can come back when we test on a
@@ -1816,7 +1816,7 @@ private fun CloudTab(
     overwritePrompt?.let { pendingName ->
         AlertDialog(
             onDismissRequest = {
-                // Treat tap-outside the same as Cancel — return to the name
+                // Treat tap-outside the same as Cancel, return to the name
                 // input with the previous text preserved so the rider can
                 // adjust the name instead of losing what they typed.
                 overwritePrompt = null
@@ -1947,7 +1947,7 @@ private fun CloudTab(
                 runCatching { context.startActivity(openIntent) }
                     .onFailure {
                         // Fallback for ROMs whose Files app doesn't handle the
-                        // document URI directly — try the raw tree URI as a
+                        // document URI directly, try the raw tree URI as a
                         // last resort. Some browsers still land at the root,
                         // but at least the click does something visible.
                         val fallback = android.content.Intent(android.content.Intent.ACTION_VIEW)
@@ -1980,7 +1980,7 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
         } else {
-            // Dropped the "No folder selected" hint — the Choose folder
+            // Dropped the "No folder selected" hint, the Choose folder
             // button right below says everything that's needed.
             LeftAlignedScanButton(
                 label = stringResource(R.string.cloud_choose_folder),
@@ -2124,7 +2124,7 @@ private fun PlayButton(onClick: () -> Unit, enabled: Boolean = true) {
         enabled = enabled,
         modifier = Modifier.size(20.dp)
     ) {
-        // Greyed out when disabled so the affordance stays visible — the rider can see
+        // Greyed out when disabled so the affordance stays visible, the rider can see
         // "preview exists, just not while moving" instead of the button vanishing.
         val baseTint = MaterialTheme.colorScheme.onSurfaceVariant
         Icon(
@@ -2313,7 +2313,7 @@ private fun GaugeThresholdSlider(
     onChange: (orange: Int, red: Int) -> Unit
 ) {
     // Visual range 0..100 so the user SEES the locked green sliver (0..5) and the
-    // locked red sliver (95..100) at the ends of the track — they just can't drag
+    // locked red sliver (95..100) at the ends of the track, they just can't drag
     // a handle into those zones. Drag positions are clamped to [5, 95] inclusive.
     val stepSize = 5f
     var range by remember(orangePct, redPct) {
@@ -2594,7 +2594,7 @@ private fun EngineSoundSection(
             com.eried.eucplanet.audio.EngineProfile.byKey(settings.engineType)
         }
 
-        // Engine volume is now a 4-point speed curve — no fixed slider. Drag a finger on
+        // Engine volume is now a 4-point speed curve, no fixed slider. Drag a finger on
         // the graph to probe the volume at any speed (same UX as the voice auto-volume
         // curve in Automations).
         Text(
@@ -3023,9 +3023,9 @@ private fun ActionDropdown(
  * 4-point curve editor for the engine speed-based auto-volume feature.
  *
  * Differences vs the voice [SplineCurveEditor]:
- *  - Range is 0..1 (a multiplier, not a 1..2× boost — voice ramps UP to overcome wind noise,
+ *  - Range is 0..1 (a multiplier, not a 1..2× boost, voice ramps UP to overcome wind noise,
  *    engine ramps DOWN so it's loud for pedestrian awareness at slow speeds).
- *  - No monotonic constraint — the user can freely shape the curve in any direction.
+ *  - No monotonic constraint, the user can freely shape the curve in any direction.
  *  - All 4 control points are draggable, including the 0 km/h anchor.
  */
 @Composable
@@ -3163,7 +3163,7 @@ private fun EngineSpeedVolumeCurveEditor(
                 drawPath(curvePath, color = lineColor, style = Stroke(width = 3f))
             }
 
-            // Finger probe — dashed vertical line + "30 km/h → 45%" readout above the curve.
+            // Finger probe, dashed vertical line + "30 km/h → 45%" readout above the curve.
             val currentProbe = probeSpeed
             if (currentProbe != null && normalized.size >= 2) {
                 val probeMult = com.eried.eucplanet.service.pchipInterpolate(normalized, currentProbe)
@@ -3205,7 +3205,7 @@ private fun EngineSpeedVolumeCurveEditor(
  * [expanded] flips from false to true the wrapper's bounds grow and the
  * BringIntoViewRequester fires, so the parent scroll moves to put the
  * wrapper (toggle + new content) into the viewport. Because the wrapper
- * has real bounds — not the 0-height sentinel the earlier version used —
+ * has real bounds, not the 0-height sentinel the earlier version used , 
  * the system actually has something to scroll to. When the block is taller
  * than the viewport the BringIntoView responder aligns the TOP edge with
  * the viewport top, so the rider keeps eyes on the row they just toggled.

@@ -20,7 +20,7 @@ import kotlin.math.sin
 /**
  * Watch-side port of the phone dashboard's SpeedGauge: 260° arc, accent-tinted
  * safe band, optional orange/red danger zones, ticks, and scale labels. Sized
- * by the parent — pass a Modifier with the desired width and aspect ratio.
+ * by the parent, pass a Modifier with the desired width and aspect ratio.
  *
  * Kept self-contained (no MaterialTheme dependency) so it works regardless of
  * the Wear theme wrapper, and so the file can stay near 1:1 with the phone
@@ -44,7 +44,7 @@ fun SpeedGauge(
     trackColor: Color = Color(0xFF2A2A2A),
     dimColor: Color = Color(0xFF9AA0A6),
     /** When true, the gauge traces near the bezel and scale labels render
-     *  inside the arc — meant for watch faces where the dial wraps the
+     *  inside the arc, meant for watch faces where the dial wraps the
      *  whole display and overlay UI lives in the center. */
     fullBleed: Boolean = false,
     /** Skips drawing the speed number + unit label so the caller can place
@@ -59,7 +59,7 @@ fun SpeedGauge(
 ) {
     // Speed-arc colour rule (matches phone dashboard exactly):
     //  - Color band ON  → band tier wins (safe / orange / red), even if a custom
-    //    accent is picked — the band is a safety signal.
+    //    accent is picked, the band is a safety signal.
     //  - Color band OFF → custom accent wins, else safe-green.
     val orangeFracG = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFracG = (redThresholdPct / 100f).coerceIn(orangeFracG + 0.04f, 0.95f)
@@ -108,7 +108,7 @@ fun SpeedGauge(
         // Thin color band behind the arc: safe (green) > warning (yellow) >
         // danger (red). Hardcoded green for the safe zone so the gauge keeps
         // its safety semantics regardless of which accent the user picked
-        // — using accent here meant a teal accent matched the safe zone but
+        //, using accent here meant a teal accent matched the safe zone but
         // a red accent made the whole band look like one long danger zone.
         if (showColorBand) {
             val bandThickness = arcThickness * 0.35f
@@ -181,7 +181,7 @@ fun SpeedGauge(
             )
         }
 
-        // Scale labels — only in standard mode. In full-bleed they collide
+        // Scale labels, only in standard mode. In full-bleed they collide
         // with overlay UI (buttons, battery row), and the speed number
         // already tells the user the live value.
         if (!fullBleed) {
@@ -205,7 +205,7 @@ fun SpeedGauge(
 
         if (!drawSpeedText) return@Canvas
 
-        // Speed number — dead center.
+        // Speed number, dead center.
         val speedText = "%.0f".format(displaySpeed)
         val baseFactor = if (speedText.length >= 3) 0.17f else 0.2f
         val innerRadius = arcRadius - arcThickness * 0.5f
@@ -249,7 +249,7 @@ fun SpeedGauge(
             )
         )
 
-        // Unit label pinned to reference height — fixed position regardless
+        // Unit label pinned to reference height, fixed position regardless
         // of digit count.
         val unitMeasured = textMeasurer.measure(
             unitLabel,

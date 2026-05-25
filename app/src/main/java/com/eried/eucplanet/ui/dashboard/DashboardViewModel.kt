@@ -176,7 +176,7 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly,
             com.eried.eucplanet.util.Units.effectiveTempUnit(initialSettings))
 
-    /** What the dashboard's BackHandler should do — "ASK" / "BACKGROUND" / "STOP_ALL". */
+    /** What the dashboard's BackHandler should do, "ASK" / "BACKGROUND" / "STOP_ALL". */
     val backButtonAction: StateFlow<String> = settingsRepository.settings
         .map { it.backButtonAction }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.backButtonAction)
@@ -301,7 +301,7 @@ class DashboardViewModel @Inject constructor(
             // Skip auto-connect entirely until the rider has granted
             // BLUETOOTH_CONNECT. Without it, BleConnectionManager.connect()
             // throws a SecurityException out of the BluetoothGatt binder and
-            // the process dies — and on a first-run flow with a backup-restored
+            // the process dies, and on a first-run flow with a backup-restored
             // lastDeviceAddress this fires before the rider has seen the
             // permission dialog, taking the activity down with it and
             // leaving the system permission UI orphaned over the launcher.

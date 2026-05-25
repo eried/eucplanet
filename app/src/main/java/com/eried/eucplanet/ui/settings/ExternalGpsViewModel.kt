@@ -143,11 +143,11 @@ class ExternalGpsViewModel @Inject constructor(
         if (autoDetectJob != null) return
         autoDetectJob = viewModelScope.launch {
             try {
-                // Prep screen — rider gets ready to start moving.
+                // Prep screen, rider gets ready to start moving.
                 _autoDetect.value = AutoDetectPhase.Prep
                 nextSignal.first()
 
-                // Forward: walk forward. 1 s warmup then 2 s capture — enough
+                // Forward: walk forward. 1 s warmup then 2 s capture, enough
                 // motion samples (~50–100 IMU frames) to pick the dominant
                 // axis without dragging the wizard out.
                 _autoDetect.value = AutoDetectPhase.ForwardInstruct

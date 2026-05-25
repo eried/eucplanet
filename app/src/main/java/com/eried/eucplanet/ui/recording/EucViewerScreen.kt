@@ -31,7 +31,7 @@ import com.eried.eucplanet.R
 import java.io.ByteArrayInputStream
 import java.util.concurrent.atomic.AtomicReference
 
-/** Path the embedded viewer fetches the trip CSV from — intercepted locally. */
+/** Path the embedded viewer fetches the trip CSV from, intercepted locally. */
 private const val TRIP_PATH = "/__euc_trip.csv"
 private const val VIEWER_URL = "https://eucviewer.ried.no/?embedded"
 private const val TAG = "EucViewer"
@@ -91,7 +91,7 @@ private const val BACKDROP_TEST_HTML: String = """
  * Hosts the EUC Viewer (eucviewer.ried.no) embedded in a WebView and feeds it
  * the trip's CSV.
  *
- * The CSV is **not** inlined into an injected script — a long ride is several MB
+ * The CSV is **not** inlined into an injected script, a long ride is several MB
  * of base64, and that overflowed `evaluateJavascript`, leaving a truncated
  * (syntax-broken) script that silently did nothing. Instead the app intercepts
  * a same-origin request for [TRIP_PATH] and serves the bytes directly; the
@@ -105,7 +105,7 @@ fun EucViewerScreen(
     onBack: () -> Unit,
     viewModel: EucViewerViewModel = hiltViewModel()
 ) {
-    // Read by shouldInterceptRequest on a background thread — hence atomic.
+    // Read by shouldInterceptRequest on a background thread, hence atomic.
     val payloadRef = remember { AtomicReference<Pair<ByteArray, String>?>(null) }
     var fileName by remember { mutableStateOf<String?>(null) }
     var webView by remember { mutableStateOf<WebView?>(null) }

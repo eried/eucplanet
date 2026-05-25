@@ -17,7 +17,7 @@ import kotlin.math.sin
  * multi-wheel work).
  *
  * Until then this simulator pretends the P6 speaks the V14-flavour V2
- * protocol — same wire format the existing parser handles — so the dashboard
+ * protocol (same wire format the existing parser handles) so the dashboard
  * can show meaningful values on a virtual P6 connection. Speed cap is 25 km/h
  * (the P6's hardware limit) and battery voltage sits around 60 V (its 60 V
  * pack) so the numbers feel right even though the framing is synthetic.
@@ -120,7 +120,7 @@ class P6VirtualWheel : VirtualWheel {
 
     private fun buildTotalStats(): ByteArray {
         val d = ByteArray(20)
-        // P6 is a city wheel — give it modest mileage: 320 km
+        // P6 is a city wheel: give it modest mileage of 320 km
         putUint32LE(d, 0, 32_000)        // ÷10 → 320 km equivalent in meters
         putUint32LE(d, 12, 40 * 3600)
         putUint32LE(d, 16, 80 * 3600)
@@ -129,7 +129,7 @@ class P6VirtualWheel : VirtualWheel {
 
     private fun buildTelemetry(): ByteArray {
         val elapsed = System.currentTimeMillis() - startTimeMs
-        // P6 cap is 25 km/h — sine wave 0..20 km/h on a 12s period.
+        // P6 cap is 25 km/h: sine wave 0..20 km/h on a 12s period.
         val speedKmh = if (locked) 0f else (10f * (1f + sin(elapsed / 1000.0 * 2 * PI / 12).toFloat()))
         val batteryPct = (batteryStart - elapsed / 90_000f).coerceAtLeast(20f)
         // P6 uses a 60 V pack: 54 V at 0 %, 60 V at 90 %.

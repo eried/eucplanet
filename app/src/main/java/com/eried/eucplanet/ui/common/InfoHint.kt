@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 // Global hint typography:
 //  - Always [MaterialTheme.typography.bodySmall]
 //  - [MaterialTheme.colorScheme.onSurfaceVariant] color
-//  - No italics — italics read as a separate dialect of text and made the UI
+//  - No italics, italics read as a separate dialect of text and made the UI
 //    feel decorative rather than informative. Plain bodySmall is the rule.
-//  - Strings end with a period (or locale equivalent — '.' / '。'). Enforced in
+//  - Strings end with a period (or locale equivalent, '.' / '。'). Enforced in
 //    the strings.xml files; this composable doesn't add or strip punctuation.
 
 @Composable
@@ -51,7 +51,7 @@ fun InfoHint(
 fun HintText(
     text: String,
     modifier: Modifier = Modifier,
-    // Kept for source-compat — previously toggled between bodyMedium and bodySmall.
+    // Kept for source-compat, previously toggled between bodyMedium and bodySmall.
     // Per the global hint rule we always render bodySmall now, so this flag is a no-op.
     @Suppress("UNUSED_PARAMETER") small: Boolean = false,
     textAlign: TextAlign? = null

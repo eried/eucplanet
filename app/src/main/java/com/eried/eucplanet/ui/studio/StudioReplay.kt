@@ -16,14 +16,14 @@ data class ReplaySample(val offsetMs: Long, val data: WheelData)
  */
 class ReplayTrip(
     val samples: List<ReplaySample>,
-    /** Wall-clock epoch of offset 0 — lets the clock overlay show the real time. */
+    /** Wall-clock epoch of offset 0: lets the clock overlay show the real time. */
     val startEpochMs: Long = 0L
 ) {
 
     /** Total trip length in milliseconds (0 if the trip had no usable rows). */
     val durationMs: Long = samples.lastOrNull()?.offsetMs ?: 0L
 
-    /** Telemetry at [offsetMs] into the trip — the most recent sample at/before it. */
+    /** Telemetry at [offsetMs] into the trip: the most recent sample at/before it. */
     fun dataAt(offsetMs: Long): WheelData {
         if (samples.isEmpty()) return WheelData()
         val t = offsetMs.coerceIn(0L, durationMs)
@@ -74,7 +74,7 @@ fun parseTripCsv(text: String): ReplayTrip {
     var firstMs = -1L
     var firstMileage = Float.NaN
     // Trim sub-millisecond precision (e.g. .000000 micros) WITHOUT touching a
-    // 4-digit year like .2026 — only 5+ digits after the dot are trimmed.
+    // 4-digit year like .2026; only 5+ digits after the dot are trimmed.
     val subMs = Regex("(\\.\\d{3})\\d{2,}")
     lines.forEach { line ->
         if (line.isBlank()) return@forEach

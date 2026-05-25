@@ -8,7 +8,7 @@ package com.eried.eucplanet.ble
  * docs/protocols/ninebot.md section 6.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 class NinebotZCrypto {
@@ -16,7 +16,7 @@ class NinebotZCrypto {
     /**
      * 16-byte gamma keystream. Held as a var so the adapter can swap it in
      * after the GetKey reply parses; null means "no key yet, frames are
-     * plaintext on the wire" — only the initial GetKey request and its
+     * plaintext on the wire": only the initial GetKey request and its
      * reply travel that way.
      */
     @Volatile private var gamma: ByteArray? = null
@@ -47,7 +47,7 @@ class NinebotZCrypto {
      * else from offset 3 to the end of the frame is XOR'd against
      * `gamma[(j-1) mod 16]` where `j` is the offset within the encrypted
      * region (so on-wire offset 3 picks gamma[0], offset 4 picks gamma[1],
-     * and so on). The cipher is involutive — same call decrypts.
+     * and so on). The cipher is involutive: same call decrypts.
      *
      * Returns true when a key was installed and the frame was transformed,
      * false when no key was set (caller must treat the buffer as plaintext).

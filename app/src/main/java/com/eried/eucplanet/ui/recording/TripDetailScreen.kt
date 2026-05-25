@@ -92,7 +92,7 @@ fun TripDetailScreen(
 ) {
     var dataPoints by remember { mutableStateOf<List<TripDataPoint>>(emptyList()) }
     var showShareDialog by remember { mutableStateOf(false) }
-    // The in-progress trip can't be shared — its CSV isn't finalised yet.
+    // The in-progress trip can't be shared, its CSV isn't finalised yet.
     val isLiveTrip by viewModel.isTripLiveRecording(trip).collectAsState(initial = false)
 
     if (showShareDialog) {
@@ -300,7 +300,7 @@ fun TripDetailScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                // Speed chart — converts each data point to the user's unit.
+                // Speed chart, converts each data point to the user's unit.
                 // When the CSV has any non-empty Ext GPS speed cells (i.e. a
                 // RaceBox was paired during this trip) overlay that series in
                 // purple, also unit-converted so the two lines share an axis.
@@ -340,7 +340,7 @@ fun TripDetailScreen(
                 ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
                     AccentRed, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
 
-                // Current chart — only when this trip actually recorded current.
+                // Current chart, only when this trip actually recorded current.
                 // Uses the regen two-colour split: above zero in the chart colour,
                 // below zero (regen braking) in green. NaN points break the line.
                 if (dataPoints.any { !it.current.isNaN() }) {
@@ -351,7 +351,7 @@ fun TripDetailScreen(
                         regenColor = AccentGreen)
                 }
 
-                // PWM chart — single-colour, only when this trip recorded PWM.
+                // PWM chart, single-colour, only when this trip recorded PWM.
                 if (dataPoints.any { !it.pwm.isNaN() }) {
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_pwm),
@@ -403,7 +403,7 @@ private fun RouteMapView(
         points.joinToString(",") { "[${it.latitude},${it.longitude}]" }
     }
     // Rebuild the WebView only when the historical trace changes or when we first
-    // enter/leave live mode — live marker updates are applied via JS.
+    // enter/leave live mode, live marker updates are applied via JS.
     val html = remember(coordsJson, isLive) {
         buildMapHtml(coordsJson, isLive)
     }
@@ -431,7 +431,7 @@ private fun RouteMapView(
             update = { wv -> webView = wv },
             modifier = Modifier.fillMaxSize()
         )
-        // Map-layer selector — cycles light / dark / satellite.
+        // Map-layer selector, cycles light / dark / satellite.
         androidx.compose.foundation.layout.Box(
             Modifier
                 .align(Alignment.BottomEnd)
@@ -590,7 +590,7 @@ private fun ChartCard(
     if (values.isEmpty()) return
 
     // Y-axis bounds include any overlay min/max so secondary lines stay on-scale.
-    // Filter NaN out of all reductions because NaN means "no data this row" —
+    // Filter NaN out of all reductions because NaN means "no data this row" , 
     // those rows shouldn't push the bounds.
     val finiteValues = values.filter { !it.isNaN() }
     val allFinite = (overlays.flatMap { it.values.filter { v -> !v.isNaN() } }) + finiteValues
@@ -627,7 +627,7 @@ private fun ChartCard(
                     .height(80.dp)
                     .pointerInput(values) {
                         // Long-press to scrub. A simple down-and-drag does NOT
-                        // activate the cursor — that gesture is reserved for the
+                        // activate the cursor, that gesture is reserved for the
                         // parent column's vertical scroll. Once the rider holds
                         // their finger for ~longPressTimeoutMillis without lifting
                         // or moving past touchSlop, we vibrate, claim the gesture,
@@ -636,7 +636,7 @@ private fun ChartCard(
                             val down = awaitFirstDown(requireUnconsumed = false)
                             val longPress =
                                 awaitLongPressOrCancellation(down.id) ?: return@awaitEachGesture
-                            // Long-press confirmed — the chart now owns the gesture.
+                            // Long-press confirmed, the chart now owns the gesture.
                             haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                             longPress.consume()
                             touchX = longPress.position.x

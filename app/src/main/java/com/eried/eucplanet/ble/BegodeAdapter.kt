@@ -5,22 +5,22 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Begode/Gotway wheel adapter — Master / RS / EX / T4 / MSP / Hero / Mten /
+ * Begode/Gotway wheel adapter for Master / RS / EX / T4 / MSP / Hero / Mten /
  * MSX / MCM5 family on the HM-10 (0xFFE0 / 0xFFE1) BLE profile.
  *
  * Wire format (per docs/protocols/begode.md):
  *   - 24-byte BIG-ENDIAN frames `55 AA <16-byte payload> <tag> <subidx> 5A 5A 5A 5A`.
  *   - Tag at offset 18 disambiguates `0x00` Live A, `0x01..0x03` BMS, `0x04`
  *     Live B, `0x07` extras, `0xFF` SmirnoV PID.
- *   - Voltage scaling depends on per-model nominal voltage class — see
+ *   - Voltage scaling depends on per-model nominal voltage class; see
  *     [BegodeParser.voltageRatioFor].
  *
- * Outbound commands are short ASCII strings written WITHOUT response — see
+ * Outbound commands are short ASCII strings written WITHOUT response; see
  * [BegodeCommands]. Begode pushes telemetry unsolicited; init / poll loops
  * are empty.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 @Singleton
@@ -94,7 +94,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
      * Begode max-speed is a 4-byte W/Y/HL/b sequence; we only return the
      * first byte here so the existing single-write [WheelAdapter] contract
      * holds. The follow-up bytes will move into a dedicated
-     * paced-write extension once the connection layer grows one — for now,
+     * paced-write extension once the connection layer grows one. For now,
      * the wheel just won't latch the new max-speed without the trailing
      * bytes, which fails safely (no setting change).
      *
@@ -206,7 +206,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
      * Begode streams telemetry unsolicited at ~10 Hz; the parser logs every
      * 24-byte frame via DiagnosticsLogger.note with the `Begode realtime`
      * prefix so the Service Mode Inspect tab can scope to it. There is no
-     * separate detail / extra channel — BMS, Live A, Live B and extras all
+     * separate detail / extra channel; BMS, Live A, Live B and extras all
      * share the same envelope, distinguished by the tag byte at offset 18.
      */
     override fun inspectMessageTypes(): List<String> = listOf("Begode realtime")
@@ -215,7 +215,7 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
      * Service Mode catalogue for the Begode / Gotway family. The protocol is
      * fire-and-forget ASCII (spec 6.1): commands write WRITE_NO_RESPONSE,
      * with no ack channel. The wheel only confirms via the next Live B
-     * (0x04) frame or audibly. Every entry below is a control write — the
+     * (0x04) frame or audibly. Every entry below is a control write; the
      * "queries" V and N do trigger ASCII banner replies but those land on
      * the same notify pipe as raw bytes, not framed packets.
      *

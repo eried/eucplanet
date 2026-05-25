@@ -9,7 +9,7 @@ import kotlin.math.roundToInt
 /**
  * Telemetry and settings parser for InMotion V12 HS / HT / Pro.
  *
- * V12's RealTimeInfo packet uses tighter byte packing than V14 — speed/torque/
+ * V12's RealTimeInfo packet uses tighter byte packing than V14: speed/torque/
  * pwm sit at lower offsets, the dual-battery split is collapsed into a single
  * battery-level field, and pcMode/light state moves earlier in the packet.
  * Keep this in a separate file from [InMotionV2Parser] so the V14 layout is
@@ -21,7 +21,7 @@ import kotlin.math.roundToInt
 object InMotionV2ParserV12 {
 
     /**
-     * V12 RealTimeInfo (cmd 0x04) layout — every multi-byte value is little-endian.
+     * V12 RealTimeInfo (cmd 0x04) layout. Every multi-byte value is little-endian.
      *
      *   byte 0..1   voltage          uint16  (×0.01 V)
      *   byte 2..3   current          int16   (×0.01 A, signed)
@@ -32,11 +32,11 @@ object InMotionV2ParserV12 {
      *   byte 12..13 motPower         int16   (W, signed)
      *   byte 14..15 reserved (always 0)
      *   byte 16..17 pitchAngle       int16   (×0.01°, signed)
-     *   byte 18..19 pitchAimAngle    int16   (×0.01°, signed) — unused
+     *   byte 18..19 pitchAimAngle    int16   (×0.01°, signed), unused
      *   byte 20..21 rollAngle        int16   (×0.01°, signed)
      *   byte 22..23 mileage          uint16  (units of 0.01 km)
      *   byte 24..25 batLevel         uint16  (units of 0.01 %)
-     *   byte 26..27 remainMileage    uint16  — unused
+     *   byte 26..27 remainMileage    uint16, unused
      *   byte 28..29 reserved (always 18000)
      *   byte 30..31 dynSpeedLimit    uint16  (×0.01 km/h)
      *   byte 32..33 dynCurrentLimit  uint16  (×0.01 A)
@@ -84,7 +84,7 @@ object InMotionV2ParserV12 {
         // Treat any beam (low or high) as "light on" for the dashboard indicator
         val lightOn = (lightByte and 0x03) != 0
 
-        // V12's battery field is a real percentage — round it so 96.7 reads
+        // V12's battery field is a real percentage; round it so 96.7 reads
         // 97 like the wheel screen, not 96.
         val batteryPercent = batteryLevel.roundToInt().coerceIn(0, 100)
 
@@ -115,21 +115,21 @@ object InMotionV2ParserV12 {
     }
 
     /**
-     * V12 Settings (cmd 0x20) layout — payload starts at byte 0 (the leading
+     * V12 Settings (cmd 0x20) layout. Payload starts at byte 0 (the leading
      * sub-cmd echo at byte 0 is treated as part of the V12 layout). Fields we
      * care about for our UI are tiltback/alarm speeds; the rest is left at
      * their model defaults.
      *
      *   byte 9..10   maxSpeedLim    uint16  (×0.01 km/h)
      *   byte 11..12  alarmSpeed1    int16   (×0.01 km/h, signed)
-     *   byte 13..14  alarmSpeed2    int16   (×0.01 km/h, signed) — second alarm
+     *   byte 13..14  alarmSpeed2    int16   (×0.01 km/h, signed), second alarm
      *   byte 15..16  pedalsAdjust   int16   (×0.1°, signed)
      *   byte 17..18  standbyDelay   uint16  (seconds)
      *   byte 19      bit 0 = classic ride mode, bit 4 = fancier mode
      *   byte 22      speaker volume
      *   byte 39      bit 0 = NOT mute, bit 6 = transport mode
      *
-     * V12 has no reliable lockState byte in the public layout — WheelLog leaves
+     * V12 has no reliable lockState byte in the public layout; WheelLog leaves
      * it commented out. We keep [WheelSettings.lockState] at 0 (unlocked) and
      * rely on the wheel's actual response to the lock command for state, not
      * settings introspection.

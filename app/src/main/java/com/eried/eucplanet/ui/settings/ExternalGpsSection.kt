@@ -70,7 +70,7 @@ fun ExternalGpsSection(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         BringIntoViewSection(expanded = true, spacing = 8.dp) {
-        // Show speed on the dashboard — a general display option, kept first
+        // Show speed on the dashboard, a general display option, kept first
         // because it has nothing to do with the external box below it.
         ToggleRow(
             label = stringResource(R.string.gps_show_on_dashboard),
@@ -471,7 +471,7 @@ private fun PairedExternalGpsCard(
                 style = MaterialTheme.typography.titleMedium
             )
             // Combine the connection-state label and the live speed onto a
-            // single line so the card stays compact: "Connected — 28.7 km/h".
+            // single line so the card stays compact: "Connected, 28.7 km/h".
             val combinedLine = if (connectionState == ConnectionState.CONNECTED && liveSpeedKmh != null) {
                 stateLabel + "  ·  " + "%.1f km/h".format(liveSpeedKmh)
             } else {
@@ -491,7 +491,7 @@ private fun PairedExternalGpsCard(
  * settings, so they all read as the same kind of action at a glance.
  *
  * The half-width Row pattern is preferred over a fixed-dp Button because
- * it scales with the screen — looks proportional on small phones AND
+ * it scales with the screen, looks proportional on small phones AND
  * tablets without needing a separate width per breakpoint.
  */
 @Composable

@@ -14,7 +14,7 @@ import com.eried.eucplanet.util.ByteUtils
  * decode (for example, BMS pages on a wheel that doesn't ship that page).
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object KingsongParser {
@@ -34,7 +34,7 @@ object KingsongParser {
      * 4-byte distance field at offsets 6..9 uses the documented word-swapped
      * LE32 layout (see spec section 4.1, note on byte order).
      *
-     * The wheel does not transmit battery percent — we derive it from voltage
+     * The wheel does not transmit battery percent; we derive it from voltage
      * using a per-pack-class linear curve keyed on [model]'s nominal voltage.
      */
     fun parseLiveTelemetry(frame: ByteArray, model: KingsongModel?): WheelData? {
@@ -76,7 +76,7 @@ object KingsongParser {
      * trip distance, top speed since power-on, fan and charging flags, and a
      * second temperature sensor (board or motor depending on model).
      *
-     * Returned as a partial [WheelData] — caller should merge with the latest
+     * Returned as a partial [WheelData]; caller should merge with the latest
      * `0xA9` snapshot rather than overwrite it.
      */
     fun parseTripFrame(frame: ByteArray): WheelData? {
@@ -168,7 +168,7 @@ object KingsongParser {
         )
     }
 
-    /** Speed-limit frame `0xF6` — the dynamic PWM-derived ceiling, in km/h. */
+    /** Speed-limit frame `0xF6`: the dynamic PWM-derived ceiling, in km/h. */
     fun parseDynamicSpeedLimit(frame: ByteArray): WheelData? {
         if (frame.size < 20) return null
         if (frame[16] != 0xF6.toByte()) return null
@@ -182,7 +182,7 @@ object KingsongParser {
     /**
      * Alarms + max-speed reply, frames `0xA4` and `0xB5`. Returns the four
      * thresholds packaged as a [WheelSettings]; the `0xA4` flavour expects
-     * the app to echo the frame back with offset 16 changed to `0x98` —
+     * the app to echo the frame back with offset 16 changed to `0x98`;
      * use [buildAlarmEcho] to produce that echo.
      */
     fun parseAlarmsAndMaxSpeed(frame: ByteArray): WheelSettings? {
@@ -239,13 +239,13 @@ object KingsongParser {
      * Ported verbatim from WheelLog's `KingsongAdapter` (its default, non-
      * "better-percents" curve) so the dashboard agrees with the reference
      * app. The endpoints matter: a "full" 84 V KingSong pack settles near
-     * 82.5 V, not 84 V — anchoring 100% at 84 V (as an earlier curve did)
+     * 82.5 V, not 84 V; anchoring 100% at 84 V (as an earlier curve did)
      * made the gauge under-read by ~7% across the whole range.
      *
      * WheelLog works in centivolts; the curve is reproduced in those units
      * (integer division included) so the result matches it exactly.
      *
-     * Returns 0 when no model is detected — the dashboard renders the empty
+     * Returns 0 when no model is detected; the dashboard renders the empty
      * battery rather than a stale fallback.
      */
     private fun batteryPercentFromVoltage(voltage: Float, model: KingsongModel?): Int {

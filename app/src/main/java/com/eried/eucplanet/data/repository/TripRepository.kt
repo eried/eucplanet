@@ -50,8 +50,8 @@ class TripRepository @Inject constructor(
         // After stopRecording with sync configured, we hold the trip in a "pending"
         // state for this long so the user has a chance to discard it (e.g., a stray
         // short trip from moving the wheel by hand) before it's enqueued for upload.
-        // Without a sync folder there's nothing to defer — the trip just stays in
-        // the local DB regardless — so the grace window is skipped entirely.
+        // Without a sync folder there's nothing to defer, the trip just stays in
+        // the local DB regardless, so the grace window is skipped entirely.
         private const val FINALIZE_GRACE_MS = 15_000L
     }
 
@@ -231,10 +231,10 @@ class TripRepository @Inject constructor(
             context, android.Manifest.permission.ACCESS_COARSE_LOCATION
         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         if (!hasFine && !hasCoarse) {
-            Log.w(TAG, "Starting recording WITHOUT location permission — trip will have no GPS")
+            Log.w(TAG, "Starting recording WITHOUT location permission, trip will have no GPS")
         }
 
-        // Ensure location updates are running — may already be started by WheelService,
+        // Ensure location updates are running, may already be started by WheelService,
         // but we also want GPS when recording without a wheel connected.
         startLocationUpdates()
 
@@ -314,7 +314,7 @@ class TripRepository @Inject constructor(
         csvWriter = null
 
         // If a previous stop is still in its grace window, finalize it now (the new
-        // stop pre-empts the old undo opportunity — only one trip is ever pending).
+        // stop pre-empts the old undo opportunity, only one trip is ever pending).
         finalizePendingTripIfAny()
 
         val trip = currentTrip
@@ -335,7 +335,7 @@ class TripRepository @Inject constructor(
             uploadStatus = 0
         )
         // Write endTime/distance immediately so the trip list shows it correctly.
-        // uploadStatus stays 0 — we only flip it to 1 (queued for sync) after grace.
+        // uploadStatus stays 0, we only flip it to 1 (queued for sync) after grace.
         tripDao.update(finishedTrip)
 
         // Voice announcement fires immediately so the user gets audible feedback
@@ -364,7 +364,7 @@ class TripRepository @Inject constructor(
                 kotlinx.coroutines.delay(FINALIZE_GRACE_MS)
                 finalizePendingTrip()
             } catch (_: kotlinx.coroutines.CancellationException) {
-                // Cancelled by deleteTrip on the pending trip — user discarded it.
+                // Cancelled by deleteTrip on the pending trip, user discarded it.
             }
         }
     }
@@ -398,7 +398,7 @@ class TripRepository @Inject constructor(
 
     /**
      * Cancel and discard the just-finished trip during the grace window. Equivalent
-     * to calling [deleteTrip] on the pending trip — kept as an explicit entry point
+     * to calling [deleteTrip] on the pending trip, kept as an explicit entry point
      * for screens that want a "just throw it away" call without holding the
      * TripRecord. No-op if no trip is pending.
      */

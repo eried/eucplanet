@@ -7,13 +7,13 @@ import org.json.JSONObject
  * Hand-written AppSettings <-> JSON mapping used by both the on-disk settings
  * store ([SettingsStore]) and the export/restore feature ([com.eried.eucplanet.data.sync.SyncManager]).
  *
- * Includes every persistent field so [SettingsStore] round-trips them — the
+ * Includes every persistent field so [SettingsStore] round-trips them, the
  * backup writer in SyncManager scrubs device-specific fields (BLE addresses,
  * SAF folder URI, last-backup timestamp) with [stripDeviceBindings] before
  * writing the cross-device backup file.
  *
  * Read path uses [base] as the floor so unknown / older payloads just keep
- * the current default — adding a new AppSettings field never breaks restore.
+ * the current default, adding a new AppSettings field never breaks restore.
  */
 object SettingsJson {
 

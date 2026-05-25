@@ -20,7 +20,7 @@ data class GpxData(
 
 /**
  * Minimal GPX 1.1 reader/writer for saving and loading Navigator routes.
- * Uses the platform XML pull parser — no third-party dependency.
+ * Uses the platform XML pull parser, no third-party dependency.
  *
  * On write we store the user's pins as `<rtept>` and the resolved geometry as
  * a `<trk>`, so re-loading can either re-route from the pins or fall back to

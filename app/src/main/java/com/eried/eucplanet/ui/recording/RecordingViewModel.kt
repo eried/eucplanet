@@ -147,7 +147,7 @@ class RecordingViewModel @Inject constructor(
     }
 
     fun stopGpsPreview() {
-        // Only stop if not actively recording — recording needs GPS too
+        // Only stop if not actively recording, recording needs GPS too
         if (!tripRepository.recording.value) {
             tripRepository.stopLocationUpdates()
         }
@@ -262,11 +262,11 @@ class RecordingViewModel @Inject constructor(
                     if (importSingleCsv(csvName, inputStream.readBytes())) imported++
                 }
             } else {
-                // Unknown extension — try as ZIP first, fall back to CSV
+                // Unknown extension, try as ZIP first, fall back to CSV
                 contentResolver.openInputStream(uri)?.use { inputStream ->
                     val bytes = inputStream.readBytes()
                     if (bytes.size >= 4 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte()) {
-                        // ZIP magic bytes — treat as .dbb
+                        // ZIP magic bytes, treat as .dbb
                         ZipInputStream(BufferedInputStream(bytes.inputStream())).use { zis ->
                             var entry = zis.nextEntry
                             while (entry != null) {

@@ -7,7 +7,7 @@ import org.json.JSONObject
  * Data model for the Navigator feature: route building (waypoints + resolved
  * geometry) and the live-guidance runtime state.
  *
- * Everything here is plain data with hand-written JSON mapping — the current
+ * Everything here is plain data with hand-written JSON mapping, the current
  * route is persisted as a single JSON string in [AppSettings.navCurrentRouteJson]
  * (same DataStore-blob philosophy the rest of the app's settings use) and the
  * compact nav state is what both the phone popup and the watch render from.
@@ -35,7 +35,7 @@ data class Waypoint(
 
 /**
  * How auto-routing should connect the waypoints. [STRAIGHT] draws plain
- * straight lines between pins and needs no routing server at all — it is also
+ * straight lines between pins and needs no routing server at all, it is also
  * the fallback when a routing request fails.
  */
 enum class TravelMode {
@@ -191,7 +191,7 @@ enum class NavMode { TURN_BY_TURN, TREASURE_HUNT }
 enum class Proximity { HOT, WARM, COLD }
 
 /**
- * Immutable snapshot the navigation popup renders from — on the phone overlay
+ * Immutable snapshot the navigation popup renders from, on the phone overlay
  * and, mirrored over the Wear Data Layer, on the watch. Strings are
  * pre-formatted (and localized) by the engine so the watch needs no logic.
  */
@@ -199,7 +199,7 @@ data class NavState(
     val active: Boolean = false,
     val mode: NavMode = NavMode.TURN_BY_TURN,
     val minimized: Boolean = false,
-    /** True before a travel heading has been established — popup says "start riding". */
+    /** True before a travel heading has been established, popup says "start riding". */
     val waiting: Boolean = false,
     val arrow: ArrowDir = ArrowDir.STRAIGHT,
     /**
@@ -221,7 +221,7 @@ data class NavState(
     val goalIndex: Int = 0,
     val goalCount: Int = 0,
     /** Bumped to ask the overlay to re-open the centred popup (e.g. from the
-     *  dashboard navigator button). Not a cue — purely a show trigger. */
+     *  dashboard navigator button). Not a cue, purely a show trigger. */
     val popupTick: Int = 0,
     /** True while the phone's centred nav popup is on screen; the watch mirror
      *  follows this so it stays transient like the phone popup. */

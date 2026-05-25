@@ -60,7 +60,7 @@ object WatchStateRepository {
     /**
      * Tracks whether the watch's MainActivity is currently visible. Set true
      * from onStart and false from onStop so the bridge service can skip its
-     * relaunch animation when the user is already looking at the dial — the
+     * relaunch animation when the user is already looking at the dial, the
      * phone fires a /euc/wake every time the user re-opens the phone app and
      * that was causing a needless reopen flicker on the watch.
      */
@@ -111,7 +111,7 @@ object WatchStateRepository {
      * One-shot announce that runs on watch app launch: ships Build /
      * BuildConfig info to the phone so its Service Mode log captures both
      * sides of the pair. Best-effort; failures are logged at DEBUG and
-     * don't propagate. Idempotent at the message level — Wearable's
+     * don't propagate. Idempotent at the message level, Wearable's
      * MessageClient handles re-delivery if the phone is asleep.
      */
     private var infoSent = false

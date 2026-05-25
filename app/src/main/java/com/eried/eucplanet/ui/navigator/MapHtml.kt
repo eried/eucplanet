@@ -25,7 +25,7 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
  *
  * Leaflet itself ships as bundled assets (`assets/leaflet.js` + `leaflet.css`);
  * the WebView is loaded with base URL `file:///android_asset/` so the page can
- * pull them in without a CDN — only the map tiles need the network, exactly
+ * pull them in without a CDN, only the map tiles need the network, exactly
  * like the existing trip-detail map.
  *
  * JavaScript ↔ native bridge:
@@ -36,7 +36,7 @@ internal fun routeBuilderHtmlFor(mapType: String): String =
  *  - JS → native: `AndroidNav.onMapClick(lat,lng)`,
  *    `AndroidNav.onMarkerDragged(index,lat,lng)`, `AndroidNav.onSelfTap()`.
  *
- * While a pin is being dragged — and while routing is still being solved — the
+ * While a pin is being dragged, and while routing is still being solved, the
  * pins are joined by a dashed connector; once a route comes back it is drawn
  * as a solid line.
  */
@@ -82,7 +82,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     transform-style: preserve-3d;
     will-change: transform;
   }
-  /* Stop marker — circle with the stop's number inside. The original
+  /* Stop marker, circle with the stop's number inside. The original
      pin/teardrop shape was nice but it conflicts visually with the rider's
      own teardrop ("you are here" + arrow); circles read as static targets
      to ride INTO, and stay distinct from the directional rider marker. */
@@ -110,14 +110,14 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     line-height:0;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
   }
-  /* Direction chevron for STRAIGHT-mode routes — two stroked lines meeting
+  /* Direction chevron for STRAIGHT-mode routes, two stroked lines meeting
      at a point (shape: > pointing forward along the segment). Rendered as an
      SVG inside a rotating wrapper so we get crisp anti-aliased strokes and
      can scale the stroke width independently of the icon size. No shadow:
      the bright route line already provides enough contrast against the map. */
   .chevron-wrap{ display:block; line-height:0; }
   /* Teardrop rider marker. Dimensions are inlined from buildUserIcon in JS
-     so a single value drives the marker's apparent size — smaller when the
+     so a single value drives the marker's apparent size, smaller when the
      rider hasn't set a photo, slightly larger when they have (the photo is
      the focal point and earns the extra real estate). The CSS keeps only
      the look-and-feel: colours, borders, shadows, the teardrop's clipped
@@ -144,7 +144,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
     box-sizing:border-box;
   }
   /* Inner photo. Positioning and counter-rotation are inlined by
-     buildUserIcon — the outer wrap puts the photo on the head's centre
+     buildUserIcon, the outer wrap puts the photo on the head's centre
      (NOT the teardrop's bounding-box centre, which would slip the photo
      down into the tail), and an inner counter-rotation keeps a face or
      other oriented photo upright as the teardrop tip swings around.
@@ -652,7 +652,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // the approach AREA (the stop they have to ride INTO), and the numbered
   // pin shrinks to a small dot at the centre instead of the big draggable
   // label. The lock flag is mirrored from the native side via
-  // nativeSetNavLocked() — re-call nativeRender to apply it.
+  // nativeSetNavLocked(), re-call nativeRender to apply it.
   var navLocked = false;
   // Route style depends on the travel mode so the rider can tell at a glance
   // whether they are looking at a car route, a bike/walk route, or just a
@@ -678,7 +678,7 @@ private const val ROUTE_BUILDER_HTML_1: String = """
         return;
       }
     }
-    // While navigation is running, the route is locked — no pin drops.
+    // While navigation is running, the route is locked, no pin drops.
     if (navLocked) return;
     // A tap close to an existing stop is ignored, so pins never pile up.
     for (var i = 0; i < markers.length; i++){
@@ -881,7 +881,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       var a = pts[i-1], b = pts[i];
       var dx = b.x - a.x, dy = b.y - a.y;
       var len = Math.sqrt(dx*dx + dy*dy);
-      // Too short to bother — the chevron itself is ~24 px wide.
+      // Too short to bother, the chevron itself is ~24 px wide.
       if (len < 60) continue;
       var deg = Math.atan2(dy, dx) * 180 / Math.PI;
       // One chevron centred, OR two at 1/3 and 2/3 for long segments.
@@ -1105,7 +1105,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       clearConnector();
       clearPreview();
     } else if (geom.length >= 2){
-      // A solved route — solid line, drop the dashed preview. Colour depends
+      // A solved route, solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
       // 80% opaque so the path stands out without obscuring the basemap.
       if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
@@ -1118,7 +1118,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       routeLine = L.polyline(geom, {color: routeColor, weight: 6, opacity: 0.80}).addTo(map);
       // Chevrons on the rider->next-goal line in two cases:
       //   * STRAIGHT mode (we'll never get road geometry, the line IS the
-      //     route — arrows are permanent).
+      //     route, arrows are permanent).
       //   * Any 2-point line in DRIVING/CYCLING/WALKING (the engine's
       //     straight-line fallback before routing returns, or after
       //     routing failed). The chevrons vanish on the next render
@@ -1171,7 +1171,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   };
   var hasInitialFit = false;
 
-  // Saved Home / Work places — always shown, drawn behind the stops.
+  // Saved Home / Work places, always shown, drawn behind the stops.
   var placeMarkers = [];
   var placeIcons = {
     home: '<svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">' +
@@ -1201,7 +1201,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
 
   // Latest known heading in degrees (0 = north, clockwise). Held across
   // ticks so slow / stationary fixes don't make the teardrop point spin to
-  // GPS noise — it sticks at the last "known good" direction.
+  // GPS noise, it sticks at the last "known good" direction.
   var userHeading = null;
   // True only while the rider's speed is over the heading threshold. While
   // stationary the marker collapses to a plain circle (no directional tail)
@@ -1232,7 +1232,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // Build the photo HTML. Two nested divs:
     //  - Outer "photo-pos": absolutely placed so its top-left is at
     //    (headCentre - photoPx/2, headCentre - photoPx/2). Direct pixel
-    //    offsets, no transform — earlier the wrapper rotation interacted
+    //    offsets, no transform, earlier the wrapper rotation interacted
     //    with translate(-50%, -50%) and shifted the photo a sub-pixel off
     //    centre in some orientations.
     //  - Inner ".user-pin-photo": counter-rotates by -wrapperRot so the
@@ -1253,7 +1253,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     }
 
     if (!userMoving || userHeading == null){
-      // Stationary (or no known heading yet): plain round puck — wrapper
+      // Stationary (or no known heading yet): plain round puck, wrapper
       // and head are the same square, so the head centre is also the
       // wrapper centre; no counter-rotation needed.
       return L.divIcon({
@@ -1347,7 +1347,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   };
 
   // Tell the marker the rider is no longer moving fast enough to trust the
-  // bearing — switches from teardrop to plain circle. The last known
+  // bearing, switches from teardrop to plain circle. The last known
   // userHeading stays cached so a brief stop doesn't lose it; the moment
   // the rider picks back up speed, the teardrop returns pointing the right
   // way.
@@ -1418,10 +1418,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     lastManualRotateMs = Date.now();
   };
 
-  // The rider's theme accent — recolours the route line and connector.
+  // The rider's theme accent, recolours the route line and connector.
   window.nativeSetAccent = function(hex){
     // Stored so any future "fallback to accent" code path still works, but
-    // every travel mode now has its own fixed hue — changing the theme
+    // every travel mode now has its own fixed hue, changing the theme
     // accent no longer re-tints the route. Kept callable so existing
     // composables that push the accent don't crash.
     accentColor = hex;

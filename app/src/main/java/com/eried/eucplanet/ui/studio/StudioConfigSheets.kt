@@ -138,7 +138,7 @@ sealed interface StudioConfirm {
 
 /** Solid + translucent colours offered by the studio swatch picker. */
 val StudioPalette: List<Long> = listOf(
-    0x00000000L, // transparent — always first / leftmost
+    0x00000000L, // transparent, always first / leftmost
     0xFFFFFFFFL, // white
     0xFF9E9E9EL, // grey
     0xFF000000L, // black
@@ -151,7 +151,7 @@ val StudioPalette: List<Long> = listOf(
     0xFFEC407AL  // pink
 )
 
-/** Chroma-key mask colours — the common green / blue screen colours first. */
+/** Chroma-key mask colours: the common green / blue screen colours first. */
 val ChromaPalette: List<Long> = listOf(
     0xFF00FF00L, 0xFF0000FFL, 0xFFFF00FFL, 0xFF00FFFFL,
     0xFFFFFFFFL, 0xFF000000L, 0xFFE53935L
@@ -160,7 +160,7 @@ val ChromaPalette: List<Long> = listOf(
 /**
  * The layout shape to PRESENT for [this] in the picker. The studio surface
  * never rotates, but the picker panel does (so it faces a rider holding the
- * phone sideways) — which means a COLUMNS_2 split, vertical on the upright
+ * phone sideways), which means a COLUMNS_2 split, vertical on the upright
  * surface, is physically seen as 2 rows once the phone is turned. The picker's
  * name and mini-diagram are transposed together to match what will actually be
  * recorded; the layout value the rider picks is never changed.
@@ -280,7 +280,7 @@ fun StudioToolsFlyout(
             Column(Modifier.width(154.dp)) {
                 FlyoutSection(stringResource(R.string.studio_flyout_section_mode))
                 // Toggles the studio mode: reads "Replay" while live, and
-                // "Live" while replaying — the same button returns to the
+                // "Live" while replaying: the same button returns to the
                 // camera and closes the replay panel.
                 if (modeIsReplay) {
                     FlyoutItem(Icons.Default.Videocam, stringResource(R.string.studio_flyout_live)) {
@@ -376,7 +376,7 @@ private fun FlyoutItem(
 val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
 
 /**
- * Rotates the content by -[rotation]° with correct layout — for 90/270 the
+ * Rotates the content by -[rotation]° with correct layout: for 90/270 the
  * child is measured in a width/height-swapped frame, so it occupies exactly
  * the host's box (no overflow) and touch input still lands right.
  */
@@ -384,7 +384,7 @@ val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
 fun Modifier.rotateLayout(rotation: Int, withFade: Boolean = true): Modifier {
     val target = ((rotation % 360) + 360) % 360
     if (!withFade) {
-        // No crossfade — snap straight to the orientation. Used by the render
+        // No crossfade: snap straight to the orientation. Used by the render
         // overlay, where fading its scrim out blinks the whole screen.
         val o = when (target) {
             0 -> Modifier
@@ -393,14 +393,14 @@ fun Modifier.rotateLayout(rotation: Int, withFade: Boolean = true): Modifier {
         }
         return this.then(o)
     }
-    // Fade out, swap orientation while invisible, fade back in — a device
+    // Fade out, swap orientation while invisible, fade back in: a device
     // rotation eases the chrome over instead of snapping it around.
     val shown = remember { androidx.compose.runtime.mutableIntStateOf(target) }
     val fade = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(target) {
         if (shown.intValue == target) {
             // A previous rotation was interrupted mid-fade (orientation flipped
-            // back before the animation finished) — snap back to fully visible
+            // back before the animation finished): snap back to fully visible
             // so the chrome can never get stuck half-faded / blank.
             if (fade.value != 1f) {
                 fade.animateTo(1f, androidx.compose.animation.core.tween(140))
@@ -421,7 +421,7 @@ fun Modifier.rotateLayout(rotation: Int, withFade: Boolean = true): Modifier {
 
 /**
  * Measures the child in a width/height-swapped frame and reports the swapped
- * size — including for intrinsic queries, so a host like DropdownMenu that
+ * size, including for intrinsic queries, so a host like DropdownMenu that
  * sizes itself by intrinsics wraps the rotated content with no empty gap.
  */
 private object SwapSizeModifier : androidx.compose.ui.layout.LayoutModifier {
@@ -482,7 +482,7 @@ fun RotatedFullScreen(
 }
 
 /**
- * A right-docked, full-height panel — the studio's editing surfaces (Add
+ * A right-docked, full-height panel for the studio's editing surfaces (Add
  * element, element properties, viewport, presets) live here instead of bottom
  * sheets. It rotates with [LocalStudioRotation] so it stays upright for a
  * rider holding the phone sideways. Tapping the scrim dismisses it.
@@ -550,8 +550,8 @@ fun StudioSidePanel(
 
 @OptIn(ExperimentalMaterial3Api::class)
 /**
- * The Add-element list, in fixed groups. The groups and their order — and the
- * order within each group (English-alphabetical by element name) — are the SAME
+ * The Add-element list, in fixed groups. The groups and their order (and the
+ * order within each group, English-alphabetical by element name) are the SAME
  * in every language; only the labels are translated. So the menu positions stay
  * constant and familiar regardless of locale.
  */
@@ -696,7 +696,7 @@ private fun LayoutChoice(
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Mini diagram of the panes — transposed in landscape to match the name
+        // Mini diagram of the panes, transposed in landscape to match the name
         // and what the rider will actually see recorded.
         androidx.compose.foundation.layout.BoxWithConstraints(
             Modifier.fillMaxWidth().height(48.dp)
@@ -996,7 +996,7 @@ fun ViewportConfigSheet(
                             config.source != ViewportSourceType.GRADIENT
                         ) onChange(config.copy(source = ViewportSourceType.SOLID))
                     },
-                    // Icon-only — the fill-bucket glyph is self-explanatory
+                    // Icon-only: the fill-bucket glyph is self-explanatory
                     // and the chip stays compact.
                     label = {
                         Icon(
@@ -1008,7 +1008,7 @@ fun ViewportConfigSheet(
                 FilterChip(
                     selected = config.source == ViewportSourceType.IMAGE,
                     onClick = { onChange(config.copy(source = ViewportSourceType.IMAGE)) },
-                    // Icon-only — the image glyph is self-explanatory.
+                    // Icon-only: the image glyph is self-explanatory.
                     label = {
                         Icon(
                             Icons.Default.Image,
@@ -1023,7 +1023,7 @@ fun ViewportConfigSheet(
                     // The camera picker is the primary choice, so it stays at the
                     // top. The spatial-transform controls (mirror, orientation,
                     // fit, zoom) are tucked into a collapsible "Geometry" section
-                    // so the sheet stays short — its open / closed state is
+                    // so the sheet stays short; its open / closed state is
                     // hoisted to the studio screen so it sticks for the session.
                     Text(stringResource(R.string.studio_viewport_camera_label), fontWeight = FontWeight.SemiBold)
                     CameraPicker(cameras, config.cameraKey, inUseKeys) {
@@ -1055,7 +1055,7 @@ fun ViewportConfigSheet(
                         ZoomSlider(config, onChange)
                     }
                     // The colour-grading controls are tucked into a collapsible
-                    // "Style" section — like "Geometry" above — so the sheet
+                    // "Style" section (like "Geometry" above) so the sheet
                     // stays short; its open / closed state is hoisted for the
                     // session.
                     CollapsibleSectionHeader(
@@ -1088,7 +1088,7 @@ fun ViewportConfigSheet(
                     Spacer(Modifier.height(8.dp))
                     // Same grouped layout as the camera source: fit / zoom under
                     // a collapsible Geometry section, the colour grade under
-                    // Style — so the sheet stays short and the two sources read
+                    // Style; so the sheet stays short and the two sources read
                     // the same. The open / closed state is shared with camera.
                     CollapsibleSectionHeader(
                         title = stringResource(R.string.studio_cfg_geometry),
@@ -1114,7 +1114,7 @@ fun ViewportConfigSheet(
 }
 
 /**
- * Digital-zoom slider — a spatial transform feeding a GPU scale. Kept separate
+ * Digital-zoom slider: a spatial transform feeding a GPU scale. Kept separate
  * from [ColorGradeEditor] so the camera viewport can group it with the other
  * geometry controls under its collapsible "Geometry" section.
  */
@@ -1129,7 +1129,7 @@ private fun ZoomSlider(config: ViewportConfig, onChange: (ViewportConfig) -> Uni
 
 /**
  * Filter preset + brightness / contrast / saturation for a camera or image
- * viewport. Every control feeds a GPU ColorMatrix — there is no per-frame CPU
+ * viewport. Every control feeds a GPU ColorMatrix; there is no per-frame CPU
  * pixel work. Digital zoom lives in its own [ZoomSlider] (a spatial transform).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1148,7 +1148,7 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
         "VINTAGE" to stringResource(R.string.studio_cfg_filter_vintage),
         "MATTE" to stringResource(R.string.studio_cfg_filter_matte)
     )
-    // A single side-scrolling row, like the camera picker — the sheet stays
+    // A single side-scrolling row, like the camera picker; the sheet stays
     // short and the filters never wrap onto a second line.
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1206,7 +1206,7 @@ private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> 
 
 /**
  * A row of chips, one per detected camera. Two cameras can stream at once;
- * once two distinct ones are in use, the rest are disabled — but an
+ * once two distinct ones are in use, the rest are disabled, but an
  * already-streaming camera stays pickable, since it just reuses that feed.
  */
 @Composable
@@ -1224,7 +1224,7 @@ private fun CameraPicker(
         )
         return
     }
-    // Count cameras used by OTHER panes only — this pane's own camera does not
+    // Count cameras used by OTHER panes only; this pane's own camera does not
     // count, so picking the 2nd of two panes is fine; the limit bites at a 3rd.
     val atLimit = inUseKeys.count { it != selectedKey } >= 2
     LazyRow(
@@ -1282,7 +1282,7 @@ fun DividerConfigSheet(
 }
 
 // --------------------------------------------------------------------------
-// Background editor — Solid / Linear / Radial (a viewport source)
+// Background editor: Solid / Linear / Radial (a viewport source)
 // --------------------------------------------------------------------------
 
 /** Switch a viewport's background to a gradient, carrying the solid colour. */
@@ -1290,7 +1290,7 @@ private fun toGradient(config: ViewportConfig, radial: Boolean): ViewportConfig 
     if (config.source == ViewportSourceType.GRADIENT) {
         return config.copy(gradientRadial = radial)
     }
-    // Coming from solid — seed the gradient's first stop with the solid colour.
+    // Coming from solid: seed the gradient's first stop with the solid colour.
     val colors = config.gradientColors.ifEmpty { listOf(0xFF000000L, 0xFFFFFFFFL) }
         .toMutableList()
         .also { it[0] = config.solidColor }
@@ -1331,7 +1331,7 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
     Spacer(Modifier.height(12.dp))
     if (isSolid) {
         Text(stringResource(R.string.studio_bg_colour_label), fontWeight = FontWeight.SemiBold)
-        // A pane background is the bottom layer — a transparent fill is
+        // A pane background is the bottom layer; a transparent fill is
         // meaningless, so the swatch row is opaque-only here.
         ColorSwatchRow(config.solidColor, allowTransparent = false) {
             onChange(config.copy(solidColor = it))
@@ -1397,7 +1397,7 @@ private fun GradientEditor(config: ViewportConfig, onChange: (ViewportConfig) ->
             val newStops = List(n) { i -> i.toFloat() / (n - 1).coerceAtLeast(1) }
             onChange(config.copy(gradientColors = newColors, gradientStops = newStops))
         },
-        // Cap at 8 stops — more than that is unwieldy to edit, and no real
+        // Cap at 8 stops; more than that is unwieldy to edit, and no real
         // gradient needs it.
         enabled = config.gradientColors.size < 8,
         modifier = Modifier.padding(top = 4.dp)
@@ -1431,7 +1431,7 @@ private fun GradientStopRow(
     Column(Modifier.padding(vertical = 2.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.weight(1f)) {
-                // Gradient stops paint a pane background (linear or radial) —
+                // Gradient stops paint a pane background (linear or radial),
                 // opaque-only, a transparent stop has nothing to blend with.
                 ColorSwatchRow(color, allowTransparent = false) { onColor(it) }
             }
@@ -1538,7 +1538,7 @@ fun ElementConfigSheet(
                 Spacer(Modifier.height(8.dp))
             }
 
-            // Alignment — for free text and for the live value pill, which
+            // Alignment, for free text and for the live value pill, which
             // fills a fixed width so it can be left / centre / right aligned.
             if (element.type == OverlayElementType.TEXT ||
                 element.type == OverlayElementType.DATA_VALUE
@@ -1692,14 +1692,14 @@ fun ElementConfigSheet(
                 // Outer-ring g value. A smaller scale magnifies small
                 // movements, making them more evident on the recording.
                 // Discrete 0.25 g stops from 0.5 g to 4 g (14 intervals → 13
-                // intermediate snap points) — this also kills the slider-drag
+                // intermediate snap points); this also kills the slider-drag
                 // recomposition storm because onChange only fires once per snap.
                 LabeledSlider(
                     stringResource(R.string.studio_cfg_g_scale),
                     "%.2f g".format(element.gForceScale),
                     element.gForceScale.coerceIn(0.5f, 4f), 0.5f, 4f, steps = 13
                 ) { onChange(element.copy(gForceScale = it)) }
-                // Smoothing slider was removed — the trail and dot now share
+                // Smoothing slider was removed; the trail and dot now share
                 // their 50 Hz data source and stay visually connected without
                 // any artificial easing, the same way the live-data crosshair
                 // does it. gForceSmoothing remains on the data model for
@@ -1737,7 +1737,7 @@ fun ElementConfigSheet(
                     element.mapTrace
                 ) { onChange(element.copy(mapTrace = it)) }
                 // Custom-marker preference. Only meaningful when the rider
-                // has set a photo in the Navigator — until then we show a
+                // has set a photo in the Navigator; until then we show a
                 // hint instead of a dead toggle so it's obvious where to go.
                 if (hasCustomRiderMarker) {
                     ToggleRow(
@@ -1753,7 +1753,7 @@ fun ElementConfigSheet(
                     )
                 }
                 // The map's configurable colour is its border (the trace and
-                // dot share it). The fill is a fixed neutral — it only shows
+                // dot share it). The fill is a fixed neutral; it only shows
                 // for a moment while the tiles load.
                 Text(
                     stringResource(R.string.studio_cfg_border_colour),
@@ -1842,7 +1842,7 @@ fun ElementConfigSheet(
                     stringResource(R.string.studio_cfg_opacity_fmt, (element.opacity * 100).toInt()),
                     element.opacity, 0.1f, 1f, steps = 17
                 ) { onChange(element.copy(opacity = it)) }
-                // The rotate handle's accent — ties this slider visually to the
+                // The rotate handle's accent: ties this slider visually to the
                 // orange rotate grip on the element itself.
                 Row(
                     Modifier.fillMaxWidth().padding(top = 8.dp),
@@ -1879,7 +1879,7 @@ fun ElementConfigSheet(
                 ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
                     onChange(element.copy(shadow = it))
                 }
-                // Shadow sub-controls — only meaningful when the shadow is on.
+                // Shadow sub-controls, only meaningful when the shadow is on.
                 if (element.shadow) {
                     Text(
                         stringResource(R.string.studio_cfg_shadow_colour),
@@ -1949,7 +1949,7 @@ private fun ColorSwatchRow(
                 onClick = { onPick(c) }
             )
         }
-        // Trailing swatch — opens a full picker for any other colour.
+        // Trailing swatch: opens a full picker for any other colour.
         item {
             CustomColorSwatch(
                 current = selected,
@@ -2201,7 +2201,7 @@ private fun LabeledSlider(
     // Material3 Slider fires onValueChange on every drag tick even when the
     // (snapped) value hasn't moved, so without this filter a stepped slider
     // can still pump the whole preset graph at 60 Hz during a drag. Track the
-    // last value we forwarded and skip duplicates — for continuous sliders the
+    // last value we forwarded and skip duplicates; for continuous sliders the
     // value also bounces a few times per pixel; epsilon-compare on those.
     var lastReported by remember(min, max, steps) { mutableStateOf(value) }
     val epsilon = if (steps > 0) 0f else (max - min) * 0.001f
@@ -2247,7 +2247,7 @@ private fun SheetHeader(title: String) {
 }
 
 // --------------------------------------------------------------------------
-// Manage elements — list, reorder (z-order), select, delete
+// Manage elements: list, reorder (z-order), select, delete
 // --------------------------------------------------------------------------
 
 @Composable
@@ -2326,7 +2326,7 @@ fun ManageElementsSheet(
                 }
             }
             // Snap-to-grid lives at the bottom so it stays adjacent to the
-            // element list — the action it affects — instead of competing
+            // element list (the action it affects) instead of competing
             // with Add / Panes at the top of the sheet. When ON, drag &
             // resize round to a 5 dp grid; untouched elements stay at
             // their exact saved coords (re-toggling OFF restores them).

@@ -59,7 +59,7 @@ enum class ReplayVideoFormat(
 ) {
     GIF(true),   // 1-bit transparency
     APNG(true),  // full RGBA alpha
-    MP4(false);  // opaque — needs a chroma fill
+    MP4(false);  // opaque, needs a chroma fill
 
     companion object {
         fun fromKey(key: String): ReplayVideoFormat =
@@ -129,7 +129,7 @@ class OverlayStudioViewModel @Inject constructor(
 
     // --- Live telemetry ------------------------------------------------------
     // Merge the phone's live GPS fix into the telemetry stream the same way the
-    // repository merges the IMU — the MAP overlay reads latitude / longitude
+    // repository merges the IMU. The MAP overlay reads latitude / longitude
     // from WheelData. WheelRepository can't inject TripRepository (that would
     // be circular), so the GPS merge lands here where TripRepository is already
     // available. In replay the lat/lon come from the trip CSV instead.
@@ -162,7 +162,7 @@ class OverlayStudioViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    // Rolling trail buffer fed at the IMU's 50 Hz rate from [liveGForce] — the
+    // Rolling trail buffer fed at the IMU's 50 Hz rate from [liveGForce]; the
     // dashboard's crosshair uses an equivalent buffer. The G-Force overlay's
     // trail AND its dot both read from here, so they share their data source
     // and stay visually connected. Capped at LIVE_TRAIL_MAX entries which is
@@ -283,7 +283,7 @@ class OverlayStudioViewModel @Inject constructor(
     ) { all, currentId -> all.filter { it.id != currentId } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    /** Looks up a single trip by id — used when the studio opens from Share. */
+    /** Looks up a single trip by id, used when the studio opens from Share. */
     suspend fun tripById(id: Long): TripRecord? =
         withContext(Dispatchers.IO) { tripRepository.getTripById(id) }
 
@@ -300,11 +300,11 @@ class OverlayStudioViewModel @Inject constructor(
 
     init {
         // The MAP overlay needs live GPS even when the studio is opened with no
-        // wheel connected and no trip recording. Idempotent — TripRepository
+        // wheel connected and no trip recording. Idempotent: TripRepository
         // guards against starting a second fused-location request.
         tripRepository.startLocationUpdates()
         // The G-Force overlay needs the phone IMU the whole time the studio is
-        // open — previewing, recording video, or with no wheel connected — so
+        // open (previewing, recording video, or with no wheel connected) so
         // the studio holds its own reference, released in onCleared().
         phoneSensorRepository.start()
         viewModelScope.launch {
@@ -333,7 +333,7 @@ class OverlayStudioViewModel @Inject constructor(
             // smooth graph / trail rendering and cuts the per-emit list-rebuild
             // cost by 5x. Combined with HISTORY_SECONDS=360 the underlying list
             // is still big (~3600 entries), but it only churns 10 times/sec
-            // instead of 50 — that's what was driving the studio config-sheet
+            // instead of 50; that's what was driving the studio config-sheet
             // hangs when dragging sliders (each slider-pixel recomposed the
             // screen, on top of 50 Hz history allocations).
             wheelRepository.wheelData.sample(100L).collect { data ->
@@ -414,7 +414,7 @@ class OverlayStudioViewModel @Inject constructor(
         p.copy(elements = p.elements.filterNot { it.id == id } + el)
     }
 
-    /** Move an element within the draw order — drives the Manage-elements list. */
+    /** Move an element within the draw order; drives the Manage-elements list. */
     fun moveElement(from: Int, to: Int) = mutate { p ->
         if (from !in p.elements.indices || to !in p.elements.indices || from == to) {
             return@mutate p
@@ -458,7 +458,7 @@ class OverlayStudioViewModel @Inject constructor(
         viewModelScope.launch {
             val loaded = presetStore.loadBundledPreset(name)
             if (loaded != null) {
-                // Bundled presets are templates — drop the name so a later save
+                // Bundled presets are templates; drop the name so a later save
                 // does not silently shadow the read-only original.
                 _preset.value = loaded.copy(name = "")
                 _selectedElementId.value = null
@@ -492,7 +492,7 @@ class OverlayStudioViewModel @Inject constructor(
         }
     }
 
-    /** Re-arms the IMU listener — call when the studio returns to foreground,
+    /** Re-arms the IMU listener; call when the studio returns to foreground,
      *  since Android can quietly drop sensor delivery while backgrounded. */
     fun refreshSensors() = phoneSensorRepository.refresh()
 

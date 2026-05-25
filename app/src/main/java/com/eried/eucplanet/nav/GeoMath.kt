@@ -45,7 +45,7 @@ object GeoMath {
 
     /**
      * Signed difference `target - reference`, normalised to -180..180.
-     * Positive means [target] is clockwise of [reference] — i.e. to the right.
+     * Positive means [target] is clockwise of [reference], i.e. to the right.
      */
     fun relativeBearing(reference: Double, target: Double): Double {
         var d = (target - reference + 540.0) % 360.0 - 180.0
@@ -65,7 +65,7 @@ object GeoMath {
 
     /**
      * Projects [p] onto a polyline. Returns which segment it lands on, how far
-     * off the line it is, and how far along the line that nearest point sits —
+     * off the line it is, and how far along the line that nearest point sits , 
      * the off-route check and the "distance to next turn" math both need this.
      */
     fun nearestOnPolyline(p: GeoPoint, line: List<GeoPoint>): PolylineHit? {
@@ -90,7 +90,7 @@ object GeoMath {
             val dist = sqrt(cx * cx + cy * cy)
             // Accumulate the along-track distance from haversine segment lengths
             // so alongM stays consistent with polylineLengthM and the route
-            // total — the planar projection is used only for the perpendicular
+            // total, the planar projection is used only for the perpendicular
             // hit test, where its sub-meter error is harmless.
             val segHav = distanceM(line[i], line[i + 1])
             if (dist < best.distanceM) {

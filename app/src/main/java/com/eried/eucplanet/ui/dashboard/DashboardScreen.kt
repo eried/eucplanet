@@ -187,7 +187,7 @@ fun DashboardScreen(
     val wheelData by viewModel.wheelData.collectAsState()
     val connectionState by viewModel.connectionState.collectAsState()
     // Quake-style console cheat (set via Settings search-bar). Multiplies ONLY the
-    // displayed speed on the gauge — the underlying wheelData.speed stays accurate
+    // displayed speed on the gauge, the underlying wheelData.speed stays accurate
     // for recording, alarms, voice announcements, motor sound, etc.
     val cheatSpeedMult by viewModel.cheatState.speedDisplayMultiplier.collectAsState()
     SideEffect { Log.d("EucDash", "recompose conn=$connectionState speed=${wheelData.speed}") }
@@ -227,7 +227,7 @@ fun DashboardScreen(
     // aren't a leading "<brand> " word, so they're left intact.
     val modelNameShort = modelName?.let { m ->
         val stripped = connectedBrand?.let { b -> m.removePrefix("$b ") } ?: m
-        // If the name was only the brand word, stripping leaves nothing —
+        // If the name was only the brand word, stripping leaves nothing , 
         // fall back to the original so the bar never goes blank.
         stripped.ifBlank { m }
     }
@@ -240,7 +240,7 @@ fun DashboardScreen(
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
     val hasFlic by viewModel.hasFlicConfigured.collectAsState()
-    // Navigation state — drives the dashboard's navigator button (the singleton
+    // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
     val navState by navOverlayVm.navState.collectAsState()
@@ -262,7 +262,7 @@ fun DashboardScreen(
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
     val toastContext = LocalContext.current
-    // Unified Material3 snackbar host — replaces the older Toast popups so the
+    // Unified Material3 snackbar host, replaces the older Toast popups so the
     // dashboard styles match Overlay Studio / Navigator / Settings (no system
     // icon, swipe-to-dismiss).
     val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
@@ -495,7 +495,7 @@ fun DashboardScreen(
                 .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Experimental-build banner — flush to the screen edges, above all other content.
+            // Experimental-build banner, flush to the screen edges, above all other content.
             com.eried.eucplanet.ui.common.ExperimentalBanner(
                 state = viewModel.experimentalBannerState,
                 detectedWheelName = modelName,
@@ -519,7 +519,7 @@ fun DashboardScreen(
             // the whole dashboard fits without the footer falling off-screen.
             val wideStats = LocalConfiguration.current.screenWidthDp >= 600
 
-            // Speed gauge — wide arc dial (tap opens history)
+            // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
             val safeColor = if (useAccent) primary else AccentGreen
@@ -569,7 +569,7 @@ fun DashboardScreen(
                         .aspectRatio(ratio)
                         .align(Alignment.Center)
                 )
-                // Only the centre of the dial opens speed history — the empty
+                // Only the centre of the dial opens speed history, the empty
                 // corners of the gauge's bounding box no longer steal taps
                 // meant for the P/D, GPS, map and camera glyphs.
                 Box(
@@ -584,7 +584,7 @@ fun DashboardScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        // The P / D cluster is one tap target — it opens the
+                        // The P / D cluster is one tap target, it opens the
                         // wheel speed settings.
                         .clickable { onNavigateToSettings(2) }
                         .padding(top = 8.dp, start = 4.dp),
@@ -659,7 +659,7 @@ fun DashboardScreen(
                         )
                     }
                 }
-                // Overlay Studio — same indicator styling as the GPS / P-D
+                // Overlay Studio, same indicator styling as the GPS / P-D
                 // glyphs (no chrome, accent colour), mirroring the GPS column
                 // in the dial's bottom-right corner.
                 Box(Modifier.align(Alignment.BottomEnd)) {
@@ -696,7 +696,7 @@ fun DashboardScreen(
                         )
                     }
                 }
-                // Navigator entry point — bottom-left, a bare icon styled to
+                // Navigator entry point, bottom-left, a bare icon styled to
                 // match the P / D indicators above it (same left column). While
                 // guidance runs it turns into a green arrow rotating toward the
                 // next point; otherwise it follows the rider's accent colour.
@@ -730,7 +730,7 @@ fun DashboardScreen(
                         expanded = showMapMenu,
                         onDismissRequest = { showMapMenu = false }
                     ) {
-                        // a) Start / Stop — shown only when there is an active
+                        // a) Start / Stop, shown only when there is an active
                         // session to stop, or a saved route to start.
                         if (navActive) {
                             DropdownMenuItem(
@@ -763,7 +763,7 @@ fun DashboardScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Stats grid — 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
+            // Stats grid, 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
             val live = connectionState == ConnectionState.CONNECTED
             val battColor = when {
                 live && wheelData.batteryPercent < 20 -> AccentRed
@@ -771,7 +771,7 @@ fun DashboardScreen(
                 else -> safeColor
             }
             // EUC motor temperature tiers. The stored value is always °C, so
-            // the thresholds are unit-independent — the display layer converts
+            // the thresholds are unit-independent, the display layer converts
             // to °F for imperial users but the color rule reads the same °C
             // value. Riders pushed back: 90 °C / 195 °F is normal under load,
             // 220 °F is the natural "ease off" mark, 300 °F is true danger.
@@ -794,7 +794,7 @@ fun DashboardScreen(
             // card; a plain hyphen looked too small for the card layout.
             // (The no-em-dashes rule applies to sentence punctuation, not
             // to a single decorative placeholder glyph.)
-            val placeholder = "—"
+            val placeholder = "--"
 
             val tempValue = com.eried.eucplanet.util.Units.temperature(wheelData.maxTemperature, tempUnit)
             val tempUnitLabel = com.eried.eucplanet.util.Units.tempUnit(tempUnit)
@@ -824,7 +824,7 @@ fun DashboardScreen(
             val tempCard: @Composable RowScope.() -> Unit = {
                 // Show the placeholder when the parser couldn't decode a
                 // motor reading (maxTemperature stays at 0). Without this,
-                // imperial users see "32°F" — the °F equivalent of 0°C —
+                // imperial users see "32°F", the °F equivalent of 0°C , 
                 // which looks like a real reading and "sticks" until the
                 // next valid frame.
                 val tempUnknown = wheelData.maxTemperature <= 0f
@@ -908,7 +908,7 @@ fun DashboardScreen(
 
             Spacer(Modifier.height(14.dp))
 
-            // Action buttons — fixed height on both phone and wide layouts so the
+            // Action buttons, fixed height on both phone and wide layouts so the
             // bottom rows always fit even with the taller speedometer and stat cards.
             val actionAspect: Float? = null
             val actionHeight: Int? = if (wideStats) 88 else 104
@@ -997,7 +997,7 @@ fun DashboardScreen(
                 // The button used to mirror that gate visually, but the
                 // resulting enable/disable flicker as the rider drifts around
                 // 5 km/h was distracting. Keep the button enabled and let the
-                // tap surface a toast when the wheel is in motion — the
+                // tap surface a toast when the wheel is in motion, the
                 // repository still refuses the actual lock.
                 val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
                 val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
@@ -1374,8 +1374,8 @@ fun DashboardScreen(
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
                                                 Spacer(Modifier.height(6.dp))
-                                                // Credits table. Two columns — name on the left,
-                                                // why on the right — no headers since the format
+                                                // Credits table. Two columns, name on the left,
+                                                // why on the right, no headers since the format
                                                 // is self-evident. Hardcoded English because the
                                                 // entries are proper nouns + short context.
                                                 val credits = listOf(
@@ -1428,7 +1428,7 @@ fun DashboardScreen(
                                                 )
                                                 Spacer(Modifier.height(6.dp))
                                                 val resources = listOf(
-                                                    "BigSoundBank — engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
+                                                    "BigSoundBank, engine samples" to "Joseph SARDIN. CC0 / public domain. All sampled engines in the Motor sound generator (V8 Cobra, V-twin Ducati, diesel truck, motorcycle, city car, helicopter, tractor, lawn mower, steam locomotive, Aston Martin, big diesel, car cruise, broken exhaust, quad ATV).",
                                                     "Jetpack Compose, Material 3" to "Google. Apache 2.0. UI toolkit and design system.",
                                                     "Hilt, Room, WorkManager, Navigation" to "Google. Apache 2.0. DI, persistence, background jobs, navigation graph.",
                                                     "Kotlin & coroutines" to "JetBrains. Apache 2.0. Language and structured concurrency.",
@@ -1475,7 +1475,7 @@ fun DashboardScreen(
                                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                         ) {
                                             Text(
-                                                if (licenseText.isNotBlank()) licenseText else "—",
+                                                if (licenseText.isNotBlank()) licenseText else "--",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 textAlign = androidx.compose.ui.text.style.TextAlign.Justify,
@@ -1704,7 +1704,7 @@ private fun SpeedGauge(
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
     //  - Color band ON  → band tier wins (safe / orange / red), even if the user
-    //    has a custom accent — the band is a safety signal, not a style choice.
+    //    has a custom accent, the band is a safety signal, not a style choice.
     //  - Color band OFF → custom accent wins (overrideColor), else stay safe-green.
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
@@ -1755,7 +1755,7 @@ private fun SpeedGauge(
             val bandRadius = arcRadius + arcThickness * 0.55f + bandThickness * 0.5f
             val bandAlpha = 0.65f
             // orangeFrac / redFrac are computed at the top of the composable (for
-            // speedColor) — reuse so the band and number can never drift apart.
+            // speedColor), reuse so the band and number can never drift apart.
             val orangeStart = startAngle + sweepTotal * orangeFrac
             val orangeSweep = sweepTotal * (redFrac - orangeFrac)
             val redStart = startAngle + sweepTotal * redFrac
@@ -1806,7 +1806,7 @@ private fun SpeedGauge(
             )
         }
 
-        // Scale labels outside ticks — pushed outward so digits aren't hugging the dial.
+        // Scale labels outside ticks, pushed outward so digits aren't hugging the dial.
         val labelRadius = arcRadius + arcThickness + size.minDimension * 0.08f
         for ((idx, label) in scaleLabels.withIndex()) {
             val angle = startAngle + (sweepTotal * idx / (scaleLabels.size - 1).toFloat())
@@ -1824,7 +1824,7 @@ private fun SpeedGauge(
             )
         }
 
-        // Speed number — dead center of the arc circle.
+        // Speed number, dead center of the arc circle.
         // Dynamically clamp text width so digits keep a visible horizontal margin from the arc.
         val speedText = "%.0f".format(displaySpeed)
         val baseFactor = if (speedText.length >= 3) 0.17f else 0.2f
@@ -1852,7 +1852,7 @@ private fun SpeedGauge(
             )
         }
         // Digit-stable reference height (measured from "0" at the BASE font
-        // factor) — used to pin the unit label so it doesn't dance when the
+        // factor), used to pin the unit label so it doesn't dance when the
         // speed text width-clamps to a smaller size at 2+ digits.
         val refHeight = textMeasurer.measure(
             "0",
@@ -1872,7 +1872,7 @@ private fun SpeedGauge(
             )
         )
 
-        // Speed unit pinned against refHeight — fixed position regardless of
+        // Speed unit pinned against refHeight, fixed position regardless of
         // how many digits the speed has.
         val unitMeasured = textMeasurer.measure(
             unitLabel,
@@ -1928,7 +1928,7 @@ private fun DashIndicatorLetter(
     val dim = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.20f)
     Text(
         text = letter,
-        // Fixed width — matches DashIndicatorIcon and the map glyph, so the
+        // Fixed width, matches DashIndicatorIcon and the map glyph, so the
         // left-corner cluster lines up on both edges, like the right corner.
         modifier = modifier.width(32.dp),
         textAlign = TextAlign.Center,

@@ -19,7 +19,7 @@ import javax.inject.Singleton
  * Two tiers:
  *  - The **working draft** is the layout the rider is currently editing. It is
  *    a single file in app-private storage so it survives the studio screen
- *    being closed and reopened, but it is intentionally throwaway — there is
+ *    being closed and reopened, but it is intentionally throwaway, there is
  *    only ever one.
  *  - **Named presets** are individual `.json` files in the rider's configured
  *    backup folder, under an `overlays/` subfolder. Saving / loading a preset
@@ -39,7 +39,7 @@ class OverlayPresetStore @Inject constructor(
         private const val PRESET_SUFFIX = ".json"
         /** Bundled starter presets ship here; the rider can load but not edit them. */
         private const val BUNDLED_DIR = "overlay_presets"
-        /** First-launch layout the rider sees before they save anything — kept
+        /** First-launch layout the rider sees before they save anything, kept
          *  outside [BUNDLED_DIR] so it doesn't pollute the Load Starter list. */
         private const val DEFAULT_ASSET = "overlay_default.json"
     }
@@ -80,7 +80,7 @@ class OverlayPresetStore @Inject constructor(
         Unit
     }
 
-    /** True when a backup folder is configured and writable — required for
+    /** True when a backup folder is configured and writable, required for
      *  named presets. The studio warns the rider when this is false. */
     suspend fun presetFolderAvailable(): Boolean = withContext(Dispatchers.IO) {
         syncManager.getSyncFolder(settingsRepository.get()) != null

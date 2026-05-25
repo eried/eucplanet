@@ -33,7 +33,7 @@ class BleScanner @Inject constructor(
      *
      * @param showAll  when true, every named peripheral is forwarded (matches
      *                 WheelLog's behaviour). When false, only names that match
-     *                 a known wheel prefix are forwarded — useful for keeping
+     *                 a known wheel prefix are forwarded; useful for keeping
      *                 the scan list short and free of unrelated devices in
      *                 typical usage.
      */

@@ -15,7 +15,7 @@ import kotlin.math.abs
 /**
  * Helpers for the user-image overlay element. Picked images are downscaled and
  * embedded base64 inside the preset `.json` so a preset is fully portable.
- * An optional colour key turns a chosen colour transparent — handy for
+ * An optional colour key turns a chosen colour transparent, handy for
  * clipart on a flat background.
  */
 object StudioImages {
@@ -102,7 +102,7 @@ object StudioImages {
         )
     }
 
-    /** True when two colours are visually close — used to dedupe key picks. */
+    /** True when two colours are visually close, used to dedupe key picks. */
     fun colorsClose(a: Color, b: Color): Boolean =
         abs(a.red - b.red) < 0.02f &&
             abs(a.green - b.green) < 0.02f &&

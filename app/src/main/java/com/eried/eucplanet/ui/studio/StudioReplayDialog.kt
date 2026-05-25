@@ -85,11 +85,11 @@ private fun speedLabel(s: Float): String =
     if (s == s.toInt().toFloat()) "${s.toInt()}×" else "$s×"
 
 /**
- * A timeline handle: a 5-sided "home plate" — a square body with a triangular
+ * A timeline handle: a 5-sided "home plate" with a square body and a triangular
  * point. The point sits on the track at [x]; [down] true points it downward.
  */
 private fun handlePentagon(x: Float, trackY: Float, down: Boolean): Path {
-    val hw = 16f          // half width — visual only; the drag hitbox is the
+    val hw = 16f          // half width, visual only; the drag hitbox is the
                           // whole top/bottom half of the track, not this shape
     val point = 18f       // height of the pointed part
     val total = 42f       // full height (point + square body)
@@ -159,7 +159,7 @@ fun StudioReplayDialog(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        // widthIn before fillMaxWidth so the cap actually applies — keeps the
+        // widthIn before fillMaxWidth so the cap actually applies; keeps the
         // panel from stretching edge-to-edge in landscape.
         modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -168,7 +168,7 @@ fun StudioReplayDialog(
         shadowElevation = 12.dp
     ) {
         Column(Modifier.padding(14.dp)) {
-            // 0 = transport, 1 = trip list, 2 = speed list — inline pickers so
+            // 0 = transport, 1 = trip list, 2 = speed list. Inline pickers so
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -273,7 +273,7 @@ fun StudioReplayDialog(
                 }
             }
 
-            // Transport stays on screen always — disabled until a trip loads.
+            // Transport stays on screen always, disabled until a trip loads.
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onPlayPause, enabled = active) {
@@ -294,12 +294,12 @@ fun StudioReplayDialog(
                     modifier = Modifier.weight(1f)
                 )
             }
-            // current ( range-start - range-end ) total — the range only shows
+            // current ( range-start - range-end ) total; the range only shows
             // once a handle is moved off the very start / end of the trip.
             val trimmed = active && (rangeStartMs > 0L || rangeEndMs < dur)
             val clockColor = Color.White.copy(alpha = if (active) 0.7f else 0.4f)
-            // current playback (centred under the play button)  —  trimmed
-            // range (centred under the timeline)  —  total (right).
+            // current playback (centred under the play button), trimmed
+            // range (centred under the timeline), total (right).
             Row(
                 Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -328,7 +328,7 @@ fun StudioReplayDialog(
                     color = clockColor
                 )
             }
-            // Collapsed output-format row — opens the chooser sub-picker.
+            // Collapsed output-format row, opens the chooser sub-picker.
             Spacer(Modifier.height(4.dp))
             Row(
                 Modifier
@@ -360,7 +360,7 @@ fun StudioReplayDialog(
     }
 }
 
-/** Chroma-key fill presets — label resource paired with the ARGB colour. */
+/** Chroma-key fill presets: label resource paired with the ARGB colour. */
 private val chromaPresets: List<Pair<Int, Long>> = listOf(
     R.string.studio_chroma_magenta to 0xFFFF00FFL,
     R.string.studio_chroma_green to 0xFF00B140L,
@@ -432,7 +432,7 @@ private fun ExportFormatChooser(
             }
         }
 
-        // Output options — Scale, chroma key and force-opaque — collapsed by
+        // Output options (Scale, chroma key and force-opaque) collapsed by
         // default so the common case (just picking a format) stays compact.
         Spacer(Modifier.height(12.dp))
         var optionsOpen by remember { mutableStateOf(false) }
@@ -527,7 +527,7 @@ private fun ExportFormatChooser(
                 }
             }
 
-            // Force-opaque — a partly-transparent element would blend with
+            // Force-opaque: a partly-transparent element would blend with
             // the chroma fill of an alpha-less format. Disabled when both
             // picked formats carry alpha (the toggle would have no effect).
             Spacer(Modifier.height(12.dp))
@@ -655,7 +655,7 @@ private fun ReplayTimeline(
         var dragHandle by remember { mutableStateOf(-1) }
         // The drag pointerInput is keyed only on durationMs (stable mid-drag).
         // These rememberUpdatedState values keep apply()'s coercion fresh
-        // *without* re-keying — re-keying on positionMs / range was restarting
+        // *without* re-keying; re-keying on positionMs / range was restarting
         // the gesture every update, so a handle never stayed grabbed.
         val curStart by rememberUpdatedState(rangeStartMs)
         val curEnd by rememberUpdatedState(rangeEndMs)
@@ -733,11 +733,11 @@ private fun ReplayTimeline(
                 accent.copy(alpha = 0.55f), Offset(sx, trackY), Offset(ex, trackY),
                 strokeWidth = 8f, cap = StrokeCap.Round
             )
-            // Range trim handles — down-pointing pentagons resting on the track.
+            // Range trim handles: down-pointing pentagons resting on the track.
             listOf(sx, ex).forEach { hx ->
                 drawPath(handlePentagon(hx, trackY, down = true), Color.White)
             }
-            // Playhead — an up-pointing pentagon, same size, below the track.
+            // Playhead: an up-pointing pentagon, same size, below the track.
             drawLine(
                 accent, Offset(px, trackY - 7f), Offset(px, trackY + 6f),
                 strokeWidth = 3f, cap = StrokeCap.Round

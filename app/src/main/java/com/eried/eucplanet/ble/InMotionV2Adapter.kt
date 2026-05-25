@@ -7,7 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * WheelAdapter for the InMotion V2 protocol family — V11, V12HS/HT/PRO/S, V13, V14.
+ * WheelAdapter for the InMotion V2 protocol family: V11, V12HS/HT/PRO/S, V13, V14.
  *
  * Phase 1 wraps the existing [InMotionV2Commands] / [InMotionV2Parser] / [InMotionV2Protocol]
  * objects without changing their behavior. Phase 2 will fold model-conditional logic
@@ -40,7 +40,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     /**
      * Use the P6's extended-routing-only command set. Only set by
      * [notifyConnectingTo] from the BLE name (`P6-XXXXXXXX`) and never flipped
-     * by telemetry — keeping it name-bound means the virtual P6 simulator,
+     * by telemetry; keeping it name-bound means the virtual P6 simulator,
      * which emits V14-shaped packets, can keep using the V14 command path even
      * after carType identifies it as a P6.
      */
@@ -59,7 +59,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * extended-routing-only command set: the legacy `02 [cmd]` queries return
      * all-zero blobs (verified in real-hardware captures), so we have to know
      * we're talking to a P6 *before* sending the first init packet. The name
-     * `P6-XXXXXXXX` is the cleanest pre-connect signal — we set the model now
+     * `P6-XXXXXXXX` is the cleanest pre-connect signal, so we set the model now
      * and let [initSequence] / [pollRealtime] / [decode] take the P6 branch.
      */
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
@@ -75,7 +75,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         // carry "V1x", the V14 advertises as "Adventure-...". The carType
         // frame (cmd 02/01) refines this to the exact variant ("InMotion
         // V14 50S") when it decodes; until then this is what the dashboard
-        // shows. No typed model is set here — command dispatch still waits
+        // shows. No typed model is set here; command dispatch still waits
         // for carType so V12/V11 sub-variants are never guessed.
         val n = deviceName?.lowercase() ?: return null
         val nameModel = when {
@@ -120,14 +120,14 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         if (useP6Protocol) InMotionV2Commands.getP6Settings()
         else InMotionV2Commands.getCurrentSettings()
 
-    /** P6 totalStats / extended status query — the response carries motor and
+    /** P6 totalStats / extended status query: the response carries motor and
      *  driver-board temps that aren't in the realtime 0x87 stream. V14 family
      *  doesn't need a separate poll (its `0x04` realtime already includes the
      *  full sensor block) so returns null there.
      *
      *  P6 update: the realtime 0x87 stream already carries motor / MOS /
      *  driver-board at body[31/30/32] (verified against a labelled capture),
-     *  so we no longer need to poll the rich 0x84 detailed-data response —
+     *  so we no longer need to poll the rich 0x84 detailed-data response;
      *  it adds BLE traffic and its variable layout was the source of the
      *  earlier "blinking 0 / value" temperature bug. Returns null for both
      *  V14 and P6 now; re-enable later only if a field comes up that the
@@ -165,7 +165,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     /**
      * Max speed dispatch. Models that can carry alarm thresholds in the same
      * packet (V14 family + V13/V13PRO/V12S/V9/V11Y) use the V14 long form.
-     * Older V11/V12HS/HT/PRO accept only tiltback in a 2-byte payload — the
+     * Older V11/V12HS/HT/PRO accept only tiltback in a 2-byte payload; the
      * alarmKmh argument is ignored for those models, since the wheel won't
      * accept it on this packet. The UI already keeps tiltback and alarm in
      * sync via the safety mode toggle, so dropping the alarm parameter here
@@ -184,11 +184,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     /**
      * No flash-commit needed for P6 max-speed. Earlier builds sent a
      * `60 3e [tilt 00 00]` write here, believing it was a "commit max-speed
-     * to flash" packet — re-analysis of the labelled max-speed-drag capture
+     * to flash" packet. Re-analysis of the labelled max-speed-drag capture
      * (`docs/P6_CAPTURE_LABELS.md`) showed that opcode is the **alarm-speed**
      * setter; the InMotion app fires it with the new max-speed value only
      * to clamp `alarm ≤ max` after a downward drag. `60 21 [tilt]` alone
-     * is sufficient and persists across reboots — multiple mid-drag `60 21`
+     * is sufficient and persists across reboots; multiple mid-drag `60 21`
      * writes without a `60 3e` follow-up were honoured by the wheel and
      * stayed put after power-cycle.
      *
@@ -226,7 +226,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * a 16-byte "encrypted" blob and accepts the same blob back), so
      * running it adds no security but unlocks the control endpoint.
      *
-     * V14 family wheels do NOT need this — their light/horn writes work
+     * V14 family wheels do NOT need this; their light/horn writes work
      * pre-auth; only lock requires the handshake on demand.
      */
     override fun requiresConnectAuth(): Boolean = useP6Protocol
@@ -234,7 +234,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
     /**
      * Walk the reassembly buffer for complete AA AA frames, parse each, decode,
      * and return the resulting DecodeResults. Mirrors the legacy reassembly that
-     * used to live in BleConnectionManager — preserved byte-for-byte to keep V14
+     * used to live in BleConnectionManager, preserved byte-for-byte to keep V14
      * behavior identical.
      */
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
@@ -246,7 +246,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
         for (i in 0 until buffer.size - 1) {
             if (buffer[i] == InMotionV2Protocol.HEADER && buffer[i + 1] == InMotionV2Protocol.HEADER) {
                 if (start >= 0) {
-                    // Found next header — previous packet ends just before it
+                    // Found next header, previous packet ends just before it
                     InMotionV2Protocol.parsePacket(buffer.copyOfRange(start, i))?.let {
                         results += decode(it.command, it.data)
                     }
@@ -265,11 +265,11 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                     return results
                 }
             }
-            // Incomplete trailing packet — keep it in the buffer for the next notification
+            // Incomplete trailing packet, keep it in the buffer for the next notification
             reassemblyBuffer.reset()
             reassemblyBuffer.write(candidate)
         } else {
-            // No header in the buffer at all — discard
+            // No header in the buffer at all, discard
             reassemblyBuffer.reset()
         }
 
@@ -291,7 +291,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
      * we know exactly which packet that was.
      */
     override fun getDiagnosticCommands(): List<DiagnosticCommand> {
-        // Service Mode is research-grade — show the catalogue regardless of
+        // Service Mode is research-grade; show the catalogue regardless of
         // whether the connected wheel is actually a P6. The wrap (extended
         // routing) is only sent when fired manually, so it doesn't affect
         // V14 / V12 telemetry. The user picks "InMotion V14 / V12 / P6" in
@@ -432,7 +432,7 @@ class InMotionV2Adapter @Inject constructor() : WheelAdapter {
                 } else DecodeResult.Unknown
             }
             0x20 -> {
-                // settings page A: `02 a0 [body]` — the body starts with a 0x20
+                // settings page A: `02 a0 [body]`. The body starts with a 0x20
                 // sub-cmd echo and the parser pulls tiltback at offset 13-14.
                 if (data.size < 3) return DecodeResult.Unknown
                 val settings = InMotionV2Parser.parseP6Settings(data.copyOfRange(2, data.size))

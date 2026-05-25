@@ -42,7 +42,7 @@ class PhoneWearListenerService : WearableListenerService() {
                 // Watch sends this once per launch with its own Build /
                 // BuildConfig info so the Service Mode log captures both
                 // sides of a paired session. Only logged when the diagnostic
-                // logger is enabled — no-op otherwise.
+                // logger is enabled, no-op otherwise.
                 val info = String(event.data)
                 Log.i(TAG, "watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("watch: $info")

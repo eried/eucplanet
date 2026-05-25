@@ -55,7 +55,7 @@ class DataSourcesViewModel @Inject constructor(
         private const val SERIES_WINDOW_MS = 300_000L
     }
 
-    // Phone IMU trail — rolling buffer of (xG, zG) offsets used by the
+    // Phone IMU trail, rolling buffer of (xG, zG) offsets used by the
     // crosshair. Kept as Offset rather than the full PhoneImuSample to keep
     // the recomposition payload small.
     private val _phoneImuTrail = MutableStateFlow<List<Offset>>(emptyList())
@@ -117,7 +117,7 @@ class DataSourcesViewModel @Inject constructor(
             }
         }
         // The time-series append launch is in a second init block below,
-        // AFTER snapshots is declared — referencing it here would NPE
+        // AFTER snapshots is declared, referencing it here would NPE
         // because init blocks run interleaved with property initialisers
         // in declaration order.
     }
@@ -133,7 +133,7 @@ class DataSourcesViewModel @Inject constructor(
 
     /**
      * Map of each known source to its current snapshot. The sheet renders
-     * "—" when a field is null (source doesn't know that metric, or device
+     * "--" when a field is null (source doesn't know that metric, or device
      * hasn't reported in yet).
      */
     val snapshots: StateFlow<Map<DataSource, SourceSnapshot>> = combine(
@@ -205,7 +205,7 @@ class DataSourcesViewModel @Inject constructor(
      *  (so the rider sees the true raw-vs-ground-truth error) and preview
      *  what a fresh "apply from comparison" action would write.
      *
-     *  Declared BEFORE the snapshot-ingest init block below — that block
+     *  Declared BEFORE the snapshot-ingest init block below, that block
      *  reads `calibrationOffsetPct.value` synchronously on every emission,
      *  and StateFlow.collect emits the current value immediately when the
      *  coroutine starts, so the property must already be initialised by
@@ -216,7 +216,7 @@ class DataSourcesViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0f)
 
     init {
-        // Second init block — runs AFTER `snapshots` is initialised above.
+        // Second init block, runs AFTER `snapshots` is initialised above.
         // Each emit appends to the per-source per-metric rolling buffers
         // used by the Compare-tab line charts. Null fields are skipped
         // inside [appendSeries] so we don't taint the series with NaN.
@@ -225,7 +225,7 @@ class DataSourcesViewModel @Inject constructor(
         // multiplies every raw reading by (1 + curPct/100) before it reaches
         // us, so we divide it back out and store the raw value in the
         // _speedSeries[WHEEL] buffer. That makes the buffer curPct-invariant
-        // — applying a new calibration doesn't shift the historical samples,
+        //, applying a new calibration doesn't shift the historical samples,
         // which means the Compare-tab "Calibrate wheel" math is idempotent
         // (re-applying a perfect calibration proposes the same %, not a
         // larger one). The Compare tab is responsible for multiplying the
@@ -387,7 +387,7 @@ class DataSourcesViewModel @Inject constructor(
     }
 }
 
-// Local helper for MutableStateFlow.update — keeps the call site tight.
+// Local helper for MutableStateFlow.update, keeps the call site tight.
 private fun <T> MutableStateFlow<T>.update(transform: (T) -> T) {
     while (true) {
         val current = value

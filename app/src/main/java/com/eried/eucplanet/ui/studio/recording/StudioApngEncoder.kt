@@ -9,7 +9,7 @@ import java.util.zip.Deflater
  * Minimal streaming animated-PNG (APNG) encoder for the Overlay Studio replay
  * clip.
  *
- * Unlike GIF, APNG keeps the studio's full 8-bit RGBA alpha — soft shadows and
+ * Unlike GIF, APNG keeps the studio's full 8-bit RGBA alpha; soft shadows and
  * anti-aliased overlay edges survive the export instead of being crushed to a
  * 1-bit mask. The trade-off is reach: APNG plays in modern browsers and the
  * stock Android gallery, but not every chat app animates it.
@@ -34,7 +34,7 @@ class StudioApngEncoder(
     private val frameCount: Int
 ) {
     private var started = false
-    /** Running APNG sequence number — shared by fcTL and fdAT chunks. */
+    /** Running APNG sequence number, shared by fcTL and fdAT chunks. */
     private var sequence = 0
     private val crc = CRC32()
     private val argb = IntArray(width * height)
@@ -60,7 +60,7 @@ class StudioApngEncoder(
         if (src !== software) src.recycle()
         if (software !== bitmap) software.recycle()
 
-        // fcTL — frame control. Must precede every frame's pixel data.
+        // fcTL: frame control. Must precede every frame's pixel data.
         writeFcTl()
 
         // Raw image: each scanline is a 1-byte filter (0 = none) then RGBA.
@@ -80,7 +80,7 @@ class StudioApngEncoder(
         val compressed = deflate(raw)
 
         if (isFirstFrameData()) {
-            // Frame 0's pixels are the default image — a plain IDAT chunk.
+            // Frame 0's pixels are the default image: a plain IDAT chunk.
             writeChunk("IDAT", compressed)
         } else {
             // Later frames go in fdAT: a 4-byte sequence number, then pixels.
@@ -108,7 +108,7 @@ class StudioApngEncoder(
         started = true
         // PNG signature.
         out.write(byteArrayOf(137.toByte(), 80, 78, 71, 13, 10, 26, 10))
-        // IHDR — 8-bit, color type 6 (RGBA), no interlace.
+        // IHDR: 8-bit, color type 6 (RGBA), no interlace.
         val ihdr = ByteArray(13)
         writeUInt32(ihdr, 0, width)
         writeUInt32(ihdr, 4, height)
@@ -118,7 +118,7 @@ class StudioApngEncoder(
         ihdr[11] = 0 // filter method: standard
         ihdr[12] = 0 // interlace: none
         writeChunk("IHDR", ihdr)
-        // acTL — animation control: frame count + loop forever (0).
+        // acTL: animation control: frame count + loop forever (0).
         val actl = ByteArray(8)
         writeUInt32(actl, 0, frameCount.coerceAtLeast(1))
         writeUInt32(actl, 4, 0)

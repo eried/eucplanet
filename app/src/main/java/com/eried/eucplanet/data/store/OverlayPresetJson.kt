@@ -12,7 +12,7 @@ import org.json.JSONObject
 /**
  * Serialises an [OverlayPreset] to / from JSON. Every field is read with an
  * `optX(name, default)` against a fresh default object, so a preset written by
- * an older or newer app version still loads — unknown fields are ignored,
+ * an older or newer app version still loads, unknown fields are ignored,
  * missing fields keep their default. User images live inline as base64, so the
  * `.json` is fully self-contained and portable between phones.
  */

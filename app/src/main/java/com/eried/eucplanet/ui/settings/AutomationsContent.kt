@@ -511,7 +511,7 @@ private fun SplineCurveEditor(
             val h = size.height
             val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 6f))
 
-            // Grid lines — X axis at handle positions (0, 25, 50, 75 km/h internally; converted for label)
+            // Grid lines, X axis at handle positions (0, 25, 50, 75 km/h internally; converted for label)
             for (i in 0..3) {
                 val x = w * i / 3f
                 drawLine(gridColor, Offset(x, 0f), Offset(x, h), strokeWidth = 1f, pathEffect = dash)
@@ -531,7 +531,7 @@ private fun SplineCurveEditor(
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
 
-            // Axis label — centered between the "25" and "50" ticks so it doesn't overlap "75"
+            // Axis label, centered between the "25" and "50" ticks so it doesn't overlap "75"
             val speedLabel = textMeasurer.measure(speedUnitLabel, TextStyle(fontSize = 10.sp, color = labelColor))
             drawText(speedLabel, topLeft = Offset((w - speedLabel.size.width) / 2f, h + 4f))
 
@@ -585,7 +585,7 @@ private fun SplineCurveEditor(
                 drawText(probeMeasured, topLeft = Offset(labelX, labelY))
             }
 
-            // Control point handles. Index 0 (0 km/h locked at 0x) has no visible handle —
+            // Control point handles. Index 0 (0 km/h locked at 0x) has no visible handle , 
             // the curve simply starts at the origin.
             for ((idx, p) in points.withIndex()) {
                 if (idx == 0) continue

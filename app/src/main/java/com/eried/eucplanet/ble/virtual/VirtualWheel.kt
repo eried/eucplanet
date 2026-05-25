@@ -6,7 +6,7 @@ package com.eried.eucplanet.ble.virtual
  * routes writes/reads through whichever VirtualWheel is active.
  *
  * The fake's job is to produce raw bytes that look exactly like notifications
- * a real wheel would emit on the BLE channel — same framing, same field
+ * a real wheel would emit on the BLE channel: same framing, same field
  * layouts. Those bytes then flow through the unchanged adapter pipeline
  * ([com.eried.eucplanet.ble.WheelAdapter.onRawNotification]) so we exercise
  * the real parser code, not a shortcut. This catches off-by-one offsets in
@@ -40,13 +40,13 @@ interface VirtualWheel {
     /**
      * Called when the app writes a command. Return zero or more notification
      * payloads to emit back. For InMotion V2 the wheel typically responds
-     * once per query (carType, versions, settings, telemetry, etc.) — match
+     * once per query (carType, versions, settings, telemetry, etc.); match
      * that pattern.
      */
     fun onWrite(data: ByteArray): List<ByteArray>
 
     /**
-     * Called periodically (default 250 ms) while connected. Use sparingly —
+     * Called periodically (default 250 ms) while connected. Use sparingly;
      * most wheels respond only when polled, so most simulators leave this
      * empty and let [onWrite] drive responses.
      */

@@ -58,7 +58,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
     val enabled: StateFlow<Boolean> = DiagnosticsLogger.enabled
 
     /** Surface the wheel's reported model so the Commands tab can re-key its
-     *  command list when the wheel finally identifies itself — otherwise a
+     *  command list when the wheel finally identifies itself, otherwise a
      *  user who opens Service Mode before connecting sees an empty grid. */
     val modelName: StateFlow<String?> = wheelRepository.modelName
 
@@ -96,7 +96,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
             DiagnosticsLogger.info("storage: %.1f / %.1f GB free".format(freeGb, totalGb))
         } catch (_: Exception) {}
 
-        // Phone battery — useful when a connection drop coincides with low pwr
+        // Phone battery, useful when a connection drop coincides with low pwr
         try {
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
@@ -106,7 +106,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
             DiagnosticsLogger.info("phone battery: ${pct}%${if (plugged) " (charging)" else ""}")
         } catch (_: Exception) {}
 
-        // Network type — explains failed cloud sync / play-store update issues
+        // Network type, explains failed cloud sync / play-store update issues
         try {
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val net = cm.activeNetwork
@@ -121,7 +121,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
             DiagnosticsLogger.info("network: $type")
         } catch (_: Exception) {}
 
-        // BLE adapter state — names/MACs require runtime permission so we
+        // BLE adapter state, names/MACs require runtime permission so we
         // only log what's safe without one
         try {
             val mgr = context.getSystemService(Context.BLUETOOTH_SERVICE) as? BluetoothManager
@@ -138,7 +138,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
         val data = wheelRepository.wheelData.value
         DiagnosticsLogger.info("battery=${data.batteryPercent}%  voltage=${data.voltage}V  speed=${data.speed} km/h  lightOn=${data.lightOn}")
 
-        // Wear OS — list connected nodes so we know if a watch is paired
+        // Wear OS, list connected nodes so we know if a watch is paired
         viewModelScope.launch {
             try {
                 val nodes = withContext(Dispatchers.IO) {
@@ -217,7 +217,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
      *  - WRAP_V14_SHORT: InMotion V14 short-form
      *    `aa aa 16 LL [flags] [cmd] [data...] [xor]`. First user byte = cmd.
      *  - WRAP_KINGSONG: KingSong 20-byte
-     *    `aa 55 [00 .. payload .. 00] [type] 14 5a 5a` — first byte = type,
+     *    `aa 55 [00 .. payload .. 00] [type] 14 5a 5a`, first byte = type,
      *    rest fills the 14 payload slots (truncated past 14).
      *  - WRAP_NINEBOT_LEGACY: Ninebot legacy unencrypted
      *    `55 aa <len> <src> <dst> <cmd> <param> <data...> <crc_lo> <crc_hi>`.
@@ -368,7 +368,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
     /**
      * Dump the selected categories into the live log as NOTE entries. Each
      * call is async so a slow PackageManager iteration doesn't block the UI.
-     * Nothing leaves the device — these land in the same in-memory buffer
+     * Nothing leaves the device, these land in the same in-memory buffer
      * as everything else in Service Mode and only travel when the user
      * shares the log themselves.
      */
@@ -417,7 +417,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
         val totalKm = all.sumOf { it.distanceKm.toDouble() }
         DiagnosticsLogger.note("--- BEGIN trips summary ---")
         DiagnosticsLogger.note("trips=${all.size}  total=${"%.2f".format(totalKm)} km")
-        // Only the most recent 20 — older trips are rarely interesting for
+        // Only the most recent 20, older trips are rarely interesting for
         // a fresh bug report and would crowd the log.
         all.sortedByDescending { it.startTime }.take(20).forEach { t ->
             val started = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(t.startTime))
@@ -482,7 +482,7 @@ class WheelDiagnosticsViewModel @Inject constructor(
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
         } catch (e: Exception) {
-            // Don't swallow silently — surface in logcat so a future
+            // Don't swallow silently, surface in logcat so a future
             // misconfiguration is obvious instead of a dead button.
             android.util.Log.e("WheelDiagnostics", "Share failed", e)
             DiagnosticsLogger.note("share failed: ${e.javaClass.simpleName}: ${e.message}")

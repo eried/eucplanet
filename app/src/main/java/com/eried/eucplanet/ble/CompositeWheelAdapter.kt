@@ -8,7 +8,7 @@ import javax.inject.Singleton
  * V1, KingSong, Begode/Gotway, Veteran, Ninebot) and routes every WheelAdapter
  * call to the one that matches the connected wheel's BLE-advertised name.
  *
- * Selection happens on [notifyConnectingTo] — the BLE connection manager
+ * Selection happens on [notifyConnectingTo]: the BLE connection manager
  * already calls this hook before the first packet, so the rest of the
  * adapter surface (poll, decode, control commands) is delegated cleanly to
  * one sub-adapter from the first packet onward.
@@ -85,7 +85,7 @@ class CompositeWheelAdapter @Inject constructor(
         val n = deviceName.lowercase()
         return when {
             // InMotion V1: V5 / V8 / V10 / L6 / Glide / Lively / IM<digits>.
-            // V11/V12/V13/V14 are V2 family — route those to `inmotion`. The
+            // V11/V12/V13/V14 are V2 family, route those to `inmotion`. The
             // disambiguation is by the *digit value* after the leading V:
             // 5/8/10 → V1, 11/12/13/14 → V2.
             isV1WheelName(n) -> inmotionV1
@@ -108,7 +108,7 @@ class CompositeWheelAdapter @Inject constructor(
             // Ninebot / Segway-Ninebot. Two protocol families live behind
             // the same brand prefix; the Ninebot adapter resolves Z vs
             // legacy from the same name string in its own
-            // `notifyConnectingTo`. Route generously — if a name shape
+            // `notifyConnectingTo`. Route generously; if a name shape
             // overlaps with a KingSong "S2" prefix the KingSong branch
             // above already wins (it's more specific), so this branch
             // only sees real Ninebot names.
@@ -142,7 +142,7 @@ class CompositeWheelAdapter @Inject constructor(
         if (n.startsWith("l6") || n.startsWith("lively") || n.startsWith("glide") ||
             n.startsWith("solowheel")) return true
         if (n.startsWith("im")) {
-            // IM<digits> naming used by R-series + rebrands — V1 family.
+            // IM<digits> naming used by R-series + rebrands, V1 family.
             return n.length > 2 && n[2].isDigit()
         }
         // "inmotion-v8", "inmotion-v10f", etc.

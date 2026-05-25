@@ -6,7 +6,7 @@ import java.util.UUID
 
 /**
  * BLE GATT profile a wheel adapter binds to. Each protocol family advertises a
- * different combination — InMotion V2 uses Nordic UART, InMotion V1 uses the
+ * different combination: InMotion V2 uses Nordic UART, InMotion V1 uses the
  * proprietary InMotion service, KingSong uses 0xFFE0/FFE1, Gotway/Veteran also
  * use 0xFFE0/FFE1 (disambiguated by first packet bytes after connect).
  *
@@ -41,7 +41,7 @@ data class BleProfile(
         )
 
         /**
-         * InMotion V1 (V5 / V8 / V10 / L6 / R-series / V3) — proprietary
+         * InMotion V1 (V5 / V8 / V10 / L6 / R-series / V3): proprietary
          * 0xFFEx profile split across two services. Notify characteristic
          * 0xFFE4 lives under service 0xFFE0; write characteristic 0xFFE9
          * lives under service 0xFFE5. Distinct from KingSong / Begode /
@@ -63,7 +63,7 @@ data class BleProfile(
  *
  * Phase 1 ships with InMotionV2Adapter (V14 only). Later phases add V1 (V10F),
  * KingSong (S18), Veteran (Lynx) etc. Methods that don't apply to a given family
- * return null — the repository checks and skips silently. The UI consults
+ * return null; the repository checks and skips silently. The UI consults
  * [capabilities] to gray out unsupported actions.
  *
  * Auth state for lock/unlock (V14-specific) is exposed as [requestAuthKey] /
@@ -80,7 +80,7 @@ interface WheelAdapter {
     /**
      * Hook called once per connect attempt with the BLE advertised name (when
      * available). Adapters can use it to pre-select a model variant before the
-     * first packet is sent — e.g., the InMotion P6 broadcasts as `P6-XXXXXXXX`
+     * first packet is sent, e.g., the InMotion P6 broadcasts as `P6-XXXXXXXX`
      * and uses an extended-routing-only command set, so we pick the P6 code
      * path before the legacy carType query reaches the wheel and times out.
      * Default is a no-op.
@@ -120,7 +120,7 @@ interface WheelAdapter {
     fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? = null
 
     /**
-     * Optional third packet for the P6 — sets the alarm-speed threshold
+     * Optional third packet for the P6: sets the alarm-speed threshold
      * separately via the same `60 3e` flash-commit opcode. Returns null
      * for wheels where the alarm threshold ships in the [setMaxSpeed]
      * packet (V14 family) or where alarm isn't a separate setting.
@@ -154,7 +154,7 @@ interface WheelAdapter {
     /**
      * Process a raw BLE notification and return zero or more decoded results.
      *
-     * Each protocol family handles its own framing here — InMotion V2 reassembles
+     * Each protocol family handles its own framing here: InMotion V2 reassembles
      * packets across notifications and parses the AA AA … XOR-checksum frame,
      * KingSong reads a fixed 20-byte structure, Veteran walks the DC 5A 5C state
      * machine, etc. Returning a list lets one notification carry multiple frames
@@ -174,7 +174,7 @@ interface WheelAdapter {
 
     /**
      * Per-wheel diagnostic test commands shown in the Wheel Diagnostics dialog
-     * (Service Mode). Each entry becomes a tappable button — the user taps to
+     * (Service Mode). Each entry becomes a tappable button; the user taps to
      * fire the bytes and watches the live log to see what the wheel does. This
      * is how we narrow down opcodes the wheel actually obeys vs. ones that
      * look right on paper but get silently dropped.
@@ -194,7 +194,7 @@ interface WheelAdapter {
     /**
      * Brand the connected wheel belongs to, e.g. "InMotion" / "Begode".
      * Derived from [familyId] so every family resolves the same way, with no
-     * model detection — the dashboard can show it as the wheel name directly.
+     * model detection. The dashboard can show it as the wheel name directly.
      */
     val brand: String get() = when (familyId) {
         "begode" -> "Begode"
@@ -250,7 +250,7 @@ sealed class DecodeResult {
  * What features a given wheel exposes via BLE. The UI consults this to gray out
  * action buttons and hide settings sections that don't apply to the connected
  * wheel. New capabilities should only be added when at least one wheel supports
- * them — empty defaults keep new adapters honest about declaring support.
+ * them; empty defaults keep new adapters honest about declaring support.
  */
 data class WheelCapabilities(
     val hasHorn: Boolean = false,
@@ -263,7 +263,7 @@ data class WheelCapabilities(
     val needsAuthForLock: Boolean = false
 ) {
     companion object {
-        /** V11/V12/V13/V14 — full feature set, lock requires password auth. */
+        /** V11/V12/V13/V14: full feature set, lock requires password auth. */
         val INMOTION_V2 = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
@@ -279,7 +279,7 @@ data class WheelCapabilities(
          * InMotion V1 family (V5 / V8 / V10 / L6 / Glide 3 / R-series).
          * Horn and headlight are universal. Volume + DRL are firmware-
          * dependent (V8F / V8S / V10 family / Glide 3 only); the adapter
-         * narrows them per detected model. No remote lock command — lock
+         * narrows them per detected model. No remote lock command; lock
          * state is observable in work mode but not commandable. Alarm
          * speed is not user-configurable on V1; alarms are firmware
          * tilt-back triggers reported via the async alert frame.
@@ -295,7 +295,7 @@ data class WheelCapabilities(
             needsAuthForLock = false
         )
 
-        /** KingSong KS-* wheels — no software lock, no volume control. */
+        /** KingSong KS-* wheels: no software lock, no volume control. */
         val KINGSONG = WheelCapabilities(
             hasHorn = true,
             hasLight = true,
@@ -308,7 +308,7 @@ data class WheelCapabilities(
         )
 
         /**
-         * Begode/Gotway — no software lock (dismount only), no native
+         * Begode/Gotway: no software lock (dismount only), no native
          * volume control. Light is a 3-state (off/dim/full); the adapter
          * collapses dim to off for the on/off toggle.
          */
@@ -324,7 +324,7 @@ data class WheelCapabilities(
         )
 
         /**
-         * Veteran — minimal control surface. Telemetry is rich (cells,
+         * Veteran: minimal control surface. Telemetry is rich (cells,
          * BMS) but writes are limited to horn, light on/off and a few
          * threshold setters.
          */
@@ -340,7 +340,7 @@ data class WheelCapabilities(
         )
 
         /**
-         * Ninebot Z (Z6 / Z10 / new-stack E+ / Mini Plus) — full settings
+         * Ninebot Z (Z6 / Z10 / new-stack E+ / Mini Plus): full settings
          * surface. No documented horn opcode but lock, speed limit, three
          * alarm slots, LED, volume, and DRL via DriveFlags bit 0 are all
          * writable. The wheel does NOT enforce a PIN for lock; the
@@ -359,7 +359,7 @@ data class WheelCapabilities(
         )
 
         /**
-         * Ninebot legacy (One E / E+ / S2 / Mini / Mini Pro) — read-only
+         * Ninebot legacy (One E / E+ / S2 / Mini / Mini Pro): read-only
          * telemetry over BLE. The legacy stack does not expose lock,
          * alarms, lights, volume, or LED through any documented parameter
          * (spec section 16). Settings changes require the official Ninebot

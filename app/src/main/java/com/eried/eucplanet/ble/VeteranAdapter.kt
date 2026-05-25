@@ -22,10 +22,10 @@ import javax.inject.Singleton
  * Outbound commands are limited compared to KingSong/Begode: 14-byte horn
  * blob, `SetLightON/OFF`, `SETh/m/s` pedal stiffness, `CLEARMETER` trip
  * reset. No software lock, no volume, no max-speed write (the SET* family
- * sets thresholds, not absolute max — see spec section 6 "Notes").
+ * sets thresholds, not absolute max; see spec section 6 "Notes").
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 @Singleton
@@ -46,7 +46,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     }
 
     // Veteran streams unsolicited telemetry as soon as notifications are
-    // enabled — no init query, no realtime poll, no settings poll. Settings
+    // enabled: no init query, no realtime poll, no settings poll. Settings
     // come piggybacked on the same realtime frame (offsets 24..27 / 30) so
     // the dashboard refreshes naturally.
     override fun initSequence(): List<ByteArray> = emptyList()
@@ -89,7 +89,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      * section 6): only horn, light, pedals stiffness and trip-reset have
      * publicly documented wire formats. There is no documented max-speed,
      * alarm-speed, lock or volume write, so those buttons are deliberately
-     * absent — the spec calls out section 9 "Open questions" for capturing
+     * absent; the spec calls out section 9 "Open questions" for capturing
      * the official app and decoding them. Adding speculative bytes here
      * would risk faulting the wheel.
      *
@@ -134,7 +134,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
      * Reassemble the byte stream into Veteran frames and dispatch each to
      * the right parser. Short frames produce a [DecodeResult.Telemetry];
      * long (smart-BMS) frames are parsed for cell/temp data but currently
-     * surfaced as Unknown — there's no DecodeResult shape for per-cell
+     * surfaced as Unknown: there's no DecodeResult shape for per-cell
      * voltages yet, so we'd be losing fidelity by squeezing them through
      * the existing telemetry record. They'll get their own result type
      * once the dashboard grows a BMS panel.

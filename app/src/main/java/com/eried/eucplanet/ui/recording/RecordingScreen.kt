@@ -499,7 +499,7 @@ private fun TripCard(
                     )
                 }
             }
-            // Status icon slot — same position as the green upload-success tick.
+            // Status icon slot, same position as the green upload-success tick.
             // Orange "pending" icon covers two phases: the discard-grace window
             // (isPending=true) and the brief in-flight period after grace while the
             // sync worker is uploading (uploadStatus=1). Without this, there is a
@@ -509,11 +509,11 @@ private fun TripCard(
                 isPending || (!isRecording && trip.uploadStatus == 1) -> PendingStatusIcon()
                 !isRecording && trip.uploadStatus == 2 -> UploadStatusIcon(trip)
             }
-            // View (eye) — always available
+            // View (eye), always available
             IconButton(onClick = onView) {
                 Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.action_view))
             }
-            // Share — uses the local CSV which exists from the moment recording stops,
+            // Share, uses the local CSV which exists from the moment recording stops,
             // independent of backup state. Always available except while actively
             // recording (CSV writer is open).
             IconButton(onClick = onShare, enabled = !isRecording) {
@@ -521,7 +521,7 @@ private fun TripCard(
                     tint = if (isRecording) disabledColor
                            else MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            // Delete — same confirmation dialog whether the trip is in the discard
+            // Delete, same confirmation dialog whether the trip is in the discard
             // grace window or already finalized. TripRepository.deleteTrip cancels
             // the pending grace if the deleted trip is the pending one, so the dialog
             // path is the only place that asks the user to confirm.

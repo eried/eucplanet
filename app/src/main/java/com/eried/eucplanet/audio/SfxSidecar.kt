@@ -16,7 +16,7 @@ import javax.inject.Singleton
  * MediaPlayer's stream at the system level.
  *
  * Wired by [EngineSoundEngine]:
- *  - [load] when a sampled profile becomes active — preloads its pop and brake
+ *  - [load] when a sampled profile becomes active, preloads its pop and brake
  *    whine assets if the profile declares them.
  *  - [firePop] when [EngineSoundEngine.emit] dequeues a pending pop.
  *  - [unload] / [release] on profile switch / engine stop.
@@ -100,7 +100,7 @@ class SfxSidecar @Inject constructor(
     /**
      * Trigger one playback of [assetName] with master gain [volume] (0..1).
      * Randomizes pitch slightly so consecutive pops don't sound identical.
-     * No-op if the asset isn't loaded yet — pops are non-critical, dropping the
+     * No-op if the asset isn't loaded yet, pops are non-critical, dropping the
      * first one or two during cold-start is acceptable.
      */
     fun firePop(assetName: String?, volume: Float) {

@@ -1,7 +1,7 @@
 package com.eried.eucplanet.audio
 
 /**
- * Detects the "red-light balance dance" — when an EUC rider holds position by
+ * Detects the "red-light balance dance", when an EUC rider holds position by
  * rocking back and forth at very low speeds. We map that pattern to a virtual
  * throttle blip, like a motorcyclist revving at a stop.
  *
@@ -56,7 +56,7 @@ class RevDetector(
         }
     }
 
-    /** Current RPM bump value — call from the param-update tick on the main thread. */
+    /** Current RPM bump value, call from the param-update tick on the main thread. */
     fun currentBump(nowMs: Long): Float {
         if (bumpStartedAt == 0L) return 0f
         val age = nowMs - bumpStartedAt

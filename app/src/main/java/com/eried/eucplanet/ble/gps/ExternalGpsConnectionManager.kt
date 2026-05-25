@@ -183,7 +183,7 @@ class ExternalGpsConnectionManager @Inject constructor(
                     g.writeDescriptor(cccd)
                 }
             } else {
-                // No CCCD on this device — proceed straight to init writes.
+                // No CCCD on this device, proceed straight to init writes.
                 kickInitWrite()
             }
         }

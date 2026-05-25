@@ -53,7 +53,7 @@ data class SourceSnapshot(
     val headingDeg: Float? = null,
     /** Vertical speed in m/s (+up), or null. */
     val verticalSpeedMps: Float? = null,
-    /** GPS quality indicator — only filled for sources with a GPS receiver. */
+    /** GPS quality indicator, only filled for sources with a GPS receiver. */
     val numSatellites: Int? = null,
     /** Horizontal positional accuracy in metres, or null. */
     val accuracyMeters: Float? = null,

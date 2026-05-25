@@ -5,7 +5,7 @@ import com.eried.eucplanet.R
 /**
  * The full set of rider preferences. Lives in DataStore as one JSON blob
  * ([com.eried.eucplanet.data.store.SettingsStore]) so adding a new field is
- * just a one-line data-class change — no DB migration, no risk of losing
+ * just a one-line data-class change, no DB migration, no risk of losing
  * rider state on upgrade. The `id` field is a no-op legacy artifact kept so
  * older code that copy()'d with `id = 1` still compiles.
  */
@@ -20,14 +20,14 @@ data class AppSettings(
     /**
      * What the dashboard shows as the connected wheel's name: "MODEL" (the
      * detected model, falling back to the raw BLE advertised name), "BRAND"
-     * (the wheel's brand) or "NONE" (no name — the bar just says "Connected").
+     * (the wheel's brand) or "NONE" (no name, the bar just says "Connected").
      */
     val wheelNameDisplay: String = "MODEL",
 
     // What happens when the user swipes back from the main dashboard. Values:
-    //   "ASK"        — show the exit dialog (legacy behavior, default)
-    //   "BACKGROUND" — silently send the activity to background, service keeps running
-    //   "STOP_ALL"   — stop the service and finish the activity
+    //   "ASK": show the exit dialog (legacy behavior, default)
+    //   "BACKGROUND", silently send the activity to background, service keeps running
+    //   "STOP_ALL", stop the service and finish the activity
     // Storage keys are language-independent so locale switches don't break the setting.
     val backButtonAction: String = "ASK",
 
@@ -164,7 +164,7 @@ data class AppSettings(
 
     // Appearance
     // language: BCP-47 tag (e.g. "en", "es", "es-419", "no", "pt-BR"). Empty string
-    // means "not set yet" — MainActivity picks a default from the system locale on
+    // means "not set yet", MainActivity picks a default from the system locale on
     // first launch and persists the choice.
     val language: String = "",
     // themeMode: "black", "dark", "light", "system"
@@ -178,7 +178,7 @@ data class AppSettings(
     val gaugeRedThresholdPct: Int = 85,
     // Haptic feedback on dashboard action button taps.
     val hapticFeedback: Boolean = true,
-    // "AMPS" or "WATTS" — long-press the amps card to switch.
+    // "AMPS" or "WATTS", long-press the amps card to switch.
     val currentDisplayMode: String = "AMPS",
 
     // Backup folder (SAF tree URI on local storage; companion sync app handles cloud upload)
@@ -228,9 +228,9 @@ data class AppSettings(
     val navHomeJson: String = "",
     /** Saved Work place as JSON {name,lat,lng}; blank when unset. */
     val navWorkJson: String = "",
-    /** Geocoder (address search) endpoint — overridable for self-hosting. */
+    /** Geocoder (address search) endpoint, overridable for self-hosting. */
     val navGeocoderUrl: String = "https://nominatim.openstreetmap.org/search",
-    /** Routing endpoint — overridable for self-hosting. */
+    /** Routing endpoint, overridable for self-hosting. */
     val navRouterUrl: String = "https://routing.openstreetmap.de",
     /**
      * The route currently loaded in the builder and used by live navigation,
@@ -251,7 +251,7 @@ data class AppSettings(
     /**
      * Custom user-marker photo as a `data:image/png;base64,…` URL, or null
      * for the default circle/teardrop marker. Captured by the rider via the
-     * "Customize my marker" crop dialog at 64×64, ~3–5 KB encoded — same
+     * "Customize my marker" crop dialog at 64×64, ~3–5 KB encoded, same
      * size order as a saved nav route.
      */
     val navUserMarkerPhotoDataUrl: String? = null,
@@ -347,18 +347,18 @@ data class AppSettings(
     /**
      * Legacy. Was a paired "fixed volume" toggle (with [engineVolume] as the slider) that
      * could disable the speed curve. The current UI always uses the curve so this field
-     * is unused — kept only for backup/sync compatibility with v0.5.x exports.
+     * is unused, kept only for backup/sync compatibility with v0.5.x exports.
      */
     val engineVolumeAutoEnabled: Boolean = false,
     /**
      * Encoded 4-point curve at 0/25/50/75 km/h, values in 0..1. The curve IS the engine
-     * volume — there's no separate fixed-volume slider any more. Format matches
+     * volume, there's no separate fixed-volume slider any more. Format matches
      * [com.eried.eucplanet.service.parseVolumeCurve]: "speed:mult,..."
      * Default: full volume parked for pedestrian awareness, drop to 10% by cruise speed,
      * silent at top.
      */
     val engineVolumeAutoCurve: String = "0:1.00,25:0.10,50:0.10,75:0.00",
-    /** "OPEN", "HALF", "MUFFLED" — controls high-harmonic rolloff. */
+    /** "OPEN", "HALF", "MUFFLED", controls high-harmonic rolloff. */
     val engineMuffler: String = "HALF",
     /** "OFF", "FOUR", "SIX". Ignored for engines whose profile is gearless (synth/futuristic). */
     val engineGearbox: String = "FOUR",
@@ -366,7 +366,7 @@ data class AppSettings(
     val engineIdleBehavior: String = "FADE",
     /** "SMOOTH" (no pops), "STANDARD", "BACKFIRE" (heavy pops on decel). */
     val engineDecelChar: String = "STANDARD",
-    /** "OFF", "LIGHT", "STRONG" — engine-brake whine layered during sustained decel/regen. */
+    /** "OFF", "LIGHT", "STRONG", engine-brake whine layered during sustained decel/regen. */
     val engineBrake: String = "LIGHT",
     /** When a voice announce plays: "DUCK" (-12 dB), "PAUSE" (engine silent during speech), "MIX" (no ducking). */
     val engineDuckOnVoice: String = "DUCK",

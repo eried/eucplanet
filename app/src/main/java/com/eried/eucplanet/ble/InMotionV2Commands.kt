@@ -70,7 +70,7 @@ object InMotionV2Commands {
     // captures) and only responds to extended-routing queries `02 21 [sub]`.
     // Confirmed sub-commands seen on a real P6 (firmware A14219B): 0x06 info
     // bundle (serial + version), 0x07 realtime telemetry, 0x04 total stats.
-    // We send only the info + realtime queries — settings (sub 0x20) and ride
+    // We send only the info + realtime queries; settings (sub 0x20) and ride
     // history (sub 0x10/0x11) have a TLV-style layout we haven't reverse-
     // engineered yet, so polling them just produces unparsed bytes.
 
@@ -89,7 +89,7 @@ object InMotionV2Commands {
 
     /** P6 detailed-data query (`02 21 04`). Response comes back as
      *  `21 02 84 [86-byte body]`. The InMotion app fires this without an arg
-     *  — earlier preview tried `02 21 04 32` and the wheel ignored it.
+     *  (earlier preview tried `02 21 04 32` and the wheel ignored it).
      *  Body offset 58 = MOS temperature with formula `°F = byte − 126`,
      *  verified at 72 °F = byte 0xC6 in the labelled capture. */
     fun getP6Stats(): ByteArray =
@@ -100,7 +100,7 @@ object InMotionV2Commands {
      *
      * P6 takes a 2-byte uint16 LE value in 0.01 km/h units, NOT the V14's
      * 4-byte (tilt + alarm) packet. `60 21 [v_lo v_hi]` alone is sufficient
-     * and persists across reboots — multiple mid-drag writes without any
+     * and persists across reboots; multiple mid-drag writes without any
      * follow-up commit are honoured by the wheel and stay put. Pair it with
      * [setP6AlarmSpeed] only if you also want to change the alarm threshold.
      */
@@ -114,8 +114,8 @@ object InMotionV2Commands {
 
     /**
      * P6 light: `60 50 [on/off, on/off]`. The second byte mirrors the first
-     * — V14 uses a 1-byte arg and is silently ignored by the P6, which is
-     * why the watch / phone toggle didn't take on Gio's wheel.
+     * (V14 uses a 1-byte arg and is silently ignored by the P6, which is
+     * why the watch / phone toggle didn't take on Gio's wheel).
      */
     fun setP6Light(on: Boolean): ByteArray {
         val v = if (on) 0x01.toByte() else 0x00.toByte()
@@ -140,7 +140,7 @@ object InMotionV2Commands {
      * P6 Auto Headlight toggle (the "Auto Headlight" switch under General
      * Settings → Lighting). Wire format: `aa aa 16 05 02 21 60 2f [v] [chk]`,
      * single-byte payload (1 = ON, 0 = OFF). Verified against the FINAL P6
-     * capture — five toggles by the user produced exactly this frame each
+     * capture: five toggles by the user produced exactly this frame each
      * time, with `2f 01 7e` for ON and `2f 00 7f` for OFF.
      *
      * On a P6, manual Light (`60 50`) is independent of Auto Headlight: when
@@ -155,7 +155,7 @@ object InMotionV2Commands {
 
     /**
      * Set the P6 **Speed Limit Alarm** (the threshold above which the wheel
-     * beeps). Goes through `60 3e [v_lo v_hi 00 00]` — same opcode the
+     * beeps). Goes through `60 3e [v_lo v_hi 00 00]`, the same opcode the
      * InMotion app uses for any commit-to-flash scalar setting. Confirmed
      * against `docs/P6_CAPTURE_LABELS.md`: 13679 = 136.79 km/h = 85 mph
      * matched the on-screen 85 mph alarm value during the labelled capture.
@@ -199,7 +199,7 @@ object InMotionV2Commands {
 
     /**
      * Set the P6 **Pedal Hardness** slider. The InMotion app sends two bytes
-     * `[live, committed]` while dragging — we send the same value in both
+     * `[live, committed]` while dragging; we send the same value in both
      * since we're emitting a single atomic set rather than a drag stream.
      */
     fun setP6PedalHardness(percent: Int): ByteArray {

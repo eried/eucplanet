@@ -5,7 +5,7 @@ import kotlin.math.sin
 
 /**
  * Software fake of a Begode Master (134 V class) with the **inverted motor
- * wiring** failure mode that real-world Masters occasionally ship with — the
+ * wiring** failure mode that real-world Masters occasionally ship with: the
  * speed field is sent sign-flipped so forward riding lands at WheelData.speed
  * as a negative i16. The point of the simulator is to verify that the abs()
  * applied in WheelRepository at the apply site keeps the dial, voice, alarms
@@ -17,7 +17,7 @@ import kotlin.math.sin
  * picks Begode and BegodeModel.fromReportedName picks MASTER (134 V ratio
  * 2.0, derived-PWM constants 113 km/h @ 134.4 V). The display name is the
  * stock "Virtual Begode Master" so the rider sees this as a normal Master in
- * the wheel picker — the inversion is a hardware bug we're simulating, not a
+ * the wheel picker; the inversion is a hardware bug we're simulating, not a
  * branded variant.
  */
 class BegodeMasterVirtualWheel : VirtualWheel {

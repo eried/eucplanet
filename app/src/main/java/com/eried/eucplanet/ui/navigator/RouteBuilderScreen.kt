@@ -153,7 +153,7 @@ fun RouteBuilderScreen(
     var clearConfirmOpen by remember { mutableStateOf(false) }
     // The picked GPX waiting on a "replace the current route?" confirmation.
     // Held only after the rider has actually chosen a file (asking BEFORE
-    // the picker would be confusing — they may cancel out, and the prompt
+    // the picker would be confusing, they may cancel out, and the prompt
     // would be for nothing). Null when no pending choice.
     var pendingGpxUri by remember { mutableStateOf<android.net.Uri?>(null) }
     var markerMenuIndex by remember { mutableStateOf(-1) }
@@ -213,7 +213,7 @@ fun RouteBuilderScreen(
         }
     }
 
-    // The builder is useless without a fix — ask for location up front so the
+    // The builder is useless without a fix, ask for location up front so the
     // "my location" button and live guidance work. Harmless if already granted.
     val locationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -262,10 +262,10 @@ fun RouteBuilderScreen(
 
 
     // Restore the saved map view (centre + zoom) once, the moment the page
-    // becomes ready — this is what makes "go to Settings and swipe back"
+    // becomes ready, this is what makes "go to Settings and swipe back"
     // not snap the map to the world view. Keyed ONLY on pageReady so a
     // user pan that updates savedView doesn't re-fire this effect (which
-    // would call nativeRecenter on every drag — an infinite move-end
+    // would call nativeRecenter on every drag, an infinite move-end
     // recursion).
     //
     // Stored in the VM only, no settings persistence: a fresh app launch
@@ -351,7 +351,7 @@ fun RouteBuilderScreen(
     }
 
     // First load: frame the map on the rider instead of the whole world.
-    // Skipped when a saved route is present — that route frames itself.
+    // Skipped when a saved route is present, that route frames itself.
     LaunchedEffect(pageReady, userLocation, route) {
         val loc = userLocation
         if (pageReady && !didInitialCenter && route == null && loc != null) {
@@ -415,7 +415,7 @@ fun RouteBuilderScreen(
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         // If the current route is an unsaved multi-stop one, confirm before
-        // overwriting it — we already have the file, just hold the URI and
+        // overwriting it, we already have the file, just hold the URI and
         // pop the dialog now. Otherwise load straight away.
         val needConfirm = viewModel.waypoints.value.size > 1 &&
             !viewModel.routeClean.value
@@ -491,7 +491,7 @@ fun RouteBuilderScreen(
         }
     }
 
-    // Starting navigation — Direct mode has no street-by-street routing, so it
+    // Starting navigation, Direct mode has no street-by-street routing, so it
     // launches Treasure Hunt; the routed modes launch turn-by-turn guidance.
     // Shared by the menu item and the bottom button.
     // Set the moment Start is tapped so the button never flips to "Stop
@@ -559,7 +559,7 @@ fun RouteBuilderScreen(
                             onDismiss = { menuOpen = false },
                             onSave = { saveLauncher.launch("route.gpx") },
                             onLoad = {
-                                // No "*/*" — that wildcard showed every file.
+                                // No "*/*", that wildcard showed every file.
                                 // Android has no registered MIME for ".gpx", so
                                 // such files resolve to octet-stream; that entry
                                 // has to stay or real GPX files would be hidden.
@@ -670,7 +670,7 @@ fun RouteBuilderScreen(
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         // The bundled leaflet.js / leaflet.css load from
-                        // file:///android_asset/ — without file access enabled
+                        // file:///android_asset/, without file access enabled
                         // they silently fail on API 30+ and the map is blank.
                         settings.allowFileAccess = true
                         // Match the WebView bg to the rider's chosen map style
@@ -712,7 +712,7 @@ fun RouteBuilderScreen(
                                 markerTapped = { idx, x, y ->
                                     // While navigation is running the only sensible
                                     // action on a stop is to recenter the map onto
-                                    // it — Save as Home / Work would mid-trip change
+                                    // it, Save as Home / Work would mid-trip change
                                     // the saved place which the rider isn't asking
                                     // for. Skip the menu entirely and pan straight
                                     // to the pin.
@@ -766,7 +766,7 @@ fun RouteBuilderScreen(
                 }
             )
 
-            // Locating cover — sits IMMEDIATELY above the WebView in z-order
+            // Locating cover, sits IMMEDIATELY above the WebView in z-order
             // so the bottom stops panel, FABs, top app bar (and every other
             // overlay added below) draw on top of it. The rider never sees
             // the cover swallow the panel: only the map area itself fades
@@ -827,7 +827,7 @@ fun RouteBuilderScreen(
                     tonalElevation = 4.dp
                 ) {
                     Column(modifier = Modifier.heightIn(max = 280.dp).verticalScroll(rememberScrollState())) {
-                        // Saved Home / Work presets — tap to drop as the next
+                        // Saved Home / Work presets, tap to drop as the next
                         // stop. Whichever was added last is hidden (just used,
                         // re-suggesting it is noise); adding any plain stop
                         // brings it back.
@@ -1005,7 +1005,7 @@ fun RouteBuilderScreen(
             // z-order. See the AnimatedVisibility just below the AndroidView
             // for the actual cover.
 
-            // Rider-position menu — anchored at the rider's marker via
+            // Rider-position menu, anchored at the rider's marker via
             // selfMenuOffset (the JS bridge pushes the marker's screen-space
             // position on tap). TopStart alignment lets the offset be the
             // absolute pixel position the menu opens at.
@@ -1042,12 +1042,12 @@ fun RouteBuilderScreen(
                             }
                         )
                     }
-                    // Marker-customization cluster — separated from the
+                    // Marker-customization cluster, separated from the
                     // place-saving / add-stop items above because the actions
                     // affect a different thing (the rider's avatar, not the
                     // route). Short labels because the context (your-marker
                     // menu) already implies "your marker". The divider only
-                    // renders when something ELSE is also in the menu — a
+                    // renders when something ELSE is also in the menu, a
                     // lone divider on top of Customize looks pointless.
                     val hasAddStop = waypoints.isNotEmpty() && !navRunning
                     val hasOtherItems = homePlace == null || workPlace == null || hasAddStop
@@ -1075,7 +1075,7 @@ fun RouteBuilderScreen(
                 }
             }
 
-            // Stop-marker menu — save that stop as a Home / Work preset.
+            // Stop-marker menu, save that stop as a Home / Work preset.
             // Anchored at the tapped pin via markerMenuOffset. Each "Save as"
             // option only shows when that slot is empty; once Home (or Work)
             // is saved the option vanishes from this menu and reappears only
@@ -1127,7 +1127,7 @@ fun RouteBuilderScreen(
             }
 
             // Confirm before replacing an unsaved multi-stop route with the
-            // GPX the rider just picked. We already have the URI in hand —
+            // GPX the rider just picked. We already have the URI in hand , 
             // confirming "Replace?" only makes sense AFTER a file is chosen,
             // because cancelling the picker should be a no-op.
             val pendingUri = pendingGpxUri
@@ -1174,11 +1174,11 @@ private fun BuilderMenu(
     navRunning: Boolean
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-        // "Start navigation" is omitted here — it is already a primary button.
+        // "Start navigation" is omitted here, it is already a primary button.
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
         // syncBuilderRoute means the saved file only contains stops still
-        // ahead). Load / Clear stay hidden during nav — both would replace
+        // ahead). Load / Clear stay hidden during nav, both would replace
         // the running route, which is destructive.
         if (hasStops) {
             DropdownMenuItem(
@@ -1217,7 +1217,7 @@ private fun BuilderMenu(
             text = { Text(stringResource(R.string.nav_setting_params)) },
             onClick = { onDismiss(); onNavSettings() }
         )
-        // Forget Home / Work sit last — they are rare, destructive actions.
+        // Forget Home / Work sit last, they are rare, destructive actions.
         if (hasHome || hasWork) {
             HorizontalDivider()
         }
@@ -1237,8 +1237,8 @@ private fun BuilderMenu(
 }
 
 /**
- * The list label for a pin: its positional role — Nth stop / Destination (the
- * rider is the implicit start) — with the solved address appended in
+ * The list label for a pin: its positional role, Nth stop / Destination (the
+ * rider is the implicit start), with the solved address appended in
  * parentheses once routing has filled it in.
  */
 @Composable
@@ -1549,7 +1549,7 @@ private fun BottomPanel(
                 } else {
                     Column(
                         modifier = Modifier
-                            // ~4.5 stop rows tall — the half row hints it scrolls.
+                            // ~4.5 stop rows tall, the half row hints it scrolls.
                             .heightIn(min = minHDp, max = 234.dp)
                             .verticalScroll(rememberScrollState())
                             .onSizeChanged { sz ->
@@ -1696,7 +1696,7 @@ private fun BottomPanel(
                                         )
                                         // Save as Home / Work only when both:
                                         //   a) the slot is not already filled (no point
-                                        //      "saving" a Home when one exists — clutter)
+                                        //      "saving" a Home when one exists, clutter)
                                         //   b) navigation is not running (mid-trip
                                         //      changes to Home / Work are surprising)
                                         val canSaveHome = !navRunning && home == null
@@ -1729,7 +1729,7 @@ private fun BottomPanel(
 /**
  * JavaScript → native bridge for the Leaflet map. `@JavascriptInterface` methods
  * are invoked on the WebView's private JS thread, so every callback is hopped
- * onto the main thread before it touches the [RouteBuilderViewModel] — two quick
+ * onto the main thread before it touches the [RouteBuilderViewModel], two quick
  * callbacks racing a non-atomic waypoint update could otherwise drop a pin.
  */
 private class NavJsBridge(

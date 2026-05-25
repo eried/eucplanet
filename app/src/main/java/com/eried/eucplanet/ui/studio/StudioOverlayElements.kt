@@ -102,13 +102,13 @@ data class StudioElementData(
     val speedUnit: String,
     val distanceUnit: String,
     val tempUnit: String,
-    /** Wall-clock millis a CLOCK element shows — live now, or the replay row. */
+    /** Wall-clock millis a CLOCK element shows: live now, or the replay row. */
     val clockTimeMs: Long = System.currentTimeMillis(),
     /** Elapsed millis for a CLOCK in STOPWATCH style. */
     val stopwatchMs: Long = 0L,
     /**
      * Live (~50 Hz) rolling G-Force trail buffer, shared by the G-Force dot
-     * AND its comet trail — the dot is just the last sample in this list, so
+     * AND its comet trail: the dot is just the last sample in this list, so
      * they always stay visually connected (the dashboard's crosshair uses the
      * same trick). Empty in replay mode; the overlay then derives its trail
      * from [history] and the dot from the scrubbed wheelData row.
@@ -156,7 +156,7 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     } else {
         elements
     }
-    // Draw the selected element LAST so it (and its handle chrome — delete,
+    // Draw the selected element LAST so it (and its handle chrome: delete,
     // configure, resize, rotate) lands on top of every other element. Without
     // this, the chrome of a back-of-z-order element can be occluded by other
     // elements in front of it, and tapping the configure icon ends up hitting
@@ -171,7 +171,7 @@ fun androidx.compose.foundation.layout.BoxWithConstraintsScope.StudioElementLaye
     }
     ordered.forEach { element ->
         // Keyed by id so Compose never reuses one element's box (and its edit
-        // chrome) for another — that reuse made a stale onConfigure / onDelete
+        // chrome) for another; that reuse made a stale onConfigure / onDelete
         // fire for the wrong element.
         key(element.id) {
             StudioElementBox(
@@ -240,7 +240,7 @@ private fun StudioElementBox(
     // resize grip (the studio's standard blue accent).
     val rotateAccent = Color(0xFFFFB74D)
     // Size of the element's content in px, captured from the rotated marquee
-    // layer — i.e. the unrotated content bounds, so its centre is exact.
+    // layer, i.e. the unrotated content bounds, so its centre is exact.
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
 
     Box(
@@ -253,7 +253,7 @@ private fun StudioElementBox(
             .then(if (selected) Modifier.zIndex(2f) else Modifier)
     ) {
         Box(
-            // widthIn(max) — not width() — so the selection frame and border
+            // widthIn(max), not width(), so the selection frame and border
             // wrap the element's real content (text pills size to their text;
             // graphs / camera / image still fill the chosen width).
             //
@@ -278,7 +278,7 @@ private fun StudioElementBox(
                 .then(
                     if (editable) Modifier.pointerInput(element.id) {
                         detectDragGestures(
-                            // A drag grabs — and selects — whatever it lands on,
+                            // A drag grabs (and selects) whatever it lands on,
                             // so you never silently move an unselected element.
                             onDragStart = { onSelect() }
                         ) { change, drag ->
@@ -289,7 +289,7 @@ private fun StudioElementBox(
                             // stray element is always still reachable.
                             // Drag starts from the SNAPPED visual position when
                             // snap-mode is on, not from the (possibly off-grid)
-                            // saved value — otherwise the very first drag tick
+                            // saved value; otherwise the very first drag tick
                             // would jump the element back to its raw coords.
                             val baseX = snapFx(e.x, gridX)
                             val baseY = snapFx(e.y, gridY)
@@ -341,12 +341,12 @@ private fun StudioElementBox(
                 Box(
                     Modifier.graphicsLayer { alpha = element.opacity.coerceIn(0f, 1f) }
                 ) {
-                    // Drop shadow — the content emitted a second time BEHIND
+                    // Drop shadow: the content emitted a second time BEHIND
                     // the real copy, offset / tinted by the element's shadow
                     // settings. The graphicsLayer forces an offscreen layer
                     // (offset + alpha), then a rect drawn with SrcAtop recolours
                     // only the content's silhouette to the shadow colour. It
-                    // follows the actual content shape (text, gauges) — pure
+                    // follows the actual content shape (text, gauges); pure
                     // GPU, no per-frame pixel work; small elements make it
                     // effectively free.
                     if (element.shadow) {
@@ -472,12 +472,12 @@ private fun StudioElementBox(
                     }
                 }
             }
-            // Rotate handle — a sibling of the rotated marquee, so it lives in
+            // Rotate handle: a sibling of the rotated marquee, so it lives in
             // the un-rotated frame where the drag math has a stable coordinate
             // system. Measuring it INSIDE the rotated layer fed the rotation
             // back into the angle it was computing and spun wildly. It is still
             // POSITIONED at the element's rotated bottom-left corner so it looks
-            // attached at any angle — the offset is frozen mid-drag (below) so
+            // attached at any angle; the offset is frozen mid-drag (below) so
             // the coordinate frame can't move while the gesture computes angles.
             if (selected) {
                 val density = LocalDensity.current
@@ -485,8 +485,8 @@ private fun StudioElementBox(
 
                 // Element-content offset of the bottom-left corner rotated by
                 // [deg] about the content centre, minus half the handle so the
-                // handle's CENTRE lands on the corner. Pure layout maths — no
-                // graphicsLayer — so the drag's coordinate frame stays stable.
+                // handle's CENTRE lands on the corner. Pure layout maths, no
+                // graphicsLayer, so the drag's coordinate frame stays stable.
                 fun cornerOffset(deg: Float): IntOffset {
                     val w = contentSize.width.toFloat()
                     val h = contentSize.height.toFloat()
@@ -521,7 +521,7 @@ private fun StudioElementBox(
                             // un-rotated frame. The origin is the handle's LIVE
                             // top-left, so origin + local recovers the true
                             // pointer position wherever the handle has turned
-                            // to — it can follow the rotation without feeding
+                            // to: it can follow the rotation without feeding
                             // back into the angle being computed.
                             fun angleAt(local: Offset): Float {
                                 val origin = cornerOffset(live.rotationDeg)
@@ -570,7 +570,7 @@ private fun ChromeButton(
     onClick: () -> Unit
 ) {
     // pointerInput(Unit) never restarts, so capture onClick through a state
-    // holder — otherwise a reused button keeps calling a stale callback.
+    // holder; otherwise a reused button keeps calling a stale callback.
     val currentOnClick by rememberUpdatedState(onClick)
     Box(
         Modifier
@@ -621,14 +621,14 @@ private fun ElementContent(element: OverlayElement, data: StudioElementData) {
 
 /** Max source samples used to build a G-Force trail Path. With the studio
  *  history sampled at ~10 Hz and trails capped at 20 s, the upper bound is
- *  ~200 points — we keep all of them up to this ceiling so the curve has
+ *  ~200 points; we keep all of them up to this ceiling so the curve has
  *  proper resolution. The cost is still small (one quadratic-Bezier Path,
  *  built once per dial per frame, drawn in five overlapping passes). */
 private const val TRAIL_MAX_POINTS = 200
 
 /**
  * A circular crosshair plotting live lateral × forward G-force with a fading
- * comet trail — the studio twin of the dashboard's GForceCrosshair. The trail
+ * comet trail, the studio twin of the dashboard's GForceCrosshair. The trail
  * is rebuilt from [StudioElementData.history] each frame, so it works for both
  * live recording and trip replay (history is the trip up to the scrub point).
  */
@@ -641,7 +641,7 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
     // Single source of truth for both trail and dot:
     //   • Live mode → the viewModel's rolling 50 Hz IMU trail. The dot is the
     //     last entry; the comet is the preceding samples. They cannot visually
-    //     disconnect because they're the same data — the dashboard's
+    //     disconnect because they're the same data; the dashboard's
     //     crosshair uses this exact pattern.
     //   • Replay mode → derive the same shape from the trip CSV row history
     //     (already in `data.history` at ~10 Hz), so scrubbing the timeline
@@ -649,7 +649,7 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
     val windowSec = element.graphWindowSec.coerceIn(2, 20)
     val trail = if (data.liveGForceTrail.isNotEmpty()) {
         // 50 Hz × seconds, plus 15% exit-fade buffer so the oldest segments
-        // can fade their alpha to 0 *before* being removed from the array —
+        // can fade their alpha to 0 *before* being removed from the array;
         // a hard cutoff makes the curve geometry visibly snap.
         val take = ((windowSec * 50f) * 1.15f).toInt().coerceAtLeast(2)
         val src = data.liveGForceTrail
@@ -663,9 +663,9 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             .filter { it.timeMs >= last - extWindowMs }
             .map { Offset(it.data.accelX, it.data.accelY) }
     }
-    // Outer-ring g value — the scale goes down to 0.25 g for tiny movements.
+    // Outer-ring g value: the scale goes down to 0.25 g for tiny movements.
     val maxG = element.gForceScale.coerceIn(0.25f, 6f)
-    // The dot sits at the most recent trail sample — that's how the dashboard
+    // The dot sits at the most recent trail sample; that's how the dashboard
     // does it and why the two stay rigidly connected. No tween, no smoothing,
     // no separate source of dot position.
     val head = trail.lastOrNull()
@@ -703,9 +703,9 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
             drawLine(grid, Offset(cx, 0f), Offset(cx, h), strokeWidth = 1f, pathEffect = dash)
 
             // Comet tail. Two-pass smooth path:
-            //   1) the *full* trail as a quadratic-smoothed Path — drawn once
+            //   1) the *full* trail as a quadratic-smoothed Path, drawn once
             //      with a moderate stroke / low alpha (the older fading body).
-            //   2) the most-recent third of the trail as a second Path — drawn
+            //   2) the most-recent third of the trail as a second Path, drawn
             //      thicker / brighter on top (the bright comet head).
             // One Path-build + two drawPath calls per dial replaces the per-
             // segment drawLine loop that was making four dials look glitchy and
@@ -732,7 +732,7 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
 
                 // Per-segment rendering with a continuous alpha curve AND a
                 // smooth Bezier shape. Each iteration draws ONE quadratic
-                // Bezier sub-path centred on a single source point — the path
+                // Bezier sub-path centred on a single source point: the path
                 // starts at the midpoint with the previous point, curves
                 // through the current point as the Bezier control, and ends
                 // at the midpoint with the next point. Consecutive segments
@@ -793,7 +793,7 @@ private fun GForceTrailElement(element: OverlayElement, data: StudioElementData)
                 }
             }
 
-            // Live dot — eased toward the current lateral / forward G-force.
+            // Live dot, eased toward the current lateral / forward G-force.
             // Slightly larger than the previous radii so the head reads as the
             // focal point even with the brighter, thicker comet tail.
             val gx = liveG.x.coerceIn(-maxG, maxG)
@@ -958,7 +958,7 @@ private fun WheelNameElement(element: OverlayElement, data: StudioElementData) {
 private fun AppBadgeElement(element: OverlayElement) {
     val context = LocalContext.current
     // The launcher icon is an adaptive-icon drawable, which painterResource
-    // cannot load — rasterise it to a bitmap once instead.
+    // cannot load; rasterise it to a bitmap once instead.
     val icon = remember {
         runCatching {
             context.packageManager.getApplicationIcon(context.packageName)
@@ -1036,7 +1036,7 @@ private fun DataValueElement(element: OverlayElement, data: StudioElementData) {
     ) {
         val w = maxWidth.value
         // Fill the configured width so the pill stays a fixed size as the live
-        // value changes digits — otherwise it jitters and reads as distracting.
+        // value changes digits; otherwise it jitters and reads as distracting.
         val align = when (element.textAlign) {
             "CENTER" -> Alignment.CenterHorizontally
             "END" -> Alignment.End
@@ -1476,7 +1476,7 @@ private fun ImageElement(element: OverlayElement) {
 }
 
 // --------------------------------------------------------------------------
-// MAP — a live mini-map drawn entirely with a Compose Canvas so the studio's
+// MAP: a live mini-map drawn entirely with a Compose Canvas so the studio's
 // GraphicsLayer capture records it (a real MapView is SurfaceView-backed and
 // would not appear in the recording). Raster "slippy map" tiles are fetched
 // over HTTP, cached, and painted onto the Canvas; the GPS trace and position
@@ -1486,7 +1486,7 @@ private fun ImageElement(element: OverlayElement) {
 /** Side of a single map tile, in pixels (standard slippy-map tile size). */
 private const val MAP_TILE_SIZE = 256
 
-/** Most recent trace points to draw — keeps the polyline cheap on long trips. */
+/** Most recent trace points to draw, keeps the polyline cheap on long trips. */
 private const val MAP_TRACE_CAP = 400
 
 /**
@@ -1494,7 +1494,7 @@ private const val MAP_TRACE_CAP = 400
  * given (style, z, x, y), so one shared LRU serves every MAP element.
  */
 private object MapTileCache {
-    // ~64 tiles ≈ 16 MB of ARGB_8888 bitmaps — plenty for a 3x3 view plus pans.
+    // ~64 tiles ≈ 16 MB of ARGB_8888 bitmaps; plenty for a 3x3 view plus pans.
     private val cache = android.util.LruCache<String, ImageBitmap>(64)
     // URLs currently being fetched, so two recompositions don't double-load.
     private val inFlight = java.util.Collections.synchronizedSet(HashSet<String>())
@@ -1578,7 +1578,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 else Modifier.aspectRatio(1f)
             )
             .clip(RoundedCornerShape(12.dp))
-            // A neutral fill — only ever seen for the moment before the first
+            // A neutral fill; only ever seen for the moment before the first
             // tiles arrive. The configurable colour is the border.
             .background(Color(0xFFE6E6EA))
             .border(
@@ -1587,7 +1587,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             )
     ) {
         if (!hasFix) {
-            // No GPS yet — leave the styled background, nothing to project.
+            // No GPS yet; leave the styled background, nothing to project.
             return@Box
         }
 
@@ -1662,7 +1662,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             val cy = h / 2f
 
             // Bearing of recent travel (degrees, 0 = north, clockwise) from the
-            // last two distinct trace points — drives optional heading-up mode.
+            // last two distinct trace points; drives optional heading-up mode.
             val bearing: Float = if (trace.size >= 2) {
                 var b = 0f
                 val last = trace.last()
@@ -1695,7 +1695,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             // Everything (tiles + trace) rotates together for heading-up; the
             // marker is drawn after, unrotated, so it stays a fixed dot.
             rotate(degrees = rotation, pivot = Offset(cx, cy)) {
-                // Tiles — top-left of each tile is its (tileX - centerTx) offset.
+                // Tiles: top-left of each tile is its (tileX - centerTx) offset.
                 tileKeys.forEach { (tx, ty, url) ->
                     val bmp = MapTileCache.get(url) ?: return@forEach
                     val left = cx + ((tx - centerTx) * MAP_TILE_SIZE).toFloat()
@@ -1735,7 +1735,7 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
                 }
             }
 
-            // Position marker — mirrors the Navigator's idle / customized
+            // Position marker: mirrors the Navigator's idle / customized
             // marker styling so the rider's "you are here" reads the same in
             // both places. Size is proportional to the widget (this widget
             // can be tiny or huge depending on element.width), so the marker

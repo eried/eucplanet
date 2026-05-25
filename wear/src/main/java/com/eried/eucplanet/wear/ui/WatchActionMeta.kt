@@ -20,7 +20,7 @@ import com.eried.eucplanet.wear.R
  * can display.
  *
  * Kept in the wear module rather than imported from app/ because the watch
- * doesn't have a Hilt-injected dependency on AppSettings — it just needs the
+ * doesn't have a Hilt-injected dependency on AppSettings, it just needs the
  * String name. The action vocabulary mirrors `FlicAction` enum on the phone.
  */
 internal fun iconForAction(action: String): ImageVector? = when (action) {

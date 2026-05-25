@@ -33,7 +33,7 @@ object AppModule {
         val store = SettingsStore(context)
         copyLegacyRoomSettingsIfPresent(context, store)
         // After the legacy migration: if DataStore is still empty this is a
-        // genuine fresh install — seed unit defaults from the device locale.
+        // genuine fresh install, seed unit defaults from the device locale.
         // No-op for upgrading and existing users (their blob is already set).
         runBlocking { store.seedDefaultsIfAbsent() }
         return store
@@ -48,7 +48,7 @@ object AppModule {
     /**
      * If a pre-v45 database is on disk with a populated `app_settings` row,
      * serialise it into DataStore before Room runs its migrations. This makes
-     * the upgrade non-destructive for the rider's toggle list. Idempotent —
+     * the upgrade non-destructive for the rider's toggle list. Idempotent , 
      * [SettingsStore.seedIfAbsent] only writes when DataStore is still empty.
      */
     private fun copyLegacyRoomSettingsIfPresent(context: Context, store: SettingsStore) {
@@ -117,7 +117,7 @@ object AppModule {
     /**
      * Build the Room database with the v44->v45 migration. If the open still
      * fails (e.g. a future identity-hash mismatch from a forgotten migration),
-     * wipe the DB file and rebuild — trip / alarm / profile loss is regrettable
+     * wipe the DB file and rebuild, trip / alarm / profile loss is regrettable
      * but better than an unrecoverable crash on every cold start. Settings
      * stay safe in DataStore regardless.
      */

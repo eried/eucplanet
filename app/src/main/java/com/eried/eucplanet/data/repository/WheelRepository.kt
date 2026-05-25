@@ -151,7 +151,7 @@ class WheelRepository @Inject constructor(
     // other's deferreds. Without this, two concurrent toggleLock() calls
     // both write the singleton `pendingAuthKeyDeferred`; the first call's
     // deferred is overwritten and times out without ever reaching the
-    // setLock write — exactly the symptom seen on the P6 ("lock doesn't
+    // setLock write, exactly the symptom seen on the P6 ("lock doesn't
     // work" while WIM works because WIM serialises taps in its UI).
     private val authMutex = Mutex()
 
@@ -284,8 +284,8 @@ class WheelRepository @Inject constructor(
         // Track the rider's speed calibration. We mirror it into a volatile
         // multiplier so the hot telemetry path applies it without re-reading
         // the settings flow per frame. Also persist a copy into the per-wheel
-        // profile whenever the value changes — keyed by the BLE-advertised
-        // name (AppSettings.lastDeviceName) — so a reconnect to the same
+        // profile whenever the value changes, keyed by the BLE-advertised
+        // name (AppSettings.lastDeviceName), so a reconnect to the same
         // wheel restores everything (tiltback, alarm, safety, calibration).
         scope.launch {
             settingsRepository.settings.collect { s ->
@@ -304,11 +304,11 @@ class WheelRepository @Inject constructor(
         }
 
         // The wheel-data merge needs IMU samples for its lifetime (we feed them
-        // into accelX / accelY / gForce regardless of BLE state — the IMU is
+        // into accelX / accelY / gForce regardless of BLE state, the IMU is
         // the phone's, not the wheel's). Hold a single start ref forever so
         // BLE disconnect flaps can't tear the listener down out from under
         // active consumers like the Overlay Studio. The matching stop() lives
-        // on no code path — this is a singleton, the IMU is cheap, and any
+        // on no code path, this is a singleton, the IMU is cheap, and any
         // attempt to "balance" this with a stop reintroduces the bug.
         phoneSensorRepository.start()
 
@@ -356,7 +356,7 @@ class WheelRepository @Inject constructor(
      * name, restore tiltback / alarm / safety speeds and the speed
      * calibration into the live AppSettings so the dashboard, alarms, voice
      * and recording all pick the right values up. If no profile exists,
-     * seed one from the current AppSettings — that becomes the starting
+     * seed one from the current AppSettings, that becomes the starting
      * point for this wheel and future tweaks are written back via
      * [persistWheelProfile].
      */
@@ -400,7 +400,7 @@ class WheelRepository @Inject constructor(
 
     fun connect(address: String, name: String? = null) {
         if (lastConnectedAddress != null && lastConnectedAddress != address) {
-            // Different wheel — clear history
+            // Different wheel, clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
             ampsHist.clear(); loadHist.clear(); speedHist.clear()
             _fullHistory.value = FullMetricHistory()
@@ -435,7 +435,7 @@ class WheelRepository @Inject constructor(
     fun toggleLock() {
         if (_lockBusy.value) return  // cooldown active, ignore the spam tap
         val targetState = !_locked.value
-        // Hard block the lock direction when the wheel is moving — any entry
+        // Hard block the lock direction when the wheel is moving, any entry
         // path (Flic, watch, volume keys, dashboard) lands here. Unlock is
         // always allowed; if the wheel is already locked, speed is 0 anyway.
         if (targetState && kotlin.math.abs(_wheelData.value.speed) >= LOCK_MAX_SPEED_KMH &&
@@ -466,7 +466,7 @@ class WheelRepository @Inject constructor(
                     ))
                 }
             } else {
-                Log.e(TAG, "Lock command failed: auth unsuccessful — awaiting wheel telemetry resync")
+                Log.e(TAG, "Lock command failed: auth unsuccessful, awaiting wheel telemetry resync")
             }
         }
     }
@@ -488,7 +488,7 @@ class WheelRepository @Inject constructor(
         val authReqPacket = wheelAdapter.requestAuthKey()
         val verifyBuilder = wheelAdapter::verifyAuth
         if (authReqPacket == null) {
-            // Capabilities say auth is required but adapter exposes no key request — bug.
+            // Capabilities say auth is required but adapter exposes no key request, bug.
             Log.e(TAG, "Lock: adapter requires auth but provides no requestAuthKey()")
             return@withLock false
         }
@@ -542,14 +542,14 @@ class WheelRepository @Inject constructor(
         // Remember what we asked for so the settings handler can tell the
         // difference between "wheel echoed our value" and "wheel clamped it".
         // Without this, a firmware-capped V14 (e.g. 80 km/h max while we send
-        // 85) would echo back 80 — and if 80 happened to equal stored Legal
+        // 85) would echo back 80, and if 80 happened to equal stored Legal
         // tiltback, the readback-based detector would lock the toggle on.
         lastSentTiltbackKmh = tiltbackKmh
         // Timestamp the write so the auto-sync handler doesn't mistake the
         // wheel's echo of our own write for an external change.
         lastSetSpeedAtMs = System.currentTimeMillis()
         wheelAdapter.setMaxSpeed(tiltbackKmh, beepKmh)?.let { bleManager.writeCommand(it) }
-        // P6 needs two flash-commit packets after the live drag write — one
+        // P6 needs two flash-commit packets after the live drag write, one
         // for the tiltback, one for the alarm threshold. V14 returns null
         // here since both values land in the single setMaxSpeed packet.
         wheelAdapter.setMaxSpeedCommit(tiltbackKmh)?.let { bleManager.writeCommand(it) }
@@ -563,7 +563,7 @@ class WheelRepository @Inject constructor(
         // Flip the flag to user intent immediately. The settings handler
         // already trusts intent (lastSentTiltbackKmh) over a clamped readback,
         // but the optimistic flip keeps the UI responsive while the wheel's
-        // confirmation is in flight — same pattern as toggleLock.
+        // confirmation is in flight, same pattern as toggleLock.
         _safetySpeedActive.value = wantActive
 
         if (wantActive) {
@@ -643,7 +643,7 @@ class WheelRepository @Inject constructor(
     /**
      * Run the password handshake right after init completes for wheels that
      * gate control writes on it (the P6). Mirrors [authenticateAndLock]'s
-     * auth steps but stops after the verify ACK — there is no lock packet
+     * auth steps but stops after the verify ACK, there is no lock packet
      * to send. Failure is logged and ignored; the user keeps their telemetry.
      */
     private suspend fun runConnectAuthHandshake() {
@@ -655,7 +655,7 @@ class WheelRepository @Inject constructor(
         val key = withTimeoutOrNull(4000L) { keyDeferred.await() }
         pendingAuthKeyDeferred = null
         if (key == null) {
-            Log.w(TAG, "Connect-auth: key timeout — control commands may not work until lock toggle")
+            Log.w(TAG, "Connect-auth: key timeout, control commands may not work until lock toggle")
             return
         }
         authKey = key
@@ -666,7 +666,7 @@ class WheelRepository @Inject constructor(
         val ok = withTimeoutOrNull(4000L) { confirmDeferred.await() } ?: false
         pendingAuthConfirmDeferred = null
         if (ok) Log.i(TAG, "Connect-auth: verified, control endpoint primed")
-        else Log.w(TAG, "Connect-auth: verify failed — control commands may not work")
+        else Log.w(TAG, "Connect-auth: verify failed, control commands may not work")
     }
 
     // --- Speed limits reconciliation on (re)connect ---
@@ -683,7 +683,7 @@ class WheelRepository @Inject constructor(
      *  E) wheel tilt between legal+normal → ambiguous (firmware cap or external lower of normal);
      *                                       leave stored values alone, mark normal mode active
      *
-     * In A/B/E we never overwrite stored values — the other pair is preserved across
+     * In A/B/E we never overwrite stored values, the other pair is preserved across
      * reconnects even though the wheel forgets it. Case E is the conservative split that
      * stops a firmware-capped readback (e.g. V14 80 km/h cap when stored normal is 85)
      * from silently downgrading the user's stored preference.
@@ -693,7 +693,7 @@ class WheelRepository @Inject constructor(
         val wAlarm = ws.alarmSpeedKmh
         // The wheel reports 0 when tiltback is either unsupported by the
         // adapter (some Begode/Veteran families) or explicitly disabled on
-        // the wheel itself. Treat both as "don't know" — overwriting the
+        // the wheel itself. Treat both as "don't know", overwriting the
         // user's stored tilt with 0 would silently break their dashboard
         // gauge (gaugeMax floors at 10 km/h).
         if (wTilt <= 0f) return
@@ -715,18 +715,18 @@ class WheelRepository @Inject constructor(
                 appSettings
             }
             wTilt < legalTilt -> {
-                // User lowered their legal via another app — adopt as new legal
+                // User lowered their legal via another app, adopt as new legal
                 isLegalOn = true
                 appSettings.copy(safetyTiltbackKmh = wTilt, safetyAlarmKmh = wAlarm)
             }
             wTilt > normalTilt + tolerance -> {
-                // Wheel above stored normal — user raised normal externally; adopt
+                // Wheel above stored normal, user raised normal externally; adopt
                 isLegalOn = false
                 appSettings.copy(tiltbackSpeedKmh = wTilt, alarmSpeedKmh = wAlarm)
             }
             else -> {
                 // wTilt is between legal and normal. Adopt it as the new
-                // normal — covers the P6/V12 case where the user lowered
+                // normal, covers the P6/V12 case where the user lowered
                 // the speed on the wheel's own screen, which is the common
                 // path. The V14-clamp risk this used to guard against is
                 // small in practice (V14 hardware caps don't shift across
@@ -792,7 +792,7 @@ class WheelRepository @Inject constructor(
                               else previous.totalDistance
                 // Apply the per-wheel speed calibration at the source. Every
                 // downstream consumer (alarms, voice, dashboard, recording)
-                // sees the calibrated value — there is no second source of
+                // sees the calibrated value, there is no second source of
                 // truth elsewhere in the app.
                 val cal = speedCalibrationMultiplier
                 _wheelData.value = result.data.copy(
@@ -882,7 +882,7 @@ class WheelRepository @Inject constructor(
                     // the wheel echoed back a value lower than we asked for.
                     // The wheel's firmware-capped readback can collide with the
                     // stored Legal tiltback (e.g. cap=80, stored Legal=80) and
-                    // freeze the toggle ON forever — using lastSentTiltbackKmh
+                    // freeze the toggle ON forever, using lastSentTiltbackKmh
                     // when it differs from the readback breaks that loop.
                     val sent = lastSentTiltbackKmh
                     val effectiveTilt = if (sent != null &&
@@ -905,7 +905,7 @@ class WheelRepository @Inject constructor(
                         val activeAlarm = if (isSafety) appSettings.safetyAlarmKmh
                                           else appSettings.alarmSpeedKmh
                         // Threshold: 1 km/h either direction. Both upward and
-                        // downward wheel-side changes are honored — earlier
+                        // downward wheel-side changes are honored, earlier
                         // upward-only gate was meant to defeat V14 firmware
                         // clamps but blocked legitimate P6 downward changes.
                         // V14 wheels rarely change tiltback externally so the

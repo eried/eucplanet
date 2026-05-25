@@ -99,7 +99,7 @@ class WatchBridgeService : WearableListenerService() {
 
     /**
      * Phone sends a message on `/euc/wake` whenever its app starts. We launch
-     * MainActivity so the watch wakes the dial up immediately — without this
+     * MainActivity so the watch wakes the dial up immediately, without this
      * the watch keeps showing whatever it was on before, even though the phone
      * has fresh state ready to ship.
      */

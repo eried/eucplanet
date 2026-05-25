@@ -134,7 +134,7 @@ class ScanViewModel @Inject constructor(
 
     override fun onCleared() {
         stopScan()
-        // Rider left the scan screen — let the auto-reconnect run again.
+        // Rider left the scan screen, let the auto-reconnect run again.
         bleConnectionManager.autoConnectSuppressed = false
         super.onCleared()
     }

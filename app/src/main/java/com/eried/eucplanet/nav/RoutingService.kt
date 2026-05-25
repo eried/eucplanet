@@ -23,9 +23,9 @@ data class GeoResult(val name: String, val lat: Double, val lng: Double)
 
 /**
  * The Navigator's only network code. Talks to free, key-less OpenStreetMap
- * services — Nominatim for address search / reverse lookup, and the FOSSGIS
+ * services, Nominatim for address search / reverse lookup, and the FOSSGIS
  * OSRM service (routing.openstreetmap.de, the very router that powers
- * openstreetmap.org's own directions) for turn-by-turn routing — over plain
+ * openstreetmap.org's own directions) for turn-by-turn routing, over plain
  * [HttpURLConnection] (no Retrofit/OkHttp dependency added).
  *
  * It is only ever called while the rider is actively building a route or while
@@ -38,11 +38,11 @@ class RoutingService @Inject constructor() {
     companion object {
         private const val TAG = "RoutingService"
 
-        /** Default geocoder — overridable from Settings (`navGeocoderUrl`). */
+        /** Default geocoder, overridable from Settings (`navGeocoderUrl`). */
         const val DEFAULT_GEOCODER = "https://nominatim.openstreetmap.org/search"
 
         /**
-         * Default router base — overridable from Settings (`navRouterUrl`).
+         * Default router base, overridable from Settings (`navRouterUrl`).
          * Three OSRM engines live under it (routed-bike / routed-foot /
          * routed-car), picked per [TravelMode]. This is the router that powers
          * openstreetmap.org's own directions: reliable and key-less.
@@ -62,8 +62,8 @@ class RoutingService @Inject constructor() {
         }
 
         /**
-         * Resolves the configured router URL. A blank value — or a stale URL
-         * left over from the retired Valhalla backend — falls back to
+         * Resolves the configured router URL. A blank value, or a stale URL
+         * left over from the retired Valhalla backend, falls back to
          * [DEFAULT_ROUTER] so existing installs migrate transparently.
          */
         fun effectiveRouterUrl(stored: String): String =
@@ -74,7 +74,7 @@ class RoutingService @Inject constructor() {
          * Extracts a sensible short label from a Nominatim display_name: the
          * first comma-separated part that is not just a house / road number, so
          * a pin reads "Karl Johans gate" rather than a meaningless "1". Returns
-         * "" when the whole address is numeric — the caller then shows the
+         * "" when the whole address is numeric, the caller then shows the
          * pin's role label on its own.
          */
         fun placeLabel(displayName: String): String {
@@ -109,7 +109,7 @@ class RoutingService @Inject constructor() {
 
     /**
      * Address / place search. Returns up to a handful of hits, best-match
-     * first as Nominatim ranks them. Empty list on any failure — callers just
+     * first as Nominatim ranks them. Empty list on any failure, callers just
      * show "no results".
      */
     suspend fun geocode(
@@ -169,7 +169,7 @@ class RoutingService @Inject constructor() {
     /**
      * Resolves an ordered list of waypoints into a navigable route with
      * geometry and turn-by-turn maneuvers via OSRM. Returns `null` if the
-     * request fails — the caller falls back to [straightLineRoute].
+     * request fails, the caller falls back to [straightLineRoute].
      */
     suspend fun route(
         name: String,
@@ -224,7 +224,7 @@ class RoutingService @Inject constructor() {
                     val isFirst = li == 0 && si == 0
                     val isLast = li == legs.length() - 1 && si == steps.length() - 1
                     // Keep DEPART only at the very start and ARRIVE only at the
-                    // very end — the per-leg ones at intermediate stops are noise.
+                    // very end, the per-leg ones at intermediate stops are noise.
                     val keep = when (type) {
                         TurnType.DEPART -> isFirst
                         TurnType.ARRIVE -> isLast

@@ -7,18 +7,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * WheelAdapter for the InMotion V1 protocol family — V5 / V8 / V10 / L6 /
+ * WheelAdapter for the InMotion V1 protocol family: V5 / V8 / V10 / L6 /
  * Glide 3 / Lively, plus the legacy R / V3 series. All share the byte-stuffed
  * `AA AA … 55 55` framing wrapped around a 16-byte CAN prefix; the wheel is
  * disambiguated post-connect by the model code in the slow-info reply
- * (offsets 104 / 107) — see docs/protocols/inmotion_v1.md.
+ * (offsets 104 / 107); see docs/protocols/inmotion_v1.md.
  *
  * V1 is on the proprietary 0xFFE4 / 0xFFE9 BLE profile (split across two
  * services), distinct from the KingSong / Begode / Veteran 0xFFE0 / 0xFFE1
  * profile and from the V2 Nordic UART profile.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 @Singleton
@@ -34,7 +34,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
      * Optional 6-digit PIN for the V1 auth handshake (spec section 7). When
      * non-null the adapter sends it on connect; the wheel ignores it when no
      * PIN is configured, so it is safe to always send. UI plumbing for
-     * setting this is out of scope for this commit — the field stays null
+     * setting this is out of scope for this commit; the field stays null
      * until a "Saved PINs" preference path lands.
      */
     @Volatile var pin: String? = null
@@ -71,7 +71,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     /**
      * Horn dispatch: V8F / V8S / V10 family / Glide 3 use the dedicated horn
      * opcode, everything else falls back to playSound(4) per spec table 8.
-     * Unknown models default to the legacy playSound — the dedicated opcode
+     * Unknown models default to the legacy playSound; the dedicated opcode
      * is silently ignored on wheels that don't support it.
      */
     override fun horn(): ByteArray {
@@ -100,11 +100,11 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
     override fun setDRL(on: Boolean): ByteArray? =
         if (detectedModel?.hasDRL == true) InMotionV1Commands.setDRL(on) else null
 
-    /** V1 has no remote lock command — lock state is read-only via work mode. */
+    /** V1 has no remote lock command; lock state is read-only via work mode. */
     override fun setLock(locked: Boolean): ByteArray? = null
 
     /**
-     * V1 PIN handshake is symmetric — the phone pushes the PIN, the wheel
+     * V1 PIN handshake is symmetric: the phone pushes the PIN, the wheel
      * acks with its own `0x0F550307` frame. There is no challenge / response
      * shaped like the V14 handshake, so [requestAuthKey] returns null and
      * the connection manager skips its V14-style two-step flow.
@@ -131,7 +131,7 @@ class InMotionV1Adapter @Inject constructor() : WheelAdapter {
                 continue
             }
             val end = findFrameEnd(buffer, i + 2)
-            if (end < 0) break // incomplete trailing frame — keep for next notification
+            if (end < 0) break // incomplete trailing frame, keep for next notification
             val frame = buffer.copyOfRange(i, end)
             InMotionV1Protocol.unwrap(frame)?.let { unwrapped ->
                 results += dispatch(unwrapped)

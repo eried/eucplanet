@@ -18,7 +18,7 @@ import com.eried.eucplanet.util.ByteUtils
  *     documents the explicit re-sync rules implemented in [feed].
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 class BegodeParser {
@@ -46,8 +46,8 @@ class BegodeParser {
      * True once a Freestyl3r (CF) or SmirnoV (BF) firmware banner identifies
      * this wheel as one that populates a real hardware-PWM value at frame
      * 0x00 offset 14. Stock Begode (GW) and ExtremeBull (JN) firmware leave
-     * that field unpopulated — usually 0, but some builds (e.g. Mten3) emit a
-     * constant noise value of 1 — so PWM must be derived there instead. Set by
+     * that field unpopulated; usually 0, but some builds (e.g. Mten3) emit a
+     * constant noise value of 1, so PWM must be derived there instead. Set by
      * [BegodeAdapter] when it decodes the V-query banner; defaults false so
      * unknown / un-probed firmware derives, which is the safe choice.
      */
@@ -85,7 +85,7 @@ class BegodeParser {
      * Push raw bytes from a BLE notification into the reassembler and emit
      * a [DecodeResult] for every complete 24-byte frame found, in order.
      *
-     * Re-sync rules at small buffer sizes mirror spec 3.6 verbatim — they
+     * Re-sync rules at small buffer sizes mirror spec 3.6 verbatim; they
      * exist to recover when the bridge spuriously inserts a 0x5A inside a
      * fresh `55 AA ...` sequence.
      */
@@ -156,7 +156,7 @@ class BegodeParser {
             0x07 -> parseExtras(frame)?.let { DecodeResult.Telemetry(it) }
             0xFF -> {
                 // SmirnoV PID frame; tuning surface, not telemetry. Spec 4.8 says
-                // "skip unless you target that FW" — log once-ish and move on.
+                // "skip unless you target that FW"; log once-ish and move on.
                 Log.d(TAG, "ignoring 0xFF Alexovik PID frame (SmirnoV FW only)")
                 null
             }
@@ -177,7 +177,7 @@ class BegodeParser {
         val ratio = voltageRatioFor(model)
         val voltage = (rawCv / 100f) * ratio
         // Spec 4.1: speed = i16 BE * 3.6 / 100. Some FW emit absolute speed
-        // only — we expose signed and let the UI normalise. See open question
+        // only; we expose signed and let the UI normalise. See open question
         // 9 "reverse speed sign".
         val rawSpeed = ByteUtils.getInt16BE(frame, 4)
         val rawSpeedKmh = rawSpeed * 3.6f / 100f
@@ -206,7 +206,7 @@ class BegodeParser {
 
         // Hardware PWM at offset 14 carries a real reading only on Freestyl3r
         // (CF) and SmirnoV (BF) firmware. Stock Begode (GW) and ExtremeBull
-        // (JN) firmware leave it unpopulated — usually 0, but some builds
+        // (JN) firmware leave it unpopulated; usually 0, but some builds
         // (e.g. Mten3) emit a constant noise value of 1, so a bare "non-zero"
         // test wrongly latches onto 0.1 %. We therefore trust offset 14 only
         // when a CF/BF banner has flagged the firmware as HW-PWM capable
@@ -262,7 +262,7 @@ class BegodeParser {
         val maxSpeedRaw = if (rawMax >= 200) 0f else rawMax.toFloat()
 
         // Settings bitfield at offset 6 (u16 BE). Bit 0 is the imperial-units
-        // flag — set when the rider has switched the wheel's screen to mph in
+        // flag, set when the rider has switched the wheel's screen to mph in
         // the Begode app. We stash it on the parser so subsequent Live A
         // frames can de-convert speed/distance back to km internally; the
         // tiltback (max speed) on this same frame is in mph too when the
@@ -271,7 +271,7 @@ class BegodeParser {
         wheelInMiles = (settings and 0x0001) != 0
         val maxSpeed = if (wheelInMiles) maxSpeedRaw * MILES_TO_KM else maxSpeedRaw
 
-        // Light mode at offset 15 — low 2 bits: 0=off, 1=on, 2=strobe.
+        // Light mode at offset 15. Low 2 bits: 0=off, 1=on, 2=strobe.
         val lightBits = frame[15].toInt() and 0x03
         lastLightOn = lightBits != 0
 
@@ -286,7 +286,7 @@ class BegodeParser {
      * voltage on stock Begode firmware disagrees with the Live A scaled
      * reading (different reference point) and produces voltage / battery
      * flicker on Master and other high-voltage packs. We follow that default
-     * and drop the frame entirely — Live A is the source of truth — until we
+     * and drop the frame entirely (Live A is the source of truth) until we
      * surface per-cell BMS in a dedicated UI that justifies a user opt-in.
      */
     @Suppress("UNUSED_PARAMETER")
@@ -294,12 +294,12 @@ class BegodeParser {
 
     /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
-     * motor temperature and true PWM — present on post-2022 firmwares.
+     * motor temperature and true PWM; present on post-2022 firmwares.
      * After the first 0x07 we trust these over the derived values from 0x00.
      */
     private fun parseExtras(frame: ByteArray): WheelData? {
         // WheelLog inverts the sign here (`setCurrent((-1) * batteryCurrent)`)
-        // so positive current means motoring and negative means regen — the
+        // so positive current means motoring and negative means regen; the
         // convention used everywhere else in the app. Without the flip the
         // dashboard reads backwards during acceleration vs braking.
         val battCurrent = -(ByteUtils.getInt16BE(frame, 2) / 100f)
@@ -313,7 +313,7 @@ class BegodeParser {
         val truePwm = truePwmRaw.toFloat()
 
         // Only latch onto the 0x07 PWM path when the field is actually
-        // populated — matches WheelLog's `Math.abs(hwPWMb) > 0` arming check.
+        // populated, matching WheelLog's `Math.abs(hwPWMb) > 0` arming check.
         // Some Begode firmwares emit 0x07 frames with offset 8 = 0 at idle,
         // and the old unconditional latch silently locked us out of the
         // 0x00 / derived PWM fallbacks forever after.
@@ -357,7 +357,7 @@ class BegodeParser {
      * Returns a value in 0..100 (percent). Models we don't have explicit
      * numbers for fall back to WheelLog's stock defaults (50, 84), which is
      * qualitatively correct but quantitatively over-reads on high-voltage
-     * wheels — better to refine via a labelled capture than to ship 0 %.
+     * wheels; better to refine via a labelled capture than to ship 0 %.
      */
     private fun derivedPwmPct(model: BegodeModel?, voltage: Float, speedKmh: Float): Float {
         if (voltage <= 0f) return 0f
@@ -387,13 +387,13 @@ class BegodeParser {
         BegodeModel.T4       -> 66.5f to 84.0f
         BegodeModel.MASTER   -> 113.0f to 134.4f
         BegodeModel.MASTER_PRO -> 113.0f to 134.4f
-        else -> 50.0f to 84.0f   // WheelLog AppConfig defaults — generic fallback
+        else -> 50.0f to 84.0f   // WheelLog AppConfig defaults, generic fallback
     }
 
     /**
      * Battery percent from raw centi-volts on the 84 V reference scale (spec
      * 4.3, "better percents" curve). Callers must pass the *unscaled* cV so
-     * the curve constants line up — for non-84 V packs we divide voltage by
+     * the curve constants line up; for non-84 V packs we divide voltage by
      * the per-pack scaler before applying the curve.
      */
     private fun batteryPercentFromRawCv(rawCv: Int): Int {
@@ -412,7 +412,7 @@ class BegodeParser {
         private const val HEADER_1: Byte = 0xAA.toByte()
         private const val TERM: Byte = 0x5A
         /** Used to de-convert Begode wire values when the wheel's screen is
-         *  in imperial mode — see [wheelInMiles]. */
+         *  in imperial mode; see [wheelInMiles]. */
         private const val MILES_TO_KM: Float = 1.609344f
 
         /**

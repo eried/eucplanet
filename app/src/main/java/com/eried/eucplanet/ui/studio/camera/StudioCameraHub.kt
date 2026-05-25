@@ -52,7 +52,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * A camera the device exposes. [deviceId] is the *logical* camera that gets
  * opened; [physicalId] (when set) pins a specific physical lens behind it via
- * [OutputConfiguration.setPhysicalCameraId] — that is how the ultrawide /
+ * [OutputConfiguration.setPhysicalCameraId]; that is how the ultrawide /
  * telephoto are reached, since only logical cameras appear in the id list.
  */
 data class StudioCameraInfo(
@@ -100,7 +100,7 @@ class StudioCameraHub {
     internal var binding: CameraBinding? = null
 
     /**
-     * When true, frame conversion (YUV → ARGB → Bitmap) is skipped — the reader
+     * When true, frame conversion (YUV → ARGB → Bitmap) is skipped; the reader
      * is still drained so the camera keeps delivering, but each [Feed] just
      * closes the latest image instead of fanning row work out to the row pool.
      * Use this while a full-screen config sheet is on top: the cameras keep
@@ -120,7 +120,7 @@ class StudioCameraHub {
 /**
  * Binds the cameras named in [requestedKeys] (in priority order) while
  * [enabled] is true, and returns the live hub. Re-binds whenever the requested
- * set changes — that is how switching a viewport's camera takes effect.
+ * set changes; that is how switching a viewport's camera takes effect.
  */
 @Composable
 fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): StudioCameraHub {
@@ -136,7 +136,7 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
 
     // The camera must be released while the app is backgrounded: Android hands
     // the device to whatever comes to the foreground, and a CameraDevice taken
-    // away that way returns disconnected — its last frame just freezes on
+    // away that way returns disconnected; its last frame just freezes on
     // screen. Tracking the lifecycle lets the binding tear down on STOP and
     // rebuild on START, so the feed is live again the moment the rider switches
     // back to the studio instead of being stuck on a stale frame.
@@ -182,7 +182,7 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
         "|" + enabled + "|" + foreground
     LaunchedEffect(hub.ready, requestSignature) {
         if (!hub.ready) return@LaunchedEffect
-        // Tear the previous binding down before touching the camera subsystem —
+        // Tear the previous binding down before touching the camera subsystem;
         // a concurrent open fails while another session still holds a device,
         // and a backgrounded app must let go of the camera entirely.
         hub.binding?.close()
@@ -201,7 +201,7 @@ fun rememberStudioCameraHub(requestedKeys: List<String>, enabled: Boolean): Stud
         hub.liveKeys = try {
             binding.start(wanted)
         } catch (c: CancellationException) {
-            // The request changed mid-bind — drop this binding cleanly and let
+            // The request changed mid-bind: drop this binding cleanly and let
             // the next LaunchedEffect build the one the UI actually wants.
             binding.close()
             throw c
@@ -267,7 +267,7 @@ private fun computeMaxConcurrent(cm: CameraManager, cameras: List<StudioCameraIn
     return if (concurrentPairs || multiPhysicalDevice) 2 else 1
 }
 
-/** Display rotation in degrees — the app is portrait-locked, so normally 0. */
+/** Display rotation in degrees: the app is portrait-locked, so normally 0. */
 private fun displayRotationDegrees(context: Context): Int {
     val rotation = runCatching {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -291,7 +291,7 @@ private fun displayRotationDegrees(context: Context): Int {
 /**
  * One activation of the camera stack: opens every requested camera, configures
  * its capture session and keeps it streaming until [close]. A binding is
- * single-use — every re-bind builds a fresh one.
+ * single-use; every re-bind builds a fresh one.
  */
 internal class CameraBinding(
     private val cm: CameraManager,
@@ -323,14 +323,14 @@ internal class CameraBinding(
             if (concurrentPairSupported(ids)) {
                 groups
             } else {
-                Log.w(TAG, "Concurrent pair $ids unsupported — using first camera only")
+                Log.w(TAG, "Concurrent pair $ids unsupported, using first camera only")
                 groups.take(1)
             }
         } else {
             groups
         }
 
-        // Phase 1 — open every camera device *before* any session is configured.
+        // Phase 1: open every camera device *before* any session is configured.
         // The framework needs all concurrent devices open up front so the HAL
         // can split limited hardware resources across them.
         for ((deviceId, cams) in usableGroups) {
@@ -348,7 +348,7 @@ internal class CameraBinding(
             return emptySet()
         }
 
-        // Phase 2 — configure a capture session + repeating request per device.
+        // Phase 2: configure a capture session + repeating request per device.
         val live = mutableSetOf<String>()
         for (ds in devices.toList()) {
             if (closed) break
@@ -414,7 +414,7 @@ internal class CameraBinding(
         val executor = Executor { ds.handler.post(it) }
         val session = createSession(device, outputs, executor)
         ds.session = session
-        // A single repeating request feeds every output of this device — the
+        // A single repeating request feeds every output of this device; the
         // HAL routes each physically-pinned surface from its own physical lens.
         val request = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             .apply {
@@ -439,7 +439,7 @@ internal class CameraBinding(
         }.getOrNull()?.toList().orEmpty()
         if (ranges.isEmpty()) return null
         // Cap at 30 fps. Each frame is YUV → ARGB → Bitmap on the rowPool, so a
-        // single 60 fps camera burns roughly the same CPU as 30 fps × 2 — and
+        // single 60 fps camera burns roughly the same CPU as 30 fps × 2, and
         // two 60 fps cameras together saturate the device, starving the
         // RenderThread + GC and freezing the UI. 30 is more than enough for
         // both preview and recording.
@@ -538,14 +538,14 @@ private class DeviceSession(
     @Volatile
     var device: CameraDevice? = null
 
-    /** Set once teardown has run — a still-pending open must self-discard. */
+    /** Set once teardown has run: a still-pending open must self-discard. */
     @Volatile
     var abandoned = false
 
     var feeds: List<Feed> = emptyList()
     var session: CameraCaptureSession? = null
 
-    /** A camera that finished opening after teardown — close it and stop. */
+    /** A camera that finished opening after teardown: close it and stop. */
     fun discardLateOpen(camera: CameraDevice) {
         runCatching { camera.close() }
         runCatching { thread.quitSafely() }
@@ -561,7 +561,7 @@ private class DeviceSession(
             runCatching { dev.close() }
             runCatching { thread.quitSafely() }
         } else {
-            // The open is still in flight — leave the thread alive so the state
+            // The open is still in flight; leave the thread alive so the state
             // callback can still close the camera; a delayed quit guards the
             // rare case where that callback never arrives.
             runCatching {
@@ -617,14 +617,14 @@ private class Feed(
         Log.i(TAG, "Feed ${info.key}: ${size.width}x${size.height}, rotate $rotationDegrees")
     }
 
-    /** Output for the capture session — physically pinned for a sub-camera. */
+    /** Output for the capture session, physically pinned for a sub-camera. */
     fun outputConfiguration(): OutputConfiguration =
         OutputConfiguration(surface).apply {
             if (info.physicalId != null) setPhysicalCameraId(info.physicalId)
         }
 
     private fun onImage(reader: ImageReader) {
-        // Copy the planes off the Image fast, then release it — conversion is
+        // Copy the planes off the Image fast, then release it; conversion is
         // slow and must not stall the reader's limited buffer pool.
         val image = runCatching { reader.acquireLatestImage() }.getOrNull() ?: return
         // If a config sheet is on top the converted frame is invisible anyway;
@@ -683,7 +683,7 @@ private class Feed(
         pending.set(null)
         // The ImageReader MUST be closed on its own listener thread. Closing it
         // from another thread frees the in-flight Image's native buffer while
-        // onImage may still be copying from it on the camera thread — a
+        // onImage may still be copying from it on the camera thread: a
         // use-after-free that crashes natively (SIGSEGV in memcpy). Posting the
         // close serialises it after any running onImage on the same Looper.
         val posted = runCatching {
@@ -692,13 +692,13 @@ private class Feed(
                 runCatching { reader.close() }
             }
         }.getOrDefault(false)
-        // Looper already gone — no frame callback can be running, close inline.
+        // Looper already gone; no frame callback can be running, close inline.
         if (!posted) runCatching { reader.close() }
     }
 }
 
 /**
- * Pick a YUV output size near 1280x720 — the resolution guaranteed for both
+ * Pick a YUV output size near 1280x720: the resolution guaranteed for both
  * concurrent cameras and paired physical streams. Prefers an exact match, then
  * the closest size that is not larger (going over breaks concurrent capture).
  */
@@ -718,7 +718,7 @@ private fun chooseSize(ch: CameraCharacteristics): Size {
 
 // --- YUV -> Bitmap ---------------------------------------------------------
 
-/** A detached copy of one YUV_420_888 frame — safe to hold after Image.close(). */
+/** A detached copy of one YUV_420_888 frame, safe to hold after Image.close(). */
 private class YuvFrame(
     val width: Int,
     val height: Int,
@@ -763,7 +763,7 @@ private object YuvConverter {
      * rows are split into bands run in parallel on [rowPool]; [argb] is a reused
      * scratch buffer the caller owns.
      *
-     * The feed is never mirrored — a recording should show the true scene, not
+     * The feed is never mirrored; a recording should show the true scene, not
      * a selfie flip, so even the front camera comes through un-mirrored.
      */
     fun toBitmap(
@@ -794,7 +794,7 @@ private object YuvConverter {
                     }
                 }
             } catch (t: Throwable) {
-                // Pool rejected the work (shutting down) — keep the latch sane.
+                // Pool rejected the work (shutting down); keep the latch sane.
                 latch.countDown()
             }
         }

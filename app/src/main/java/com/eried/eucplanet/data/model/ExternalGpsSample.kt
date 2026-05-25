@@ -2,7 +2,7 @@ package com.eried.eucplanet.data.model
 
 /**
  * One position+speed sample from an external BLE GPS box (RaceBox, etc.).
- * Augments — never replaces — the phone GPS and the wheel's onboard GPS in
+ * Augments, never replaces, the phone GPS and the wheel's onboard GPS in
  * the trip log: both stay in their existing CSV columns and graph layers,
  * the external sample lands in dedicated trailing columns.
  */

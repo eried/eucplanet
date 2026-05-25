@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
  *
  * The BLE name is a string the manufacturer programs into the wheel (e.g.
  * "Adventure-12345", "RS_5012"). Two physical wheels can ship with the same
- * advertised name from the factory — rare, but in that case both wheels share
+ * advertised name from the factory, rare, but in that case both wheels share
  * the profile and the user can rename one through the wheel's own app to
  * disambiguate.
  */

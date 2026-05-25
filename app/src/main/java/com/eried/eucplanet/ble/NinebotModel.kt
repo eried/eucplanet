@@ -3,7 +3,7 @@ package com.eried.eucplanet.ble
 /**
  * Models in the Ninebot / Segway-Ninebot BLE protocol families. Two distinct
  * wire formats live under the same brand, so the model registry doubles as the
- * protocol selector — the adapter branches on [protocol] before reading any
+ * protocol selector. The adapter branches on [protocol] before reading any
  * other per-model field.
  *
  * Z protocol (Z6 / Z10 / new-stack E+ / Mini Plus): Nordic-UART GATT, encrypted
@@ -62,7 +62,7 @@ enum class NinebotModel(
          * Best-effort match of the BLE-advertised name. `Ninebot Z*`,
          * `Segway Z*`, and the bare `ZN<serial>` form all route to the Z
          * protocol; `Ninebot One*`, `Ninebot S2*`, `Ninebot Mini*` route to
-         * legacy. Returns null if no obvious match — the adapter then
+         * legacy. Returns null if no obvious match; the adapter then
          * defaults to the legacy protocol (cheaper to be wrong toward
          * read-only than to send encrypted writes to a plaintext wheel).
          *

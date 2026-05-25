@@ -22,7 +22,7 @@ import javax.inject.Singleton
  * The wear side's [com.eried.eucplanet.wear.bridge.WatchBridgeService]
  * decodes the 4-byte little-endian payload as a duration in milliseconds and
  * triggers its own [android.os.Vibrator]. The phone never blocks on the
- * round trip — fire-and-forget on a coroutine, exceptions logged.
+ * round trip, fire-and-forget on a coroutine, exceptions logged.
  */
 @Singleton
 class WatchVibrator @Inject constructor(

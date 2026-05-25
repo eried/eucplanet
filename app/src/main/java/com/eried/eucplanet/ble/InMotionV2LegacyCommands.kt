@@ -4,7 +4,7 @@ import com.eried.eucplanet.ble.InMotionV2Protocol.Command
 import com.eried.eucplanet.util.ByteUtils
 
 /**
- * Command builders for the older models in the InMotion V2 protocol family —
+ * Command builders for the older models in the InMotion V2 protocol family:
  * V11, V12 HS / HT / Pro, V12S, V9. These use the same wire framing as V14
  * (CONTROL = 0x60) but a different payload shape for max-speed and horn.
  *
@@ -28,7 +28,7 @@ object InMotionV2LegacyCommands {
      *   payload: [0x21, tiltback_lo, tiltback_hi]   (uint16-LE × 100)
      *
      * Models that want the alarm thresholds set should use
-     * [InMotionV2Commands.setMaxSpeedV14] instead — those use the longer form.
+     * [InMotionV2Commands.setMaxSpeedV14] instead; those use the longer form.
      */
     fun setMaxSpeedShort(tiltbackKmh: Float): ByteArray {
         val tiltback = ByteUtils.putUint16LE((tiltbackKmh * 100).toInt())

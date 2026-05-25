@@ -14,11 +14,11 @@ import com.eried.eucplanet.util.ByteUtils
  *
  * Settings poll returns max speed 50 / alarm 40, lock state matching the
  * `locked` field. Lock and tiltback control writes update internal state
- * which the next settings poll surfaces — the same loop a real wheel uses.
+ * which the next settings poll surfaces: the same loop a real wheel uses.
  *
  * Auth handshake: when the app sends requestAuthKey we return a fixed 16-byte
  * "encrypted" key; verifyAuth always succeeds. Real wheels do AES against a
- * preset password — we don't need that to exercise the parsing pipeline.
+ * preset password; we don't need that to exercise the parsing pipeline.
  */
 class V14VirtualWheel : VirtualWheel {
 
@@ -82,7 +82,7 @@ class V14VirtualWheel : VirtualWheel {
                     alarmSpeedKmh = ByteUtils.getUint16LE(data, 3) / 100f
                 }
             }
-            // SET_VOLUME / SET_DRL / PLAY_SOUND — accept silently
+            // SET_VOLUME / SET_DRL / PLAY_SOUND: accept silently
         }
         return emptyList()
     }
@@ -156,8 +156,8 @@ class V14VirtualWheel : VirtualWheel {
                     else ((now - lastBuildMs) / 1000f).coerceIn(0.02f, 1f)
         lastBuildMs = now
 
-        // Speed: an organic random walk — a random drift plus a gentle pull
-        // back toward a mid cruising speed — instead of a clean sine, so the
+        // Speed: an organic random walk, a random drift plus a gentle pull
+        // back toward a mid cruising speed, instead of a clean sine, so the
         // trace looks like a real, varied ride. Locked wheel stays at 0.
         if (locked) {
             simSpeed = 0f
@@ -176,7 +176,7 @@ class V14VirtualWheel : VirtualWheel {
 
         // Current tracks effort: a friction baseline while rolling plus a term
         // proportional to acceleration, so braking (negative accel) swings the
-        // current negative — regen — with a little noise on top. Idle draws a
+        // current negative (regen) with a little noise on top. Idle draws a
         // trickle.
         val current = if (speedKmh > 1f) {
             5f + accel * 1.1f + (rnd.nextFloat() - 0.5f) * 5f
@@ -203,7 +203,7 @@ class V14VirtualWheel : VirtualWheel {
         putInt16LE(d, 40, (maxSpeedKmh * 100).toInt())  // dynamic speed limit
         putInt16LE(d, 50, 3000)                         // dynamic current limit (×100 = 30 A)
         // Temperatures: encoded as raw + 80 - 256, so 0°C = 176 (0xB0)
-        // 35°C = 211, 40°C = 216 — use a spread for the six sensors
+        // 35°C = 211, 40°C = 216; use a spread for the six sensors
         d[58] = 211.toByte() // 35°C
         d[59] = 213.toByte() // 37°C
         d[60] = 215.toByte() // 39°C

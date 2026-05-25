@@ -24,14 +24,14 @@ import kotlin.math.abs
  * sections inside one or more raw resources (picked in deletelater.html).
  *
  * Section types:
- *  - "idle_loop" — sustained low-RPM loop (required)
- *  - "rev_loop"  — sustained high-RPM loop (optional — without it, idle pitch-shifts up)
- *  - "startup"   — one-shot transient played on engine start (optional)
- *  - "decel"     — one-shot transient played when throttle closes sharply (optional)
- *  - "shutdown"  — one-shot transient played on engine stop (optional)
+ *  - "idle_loop", sustained low-RPM loop (required)
+ *  - "rev_loop" , sustained high-RPM loop (optional, without it, idle pitch-shifts up)
+ *  - "startup", one-shot transient played on engine start (optional)
+ *  - "decel": one-shot transient played when throttle closes sharply (optional)
+ *  - "shutdown" , one-shot transient played on engine stop (optional)
  *
  * Looping sections use [ExoPlayer] with [ClippingMediaSource] + REPEAT_MODE_ONE so
- * the decoder seamlessly stitches the startMs..endMs window back to its start —
+ * the decoder seamlessly stitches the startMs..endMs window back to its start , 
  * no audible click at the seam. The two loops (idle, rev) play simultaneously and
  * are crossfaded by RPM. One-shots are spawned on demand for startup/decel/shutdown.
  */
@@ -50,7 +50,7 @@ class CompositionEnginePlayer(private val context: Context) {
     @Volatile private var lastIdleVol: Float = -1f
     @Volatile private var lastRevVol: Float = -1f
     @Volatile private var lastSpeed: Float = -1f
-    // Smoothed actual volumes — drives engine-start fade-in plus the idle ↔ rev
+    // Smoothed actual volumes, drives engine-start fade-in plus the idle ↔ rev
     // crossfade. Alpha 0.15 ≈ ~85 ms time constant at ~100 Hz telemetry.
     @Volatile private var smoothedIdleVol: Float = 0f
     @Volatile private var smoothedRevVol: Float = 0f
@@ -135,7 +135,7 @@ class CompositionEnginePlayer(private val context: Context) {
             rev?.setVolume(smoothedRevVol); lastRevVol = smoothedRevVol
         }
 
-        // Playback speed stays at 1.0× — ExoPlayer's Sonic time-stretch was painting
+        // Playback speed stays at 1.0×, ExoPlayer's Sonic time-stretch was painting
         // audible artifacts over every loop iteration. The natural idle ↔ rev crossfade
         // (above) handles the perceived "going faster" without touching pitch.
         // Variable speed left for a future profile-level opt-in only if a clip really
@@ -166,7 +166,7 @@ class CompositionEnginePlayer(private val context: Context) {
 /**
  * Plays a [SampleSection] from a res/raw resource via [ExoPlayer]. When
  * [looping] is true, ExoPlayer's [ClippingMediaSource] reports a duration
- * matching the section window and REPEAT_MODE_ONE handles a gapless restart —
+ * matching the section window and REPEAT_MODE_ONE handles a gapless restart , 
  * no perceptible seam.
  */
 @OptIn(UnstableApi::class)
@@ -178,7 +178,7 @@ private class SectionPlayer(
     private val mainHandler = Handler(Looper.getMainLooper())
     private val player: ExoPlayer = ExoPlayer.Builder(context)
         // Bind to the main looper so callers from any thread can talk to us safely
-        // through [postToMain] — all actual mutations happen there.
+        // through [postToMain], all actual mutations happen there.
         .setLooper(Looper.getMainLooper())
         .setAudioAttributes(
             AudioAttributes.Builder()

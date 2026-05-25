@@ -165,7 +165,7 @@ class RouteBuilderViewModel @Inject constructor(
 
     // Declared above init{}: the init coroutine can resume synchronously (an
     // already-cached settings read) and touch these before properties declared
-    // lower in the class would have been initialised — that was a startup crash.
+    // lower in the class would have been initialised, that was a startup crash.
     private val _home = MutableStateFlow<Waypoint?>(null)
     val home: StateFlow<Waypoint?> = _home.asStateFlow()
     private val _work = MutableStateFlow<Waypoint?>(null)
@@ -174,7 +174,7 @@ class RouteBuilderViewModel @Inject constructor(
     /** Default arrival radius (metres) for waypoints with no custom value. */
     private var defaultRadiusM: Int = 40
 
-    /** True right after a load or save — Clear route then needs no confirm.
+    /** True right after a load or save; Clear route then needs no confirm.
      *  Declared BEFORE the init block because the location collector and the
      *  nav-progress collector inside init both call scheduleRecompute(),
      *  which writes to this flow. If it were declared lower in the class,
@@ -411,7 +411,7 @@ class RouteBuilderViewModel @Inject constructor(
             }
         }
         // Position 0 is always the rider, so a fresh fix shifts the route's
-        // origin — recompute the preview once they have moved far enough.
+        // origin, recompute the preview once they have moved far enough.
         viewModelScope.launch {
             tripRepository.currentLocation.collect { loc ->
                 if (loc == null || _waypoints.value.isEmpty()) return@collect
@@ -427,7 +427,7 @@ class RouteBuilderViewModel @Inject constructor(
     // --- Waypoint editing --------------------------------------------------------
 
     /**
-     * The rider tapped their own position marker on the map — hint how to make
+     * The rider tapped their own position marker on the map: hint how to make
      * a pin track them rather than dropping a pin on top of them.
      */
     fun notifyTapOnSelf() {
@@ -477,7 +477,7 @@ class RouteBuilderViewModel @Inject constructor(
             return
         }
         _waypoints.value = _waypoints.value + Waypoint(lat, lng, name)
-        // A plain stop was just added — clear the "last preset" memory so the
+        // A plain stop was just added; clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
         persistDraft()
@@ -488,7 +488,7 @@ class RouteBuilderViewModel @Inject constructor(
     fun moveWaypoint(index: Int, lat: Double, lng: Double) {
         val list = _waypoints.value.toMutableList()
         if (index !in list.indices) return
-        // A moved pin's address is now stale — clear it so the list shows just
+        // A moved pin's address is now stale; clear it so the list shows just
         // the role until the next route solves and re-resolves the address.
         list[index] = list[index].copy(lat = lat, lng = lng, name = "")
         _waypoints.value = list
@@ -599,7 +599,7 @@ class RouteBuilderViewModel @Inject constructor(
     private fun setMapType(type: String) {
         if (_mapType.value == type) return
         _mapType.value = type
-        // No toast on a map-style change — the change is its own feedback.
+        // No toast on a map-style change; the change is its own feedback.
         viewModelScope.launch {
             val s = settingsRepository.get()
             settingsRepository.update(s.copy(navMapType = type))
@@ -725,7 +725,7 @@ class RouteBuilderViewModel @Inject constructor(
                     RoutingService.straightLineRoute(routeName, navWps)
                 }
             }
-            // The rider stays out of the listed waypoints — only destinations
+            // The rider stays out of the listed waypoints; only destinations
             // are listed; the origin lives in the route geometry.
             _route.value = computed.copy(waypoints = dests)
             _routing.value = false
@@ -738,7 +738,7 @@ class RouteBuilderViewModel @Inject constructor(
      * After a route solves, reverse-geocodes any pin still missing an address
      * (map taps and freshly-moved pins land without one) and fills it in. Runs
      * sequentially to respect Nominatim's ~1 request/second policy and never
-     * re-triggers routing — a name change doesn't move the geometry.
+     * re-triggers routing; a name change doesn't move the geometry.
      */
     private fun enrichWaypointNames() {
         enrichJob?.cancel()
@@ -751,7 +751,7 @@ class RouteBuilderViewModel @Inject constructor(
                 val addr = routingService.reverseGeocode(wp.lat, wp.lng, geocoderUrl)
                 if (addr != null) {
                     val cur = _waypoints.value
-                    // Apply only if that slot still holds the same un-named pin —
+                    // Apply only if that slot still holds the same un-named pin,
                     // the rider may have edited the list while we were resolving.
                     if (idx < cur.size && cur[idx].lat == wp.lat &&
                         cur[idx].lng == wp.lng && cur[idx].name.isBlank()
@@ -841,12 +841,12 @@ class RouteBuilderViewModel @Inject constructor(
                 val route = _route.value
                     ?: RoutingService.straightLineRoute(routeName, _waypoints.value)
                 // Keep the .gpx extension even if the rider cleared it in the
-                // system save dialog — otherwise the file is hard to spot and
+                // system save dialog; otherwise the file is hard to spot and
                 // won't filter back into the open dialog later.
                 val target = ensureGpxExtension(uri)
                 context.contentResolver.openOutputStream(target)?.use { GpxIO.write(route, it) }
                 _routeClean.value = true
-                // Confirm the save — a long file-picker round-trip without any
+                // Confirm the save: a long file-picker round-trip without any
                 // visible feedback feels like nothing happened. Failure is
                 // already surfaced below; this is the success counterpart.
                 _messages.tryEmit(R.string.nav_route_saved)
@@ -941,12 +941,12 @@ class RouteBuilderViewModel @Inject constructor(
         savePreset(Waypoint(it.latitude, it.longitude), home = false)
     }
 
-    // Declaration moved up earlier in the file — see the top of the class.
+    // Declaration moved up earlier in the file; see the top of the class.
 
     /**
      * The kind of preset added last ("HOME" / "WORK"), or null if the last
      * waypoint added was a plain stop. The search field hides whichever preset
-     * this names — it was just used, so re-suggesting it is noise. Adding any
+     * this names; it was just used, so re-suggesting it is noise. Adding any
      * other stop clears this and both suggestions return.
      */
     private val _lastAddedPresetKind = MutableStateFlow<String?>(null)
@@ -967,7 +967,7 @@ class RouteBuilderViewModel @Inject constructor(
         _waypoints.value.getOrNull(index)?.let { savePreset(it, home = false) }
     }
 
-    /** True while guidance is running — the screen locks editing then. */
+    /** True while guidance is running; the screen locks editing then. */
     val navRunning: StateFlow<Boolean> = navigationEngine.navState
         .map { it.active }
         .stateIn(viewModelScope, SharingStarted.Eagerly, navigationEngine.isActive)
@@ -993,7 +993,7 @@ class RouteBuilderViewModel @Inject constructor(
      * Hands a route to the [NavigationEngine] and runs [onStarted] so the
      * screen can close the builder. Position 0 is always the rider: when the
      * start pin isn't already the live location, the rider's current position
-     * is prepended as the origin — so navigating to a single dropped pin works.
+     * is prepended as the origin, so navigating to a single dropped pin works.
      */
     fun startNavigation(mode: NavMode, onStarted: () -> Unit) {
         val dests = _waypoints.value
@@ -1006,7 +1006,7 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_no_location)
             return
         }
-        // Close the builder immediately — before guidance flips on — so the
+        // Close the builder immediately, before guidance flips on, so the
         // rider never sees the button flash to "Stop navigation".
         onStarted()
         viewModelScope.launch {

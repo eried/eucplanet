@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
         consumeShareIntent(intent)
         // requestMissingPermissions() is intentionally NOT called here.
         // On a clean install, asking before setContent runs means the runtime
-        // permission dialogs come up over a black activity — the rider thinks
+        // permission dialogs come up over a black activity, the rider thinks
         // the app crashed, and the system has been seen to drop the empty-
         // looking activity while they are still reading the rationale. The
         // LaunchedEffect inside setContent below fires once the first frame is
@@ -191,7 +191,7 @@ class MainActivity : AppCompatActivity() {
                         // setApplicationLocales triggers an Activity.recreate
                         // on every running activity, and on a clean install
                         // this fires while the runtime permission dialogs are
-                        // open — the recreate races with the dialog and the
+                        // open, the recreate races with the dialog and the
                         // rebuilt activity ends up behind the launcher,
                         // leaving the rider answering permissions over the
                         // home screen. Skipping the apply is safe: with no
@@ -232,7 +232,7 @@ class MainActivity : AppCompatActivity() {
             // Ask for the BLE / location / notification permissions on the
             // first composition. Doing it from Compose (instead of onCreate)
             // means the activity is fully drawn before the system dialog
-            // appears — see the comment on permissionsAsked.
+            // appears, see the comment on permissionsAsked.
             androidx.compose.runtime.LaunchedEffect(Unit) {
                 if (!permissionsAsked) {
                     permissionsAsked = true

@@ -13,7 +13,7 @@ import kotlin.math.abs
  * Spec: docs/protocols/inmotion_v1.md sections 4 (fast info) and 5 (slow info).
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object InMotionV1Parser {
@@ -38,7 +38,7 @@ object InMotionV1Parser {
     }
 
     /**
-     * Fast info `0x0F550113`. Offsets are into the extended payload — speed
+     * Fast info `0x0F550113`. Offsets are into the extended payload: speed
      * pair at 12+16 averaged then divided by [InMotionV1Model.speedFactor],
      * voltage / current at 24 / 20, temps at 32+34, trip at 48, total at 44.
      * Returns null when the payload is too short to read the core fields.
@@ -134,7 +134,7 @@ object InMotionV1Parser {
     }
 
     /**
-     * Mileage at offset 44 varies across firmware revisions — see spec
+     * Mileage at offset 44 varies across firmware revisions; see spec
      * section 4.2. L6 stores u32 LE in centimetres (multiply by 100 to get
      * metres); every other current model stores u32 LE in metres directly.
      */
@@ -182,7 +182,7 @@ object InMotionV1Parser {
 
     /**
      * Battery percent derived from voltage. V1 wheels do NOT report SOC over
-     * BLE — the host computes it from the per-model curves in spec 4.5.
+     * BLE; the host computes it from the per-model curves in spec 4.5.
      */
     fun batteryPercentFromVoltage(voltage: Float, model: InMotionV1Model?): Int {
         if (voltage <= 0f) return 0
@@ -211,7 +211,7 @@ object InMotionV1Parser {
 
     /**
      * Default piecewise-linear curve used by V5 / R-series / L6 / V3. Slopes
-     * picked to match WheelLog within 1-2 percent — the breakpoints come from
+     * picked to match WheelLog within 1-2 percent; the breakpoints come from
      * spec 4.5 (82.0 / 77.8 / 74.8 / 71.8 / 70.3 / 68.0 V).
      */
     private fun defaultCurve(v: Float): Float = when {

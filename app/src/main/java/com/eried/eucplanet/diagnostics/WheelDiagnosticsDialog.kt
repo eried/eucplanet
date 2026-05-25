@@ -130,7 +130,7 @@ fun WheelDiagnosticsDialog(
         )
     ) {
         // Force a light + rectangular theme regardless of the user's app
-        // theme so Service Mode reads as a different surface — clearly
+        // theme so Service Mode reads as a different surface, clearly
         // "you are in research mode" the moment the dialog opens. All
         // child components inherit these via MaterialTheme.
         androidx.compose.material3.MaterialTheme(
@@ -263,7 +263,7 @@ private fun LogPanel(modifier: Modifier = Modifier) {
     val listState = rememberLazyListState()
     // Auto-scroll to the bottom whenever a new entry lands. Yield once so
     // the LazyColumn has actually laid out the new item before we ask the
-    // state to scroll to it — otherwise animateScrollToItem races the layout
+    // state to scroll to it, otherwise animateScrollToItem races the layout
     // and the request gets dropped, especially right after a comment send.
     LaunchedEffect(entries.size) {
         if (entries.isNotEmpty()) {
@@ -463,7 +463,7 @@ private fun LogRow(e: DiagnosticsLogger.Entry) {
 @Composable
 private fun CommandsTab(vm: WheelDiagnosticsViewModel) {
     // Wheel-family picker at the top so the catalogue is browsable
-    // regardless of what's actually connected — useful when the user wants
+    // regardless of what's actually connected, useful when the user wants
     // to research a different family than the one they're paired with.
     val model by vm.modelName.collectAsState()
     val families = remember(model) { vm.allWheelFamilies() }
@@ -617,7 +617,7 @@ private fun shortInspectLabel(prefix: String, familyDisplayName: String): String
  * with the selected message type prefix and renders every byte as a small
  * tappable cell showing offset, hex, and decimal. Tapping a cell drops a
  * structured COMMENT into the log so the user can correlate the byte they
- * just clicked with whatever value the wheel's own UI is showing — useful
+ * just clicked with whatever value the wheel's own UI is showing, useful
  * for finding unknown offsets like motor temp.
  */
 @Composable
@@ -1044,7 +1044,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
         ) {
             // Veteran and Begode commands are literal (fixed opcodes / ASCII
             // strings already including their full wire format), so LITERAL
-            // covers them — no separate WRAP_VETERAN / WRAP_BEGODE entries.
+            // covers them, no separate WRAP_VETERAN / WRAP_BEGODE entries.
             // The segmented row stays scrollable so newer protocols can
             // join without redesigning the layout.
             val modes = listOf(
@@ -1091,7 +1091,7 @@ private fun RawTab(vm: WheelDiagnosticsViewModel) {
                 readOnly = true,
                 modifier = Modifier.weight(1f),
                 label = { Text("Bytes to send") },
-                placeholder = { Text("—") },
+                placeholder = { Text("--") },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                 isError = preview.error != null,
                 singleLine = true,

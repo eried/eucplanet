@@ -20,7 +20,7 @@ import com.eried.eucplanet.util.ByteUtils
  * payload bytes to the per-family decoder.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 class NinebotParser(private val protocol: NinebotProtocol) {
@@ -49,7 +49,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
      * [crypto] is consulted only for Z; when a key is installed each
      * candidate frame is decrypted in place before CRC validation. The
      * pre-handshake GetKey request and its reply travel plaintext, so the
-     * decoder accepts a CRC match against the raw bytes too — that gives
+     * decoder accepts a CRC match against the raw bytes too; that gives
      * us a clean path for the very first frame of the session.
      */
     fun feed(rawBytes: ByteArray, crypto: NinebotZCrypto? = null): List<Frame> {
@@ -94,7 +94,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
         // Z: try decrypted-first if a key is installed; fall back to plaintext
         // for the rare case of a pre-handshake frame slipping through. CRC
         // mismatch on both means the framing is bogus and we resync by one
-        // byte — same conservative strategy KingsongParser uses.
+        // byte, same conservative strategy KingsongParser uses.
         val verified = when (protocol) {
             NinebotProtocol.Z -> verifyZFrame(frame, crypto)
             NinebotProtocol.LEGACY -> if (crc16Ok(frame, lengthFieldOffset = 2, crcStart = totalSize - 2)) frame else null
@@ -164,7 +164,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
     /**
      * Z live-data telemetry, param 0xB0 (spec section 8). Data payload is at
      * least 28 bytes; some firmwares append fields we ignore. Voltage scale
-     * is the spec's `/100` default — Z10 (84 V class) needs a labelled
+     * is the spec's `/100` default; Z10 (84 V class) needs a labelled
      * capture to confirm it's not actually decivolts. See spec open
      * question 1.
      */
@@ -222,7 +222,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
 
     /**
      * Drive flags bitfield (0xD3). Spec section 7 marks bit 3 as
-     * "Strain gauge / pedal pressure" with a "?" — the WheelLog comment
+     * "Strain gauge / pedal pressure" with a "?"; the WheelLog comment
      * the spec is paraphrased from has a question mark on that bit, and
      * we have not toggled it on a real Z10 to confirm. See open question 3.
      */
@@ -253,7 +253,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
         if (data.size < 2) return null
         // Two-byte version word. WheelLog's reference treats this as a
         // packed BCD-ish hex, e.g. 0x010A => "1.10". Without a labelled
-        // capture we keep the raw hex pair joined by a dot — caller can
+        // capture we keep the raw hex pair joined by a dot; caller can
         // re-format later.
         val hi = data[1].toInt() and 0xFF
         val lo = data[0].toInt() and 0xFF
@@ -266,7 +266,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
      * Legacy live-data telemetry, param 0xB0 (spec section 15). Speed
      * offset and scale depend on the variant: Mini and One E/E+ at offset
      * 10..11 (div 10), S2 at offset 28..29 (div 100). Late-firmware One E+
-     * may have moved to the S2 layout — see spec open question 6.
+     * may have moved to the S2 layout; see spec open question 6.
      */
     fun parseLegacyTelemetry(data: ByteArray, model: NinebotModel?): WheelData? {
         if (data.size < 28) return null

@@ -85,9 +85,9 @@ jobs:
           git log --pretty=format:'- %h %s' main..HEAD | head -50 > /tmp/commit-log.md || true
 
           {
-            echo "**Pre-release from branch \`${BRANCH}\`** — automatic build at \`${SHORT_SHA}\`."
+            echo "**Pre-release from branch \`${BRANCH}\`**, automatic build at \`${SHORT_SHA}\`."
             echo
-            echo "This is a CI-built debug APK. It can't update an existing Play Store install in place — uninstall the Play version first to install this build."
+            echo "This is a CI-built debug APK. It can't update an existing Play Store install in place; uninstall the Play version first to install this build."
             echo
             cat /tmp/branch-notes.md
             echo

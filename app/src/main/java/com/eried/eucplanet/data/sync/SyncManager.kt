@@ -39,7 +39,7 @@ import javax.inject.Singleton
  * The user picks a folder in any DocumentsProvider (OneDrive, Google Drive,
  * Dropbox, local device storage, etc.) with ACTION_OPEN_DOCUMENT_TREE. We take
  * persistable permission and store the tree URI in settings. Trip CSVs and a
- * `settings.json` backup are written through DocumentFile — no provider-specific
+ * `settings.json` backup are written through DocumentFile, no provider-specific
  * code, no OAuth, the cloud app handles the upload.
  */
 @Singleton
@@ -382,7 +382,7 @@ class SyncManager @Inject constructor(
         }
     }
 
-    /** Read settings.json from the folder and apply — keeps current syncFolder/device fields. */
+    /** Read settings.json from the folder and apply, keeps current syncFolder/device fields. */
     suspend fun restoreSettings(): Boolean = restoreSettingsFrom(SETTINGS_BACKUP_NAME)
 
     /** Restore from the named backup file in the sync folder. */

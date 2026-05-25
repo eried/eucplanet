@@ -9,22 +9,22 @@ import javax.inject.Singleton
 /**
  * Quake-style console cheats activated from the Settings search bar.
  *
- * Pure in-memory session state — never persisted, never synced. Dies with the
+ * Pure in-memory session state, never persisted, never synced. Dies with the
  * app process. The point is the same as in Quake/idTech: a low-friction power
  * gesture for the curious user, with zero risk of accidentally locking in a
  * bad setting because nothing survives a restart.
  *
  * Commands recognized in the search field (case-insensitive, on IME Enter):
- *  - `daredevilN` — set the **display-only** speed multiplier. N is the
+ *  - `daredevilN`, set the **display-only** speed multiplier. N is the
  *    percentage offset (any integer, with optional `-`). `daredevil20` shows
  *    speed at 1.20×, `daredevil5` at 1.05×, `daredevil-50` at 0.50×,
  *    `daredevil-99` at 0.01×. `daredevil0` resets to 1.00× (no cheat).
  *    Recording, alarms, and every other computation continues to use the real
  *    speed from `WheelData`.
- *  - `godmode` — toggles a session-wide alarm mute. While active, the
+ *  - `godmode`, toggles a session-wide alarm mute. While active, the
  *    [com.eried.eucplanet.service.AlarmEngine] swallows all rules. Re-typing
  *    `godmode` turns it back off. Lost on app restart.
- *  - `bug` — opens the GitHub "new issue" page in the browser. Doesn't change
+ *  - `bug`, opens the GitHub "new issue" page in the browser. Doesn't change
  *    any state. Pure shortcut.
  *
  * Other parts of the app read [speedDisplayMultiplier] as a StateFlow so they
@@ -55,11 +55,11 @@ class CheatState @Inject constructor() {
     /**
      * Try to interpret [raw] as a cheat command. Returns the toast text on a match
      * (the caller is expected to show it and clear the search field), or null when
-     * the input doesn't match anything — let it fall through to normal search.
+     * the input doesn't match anything, let it fall through to normal search.
      */
     fun tryConsume(raw: String): Result? {
         val cmd = raw.trim().lowercase()
-        // daredevil<pct> — pct is any integer with optional leading minus.
+        // daredevil<pct>, pct is any integer with optional leading minus.
         // 0 (or -0) resets to no cheat.
         DAREDEVIL_REGEX.matchEntire(cmd)?.let { m ->
             val pct = m.groupValues[1].toIntOrNull() ?: return@let

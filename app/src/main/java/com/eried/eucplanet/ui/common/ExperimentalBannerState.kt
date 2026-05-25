@@ -10,11 +10,11 @@ import javax.inject.Singleton
  *
  * Backed by SharedPreferences (not Room) so flipping it doesn't trigger a
  * destructive Room migration that would wipe the user's settings, alarms,
- * Flic mappings, and trip data. The flag is one boolean — a database column
+ * Flic mappings, and trip data. The flag is one boolean, a database column
  * for it would be overkill.
  *
  * Set to true when the user actually taps "Report an issue". Cancelling the
- * dialog leaves it false so the explainer shows again next click — that's
+ * dialog leaves it false so the explainer shows again next click, that's
  * the user's stated UX preference.
  */
 @Singleton

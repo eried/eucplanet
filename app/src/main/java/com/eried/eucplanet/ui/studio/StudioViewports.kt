@@ -71,7 +71,7 @@ private const val MIN_PANE = 0.12f
 
 /**
  * Pane rectangles for [layout] given current [dividers] (clamped, ordered).
- * The layout is fixed — it does not transpose with device orientation, so the
+ * The layout is fixed; it does not transpose with device orientation, so the
  * geometry the rider picked is exactly what records. ([landscape] is kept for
  * call-site compatibility but no longer changes the result.)
  */
@@ -128,7 +128,7 @@ fun paneRects(
 
 /**
  * Draws the viewport panes (camera or solid backgrounds), the divider lines,
- * and — when [editable] — the per-pane source button and the divider handles.
+ * and, when [editable], the per-pane source button and the divider handles.
  */
 @Composable
 fun StudioViewportLayer(
@@ -146,7 +146,7 @@ fun StudioViewportLayer(
     modifier: Modifier = Modifier
 ) {
     if (replayMode) {
-        // Replay shows the overlays only — the viewport background is transparent.
+        // Replay shows the overlays only; the viewport background is transparent.
         Box(modifier.fillMaxSize())
         return
     }
@@ -212,7 +212,7 @@ fun StudioViewportLayer(
 
 /**
  * Maps a [ViewportConfig.fitMode] string to a Compose [ContentScale].
- * Pure GPU scaling — no per-frame pixel work.
+ * Pure GPU scaling, no per-frame pixel work.
  */
 private fun contentScaleOf(fitMode: String): ContentScale = when (fitMode) {
     "FIT" -> ContentScale.Fit
@@ -223,7 +223,7 @@ private fun contentScaleOf(fitMode: String): ContentScale = when (fitMode) {
 /**
  * Builds the colour-grading [ColorMatrix] for a viewport (filter preset +
  * saturation + contrast + brightness), or null when everything is neutral so
- * the [Image] can skip the colour filter entirely. Pure GPU — the matrix is
+ * the [Image] can skip the colour filter entirely. Pure GPU: the matrix is
  * applied once by the renderer with [ColorFilter.colorMatrix], no pixel work.
  */
 private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
@@ -231,7 +231,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
     val b = config.brightness.coerceIn(-1f, 1f)
     val c = config.contrast.coerceIn(0f, 2f)
     val s = config.saturation.coerceIn(0f, 2f)
-    // Neutral on every axis — no colour filter needed at all.
+    // Neutral on every axis, no colour filter needed at all.
     if (preset == "NONE" && b == 0f && c == 1f && s == 1f) return null
 
     // 1. Preset base matrix.
@@ -268,7 +268,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
             )
         )
         "VIVID" -> ColorMatrix().apply {
-            // Punchy — saturation x1.4, then contrast x1.15.
+            // Punchy: saturation x1.4, then contrast x1.15.
             setToSaturation(1.4f)
             val vc = 1.15f
             val vco = (1f - vc) * 0.5f * 255f
@@ -284,7 +284,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
             )
         }
         "NOIR" -> ColorMatrix().apply {
-            // High-contrast black & white — saturation 0, then contrast x1.35.
+            // High-contrast black & white: saturation 0, then contrast x1.35.
             setToSaturation(0f)
             val nc = 1.35f
             val nco = (1f - nc) * 0.5f * 255f
@@ -300,7 +300,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
             )
         }
         "VINTAGE" -> ColorMatrix().apply {
-            // Faded film — saturation x0.75, a warm tint, lifted blacks (+12).
+            // Faded film: saturation x0.75, a warm tint, lifted blacks (+12).
             setToSaturation(0.75f)
             timesAssign(
                 ColorMatrix(
@@ -314,7 +314,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
             )
         }
         "MATTE" -> {
-            // Modern faded look — contrast x0.82 with lifted blacks (+18).
+            // Modern faded look: contrast x0.82 with lifted blacks (+18).
             val mc = 0.82f
             val mco = (1f - mc) * 0.5f * 255f + 18f
             ColorMatrix(
@@ -326,13 +326,13 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
                 )
             )
         }
-        else -> ColorMatrix() // NONE — identity
+        else -> ColorMatrix() // NONE, identity
     }
 
     // 2. Saturation.
     m.timesAssign(ColorMatrix().apply { setToSaturation(s) })
 
-    // 3. Contrast — diagonal scale c, offset (1-c)*0.5 on the 0..255 scale.
+    // 3. Contrast: diagonal scale c, offset (1-c)*0.5 on the 0..255 scale.
     val contrastOffset = (1f - c) * 0.5f * 255f
     m.timesAssign(
         ColorMatrix(
@@ -345,7 +345,7 @@ private fun viewportColorMatrix(config: ViewportConfig): ColorMatrix? {
         )
     )
 
-    // 4. Brightness — add b*255 to the RGB translate column.
+    // 4. Brightness: add b*255 to the RGB translate column.
     val brightOffset = b * 255f
     m.timesAssign(
         ColorMatrix(
@@ -375,8 +375,8 @@ private fun CameraPane(
         val zoom = config.zoom.coerceIn(1f, 3f)
         when {
             // Mirror / orientation / zoom are GPU graphicsLayer transforms and
-            // the colour grade a single GPU ColorMatrix — no per-frame pixel
-            // work — applied to the camera image itself so the recording (which
+            // the colour grade a single GPU ColorMatrix, no per-frame pixel
+            // work, applied to the camera image itself so the recording (which
             // captures pane content) picks them up.
             frame != null -> Image(
                 bitmap = frame,
@@ -458,7 +458,7 @@ private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
         val zoom = config.zoom.coerceIn(1f, 3f)
         if (bitmap != null) {
             // Colour grade is a single GPU ColorMatrix, zoom a graphicsLayer
-            // scale — no per-frame pixel work.
+            // scale, no per-frame pixel work.
             Image(
                 bitmap = bitmap,
                 contentDescription = null,
@@ -519,7 +519,7 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
 }
 
 // --------------------------------------------------------------------------
-// Dividers — the line is purely visual; resizing is only via the drag handle.
+// Dividers: the line is purely visual; resizing is only via the drag handle.
 // --------------------------------------------------------------------------
 
 @Composable
@@ -559,7 +559,7 @@ private fun BoxWithConstraintsScope.DividerLayer(
         return
     }
 
-    // Fixed split — columns always draw vertical dividers, rows horizontal,
+    // Fixed split: columns always draw vertical dividers, rows horizontal,
     // regardless of device orientation (matches paneRects).
     val vertical = layout == ViewportLayout.COLUMNS_2 || layout == ViewportLayout.COLUMNS_3
     val horizontal = layout == ViewportLayout.ROWS_2 || layout == ViewportLayout.ROWS_3

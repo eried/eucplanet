@@ -349,7 +349,7 @@ private fun AlarmRuleEditorDialog(
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
     ) {
         // Cap the dialog's height so the inner verticalScroll has a bounded
-        // parent — without this the Column grows past the viewport and the
+        // parent, without this the Column grows past the viewport and the
         // Save button at the bottom is unreachable on long forms. 88% leaves
         // room for the status bar and the IME (which the inner imePadding
         // takes care of).
@@ -575,7 +575,7 @@ private fun AlarmRuleEditorDialog(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    // "BOTH" is first + the default for new alarms — the rider doesn't
+                    // "BOTH" is first + the default for new alarms, the rider doesn't
                     // need to think about whether a watch is paired or not (no watch
                     // connected → that branch silently no-ops, see WatchVibrator). The
                     // storage key stays "BOTH" for compatibility; the user-visible label
@@ -670,7 +670,7 @@ private fun AlarmRuleEditorDialog(
                     }
                 }
 
-                // Breathing room below the action row — without this the
+                // Breathing room below the action row, without this the
                 // buttons sit on the rounded corner of the card and look like
                 // they're being clipped.
                 Spacer(Modifier.height(12.dp))

@@ -47,7 +47,7 @@ object WatchKeys {
     /** Resolved per-unit string codes from the phone's Units.effective*Unit.
      *  Speed "kmh"/"mph"/"ms"/"kn", distance "km"/"mi"/"m"/"ft"/"mil",
      *  temperature "C"/"F"/"K". Absent on phone builds older than the
-     *  per-unit rework — fall back to [IMPERIAL] when missing. */
+     *  per-unit rework, fall back to [IMPERIAL] when missing. */
     const val UNIT_SPEED = "us"
     const val UNIT_DISTANCE = "ud"
     const val UNIT_TEMP = "ut"
@@ -56,7 +56,7 @@ object WatchKeys {
     const val TIMESTAMP = "ts"
 
     /** GPS extra-speed readout, km/h. Float.NaN when there is nothing to
-     *  show — mirrors the phone dashboard's gpsExtraSpeed indicator. */
+     *  show, mirrors the phone dashboard's gpsExtraSpeed indicator. */
     const val GPS_SPEED = "gs"
     /** GPS speed source: "EXTERNAL" (RaceBox box) / "PHONE" / "" (none). */
     const val GPS_SOURCE = "gsr"
@@ -158,7 +158,7 @@ data class WatchState(
     val lightOn: Boolean = false,
     val maxSpeedKmh: Float = 0f,
     // Default both to true so the disconnected dashboard still renders the
-    // (greyed) horn + light buttons — V14 family always has these and the
+    // (greyed) horn + light buttons, V14 family always has these and the
     // watch never sees a wheel without them. Phone's WearBridge will overwrite
     // with the wheel's actual capabilities once telemetry starts.
     val hasHorn: Boolean = true,
@@ -187,7 +187,7 @@ data class WatchState(
     val dialRotationDeg: Int = 0,
     /**
      * True once the watch has received its first telemetry DataMap from the phone
-     * this session. Used to gate the unit label — before sync the watch has no
+     * this session. Used to gate the unit label, before sync the watch has no
      * way to know which units the rider uses, so we hide it to avoid showing
      * the wrong one.
      */

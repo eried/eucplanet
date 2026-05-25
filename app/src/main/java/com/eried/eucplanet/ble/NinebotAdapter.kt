@@ -17,19 +17,19 @@ import javax.inject.Singleton
  * and used to pick the right [BleProfile] before connect. After connect, Z
  * runs a GetKey handshake (cmd 0x5B to address 0x16); the 16-byte reply
  * installs the keystream in [crypto] and every subsequent frame is XOR'd in
- * place. Legacy needs no handshake — it streams unsolicited live-data once
+ * place. Legacy needs no handshake; it streams unsolicited live-data once
  * notifications are enabled.
  *
  * Wire format and command set come from docs/protocols/ninebot.md. Protocol
  * research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 @Singleton
 class NinebotAdapter @Inject constructor() : WheelAdapter {
 
     /**
-     * Detected model. Carries the protocol family — the rest of the adapter
+     * Detected model. Carries the protocol family; the rest of the adapter
      * branches on `detectedModel?.protocol` to dispatch Z vs legacy. Set
      * from the BLE name in [notifyConnectingTo] and re-confirmed if the
      * legacy BleVersion ASCII tag identifies a different variant.
@@ -94,7 +94,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     /**
      * Resolve the model + protocol family from the BLE-advertised name. We
      * default to Z when the name is unrecognised but the dispatcher routed
-     * the connection here anyway — anything advertising as `Ninebot ...`
+     * the connection here anyway; anything advertising as `Ninebot ...`
      * without an obvious One/S2/Mini token is most likely a Z variant. If
      * the name signals legacy explicitly we flip the protocol BEFORE the
      * connection manager reads [bleProfile].
@@ -113,7 +113,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
     /**
      * Z: kick off the GetKey handshake first so every other frame after this
      * one can ride the encrypted channel. The wheel replies with the
-     * 16-byte session key in plaintext (it has to — the phone doesn't have
+     * 16-byte session key in plaintext (it has to: the phone doesn't have
      * the key yet to decrypt anything else). After the key arrives the
      * parser's CRC step on subsequent reads will pass against the decrypted
      * copy and the adapter can move on to telemetry.
@@ -398,7 +398,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Per-wheel diagnostic test commands shown in the Service Mode dialog.
-     * Bytes are baked at app start, so any Z entry fires PLAINTEXT — fine
+     * Bytes are baked at app start, so any Z entry fires PLAINTEXT. Fine
      * for the GetKey bootstrap and for any session where the user hasn't
      * yet completed the handshake. Once the keystream is installed, the
      * wheel expects encrypted frames and a plaintext diagnostic write will
@@ -407,7 +407,7 @@ class NinebotAdapter @Inject constructor() : WheelAdapter {
      * driving the wheel mid-session.
      *
      * Each entry annotates `(Z)` or `(Legacy)` in its description so the
-     * user knows which sub-protocol it belongs to. Most entries are Z —
+     * user knows which sub-protocol it belongs to. Most entries are Z;
      * legacy exposes only reads on its BLE stack (spec section 16).
      */
     override fun getDiagnosticCommands(): List<com.eried.eucplanet.diagnostics.DiagnosticCommand> {

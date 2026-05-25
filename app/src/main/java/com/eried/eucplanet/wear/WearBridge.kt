@@ -108,7 +108,7 @@ class WearBridge @Inject constructor(
         private const val K_SCREEN2_CLICK = "b2c"
         private const val K_SCREEN2_HOLD = "b2h"
         private const val K_HAPTIC_ON_ACTION = "hap"
-        // Navigation mirror — only populated when the rider opted in via the
+        // Navigation mirror, only populated when the rider opted in via the
         // Watch settings. K_NAV_ACTIVE already folds in that toggle and the
         // phone popup's minimized state, so the watch just shows/hides on it.
         private const val K_NAV_ACTIVE = "na"
@@ -133,7 +133,7 @@ class WearBridge @Inject constructor(
      * Sends a one-shot `/euc/wake` Message to every paired Wear OS node so
      * the watch's [com.eried.eucplanet.wear.bridge.WatchBridgeService] can
      * launch MainActivity. Gated by the user's `watchAutoStart` setting.
-     * Best-effort — failures are logged at DEBUG and don't propagate. Called
+     * Best-effort: failures are logged at DEBUG and don't propagate. Called
      * once on bridge startup and again from MainActivity.onResume() so the
      * watch wakes whenever the user re-opens the phone app.
      */
@@ -189,7 +189,7 @@ class WearBridge @Inject constructor(
      * Last-gasp publish when the phone-side service is being destroyed
      * gracefully (user kills the app, system stops the foreground service,
      * etc.). Sends one frame marked disconnected with zeroed telemetry so the
-     * watch can flip to "—" instantly instead of waiting out its 3-second
+     * watch can flip to "--" instantly instead of waiting out its 3-second
      * stale timer. If the process is hard-killed and onDestroy never runs,
      * the watch's stale-detection takes over as a fallback.
      */
@@ -215,12 +215,12 @@ class WearBridge @Inject constructor(
         Log.i(TAG, "Wear bridge starting (publish=${PUBLISH_INTERVAL_MS} ms)")
 
         // First wake on bridge startup. Additional wakes fire whenever
-        // MainActivity resumes — see pingWatchToWake() below.
+        // MainActivity resumes; see pingWatchToWake() below.
         pingWatchToWake()
 
         // Periodic publisher rather than a Flow combine. Reasoning: when the
         // wheel is disconnected the upstream flows don't emit, so a sample +
-        // distinctUntilChanged pipeline goes silent — and the watch ends up
+        // distinctUntilChanged pipeline goes silent, and the watch ends up
         // in the "phone not here" placeholder even though the phone app is
         // running and paired. Polling at PUBLISH_INTERVAL_MS keeps the
         // watch's freshness signal alive without per-emission complexity.
@@ -265,7 +265,7 @@ class WearBridge @Inject constructor(
                 dataMap.putBoolean(K_CONNECTED, state == ConnectionState.CONNECTED)
                 dataMap.putString(K_WHEEL_NAME, name ?: "")
                 // Apply the Quake-console daredevilNN multiplier (1.0 when no cheat).
-                // The watch only renders telemetry, doesn't record — so faking here is safe.
+                // The watch only renders telemetry, doesn't record, so faking here is safe.
                 dataMap.putFloat(K_SPEED, data.speed * cheatState.speedDisplayMultiplier.value)
                 dataMap.putInt(K_BATTERY, data.batteryPercent)
                 dataMap.putInt(K_PHONE_BATT, readPhoneBatteryPercent())
@@ -349,7 +349,7 @@ class WearBridge @Inject constructor(
      * Snapshot of the dashboard's GPS extra-speed indicator for the watch.
      *
      * This is a deliberate, line-for-line mirror of
-     * [com.eried.eucplanet.ui.dashboard.DashboardViewModel.gpsExtraSpeed] —
+     * [com.eried.eucplanet.ui.dashboard.DashboardViewModel.gpsExtraSpeed];
      * keep the two in sync if either changes. Returns a `Pair(speedKmh,
      * sourceKey)` where sourceKey is "EXTERNAL" or "PHONE", or null when the
      * dashboard would show nothing (feature off, hidden, or no fresh source).

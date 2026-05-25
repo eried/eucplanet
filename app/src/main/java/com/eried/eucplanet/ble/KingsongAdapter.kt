@@ -16,7 +16,7 @@ import javax.inject.Singleton
  * dispatched by the type byte at offset 16.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 @Singleton
@@ -62,7 +62,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
 
     // KingSong is push-only: once notifications are enabled the wheel
     // continuously streams 0xA9 realtime + 0xB9 trip frames at its own
-    // cadence. We must NOT periodically write 0x98 (queryLimits) to it —
+    // cadence. We must NOT periodically write 0x98 (queryLimits) to it;
     // WheelLog confirms the only outgoing 0x98 happens once during init when
     // local alarm values are still zero. Repeated 0x98 polls have been
     // observed to cause KS-16X to flash lights / chirp because some KS
@@ -71,7 +71,7 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     //
     // The only thing we ever want to send during the realtime loop is an
     // echo of an unsolicited 0xA4 settings frame that KingSong expects us
-    // to bounce back — see [pendingEcho] / [onRawNotification].
+    // to bounce back; see [pendingEcho] / [onRawNotification].
     override fun pollRealtime(): ByteArray {
         val echo = pendingEcho
         if (echo != null) {

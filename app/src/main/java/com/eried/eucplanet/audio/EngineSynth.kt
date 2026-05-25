@@ -5,14 +5,14 @@ import kotlin.math.exp
 import kotlin.math.sin
 
 /**
- * DSP core. Owned by the audio thread — not thread-safe.
+ * DSP core. Owned by the audio thread, not thread-safe.
  *
  * Renders mono Float32 PCM at [sampleRate] driven by an [EngineParams] snapshot.
  * The synth carries its own state (crank phase, filter memory, decel-pop envelopes)
  * across [render] calls so audio is continuous across buffers.
  *
  * Two paths:
- *  - ICE: cylinder firing model — continuous fundamental at firingsPerSec, with
+ *  - ICE: cylinder firing model, continuous fundamental at firingsPerSec, with
  *    a stack of harmonics, plus exhaust grit noise gated by load.
  *  - SYNTH: one oscillator + FM, frequency riding directly on RPM.
  *
@@ -20,9 +20,9 @@ import kotlin.math.sin
  */
 class EngineSynth(private val sampleRate: Int = 44100) {
 
-    /** Crank phase 0..1 — at firing rate, wraps continuously. */
+    /** Crank phase 0..1, at firing rate, wraps continuously. */
     private var firingPhase: Double = 0.0
-    /** Slow exhaust-grit noise carrier phase (random-walked, not pure noise — adds bass rumble). */
+    /** Slow exhaust-grit noise carrier phase (random-walked, not pure noise, adds bass rumble). */
     private var rumblePhase: Double = 0.0
     /** Synth-engine osc phase. */
     private var synthPhase: Double = 0.0
@@ -44,7 +44,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
     /** Per-sample dt. */
     private val dt: Float = 1f / sampleRate.toFloat()
 
-    /** Cheap PRNG; java.util.Random allocates and locks — we use a simple xorshift. */
+    /** Cheap PRNG; java.util.Random allocates and locks, we use a simple xorshift. */
     private var rngState: Int = 0x1A2B3C4D
 
     private fun nextNoise(): Float {
@@ -73,7 +73,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         // Master amplitude curves
         val rpmRange = (profile.maxRpm - profile.idleRpm).coerceAtLeast(1)
         val rpmNorm = ((effRpm - profile.idleRpm) / rpmRange).coerceIn(0f, 1f)
-        // Engine gets a bit louder at higher RPM/load, but not 1:1 — feels more natural at ~0.4..1.0
+        // Engine gets a bit louder at higher RPM/load, but not 1:1, feels more natural at ~0.4..1.0
         val loadGain = 0.45f + 0.55f * (0.5f * rpmNorm + 0.5f * params.load)
 
         // Muffler LPF cutoff: open pipes = 6 kHz, muffled = 1.2 kHz. Lerp by mufflerOpenness.
@@ -99,7 +99,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
             val firingRate = firingsPerSec.coerceAtLeast(0.5f)
 
             val rumbleHz = 30f + 20f * rpmNorm   // low rumble around 30-50 Hz
-            // Grit and sub-rumble were carrying a 40% always-on floor — perceived as constant
+            // Grit and sub-rumble were carrying a 40% always-on floor, perceived as constant
             // background hiss + low hum even at idle with zero load. Drop to 5% so the engine
             // sounds CLEAN at idle and grit only emerges when the rider is actually loading
             // the motor. Tail still respects decelAmount for the throttle-chop crackle.
@@ -144,13 +144,13 @@ class EngineSynth(private val sampleRate: Int = 44100) {
                     h6 * sin(6.0 * ph)
                 ).toFloat() * hNorm
 
-                // Compression "thump" — a sharp positive spike at firing crossing
+                // Compression "thump", a sharp positive spike at firing crossing
                 if (profile.compressionTone > 0f) {
                     val thump = pulseShape(firingPhase.toFloat()) * profile.compressionTone
                     sample += thump * 0.45f
                 }
 
-                // Sub rumble layer — same idle-quietening as grit; rumble was a constant low
+                // Sub rumble layer, same idle-quietening as grit; rumble was a constant low
                 // hum at idle that ate the high-end clarity. Now barely audible until load picks up.
                 sample += 0.18f * sin(twoPi * rumblePhase).toFloat() * (0.1f + 0.9f * params.load)
 
@@ -162,7 +162,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
                     sample += renderPops(profile)
                 }
 
-                // Engine-brake whine — high-frequency overtone + a touch of airy noise during overrun.
+                // Engine-brake whine, high-frequency overtone + a touch of airy noise during overrun.
                 if (brakeAmt > 0.001f) {
                     val whine = sin(twoPi * brakePhase).toFloat() * 0.18f
                     val airy = nextNoise() * 0.04f
@@ -267,7 +267,7 @@ class EngineSynth(private val sampleRate: Int = 44100) {
         return sum
     }
 
-    /** Reset all state — call when changing profile or after long silence. */
+    /** Reset all state, call when changing profile or after long silence. */
     fun reset() {
         firingPhase = 0.0
         rumblePhase = 0.0

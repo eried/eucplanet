@@ -7,7 +7,7 @@ package com.eried.eucplanet.audio
  * shutdown, pops) the player stops at endMs.
  */
 data class SampleSection(
-    /** res/raw filename without extension (any decoder-supported format works — ogg/mp3/wav/flac). */
+    /** res/raw filename without extension (any decoder-supported format works, ogg/mp3/wav/flac). */
     val rawAsset: String,
     val startMs: Int,
     val endMs: Int,
@@ -19,13 +19,13 @@ data class SampleSection(
  * A virtual engine personality. Drives [EngineSynth].
  *
  * Two flavors:
- *  - [Kind.ICE]   — internal combustion model. Per-cylinder firing pulses at
+ *  - [Kind.ICE], internal combustion model. Per-cylinder firing pulses at
  *    [firingAngles] in the crank cycle, harmonics layered on top, exhaust grit
  *    noise modulated by load.
- *  - [Kind.SYNTH] — pure oscillator/FM. Frequency rides on virtual RPM with
+ *  - [Kind.SYNTH], pure oscillator/FM. Frequency rides on virtual RPM with
  *    [baseHz]..[maxHz]; no cylinder model, no gearbox.
  *
- * Profiles are stateless — runtime state lives in [EngineParams].
+ * Profiles are stateless, runtime state lives in [EngineParams].
  */
 data class EngineProfile(
     /** Stable ID used in settings storage. */
@@ -55,16 +55,16 @@ data class EngineProfile(
     val harmonics: FloatArray = floatArrayOf(1f, 0.6f, 0.35f, 0.2f, 0.12f, 0.07f),
     /** Mix of exhaust hiss/noise; richer at high load. */
     val exhaustGrit: Float = 0.15f,
-    /** Pop probability per decel event (0..1) — multiplied by the user's decel character. */
+    /** Pop probability per decel event (0..1), multiplied by the user's decel character. */
     val decelPopProbability: Float = 0.4f,
-    /** Brightness of the firing pulse — 1 = punchy click, 0 = soft thump. */
+    /** Brightness of the firing pulse, 1 = punchy click, 0 = soft thump. */
     val compressionTone: Float = 0.5f,
     // --- SYNTH-only params ---
     /** Synth base frequency at idle (Hz). */
     val synthBaseHz: Float = 80f,
     /** Synth peak frequency at max RPM (Hz). */
     val synthMaxHz: Float = 1200f,
-    /** Synth waveform shape — 0 = sine, 1 = saw, 2 = square. */
+    /** Synth waveform shape, 0 = sine, 1 = saw, 2 = square. */
     val synthShape: Int = 1,
     /** FM modulation depth for synth (0..1). */
     val synthFmDepth: Float = 0.3f,
@@ -81,7 +81,7 @@ data class EngineProfile(
     // --- Per-engine feature support ---
     // ICE / SYNTH profiles use the in-house DSP so every effect is "free" and these default to true.
     // Sampled profiles can only do what MediaPlayer + SoundPool sidecars give us:
-    //  - muffler LPF: only the DSP path has a filter — set false on sampled profiles
+    //  - muffler LPF: only the DSP path has a filter, set false on sampled profiles
     //  - pops / brake whine: only available if a SoundPool side-channel asset is wired
     //    (popSampleAsset / brakeWhineSampleAsset). Until the sidecars ship, sampled
     //    profiles set these false so the UI can grey-out the controls per engine.
@@ -102,12 +102,12 @@ data class EngineProfile(
      * Section keys: "startup", "idle_loop", "rev_up", "rev_loop", "decel", "shutdown".
      */
     val sampleSections: Map<String, SampleSection>? = null,
-    /** Optional pop SFX variants — picked at random when a pop fires. Supersedes [popSampleAsset]. */
+    /** Optional pop SFX variants, picked at random when a pop fires. Supersedes [popSampleAsset]. */
     val popSections: List<SampleSection>? = null,
     /**
      * Preview / hidden engines are excluded from the picker. The full PROFILES list
      * is kept so the runtime can still resolve a stored key (e.g. the user picked
-     * "Tron whine" before we marked it preview — opening Settings still shows
+     * "Tron whine" before we marked it preview, opening Settings still shows
      * "Tron whine" as the current value, but the dropdown won't offer it to others).
      */
     val preview: Boolean = false,
@@ -169,7 +169,7 @@ data class EngineProfile(
                 kind = Kind.ICE,
                 idleRpm = 950, maxRpm = 6500,
                 cylinderCount = 2,
-                // 45° V-twin: classic uneven "potato-potato" — second cylinder fires 315° after the first
+                // 45° V-twin: classic uneven "potato-potato", second cylinder fires 315° after the first
                 firingAngles = floatArrayOf(0f, 315f),
                 harmonics = floatArrayOf(1f, 0.65f, 0.4f, 0.22f, 0.12f, 0.06f),
                 exhaustGrit = 0.22f,
@@ -268,7 +268,7 @@ data class EngineProfile(
                 kind = Kind.ICE, gearless = true,
                 idleRpm = 180, maxRpm = 900,
                 cylinderCount = 2,
-                // Two cylinders firing 180° apart — that's the classic "chuff-chuff"
+                // Two cylinders firing 180° apart, that's the classic "chuff-chuff"
                 firingAngles = floatArrayOf(0f, 180f),
                 twoStroke = true,
                 harmonics = floatArrayOf(1f, 0.95f, 0.85f, 0.7f, 0.5f, 0.3f),
@@ -283,7 +283,7 @@ data class EngineProfile(
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 600, maxRpm = 14000,
                 synthBaseHz = 110f, synthMaxHz = 2400f,
-                synthShape = 2,           // square — bright digital edge
+                synthShape = 2,           // square, bright digital edge
                 synthFmDepth = 0.15f,
                 exhaustGrit = 0.05f,
                 decelPopProbability = 0.0f
@@ -294,7 +294,7 @@ data class EngineProfile(
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 500, maxRpm = 10000,
                 synthBaseHz = 65f, synthMaxHz = 950f,
-                synthShape = 1,           // saw — gritty turbine
+                synthShape = 1,           // saw, gritty turbine
                 synthFmDepth = 0.6f,
                 exhaustGrit = 0.45f,
                 decelPopProbability = 0.0f
@@ -305,7 +305,7 @@ data class EngineProfile(
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 300, maxRpm = 1800,
                 synthBaseHz = 55f, synthMaxHz = 220f,
-                synthShape = 0,           // sine — pure hum
+                synthShape = 0,           // sine, pure hum
                 synthFmDepth = 0.75f,     // heavy modulation gives the wobble
                 exhaustGrit = 0.02f,
                 decelPopProbability = 0.0f
@@ -316,7 +316,7 @@ data class EngineProfile(
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 1500, maxRpm = 18000,
                 synthBaseHz = 180f, synthMaxHz = 3800f,
-                synthShape = 2,           // square — bright whine
+                synthShape = 2,           // square, bright whine
                 synthFmDepth = 0.08f,     // tight, only a touch of warble
                 exhaustGrit = 0.55f,      // turbine air hiss
                 decelPopProbability = 0.0f
@@ -328,7 +328,7 @@ data class EngineProfile(
                 idleRpm = 700, maxRpm = 3200,
                 synthBaseHz = 95f, synthMaxHz = 460f,
                 synthShape = 0,           // sine
-                synthFmDepth = 1.0f,      // huge wobble — the cliche flying-saucer warble
+                synthFmDepth = 1.0f,      // huge wobble, the cliche flying-saucer warble
                 exhaustGrit = 0.1f,
                 decelPopProbability = 0.0f
             ),
@@ -338,7 +338,7 @@ data class EngineProfile(
                 kind = Kind.SYNTH, gearless = true,
                 idleRpm = 800, maxRpm = 20000,
                 synthBaseHz = 220f, synthMaxHz = 5200f,
-                synthShape = 1,           // saw — rich harmonic content
+                synthShape = 1,           // saw, rich harmonic content
                 synthFmDepth = 0.04f,
                 exhaustGrit = 0.0f,
                 decelPopProbability = 0.0f
@@ -354,7 +354,7 @@ data class EngineProfile(
                 exhaustGrit = 0.25f,
                 decelPopProbability = 0.0f
             ),
-            // --- Sampled (real recordings, all CC0 from BigSoundBank — see Credits) ---
+            // --- Sampled (real recordings, all CC0 from BigSoundBank, see Credits) ---
             // For sampled engines the procedural [kind] flags below are unused; the SampledEnginePlayer
             // handles render. Idle/max RPM still drive the playback-speed mapping.
             EngineProfile(
@@ -450,7 +450,7 @@ data class EngineProfile(
                 key = "SAMPLED_HELICOPTER", preview = true,
                 displayName = "Helicopter (sampled)",
                 kind = Kind.ICE, gearless = true,
-                // Helicopter rotor "RPM" is metaphorical here — drives playback speed mapping
+                // Helicopter rotor "RPM" is metaphorical here, drives playback speed mapping
                 idleRpm = 250, maxRpm = 1100,
                 sampleAssetBase = "engine_helicopter",
                 supportsMuffler = false, supportsBrakeWhine = false,
@@ -490,7 +490,7 @@ data class EngineProfile(
                     "startup"   to SampleSection("src_bsb_0763",         0,  2498),
                     "rev_up"    to SampleSection("engine_lawnmower",  1174,  2771),
                     "idle_loop" to SampleSection("src_bsb_0763",      7073, 12346)
-                    // No decel / rev_loop / shutdown — omitted per user inventory.
+                    // No decel / rev_loop / shutdown, omitted per user inventory.
                 )
             ),
             EngineProfile(
@@ -577,7 +577,7 @@ data class EngineProfile(
                     "shutdown"  to SampleSection("src_bsb_1146", 32536, 35771)
                 ),
                 popSections = listOf(
-                    SampleSection("src_bsb_1146", 21106, 21674)   // pop_a — mechanical clatter
+                    SampleSection("src_bsb_1146", 21106, 21674)   // pop_a, mechanical clatter
                 )
             ),
             EngineProfile(

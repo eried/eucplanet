@@ -263,7 +263,7 @@ class VoiceService @Inject constructor(
                 // locale. Stable across app-language changes and matches
                 // the same native-script policy as the language picker.
                 // displayCountry can be empty for locales that aren't bound
-                // to a region (e.g. plain "ar" Arabic) — skip the parens so
+                // to a region (e.g. plain "ar" Arabic), skip the parens so
                 // we don't render "العربية ()".
                 val lang = locale.getDisplayLanguage(locale)
                 val country = locale.getDisplayCountry(locale)

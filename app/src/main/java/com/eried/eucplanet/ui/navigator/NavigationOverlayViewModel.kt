@@ -58,7 +58,7 @@ class NavigationOverlayViewModel @Inject constructor(
 
     fun setCueVisible(visible: Boolean) = navigationEngine.setCueVisible(visible)
 
-    /** Re-opens the centred popup — used by the dashboard navigator button. */
+    /** Re-opens the centred popup, used by the dashboard navigator button. */
     fun requestPopup() = navigationEngine.requestPopup()
 
     fun endNavigation() = navigationEngine.stop()

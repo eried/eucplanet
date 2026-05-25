@@ -19,7 +19,7 @@ import java.util.Locale
  *    interact with normal app controls and watch them in the log.
  *  - Cleared when the app process exits (singleton lives only in memory).
  *
- * The buffer is bounded so a long session can't OOM the app — drops the
+ * The buffer is bounded so a long session can't OOM the app, drops the
  * oldest entries past [MAX_ENTRIES]. A typical session generates a few
  * hundred lines, so the cap is a safety net rather than a normal case.
  */

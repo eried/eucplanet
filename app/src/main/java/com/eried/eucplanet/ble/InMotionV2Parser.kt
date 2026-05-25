@@ -132,7 +132,7 @@ object InMotionV2Parser {
      */
     fun parseCarType(data: ByteArray): CarInfo? {
         // Only the first three bytes are read (mainSeries / series / type).
-        // The V14 carType payload is just 6 bytes — an earlier `< 8` guard
+        // The V14 carType payload is just 6 bytes; an earlier `< 8` guard
         // wrongly rejected it, so the model never resolved on real V14s.
         if (data.size < 3) return null
         val mainSeries = data[0].toInt() and 0xFF
@@ -187,7 +187,7 @@ object InMotionV2Parser {
     /**
      * Parse P6 realtime telemetry from the data block of a `21 02 87 01 00 …`
      * response. The data passed in here is the part *after* the `21 02 87 01 00`
-     * routing prefix — exactly the bytes the wheel reports for each sample.
+     * routing prefix, exactly the bytes the wheel reports for each sample.
      *
      * What we trust today: voltage and current at offsets 0/2 match the InMotion
      * app's reported values across all captures (Voltage 230 V, Current ≈ 0 A
@@ -197,7 +197,7 @@ object InMotionV2Parser {
      *
      * Everything else (speed, PWM, temperatures, trip distance, etc.) sits at
      * different offsets than V14 and we don't have labelled riding captures yet.
-     * Those fields stay at defaults — the dashboard reads blank for them, which
+     * Those fields stay at defaults; the dashboard reads blank for them, which
      * is honest about what we can't yet decode.
      */
     fun parseP6Telemetry(data: ByteArray): WheelData? {
@@ -208,7 +208,7 @@ object InMotionV2Parser {
         // Speed at offset 8-9: int16 LE in 0.01 km/h. Forward riding lands
         // in the positive range (2650 = 26.50 km/h = 16.5 mph at the labelled
         // "16 mph" frame), and reverse riding produces small negative values
-        // (-50 .. -100 hundredths-km/h, i.e. ~0.5 km/h backward) — confirmed
+        // (-50 .. -100 hundredths-km/h, i.e. ~0.5 km/h backward), confirmed
         // by walking the realtime stream through the user's reverse window.
         // The previous unsigned read silently underflowed those reverse
         // frames into ~655 km/h forward, breaking the dashboard.
@@ -223,7 +223,7 @@ object InMotionV2Parser {
         val pwm = if (data.size >= 16) ByteUtils.getInt16LE(data, 14) / 100f else 0f
 
         // Torque at offset 12-13: int16 LE in 0.01 Nm (signed). Verified
-        // against v1:50 idle label of 4.59-5.05 Nm — frame reads 505 there.
+        // against v1:50 idle label of 4.59-5.05 Nm: frame reads 505 there.
         // Goes negative on reverse motion (v2:02 reverse: -6.97 Nm), goes
         // strongly positive when transitioning out of reverse (v2:16: +12.33).
         // Earlier guess at 18-19 was zero across all idle frames.
@@ -235,7 +235,7 @@ object InMotionV2Parser {
         val battery1 = if (data.size >= 22) ByteUtils.getUint16LE(data, 20) / 100f else 0f
         val battery2 = if (data.size >= 24) ByteUtils.getUint16LE(data, 22) / 100f else 0f
         val batteryPercent = if (battery1 > 0f || battery2 > 0f) {
-            // Real per-pack percentages — round the average so 97.9 reads 98
+            // Real per-pack percentages; round the average so 97.9 reads 98
             // like the wheel screen, not 97 (truncation lost the last percent).
             ((battery1 + battery2) / 2f).roundToInt().coerceIn(0, 100)
         } else {
@@ -245,8 +245,8 @@ object InMotionV2Parser {
         // Lifetime odometer as uint32 LE at offset 58, in 0.01 km units.
         // Confirmed across three labelled riding moments (1776.8 / 1776.9 /
         // 1777.0 mi displayed by the InMotion app, 285958 / 285970 / 285990
-        // in the bytes — within rounding of the displayed value).
-        // This is total mileage, NOT a per-session trip — the trip field
+        // in the bytes, within rounding of the displayed value).
+        // This is total mileage, NOT a per-session trip; the trip field
         // stays 0 here and the recording feature tracks per-session distance.
         val totalDistanceKm = if (data.size >= 62) {
             ByteUtils.getUint32LE(data, 58) / 100f
@@ -259,18 +259,18 @@ object InMotionV2Parser {
         //   Motor  = (body[31] − 145) / 1.5  °C
         //     Within 0.3 °C of every labelled value across 9 samples in two
         //     separate logs. Range 0..73 °C maps to bytes 145..255 (saturates
-        //     at 73 °C — fine for normal use; pwm-event spikes that briefly
+        //     at 73 °C: fine for normal use; pwm-event spikes that briefly
         //     exceed that just clip).
         //
         //   MOS    = body[28] (direct °C)
-        //     Exact match every time — three labels at 36 °C, byte = 36.
+        //     Exact match every time: three labels at 36 °C, byte = 36.
         //
         //   IMU    = 62 − body[78]  °C  (lower confidence; 3 data points,
         //     inverted-scale fit is unusual but matches: 42/42/43 °C ↔ bytes
         //     20/20/19.)
         //
         // The earlier `°F = byte − 126` fit on body[32] was tracking the
-        // controller-MOS sensor, NOT the motor — that's why the rider's
+        // controller-MOS sensor, NOT the motor; that's why the rider's
         // wheel UI motor reading (29-34 °C) only loosely lined up.
         fun byteOrNull(off: Int): Int? =
             if (off < data.size) data[off].toInt() and 0xFF else null
@@ -305,7 +305,7 @@ object InMotionV2Parser {
         // (rider on, motor under load), 0x00 when lifted off / park-mode,
         // 0xfd/0xfe before the auth handshake. The previous reading at
         // offset 68 looked right against a small subset of frames but
-        // misfires under riding — byte 68 stays 0x0f across both parked
+        // misfires under riding: byte 68 stays 0x0f across both parked
         // and 60 km/h cruise. Offset 80 tracks the labelled park/sport
         // toggle window cleanly.
         val pcMode = if (data.size > 80 && (data[80].toInt() and 0xFF) == 0x49) 1 else 0
@@ -323,7 +323,7 @@ object InMotionV2Parser {
             tripDistance = 0f,
             totalDistance = totalDistanceKm,
             temperatures = temps,
-            // Motor specifically (not max of all sensors) — the user wants
+            // Motor specifically (not max of all sensors): the user wants
             // the dashboard pill to read the same number the wheel and the
             // InMotion app show as the motor temperature.
             maxTemperature = motorC ?: 0f,
@@ -366,7 +366,7 @@ object InMotionV2Parser {
      *
      * Body offset 58 is **MOS temperature** under the labelled-capture formula
      * `°F = byte − 126` (byte 0xC6 = 198 → 72 °F at the FINALP6/NEW CAPTURE
-     * 11:58 anchor — exact match against the InMotion app's on-screen value).
+     * 11:58 anchor, exact match against the InMotion app's on-screen value).
      *
      * Motor and Driver Board share the same body but the exact offsets aren't
      * pinned yet on this firmware variant. We probe the remaining 8-byte

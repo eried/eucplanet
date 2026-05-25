@@ -8,7 +8,7 @@ package com.eried.eucplanet.ble
  * Confirmation only arrives via the next 0x04 (Live B) telemetry frame.
  *
  * Spec: docs/protocols/begode.md sections 6.1, 6.2. Protocol research credit:
- * WheelLog (Ilya Shkolnik and contributors, GPLv3) — used as a protocol
+ * WheelLog (Ilya Shkolnik and contributors, GPLv3), used as a protocol
  * reference; the implementation here is original.
  */
 object BegodeCommands {
@@ -18,7 +18,7 @@ object BegodeCommands {
 
     // Spec uses E/Q/T for off/on/strobe; the user-facing ticket calls the
     // toggle "light cycle" which historically maps to a single byte 'l' on
-    // some firmwares. Stock Begode uses the explicit E/Q/T variants — those
+    // some firmwares. Stock Begode uses the explicit E/Q/T variants, and those
     // are what we send so all FW revisions react.
     fun lightOff(): ByteArray = byteArrayOf('E'.code.toByte())
     fun lightOn(): ByteArray = byteArrayOf('Q'.code.toByte())

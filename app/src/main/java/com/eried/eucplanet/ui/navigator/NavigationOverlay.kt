@@ -123,7 +123,7 @@ fun NavigationOverlay(
     DisposableEffect(Unit) { onDispose { viewModel.setCueVisible(false) } }
 
     Box(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-        // Only the big centred arrow popup — no minimized pill or other widget.
+        // Only the big centred arrow popup, no minimized pill or other widget.
         // Suppress only when the rider is on the map and NOT on an arrival
         // frame -- the final / intermediate "goal reached" banner has to
         // surface everywhere (including the map screen and the dashboard)
@@ -211,7 +211,7 @@ private fun CenterPopup(
             .width(340.dp)
             .padding(8.dp)
             // Absorb taps so they don't fall through to the app underneath. A
-            // no-op clickable does this cleanly — the perpetual event-consume
+            // no-op clickable does this cleanly, the perpetual event-consume
             // loop used before was cancelling the popup's own button taps.
             .clickable(
                 interactionSource = remember {
@@ -235,11 +235,11 @@ private fun CenterPopup(
             ) {
                 Text(
                     when {
-                        // A 1-stop route has no "Last stop" line — it is just
+                        // A 1-stop route has no "Last stop" line, it is just
                         // noise; the count only earns its place from 2 stops up.
                         state.arrived || state.goalCount <= 1 -> ""
                         // "Last stop" only when the current goal really is the
-                        // final one — otherwise show how many remain to visit.
+                        // final one, otherwise show how many remain to visit.
                         state.goalIndex >= state.goalCount ->
                             stringResource(R.string.nav_last_stop)
                         else -> stringResource(

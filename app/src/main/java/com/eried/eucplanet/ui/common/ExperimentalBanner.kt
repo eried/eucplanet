@@ -52,7 +52,7 @@ fun ExperimentalBanner(
     detectedFirmware: String? = null
 ) {
     // Only show for wheels other than the verified V14 family. A null name
-    // (disconnected) hides the banner — there's nothing to report yet.
+    // (disconnected) hides the banner, there's nothing to report yet.
     if (!isPreliminaryWheel(detectedWheelName)) return
 
     val context = LocalContext.current
@@ -140,7 +140,7 @@ private fun openIssueForm(
 
 /**
  * Map the wheel name our parser surfaces (e.g., "InMotion V14 50GB") to the
- * exact option label in `wheel_report.yml`. Returns null if no match — the
+ * exact option label in `wheel_report.yml`. Returns null if no match, the
  * field will be left blank and the user picks manually.
  */
 private fun matchWheelTemplateOption(name: String?): String? {
@@ -169,7 +169,7 @@ private fun urlEncode(s: String): String =
     URLEncoder.encode(s, StandardCharsets.UTF_8.name())
 
 /**
- * Returns true for wheels we treat as preliminary — connected wheels that are
+ * Returns true for wheels we treat as preliminary, connected wheels that are
  * not in the verified set. V14 (author's daily wheel) and P6 (telemetry +
  * controls verified against labelled real-hardware captures) are verified;
  * anything else trips the banner so the user knows to file a wheel report

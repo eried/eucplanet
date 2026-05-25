@@ -8,7 +8,7 @@ import java.io.OutputStream
  *
  * Unlike APNG, an animated GIF opens in every gallery, browser and chat app.
  * The trade-offs are GIF's own: 256 colours per frame (here via a count-
- * weighted median-cut palette) and 1-bit transparency — a pixel is either fully
+ * weighted median-cut palette) and 1-bit transparency: a pixel is either fully
  * opaque or fully clear. Each frame is quantised and written immediately, so
  * only one frame is ever held.
  *
@@ -60,10 +60,10 @@ class StudioGifEncoder(
         val palette = quantize(counts, MAX_COLORS)
         val transIndex = palette.size // one slot past the colours is "transparent"
 
-        // Nearest-colour matching is per-pixel independent — fan the bands out
+        // Nearest-colour matching is per-pixel independent; fan the bands out
         // across cores so a full-resolution frame quantises in a fraction of
         // the time. Each band keeps its own colour cache, writes a disjoint
-        // slice of `indices`, and nearestIndex() is pure — so no shared state.
+        // slice of `indices`, and nearestIndex() is pure; so no shared state.
         val tIndex = transIndex.toByte()
         val cores = Runtime.getRuntime().availableProcessors().coerceIn(2, 8)
         val band = (argb.size + cores - 1) / cores
@@ -90,7 +90,7 @@ class StudioGifEncoder(
         while ((1 shl bits) < transIndex + 1) bits++
         val tableSize = 1 shl bits
 
-        // Graphic control extension — delay + transparent index, dispose to bg.
+        // Graphic control extension: delay + transparent index, dispose to bg.
         out.write(0x21); out.write(0xF9); out.write(4)
         out.write(0x09) // disposal method 2 (restore to background) | transparent flag
         writeShort((delayMs / 10).coerceAtLeast(2)) // delay, hundredths of a second
@@ -127,13 +127,13 @@ class StudioGifEncoder(
         if (started) return
         started = true
         out.write("GIF89a".toByteArray(Charsets.US_ASCII))
-        // Logical screen descriptor — no global colour table (each frame has one).
+        // Logical screen descriptor: no global colour table (each frame has one).
         writeShort(width)
         writeShort(height)
         out.write(0x70) // 8-bit colour resolution, no global table
         out.write(0)    // background colour index
         out.write(0)    // pixel aspect ratio
-        // NETSCAPE2.0 application extension — loop forever.
+        // NETSCAPE2.0 application extension: loop forever.
         out.write(0x21); out.write(0xFF); out.write(11)
         out.write("NETSCAPE2.0".toByteArray(Charsets.US_ASCII))
         out.write(3); out.write(1); writeShort(0); out.write(0)
@@ -179,7 +179,7 @@ class StudioGifEncoder(
                         overflow = overflow shl 1
                     }
                 } else {
-                    // Dictionary full — restart it.
+                    // Dictionary full, restart it.
                     emit(clearCode)
                     dict.clear()
                     codeWidth = litWidth + 1

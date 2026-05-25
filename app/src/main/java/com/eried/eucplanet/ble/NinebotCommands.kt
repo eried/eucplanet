@@ -17,7 +17,7 @@ import com.eried.eucplanet.util.ByteUtils
  * every control method.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik / Palachzzz and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object NinebotCommands {
@@ -25,7 +25,7 @@ object NinebotCommands {
     private const val MAGIC_0: Byte = 0x5A
     private const val MAGIC_1: Byte = 0xA5.toByte()
 
-    /** Phone source address — spec section 4. */
+    /** Phone source address, spec section 4. */
     const val ADDR_APP: Int = 0x3E
     /** Main MCU. */
     const val ADDR_CONTROLLER: Int = 0x14
@@ -62,7 +62,7 @@ object NinebotCommands {
      * Assemble a plaintext Z frame around a payload. Caller hands in the
      * `cmd`, `param`, and `data` bytes; the helper writes the magic, length,
      * addresses, and CRC. Encryption is applied *after* this builder by
-     * [NinebotZCrypto.applyInPlace] — keeping plaintext+CRC computation in
+     * [NinebotZCrypto.applyInPlace]. Keeping plaintext+CRC computation in
      * one place means the CRC is always over plaintext, which is what the
      * receiver expects (spec section 6.2 final paragraph).
      *
@@ -93,7 +93,7 @@ object NinebotCommands {
 
     /**
      * GetKey: phone -> KeyGenerator (0x16), cmd 0x5B, param 0x00, no data.
-     * Sent in the clear — no key is installed yet — and the wheel's reply
+     * Sent in the clear (no key is installed yet) and the wheel's reply
      * arrives in the clear too (spec section 6.1). The reply's data field
      * is the 16-byte session key.
      */
@@ -145,7 +145,7 @@ object NinebotCommands {
     /**
      * Lock the wheel. Spec section 10: write 0x70 with `{0x01, 0x00}` to
      * lock, `{0x00, 0x00}` to unlock. The wheel itself does not enforce a
-     * PIN — the encrypted handshake is the only barrier — but the official
+     * PIN (the encrypted handshake is the only barrier) but the official
      * app gates this UX-side and we mirror that in our app layer.
      */
     fun setLock(locked: Boolean): ByteArray = frame(
@@ -202,7 +202,7 @@ object NinebotCommands {
      * Drive flags bitfield (0xD3). Bit 0 is DRL (daytime running light).
      * Spec section 7 lists bits 1..4 for tail light, aux light, strain
      * gauge / pedal pressure, brake assist; bit 3 has a "?" in WheelLog's
-     * reference and we have not validated it on real hardware — see
+     * reference and we have not validated it on real hardware. See
      * spec open question 3.
      */
     fun setDriveFlags(flags: Int): ByteArray = frame(
@@ -235,14 +235,14 @@ object NinebotCommands {
     // ---- Legacy ------------------------------------------------------------
 
     // Legacy Ninebot exposes no documented settings writes through the BLE
-    // stack (spec section 16). Lock, alarms, lights, volume, LED — none of
+    // stack (spec section 16). Lock, alarms, lights, volume, LED: none of
     // them have a parameter ID. Settings changes on One E / E+ / S2 / Mini /
     // Mini Pro require the official Ninebot app over a side channel we don't
     // cover. The legacy adapter therefore returns null from every control
     // method; production legacy support is read-only telemetry.
     //
     // The read builders below exist for the Service Mode diagnostic
-    // catalogue — they let a user with a legacy wheel fire a single manual
+    // catalogue: they let a user with a legacy wheel fire a single manual
     // poll from the dialog and watch the reply land in the log, even though
     // the normal pollRealtime path stays unsolicited.
 
@@ -251,7 +251,7 @@ object NinebotCommands {
     /** Legacy "App" source address for the default (One E / E+) variant.
      *  S2 uses 0x11 and Mini uses 0x0A; we send under the default address
      *  since the diagnostic catalogue is fired manually and the wheel still
-     *  replies — variant-specific addressing is a fine-tuning concern. */
+     *  replies; variant-specific addressing is a fine-tuning concern. */
     const val LEGACY_ADDR_APP_DEFAULT: Int = 0x09
 
     /**

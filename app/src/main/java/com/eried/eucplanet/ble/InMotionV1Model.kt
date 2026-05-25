@@ -1,7 +1,7 @@
 package com.eried.eucplanet.ble
 
 /**
- * Models in the InMotion V1 protocol family — the older V8 / V10 / V5 / L6
+ * Models in the InMotion V1 protocol family: the older V8 / V10 / V5 / L6
  * generation that pre-dates the V14-era V2 wire format. The wheel reports its
  * model code as two ASCII digits at offsets 104 and 107 of the slow-info reply
  * (see docs/protocols/inmotion_v1.md section 5.1); the two bytes are
@@ -9,7 +9,7 @@ package com.eried.eucplanet.ble
  *
  * Per-model fields drive parser dispatch (speed factor, mileage encoding,
  * battery curve) and capability gating. Defaults match the spec table in
- * section 4.1 — `speedFactor` is 3812 for the V8 / V10 generation and 1000
+ * section 4.1: `speedFactor` is 3812 for the V8 / V10 generation and 1000
  * only for the legacy R-series (R1S / R0).
  *
  * Spec: docs/protocols/inmotion_v1.md. Protocol research credit goes to
@@ -92,7 +92,7 @@ enum class InMotionV1Model(
         /**
          * Best-effort match from the BLE advertised name. V1 firmwares publish
          * names like `V8F-AB12`, `Inmotion-V10F`, `IM01234`, `L6-XXXX` or
-         * `Glide 3`. Returns null when no obvious match — the adapter still
+         * `Glide 3`. Returns null when no obvious match; the adapter still
          * connects and resolves the model from the slow-info reply.
          */
         fun fromReportedName(name: String): InMotionV1Model? {

@@ -2,7 +2,7 @@ package com.eried.eucplanet.ble
 
 /**
  * Models in the InMotion V2 protocol family. The ID is encoded as `series*10+type`
- * in the `MainInfo` response (cmd 0x02, sub 0x01) — exactly what WheelLog calls
+ * in the `MainInfo` response (cmd 0x02, sub 0x01); exactly what WheelLog calls
  * `Model.findById(modelId)`.
  *
  * Each model has flags that drive per-model command and parser dispatch in
@@ -38,7 +38,7 @@ enum class InMotionV2Model(
      * Upper bound for the user-configurable tiltback slider in km/h. Numbers
      * mirror WheelLog's `InmotionAdapterV2.getMaxSpeed()` table; P6 isn't in
      * WheelLog so it gets 130 km/h to match community-reported top speeds.
-     * This is *not* the firmware-enforced cap — V14 firmware steps
+     * This is *not* the firmware-enforced cap; V14 firmware steps
      * 70 → 80 → 90 km/h depending on revision and break-in mileage. The slider
      * just lets the user request up to this value; the wheel clamps further
      * if needed and the repository's reconcile logic now keeps the user's
@@ -49,7 +49,7 @@ enum class InMotionV2Model(
     /**
      * The P6 actually uses an extended-routing-only variant of the V2 protocol
      * (every query goes `02 21 [sub]`, every response `21 02 [sub|0x80]`) per
-     * BLE captures. We don't have a P6 parser yet — this entry exists so the
+     * BLE captures. We don't have a P6 parser yet; this entry exists so the
      * developer P6 simulator can identify itself, and so future Phase 4 work
      * has the model already wired in. The flags here are placeholders that
      * keep the simulator on the V14 command path.

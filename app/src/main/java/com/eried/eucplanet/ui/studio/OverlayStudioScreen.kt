@@ -109,7 +109,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * The Overlay Studio — a fullscreen video / photo recorder with a fully
+ * The Overlay Studio: a fullscreen video / photo recorder with a fully
  * customisable data-overlay layout.
  *
  * The viewports and overlays are drawn into a recording [GraphicsLayer]; video
@@ -158,7 +158,7 @@ fun OverlayStudioScreen(
     // And the viewport config sheet's camera "Style" (colour-grading) section.
     var cameraStyleExpanded by remember { mutableStateOf(false) }
     val dirty by viewModel.dirty.collectAsState()
-    // Layouts are capped — past the limit, Add is disabled everywhere.
+    // Layouts are capped; past the limit, Add is disabled everywhere.
     val canAddElement = preset.elements.size < OverlayStudioViewModel.MAX_ELEMENTS
 
     // Runs a New / Load action. When the working layout is untouched there is
@@ -245,7 +245,7 @@ fun OverlayStudioScreen(
         clockTick
     }
 
-    // Opened from a trip ("Replay in Studio") — jump straight into replay.
+    // Opened from a trip ("Replay in Studio"): jump straight into replay.
     LaunchedEffect(replayTripId) {
         val id = replayTripId ?: return@LaunchedEffect
         val rec = viewModel.tripById(id) ?: return@LaunchedEffect
@@ -259,7 +259,7 @@ fun OverlayStudioScreen(
         replayPlaying = false
     }
 
-    // Replay playback clock — advances the scrub position while playing.
+    // Replay playback clock: advances the scrub position while playing.
     LaunchedEffect(replayMode, replayPlaying, replaySpeed, replayStartMs, replayEndMs) {
         if (!replayMode || !replayPlaying) return@LaunchedEffect
         var last = withFrameNanos { it }
@@ -298,16 +298,16 @@ fun OverlayStudioScreen(
         recording -> (stopwatchNowMs - recordingStartMs).coerceAtLeast(0L)
         else -> 0L
     }
-    // Replay APNG export — offline frame-by-frame render with a progress bar.
+    // Replay APNG export: offline frame-by-frame render with a progress bar.
     var rendering by remember { mutableStateOf(false) }
     var renderProgress by remember { mutableStateOf(0f) }
     var renderCancelRequested by remember { mutableStateOf(false) }
     var showCancelConfirm by remember { mutableStateOf(false) }
     // True while an alpha-less export (JPG / MP4) is rendering and the rider has
-    // the "force opaque" toggle on — the recording layer then draws every
+    // the "force opaque" toggle on; the recording layer then draws every
     // overlay element at 100% opacity so nothing blends with the chroma fill.
     var renderForceOpaque by remember { mutableStateOf(false) }
-    // Physical device rotation (0/90/180/270) — the layout stays fixed but the
+    // Physical device rotation (0/90/180/270): the layout stays fixed but the
     // control icons counter-rotate so they read upright when held sideways.
     var deviceRotation by remember { mutableStateOf(0) }
 
@@ -419,7 +419,7 @@ fun OverlayStudioScreen(
     LaunchedEffect(encoder) {
         val enc = encoder ?: return@LaunchedEffect
         // The studio is already a GraphicsLayer on the GPU. Replay it directly
-        // onto the H.264 encoder's input surface — no toImageBitmap() render +
+        // onto the H.264 encoder's input surface, no toImageBitmap() render +
         // intermediate bitmap. The loop runs OFF the UI thread so the encode
         // never serialises behind composition; replaying a recorded display
         // list is thread-safe.
@@ -461,11 +461,11 @@ fun OverlayStudioScreen(
                     nextFrameNs += FRAME_INTERVAL_NS
                     val sleepNs = nextFrameNs - System.nanoTime()
                     when {
-                        // On schedule — wait out the rest of the frame.
+                        // On schedule: wait out the rest of the frame.
                         sleepNs > 0L -> delay(sleepNs / 1_000_000L)
-                        // A real stall (>4 frames behind) — resync, don't burst.
+                        // A real stall (>4 frames behind): resync, don't burst.
                         sleepNs < -4L * FRAME_INTERVAL_NS -> nextFrameNs = System.nanoTime()
-                        // Slightly behind — skip the wait; the next frame catches up.
+                        // Slightly behind: skip the wait; the next frame catches up.
                     }
                 }
             }
@@ -526,7 +526,7 @@ fun OverlayStudioScreen(
                     ReplayPhotoFormat.PNG -> StudioCapture.savePng(context, src)
                     ReplayPhotoFormat.WEBP -> StudioCapture.saveWebp(context, src)
                     ReplayPhotoFormat.JPG ->
-                        // JPEG has no alpha — flatten onto the chroma colour first.
+                        // JPEG has no alpha; flatten onto the chroma colour first.
                         StudioCapture.saveJpeg(
                             context, flattenOntoChroma(src, exportPrefs.chromaColor)
                         )
@@ -537,7 +537,7 @@ fun OverlayStudioScreen(
                 ReplayPhotoFormat.WEBP -> "image/webp"
                 ReplayPhotoFormat.JPG -> "image/jpeg"
             }
-            // Restore the chrome the instant the save is done — showSnackbar
+            // Restore the chrome the instant the save is done; showSnackbar
             // suspends for the snackbar's whole lifetime, so clearing this
             // after it would freeze the studio for ~4 s every photo.
             capturing = false
@@ -564,7 +564,7 @@ fun OverlayStudioScreen(
 
     // --- Replay clip export (offline, frame-by-frame) ----------------------
     // GIF / APNG / MP4 all share the same offline frame-stepping loop; only the
-    // encoder differs — GIF and APNG stream into a pending gallery image, MP4
+    // encoder differs: GIF and APNG stream into a pending gallery image, MP4
     // drives StudioVideoEncoder which publishes its own MP4.
     LaunchedEffect(rendering) {
         if (!rendering) return@LaunchedEffect
@@ -591,7 +591,7 @@ fun OverlayStudioScreen(
         val frameMs = 1000 / fps
         val span = replayEndMs - replayStartMs
         // The clip honours the replay speed: at 4x the trimmed span plays back
-        // in a quarter of the time, so it needs a quarter of the frames — and
+        // in a quarter of the time, so it needs a quarter of the frames, and
         // renders that much faster. Slow speeds add frames for smoother slow-mo.
         // Frames only ever sample inside the trimmed [start, end] range.
         val outputMs = (span / replaySpeed.coerceAtLeast(0.05f)).toLong()
@@ -599,7 +599,7 @@ fun OverlayStudioScreen(
         val frameCount = ((outputMs / frameMs).toInt() + 1).coerceIn(2, maxFrames)
         val stepMs: Long = span / (frameCount - 1)
 
-        // Frame 0 — also tells us the capture dimensions.
+        // Frame 0: also tells us the capture dimensions.
         replayPosMs = replayStartMs
         repeat(2) { withFrameNanos {} }
         val first = runCatching { graphicsLayer.toImageBitmap().asAndroidBitmap() }.getOrNull()
@@ -607,7 +607,7 @@ fun OverlayStudioScreen(
             rendering = false
             return@LaunchedEffect
         }
-        // Output size — the chosen Scale percentage of the studio's native
+        // Output size: the chosen Scale percentage of the studio's native
         // resolution (smaller = quicker render, smaller file).
         val pct = exportPrefs.scale.coerceIn(25, 100) / 100f
         val ew = (first.width * pct).toInt().coerceAtLeast(2)
@@ -617,7 +617,7 @@ fun OverlayStudioScreen(
         val ok: Boolean = try {
             when (videoFormat) {
                 ReplayVideoFormat.MP4 -> {
-                    // MP4 has no alpha — every frame is composited onto the
+                    // MP4 has no alpha; every frame is composited onto the
                     // chroma colour before it is drawn into the encoder.
                     val mp4 = StudioVideoEncoder(context, withAudio = false)
                     var encoderUri: Uri? = null
@@ -671,7 +671,7 @@ fun OverlayStudioScreen(
                     }
                 }
                 else -> {
-                    // GIF / APNG — stream straight into a pending gallery image.
+                    // GIF / APNG: stream straight into a pending gallery image.
                     val pending = withContext(Dispatchers.IO) {
                         StudioCapture.newPendingImage(
                             context,
@@ -785,7 +785,7 @@ fun OverlayStudioScreen(
     // Android can quietly stop delivering sensor events while the app is
     // backgrounded; re-arm the IMU when the studio returns to the foreground.
     // Hook ON_RESUME (not ON_START) because a quick task-switch often only
-    // pauses the activity — ON_START would miss the bounce. Also re-arm on
+    // pauses the activity; ON_START would miss the bounce. Also re-arm on
     // ON_START as a belt-and-braces for the cold-return case.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -799,7 +799,7 @@ fun OverlayStudioScreen(
     }
 
     // Track physical rotation so the control icons can counter-rotate (the
-    // layout itself never rotates — that would scramble the viewport panes).
+    // layout itself never rotates; that would scramble the viewport panes).
     //
     // The naive `((orientation + 45) / 90) * 90` snap flipped on the 45 deg
     // line, so a phone tilted just past portrait-into-landscape would
@@ -863,7 +863,7 @@ fun OverlayStudioScreen(
                 else Modifier.background(Color.Black)
             )
     ) {
-        // Recordable region — everything drawn here is captured into the
+        // Recordable region: everything drawn here is captured into the
         // GraphicsLayer (and therefore into the video / photo). The bottom
         // bar and recording chrome sit outside it, so they never appear.
         Box(
@@ -949,7 +949,7 @@ fun OverlayStudioScreen(
             }
         }
 
-        // Recording indicator (not recorded — outside the layer region).
+        // Recording indicator (not recorded; outside the layer region).
         if (recording) {
             Box(Modifier.safeDrawingPadding().fillMaxSize()) {
                 RecordingPill(
@@ -961,11 +961,11 @@ fun OverlayStudioScreen(
             }
         }
 
-        // Bottom bar — gallery (left), photo/record/mic (centre), "..." (right).
+        // Bottom bar: gallery (left), photo/record/mic (centre), "..." (right).
         if (chromeVisible) {
             val iconRot = -deviceRotation.toFloat()
             Box(Modifier.safeDrawingPadding().fillMaxSize()) {
-                // Exit the studio — top-left corner (X since it is full-screen).
+                // Exit the studio, top-left corner (X since it is full-screen).
                 StudioRoundButton(
                     icon = Icons.Default.Close,
                     background = Color(0xCC1E1E26),
@@ -975,7 +975,7 @@ fun OverlayStudioScreen(
                         .align(Alignment.TopStart)
                         .padding(start = 8.dp, top = 2.dp)
                 ) { onBack() }
-                // Gallery — pinned to the bottom-left corner, like a camera app.
+                // Gallery: pinned to the bottom-left corner, like a camera app.
                 StudioRoundButton(
                     icon = Icons.Default.PhotoLibrary,
                     background = Color(0xCC1E1E26),
@@ -985,7 +985,7 @@ fun OverlayStudioScreen(
                         .align(Alignment.BottomStart)
                         .padding(start = 18.dp, bottom = 33.dp)
                 ) { openGallery() }
-                // Photo / record / mic — centred. Mic is disabled in replay.
+                // Photo / record / mic, centred. Mic is disabled in replay.
                 Row(
                     Modifier
                         .align(Alignment.BottomCenter)
@@ -1000,7 +1000,7 @@ fun OverlayStudioScreen(
                         iconRotation = iconRot
                     ) { if (!capturing) capturing = true }
                     RecordButton(
-                        // In replay a render needs a trip — disable it until
+                        // In replay a render needs a trip; disable it until
                         // one is picked, instead of a no-op tap.
                         enabled = !(replayMode && replayTrip == null)
                     ) {
@@ -1030,7 +1030,7 @@ fun OverlayStudioScreen(
                         },
                         iconRotation = iconRot
                     ) {
-                        // Mic is disabled in replay — a trip has no live audio.
+                        // Mic is disabled in replay; a trip has no live audio.
                         if (replayMode) return@StudioRoundButton
                         val turningOn = !micEnabled
                         micEnabled = turningOn
@@ -1041,7 +1041,7 @@ fun OverlayStudioScreen(
                         }
                     }
                 }
-                // "..." camera-tools flyout — bottom-right corner.
+                // "..." camera-tools flyout, bottom-right corner.
                 Box(
                     Modifier
                         .align(Alignment.BottomEnd)
@@ -1103,7 +1103,7 @@ fun OverlayStudioScreen(
             }
         }
 
-        // Replay panel — always on while in replay mode; its X returns to live.
+        // Replay panel: always on while in replay mode; its X returns to live.
         if (replayMode) {
           RotatedFullScreen(deviceRotation) {
             Box(Modifier.safeDrawingPadding().fillMaxSize()) {
@@ -1149,7 +1149,7 @@ fun OverlayStudioScreen(
                         replayPlaying = false
                     },
                     modifier = Modifier
-                        // In landscape the screen is short — centre the panel
+                        // In landscape the screen is short; centre the panel
                         // so it has the full height (no scroll) and clears the
                         // side buttons. Portrait keeps it above the bottom bar.
                         .then(
@@ -1170,7 +1170,7 @@ fun OverlayStudioScreen(
 
         // Replay clip render progress.
         if (rendering) {
-          // No crossfade on the render overlay — fading its scrim mid-render
+          // No crossfade on the render overlay; fading its scrim mid-render
           // would blink the whole screen when the phone is rotated.
           RotatedFullScreen(deviceRotation, withFade = false) {
             Box(
@@ -1487,7 +1487,7 @@ private fun flattenOntoChroma(
     )
     val canvas = android.graphics.Canvas(flat)
     canvas.drawColor(chroma.toInt())
-    // getPixels needs a software bitmap — toImageBitmap() may hand back HARDWARE.
+    // getPixels needs a software bitmap; toImageBitmap() may hand back HARDWARE.
     val sw = if (src.config == android.graphics.Bitmap.Config.HARDWARE) {
         src.copy(android.graphics.Bitmap.Config.ARGB_8888, false)
     } else src
@@ -1522,7 +1522,7 @@ private fun newElement(
     val isGauge = type == OverlayElementType.DATA_DIAL ||
         type == OverlayElementType.DATA_BAR
     val metric = nextMetric(elements)
-    // Cascade each new element so it never lands exactly on an existing one —
+    // Cascade each new element so it never lands exactly on an existing one;
     // a perfect overlap makes the covered element impossible to tap/select.
     val step = elements.size % 6
     val nx = 0.10f + step * 0.045f

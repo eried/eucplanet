@@ -78,8 +78,8 @@ import com.eried.eucplanet.wear.bridge.WatchControl
 import com.eried.eucplanet.wear.bridge.WatchState
 import com.eried.eucplanet.wear.bridge.WatchStateRepository
 
-/** Em-dash placeholder used when a metric isn't live. Matches the phone dashboard. */
-private const val DASH = "—"
+/** Dash placeholder used when a metric isn't live. Matches the phone dashboard. */
+private const val DASH = "--"
 
 /**
  * Recomposes the caller every second with the current wall-clock millis.
@@ -225,14 +225,14 @@ private fun MainScreen(state: WatchState, accent: Color) {
             .fillMaxSize()
             .background(Color.Black)
             // Virtual orientation lets the rider tilt the dial in software when the wheel
-            // is in motion — applied to the first screen only so the details screen stays
+            // is in motion, applied to the first screen only so the details screen stays
             // in its canonical orientation. Clamped on the phone side to [-90..90].
             .rotate(animatedRotation),
         contentAlignment = Alignment.Center
     ) {
         // The disconnected state is rendered by zeroing every metric and
         // graying the action buttons rather than swapping in a placeholder
-        // screen — the rider always sees the same layout, and the second
+        // screen; the rider always sees the same layout, and the second
         // page (DetailsScreen) is where the explicit "Disconnected" hint
         // lives. Mirrors the phone dashboard's behaviour.
         val sw = maxWidth.value
@@ -242,14 +242,14 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // ~10% bigger than the previous 0.115f / 0.055f values.
         val buttonDp = (sw * 0.127f).coerceIn(37f, 55f).dp
         val buttonIconDp = (sw * 0.060f).coerceIn(18f, 26f).dp
-        // "Prioritize PWM" inverts the size hierarchy — when on, speed shrinks
+        // "Prioritize PWM" inverts the size hierarchy: when on, speed shrinks
         // by ~35% and PWM (bar + number) grows by ~60% so cutout-margin becomes
         // the dominant glance signal.
         val prioritizePwm = state.prioritizePwm
         val speedFontSp = (sw * if (prioritizePwm) 0.16f else 0.245f).coerceIn(40f, 92f).sp
         val maxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
         val loadBarWidth = (sw * if (prioritizePwm) 0.55f else 0.30f).coerceIn(82f, 240f).dp
-        // In Prioritize PWM mode the bar becomes the dominant glance — go thicker
+        // In Prioritize PWM mode the bar becomes the dominant glance, go thicker
         // than the previous 0.030f (10-14 dp) and ride the new 5-22 dp band so it
         // reads as the focal indicator even on smaller round faces.
         val loadBarHeight = (sw * if (prioritizePwm) 0.060f else 0.018f).coerceIn(5f, 22f).dp
@@ -269,7 +269,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // so the dial arc and the speed number track continuously instead of
         // snapping. ~250 ms linear ≈ one update interval: no lag, no stutter.
         // When telemetry goes stale the target drops to 0 and the animation to
-        // zero is fine — we never animate on top of a frozen frame.
+        // zero is fine; we never animate on top of a frozen frame.
         val animatedSpeed by animateFloatAsState(
             targetValue = if (phoneAlive) state.speedKmh else 0f,
             animationSpec = tween(durationMillis = 250, easing = LinearEasing),
@@ -299,10 +299,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
         // Speed number + optional unit + PWM cluster, slightly above center so
         // the bottom cluster (batteries + buttons) has more room.
         // The unit is tiny and rendered with an invisible mirror on the left
-        // so the speed glyph stays visually centred — the row is symmetric
+        // so the speed glyph stays visually centred; the row is symmetric
         // around the speed even when the unit is shown.
         val unitSp = (sw * 0.030f).coerceIn(9f, 12f).sp
-        // Prioritize PWM blows up the number — was 0.075f / 28sp cap, now 0.11f / 40sp cap
+        // Prioritize PWM blows up the number; was 0.075f / 28sp cap, now 0.11f / 40sp cap
         // so on a round 454-px Wear face the PWM glyph reads as the dial's headline.
         val pwmNumberSp = (sw * if (prioritizePwm) 0.110f else 0.038f).coerceIn(11f, 40f).sp
         val showBar = state.pwmDisplay == "BAR" || state.pwmDisplay == "BOTH"
@@ -319,10 +319,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
         ) {
             Row(verticalAlignment = Alignment.Bottom) {
                 // Don't reveal a unit label until the phone has sent us its unit
-                // codes — otherwise a watch booted before the phone app would
+                // codes; otherwise a watch booted before the phone app would
                 // default to km/h and confuse an mph user. Once phoneSynced flips
                 // true, the unit re-appears (subject to the showSpeedUnit setting).
-                // Hide the unit also when phone is stale — without telemetry
+                // Hide the unit also when phone is stale; without telemetry
                 // we can't be honest about the value, so the label would lie.
                 val showUnit = state.showSpeedUnit && state.phoneSynced && phoneAlive
                 if (showUnit) {
@@ -336,7 +336,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     Spacer(Modifier.width(3.dp))
                 }
                 val useAccent = state.accentKey != "default"
-                // Band ON → band tier wins (even over custom accent — it's a safety signal).
+                // Band ON → band tier wins (even over custom accent; it's a safety signal).
                 // Band OFF → custom accent wins, else safe-green.
                 // Use the animated speed so the number stays in lockstep with
                 // the gliding gauge arc above.
@@ -386,7 +386,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     val pwmAccent = state.accentKey != "default"
                     val pwmSafeColor = if (pwmAccent) accent else GaugeAccentGreen
                     // pwmLive treats a stale phone the same as a disconnected
-                    // wheel — without a fresh push we don't know whether the
+                    // wheel; without a fresh push we don't know whether the
                     // motor is still hot.
                     val pwmLive = phoneAlive && state.connected
                     if (showBar) {
@@ -418,7 +418,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         } else {
                             // Text-only → "PWM:" prefix stays muted grey (caption
                             // colour) so only the live percent reflects load tier.
-                            // Always use the short "PWM:" — it's the standard EUC
+                            // Always use the short "PWM:": it's the standard EUC
                             // term and the long-form "Load (PWM):" wasted glance time.
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
@@ -476,7 +476,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
  * Speed-number color matched to the phone dashboard's SpeedGauge logic:
  * when the gauge color band is visible we tint by the same orange/red thresholds
  * the user configured; when the band is hidden we stay on the safe-tier green.
- * Project palette (GaugeAccentRed / Orange / Green) — not Material 400 swatches —
+ * Project palette (GaugeAccentRed / Orange / Green), not Material 400 swatches,
  * so the watch and phone read as the same hue.
  */
 private fun speedBandColor(
@@ -597,7 +597,7 @@ private fun BatteryChip(
     // the chip wears the accent so the watch identity stays consistent.
     // Disconnected (percent == null) falls back to the safe-tier green
     // so the dash matches the speed glyph above it instead of dimming
-    // out — same logic the dashboard uses for the speed reading.
+    // out, same logic the dashboard uses for the speed reading.
     val tint = when {
         useAccentTint -> accent
         percent == null -> GaugeAccentGreen
@@ -666,7 +666,7 @@ private fun ActionRow(state: WatchState, accent: Color, buttonSize: Dp, iconSize
  * gesture isn't ambiguous). Optional haptic vibrate is gated by the user's
  * `watchHapticOnAction` setting.
  *
- * If both click and hold are NONE, the button isn't drawn — the row collapses
+ * If both click and hold are NONE, the button isn't drawn; the row collapses
  * so the user can hide a button entirely if they want a single-button layout.
  */
 @Composable
@@ -686,7 +686,7 @@ private fun ConfigurableActionButton(
         ?: iconForAction(holdAction)
         ?: return
 
-    // Stateful tinting for actions whose UI usually reflects on/off — light,
+    // Stateful tinting for actions whose UI usually reflects on/off: light,
     // lock, recording. Other actions render with the neutral palette.
     val isLightOn = clickAction == "LIGHT_TOGGLE" && state.lightOn
     val disabledBg = Color(0xFF1A1A1A)
@@ -820,7 +820,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val labelSp = (sw * 0.034f).coerceIn(10f, 13f).sp
         val valueSp = (sw * 0.038f).coerceIn(11f, 14f).sp
         // Header (wheel name / "Disconnected") is meant to be a quiet caption,
-        // not a heading — it shrinks under the speed which carries the visual
+        // not a heading; it shrinks under the speed which carries the visual
         // weight on this page.
         val headerSp = (sw * 0.030f).coerceIn(9f, 12f).sp
         val speedSp = (sw * 0.060f).coerceIn(18f, 26f).sp
@@ -829,7 +829,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
         val valueWidth = (sw * 0.28f).coerceIn(75f, 110f).dp
 
         // Hide all unit labels until the phone has actually told us which unit
-        // system the rider uses — otherwise an mph user sees km/h on launch and
+        // system the rider uses; otherwise an mph user sees km/h on launch and
         // assumes the wrong thing.
         val unitsKnown = state.phoneSynced
         // phoneAlive mirrors the main-screen check: 3 s without a push from
@@ -855,7 +855,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             // Wheel-name and Disconnected header both wear the same muted
-            // caption tint as the phone dashboard's status row — the speed
+            // caption tint as the phone dashboard's status row; the speed
             // is the page's visual focus, the header is just context.
             // Stale phone counts as disconnected from the rider's POV.
             if (!state.connected || !phoneAlive) {
@@ -899,7 +899,7 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             }
             Spacer(Modifier.height(4.dp))
             // A live row needs BOTH a connected wheel and a phone that's
-            // still pushing — otherwise we dash the whole strip.
+            // still pushing; otherwise we dash the whole strip.
             val live = state.connected && phoneAlive
             // Per-metric coloring on default accent mirrors the phone
             // dashboard: voltage / current / power / trip / torque get the

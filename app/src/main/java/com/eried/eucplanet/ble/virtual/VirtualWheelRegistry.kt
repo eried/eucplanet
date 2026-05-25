@@ -1,7 +1,7 @@
 package com.eried.eucplanet.ble.virtual
 
 /**
- * Registry of available virtual wheels. Currently V14 only — Phase 4-6 add
+ * Registry of available virtual wheels. Currently V14 only; Phase 4-6 add
  * V12, V10F, S18, Lynx as their real adapters land. The pseudo-address
  * "VIRTUAL:<id>" is what BleConnectionManager.connect() recognises to route
  * to the simulator instead of real GATT.

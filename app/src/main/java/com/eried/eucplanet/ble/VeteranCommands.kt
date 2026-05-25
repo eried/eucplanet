@@ -3,13 +3,13 @@ package com.eried.eucplanet.ble
 /**
  * Outbound command builders for the Veteran (LeaperKim) BLE protocol.
  * Commands are mostly short ASCII writes to the same 0xFFE1 characteristic
- * the wheel notifies on. The horn is the only non-ASCII command — a 14-byte
+ * the wheel notifies on. The horn is the only non-ASCII command: a 14-byte
  * binary blob whose internal structure is partially understood (see spec).
  *
  * Spec: docs/protocols/veteran.md section 6.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object VeteranCommands {
@@ -19,7 +19,7 @@ object VeteranCommands {
      * The blob is byte-for-byte what the wheel expects; bytes 4..13 are not
      * publicly understood (possibly a session tag or feature-negotiation
      * stub) but replay works in practice. Sherman / pre-2020 firmwares
-     * accept the legacy single-byte `b` instead — not exposed here because
+     * accept the legacy single-byte `b` instead, not exposed here because
      * we can't reliably tell them apart before the first telemetry frame
      * lands. The blob is silently ignored on `model < 3`, which is the
      * safer default until we wire model-aware horn dispatch.

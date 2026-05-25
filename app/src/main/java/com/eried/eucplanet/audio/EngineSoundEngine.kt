@@ -28,7 +28,7 @@ import kotlin.math.sqrt
  *  - The audio producer thread reads the volatile params snapshot every buffer fill
  *    and writes PCM to AudioTrack. Allocations are kept off the hot path.
  *
- * The engine is otherwise stateless from the caller's perspective — just feed it
+ * The engine is otherwise stateless from the caller's perspective, just feed it
  * telemetry and tweak its [AppSettings] block.
  */
 @Singleton
@@ -38,7 +38,7 @@ class EngineSoundEngine @Inject constructor(
 ) {
 
     private val sampleRate = 44100
-    private val bufferFrames = 1024     // ~23ms at 44.1k — small enough for live response
+    private val bufferFrames = 1024     // ~23ms at 44.1k, small enough for live response
     private val channelMask = AudioFormat.CHANNEL_OUT_MONO
 
     private val audioManager: AudioManager =
@@ -85,7 +85,7 @@ class EngineSoundEngine @Inject constructor(
     private var lastTelemetryAtMs: Long = 0L
     private var idleEnvelope: Float = 0f             // 0 = silent, 1 = full idle
     private var decelEnvelope: Float = 0f
-    private var brakeEnvelope: Float = 0f            // 0..1 — engine-brake whine envelope (slow attack, slow release)
+    private var brakeEnvelope: Float = 0f            // 0..1, engine-brake whine envelope (slow attack, slow release)
     private var pendingPops: Int = 0
     private var voiceActive: Boolean = false
     private var voiceDuckGain: Float = 1f
@@ -98,7 +98,7 @@ class EngineSoundEngine @Inject constructor(
     // Audio focus
     private var focusRequest: AudioFocusRequest? = null
 
-    /** Apply settings — called whenever AppSettings changes. */
+    /** Apply settings, called whenever AppSettings changes. */
     fun applySettings(s: AppSettings) {
         val previousProfileKey = profile.key
         val previousEnabled = lastAppliedEnabled
@@ -163,7 +163,7 @@ class EngineSoundEngine @Inject constructor(
         }
     }
 
-    /** Voice service hook — call when a TTS announcement starts/stops. */
+    /** Voice service hook, call when a TTS announcement starts/stops. */
     fun setVoiceActive(active: Boolean) {
         voiceActive = active
     }
@@ -184,10 +184,10 @@ class EngineSoundEngine @Inject constructor(
      * the engine's current state (last [applySettings]) is used.
      *
      * [scenario] picks the motion fed to the engine for the preview duration:
-     *  - "DEFAULT" / null — idle → mid-rev → idle sweep (engine type, muffler)
-     *  - "GEARBOX"        — speed sweep through the full band so virtual gears shift
-     *  - "DECEL"          — accel under load then sharp off-throttle to trigger pops
-     *  - "BRAKE"          — sustained coast at speed so engine-brake whine engages
+     *  - "DEFAULT" / null, idle → mid-rev → idle sweep (engine type, muffler)
+     *  - "GEARBOX": speed sweep through the full band so virtual gears shift
+     *  - "DECEL": accel under load then sharp off-throttle to trigger pops
+     *  - "BRAKE": sustained coast at speed so engine-brake whine engages
      */
     fun previewProfile(
         key: String,
@@ -227,7 +227,7 @@ class EngineSoundEngine @Inject constructor(
                 gearboxKey = savedGearbox
                 pwmEverNonZero = savedPwmEverNonZero
                 // Reset smoothing state so the next real telemetry tick doesn't carry over
-                // the scenario's rpm/load — avoids a transient when the user goes riding right after.
+                // the scenario's rpm/load, avoids a transient when the user goes riding right after.
                 smoothedRpm = 0f
                 smoothedLoad = 0f
                 brakeEnvelope = 0f
@@ -264,7 +264,7 @@ class EngineSoundEngine @Inject constructor(
         }
     }
 
-    /** Steady coast at speed with throttle closed — engineBrake envelope ramps up. */
+    /** Steady coast at speed with throttle closed, engineBrake envelope ramps up. */
     private fun runBrakeScenario(durationMs: Long) {
         val steps = 30
         for (i in 0..steps) {
@@ -273,7 +273,7 @@ class EngineSoundEngine @Inject constructor(
         }
     }
 
-    /** Rev up under load, then sharp throttle drop — wakes up decel pops / backfire. */
+    /** Rev up under load, then sharp throttle drop, wakes up decel pops / backfire. */
     private fun runDecelScenario(durationMs: Long) {
         val accelSteps = 18
         val accelDur = (durationMs * 0.55f).toLong()
@@ -282,7 +282,7 @@ class EngineSoundEngine @Inject constructor(
             pushTelemetry(speedKmh = 10f + 25f * t, pwmPercent = 30f + 50f * t)
             Thread.sleep(accelDur / accelSteps)
         }
-        // Sharp drop — both pwmDrop and smoothedLoad fall, triggering decelTrigger + pops
+        // Sharp drop, both pwmDrop and smoothedLoad fall, triggering decelTrigger + pops
         pushTelemetry(speedKmh = 35f, pwmPercent = 0f)
         val tailDur = (durationMs * 0.45f).toLong()
         val tailSteps = 15
@@ -330,7 +330,7 @@ class EngineSoundEngine @Inject constructor(
         val loadAlpha = (dt * 8f).coerceAtMost(1f)
         smoothedLoad += loadAlpha * (effectiveLoad - smoothedLoad)
 
-        // Decel detection — sharp PWM drop OR regen (negative-derived load when no PWM).
+        // Decel detection, sharp PWM drop OR regen (negative-derived load when no PWM).
         val pwmDrop = (lastPwm - pwm01).coerceAtLeast(0f)
         val decelTrigger = pwmDrop > 0.25f && smoothedLoad < 0.3f
         if (decelChar != "SMOOTH" && decelTrigger) {
@@ -361,7 +361,7 @@ class EngineSoundEngine @Inject constructor(
         val brakeAlpha = (dt * if (targetBrake > brakeEnvelope) 1.4f else 3f).coerceAtMost(1f)
         brakeEnvelope += brakeAlpha * (targetBrake - brakeEnvelope)
 
-        // The curve IS the engine volume — no separate fixed slider any more. Evaluate
+        // The curve IS the engine volume, no separate fixed slider any more. Evaluate
         // the 4-point pchip at the current speed and smooth the result so a sudden
         // speed change doesn't pop the gain.
         val targetVol = if (volumeAutoCurve.isNotEmpty())
@@ -416,7 +416,7 @@ class EngineSoundEngine @Inject constructor(
             else -> 0
         }
         val baseFrac = if (gearless || gearCount == 0) {
-            // sqrt curve against the wheel's top speed — typical EUC cruise (10-30 km/h) is a
+            // sqrt curve against the wheel's top speed, typical EUC cruise (10-30 km/h) is a
             // small fraction of a fast wheel's max (90-150). Linear would leave the engine at
             // idle most of the time; sqrt pushes 20 km/h on a 100 km/h wheel up to ~45% rev band.
             sqrt((absSpeed / maxRef).coerceIn(0f, 1f))
@@ -441,7 +441,7 @@ class EngineSoundEngine @Inject constructor(
             "MUFFLED" -> 0.15f
             else -> 0.55f                                // HALF
         }
-        // The smoothed speed curve drives the master gain directly — no separate
+        // The smoothed speed curve drives the master gain directly, no separate
         // slider any more. voiceDuckGain dips when TTS is speaking.
         val gain = smoothedSpeedMult * voiceDuckGain
         paramsSnapshot = EngineParams(
@@ -466,13 +466,13 @@ class EngineSoundEngine @Inject constructor(
             compositionPlayer.update(rpmNorm, sampledVolume)
             if (decelEnvelope > 0.6f && pops == 0) {
                 // Decel transient hasn't been queued as a pop, but the envelope is high
-                // — likely a clean throttle-close. Fire the composition's decel one-shot.
+                //, likely a clean throttle-close. Fire the composition's decel one-shot.
                 compositionPlayer.fireDecel()
             }
         } else if (sampledPlayer.isPlaying()) {
             sampledPlayer.update(rpmNorm, sampledVolume)
         }
-        // Pops on either sampled path go through SoundPool — the synth path consumes them
+        // Pops on either sampled path go through SoundPool, the synth path consumes them
         // by rendering them into its own buffer, but neither MediaPlayer path has a mix point.
         if (pops > 0 && profile.supportsPops && profile.sampleAssetBase != null) {
             if (profile.popSampleAsset != null) {
@@ -485,12 +485,12 @@ class EngineSoundEngine @Inject constructor(
     fun start() {
         if (running) return
         if (headphonesOnly && !isHeadphonesActive()) {
-            Log.i(TAG, "Engine sound suppressed — headphones-only mode and no headphones routed")
+            Log.i(TAG, "Engine sound suppressed, headphones-only mode and no headphones routed")
             return
         }
         running = true
         requestAudioFocus()
-        // Multi-section composition wins over single-asset playback — when a profile
+        // Multi-section composition wins over single-asset playback, when a profile
         // declares sampleSections, we use [CompositionEnginePlayer] for proper
         // idle ↔ rev crossfading plus startup/decel/shutdown one-shots.
         if (profile.sampleSections != null) {
@@ -568,7 +568,7 @@ class EngineSoundEngine @Inject constructor(
             synth.render(params, buffer, 0, bufferFrames)
             val written = audioTrack?.write(buffer, 0, bufferFrames, AudioTrack.WRITE_BLOCKING) ?: 0
             if (written < 0) {
-                Log.w(TAG, "AudioTrack.write returned $written — stopping")
+                Log.w(TAG, "AudioTrack.write returned $written, stopping")
                 running = false
             }
         }

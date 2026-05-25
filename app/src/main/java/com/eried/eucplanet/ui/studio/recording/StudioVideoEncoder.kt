@@ -21,11 +21,11 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Records the Overlay Studio to an MP4 **without** MediaProjection — so there
+ * Records the Overlay Studio to an MP4 **without** MediaProjection, so there
  * is no "share your screen" consent dialog.
  *
  * Video: the caller draws the studio straight onto the H.264 [MediaCodec]'s
- * input [Surface] with a hardware [Canvas] (see [submitFrame]) — the GPU does
+ * input [Surface] with a hardware [Canvas] (see [submitFrame]); the GPU does
  * the scale and the RGB→YUV colour conversion, so there is no per-pixel CPU
  * work and no read-back.
  * Audio (optional): the device microphone is read on a background thread and
@@ -79,7 +79,7 @@ class StudioVideoEncoder(
     var started = false
         private set
 
-    /** Encoder output dimensions — valid once [start] has returned true. */
+    /** Encoder output dimensions, valid once [start] has returned true. */
     val encodeWidth: Int get() = encodeW
     val encodeHeight: Int get() = encodeH
 
@@ -125,7 +125,7 @@ class StudioVideoEncoder(
             val bitRate = (encodeW.toLong() * encodeH * 9)
                 .coerceIn(6_000_000L, 32_000_000L).toInt()
             val format = MediaFormat.createVideoFormat(VIDEO_MIME, encodeW, encodeH).apply {
-                // Surface input — the encoder consumes GPU buffers directly.
+                // Surface input: the encoder consumes GPU buffers directly.
                 setInteger(
                     MediaFormat.KEY_COLOR_FORMAT,
                     MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
@@ -134,7 +134,7 @@ class StudioVideoEncoder(
                 setInteger(MediaFormat.KEY_FRAME_RATE, 60)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
                 // Ask the codec to process as fast as it can, not just at the
-                // 60 fps display rate — helps a software encoder keep up.
+                // 60 fps display rate; helps a software encoder keep up.
                 setInteger(MediaFormat.KEY_OPERATING_RATE, Short.MAX_VALUE.toInt())
             }
             enc.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
@@ -162,7 +162,7 @@ class StudioVideoEncoder(
 
     /**
      * Encode one studio frame. [draw] renders straight onto the encoder's input
-     * surface — a hardware [Canvas] — so the studio's GraphicsLayer can be
+     * surface (a hardware [Canvas]) so the studio's GraphicsLayer can be
      * replayed GPU-to-GPU with no intermediate bitmap and no read-back. Returns
      * false once the encoder has failed and recording should stop.
      */
@@ -207,7 +207,7 @@ class StudioVideoEncoder(
                     val isConfig =
                         videoBufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0
                     if (buf != null && !isConfig && videoBufferInfo.size > 0) {
-                        // The input surface stamps frames with the wall clock —
+                        // The input surface stamps frames with the wall clock;
                         // rebase to the recording start so the muxed video
                         // track begins at zero, like the audio track.
                         videoBufferInfo.presentationTimeUs =
@@ -407,7 +407,7 @@ class StudioVideoEncoder(
         return uri
     }
 
-    /** Copy the finished MP4 into the gallery — one sequential write, not 60/s. */
+    /** Copy the finished MP4 into the gallery: one sequential write, not 60/s. */
     private fun publishToGallery(file: File): Uri? {
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val resolver = context.contentResolver
@@ -465,7 +465,7 @@ class StudioVideoEncoder(
         /** Longest encoded edge on a hardware encoder. */
         private const val HW_LONG_EDGE = 1920
 
-        /** Longest encoded edge on a software encoder — small enough for 60 fps. */
+        /** Longest encoded edge on a software encoder: small enough for 60 fps. */
         private const val SW_LONG_EDGE = 720
     }
 }

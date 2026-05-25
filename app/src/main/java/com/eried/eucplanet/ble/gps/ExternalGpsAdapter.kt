@@ -24,7 +24,7 @@ interface ExternalGpsAdapter {
      * Decode one BLE notification frame into a sample. Returns null when the
      * frame is partial (mid-reassembly), unrecognised, or just not a sample
      * frame (some devices interleave status frames). Stateful adapters keep
-     * their reassembly buffer internally — the connection manager forwards
+     * their reassembly buffer internally; the connection manager forwards
      * raw bytes verbatim.
      */
     fun decode(notification: ByteArray): ExternalGpsSample?

@@ -8,7 +8,7 @@ import javax.inject.Singleton
 /**
  * RaceBox Mini / Mini S / Pro adapter.
  *
- * BLE: Nordic UART (same UUID as InMotion V14 — that's why scanner matching is
+ * BLE: Nordic UART (same UUID as InMotion V14, which is why scanner matching is
  * name-based). Devices advertise as "RaceBox Mini 1234567" etc.
  *
  * Streamed protocol: u-blox UBX frames over BLE notifications. Each frame is
@@ -33,7 +33,7 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
     private val buffer = ArrayDeque<Byte>()
 
     // Running estimate of the gravity vector in the device's own frame. The
-    // RaceBox accel reading is raw — gravity is included — so when the box is
+    // RaceBox accel reading is raw (gravity is included), so when the box is
     // mounted at any angle, e.g. lying flat or strapped to a wheel pedal, that
     // 1 g of gravity decomposes across two or three axes and is read as a
     // static 0.5–1.0 g offset. The phone's TYPE_LINEAR_ACCELERATION already
@@ -126,7 +126,7 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
         if (frame.size < payloadStart + 92) return null
 
         val fixType = frame[payloadStart + 20].toInt() and 0xFF
-        // 0 = no fix, 1 = dead-reckoning only, 5 = time-only — none of these
+        // 0 = no fix, 1 = dead-reckoning only, 5 = time-only: none of these
         // are useful as a position sample. Drop and let the next frame land.
         if (fixType != 2 && fixType != 3 && fixType != 4) return null
 
@@ -162,13 +162,13 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
 
     /**
      * RaceBox extended Data Message (cls=0xFF id=0x01, 80-byte payload). This
-     * is RaceBox's own format, NOT a straight extension of UBX-NAV-PVT — the
+     * is RaceBox's own format, NOT a straight extension of UBX-NAV-PVT: the
      * field layout differs after offset 36 and we have to read RaceBox's
      * payload-relative offsets directly. An earlier revision of this parser
      * assumed PVT compatibility and read speed from offset 60, which actually
      * lands on `headingAccuracy` (a u32 of heading uncertainty in 1e-5°).
      * Typical heading-uncertainty values gave reported speeds of 100-200 mph
-     * when the rider was at 34 mph — exact symptom we saw in the wild.
+     * when the rider was at 34 mph; exact symptom we saw in the wild.
      *
      * Payload-relative offsets (verified against the RaceBox public protocol
      * and cross-checked against the ESP32-RaceBox open-source client):
@@ -190,7 +190,7 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
      *  68 gForceX             int16 LE  mg
      *  70 gForceY             int16 LE  mg
      *  72 gForceZ             int16 LE  mg
-     *  74 rotRateX/Y/Z        int16 LE  (gyro — not surfaced yet)
+     *  74 rotRateX/Y/Z        int16 LE  (gyro, not surfaced yet)
      *
      * Vertical speed isn't in this frame at all; the UBX-NAV-PVT velD field
      * is absent. We leave verticalSpeedMps at 0 here; clients that need it
@@ -285,7 +285,7 @@ class RaceBoxAdapter @Inject constructor() : ExternalGpsAdapter {
      * Payload (24 bytes):
      *  0  type       = 0x10
      *  1  version    = 0x00
-     *  2  ref        = 0x00 (NONE — anchor the time to "now")
+     *  2  ref        = 0x00 (NONE, anchor the time to "now")
      *  3  leapSecs   = -128 (0x80) if unknown, else signed delta from GPS
      *  4-5  year     (u16 LE)
      *  6    month

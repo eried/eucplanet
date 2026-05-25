@@ -16,7 +16,7 @@ import org.json.JSONObject
 /**
  * Persists the full [AppSettings] object as a single JSON blob in DataStore
  * Preferences. Adding a new setting field is a one-line change to the data
- * class — no DataStore key, no DB migration, no risk of losing rider state.
+ * class, no DataStore key, no DB migration, no risk of losing rider state.
  *
  * The schema-compat trick is that [SettingsJson.fromJson] reads each field
  * with `optX(name, default)`, so unknown payloads (older or newer than the
@@ -61,8 +61,8 @@ class SettingsStore(private val context: Context) {
      * DataStore is STILL empty here, this is a fresh install (no old Room
      * row, no prior DataStore blob). Seed the three per-unit fields from the
      * device locale so imperial-locale users start in imperial; everyone else
-     * starts metric. Existing users never reach this branch — their blob is
-     * already present — so they are never flipped.
+     * starts metric. Existing users never reach this branch, their blob is
+     * already present, so they are never flipped.
      */
     suspend fun seedDefaultsIfAbsent() {
         dataStore.edit { prefs ->

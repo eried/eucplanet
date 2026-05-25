@@ -4,7 +4,7 @@ package com.eried.eucplanet.ble
  * Models in the Veteran BLE protocol family. Veteran's `DC 5A 5C 20`-prefixed
  * frame carries a model byte at offset 6 (versionLow) and a hardware-revision
  * byte at offset 7 (versionHigh) per WheelLog's research; we don't try to map
- * every (lo, hi) pair here — instead we derive the enum from the BLE-advertised
+ * every (lo, hi) pair here; instead we derive the enum from the BLE-advertised
  * device name when possible, and fall back to a generic Veteran profile.
  *
  * Spec: docs/protocols/veteran.md. Protocol research credit goes to WheelLog
@@ -15,28 +15,28 @@ enum class VeteranModel(
     val nominalVoltage: Int,
     val maxSpeedKmh: Int
 ) {
-    // mVer 0/1 — Sherman 100 V curve
+    // mVer 0/1: Sherman 100 V curve
     SHERMAN(       "Veteran Sherman",      100,  65),
-    // mVer 2 — Abrams shares the same 100 V battery curve as Sherman per
+    // mVer 2: Abrams shares the same 100 V battery curve as Sherman per
     // WheelLog. We previously mis-tagged this at 168 V which routed it
     // through the wrong scaler and caused riders to see a flat 100 % battery.
     ABRAMS(        "Veteran Abrams",       100, 120),
-    // mVer 3 — Sherman S (still in the <4 / 100 V battery family per WL)
+    // mVer 3: Sherman S (still in the <4 / 100 V battery family per WL)
     SHERMAN_S(     "Veteran Sherman S",    134, 100),
     // Retained for backward compatibility with existing settings; no
     // WheelLog equivalent. Treated as Sherman at runtime.
     SHERMAN_MAX(   "Veteran Sherman Max",  134, 100),
-    // mVer 4 / 7 / 43 — Patton family (134 V curve)
+    // mVer 4 / 7 / 43: Patton family (134 V curve)
     PATTON(        "Veteran Patton",       134, 110),
     PATTON_S(      "Veteran Patton S",     134, 110),
     NOSFET_AERO(   "Veteran Nosfet Aero",  134, 110),
-    // mVer 5 / 6 / 9 / 42 / 44 — Lynx / Sherman L / Nosfet (151 V curve)
+    // mVer 5 / 6 / 9 / 42 / 44: Lynx / Sherman L / Nosfet (151 V curve)
     LYNX(          "Veteran Lynx",         151, 120),
     LYNX_S(        "Veteran Lynx S",       151, 120),
     SHERMAN_L(     "Veteran Sherman L",    151, 120),
     NOSFET_APEX(   "Veteran Nosfet Apex",  151, 120),
     NOSFET_AEON(   "Veteran Nosfet Aeon",  151, 120),
-    // mVer 8 — Oryx, dual-pack 218 V class
+    // mVer 8: Oryx, dual-pack 218 V class
     ORYX(          "Veteran Oryx",         218, 130);
 
     companion object {

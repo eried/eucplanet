@@ -157,7 +157,7 @@ fun MetricDetailScreen(
 
             if (samples.size >= 2) {
                 // History is already time-windowed to 5 min in WheelRepository,
-                // so the slice here is just defensive — no need to cap by count.
+                // so the slice here is just defensive, no need to cap by count.
                 val windowSamples = samples
                 val values = windowSamples.map { it.value }
                 val min = values.min()
@@ -334,7 +334,7 @@ private fun MetricGraph(
                 .padding(start = 44.dp, bottom = 28.dp, top = 12.dp, end = 12.dp)
                 // Double-tap anywhere resets zoom + unfreezes live data. Runs
                 // on its own pointerInput so it composes cleanly with the
-                // scrub / pinch handler below — tap detection only fires on
+                // scrub / pinch handler below, tap detection only fires on
                 // quick taps so it doesn't shadow press-and-hold scrubbing.
                 .pointerInput(Unit) {
                     detectTapGestures(onDoubleTap = { resetZoom() })
@@ -386,7 +386,7 @@ private fun MetricGraph(
                                     panFractionTarget = newPan.coerceIn(halfVis, 1f - halfVis)
                                 }
                             } else {
-                                // Single finger — scrub for tooltip.
+                                // Single finger, scrub for tooltip.
                                 initialPinchDist = null
                                 touchX = pressed[0].position.x
                             }
@@ -439,7 +439,7 @@ private fun MetricGraph(
                 drawText(measured, topLeft = Offset(-measured.size.width - 4f, y - measured.size.height / 2f))
             }
 
-            // Time axis labels — reflect the currently-visible zoom window.
+            // Time axis labels, reflect the currently-visible zoom window.
             val startTime = visibleSamples.first().timestampMs
             val endTime = visibleSamples.last().timestampMs
             val totalSec = ((endTime - startTime) / 1000).toInt().coerceAtLeast(1)
@@ -453,7 +453,7 @@ private fun MetricGraph(
                 drawText(measured, topLeft = Offset(x - measured.size.width / 2f, h + 4f))
             }
 
-            // Data line — only samples in the visible window are drawn.
+            // Data line, only samples in the visible window are drawn.
             val timeRange = (endTime - startTime).coerceAtLeast(1)
             val path = androidx.compose.ui.graphics.Path()
             visibleSamples.forEachIndexed { idx, sample ->
@@ -462,8 +462,8 @@ private fun MetricGraph(
                 if (idx == 0) path.moveTo(x, y) else path.lineTo(x, y)
             }
 
-            // Filled area. When the metric is bipolar — current crossing zero,
-            // i.e. regen braking — the fill and line split at the zero baseline
+            // Filled area. When the metric is bipolar, current crossing zero,
+            // i.e. regen braking, the fill and line split at the zero baseline
             // and everything below zero is drawn in [regenColor] so the regen
             // stretches stand out. Single-polarity metrics keep the plain
             // curve-to-bottom fill.
@@ -494,7 +494,7 @@ private fun MetricGraph(
                 drawPath(path, color = color, style = Stroke(width = 2.5f))
             }
 
-            // Touch crosshair — vertical line follows finger, dot interpolates on the curve
+            // Touch crosshair, vertical line follows finger, dot interpolates on the curve
             val tx = touchX
             if (tx != null) {
                 val cursorX = tx.coerceIn(0f, w)
@@ -537,7 +537,7 @@ private fun MetricGraph(
             }
         }
 
-        // ▶ Live chip — only shown while a zoom is active. Tap to snap back
+        // ▶ Live chip, only shown while a zoom is active. Tap to snap back
         // and resume live sliding. Doubles as the "you are paused" indicator
         // so the user has an obvious way out of the inspection mode.
         AnimatedVisibility(

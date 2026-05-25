@@ -112,7 +112,7 @@ private fun DrawScope.drawColon(ox: Float, unit: Float, color: Color) {
     drawCircle(color, r, Offset(cx, CELL_H * unit * 0.66f))
 }
 
-/** A decimal point — a single dot resting near the baseline of a digit cell. */
+/** A decimal point: a single dot resting near the baseline of a digit cell. */
 private fun DrawScope.drawDot(ox: Float, unit: Float, color: Color) {
     val cx = ox + DOT_W * unit / 2f
     val r = 0.2f * unit

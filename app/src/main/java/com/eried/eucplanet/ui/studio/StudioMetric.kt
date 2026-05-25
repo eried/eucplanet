@@ -13,7 +13,7 @@ enum class StudioMetricKind { SPEED, DISTANCE, TEMPERATURE, PLAIN }
 
 /**
  * The live telemetry values a DATA_VALUE / DATA_GRAPH overlay element can show.
- * [extract] pulls the raw value (always in the wheel's base unit — km/h, °C,
+ * [extract] pulls the raw value (always in the wheel's base unit: km/h, °C,
  * km, …) out of a [WheelData] tick; unit conversion happens in [formatted].
  */
 enum class StudioMetric(
@@ -71,7 +71,7 @@ enum class StudioMetric(
     }
 }
 
-/** Returns the localised display name for the metric — for use in Composable contexts only. */
+/** Returns the localised display name for the metric, for use in Composable contexts only. */
 @Composable
 fun StudioMetric.displayName(): String = when (this) {
     StudioMetric.SPEED -> stringResource(R.string.studio_metric_speed)

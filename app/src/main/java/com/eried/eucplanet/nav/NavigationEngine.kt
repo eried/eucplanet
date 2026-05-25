@@ -40,15 +40,15 @@ import kotlin.math.abs
  * fixes published by [TripRepository.currentLocation] and turns them into a
  * [NavState] the popup (phone + watch) renders, plus spoken cues.
  *
- * Heading is derived from the rider's *moving* trace — the displacement over
- * the last few seconds of fixes where they were actually riding — rather than
+ * Heading is derived from the rider's *moving* trace, the displacement over
+ * the last few seconds of fixes where they were actually riding, rather than
  * the phone compass, which is unreliable on a wheel. Until enough movement has
  * accumulated the popup just says "start riding".
  *
  * Two modes:
- *  - [NavMode.TURN_BY_TURN] — follows the routed polyline, announcing each
+ *  - [NavMode.TURN_BY_TURN], follows the routed polyline, announcing each
  *    maneuver and flagging off-route / re-routing when the rider drifts off.
- *  - [NavMode.TREASURE_HUNT] — no street-by-street steps; just the direction
+ *  - [NavMode.TREASURE_HUNT], no street-by-street steps; just the direction
  *    and distance to the next goal, with warmer/colder proximity cues.
  */
 @Singleton
@@ -68,7 +68,7 @@ class NavigationEngine @Inject constructor(
         private const val FIX_BUFFER_MS = 14_000L
         private const val MIN_HEADING_DISP_M = 8.0
 
-        // "Moving" thresholds — either GPS speed (m/s) or wheel speed (km/h).
+        // "Moving" thresholds, either GPS speed (m/s) or wheel speed (km/h).
         private const val MOVING_MS = 1.2
         private const val MOVING_KMH = 4.0
 
@@ -76,7 +76,7 @@ class NavigationEngine @Inject constructor(
         private const val PREPARE_DIST_M = 200.0
         private const val EXECUTE_DIST_M = 30.0
 
-        // Off-route handling — deliberately unhurried so a brief GPS wobble or
+        // Off-route handling, deliberately unhurried so a brief GPS wobble or
         // a cut corner does not nag the rider.
         private const val OFF_ROUTE_GRACE_MS = 8_000L
         private const val OFF_ROUTE_VOICE_AFTER_MS = 14_000L
@@ -199,7 +199,7 @@ class NavigationEngine @Inject constructor(
     // Lets us suppress the next cue when the rider has barely moved -- GPS
     // noise alone would otherwise cycle warm/cold while they stand still.
     private var lastVoicedGoalDistM = Double.NaN
-    // Unbroken run of "getting colder" voice cues — escalates to a wrong-way
+    // Unbroken run of "getting colder" voice cues, escalates to a wrong-way
     // shout; any "warmer" / "hot" cue resets it back to zero.
     private var coldStreak = 0
 
@@ -223,7 +223,7 @@ class NavigationEngine @Inject constructor(
     /** Begins guidance. Must be called while the app is in the foreground. */
     fun start(route: NavRoute, mode: NavMode) {
         if (route.waypoints.size < 2 && route.geometry.size < 2) {
-            Log.w(TAG, "start() ignored — route has nothing to navigate")
+            Log.w(TAG, "start() ignored, route has nothing to navigate")
             return
         }
         // Start GPS + the foreground service synchronously, while the caller is
@@ -276,7 +276,7 @@ class NavigationEngine @Inject constructor(
             collectJob = scope.launch {
                 tripRepository.currentLocation.collect { loc -> if (loc != null) onFix(loc) }
             }
-            Log.i(TAG, "Navigation started — mode=$mode, ${route.waypoints.size} stops")
+            Log.i(TAG, "Navigation started, mode=$mode, ${route.waypoints.size} stops")
         }
     }
 
@@ -369,7 +369,7 @@ class NavigationEngine @Inject constructor(
     }
 
     /**
-     * Re-opens the centred popup — used by the dashboard navigator button while
+     * Re-opens the centred popup, used by the dashboard navigator button while
      * guidance is running so the rider can act on it (e.g. end navigation).
      * Un-minimizes and bumps [NavState.popupTick] to restart the show/timeout.
      */
@@ -389,7 +389,7 @@ class NavigationEngine @Inject constructor(
         backOnRouteSinceMs = 0L
         lastOffRouteVoiceMs = 0L
         rerouteInFlight = false
-        // 1, not 0 — waypoint 0 is the rider's start point, never a goal.
+        // 1, not 0, waypoint 0 is the rider's start point, never a goal.
         currentGoal = 1
         lastGoalDistM = Double.NaN
         lastProximity = null
@@ -432,9 +432,9 @@ class NavigationEngine @Inject constructor(
 
         val h = heading
         if (h == null) {
-            // No travel direction yet — we cannot say "ahead / left / right"
+            // No travel direction yet, we cannot say "ahead / left / right"
             // because we don't know which way the rider is FACING. But we DO
-            // know where the next goal is and how far away — so the popup
+            // know where the next goal is and how far away, so the popup
             // shows the distance, and a one-shot cue speaks it once on the
             // first fix.
             //
@@ -590,7 +590,7 @@ class NavigationEngine @Inject constructor(
 
         if (next != null) announceManeuver(nextIndex, next, distToTurn)
 
-        // Count only the destination-side waypoints already passed — the origin
+        // Count only the destination-side waypoints already passed, the origin
         // pin (index 0, alongM ≈ 0) must not inflate the goal index.
         val reached = waypointAlongM.drop(1).count { it <= hit.alongM + arrivalRadiusM }
         syncBuilderRoute(reached)
@@ -612,7 +612,7 @@ class NavigationEngine @Inject constructor(
 
     /** Speaks the prepare ("in X, turn left") then execute ("turn left now") cues. */
     private fun announceManeuver(index: Int, maneuver: Maneuver, distToTurn: Double) {
-        // DEPART has no cue; ARRIVE is left to handleArrival() — announcing the
+        // DEPART has no cue; ARRIVE is left to handleArrival(), announcing the
         // final maneuver here too made arrival speak two or three times over.
         if (maneuver.type == TurnType.DEPART || maneuver.type == TurnType.ARRIVE) return
         if (!voiceEnabled) return
@@ -691,7 +691,7 @@ class NavigationEngine @Inject constructor(
                 if (stops.size >= 2) {
                     val fresh = routingService.route(route.name, stops, route.travelMode, routerUrl)
                     // The session may have been stopped or restarted while the
-                    // network request was in flight — only adopt the result if
+                    // network request was in flight, only adopt the result if
                     // we are still navigating the very same route.
                     if (fresh != null && activeRoute === route) {
                         activeRoute = fresh
@@ -755,12 +755,12 @@ class NavigationEngine @Inject constructor(
         )
 
         if (dist <= (target.radiusM ?: arrivalRadiusM)) {
-            // Reached this goal — advance.
+            // Reached this goal, advance.
             currentGoal++
             lastGoalDistM = Double.NaN
             lastProximity = null
             lastVoicedGoalDistM = Double.NaN
-            // Re-arm the pre-move distance cue for the new goal — if the
+            // Re-arm the pre-move distance cue for the new goal, if the
             // rider stops between goals (e.g. checkpoint break) and motion
             // resumes pointing toward goal N+1, they hear how far that one
             // is even before a heading is re-established.
@@ -842,7 +842,7 @@ class NavigationEngine @Inject constructor(
         if (reachedDests == lastSyncedReached) return
         lastSyncedReached = reachedDests
         val route = activeRoute ?: return
-        // route.waypoints is [rider, dest1, dest2, ...] — keep the unvisited.
+        // route.waypoints is [rider, dest1, dest2, ...], keep the unvisited.
         val remaining = route.waypoints.drop(1 + reachedDests)
         scope.launch {
             runCatching {

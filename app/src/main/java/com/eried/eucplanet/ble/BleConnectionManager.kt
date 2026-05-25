@@ -46,7 +46,7 @@ class BleConnectionManager @Inject constructor(
     companion object {
         private const val TAG = "BleConnection"
 
-        // Client Characteristic Configuration Descriptor — same for every wheel family.
+        // Client Characteristic Configuration Descriptor: same for every wheel family.
         val CCCD_UUID: UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
     }
 
@@ -56,7 +56,7 @@ class BleConnectionManager @Inject constructor(
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
-    /** Connected wheel's display label — the BLE advertised name, with
+    /** Connected wheel's display label: the BLE advertised name, with
      *  " (virtual)" appended for simulator wheels. Set on every connect;
      *  the UI only reads it while [connectionState] is CONNECTED. */
     private val _connectedDeviceName = MutableStateFlow<String?>(null)
@@ -109,7 +109,7 @@ class BleConnectionManager @Inject constructor(
         }
 
         currentAddress = address
-        // Hold on to the name so the auto-reconnect path keeps the same hint —
+        // Hold on to the name so the auto-reconnect path keeps the same hint;
         // otherwise a P6 that briefly drops would come back as an unknown wheel.
         currentName = name ?: currentName
         _connectedDeviceName.value = currentName
@@ -159,7 +159,7 @@ class BleConnectionManager @Inject constructor(
         _connectionState.value = ConnectionState.CONNECTING
 
         // Route the adapter dispatcher to the right family BEFORE the on-connect
-        // responses get parsed — same path real BLE follows via the connect()
+        // responses get parsed: same path real BLE follows via the connect()
         // method above. Without this, a Begode virtual wheel would feed bytes
         // through the InMotion V2 adapter (default) and get dropped.
         if (currentName != null) {
@@ -176,7 +176,7 @@ class BleConnectionManager @Inject constructor(
             for (resp in wheel.onConnect()) emitVirtualResponse(resp)
             delay(150)
             // Mark CONNECTED last so writeReady gates open AFTER on-connect responses
-            // have already filtered through the adapter — same ordering a real wheel
+            // have already filtered through the adapter: same ordering a real wheel
             // gets, where notifications start landing once the GATT subscription is up.
             writeReady = true
             _connectionState.value = ConnectionState.CONNECTED
@@ -385,7 +385,7 @@ class BleConnectionManager @Inject constructor(
             // actually subscribes us to the wheel's push stream; it completes
             // asynchronously via onDescriptorWrite. We must NOT go CONNECTED
             // (which lets the init sequence start writing) until that write
-            // lands — otherwise the init writes race it on the single GATT
+            // lands; otherwise the init writes race it on the single GATT
             // operation slot, the subscription is lost, and the wheel's
             // replies are silently dropped. (KingSong KS-16X: telemetry only
             // started after a manual write nudged the stack into settling the
@@ -412,7 +412,7 @@ class BleConnectionManager @Inject constructor(
                     }
                 }
             } else {
-                // No CCCD on this characteristic — nothing to wait for.
+                // No CCCD on this characteristic, nothing to wait for.
                 markReadyAndConnected()
             }
         }
@@ -423,7 +423,7 @@ class BleConnectionManager @Inject constructor(
             status: Int
         ) {
             // The CCCD write completing means the wheel will now actually push
-            // notifications to us — only now is it safe to go CONNECTED and let
+            // notifications to us; only now is it safe to go CONNECTED and let
             // the init sequence start writing.
             if (descriptor.uuid == CCCD_UUID) {
                 Log.i(TAG, "CCCD notification-enable confirmed (status=$status)")
@@ -462,8 +462,8 @@ class BleConnectionManager @Inject constructor(
      * Idempotent transition into CONNECTED. Called once the CCCD
      * notification-enable write has completed (onDescriptorWrite), or by the
      * no-CCCD / watchdog fallbacks in onServicesDiscovered. Guarded on the
-     * INITIALIZING state — onConnectionStateChange sets that the moment GATT
-     * connects, and the flow stays there until this runs — so the watchdog and
+     * INITIALIZING state; onConnectionStateChange sets that the moment GATT
+     * connects, and the flow stays there until this runs, so the watchdog and
      * the real callback cannot double-fire it, and a late callback after a
      * disconnect is a no-op.
      */
@@ -480,7 +480,7 @@ class BleConnectionManager @Inject constructor(
     /**
      * Forward each BLE notification to the active wheel adapter and emit any
      * DecodeResults it produces. Framing (reassembly, parsing) lives in the
-     * adapter — each protocol family has its own.
+     * adapter; each protocol family has its own.
      */
     private fun processIncomingData(data: ByteArray) {
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.rx(data)

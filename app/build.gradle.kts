@@ -100,7 +100,7 @@ android {
 // for embedding Wear OS apps, which is no longer supported in Play"), so any
 // upgrade to 9.x will break this build. See:
 //   https://developer.android.com/build/releases/agp-9-0-0-release-notes
-// Migration path when forced off 8.x: switch to Play Multi-APK delivery — drop
+// Migration path when forced off 8.x: switch to Play Multi-APK delivery, drop
 // this line, ship `wear-release.aab` as a separate AAB on the same applicationId
 // to the Wear OS form-factor track in Play Console. Same end-user behaviour
 // (Play auto-installs the watch app on paired devices when the phone app
@@ -143,7 +143,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     // DataStore (settings live here as a single JSON blob so schema bumps
-    // never wipe rider configuration — Room is reserved for trips, alarms
+    // never wipe rider configuration. Room is reserved for trips, alarms
     // and per-wheel profiles, which get real migrations.)
     implementation(libs.datastore.preferences)
 
@@ -174,14 +174,14 @@ dependencies {
     // Drag-to-reorder for settings lists
     implementation(libs.reorderable)
 
-    // ExoPlayer — gapless looping for the multi-section engine sound composition
+    // ExoPlayer: gapless looping for the multi-section engine sound composition
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.common)
 
     // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
     implementation(libs.play.services.wearable)
 
-    // CameraX — Overlay Studio camera viewports
+    // CameraX: Overlay Studio camera viewports
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)

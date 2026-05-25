@@ -41,7 +41,7 @@ class SettingsViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState
 ) : ViewModel() {
 
-    /** Manual "wake the watch app" trigger — fires the same /euc/wake
+    /** Manual "wake the watch app" trigger, fires the same /euc/wake
      *  message that MainActivity.onResume() sends. Lets the user verify
      *  pairing without restarting the phone app. */
     fun testWatchWake() = wearBridge.pingWatchToWake()
@@ -161,10 +161,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Section preview — play a short clip that demonstrates the section's current setting.
+     * Section preview, play a short clip that demonstrates the section's current setting.
      *
      * [scenario] picks the motion pattern fed to the engine:
-     *  - "DEFAULT": idle → mid-rev → idle (Muffler — shows the muffler tone across the rev range)
+     *  - "DEFAULT": idle → mid-rev → idle (Muffler, shows the muffler tone across the rev range)
      *  - "GEARBOX": speed sweep so the virtual gearbox actually shifts
      *  - "DECEL":   accel under load then sharp off-throttle to trigger pops / backfire
      *  - "BRAKE":   sustained coast at speed so the engine-brake whine engages
@@ -253,8 +253,8 @@ class SettingsViewModel @Inject constructor(
     /**
      * Nudges an exact preset into a genuinely custom combo (knots + Norwegian
      * mile) in ONE write, so tapping Custom actually lands on Custom. Two
-     * separate setUnit* calls would race — each reads settings independently
-     * and the last write wins — so only one field would stick.
+     * separate setUnit* calls would race, each reads settings independently
+     * and the last write wins, so only one field would stick.
      */
     fun applyCustomNudge() = update {
         copy(unitSpeed = "kn", unitDistance = "mil")
@@ -305,13 +305,13 @@ class SettingsViewModel @Inject constructor(
         val appLangPrimary = appLang.substringBefore('-').lowercase()
         val ttsLang = voiceService.currentVoiceLanguage().lowercase()
         if (ttsLang != appLangPrimary) {
-            // Defer the locale switch until the user confirms in the dialog —
+            // Defer the locale switch until the user confirms in the dialog , 
             // showing the prompt FIRST means the dialog renders in the user's
             // current language, so they can read it (and Cancel) even if the
             // requested language is one they don't actually speak.
             _ttsSwitchPrompt.value = v
         } else {
-            // TTS already matches — apply the language switch immediately.
+            // TTS already matches, apply the language switch immediately.
             update { copy(language = v) }
             com.eried.eucplanet.util.LocaleHelper.apply(v)
         }

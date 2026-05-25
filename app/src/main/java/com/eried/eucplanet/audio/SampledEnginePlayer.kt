@@ -10,7 +10,7 @@ import kotlin.math.abs
 
 /**
  * Plays a recorded engine sample looped, varying playback speed by RPM so it
- * sounds like the engine is revving. Used for the "Sampled …" presets — the
+ * sounds like the engine is revving. Used for the "Sampled …" presets, the
  * procedural [EngineSynth] is bypassed entirely when this is active.
  *
  * Lifecycle: [start] / [stop] are idempotent and cheap; one MediaPlayer is
@@ -39,7 +39,7 @@ class SampledEnginePlayer(private val context: Context) {
         }
         try {
             val mp = MediaPlayer()
-            // setAudioAttributes must be called before prepare() — that's why we don't use the convenience
+            // setAudioAttributes must be called before prepare(), that's why we don't use the convenience
             // MediaPlayer.create(context, resId), which prepares internally.
             mp.setAudioAttributes(
                 AudioAttributes.Builder()
@@ -57,7 +57,7 @@ class SampledEnginePlayer(private val context: Context) {
             mp.isLooping = true
             mp.setVolume(0f, 0f)
             mp.prepare()
-            // Don't start playback yet — let the first update() set the speed/volume so we don't blast at default speed.
+            // Don't start playback yet, let the first update() set the speed/volume so we don't blast at default speed.
             currentProfileKey = profile.key
             player = mp
             Log.i(TAG, "Loaded sample raw/$resName for profile ${profile.key}")
@@ -122,7 +122,7 @@ class SampledEnginePlayer(private val context: Context) {
 
     companion object {
         private const val TAG = "SampledEnginePlayer"
-        // Below this gain the listener can't hear anything anyway — pause the player
+        // Below this gain the listener can't hear anything anyway, pause the player
         // to save the decode loop. Hysteresis-free: resume kicks in the moment the
         // engine asks for non-trivial volume again.
         private const val MUTE_THRESHOLD = 0.01f

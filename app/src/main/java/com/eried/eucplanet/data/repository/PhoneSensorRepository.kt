@@ -29,7 +29,7 @@ import javax.inject.Singleton
  * g so the values line up with what RaceBox reports.
  *
  *  x = lateral  (right positive)
- *  y = vertical (up positive — usually ~0 in linear-accel mode)
+ *  y = vertical (up positive, usually ~0 in linear-accel mode)
  *  z = forward  (forward positive when the phone is screen-up on the wheel)
  *
  * On a phone held by the rider in a pocket the axes don't perfectly line up
@@ -75,27 +75,27 @@ class PhoneSensorRepository @Inject constructor(
     private var registered = false
 
     // Sensor callbacks are delivered on the Looper that registerListener was
-    // called from — when that's the main thread, sensor events get queued
+    // called from, when that's the main thread, sensor events get queued
     // behind Compose recomposition and frame draws. With two cameras + a busy
     // Studio canvas the main thread can fall ~hundreds of ms behind, which is
     // exactly when the G-Force overlay "freezes". A dedicated HandlerThread
     // means events flow regardless of what the UI thread is doing.
     // The thread can also be torn down and recreated when a normal refresh
-    // doesn't restore the stream (see [forceRebuild]) — Android can park a
+    // doesn't restore the stream (see [forceRebuild]), Android can park a
     // listener in a state where re-register on the same Handler still doesn't
     // deliver events, and a brand-new Looper kicks it loose.
     private var sensorThread: HandlerThread = HandlerThread("PhoneIMU-sensor").also { it.start() }
     private var sensorHandler: Handler = Handler(sensorThread.looper)
-    // Periodic re-register heartbeat — Android can quietly stop delivering
+    // Periodic re-register heartbeat, Android can quietly stop delivering
     // events to a non-wake-up sensor while the AP sleeps (screen off mid-ride);
     // re-registering every 15 s self-heals it as long as the AP has been woken
     // at least once in the meantime (BLE polling during a trip wakes it).
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var heartbeat: Job? = null
 
-    // Delivery instrumentation — counts events between heartbeat ticks so we can
+    // Delivery instrumentation, counts events between heartbeat ticks so we can
     // see in logcat (tag PhoneIMU) whether the sensor stream is actually flowing.
-    // Zero events between two ticks means Android has stopped delivering — that's
+    // Zero events between two ticks means Android has stopped delivering, that's
     // the dropout we are hunting.
     @Volatile private var eventsSinceLastTick = 0L
     @Volatile private var lastEventElapsedMs = 0L
@@ -154,7 +154,7 @@ class PhoneSensorRepository @Inject constructor(
         if (refCount == 1) {
             register()
             heartbeat = scope.launch {
-                // Two-strike recovery — first stall triggers a normal refresh
+                // Two-strike recovery, first stall triggers a normal refresh
                 // (unregister + register on the same Handler), a *second*
                 // consecutive stall escalates to a HandlerThread rebuild because
                 // Android can wedge a listener in a state where re-register on
@@ -179,10 +179,10 @@ class PhoneSensorRepository @Inject constructor(
                     if (stalled) {
                         consecutiveStalls++
                         if (consecutiveStalls == 1) {
-                            Log.w(TAG, "stall #1 — refresh()")
+                            Log.w(TAG, "stall #1, refresh()")
                             refresh()
                         } else {
-                            Log.w(TAG, "stall #$consecutiveStalls — forceRebuild()")
+                            Log.w(TAG, "stall #$consecutiveStalls, forceRebuild()")
                             forceRebuild()
                         }
                     } else {
@@ -223,7 +223,7 @@ class PhoneSensorRepository @Inject constructor(
     /**
      * Heavy-handed recovery: tear down the HandlerThread the listener is
      * attached to, spin up a new one, and re-register. Used when a normal
-     * [refresh] cannot get events flowing again — Android can park a listener
+     * [refresh] cannot get events flowing again, Android can park a listener
      * in a state where re-register on the same Looper still delivers nothing.
      */
     @Synchronized

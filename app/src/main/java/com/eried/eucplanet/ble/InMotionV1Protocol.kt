@@ -5,18 +5,18 @@ import java.io.ByteArrayOutputStream
 /**
  * Wire format for the InMotion V1 family (V5 / V8 / V10 / L6 / R-series / V3).
  * Frames look like `AA AA <escaped CAN frame> <escaped checksum> 55 55` where
- * the 16-byte CAN prefix may be followed by an extended payload — see
+ * the 16-byte CAN prefix may be followed by an extended payload; see
  * docs/protocols/inmotion_v1.md sections 3 and 3.2.
  *
  * Bytes `0xAA`, `0x55` and `0xA5` cannot appear unescaped inside the body or
  * checksum; each is prefixed with `0xA5`. The header `AA AA` and trailer
- * `55 55` pairs are always literal — they are NOT escaped.
+ * `55 55` pairs are always literal; they are NOT escaped.
  *
  * Checksum is `sum(unescaped CAN bytes) mod 256` and is itself escaped on the
  * same rules.
  *
  * Protocol research credit: WheelLog (Ilya Shkolnik and contributors,
- * https://github.com/Wheellog/wheellog.android — GPLv3, used as a protocol
+ * https://github.com/Wheellog/wheellog.android, GPLv3, used as a protocol
  * reference; the implementation here is original).
  */
 object InMotionV1Protocol {
@@ -113,7 +113,7 @@ object InMotionV1Protocol {
 
     /**
      * 32-bit CAN IDs the V1 protocol exchanges in normal operation. See spec
-     * section 3.4 — IDs are written LE at offset 0 of every frame.
+     * section 3.4. IDs are written LE at offset 0 of every frame.
      */
     object CanId {
         const val FAST_INFO     = 0x0F550113

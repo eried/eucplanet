@@ -82,7 +82,7 @@ class FlicManager @Inject constructor(
 
     // Keep AppSettings.flic1..4Address in sync with the Flic2 lib's paired list.
     // Clears stale addresses (button forgotten outside the app) and auto-fills empty slots
-    // with buttons the lib already knows — fixes the case where pairing data was lost but the
+    // with buttons the lib already knows, fixes the case where pairing data was lost but the
     // buttons remain known to the Flic lib.
     private suspend fun reconcileSettings() {
         val addrs = (flic2Manager?.buttons ?: return).map { it.bdAddr }.toSet()
@@ -118,10 +118,10 @@ class FlicManager @Inject constructor(
         manager.startScan(object : Flic2ScanCallback {
             override fun onDiscoveredAlreadyPairedButton(button: Flic2Button) {
                 // Button is in the Flic2 lib's storage already. Two cases:
-                //  (1) It's also saved in our AppSettings (flic1/flic2) — just reconnect
+                //  (1) It's also saved in our AppSettings (flic1/flic2), just reconnect
                 //      silently and keep scanning, otherwise scanning for a second button
                 //      would abort the moment the first already-paired one is seen.
-                //  (2) Lib knows it but AppSettings lost it (e.g. DB reset) — complete the
+                //  (2) Lib knows it but AppSettings lost it (e.g. DB reset), complete the
                 //      pair flow so the address gets saved and the UI can leave scanning state.
                 Log.i(TAG, "Already paired: ${button.bdAddr}")
                 button.addListener(buttonListener)

@@ -34,14 +34,14 @@ object StudioCapture {
             Bitmap.CompressFormat.JPEG, 95
         )
 
-    /** Save [bitmap] as a PNG — keeps transparency for replay snapshots. */
+    /** Save [bitmap] as a PNG: keeps transparency for replay snapshots. */
     suspend fun savePng(context: Context, bitmap: Bitmap): Uri? =
         saveBitmap(
             context, bitmap, "EUC_${stamp()}.png", "image/png",
             Bitmap.CompressFormat.PNG, 100
         )
 
-    /** Save [bitmap] as a lossless WebP — keeps transparency, smaller than PNG. */
+    /** Save [bitmap] as a lossless WebP: keeps transparency, smaller than PNG. */
     @Suppress("DEPRECATION")
     suspend fun saveWebp(context: Context, bitmap: Bitmap): Uri? {
         // WEBP_LOSSLESS is API 30+; on API 29 fall back to the deprecated WEBP.

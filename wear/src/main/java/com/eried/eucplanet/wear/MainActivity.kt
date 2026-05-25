@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
 
         // Apply / clear FLAG_KEEP_SCREEN_ON whenever the phone-pushed setting
         // toggles. The watch's own ambient mode still kicks in if the user
-        // covers the screen — this only blocks the inactivity timeout.
+        // covers the screen, this only blocks the inactivity timeout.
         lifecycleScope.launch {
             WatchStateRepository.state
                 .map { it.keepScreenOn }

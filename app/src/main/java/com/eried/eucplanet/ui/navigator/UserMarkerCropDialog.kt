@@ -61,7 +61,7 @@ import kotlin.math.max
  * the caller saves to settings.
  *
  * Constraints we enforce while the user pans / pinches:
- *   * The image must always cover the crop circle — we never let the rider
+ *   * The image must always cover the crop circle, we never let the rider
  *     pan an edge into the circle or zoom out below the cover threshold,
  *     because a marker with a transparent wedge is just weird.
  *   * The minimum scale auto-adjusts so an image of any aspect ratio can
@@ -69,7 +69,7 @@ import kotlin.math.max
  *   * Pan is clamped so the smaller-dimension edge never enters the circle.
  *
  * No external dependencies. Output is a Bitmap with a circular alpha mask
- * already burned in — the caller just encodes it to base64 PNG.
+ * already burned in, the caller just encodes it to base64 PNG.
  */
 @Composable
 fun UserMarkerCropDialog(
@@ -77,7 +77,7 @@ fun UserMarkerCropDialog(
     onCancel: () -> Unit,
     onApply: (Bitmap) -> Unit
 ) {
-    // Circle diameter on screen, in px — derived from the dialog box width
+    // Circle diameter on screen, in px, derived from the dialog box width
     // captured below so the math doesn't fight different screen sizes.
     val density = LocalDensity.current
     val circleRadiusDp = 120.dp
@@ -89,7 +89,7 @@ fun UserMarkerCropDialog(
     val displayBaseW: Float
     val displayBaseH: Float
     run {
-        // Use a generous reference width — actual position math uses
+        // Use a generous reference width, actual position math uses
         // current center / scale, not these base values directly.
         val refMaxW = with(density) { 360.dp.toPx() }
         val refMaxH = with(density) { 480.dp.toPx() }
@@ -100,7 +100,7 @@ fun UserMarkerCropDialog(
         displayBaseH = srcH * fitScale
     }
 
-    // Smallest scale that still covers the circle — see class doc.
+    // Smallest scale that still covers the circle, see class doc.
     val minScale = remember(source) {
         max(
             (circleRadiusPx * 2f) / displayBaseW,
