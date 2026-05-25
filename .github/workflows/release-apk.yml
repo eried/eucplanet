@@ -80,17 +80,26 @@ jobs:
           # below will point at via storeFile=release.jks (resolved relative
           # to rootProject).
           echo "$RELEASE_KEYSTORE" | base64 -d > release.jks
-          # Sanity-check we got a real keystore. `file(1)` reports JKS as
-          # plain "data", so check the JKS magic header directly: the first
-          # four bytes are FE ED FE ED (JKS) or CE CE CE CE (JCEKS).
+          # Sanity-check we got a real keystore. `file(1)` reports them as
+          # plain "data" on Ubuntu, so we match on the magic header
+          # directly. Accept all three formats Android signing produces:
+          #   FE ED FE ED ...   -> JKS (Java KeyStore, legacy)
+          #   CE CE CE CE ...   -> JCEKS
+          #   30 82 LL LL ...   -> PKCS#12 (DER ASN.1 SEQUENCE; modern default
+          #                       produced by Android Studio's signing wizard)
           test -s release.jks || {
             echo "::error::Decoded RELEASE_KEYSTORE is empty."; exit 1; }
-          magic=$(head -c4 release.jks | xxd -p)
-          case "$magic" in
+          magic4=$(head -c4 release.jks | xxd -p)
+          magic2=$(printf '%s' "$magic4" | cut -c1-4)
+          case "$magic4" in
             feedfeed|cececece) : ;;
             *)
-              echo "::error::Decoded RELEASE_KEYSTORE has unexpected magic header (got $magic, expected feedfeed or cececece). Re-encode with: base64 -w0 path/to/release.jks"
-              exit 1 ;;
+              case "$magic2" in
+                3082) : ;;
+                *)
+                  echo "::error::Decoded RELEASE_KEYSTORE has unexpected magic header (got $magic4). Expected feedfeedXX (JKS), cececeXX (JCEKS) or 3082XXXX (PKCS#12). Re-encode with: base64 -w0 path/to/release.jks"
+                  exit 1 ;;
+              esac ;;
           esac
 
       - name: Write keystore.properties
