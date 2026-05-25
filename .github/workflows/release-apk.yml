@@ -80,13 +80,18 @@ jobs:
           # below will point at via storeFile=release.jks (resolved relative
           # to rootProject).
           echo "$RELEASE_KEYSTORE" | base64 -d > release.jks
-          # Sanity-check we got a real keystore, not a truncated or
-          # whitespace-mangled secret.
-          test -s release.jks
-          file release.jks | grep -qi keystore || {
-            echo "::error::Decoded RELEASE_KEYSTORE does not look like a keystore. Re-encode with: base64 -w0 release.jks"
-            exit 1
-          }
+          # Sanity-check we got a real keystore. `file(1)` reports JKS as
+          # plain "data", so check the JKS magic header directly: the first
+          # four bytes are FE ED FE ED (JKS) or CE CE CE CE (JCEKS).
+          test -s release.jks || {
+            echo "::error::Decoded RELEASE_KEYSTORE is empty."; exit 1; }
+          magic=$(head -c4 release.jks | xxd -p)
+          case "$magic" in
+            feedfeed|cececece) : ;;
+            *)
+              echo "::error::Decoded RELEASE_KEYSTORE has unexpected magic header (got $magic, expected feedfeed or cececece). Re-encode with: base64 -w0 path/to/release.jks"
+              exit 1 ;;
+          esac
 
       - name: Write keystore.properties
         env:
