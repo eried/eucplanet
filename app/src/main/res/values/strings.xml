@@ -470,8 +470,8 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
-    <string name="alarm_metric_radar_distance">Closest vehicle (radar)</string>
-    <string name="alarm_metric_radar_approach">Vehicle approach speed (radar)</string>
+    <string name="alarm_metric_radar_distance">Car distance</string>
+    <string name="alarm_metric_radar_approach">Car approach</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Less than</string>

@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,8 +27,15 @@ class AlarmViewModel @Inject constructor(
     private val alarmDao: AlarmDao,
     private val tonePlayer: TonePlayer,
     private val voiceService: VoiceService,
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
+
+    companion object {
+        private val RADAR_METRIC_NAMES = setOf(
+            AlarmMetric.RADAR_DISTANCE.name,
+            AlarmMetric.RADAR_APPROACH_SPEED.name
+        )
+    }
 
     val speedUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveSpeedUnit(it) }
@@ -46,6 +54,19 @@ class AlarmViewModel @Inject constructor(
 
     val rules: StateFlow<List<AlarmRule>> = alarmDao.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /**
+     * The radar alarm metrics (RADAR_DISTANCE, RADAR_APPROACH_SPEED) only
+     * show up in the New-alarm metric dropdown when this is true. The flag
+     * stays sticky for users who restored a backup with radar rules or who
+     * temporarily unpaired their radar, the rule editor never hides a
+     * metric that an existing rule is using.
+     */
+    val showRadarMetrics: StateFlow<Boolean> = combine(
+        settingsRepository.settings.map { it.radarAddress != null },
+        alarmDao.observeAll().map { it.any { r -> r.metric in RADAR_METRIC_NAMES } }
+    ) { paired, hasRadarRule -> paired || hasRadarRule }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     fun addRule(rule: AlarmRule) {
         viewModelScope.launch {

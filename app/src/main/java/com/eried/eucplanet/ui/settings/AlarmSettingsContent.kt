@@ -107,6 +107,7 @@ fun AlarmSettingsContent(
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
@@ -155,6 +156,7 @@ fun AlarmSettingsContent(
             rule = editingRule,
             speedUnit = speedUnit,
             tempUnit = tempUnit,
+            showRadarMetrics = showRadarMetrics,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -301,6 +303,7 @@ private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
     speedUnit: String,
     tempUnit: String,
+    showRadarMetrics: Boolean,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -392,7 +395,18 @@ private fun AlarmRuleEditorDialog(
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
                 // so first-time users still understand what each option means.
-                val metricOptions = AlarmMetric.entries.map { it.name to stringResource(it.labelRes) }
+                // Radar metrics only appear in the dropdown when a radar is
+                // paired or an existing rule already uses one (see
+                // [AlarmViewModel.showRadarMetrics]). The currently-selected
+                // metric stays in the list either way, so editing a rule
+                // whose metric was just hidden never loses the selection.
+                val radarMetricNames = setOf(
+                    AlarmMetric.RADAR_DISTANCE.name,
+                    AlarmMetric.RADAR_APPROACH_SPEED.name
+                )
+                val metricOptions = AlarmMetric.entries
+                    .filter { showRadarMetrics || it.name !in radarMetricNames || it.name == metric }
+                    .map { it.name to stringResource(it.labelRes) }
                 val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)
