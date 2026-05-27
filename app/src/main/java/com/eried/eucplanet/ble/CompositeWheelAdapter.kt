@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +48,49 @@ class CompositeWheelAdapter @Inject constructor(
     override fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? {
         active = pickAdapter(deviceName)
         return active.notifyConnectingTo(deviceName)
+    }
+
+    /**
+     * Post-connect adapter rescue. Called when the name-picked adapter's service
+     * is NOT present on the wheel - which on the BLE-name routing happens when
+     * the wheel advertises a name we don't recognise (e.g. an S18 advertising as
+     * `RW`) and we fall through to the InMotion V2 default, then can't find the
+     * Nordic UART service on the actual KingSong HM-10 module.
+     *
+     * Looks at the GATT-discovered service UUID set and re-routes [active] to
+     * whichever family matches. Returns true if the new active adapter's service
+     * is among [discoveredServiceUuids] (caller can proceed); false if the wheel
+     * doesn't expose any service we know about.
+     *
+     * Priority order matches uniqueness: Nordic UART -> InMotion V2 (single
+     * brand). InMotion V1 split-service (FFE0+FFE5) -> InMotion V1. Bare HM-10
+     * (FFE0+FFE1) is ambiguous between KingSong / Begode / Veteran; we default
+     * to KingSong because the failing case (`RW`-named S18, blank-named KS) is
+     * the common one. Names like `Sherman` / `Begode_*` always match in
+     * [pickAdapter] above so they don't reach this code path. First-frame
+     * magic-byte disambiguation for blank-named Begode / Veteran lives in the
+     * per-adapter `onRawNotification` and can be added without changing here.
+     */
+    override fun pickAdapterByDiscoveredServices(
+        discoveredServiceUuids: Set<UUID>,
+        deviceName: String?
+    ): Boolean {
+        // V1 exposes BOTH the bare HM-10 0xFFE0 service AND a second 0xFFE5
+        // service for writes; presence of FFE5 is the unambiguous tell.
+        val v1WriteServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+        val newActive = when {
+            BleProfile.NORDIC_UART.serviceUuid in discoveredServiceUuids -> inmotion
+            v1WriteServiceUuid in discoveredServiceUuids -> inmotionV1
+            BleProfile.HM10.serviceUuid in discoveredServiceUuids -> kingsong
+            else -> return false
+        }
+        if (newActive !== active) {
+            active = newActive
+            // Give the newly-active adapter a chance to pre-select a sub-model
+            // from the BLE name, the same hook the cold-connect path uses.
+            active.notifyConnectingTo(deviceName)
+        }
+        return true
     }
 
     override fun initSequence(): List<ByteArray> = active.initSequence()

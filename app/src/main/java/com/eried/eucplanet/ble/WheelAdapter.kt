@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import android.bluetooth.BluetoothGattCharacteristic
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.model.WheelSettings
 import java.util.UUID
@@ -11,13 +12,22 @@ import java.util.UUID
  * use 0xFFE0/FFE1 (disambiguated by first packet bytes after connect).
  *
  * The connection manager reads this from the active adapter on service discovery.
+ *
+ * [writeType] picks `WRITE_TYPE_DEFAULT` (with response) vs `WRITE_TYPE_NO_RESPONSE`.
+ * HM-10 modules (KingSong / Begode / Veteran / Ninebot legacy) are notorious for
+ * unreliable write-with-response ACKs - WheelLog ships `WITHOUT_RESPONSE` for the
+ * whole family and the EUC ecosystem follows. V2 (Nordic UART) keeps the safer
+ * `DEFAULT` because V14 / P6 protocols have application-level checksums and the
+ * Nordic firmware honors L2CAP-level ACKs reliably.
  */
 data class BleProfile(
     val serviceUuid: UUID,
     /** Characteristic the adapter writes commands to. */
     val writeCharacteristic: UUID,
     /** Characteristic the wheel sends notifications on. */
-    val notifyCharacteristic: UUID
+    val notifyCharacteristic: UUID,
+    /** GATT write type for outbound commands on this profile. */
+    val writeType: Int = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 ) {
     companion object {
         /** Nordic UART used by the InMotion V2 family (V11/V12/V13/V14). */
@@ -33,11 +43,17 @@ data class BleProfile(
          * three brands; the wheel is identified post-connect by sniffing
          * the first frame's magic bytes (`AA 55` = KingSong, `55 AA` =
          * Begode, `DC 5A 5C` = Veteran).
+         *
+         * Writes use NO_RESPONSE to match WheelLog. The CC2540/CC2541
+         * modules in these wheels do not reliably deliver onCharacteristicWrite
+         * with WRITE_TYPE_DEFAULT, which previously had us leaning on a
+         * 200 ms writeReady-timeout fallback. NO_RESPONSE removes that race.
          */
         val HM10 = BleProfile(
             serviceUuid = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb"),
             writeCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb"),
-            notifyCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
+            notifyCharacteristic = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb"),
+            writeType = BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
         )
 
         /**
@@ -91,6 +107,25 @@ interface WheelAdapter {
      * own info-bundle round-trip. Default returns null.
      */
     fun notifyConnectingTo(deviceName: String?): DecodeResult.ModelName? = null
+
+    /**
+     * Post-connect adapter rescue. The BLE layer calls this when the active
+     * adapter's [bleProfile] service is NOT among the wheel's discovered GATT
+     * services, signalling the name-based pre-selection was wrong (e.g. an
+     * S18 advertising as `RW` falling through to the InMotion V2 default).
+     *
+     * The dispatcher implementation walks the discovered service UUIDs and
+     * may re-route the active sub-adapter to whichever family matches.
+     * Returns true if the new active adapter's service is in the wheel's
+     * GATT tree (caller can retry the lookup and continue); false if no
+     * known adapter matches (caller should bail and surface as disconnect).
+     *
+     * Default: no-op returning false. Only [CompositeWheelAdapter] overrides.
+     */
+    fun pickAdapterByDiscoveredServices(
+        discoveredServiceUuids: Set<UUID>,
+        deviceName: String?
+    ): Boolean = false
 
     /** Packets sent in order on first connect, before the realtime poll loop starts. */
     fun initSequence(): List<ByteArray>

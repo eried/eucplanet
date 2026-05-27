@@ -281,21 +281,23 @@ class BleConnectionManager @Inject constructor(
             val characteristic = rxCharacteristic ?: continue
             val g = gatt ?: continue
 
-            // Use WRITE_TYPE_DEFAULT (write with response) for reliability
+            // Pick the write type from the active adapter's profile. HM-10
+            // (KingSong / Begode / Veteran) uses WRITE_TYPE_NO_RESPONSE to
+            // match WheelLog - those modules don't reliably ACK
+            // WRITE_TYPE_DEFAULT writes. InMotion V2 / V1 stay on the
+            // safer WRITE_TYPE_DEFAULT.
+            val writeType = wheelAdapter.bleProfile().writeType
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val result = g.writeCharacteristic(
-                    characteristic, data,
-                    BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                )
-                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes)")
+                val result = g.writeCharacteristic(characteristic, data, writeType)
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
             } else {
                 @Suppress("DEPRECATION")
                 characteristic.value = data
                 @Suppress("DEPRECATION")
-                characteristic.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                characteristic.writeType = writeType
                 @Suppress("DEPRECATION")
                 val result = g.writeCharacteristic(characteristic)
-                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes)")
+                Log.d(TAG, "writeCharacteristic result: $result (${data.size} bytes, type=$writeType)")
             }
 
             // Wait for write callback or timeout
@@ -376,21 +378,42 @@ class BleConnectionManager @Inject constructor(
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Log.e(TAG, "Service discovery failed: $status")
+                failConnectAndTeardown(gatt, "Service discovery failed (status=$status)")
                 return
             }
 
-            val profile = wheelAdapter.bleProfile()
-            val service = gatt.getService(profile.serviceUuid)
+            var profile = wheelAdapter.bleProfile()
+            var service = gatt.getService(profile.serviceUuid)
             if (service == null) {
-                Log.e(TAG, "Adapter service ${profile.serviceUuid} not found on this wheel")
-                return
+                // Name-based routing picked the wrong adapter (most often: an
+                // unrecognised name fell through to the InMotion V2 default,
+                // but the wheel is a KingSong-class HM-10 module advertising
+                // as `RW` or similar). Ask the dispatcher to re-route based
+                // on the GATT-discovered service set, then retry.
+                val discoveredUuids = gatt.services.map { it.uuid }.toSet()
+                Log.w(TAG, "Adapter ${wheelAdapter.familyId} service ${profile.serviceUuid} not on wheel; " +
+                        "discovered services=$discoveredUuids - attempting fallback")
+                val rerouted = wheelAdapter.pickAdapterByDiscoveredServices(discoveredUuids, currentName)
+                if (rerouted) {
+                    profile = wheelAdapter.bleProfile()
+                    service = gatt.getService(profile.serviceUuid)
+                    if (service != null) {
+                        Log.i(TAG, "Adapter rerouted by service-UUID to ${wheelAdapter.familyId}")
+                        _connectedBrand.value = wheelAdapter.brand
+                    }
+                }
+                if (service == null) {
+                    failConnectAndTeardown(gatt, "No known wheel service on this device")
+                    return
+                }
             }
 
             rxCharacteristic = service.getCharacteristic(profile.writeCharacteristic)
             val txCharacteristic = service.getCharacteristic(profile.notifyCharacteristic)
 
             if (rxCharacteristic == null || txCharacteristic == null) {
-                Log.e(TAG, "Adapter characteristics not found on service ${profile.serviceUuid}")
+                failConnectAndTeardown(gatt,
+                    "Adapter characteristics not found on service ${profile.serviceUuid}")
                 return
             }
 
@@ -407,13 +430,24 @@ class BleConnectionManager @Inject constructor(
             Log.i(TAG, "Service ${profile.serviceUuid} ready (adapter=${wheelAdapter.familyId})")
             val descriptor = txCharacteristic.getDescriptor(CCCD_UUID)
             if (descriptor != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    gatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
-                } else {
-                    @Suppress("DEPRECATION")
-                    descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    @Suppress("DEPRECATION")
-                    gatt.writeDescriptor(descriptor)
+                writeEnableNotificationDescriptor(gatt, descriptor)
+                // HM-10 (KingSong / Begode / Veteran) modules occasionally
+                // drop the first CCCD write silently; WheelLog ships a
+                // belt-and-braces redundant write for the same family. Fire
+                // a second write ~750 ms after the first if we're still
+                // INITIALIZING and the descriptor write looks "stuck".
+                // Gated on the HM-10 notify char (0xFFE1) so V14 / P6
+                // (Nordic UART) and InMotion V1 (0xFFE4) aren't touched.
+                if (txCharacteristic.uuid == BleProfile.HM10.notifyCharacteristic) {
+                    scope.launch {
+                        kotlinx.coroutines.delay(750L)
+                        if (_connectionState.value == ConnectionState.INITIALIZING &&
+                            this@BleConnectionManager.gatt === gatt
+                        ) {
+                            Log.i(TAG, "HM-10 redundant CCCD write")
+                            writeEnableNotificationDescriptor(gatt, descriptor)
+                        }
+                    }
                 }
                 // Safety net: if the stack never delivers onDescriptorWrite,
                 // force the connection through so we can't hang in INITIALIZING.
@@ -428,6 +462,38 @@ class BleConnectionManager @Inject constructor(
                 // No CCCD on this characteristic, nothing to wait for.
                 markReadyAndConnected()
             }
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun writeEnableNotificationDescriptor(
+            gatt: BluetoothGatt,
+            descriptor: BluetoothGattDescriptor
+        ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                gatt.writeDescriptor(descriptor, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)
+            } else {
+                @Suppress("DEPRECATION")
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                @Suppress("DEPRECATION")
+                gatt.writeDescriptor(descriptor)
+            }
+        }
+
+        /**
+         * Tear down the GATT and surface a visible disconnect when the
+         * connect flow fails after STATE_CONNECTED but before CONNECTED.
+         * Without this, the UI sits in INITIALIZING forever because no
+         * other code path transitions state out of that. The app-level
+         * auto-reconnect at line ~348 picks up from the
+         * STATE_DISCONNECTED callback that gatt.disconnect() triggers.
+         */
+        @SuppressLint("MissingPermission")
+        private fun failConnectAndTeardown(gatt: BluetoothGatt, reason: String) {
+            Log.e(TAG, "Connect failed: $reason")
+            com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
+                "Connect failed: name=${currentName ?: "(unknown)"} reason=$reason"
+            )
+            try { gatt.disconnect() } catch (_: Exception) {}
         }
 
         override fun onDescriptorWrite(
