@@ -67,6 +67,11 @@ class RadarRepository @Inject constructor(
 
     val connectionState: StateFlow<ConnectionState> get() = connectionManager.connectionState
 
+    // Subscribers today: [RadarOverlayViewModel] (the floating lane bar),
+    // the alarm engine via [publishFrame] -> [AlarmEngine.evaluateRadar].
+    // Future dashboard-tile work (separate branch) will subscribe here too;
+    // see the FUTURE block in ui/dashboard/sources/DataSource.kt for the
+    // proposed tiles and the RadarFrame field map.
     private val _currentFrame = MutableStateFlow<RadarFrame?>(null)
     val currentFrame: StateFlow<RadarFrame?> = _currentFrame.asStateFlow()
 
