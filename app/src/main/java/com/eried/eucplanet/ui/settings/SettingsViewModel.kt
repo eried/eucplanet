@@ -76,12 +76,19 @@ class SettingsViewModel @Inject constructor(
             garminBridge.deliveryRateHz
         ) { wear, garmin, settings, garminHz ->
             val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
+            // "Active" = the bridge is actually delivering frames right now,
+            // not just "the SDK has this device in its known list". The CIQ
+            // Mobile SDK in TETHERED mode lists a phantom Simulator entry
+            // even when the simulator isn't running; gating on the live
+            // delivery rate is what makes the Live badge meaningful.
+            val garminActive = garminHz > 0.01
+            val wearActive = wear.isNotEmpty()
             buildList {
                 wear.forEach { name ->
-                    add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, true, wearHz))
+                    add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, wearActive, wearHz))
                 }
                 garmin.forEach { name ->
-                    add(PairedSurface(PairedSurface.Kind.GARMIN, name, true, garminHz))
+                    add(PairedSurface(PairedSurface.Kind.GARMIN, name, garminActive, garminHz))
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

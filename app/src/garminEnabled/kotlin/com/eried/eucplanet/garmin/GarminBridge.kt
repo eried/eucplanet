@@ -65,19 +65,39 @@ class GarminBridge @Inject constructor(
     private val app = IQApp(GARMIN_APP_UUID)
 
     /**
-     * WIRELESS in release: pairs through Garmin Connect Mobile, which is how
-     * actual rider phones reach actual watches over Bluetooth.
+     * WIRELESS in release and on real phones: pairs through Garmin Connect
+     * Mobile, which is how actual rider phones reach actual watches over
+     * Bluetooth.
      *
-     * TETHERED in debug: routes through `adb forward tcp:7381 tcp:7381` to
-     * the Connect IQ simulator running on the host. Lets us validate the
-     * full bridge flow from an Android emulator without needing a Garmin
-     * developer account on Connect Mobile or a physical watch.
+     * TETHERED only on Android emulator + debug build: routes through
+     * `adb forward tcp:7381 tcp:7381` to the Connect IQ simulator running
+     * on the host. Lets us validate the full bridge flow without needing
+     * a Garmin developer account on Connect Mobile or a physical watch.
+     *
+     * If we used TETHERED on a real phone, the SDK lists a phantom
+     * "Simulator" device as if it were paired (because TETHERED mode
+     * assumes one exists), which then shows up in the rider's Settings
+     * → Device list as "Live" even when nothing's actually connected.
      */
     private val connectType: ConnectIQ.IQConnectType =
-        if (com.eried.eucplanet.BuildConfig.DEBUG)
+        if (com.eried.eucplanet.BuildConfig.DEBUG && isAndroidEmulator())
             ConnectIQ.IQConnectType.TETHERED
         else
             ConnectIQ.IQConnectType.WIRELESS
+
+    private fun isAndroidEmulator(): Boolean {
+        // Detection mirrors the well-known emulator fingerprint heuristics
+        // used by Firebase / Crashlytics. Cheap, no SDK calls, no permission
+        // needed; runs once at GarminBridge construction.
+        val p = android.os.Build.PRODUCT.orEmpty()
+        val fp = android.os.Build.FINGERPRINT.orEmpty()
+        val model = android.os.Build.MODEL.orEmpty()
+        val hw = android.os.Build.HARDWARE.orEmpty()
+        return p.startsWith("sdk_") || p.contains("emulator") ||
+            fp.startsWith("generic") || fp.contains("vbox") ||
+            model.contains("Emulator", ignoreCase = true) ||
+            hw.contains("ranchu") || hw.contains("goldfish")
+    }
 
     private val connectIQ: ConnectIQ = ConnectIQ.getInstance(context, connectType)
 

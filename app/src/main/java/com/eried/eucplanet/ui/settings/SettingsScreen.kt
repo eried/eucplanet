@@ -3720,12 +3720,14 @@ private fun RateBadge(hz: Double) {
 @Composable
 private fun EmptyDevicePill() {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surface
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -3735,7 +3737,7 @@ private fun EmptyDevicePill() {
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     stringResource(R.string.watch_paired_none),
                     style = MaterialTheme.typography.bodyMedium

@@ -103,10 +103,10 @@
     <string name="tab_cloud">Backup settings &amp; trips</string>
 
     <!-- Watch companion settings: shared across Wear OS + Garmin -->
-    <string name="section_watch_device">Device</string>
+    <string name="section_watch_device">Devices</string>
     <string name="section_watch_paired">Paired devices</string>
     <string name="watch_paired_none">No watches paired</string>
-    <string name="watch_paired_none_desc">Open EUC Planet on a Wear OS or Garmin watch to start receiving the dial</string>
+    <string name="watch_paired_none_desc">Install the EUC Planet companion app on a Wear OS or Garmin watch to start receiving the dial here</string>
     <string name="watch_paired_kind_wear">Wear OS</string>
     <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
     <string name="watch_paired_active">Live</string>
