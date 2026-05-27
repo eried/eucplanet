@@ -134,7 +134,12 @@ class EucPlanetView extends WatchUi.View {
 
         var s = WatchState.snapshot;
         var now = System.getTimer();
-        var stale = s.lastUpdateMs > 0 && (now - s.lastUpdateMs) > 3000;
+        // 10s tolerance: when the rider backgrounds the phone app, the
+        // GarminBridge coroutine often pauses for a few seconds before
+        // Android resumes it. A 3s window flagged "Disconnected" while
+        // the rider was just glancing at notifications. 10s holds the
+        // dial visible long enough for normal background blips.
+        var stale = s.lastUpdateMs > 0 && (now - s.lastUpdateMs) > 10000;
 
         // Only two placeholder branches: no phone yet, or stale (phone
         // went away). When the phone IS publishing but no wheel is

@@ -175,19 +175,21 @@ class GarminBridge @Inject constructor(
             return
         }
 
-        // Rolling 1-second delivery-rate poller. Reads + resets the
-        // [deliveredCount] every second so the Settings UI's per-device
-        // card can show actual frames/sec on the CIQ transport (which the
-        // SDK rate-caps near 1 Hz regardless of how often we call
-        // sendMessage). Divides by paired-device count so the number reads
-        // as "Hz per device" instead of "total Hz across all paired
-        // Garmins" — riders care about their own watch's update rate.
+        // Delivery-rate poller. Samples the per-second tally once a
+        // second, then exponentially smooths it (alpha=0.25, ~4-sec
+        // effective window) so the displayed Hz doesn't flicker 0/1/0/1
+        // against the SDK's exactly-1-Hz wire rate. Divides by paired-
+        // device count so the value reads as "Hz per device", not total
+        // across paired Garmins.
         scope.launch {
+            val alpha = 0.25
             while (true) {
                 delay(1_000L)
                 val count = deliveredCount.getAndSet(0)
                 val devices = registeredDevices.size.coerceAtLeast(1)
-                _deliveryRateHz.value = count.toDouble() / devices
+                val instant = count.toDouble() / devices
+                val prev = _deliveryRateHz.value
+                _deliveryRateHz.value = alpha * instant + (1 - alpha) * prev
             }
         }
 
