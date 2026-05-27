@@ -538,6 +538,7 @@
     <string name="alarm_enable_voice">Увімкнути голос</string>
     <string name="alarm_voice_template">Шаблон тексту</string>
     <string name="alarm_voice_template_help">Змінні: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_voice_default">Увага! {metric}: {value}</string>
     <string name="alarm_section_vibrate">Вібрація</string>
     <string name="alarm_enable_vibrate">Увімкнути вібрацію</string>
     <string name="alarm_vibrate_duration_fmt">Тривалість: %1$dмс</string>

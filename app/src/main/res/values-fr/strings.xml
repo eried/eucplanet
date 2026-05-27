@@ -444,6 +444,7 @@
     <string name="alarm_enable_voice">Activer la voix</string>
     <string name="alarm_voice_template">Modèle de texte</string>
     <string name="alarm_voice_template_help">Variables : {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_voice_default">Attention ! {metric} à {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Activer la vibration</string>
     <string name="alarm_vibrate_duration_fmt">Durée : %1$dms</string>

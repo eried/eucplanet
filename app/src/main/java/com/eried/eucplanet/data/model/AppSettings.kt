@@ -59,6 +59,17 @@ data class AppSettings(
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
+    /**
+     * True once the rider has explicitly picked a voice (either from the
+     * voice picker, or by saying "no, keep my voice" to the language-change
+     * prompt). When false, the voice auto-follows the UI language: first
+     * launch picks a voice matching the detected system language, and
+     * subsequent UI-language changes auto-switch the voice without showing
+     * the "switch voice too?" prompt. Set back to false when the rider
+     * explicitly accepts the prompt, since saying "yes, switch" signals
+     * they want auto-sync going forward.
+     */
+    val voiceLocaleOverridden: Boolean = false,
     // Audio focus behavior while speaking: "DUCK" (lower other), "PAUSE" (pause other), "OFF" (no focus)
     val voiceAudioFocus: String = "DUCK",
     // Where to route the voice: "MEDIA" (music slider), "NOTIFICATION" (ring slider), "ALARM" (alarm slider, loudest)

@@ -406,6 +406,7 @@
     <string name="alarm_enable_voice">Aktiver stemme</string>
     <string name="alarm_voice_template">Tekstmal</string>
     <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_voice_default">Advarsel! {metric} på {value}</string>
     <string name="alarm_section_vibrate">Vibrasjon</string>
     <string name="alarm_enable_vibrate">Aktiver vibrasjon</string>
     <string name="alarm_vibrate_duration_fmt">Varighet: %1$d ms</string>

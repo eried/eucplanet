@@ -406,6 +406,7 @@
     <string name="alarm_enable_voice">Озвучивать</string>
     <string name="alarm_voice_template">Шаблон сообщения</string>
     <string name="alarm_voice_template_help">Переменные: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_voice_default">Внимание! {metric}: {value}</string>
     <string name="alarm_section_vibrate">Вибрация</string>
     <string name="alarm_enable_vibrate">Вибрировать</string>
     <string name="alarm_vibrate_duration_fmt">Длительность: %1$d мс</string>

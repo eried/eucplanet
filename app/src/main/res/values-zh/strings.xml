@@ -444,6 +444,7 @@
     <string name="alarm_enable_voice">启用语音</string>
     <string name="alarm_voice_template">文本模板</string>
     <string name="alarm_voice_template_help">变量:{speed}、{battery}、{temp}、{pwm}、{voltage}、{current}、{trip}、{value}、{metric}、{threshold}</string>
+    <string name="alarm_voice_default">警告!{metric} 当前 {value}</string>
     <string name="alarm_section_vibrate">振动</string>
     <string name="alarm_enable_vibrate">启用振动</string>
     <string name="alarm_vibrate_duration_fmt">时长:%1$dms</string>

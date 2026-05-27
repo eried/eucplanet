@@ -107,9 +107,24 @@ fun AlarmSettingsContent(
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val voiceLocale by viewModel.voiceLocale.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
+
+    // Default alarm voice template, resolved in the rider's TTS voice locale
+    // so a newly created alarm's prompt is in the language the engine
+    // actually speaks. Placeholders like {metric}/{value} stay literal and
+    // get expanded at speak time. Recomputed only when voiceLocale changes.
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val defaultVoiceText = remember(voiceLocale) {
+        val tag = voiceLocale.replace("_", "-")
+        val locale = java.util.Locale.forLanguageTag(tag)
+        val cfg = android.content.res.Configuration(ctx.resources.configuration).apply {
+            setLocale(locale)
+        }
+        ctx.createConfigurationContext(cfg).getString(R.string.alarm_voice_default)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -155,6 +170,7 @@ fun AlarmSettingsContent(
             rule = editingRule,
             speedUnit = speedUnit,
             tempUnit = tempUnit,
+            defaultVoiceText = defaultVoiceText,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -295,6 +311,7 @@ private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
     speedUnit: String,
     tempUnit: String,
+    defaultVoiceText: String,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -314,7 +331,14 @@ private fun AlarmRuleEditorDialog(
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
-    var voiceText by remember { mutableStateOf(initial.voiceText) }
+    // For a brand-new alarm, seed with the voice-locale-resolved default
+    // (the AlarmRule data class can't reach into resources, so its baked-in
+    // default is always English; the editor overrides it here so the user
+    // sees and saves the localized phrase). When editing an existing rule
+    // we keep whatever the user already saved.
+    var voiceText by remember {
+        mutableStateOf(if (rule == null) defaultVoiceText else initial.voiceText)
+    }
 
     var vibrateEnabled by remember { mutableStateOf(initial.vibrateEnabled) }
     var vibrateDurationMs by remember { mutableIntStateOf(initial.vibrateDurationMs) }

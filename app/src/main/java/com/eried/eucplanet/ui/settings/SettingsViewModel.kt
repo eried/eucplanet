@@ -128,7 +128,10 @@ class SettingsViewModel @Inject constructor(
     fun updateTriggerReportTime(v: Boolean) = update { copy(triggerReportTime = v) }
     fun updateTriggerReportNavigation(v: Boolean) = update { copy(triggerReportNavigation = v) }
     fun updateVoiceLocale(tag: String) {
-        update { copy(voiceLocale = tag) }
+        // Explicit voice pick sets the override flag so a later UI-language
+        // change re-prompts ("switch voice too?") instead of silently
+        // clobbering the rider's chosen voice.
+        update { copy(voiceLocale = tag, voiceLocaleOverridden = true) }
         voiceService.setVoiceLocale(tag)
     }
     fun updateVoiceAudioFocus(v: String) = update { copy(voiceAudioFocus = v) }
@@ -303,43 +306,72 @@ class SettingsViewModel @Inject constructor(
         // Pull just the primary language subtag (e.g. "es" from "es-419", "pt" from "pt-BR")
         // so es-419 / pt-BR don't confuse the equality check below.
         val appLangPrimary = appLang.substringBefore('-').lowercase()
-        val ttsLang = voiceService.currentVoiceLanguage().lowercase()
-        if (ttsLang != appLangPrimary) {
-            // Defer the locale switch until the user confirms in the dialog , 
-            // showing the prompt FIRST means the dialog renders in the user's
-            // current language, so they can read it (and Cancel) even if the
-            // requested language is one they don't actually speak.
-            _ttsSwitchPrompt.value = v
-        } else {
-            // TTS already matches, apply the language switch immediately.
-            update { copy(language = v) }
-            com.eried.eucplanet.util.LocaleHelper.apply(v)
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val ttsLang = voiceService.currentVoiceLanguage().lowercase()
+            if (!current.voiceLocaleOverridden) {
+                // Voice has been auto-following the UI language. Switch both
+                // in a single write so they don't race, and skip the prompt
+                // entirely - the rider never picked a voice manually.
+                val tag = voiceService.pickVoiceForLanguage(appLang)
+                if (tag != null) {
+                    settingsRepository.update(current.copy(language = v, voiceLocale = tag))
+                    voiceService.setVoiceLocale(tag)
+                } else {
+                    settingsRepository.update(current.copy(language = v))
+                }
+                com.eried.eucplanet.util.LocaleHelper.apply(v)
+            } else if (ttsLang != appLangPrimary) {
+                // Override set AND voice differs from new UI language. Defer
+                // until the rider answers the prompt; show it in the current
+                // language so they can still read Cancel.
+                _ttsSwitchPrompt.value = v
+            } else {
+                // Override set but voice already matches the new language
+                // (rare, but possible if the rider's manual pick happens to
+                // align). Apply directly without prompting.
+                settingsRepository.update(current.copy(language = v))
+                com.eried.eucplanet.util.LocaleHelper.apply(v)
+            }
         }
     }
 
     /**
      * User accepted: switch the app language and ALSO switch the TTS voice
-     * to match the new language.
+     * to match. Clears the override flag so future language changes auto-sync
+     * without re-prompting.
      */
     fun acceptTtsSwitch() {
         val v = _ttsSwitchPrompt.value ?: return
-        update { copy(language = v) }
-        com.eried.eucplanet.util.LocaleHelper.apply(v)
-        val appLang = if (v.isBlank()) "en" else v
-        val tag = voiceService.pickVoiceForLanguage(appLang)
-        if (tag != null) {
-            update { copy(voiceLocale = tag) }
-            voiceService.setVoiceLocale(tag)
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val appLang = if (v.isBlank()) "en" else v
+            val tag = voiceService.pickVoiceForLanguage(appLang)
+            // CRITICAL: single write so language + voiceLocale + override are
+            // committed atomically. Two separate update() calls would race
+            // each other's read-then-write and lose one of the fields - the
+            // bug that previously left the voice unchanged even after the
+            // rider tapped "yes, switch".
+            val updated = if (tag != null) {
+                current.copy(language = v, voiceLocale = tag, voiceLocaleOverridden = false)
+            } else {
+                current.copy(language = v, voiceLocaleOverridden = false)
+            }
+            settingsRepository.update(updated)
+            com.eried.eucplanet.util.LocaleHelper.apply(v)
+            if (tag != null) voiceService.setVoiceLocale(tag)
+            _ttsSwitchPrompt.value = null
         }
-        _ttsSwitchPrompt.value = null
     }
 
     /**
-     * User chose to switch language but keep the existing TTS voice.
+     * User chose to switch language but keep the existing TTS voice. Sets
+     * the override flag so future language changes continue to prompt
+     * instead of auto-switching the voice the rider just confirmed.
      */
     fun dismissTtsSwitch() {
         val v = _ttsSwitchPrompt.value ?: return
-        update { copy(language = v) }
+        update { copy(language = v, voiceLocaleOverridden = true) }
         com.eried.eucplanet.util.LocaleHelper.apply(v)
         _ttsSwitchPrompt.value = null
     }

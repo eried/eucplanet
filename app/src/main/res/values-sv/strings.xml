@@ -444,6 +444,7 @@
     <string name="alarm_enable_voice">Aktivera röst</string>
     <string name="alarm_voice_template">Textmall</string>
     <string name="alarm_voice_template_help">Variabler: {speed}, {battery}, {temp}, {pwm}, {voltage}, {current}, {trip}, {value}, {metric}, {threshold}</string>
+    <string name="alarm_voice_default">Varning! {metric} vid {value}</string>
     <string name="alarm_section_vibrate">Vibration</string>
     <string name="alarm_enable_vibrate">Aktivera vibration</string>
     <string name="alarm_vibrate_duration_fmt">Längd: %1$dms</string>

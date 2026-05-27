@@ -41,6 +41,17 @@ class AlarmViewModel @Inject constructor(
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
 
+    /**
+     * The rider's chosen voice locale, fed to the alarm editor so a newly
+     * created alarm's default voice template is in the language the TTS
+     * engine actually speaks (not the UI language - users with English UI
+     * + Spanish voice should get "¡Atención!"). Placeholders like {metric}
+     * stay literal regardless of locale.
+     */
+    val voiceLocale: StateFlow<String> = settingsRepository.settings
+        .map { it.voiceLocale }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "en_US")
+
 
     private val vibratorHelper = VibratorHelper(context)
 
