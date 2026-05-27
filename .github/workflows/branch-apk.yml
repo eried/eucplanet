@@ -81,8 +81,11 @@ jobs:
           fi
 
           # Recent commits since branching from main, capped to keep the
-          # release body readable on big branches.
-          git log --pretty=format:'- %h %s' main..HEAD | head -50 > /tmp/commit-log.md || true
+          # release body readable on big branches. Use `origin/main` because
+          # the CI checkout has no local `main` ref - the bare `main..HEAD`
+          # used to fail with "ambiguous argument" and the `|| true` swallowed
+          # it, leaving an empty "Recent commits" section on every release.
+          git log --pretty=format:'- %h %s' origin/main..HEAD | head -50 > /tmp/commit-log.md || true
 
           {
             echo "**Pre-release from branch \`${BRANCH}\`**, automatic build at \`${SHORT_SHA}\`."
