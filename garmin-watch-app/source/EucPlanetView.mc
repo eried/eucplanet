@@ -155,18 +155,7 @@ class EucPlanetView extends WatchUi.View {
         }
 
         // Main dial.
-        SpeedGauge.draw(
-            dc,
-            s.speedKmh,
-            s.maxSpeedKmh,
-            s.speedUnit,
-            s.showGaugeBand,
-            s.gaugeOrangeThresholdPct,
-            s.gaugeRedThresholdPct,
-            s.gpsSpeedKmh,
-            s.showSpeedUnit,
-            s.prioritizePwm
-        );
+        SpeedGauge.draw(dc, s);
 
         // Order matters: PWM under speed, battery row under PWM, horn/light
         // at the bottom. All in the inner safe area so they don't clip the

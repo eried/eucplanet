@@ -16,18 +16,22 @@ module SpeedGauge {
 
     //! Draws the gauge centered on the Dc. Speed text + unit are drawn last
     //! so they win over the arc.
+    //! Older CIQ runtimes (3.1.6 era — Fenix 5/5s/5x) cap method arity
+    //! at 9, so the snapshot is passed in whole instead of unpacked into
+    //! individual params. Reads every field it needs from `s` directly.
     function draw(
         dc as Graphics.Dc,
-        speedKmh as Lang.Float,
-        maxSpeedKmh as Lang.Float,
-        speedUnit as Lang.String,
-        showColorBand as Lang.Boolean,
-        orangeThresholdPct as Lang.Number,
-        redThresholdPct as Lang.Number,
-        gpsSpeedKmh as Lang.Float,
-        showSpeedUnit as Lang.Boolean,
-        prioritizePwm as Lang.Boolean
+        s as WatchSnapshot
     ) as Void {
+        var speedKmh = s.speedKmh;
+        var maxSpeedKmh = s.maxSpeedKmh;
+        var speedUnit = s.speedUnit;
+        var showColorBand = s.showGaugeBand;
+        var orangeThresholdPct = s.gaugeOrangeThresholdPct;
+        var redThresholdPct = s.gaugeRedThresholdPct;
+        var gpsSpeedKmh = s.gpsSpeedKmh;
+        var showSpeedUnit = s.showSpeedUnit;
+        var prioritizePwm = s.prioritizePwm;
         var w = dc.getWidth();
         var h = dc.getHeight();
         var dim = w < h ? w : h;
