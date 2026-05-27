@@ -173,27 +173,6 @@ class EucPlanetView extends WatchUi.View {
         if (s.navActive) {
             drawNavOverlay(dc, s);
         }
-
-        drawFrameCounter(dc, s);
-    }
-
-    //! Tiny "rx N" indicator in the lower-right of the dial showing the
-    //! total number of phone frames the watch has parsed since launch.
-    //! Provides a live "is the wire actually delivering settings updates"
-    //! signal for diagnosing real-phone delivery issues without needing
-    //! adb logcat on a watch.
-    private function drawFrameCounter(dc as Graphics.Dc, s as WatchSnapshot) as Void {
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        // Bottom-center, inside the round-display safe circle on 416x416
-        // watches. (Earlier position at x=75%, y=95% clipped off the round
-        // edge on Fenix 8 43mm — corner pixels aren't visible on round
-        // displays.) Centred so it stays visible on every aspect ratio.
-        dc.setColor(0x666666, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, (h * 93) / 100,
-                    Graphics.FONT_XTINY,
-                    "rx " + s.frameCount.format("%d"),
-                    Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     //! Center-aligned text with line-break support. CIQ's drawText doesn't

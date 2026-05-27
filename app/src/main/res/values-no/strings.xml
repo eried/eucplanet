@@ -1020,4 +1020,24 @@
     <string name="studio_overwrite_body">En forhåndsinnstilling kalt \"%1$s\" finnes allerede.</string>
     <string name="studio_overwrite_confirm">Overskriv</string>
 
+    <string name="section_watch_device">Enheter</string>
+    <string name="section_watch_paired">Sammenkoblede enheter</string>
+    <string name="watch_paired_none">Ingen klokker sammenkoblet</string>
+    <string name="watch_paired_none_desc">Installer EUC Planet-følgeappen på en Wear OS- eller Garmin-klokke for å begynne å motta urskiven her</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Live</string>
+    <string name="watch_paired_idle">Inaktiv</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Garmin-begrensninger</string>
+    <string name="watch_paired_garmin_limit_launch">Åpne klokkeappen manuelt før hver tur. Garmin tillater ikke at telefonapper auto-starter følgeappen.</string>
+    <string name="watch_paired_garmin_limit_rate">Telemetri oppdateres tregere enn på Wear OS. Connect IQ Mobile SDK begrenser oppdateringsraten.</string>
+    <string name="watch_paired_garmin_limit_rotation">Rotasjon av urskiven er ikke tilgjengelig. Connect IQ har ingen innebygd transformasjonsmatrise for å rotere den tegnede urskiven.</string>
+    <string name="section_watch_hardware_buttons">Fysiske knapper</string>
+    <string name="watch_hardware_button_1">Knapp 1</string>
+    <string name="watch_hardware_button_2">Knapp 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oransje Action-knapp</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Opp (lang trykk) · Galaxy Watch Ultra: nedre sideknapp</string>
+    <string name="section_watch_screen_buttons_desc">Berøringsfelt tegnet på urskiven</string>
+    <string name="section_watch_hardware_buttons_desc">Sideknapper på klokken</string>
 </resources>

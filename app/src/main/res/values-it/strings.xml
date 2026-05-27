@@ -1039,4 +1039,24 @@
     <string name="studio_overwrite_body">Esiste già un preset chiamato \"%1$s\".</string>
     <string name="studio_overwrite_confirm">Sovrascrivi</string>
 
+    <string name="section_watch_device">Dispositivi</string>
+    <string name="section_watch_paired">Dispositivi accoppiati</string>
+    <string name="watch_paired_none">Nessun orologio accoppiato</string>
+    <string name="watch_paired_none_desc">Installa l\'app companion EUC Planet su un orologio Wear OS o Garmin per iniziare a ricevere il quadrante qui</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Live</string>
+    <string name="watch_paired_idle">Inattivo</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Limitazioni Garmin</string>
+    <string name="watch_paired_garmin_limit_launch">Apri manualmente l\'app dell\'orologio all\'inizio di ogni viaggio. Garmin non consente alle app del telefono di avviare automaticamente l\'app companion.</string>
+    <string name="watch_paired_garmin_limit_rate">La telemetria si aggiorna più lentamente rispetto a Wear OS. Il SDK Mobile di Connect IQ limita la frequenza di aggiornamento.</string>
+    <string name="watch_paired_garmin_limit_rotation">La rotazione del quadrante non è disponibile. Connect IQ non ha una matrice di trasformazione nativa per ruotare il quadrante renderizzato.</string>
+    <string name="section_watch_hardware_buttons">Pulsanti hardware</string>
+    <string name="watch_hardware_button_1">Pulsante 1</string>
+    <string name="watch_hardware_button_2">Pulsante 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: pulsante Action arancione</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Su (pressione lunga) · Galaxy Watch Ultra: pulsante laterale inferiore</string>
+    <string name="section_watch_screen_buttons_desc">Aree tattili disegnate sul quadrante dell\'orologio</string>
+    <string name="section_watch_hardware_buttons_desc">Pulsanti laterali dell\'orologio</string>
 </resources>

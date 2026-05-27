@@ -145,12 +145,6 @@ class WatchSnapshot {
     public var navArrived as Lang.Boolean = false;
 
     public var lastUpdateMs as Lang.Number = 0;
-    //! Monotonic counter of successfully-parsed phone frames since app
-    //! start. Rendered as "rx N" in the dial corner so the rider (and
-    //! the developer) can see whether subsequent frames are arriving in
-    //! real time — useful for diagnosing "settings don't update" symptoms.
-    public var frameCount as Lang.Number = 0;
-
     function initialize() {}
 }
 
@@ -226,7 +220,6 @@ module WatchState {
         s.navArrived = boolean(dict, Keys.NAV_ARRIVED, false);
 
         s.lastUpdateMs = System.getTimer();
-        s.frameCount = s.frameCount + 1;
 
         if (listener != null) { listener.invoke(); }
     }

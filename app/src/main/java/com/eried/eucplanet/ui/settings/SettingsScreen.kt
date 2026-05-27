@@ -54,7 +54,7 @@ import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.GraphicEq
+import androidx.compose.material.icons.filled.MonitorHeart
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
@@ -3693,9 +3693,10 @@ private fun StatusBadge(active: Boolean) {
     }
 }
 
-/** Compact update-rate indicator: signal-bars icon + Hz value. The
- *  signal-bars graphic reads as "live stream rate" and — crucially —
- *  doesn't look tappable the way a refresh-arrows glyph does. */
+/** Compact update-rate indicator: heart-monitor icon + Hz value. The
+ *  pulse-on-monitor glyph reads as "live vital signs" — semantically
+ *  matches an end-to-end heartbeat better than the earlier signal-bars,
+ *  and is clearly a status indicator rather than a tappable button. */
 @Composable
 private fun RateBadge(hz: Double) {
     Row(
@@ -3703,7 +3704,7 @@ private fun RateBadge(hz: Double) {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.GraphicEq,
+            imageVector = Icons.Default.MonitorHeart,
             contentDescription = null,
             modifier = Modifier.size(14.dp)
         )

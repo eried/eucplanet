@@ -1039,4 +1039,24 @@
     <string name="studio_overwrite_body">Er bestaat al een preset met de naam \"%1$s\".</string>
     <string name="studio_overwrite_confirm">Overschrijven</string>
 
+    <string name="section_watch_device">Apparaten</string>
+    <string name="section_watch_paired">Gekoppelde apparaten</string>
+    <string name="watch_paired_none">Geen horloges gekoppeld</string>
+    <string name="watch_paired_none_desc">Installeer de EUC Planet-begeleidingsapp op een Wear OS- of Garmin-horloge om hier de wijzerplaat te ontvangen</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Live</string>
+    <string name="watch_paired_idle">Inactief</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Garmin-beperkingen</string>
+    <string name="watch_paired_garmin_limit_launch">Open de horloge-app handmatig aan het begin van elke rit. Garmin staat telefoon-apps niet toe om de begeleidingsapp automatisch te starten.</string>
+    <string name="watch_paired_garmin_limit_rate">Telemetrie wordt langzamer ververst dan op Wear OS. De Connect IQ Mobile SDK beperkt de updatefrequentie.</string>
+    <string name="watch_paired_garmin_limit_rotation">Rotatie van de wijzerplaat is niet beschikbaar. Connect IQ heeft geen native transformatiematrix om de wijzerplaat te draaien.</string>
+    <string name="section_watch_hardware_buttons">Hardware-knoppen</string>
+    <string name="watch_hardware_button_1">Knop 1</string>
+    <string name="watch_hardware_button_2">Knop 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: oranje Action-knop</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Omhoog (lang indrukken) · Galaxy Watch Ultra: onderste zijknop</string>
+    <string name="section_watch_screen_buttons_desc">Aanraakgebieden op de wijzerplaat</string>
+    <string name="section_watch_hardware_buttons_desc">Zijknoppen van het horloge</string>
 </resources>
