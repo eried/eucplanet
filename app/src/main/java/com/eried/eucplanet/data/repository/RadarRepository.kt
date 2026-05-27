@@ -1,0 +1,270 @@
+package com.eried.eucplanet.data.repository
+
+import android.util.Log
+import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.ble.radar.DecodedThreat
+import com.eried.eucplanet.ble.radar.RadarAdapter
+import com.eried.eucplanet.ble.radar.RadarConnectionManager
+import com.eried.eucplanet.data.model.RadarFrame
+import com.eried.eucplanet.data.model.RadarThreat
+import com.eried.eucplanet.data.model.RadarVendor
+import com.eried.eucplanet.data.model.ThreatLevel
+import com.eried.eucplanet.service.AlarmEngine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * Owns the rear-view radar BLE connection and exposes the current frame.
+ *
+ * State flows:
+ *  * [connectionState] mirrors the underlying GATT manager.
+ *  * [currentFrame] is the latest decoded frame (threats + battery).
+ *
+ * Pairing persists in three AppSettings columns (address / name / vendor enum)
+ * so [connectPaired] can re-open the paired device on app start without
+ * prompting. Mirrors [ExternalGpsRepository] closely on purpose ,  same auto-
+ * reconnect cadence, same explicit-disconnect veto, same demo-mode hook
+ * pattern so the UI can be reviewed without hardware.
+ */
+@Singleton
+class RadarRepository @Inject constructor(
+    private val settingsRepository: SettingsRepository,
+    private val connectionManager: RadarConnectionManager,
+    private val adapters: Set<@JvmSuppressWildcards RadarAdapter>,
+    private val alarmEngine: AlarmEngine
+) {
+    companion object {
+        private const val TAG = "RadarRepo"
+
+        /** Standard battery_level characteristic UUID, used to tag battery frames. */
+        private val BATTERY_LEVEL_UUID: UUID =
+            UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb")
+
+        /** Distance at which a closing threat is classified FAST_APPROACH. */
+        private const val FAST_APPROACH_DISTANCE_M = 50
+
+        /**
+         * Approach speed (km/h) above which a threat is FAST_APPROACH
+         * regardless of distance. 60 km/h matches "vehicle is meaningfully
+         * faster than the rider on a typical road" for an EUC; below this
+         * a closing target is still classified APPROACHING.
+         */
+        private const val FAST_APPROACH_SPEED_KMH = 60
+
+        /** Below this approach speed (km/h) a target is treated as static, NONE. */
+        private const val STATIC_TARGET_KMH = 3
+    }
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    val connectionState: StateFlow<ConnectionState> get() = connectionManager.connectionState
+
+    private val _currentFrame = MutableStateFlow<RadarFrame?>(null)
+    val currentFrame: StateFlow<RadarFrame?> = _currentFrame.asStateFlow()
+
+    /**
+     * Tracks whether the user has explicitly disconnected this session.
+     * While set, the auto-reconnect loop stops attempting to re-establish a
+     * connection so the rider's deliberate action sticks until they actively
+     * reconnect (from the Integration settings screen). Resets to false on
+     * every app launch so a paired device naturally reconnects on boot.
+     */
+    @Volatile private var explicitlyDisconnected: Boolean = false
+
+    /**
+     * The last battery percentage the device emitted, retained so the next
+     * threat-only frame still carries it on the [RadarFrame].
+     */
+    @Volatile private var latestBattery: Int? = null
+
+    /**
+     * Per-id history of the last seen distance + first-seen timestamp.
+     * Used to compute closing rate (m/s) so we can derive a threat level
+     * without needing the NDA-gated `…3201` characteristic.
+     */
+    private data class TrackState(val distanceM: Int, val firstSeenMs: Long, val lastSeenMs: Long)
+    private val tracks = HashMap<Int, TrackState>()
+
+    init {
+        scope.launch {
+            connectionManager.notifications.collect { n ->
+                if (n.uuid == BATTERY_LEVEL_UUID) {
+                    if (n.bytes.isNotEmpty()) {
+                        latestBattery = n.bytes[0].toInt() and 0xFF
+                        // Re-publish the current frame with the new battery
+                        // so the UI doesn't have to wait for a threat frame.
+                        _currentFrame.value?.let { prev ->
+                            _currentFrame.value = prev.copy(batteryPercent = latestBattery)
+                        }
+                    }
+                    return@collect
+                }
+                val adapter = adapters.firstOrNull { it.notifyCharacteristicUuid == n.uuid } ?: return@collect
+                val decoded = adapter.decode(n.bytes) ?: return@collect
+                publishFrame(adapter.vendor, decoded)
+            }
+        }
+        // Auto-reconnect loop. Mirrors ExternalGpsRepository.
+        scope.launch {
+            var failedAttempts = 0
+            connectionManager.connectionState.collect { state ->
+                when (state) {
+                    ConnectionState.CONNECTED -> {
+                        failedAttempts = 0
+                    }
+                    ConnectionState.DISCONNECTED -> {
+                        val paired = settingsRepository.get().radarAddress != null
+                        if (!paired || explicitlyDisconnected) return@collect
+                        val delayMs = when (failedAttempts) {
+                            0 -> 1_500L
+                            1 -> 5_000L
+                            2 -> 10_000L
+                            else -> 30_000L
+                        }
+                        Log.i(TAG, "Auto-reconnect attempt ${failedAttempts + 1} after ${delayMs}ms")
+                        kotlinx.coroutines.delay(delayMs)
+                        val recheck = settingsRepository.get().radarAddress != null
+                        if (!recheck || explicitlyDisconnected) return@collect
+                        if (connectionState.value == ConnectionState.DISCONNECTED) {
+                            failedAttempts += 1
+                            connectPaired()
+                        }
+                    }
+                    else -> { /* CONNECTING / INITIALIZING, let it complete */ }
+                }
+            }
+        }
+    }
+
+    private fun publishFrame(vendor: RadarVendor, decoded: List<DecodedThreat>) {
+        val now = System.currentTimeMillis()
+        // Forget tracks the radar has dropped (id no longer present this frame).
+        val presentIds = decoded.map { it.id }.toSet()
+        tracks.keys.retainAll(presentIds)
+
+        val threats = decoded.map { d ->
+            val prev = tracks[d.id]
+            val firstSeen = prev?.firstSeenMs ?: now
+            tracks[d.id] = TrackState(d.distanceM, firstSeen, now)
+            val level = classify(prev, d, now)
+            RadarThreat(
+                id = d.id,
+                distanceM = d.distanceM,
+                approachSpeedKmh = d.approachSpeedKmh,
+                threatLevel = level,
+                firstSeenMs = firstSeen
+            )
+        }
+        val frame = RadarFrame(
+            vendor = vendor,
+            threats = threats,
+            batteryPercent = latestBattery,
+            timestamp = now
+        )
+        _currentFrame.value = frame
+        // Feed the alarm engine so the rider's RADAR_DISTANCE /
+        // RADAR_APPROACH_SPEED rules fire on the same cadence as the radar.
+        alarmEngine.evaluateRadar(frame)
+    }
+
+    /**
+     * Local severity classifier. We can't read Garmin's own level byte
+     * (NDA), so we derive it from distance, the vendor-reported approach
+     * speed, and the change in distance between frames. Errs on the side
+     * of "louder" ,  false negatives on a closing car are dangerous; false
+     * positives on a slow truck are just a yellow dot.
+     */
+    private fun classify(prev: TrackState?, d: DecodedThreat, now: Long): ThreatLevel {
+        // A clearly static target (parked car the rider is approaching, or a
+        // tracker that just appeared at constant distance) gets NONE.
+        if (d.approachSpeedKmh < STATIC_TARGET_KMH && prev == null) return ThreatLevel.NONE
+
+        // Fast closing: either speed is high, or the target is already inside
+        // the safety bubble. The OR is intentional ,  a parked car 10 m behind
+        // the rider with approach_speed=0 is still a hazard to flag amber, but
+        // a 30 km/h car 30 m back is the textbook "behind you, watch out".
+        if (d.approachSpeedKmh >= FAST_APPROACH_SPEED_KMH) return ThreatLevel.FAST_APPROACH
+        if (d.distanceM <= FAST_APPROACH_DISTANCE_M && d.approachSpeedKmh >= STATIC_TARGET_KMH) {
+            return ThreatLevel.FAST_APPROACH
+        }
+
+        // Closing-rate fallback: if the vendor's approach_speed looks weird
+        // (some firmware ticks it to 0 between samples), but our own delta
+        // says the target is gaining > ~10 m/frame, flag APPROACHING anyway.
+        if (prev != null) {
+            val closingMeters = prev.distanceM - d.distanceM
+            if (closingMeters >= 10) return ThreatLevel.APPROACHING
+        }
+
+        return if (d.approachSpeedKmh >= STATIC_TARGET_KMH) ThreatLevel.APPROACHING else ThreatLevel.NONE
+    }
+
+    suspend fun setPairing(address: String, name: String, vendor: RadarVendor) {
+        val s = settingsRepository.get()
+        settingsRepository.update(
+            s.copy(
+                radarAddress = address,
+                radarName = name,
+                radarVendor = vendor.name
+            )
+        )
+        Log.i(TAG, "Paired ${vendor.displayName}: $name ($address)")
+    }
+
+    suspend fun clearPairing() {
+        val s = settingsRepository.get()
+        settingsRepository.update(
+            s.copy(
+                radarAddress = null,
+                radarName = null,
+                radarVendor = null
+            )
+        )
+        disconnect()
+        Log.i(TAG, "Pairing cleared")
+    }
+
+    suspend fun pairedAddress(): String? = settingsRepository.get().radarAddress
+    suspend fun pairedName(): String? = settingsRepository.get().radarName
+    suspend fun pairedVendor(): RadarVendor? =
+        settingsRepository.get().radarVendor?.let {
+            runCatching { RadarVendor.valueOf(it) }.getOrNull()
+        }
+
+    /**
+     * Open the GATT connection to the currently-paired device. Returns false
+     * if no pairing exists or no adapter is registered for the saved vendor.
+     */
+    suspend fun connectPaired(): Boolean {
+        val address = pairedAddress() ?: return false
+        val vendor = pairedVendor() ?: return false
+        val adapter = adapters.firstOrNull { it.vendor == vendor } ?: run {
+            Log.w(TAG, "No adapter for paired vendor $vendor, skipping connect")
+            return false
+        }
+        explicitlyDisconnected = false
+        connectionManager.connect(address, adapter)
+        return true
+    }
+
+    fun connect(address: String, adapter: RadarAdapter) {
+        explicitlyDisconnected = false
+        connectionManager.connect(address, adapter)
+    }
+
+    fun disconnect() {
+        explicitlyDisconnected = true
+        latestBattery = null
+        tracks.clear()
+        _currentFrame.value = null
+        connectionManager.disconnect()
+    }
+}

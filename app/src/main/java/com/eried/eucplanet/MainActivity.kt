@@ -286,6 +286,12 @@ class MainActivity : AppCompatActivity() {
                             },
                             suppressOnPhone = onMapScreen
                         )
+                        // Radar threat lane bar. Sits on a screen edge so it
+                        // doesn't fight the navigation popup (centred) for
+                        // visual space. Its view model gates visibility off
+                        // pairing + connection state, no extra suppression
+                        // needed per screen.
+                        com.eried.eucplanet.ui.radar.RadarOverlay()
                     }
                 }
             }

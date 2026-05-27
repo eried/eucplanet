@@ -218,6 +218,12 @@ private fun AlarmRuleCard(
             AlarmMetric.PWM -> AccentYellow
             AlarmMetric.VOLTAGE -> AccentBlue
             AlarmMetric.CURRENT -> AccentPurple
+            // Radar shares the red/orange palette with TEMPERATURE / SPEED
+            // since these are all "hazard" metrics that fire on a threshold
+            // breach. Same tint for both radar metrics so a rider's "car
+            // closing" rule group reads as one block in the list.
+            AlarmMetric.RADAR_DISTANCE -> AccentRed
+            AlarmMetric.RADAR_APPROACH_SPEED -> AccentRed
         }
     }
 
@@ -338,6 +344,13 @@ private fun AlarmRuleEditorDialog(
         AlarmMetric.PWM -> 10f..100f
         AlarmMetric.VOLTAGE -> 20f..300f
         AlarmMetric.CURRENT -> 1f..50f
+        // Varia's range is ~140 m. Below 5 m the radar is effectively in
+        // the dead-zone behind the rider; below 10 m is "imminent" on an
+        // EUC at typical road speed.
+        AlarmMetric.RADAR_DISTANCE -> 5f..140f
+        // Approach speeds typically run 10-120 km/h depending on road
+        // type. 5..150 keeps the slider usable on both ends.
+        AlarmMetric.RADAR_APPROACH_SPEED -> 5f..150f
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
