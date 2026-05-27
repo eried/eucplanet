@@ -35,6 +35,9 @@ class GarminBridge @Inject constructor(
     val deliveryRateHz: kotlinx.coroutines.flow.StateFlow<Double> =
         kotlinx.coroutines.flow.MutableStateFlow(0.0)
 
+    val lastSuccessAtMs: kotlinx.coroutines.flow.StateFlow<Long> =
+        kotlinx.coroutines.flow.MutableStateFlow(0L)
+
     fun start() = Unit
     fun pingWatchToWake() = Unit
     fun publishFarewell() = Unit

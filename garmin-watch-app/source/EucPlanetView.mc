@@ -136,10 +136,13 @@ class EucPlanetView extends WatchUi.View {
         var now = System.getTimer();
         var stale = s.lastUpdateMs > 0 && (now - s.lastUpdateMs) > 3000;
 
-        // Placeholder states mirror the Wear OS dial:
-        //   never received a frame -> "Open EUC Planet on your phone"
-        //   received a frame but not connected -> "Connect a wheel"
-        //   stale or disconnected after-the-fact -> "Disconnected"
+        // Only two placeholder branches: no phone yet, or stale (phone
+        // went away). When the phone IS publishing but no wheel is
+        // connected, render the dial with zeroed telemetry — matches the
+        // Wear OS dial, which shows the full layout with "0" speed and
+        // dashes for battery / voltage rather than a placeholder text.
+        // Horn / light buttons stay drawn but greyed so the rider can
+        // still see the layout.
         if (!s.phoneSynced) {
             drawCenterText(dc, WatchUi.loadResource(Rez.Strings.WaitingPhone));
             return;
@@ -148,13 +151,9 @@ class EucPlanetView extends WatchUi.View {
             drawCenterText(dc, WatchUi.loadResource(Rez.Strings.Disconnected));
             return;
         }
-        if (!s.connected) {
-            drawCenterText(dc, WatchUi.loadResource(Rez.Strings.WaitingWheel));
-            drawHornLight(dc, s, /* enabled = */ false);
-            return;
-        }
 
-        // Main dial.
+        // Main dial. Drawn regardless of wheel-connection state; the
+        // wheel telemetry naturally zeros out when disconnected.
         SpeedGauge.draw(dc, s);
 
         // Order matters: PWM under speed, battery row under PWM, horn/light
@@ -162,7 +161,9 @@ class EucPlanetView extends WatchUi.View {
         // surrounding arc. Mirrors wear/.../WatchApp.kt layout 1:1.
         drawPwmBadge(dc, s);
         drawBatteryRow(dc, s);
-        drawHornLight(dc, s, /* enabled = */ true);
+        // Buttons greyed when no wheel is connected — same UX as the Wear OS
+        // dial: dial stays visible, controls show but read as inactive.
+        drawHornLight(dc, s, /* enabled = */ s.connected);
 
         if (s.navActive) {
             drawNavOverlay(dc, s);

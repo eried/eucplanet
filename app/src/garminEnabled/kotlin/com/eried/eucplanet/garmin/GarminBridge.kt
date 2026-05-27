@@ -119,15 +119,27 @@ class GarminBridge @Inject constructor(
     val pairedDevices: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedDevices
 
     /**
-     * Rolling 1-second window of successful CIQ sendMessage callbacks,
-     * exposed as a frames-per-second number for the Settings UI. The CIQ
-     * Mobile SDK throttles the actual delivery near 1 Hz regardless of how
-     * often we call sendMessage, so this surfaces the effective rate
-     * (i.e., what the rider's watch will actually update at).
+     * Rolling delivery-rate counter. Resets every second; the public flow
+     * holds the previous second's tally / paired-device count so the
+     * Settings UI shows ~1 Hz on the CIQ transport (which the SDK rate-
+     * caps near 1 Hz regardless of how often we call sendMessage). The
+     * Live/Idle indicator does NOT read from this — it reads from
+     * [lastSuccessAtMs] below, because a 1 Hz delivery aliased against a
+     * 1-second window would make this flag flip 0/1/0/1 and the UI badge
+     * would blink.
      */
     private val deliveredCount = java.util.concurrent.atomic.AtomicInteger(0)
     private val _deliveryRateHz = kotlinx.coroutines.flow.MutableStateFlow(0.0)
     val deliveryRateHz: kotlinx.coroutines.flow.StateFlow<Double> = _deliveryRateHz
+
+    /**
+     * Timestamp of the last successful sendMessage callback (ms since
+     * epoch). The Settings UI's Live/Idle badge derives from this with a
+     * 3-second tolerance, so a stable 1 Hz wire keeps the badge solid
+     * Live without sampling artifacts.
+     */
+    private val _lastSuccessAtMs = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    val lastSuccessAtMs: kotlinx.coroutines.flow.StateFlow<Long> = _lastSuccessAtMs
 
     fun start() {
         if (started) return
@@ -347,6 +359,7 @@ class GarminBridge @Inject constructor(
                 connectIQ.sendMessage(device, app, payload) { _, _, status ->
                     if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
                         deliveredCount.incrementAndGet()
+                        _lastSuccessAtMs.value = System.currentTimeMillis()
                     } else {
                         Log.d(TAG, "send to ${device.friendlyName}: $status")
                     }
