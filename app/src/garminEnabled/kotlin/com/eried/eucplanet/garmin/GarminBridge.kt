@@ -133,10 +133,16 @@ class GarminBridge @Inject constructor(
     val deliveryRateHz: kotlinx.coroutines.flow.StateFlow<Double> = _deliveryRateHz
 
     /**
-     * Timestamp of the last successful sendMessage callback (ms since
-     * epoch). The Settings UI's Live/Idle badge derives from this with a
-     * 3-second tolerance, so a stable 1 Hz wire keeps the badge solid
-     * Live without sampling artifacts.
+     * Timestamp of the last ALIVE heartbeat received from the watch (ms
+     * since epoch). Drives the Settings UI's Live/Idle badge with a
+     * generous 10-second tolerance — the watch heartbeats every 5 s, so
+     * 10 s tolerates one missed beat without flapping.
+     *
+     * Intentionally NOT updated from sendMessage success callbacks: in
+     * TETHERED mode (and occasionally in WIRELESS too) the SDK returns
+     * SUCCESS for writes into a half-dead local socket, producing a
+     * permanently-green Live badge even when the watch has stopped
+     * receiving. Watch-side ALIVE acks are the only end-to-end proof.
      */
     private val _lastSuccessAtMs = kotlinx.coroutines.flow.MutableStateFlow(0L)
     val lastSuccessAtMs: kotlinx.coroutines.flow.StateFlow<Long> = _lastSuccessAtMs
@@ -215,6 +221,60 @@ class GarminBridge @Inject constructor(
                 delay(PUBLISH_INTERVAL_MS)
             }
         }
+
+        // Ack watchdog. The CIQ TETHERED transport — and occasionally the
+        // WIRELESS one when Connect Mobile is sluggish — keeps reporting
+        // sendMessage SUCCESS into a half-dead socket. If we've heard at
+        // least one ALIVE before but nothing for 30 s while we're still
+        // pushing frames, the chain has gone silent and the transport
+        // needs to be rebuilt so a fresh socket can land.
+        scope.launch {
+            while (true) {
+                delay(5_000L)
+                val lastAck = _lastSuccessAtMs.value
+                if (lastAck == 0L) continue // never connected yet
+                val sinceAck = System.currentTimeMillis() - lastAck
+                if (sinceAck > 30_000L && sdkReady && registeredDevices.isNotEmpty()) {
+                    Log.w(TAG, "no watch ack for ${sinceAck}ms — resetting CIQ transport")
+                    resetTransport()
+                }
+            }
+        }
+    }
+
+    /** Tear down all device registrations + the CIQ SDK instance, then
+     *  re-initialize. Called from the ack watchdog when the watch has
+     *  gone silent for too long while we were still sending. */
+    private fun resetTransport() {
+        try {
+            for (device in registeredDevices.values) {
+                runCatching { connectIQ.unregisterForDeviceEvents(device) }
+                runCatching { connectIQ.unregisterForApplicationEvents(device, app) }
+            }
+            registeredDevices.clear()
+            _pairedDevices.value = emptyList()
+            runCatching { connectIQ.shutdown(context) }
+        } catch (e: Exception) {
+            Log.w(TAG, "transport reset (shutdown) failed", e)
+        }
+        sdkReady = false
+        try {
+            connectIQ.initialize(context, /* autoUi = */ false, object : ConnectIQ.ConnectIQListener {
+                override fun onSdkReady() {
+                    sdkReady = true
+                    Log.i(TAG, "Connect IQ SDK re-ready after reset")
+                    bindKnownDevices()
+                }
+                override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus) {
+                    Log.w(TAG, "CIQ re-init failed: $status")
+                }
+                override fun onSdkShutDown() {
+                    sdkReady = false
+                }
+            })
+        } catch (t: Throwable) {
+            Log.w(TAG, "transport reset (init) threw: ${t.message}")
+        }
     }
 
     /** Stop the bridge and release CIQ resources. Currently only called by
@@ -284,8 +344,16 @@ class GarminBridge @Inject constructor(
             else -> null
         } ?: return
 
-        Log.i(TAG, "control from Garmin ${device.friendlyName}: $cmd")
+        // ALIVE heartbeats are noisy; don't pollute logs every 5 s with them.
+        if (cmd != GarminControl.ALIVE) {
+            Log.i(TAG, "control from Garmin ${device.friendlyName}: $cmd")
+        }
         when {
+            cmd == GarminControl.ALIVE -> {
+                // End-to-end proof the watch app received our last frames.
+                // Drives the Live badge + the transport-reset watchdog.
+                _lastSuccessAtMs.value = System.currentTimeMillis()
+            }
             cmd == GarminControl.HORN -> wheelRepository.sendHorn()
             cmd == GarminControl.LIGHT_ON || cmd == GarminControl.LIGHT_OFF ->
                 wheelRepository.toggleLight()
@@ -295,6 +363,11 @@ class GarminBridge @Inject constructor(
                 val info = cmd.removePrefix(GarminControl.WATCH_INFO_PREFIX)
                 Log.i(TAG, "Garmin watch info: $info")
                 com.eried.eucplanet.diagnostics.DiagnosticsLogger.info("garmin: $info")
+                // The watch sends its info immediately on start, so treat
+                // this as the first "Live" signal too — saves the user
+                // staring at "Idle" for the first 5 s while the heartbeat
+                // timer warms up.
+                _lastSuccessAtMs.value = System.currentTimeMillis()
             }
             else -> Log.w(TAG, "unknown Garmin control: $cmd")
         }
@@ -360,8 +433,11 @@ class GarminBridge @Inject constructor(
             try {
                 connectIQ.sendMessage(device, app, payload) { _, _, status ->
                     if (status == ConnectIQ.IQMessageStatus.SUCCESS) {
+                        // Counts send-side attempts only; the Hz badge uses this
+                        // to show "what we're pushing". End-to-end delivery
+                        // is reflected by [_lastSuccessAtMs], which is updated
+                        // only when an ALIVE heartbeat lands.
                         deliveredCount.incrementAndGet()
-                        _lastSuccessAtMs.value = System.currentTimeMillis()
                     } else {
                         Log.d(TAG, "send to ${device.friendlyName}: $status")
                     }

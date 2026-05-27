@@ -54,7 +54,7 @@ import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
@@ -3693,7 +3693,9 @@ private fun StatusBadge(active: Boolean) {
     }
 }
 
-/** Compact update-rate indicator: refresh icon + Hz value. */
+/** Compact update-rate indicator: signal-bars icon + Hz value. The
+ *  signal-bars graphic reads as "live stream rate" and — crucially —
+ *  doesn't look tappable the way a refresh-arrows glyph does. */
 @Composable
 private fun RateBadge(hz: Double) {
     Row(
@@ -3701,7 +3703,7 @@ private fun RateBadge(hz: Double) {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.Refresh,
+            imageVector = Icons.Default.GraphicEq,
             contentDescription = null,
             modifier = Modifier.size(14.dp)
         )

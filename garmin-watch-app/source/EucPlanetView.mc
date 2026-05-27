@@ -249,15 +249,54 @@ class EucPlanetView extends WatchUi.View {
         var showNum = s.pwmDisplay.equals("NUMBERS") || s.pwmDisplay.equals("BOTH");
         var priority = s.prioritizePwm;
 
-        // Geometry per mode: wider bar + taller pill + bigger pct font
-        // when prioritized; original compact placement otherwise.
-        var y         = priority ? (h * 56) / 100 : (h * 50) / 100;
-        var barW      = priority ? (w * 60) / 100 : (w * 32) / 100;
-        var barH      = priority ? (h * 4)  / 100 : (h * 18) / 1000;
+        if (priority) {
+            // Priority layout: number centered above a wider centered bar,
+            // sitting at the dial's vertical midpoint so it reads as the
+            // focal element rather than a caption sitting beside the bar.
+            var barW = (w * 55) / 100;
+            var barH = (h * 4)  / 100;
+            if (barH < 6) { barH = 6; }
+            var pctFont = Graphics.FONT_TINY;
+            var pctH = Graphics.getFontHeight(pctFont);
+            var gap = 2;
+
+            // showNum-only and showBar-only fall back to the centered
+            // single-element rendering at the same vertical center (50%).
+            var totalH = (showNum ? pctH : 0)
+                       + (showNum && showBar ? gap : 0)
+                       + (showBar ? barH : 0);
+            var top = (h * 50) / 100 - (totalH / 2);
+
+            if (showNum) {
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                dc.drawText(cx, top, pctFont,
+                            pct.format("%d") + "%",
+                            Graphics.TEXT_JUSTIFY_CENTER);
+                top += pctH + gap;
+            }
+            if (showBar) {
+                var barX = cx - (barW / 2);
+                dc.setColor(SpeedGauge.COLOR_TRACK, Graphics.COLOR_TRANSPARENT);
+                dc.fillRoundedRectangle(barX, top, barW, barH, barH / 2);
+                var fillW = (barW * pct.toNumber()) / 100;
+                if (fillW > barW) { fillW = barW; }
+                if (fillW > 0) {
+                    dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                    dc.fillRoundedRectangle(barX, top, fillW, barH, barH / 2);
+                }
+            }
+            return;
+        }
+
+        // Default (non-priority) layout: thin bar with the % anchored to
+        // its right, vertically centered. Both pieces hug y=50%.
+        var y = (h * 50) / 100;
+        var barW = (w * 32) / 100;
+        var barH = (h * 18) / 1000;
         if (barH < 6) { barH = 6; }
-        var pctFont   = priority ? Graphics.FONT_NUMBER_MILD : Graphics.FONT_XTINY;
-        var pctOffset = priority ? (w * 5)  / 100 : (w * 3)  / 100;
-        var pctWReserve = priority ? (w * 22) / 100 : (w * 14) / 100;
+        var pctFont = Graphics.FONT_XTINY;
+        var pctOffset = (w * 3) / 100;
+        var pctWReserve = (w * 14) / 100;
 
         var groupW = showBar && showNum ? (barW + pctWReserve) : (showBar ? barW : pctWReserve);
         var groupX = cx - (groupW / 2);

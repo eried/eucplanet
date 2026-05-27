@@ -76,6 +76,12 @@ module Control {
     const LIGHT_OFF = "light_off";
     const ACTION_PREFIX = "action:";
     const WATCH_INFO_PREFIX = "info:";
+    //! Heartbeat the watch transmits every 5 s while the dial is on-screen.
+    //! The phone uses these acks (not sendMessage success callbacks) to
+    //! drive its Live indicator + delivery-rate badge — necessary because
+    //! TETHERED transport reports SUCCESS on write-to-local-socket even
+    //! when the simulator has dropped the receiving end.
+    const ALIVE = "alive";
     const PAYLOAD_KEY = "cmd";
 }
 

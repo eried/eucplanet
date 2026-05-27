@@ -2,6 +2,7 @@ using Toybox.Communications;
 using Toybox.Lang;
 using Toybox.System;
 using Toybox.Attention;
+using Toybox.Timer;
 
 //! Phone <-> watch transport. Mirrors wear/.../WatchBridgeService.kt + the
 //! relevant bits of WatchStateRepository.kt, just sitting on
@@ -12,6 +13,11 @@ using Toybox.Attention;
 //! wraps a control intent in `{Control.PAYLOAD_KEY: <intent>}` so the phone
 //! listener can route it the same way `PhoneGarminListenerService` does.
 class PhoneBridge {
+    //! Heartbeat timer. Fires every 5 s and transmits Control.ALIVE so the
+    //! phone can drive its Live indicator from actual end-to-end delivery
+    //! rather than CIQ sendMessage's misleading local-write success.
+    private var _aliveTimer as Timer.Timer? = null;
+
     function initialize() {}
 
     //! Wire the listener up. The View calls this in onShow() so the watch
@@ -20,10 +26,23 @@ class PhoneBridge {
     function start() as Void {
         Communications.registerForPhoneAppMessages(method(:onMessage));
         sendWatchInfo();
+        // Heartbeat. First ack goes out immediately so the phone's Live
+        // indicator doesn't wait 5 s for the bridge to come up.
+        transmitControl(Control.ALIVE);
+        _aliveTimer = new Timer.Timer();
+        _aliveTimer.start(method(:onAliveTick), 5000, /* repeat = */ true);
     }
 
     function stop() as Void {
         Communications.registerForPhoneAppMessages(null);
+        if (_aliveTimer != null) {
+            _aliveTimer.stop();
+            _aliveTimer = null;
+        }
+    }
+
+    function onAliveTick() as Void {
+        transmitControl(Control.ALIVE);
     }
 
     function onMessage(msg as Communications.PhoneAppMessage) as Void {

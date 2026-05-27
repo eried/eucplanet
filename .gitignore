@@ -38,3 +38,24 @@ delete.html
 **/build/eucplanet_*
 
 test-out/
+
+# Garmin watch-app monkeyc build artifacts (.prg, intermediate MIR, gen,
+# build logs). Source lives in garmin-watch-app/source/ and manifest.xml;
+# everything below is regenerable by monkeyc.
+/garmin-watch-app/prgs-out/
+/garmin-watch-app/gen/
+/garmin-watch-app/external-mir/
+/garmin-watch-app/internal-mir/
+/garmin-watch-app/*.prg
+/garmin-watch-app/*.prg.debug.xml
+/garmin-watch-app/*.iq
+/garmin-watch-app/build.out
+/garmin-watch-app/build.err
+/garmin-watch-app/iq-build.out
+/garmin-watch-app/iq-build.err
+
+# Local staging dir for `gh release upload`
+/release-upload/
+
+# Ad-hoc UI Automator dumps used while debugging
+/ui-emu.xml

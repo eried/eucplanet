@@ -93,6 +93,14 @@ internal object GarminControl {
     const val ACTION_PREFIX = "action:"
     /** Watch tells phone its build info on app launch, mirrors `/euc/watch_info`. */
     const val WATCH_INFO_PREFIX = "info:"
+    /** Heartbeat from the watch — sent every 5 s while the dial is on-screen.
+     *  The bridge uses these (not sendMessage success callbacks) to drive
+     *  the Live indicator + delivery-rate badge: in TETHERED mode the SDK
+     *  reports send-success on writes into a half-dead local socket, so
+     *  acks are the only end-to-end proof the watch is actually consuming
+     *  frames. After 30 s without an ack the bridge resets the CIQ
+     *  transport so a fresh socket can land. */
+    const val ALIVE = "alive"
     /** Dictionary key for incoming control payloads from the watch. */
     const val PAYLOAD_KEY = "cmd"
 }
