@@ -5,29 +5,234 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet</title>
 <meta name="description" content="No-nonsense, free, open-source EUC riding app: live telemetry, smart alarms, turn-by-turn navigation, video recorder with on-screen telemetry overlay, Wear OS dial. Tested on InMotion V14 and P6; preview support for KingSong, Begode, Veteran, Ninebot and more.">
+<meta name="theme-color" content="#0d1117">
+<meta property="og:title" content="EUC Planet">
+<meta property="og:description" content="A no-nonsense, open-source app for electric unicycles.">
+<meta property="og:image" content="feature_graphic.png">
+<meta property="og:type" content="website">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07090d;
+    --panel: rgba(22, 27, 34, 0.55);
+    --panel-strong: rgba(22, 27, 34, 0.78);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --text: #e6edf3;
+    --muted: #9aa4b2;
+    --accent: #58a6ff;
+    --accent-2: #2dd4bf;
+    --accent-3: #34d399;
+    --green: #238636;
+    --green-hi: #2ea043;
+    --blue: #1f6feb;
+    --blue-hi: #388bfd;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #0d1117;
-    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
     line-height: 1.6;
     min-height: 100vh;
-    padding: 48px 24px;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  .container { max-width: 680px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 40px; }
-  h1 { font-size: 40px; margin: 0 0 12px; font-weight: 700; letter-spacing: -0.5px; }
-  h1 a { color: inherit; text-decoration: none; }
-  h1 a:hover { color: #58a6ff; }
-  .tagline { color: #8b949e; font-size: 18px; margin: 0 0 28px; }
+
+  /* === BACKGROUND VIDEO LAYER === */
+  .bg-stage {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+    background: #000;
+  }
+  .bg-stage video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%) scale(1.18);
+    object-fit: cover;
+    filter: blur(16px) brightness(0.58) saturate(1.3) contrast(1.05);
+    will-change: transform;
+  }
+  /* Tint + vignette + colour wash on top of the video */
+  .bg-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 50% at 50% 30%, rgba(45, 212, 191, 0.28), transparent 65%),
+      radial-gradient(70% 50% at 90% 100%, rgba(88, 166, 255, 0.22), transparent 65%),
+      radial-gradient(50% 50% at 10% 0%, rgba(99, 102, 241, 0.18), transparent 60%),
+      linear-gradient(180deg, rgba(7, 9, 13, 0.42) 0%, rgba(7, 9, 13, 0.65) 50%, rgba(7, 9, 13, 0.82) 100%);
+  }
+  .bg-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 90% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.6) 100%);
+    pointer-events: none;
+  }
+
+  /* === LAYOUT === */
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+  /* === HERO === */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 76px 24px 24px;
+    margin-bottom: 0;
+    animation: hero-in 700ms cubic-bezier(.16,.84,.34,1) both;
+  }
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  /* Soft glow halo behind the title */
+  .halo {
+    position: absolute;
+    left: 50%;
+    top: 55%;
+    transform: translate(-50%, -50%);
+    width: min(720px, 95vw);
+    aspect-ratio: 1;
+    background:
+      radial-gradient(closest-side, rgba(45, 212, 191, 0.55), rgba(88, 166, 255, 0.28) 35%, transparent 65%);
+    filter: blur(24px);
+    z-index: -1;
+    pointer-events: none;
+    animation: halo-pulse 8s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  @keyframes halo-pulse {
+    0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+    50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.08); }
+  }
+  /* Tiny pill above the title — "open source · self-hosted feel" */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    margin: 0 0 22px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #c2d4e8;
+    background: rgba(22, 27, 34, 0.6);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  }
+  .eyebrow .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent-3);
+    box-shadow: 0 0 8px var(--accent-3);
+    animation: blink 2.2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+  }
+  /* "No" matches the colour of the cycling word */
+  .eyebrow .eb-no { color: #fff; }
+
+  /* Eyebrow word swap — smooth pill resize, RGB echo-trail glitch */
+  .eyebrow-swap {
+    display: inline-block;
+    /* clip-path instead of overflow:hidden so the baseline stays aligned with surrounding text */
+    clip-path: inset(0);
+    vertical-align: baseline;
+    line-height: inherit;
+    transition: width 380ms cubic-bezier(.65, 0, .35, 1);
+    white-space: nowrap;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .eyebrow-swap .word {
+    display: inline-block;
+    color: #fff;
+    line-height: 1;
+    position: relative;
+  }
+  .eyebrow-swap .word.glitching {
+    animation: echo-trail 380ms ease;
+  }
+  @keyframes echo-trail {
+    0%   { text-shadow: 0 0 transparent; }
+    25%  { text-shadow:  3px 0 rgba(45,225,255,0.7),  6px 0 rgba(45,225,255,0.4), -3px 0 rgba(255,45,138,0.7), -6px 0 rgba(255,45,138,0.4); }
+    50%  { text-shadow:  5px 0 rgba(45,225,255,0.6), 10px 0 rgba(45,225,255,0.3), -5px 0 rgba(255,45,138,0.6),-10px 0 rgba(255,45,138,0.3); }
+    75%  { text-shadow:  2px 0 rgba(45,225,255,0.7), -2px 0 rgba(255,45,138,0.7); }
+    100% { text-shadow: 0 0 transparent; }
+  }
+
+  h1 {
+    font-family: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: clamp(56px, 10vw, 104px);
+    margin: 0 0 14px;
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 0.92;
+    color: transparent;
+    filter:
+      drop-shadow(0 6px 22px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 44px rgba(45, 212, 191, 0.22));
+  }
+  h1 a { color: inherit; text-decoration: none; display: inline-block; }
+  h1 .word {
+    display: inline-block;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-repeat: no-repeat;
+  }
+  h1 .euc {
+    background-image: linear-gradient(135deg, #5eead4 0%, #58a6ff 55%, #a78bfa 100%);
+    background-size: 200% 100%;
+    animation: shimmer 7s ease-in-out infinite;
+  }
+  h1 .planet {
+    background-image: linear-gradient(180deg, #ffffff 0%, #c9d1d9 100%);
+    margin-left: 0.18em;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  h1 a:hover .planet {
+    background-image: linear-gradient(180deg, #ffffff 0%, #58a6ff 100%);
+  }
+
+  .tagline {
+    color: #d1d9e0;
+    font-size: clamp(16px, 2.2vw, 19px);
+    margin: 0 0 32px;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  }
+
   .links {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 8px;
     align-items: center;
   }
   a.btn {
@@ -35,47 +240,210 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 150px;
-    height: 44px;
-    margin: 0 5px;
-    background: #238636;
+    height: 46px;
+    padding: 0 20px;
+    min-width: 150px;
+    background: var(--green);
     color: #fff;
     text-decoration: none;
-    border-radius: 6px;
-    font-weight: 500;
-    box-sizing: border-box;
+    border-radius: 8px;
+    font-weight: 600;
     font-size: 14px;
+    border: 1px solid transparent;
+    transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
   }
-  a.btn:hover { background: #2ea043; }
-  a.btn.secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
-  a.btn.secondary:hover { background: #30363d; }
-  a.btn.blue { background: #1f6feb; color: #fff; }
-  a.btn.blue:hover { background: #388bfd; }
+  a.btn:hover { background: var(--green-hi); transform: translateY(-2px); }
+  a.btn:active { transform: translateY(0); }
+
+  a.btn.secondary {
+    background: rgba(33, 38, 45, 0.7);
+    border-color: var(--border-strong);
+    color: #d8dee5;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  a.btn.secondary:hover { background: rgba(48, 54, 61, 0.85); border-color: rgba(255, 255, 255, 0.28); }
+
+  a.btn.blue { background: var(--blue); }
+  a.btn.blue:hover { background: var(--blue-hi); }
+
+  a.btn.ghost {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border);
+    color: #cbd5e1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  a.btn.ghost:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--border-strong); }
+
   a.btn svg { flex-shrink: 0; }
-  a.btn.btn-play { padding: 0; overflow: hidden; background: transparent; }
-  a.btn.btn-play:hover { background: transparent; }
+
+  a.btn.btn-play {
+    padding: 0; overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+    min-width: 0;
+    width: 160px;
+  }
+  a.btn.btn-play:hover { background: transparent; transform: translateY(-2px); }
   a.btn.btn-play img { height: 150%; width: auto; display: block; }
-  .links.secondary-row { margin-top: 16px; margin-bottom: 0; }
-  section { margin-top: 36px; }
-  h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; color: #e6edf3; }
-  p, li { color: #c9d1d9; }
+
+  .links.secondary-row { margin-top: 18px; }
+
+  /* === TOOLBAR (project links) === */
+  .toolbar {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 6px;
+    gap: 2px;
+    background: rgba(22, 27, 34, 0.65);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  }
+  .toolbar .tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 9px;
+    transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    position: relative;
+    white-space: nowrap;
+  }
+  .toolbar .tool svg { flex-shrink: 0; opacity: 0.78; transition: opacity 160ms ease; }
+  .toolbar .tool:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+  }
+  .toolbar .tool:hover svg { opacity: 1; }
+
+  /* Primary action stands out subtly */
+  .toolbar .tool.tool-primary {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(35, 134, 54, 0.85), rgba(46, 160, 67, 0.85));
+    box-shadow: 0 4px 14px rgba(35, 134, 54, 0.35);
+  }
+  .toolbar .tool.tool-primary:hover {
+    background: linear-gradient(135deg, rgba(46, 160, 67, 0.95), rgba(63, 185, 80, 0.95));
+    transform: translateY(-1px);
+  }
+  .toolbar .tool.tool-primary svg { opacity: 1; }
+
+  /* === SECTIONS === */
+  section {
+    margin-top: 28px;
+    position: relative;
+  }
+  section + section { margin-top: 48px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .section-head h2 {
+    font-size: clamp(20px, 2.6vw, 24px);
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .section-head .accent-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    box-shadow: 0 0 14px rgba(45, 212, 191, 0.6);
+    flex-shrink: 0;
+  }
+  .section-head .rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-strong), transparent);
+  }
+
+  p, li { color: var(--muted); }
+  p strong, li strong { color: #d8dee5; font-weight: 600; }
   ul { padding-left: 20px; margin: 0; }
   li { margin-bottom: 6px; }
+
+  /* === LEAD COPY (frosted) === */
+  .lead {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  }
+  .lead p { margin: 0; color: #c9d1d9; }
+  .lead p + p { margin-top: 10px; }
+
+  /* === CARDS === */
   .features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
+    gap: 14px;
   }
   .card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 16px 18px;
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    backdrop-filter: blur(14px) saturate(1.1);
+    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    overflow: hidden;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
   }
-  .card h3 { font-size: 15px; margin: 0 0 6px; font-weight: 600; color: #e6edf3; }
-  .card p { font-size: 14px; color: #8b949e; margin: 0; }
-  .card p a { color: #58a6ff; text-decoration: underline; }
-  .card p a:hover { color: #79b8ff; }
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 40%);
+    -webkit-mask: linear-gradient(#000, #000) content-box, linear-gradient(#000, #000);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(88, 166, 255, 0.35);
+    background: rgba(22, 27, 34, 0.7);
+  }
+  .card h3 {
+    font-size: 15px;
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card h3::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    box-shadow: 0 0 8px rgba(45, 212, 191, 0.55);
+  }
+  .card p { font-size: 14px; color: #9aa4b2; margin: 0; }
+  .card p a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(88, 166, 255, 0.4); }
+  .card p a:hover { color: #79b8ff; text-decoration-color: currentColor; }
+
+  /* === GALLERIES === */
   .gallery-featured {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -90,94 +458,247 @@
   .gallery-wear {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    max-width: 540px;
+    gap: 14px;
+    max-width: 560px;
     margin: 0 auto;
   }
-  .gallery-wear a { display: block; line-height: 0; }
+  .gallery-featured a, .gallery-thumbs a, .gallery-wear a {
+    display: block;
+    line-height: 0;
+    position: relative;
+  }
+  .gallery-featured img, .gallery-thumbs img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-strong);
+    background: #161b22;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  }
+  .gallery-thumbs img { border-radius: 10px; }
+  .gallery-featured a:hover img, .gallery-thumbs a:hover img {
+    transform: translateY(-3px) scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 14px 36px rgba(88, 166, 255, 0.25);
+  }
   .gallery-wear img {
     width: 100%;
     height: auto;
     border-radius: 50%;
-    border: 1px solid #30363d;
+    border: 1px solid var(--border-strong);
     background: #000;
-    transition: transform 120ms ease, border-color 120ms ease;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
   }
   .gallery-wear a:hover img {
-    transform: translateY(-2px);
-    border-color: #58a6ff;
+    transform: translateY(-3px);
+    border-color: var(--accent-2);
+    box-shadow: 0 10px 28px rgba(45, 212, 191, 0.3);
   }
-  .gallery-featured a, .gallery-thumbs a { display: block; line-height: 0; }
-  .gallery-featured img, .gallery-thumbs img {
-    width: 100%;
+
+  /* === SCROLL REVEAL === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(.16,.84,.34,1);
+    will-change: opacity, transform;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* === LIGHTBOX === */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    cursor: zoom-out;
+    animation: lb-in 220ms ease both;
+  }
+  .lightbox.open { display: flex; }
+  @keyframes lb-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  .lightbox img {
+    max-width: min(92vw, 480px);
+    max-height: 88vh;
+    width: auto;
     height: auto;
-    border-radius: 10px;
-    border: 1px solid #30363d;
-    background: #161b22;
-    transition: transform 120ms ease, border-color 120ms ease;
+    border-radius: 16px;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(88, 166, 255, 0.18);
+    animation: lb-zoom 280ms cubic-bezier(.16,.84,.34,1) both;
   }
-  .gallery-thumbs img { border-radius: 8px; }
-  .gallery-featured a:hover img, .gallery-thumbs a:hover img {
-    transform: translateY(-2px);
-    border-color: #58a6ff;
+  .lightbox img.is-wear { border-radius: 50%; max-width: min(80vw, 320px); }
+  @keyframes lb-zoom {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border-strong);
+    background: rgba(22, 27, 34, 0.6);
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .lightbox-close:hover { background: rgba(48, 54, 61, 0.85); }
+
+  /* === FOOTER === */
+  footer {
+    margin-top: 64px;
+    padding: 28px 24px 40px;
+    text-align: center;
+    color: #6e7681;
+    font-size: 13px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 540px) {
+    header { padding: 64px 16px 36px; }
+    .gallery-featured, .gallery-thumbs { grid-template-columns: repeat(2, 1fr); }
+    .gallery-wear { grid-template-columns: repeat(4, 1fr); }
+    .bg-stage video { filter: blur(13px) brightness(0.55) saturate(1.25); }
+    a.btn { min-width: 0; padding: 0 16px; }
+    .toolbar { border-radius: 12px; padding: 5px; }
+    .toolbar .tool { padding: 9px 12px; font-size: 13px; }
+  }
+
+  /* === REDUCED MOTION === */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .halo, .live-dot, header { animation: none; }
+    .bg-stage video { display: none; }
+    .bg-stage {
+      background:
+        url("media/bg-loop-poster.jpg") center/cover no-repeat,
+        #000;
+      filter: blur(16px) brightness(0.58) saturate(1.3);
+      transform: scale(1.18);
+    }
+    .card, a.btn { transition: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
   }
 </style>
 </head>
 <body>
+
+<!-- Background video layer -->
+<div class="bg-stage" aria-hidden="true">
+  <video
+    autoplay muted loop playsinline preload="auto"
+    poster="media/bg-loop-poster.jpg"
+    disableremoteplayback>
+    <source src="media/bg-loop.mp4" type="video/mp4">
+    <source src="media/bg-loop.webm" type="video/webm">
+  </video>
+</div>
+
 <div class="container">
   <header>
-    <h1><a href="https://eucplanet.ried.no">EUC Planet</a></h1>
+    <div class="halo" aria-hidden="true"></div>
+    <span class="eyebrow"><span class="live-dot" aria-hidden="true"></span><span>Open source &middot; <span class="eb-no">No</span>&nbsp;<span class="eyebrow-swap" id="eyebrowSwap"><span class="word">SUBSCRIPTIONS</span></span></span></span>
+    <h1><a href="https://eucplanet.ried.no"><span class="word euc">EUC</span><span class="word planet">Planet</span></a></h1>
     <p class="tagline">A no-nonsense, open-source app for electric unicycles.</p>
     <div class="links">
       <a class="btn btn-play" href="https://play.google.com/store/apps/details?id=com.eried.eucplanet" aria-label="Get it on Google Play">
         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play">
       </a>
-      <a class="btn" href="https://github.com/eried/eucplanet/releases">Download APK</a>
-      <a class="btn secondary" href="https://github.com/eried/eucplanet">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-        Source code
-      </a>
     </div>
   </header>
 
-  <section>
-    <p>Free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.</p>
-    <p>Live telemetry, turn-by-turn navigation, a video recorder with on-screen telemetry overlay, a Wear OS dial, and a trip recorder. Modern, fast, all in one app.</p>
-    <div class="links secondary-row">
-      <a class="btn blue" href="https://ideas.ried.no/euc-planet">Share an idea</a>
-      <a class="btn blue" href="https://eucviewer.ried.no">Trip viewer</a>
-      <a class="btn blue" href="https://t.me/EUCPlanetApp">Telegram</a>
+  <section class="reveal">
+    <div class="lead">
+      <p>Free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.</p>
+      <p>Live telemetry, turn-by-turn navigation, a video recorder with on-screen telemetry overlay, a Wear OS dial, and a trip recorder. Modern, fast, all in one app.</p>
     </div>
+    <nav class="toolbar" aria-label="Project links">
+      <a class="tool" href="https://github.com/eried/eucplanet" aria-label="Source code on GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+        <span>Source</span>
+      </a>
+      <a class="tool" href="https://t.me/EUCPlanetApp">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 6.9-1.5 7.4c-.1.5-.4.6-.9.4l-2.5-1.9-1.2 1.2c-.1.1-.3.2-.5.2l.2-2.7 5-4.5c.2-.2 0-.3-.3-.1L8.4 12 6 11.2c-.5-.2-.5-.5.1-.7l9.7-3.7c.4-.2.8.1.7.6Z"/></svg>
+        <span>Telegram</span>
+      </a>
+      <a class="tool tool-primary" href="https://github.com/eried/eucplanet/releases">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42L11 13.6V4a1 1 0 0 1 1-1Zm-7 15a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z"/></svg>
+        <span>Download APK</span>
+      </a>
+      <a class="tool" href="https://eucviewer.ried.no">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 3a1 1 0 0 1 1 1v15h16a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm17.3 4.3a1 1 0 0 1 0 1.4l-5 5a1 1 0 0 1-1.4 0L11 10.4l-3.3 3.3a1 1 0 1 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0L14.6 11l4.3-4.3a1 1 0 0 1 1.4 0Z"/></svg>
+        <span>Trip viewer</span>
+      </a>
+      <a class="tool" href="https://ideas.ried.no/euc-planet">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a7 7 0 0 0-4.2 12.6c.7.5 1.2 1.4 1.2 2.3V18a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1.1c0-.9.5-1.8 1.2-2.3A7 7 0 0 0 12 2Zm-2 19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-.5h-4Z"/></svg>
+        <span>Ideas</span>
+      </a>
+    </nav>
   </section>
 
-  <section>
-    <h2>A look inside</h2>
+  <section class="reveal">
+    <div class="section-head">
+      <span class="accent-dot"></span>
+      <h2>A look inside</h2>
+      <span class="rule"></span>
+    </div>
     <div class="gallery-featured">
-      <a href="screenshots/dashboard.png"><img src="screenshots/dashboard.png" alt="Dashboard with speed dial and live tiles"></a>
-      <a href="screenshots/navigator.png"><img src="screenshots/navigator.png" alt="Turn-by-turn navigator with multi-stop route"></a>
-      <a href="screenshots/studio.png"><img src="screenshots/studio.png" alt="Overlay Studio: video recorder with telemetry"></a>
-      <a href="screenshots/compare.png"><img src="screenshots/compare.png" alt="Compare live data against past rides"></a>
+      <a href="screenshots/dashboard.png"><img src="screenshots/dashboard.png" alt="Dashboard with speed dial and live tiles" loading="lazy"></a>
+      <a href="screenshots/navigator.png"><img src="screenshots/navigator.png" alt="Turn-by-turn navigator with multi-stop route" loading="lazy"></a>
+      <a href="screenshots/studio.png"><img src="screenshots/studio.png" alt="Overlay Studio: video recorder with telemetry" loading="lazy"></a>
+      <a href="screenshots/compare.png"><img src="screenshots/compare.png" alt="Compare live data against past rides" loading="lazy"></a>
     </div>
     <div class="gallery-thumbs">
-      <a href="screenshots/trips.png"><img src="screenshots/trips.png" alt="Trip list"></a>
-      <a href="screenshots/studio-export.png"><img src="screenshots/studio-export.png" alt="Studio transparent-overlay export"></a>
-      <a href="screenshots/navigator-sat.png"><img src="screenshots/navigator-sat.png" alt="Navigator over satellite imagery"></a>
-      <a href="screenshots/settings.png"><img src="screenshots/settings.png" alt="Custom units, themes and accent colors"></a>
+      <a href="screenshots/trips.png"><img src="screenshots/trips.png" alt="Trip list" loading="lazy"></a>
+      <a href="screenshots/studio-export.png"><img src="screenshots/studio-export.png" alt="Studio transparent-overlay export" loading="lazy"></a>
+      <a href="screenshots/navigator-sat.png"><img src="screenshots/navigator-sat.png" alt="Navigator over satellite imagery" loading="lazy"></a>
+      <a href="screenshots/settings.png"><img src="screenshots/settings.png" alt="Custom units, themes and accent colors" loading="lazy"></a>
     </div>
   </section>
 
-  <section>
-    <h2>On the wrist</h2>
+  <section class="reveal">
+    <div class="section-head">
+      <span class="accent-dot"></span>
+      <h2>On the wrist</h2>
+      <span class="rule"></span>
+    </div>
     <div class="gallery-wear">
-      <a href="screenshots/wear-dash.png"><img src="screenshots/wear-dash.png" alt="Wear OS speed dial"></a>
-      <a href="screenshots/wear-details.png"><img src="screenshots/wear-details.png" alt="Wear OS telemetry detail"></a>
-      <a href="screenshots/wear-navigation.png"><img src="screenshots/wear-navigation.png" alt="Wear OS turn arrow"></a>
-      <a href="screenshots/wear-goal.png"><img src="screenshots/wear-goal.png" alt="Wear OS goal reached flag"></a>
+      <a href="screenshots/wear-dash.png"><img src="screenshots/wear-dash.png" alt="Wear OS speed dial" loading="lazy"></a>
+      <a href="screenshots/wear-details.png"><img src="screenshots/wear-details.png" alt="Wear OS telemetry detail" loading="lazy"></a>
+      <a href="screenshots/wear-navigation.png"><img src="screenshots/wear-navigation.png" alt="Wear OS turn arrow" loading="lazy"></a>
+      <a href="screenshots/wear-goal.png"><img src="screenshots/wear-goal.png" alt="Wear OS goal reached flag" loading="lazy"></a>
     </div>
   </section>
 
-  <section>
-    <h2>Built different</h2>
+  <section class="reveal">
+    <div class="section-head">
+      <span class="accent-dot"></span>
+      <h2>Built different</h2>
+      <span class="rule"></span>
+    </div>
     <div class="features">
       <div class="card">
         <h3>Turn-by-turn navigator</h3>
@@ -222,6 +743,196 @@
     </div>
   </section>
 
+  <footer>
+    <p><span id="sig">Built with stubbornness and no spreadsheets.</span><br>
+    <a href="privacy.html">Privacy</a> &middot; <a href="service.html">Terms</a> &middot; <a href="https://github.com/eried/eucplanet">GitHub</a></p>
+  </footer>
+
 </div>
+
+<!-- Lightbox overlay (filled by JS on click) -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot viewer" aria-hidden="true">
+  <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+  <img alt="" src="">
+</div>
+
+<script>
+  // Eyebrow Echo-trail cycle — RGB ghosting + smooth pill resize
+  (function () {
+    var swap = document.getElementById('eyebrowSwap');
+    if (!swap) return;
+    var WORDS = ['SUBSCRIPTIONS', 'PAYWALLED FEATURES', 'NONSENSE', 'MONTHLY FEES', 'TRACKING', 'MICROTRANSACTIONS', 'ANNOYING SPLASH SCREENS', 'ADS'];
+    var HOLD_MS = 2400;
+    var RESIZE_MS = 380;
+    var GLITCH_MS = 380;
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var word = swap.querySelector('.word');
+
+    var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+
+    // Measure target width using a hidden clone of the swap inside the SAME parent —
+    // this picks up the correct inherited font / letter-spacing / text-transform.
+    // Wrap it so it's removed from flex layout but still inherits text styles.
+    var measureHost = document.createElement('span');
+    measureHost.setAttribute('aria-hidden', 'true');
+    measureHost.style.cssText = 'position:absolute; left:-9999px; top:0; visibility:hidden; white-space:nowrap;';
+    var clone = swap.cloneNode(true);
+    clone.id = '';
+    clone.style.cssText = 'display:inline-block; width:auto; transition:none; overflow:visible; height:auto;';
+    measureHost.appendChild(clone);
+    swap.parentNode.appendChild(measureHost);
+    var cloneWord = clone.querySelector('.word');
+    function measure(text) { cloneWord.textContent = text; return clone.offsetWidth; }
+
+    swap.style.width = measure(word.textContent) + 'px';
+
+    async function glitch() {
+      word.classList.add('glitching');
+      await sleep(GLITCH_MS);
+      word.classList.remove('glitching');
+      void word.offsetWidth; // reset animation
+    }
+
+    async function cycle() {
+      if (prefersReduced) { return; }
+      var idx = 0;
+      while (true) {
+        await sleep(HOLD_MS);
+        // 1. glitch the current word in place
+        await glitch();
+        // 2. fade out
+        word.style.transition = 'opacity 140ms ease';
+        word.style.opacity = '0';
+        await sleep(140);
+        // 3. swap text (still invisible)
+        idx = (idx + 1) % WORDS.length;
+        var next = WORDS[idx];
+        word.textContent = next;
+        // 4. pill resizes smoothly
+        swap.style.width = measure(next) + 'px';
+        await sleep(RESIZE_MS);
+        // 5. fade in + glitch
+        word.style.opacity = '1';
+        await sleep(80);
+        await glitch();
+      }
+    }
+    cycle();
+  })();
+
+  // Keep the bg loop playing after tab throttle / Safari first-frame stalls
+  (function () {
+    var v = document.querySelector('.bg-stage video');
+    if (!v) return;
+    var kick = function () { v.play().catch(function () {}); };
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) kick();
+    });
+    v.addEventListener('canplay', kick, { once: true });
+  })();
+
+  // Scroll reveal
+  (function () {
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var items = document.querySelectorAll('.reveal');
+    if (prefersReduced || !('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+
+  // Random signature
+  (function () {
+    var sig = document.getElementById('sig');
+    if (!sig) return;
+    var lines = [
+      // Personal / origin
+      "Made by a Chilean guy living in Norway.",
+      "Made for my InMotion V14 but you can have it too.",
+      "Approved by exactly one rider. Hi.",
+      "Probably the only EUC app written under the northern lights.",
+      "Built on burgers, fjords, and battery anxiety.",
+      "No VCs were funded in the making of this app.",
+      "Royale with cheese. (And free.)",
+      "Built between rides and double cheeseburgers.",
+      "If this app crashes, I owe you a burger.",
+      "Open source so you can blame the dev directly.",
+      "If this app crashes, I do too. Open an issue.",
+      "Built one commit at a time. Mostly at night.",
+      "Engineered to glance at, not pay for.",
+      "Made between rides.",
+      "It's not a side project, it's a way of life.",
+      // Movie quotes (lightly EUC-ified)
+      "I'll be back. (Just charging real quick.)",                            // Terminator
+      "Come with me if you want to ride.",                                    // Terminator
+      "Hasta la vista, subscription model.",                                  // Terminator
+      "Yeah, well, you know, that's just like... my app, man.",               // Big Lebowski
+      "The app abides.",                                                      // Big Lebowski
+      "Made by a dude who really ties the EUC together.",                     // Big Lebowski
+      "There is no fee. (Free as in beer, free as in source.)",               // Matrix
+      "Unfortunately, no one can be told what an EUC is. You have to ride.",  // Matrix
+      "Made by a guy from Chile who moved to Norway. Mmkay?",                 // South Park
+      "As you wish. (Free.)",                                                 // Princess Bride
+      "Inconceivable! And yet, open source.",                                 // Princess Bride
+      "These aren't the ads you're looking for.",                             // Star Wars
+      "Crazy about my V14, not about Mary.",                                  // There's Something About Mary
+      "Don't panic. The towel-folding feature is in v2.",                     // Hitchhiker's Guide
+      "Soy un campeón. (In Norway.)"                                          // Torrente
+    ];
+    sig.textContent = lines[Math.floor(Math.random() * lines.length)];
+  })();
+
+  // Lightbox
+  (function () {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    var lbImg = lb.querySelector('img');
+    var lbClose = lb.querySelector('.lightbox-close');
+
+    function open(href, alt, isWear) {
+      lbImg.src = href;
+      lbImg.alt = alt || '';
+      lbImg.classList.toggle('is-wear', !!isWear);
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden', 'true');
+      lbImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.gallery-featured a, .gallery-thumbs a, .gallery-wear a').forEach(function (a) {
+      a.addEventListener('click', function (ev) {
+        var href = a.getAttribute('href') || '';
+        if (!/\.(png|jpe?g|webp|gif)$/i.test(href)) return;
+        ev.preventDefault();
+        var img = a.querySelector('img');
+        var alt = img ? img.getAttribute('alt') : '';
+        var isWear = a.parentElement && a.parentElement.classList.contains('gallery-wear');
+        open(href, alt, isWear);
+      });
+    });
+    lb.addEventListener('click', function (ev) {
+      if (ev.target === lb) close();
+    });
+    lbClose.addEventListener('click', close);
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && lb.classList.contains('open')) close();
+    });
+  })();
+</script>
+
 </body>
 </html>
