@@ -1,0 +1,76 @@
+package com.eried.eucplanet.hud.net
+
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.LruCache
+import com.eried.eucplanet.hud.protocol.HudDiscovery
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
+
+/**
+ * HUD-side tile fetch + cache.
+ *
+ * Talks to the phone's `/tiles/{z}/{x}/{y}` endpoint (forwarded from
+ * CartoCDN by [com.eried.eucplanet.service.hud.TileFetcher]). One cache
+ * instance per paired peer URL; switching peers throws the bitmaps away so a
+ * stale phone's tiles never bleed into a new pairing.
+ *
+ * LRU keeps memory bounded: 64 tiles × ~30 KB each = ~2 MB, comfortably below
+ * what the HUD has to spare. Tiles outside the cache fall through to the
+ * "checkerboard" placeholder in [com.eried.eucplanet.hud.ui.screens.MapScreen]
+ * until they load.
+ */
+class HudTileCache(private val peer: String?) {
+
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(3, TimeUnit.SECONDS)
+        .readTimeout(8, TimeUnit.SECONDS)
+        .build()
+
+    private val cache = object : LruCache<String, Bitmap>(64) {
+        override fun sizeOf(key: String, value: Bitmap): Int = 1
+    }
+    /** Tiles currently being fetched, keyed by the canonical "z/x/y" string.
+     *  Prevents the per-frame requestTile call from spawning duplicate fetches. */
+    private val inflight = ConcurrentHashMap.newKeySet<String>()
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    fun peek(z: Int, x: Int, y: Int): Bitmap? = cache.get(key(z, x, y))
+
+    /** Queue a tile fetch if not already cached or in flight. [onLoaded] is
+     *  invoked on the IO dispatcher after the bitmap lands in the cache, so
+     *  the Compose caller can trigger a recomposition (a tick counter is
+     *  enough; see MapScreen). */
+    fun requestTile(z: Int, x: Int, y: Int, onLoaded: () -> Unit) {
+        val k = key(z, x, y)
+        if (cache.get(k) != null) return
+        if (!inflight.add(k)) return
+        val base = peer ?: run { inflight.remove(k); return }
+        scope.launch {
+            try {
+                val url = "http://$base${HudDiscovery.PATH_TILES_PREFIX}/$z/$x/$y"
+                val req = Request.Builder().url(url).build()
+                client.newCall(req).execute().use { resp ->
+                    if (!resp.isSuccessful) return@launch
+                    val bytes = resp.body?.bytes() ?: return@launch
+                    val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@launch
+                    cache.put(k, bmp)
+                    onLoaded()
+                }
+            } catch (_: Throwable) {
+                // Network blip; we'll retry on the next viewport-change pass.
+            } finally {
+                inflight.remove(k)
+            }
+        }
+    }
+
+    private fun key(z: Int, x: Int, y: Int): String = "$z/$x/$y"
+}

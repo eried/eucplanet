@@ -30,8 +30,12 @@
     <!-- Notifications (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- Internet (WebView for trip viewer) -->
+    <!-- Internet (WebView for trip viewer; also the HUD companion server) -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- HUD companion server: JmDNS joins the 224.0.0.251 multicast group to
+         advertise _eucplanet._tcp on the phone hotspot subnet. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.VIBRATE" />
 

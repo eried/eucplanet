@@ -334,6 +334,24 @@ data class AppSettings(
      */
     val watchShowNavigation: Boolean = true,
 
+    // --- HUD companion (paired via WiFi hotspot, see HudServer) ---
+    /**
+     * Master switch for the in-app HTTP/SSE server that feeds an external HUD
+     * (e.g. an aftermarket E6-class motorcycle HUD) over the phone's WiFi
+     * hotspot. Off by default; lighting it up opens a listening socket and an
+     * mDNS advertisement only while [WheelService] is running. The HUD itself
+     * is a separate APK (`:hud` module), the phone is the data source.
+     */
+    val hudServerEnabled: Boolean = false,
+    /**
+     * TCP port the HUD server binds to. Default mirrors `HudDiscovery.DEFAULT_PORT`.
+     * Exposed as a setting only because some carrier-grade hotspots refuse to
+     * route certain port ranges; riders rarely need to touch it.
+     */
+    val hudServerPort: Int = 28080,
+    /** Mirror the live navigation popup on the HUD when [hudServerEnabled]. */
+    val hudShowNavigation: Boolean = true,
+
     // --- Motor Sound generator ---
     //
     // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes

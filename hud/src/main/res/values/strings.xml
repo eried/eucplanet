@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EUC Planet</string>
+    <string name="hud_screen_dashboard">Dashboard</string>
+    <string name="hud_screen_camera">Rear camera</string>
+    <string name="hud_screen_map">Map</string>
+    <string name="hud_screen_nav">Navigator</string>
+    <string name="hud_status_searching">Searching for phone…</string>
+    <string name="hud_status_paired">Paired with %1$s</string>
+    <string name="hud_status_disconnected">Phone disconnected</string>
+    <string name="hud_status_press_center_to_pair">Press OK to pair</string>
+    <string name="hud_dash_battery">Battery</string>
+    <string name="hud_dash_voltage">Volts</string>
+    <string name="hud_dash_pwm">PWM</string>
+    <string name="hud_dash_temp">Temp</string>
+    <string name="hud_dash_trip">Trip</string>
+    <string name="hud_dash_gps">GPS</string>
+    <string name="hud_camera_unavailable">Rear camera not available on this HUD</string>
+    <string name="hud_map_offline">Map tiles not reachable (phone has no internet?)</string>
+    <string name="hud_nav_idle">No active route</string>
+    <string name="hud_nav_arrived">You have arrived</string>
+</resources>

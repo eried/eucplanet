@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
@@ -111,6 +112,26 @@ dependencies {
     if (embedWear) {
         "releaseWearApp"(project(":wear"))
     }
+
+    // Shared wire-format types for the HUD companion app. Lives in its own
+    // module so the phone and the HUD compile against the same Kotlin
+    // classes, no manual JSON parity drift.
+    implementation(project(":hud-protocol"))
+    implementation(libs.kotlinx.serialization.json)
+
+    // Embedded HTTP/SSE server. Off by default; lit up by HudServer when the
+    // rider toggles "HUD server" in Settings.
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.status.pages)
+
+    // OkHttp powers the HudServer tile-proxy. The phone fetches map tiles
+    // from the public CDN over its data connection and forwards them to the
+    // HUD over the hotspot, so the HUD never needs its own internet plan.
+    implementation(libs.okhttp)
+
+    // mDNS advertisement for _eucplanet._tcp on the phone hotspot subnet.
+    implementation(libs.jmdns)
 
     // Compose
     val composeBom = platform(libs.compose.bom)

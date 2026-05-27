@@ -102,6 +102,17 @@
     <string name="tab_watch">Watch</string>
     <string name="tab_cloud">Backup settings &amp; trips</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_general">General</string>
+    <string name="section_hud_network">Network</string>
+    <string name="hud_server_enabled">HUD companion server</string>
+    <string name="hud_server_enabled_desc">Stream telemetry to a paired aftermarket HUD over the phone\'s WiFi hotspot. Off by default.</string>
+    <string name="hud_server_port">Server port</string>
+    <string name="hud_server_port_desc">Default 28080. Change only if another app on this phone listens on the same port.</string>
+    <string name="hud_show_navigation">Mirror turn-by-turn</string>
+    <string name="hud_show_navigation_desc">Show the next-turn arrow on the HUD\'s Navigator screen.</string>
+    <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>

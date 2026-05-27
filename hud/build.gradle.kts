@@ -1,0 +1,120 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
+}
+
+val keystorePropsFile = rootProject.file("keystore.properties")
+val keystoreProps = Properties().apply {
+    if (keystorePropsFile.exists()) {
+        FileInputStream(keystorePropsFile).use { load(it) }
+    }
+}
+
+android {
+    namespace = "com.eried.eucplanet.hud"
+    compileSdk = 35
+
+    defaultConfig {
+        // The Motoeye E6 is an aftermarket motorcycle/EUC HUD running stock-ish
+        // Android (AA-style). It's not a watch and never ships through Play, so
+        // we keep a distinct applicationId rather than riding on the phone one.
+        // That way a rider can have both apps installed side by side on a
+        // tablet during development without one masking the other.
+        applicationId = "com.eried.eucplanet.hud"
+        // Motoeye E6 ships with Android 11 (API 30). minSdk 29 keeps room for
+        // any earlier variant; targetSdk 33 because the device firmware doesn't
+        // surface API 34's foreground-service typing rigorously.
+        minSdk = 29
+        targetSdk = 33
+        // Offset by 300000 so the HUD APK's version line never collides with
+        // the phone (1..99999) or the wear companion (100000-prefixed) when
+        // both are visible in the same release notes.
+        versionCode = 300001
+        versionName = "0.1.0"
+    }
+
+    signingConfigs {
+        if (keystoreProps.isNotEmpty()) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            if (keystoreProps.isNotEmpty()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+}
+
+dependencies {
+    implementation(project(":hud-protocol"))
+
+    val composeBom = platform(libs.compose.bom)
+    implementation(composeBom)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
+    debugImplementation(libs.compose.ui.tooling)
+
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
+
+    implementation(libs.lifecycle.runtime)
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.lifecycle.viewmodel.compose)
+
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+
+    implementation(libs.kotlinx.serialization.json)
+
+    // OkHttp for the long-lived SSE stream to the phone. Stays connected for
+    // hours, reconnects on hotspot blips. We use the sse module's EventSource.
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.sse)
+
+    // JmDNS for resolving the phone's _eucplanet._tcp advertisement on the
+    // hotspot subnet. Same library on both ends keeps behaviour identical.
+    implementation(libs.jmdns)
+
+    // CameraX for the rear-camera screen. The Motoeye exposes the rear cam
+    // through the standard camera2 HAL.
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+}

@@ -424,7 +424,11 @@ fun SettingsScreen(
         titleIntegration,
         stringResource(R.string.section_flic_buttons),
         stringResource(R.string.section_volume_keys),
-        stringResource(R.string.volume_keys_enable)
+        stringResource(R.string.volume_keys_enable),
+        stringResource(R.string.section_hud_general),
+        stringResource(R.string.section_hud_network),
+        stringResource(R.string.hud_server_enabled),
+        stringResource(R.string.hud_search_corpus)
     ).joinToString(" ")
 
     val corpusNavigator = listOf(
@@ -1494,6 +1498,9 @@ private fun FlicTab(
         }
         }   // end volumeKeysEnabled BringIntoViewSection
 
+        settingsViewModel.settings.collectAsState().value?.let { s ->
+            HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+        }
     }
 }
 
@@ -3388,4 +3395,69 @@ private fun RestorePickerDialog(
             }
         }
     )
+}
+
+// --- HUD section (lives inside the Integration tab) ---
+
+/**
+ * HUD companion settings, surfaced as a section at the bottom of the
+ * Integration tab next to Flic 2 buttons and Volume keys.
+ *
+ * Intentionally minimal in v0.1 — one master switch plus the port and a
+ * mirror-navigation toggle. Anything else is wired to the same shared
+ * settings the phone already exposes (units, accent, gauge thresholds), so
+ * a single source of truth governs phone + watch + HUD.
+ *
+ * The phone-side server is gated on [com.eried.eucplanet.data.model.AppSettings.hudServerEnabled]
+ * and on the [com.eried.eucplanet.service.WheelService] being alive; it
+ * binds a listening socket only while the rider has the app actively open.
+ */
+@Composable
+private fun HudIntegrationSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_hud_general))
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_server_enabled),
+            description = stringResource(R.string.hud_server_enabled_desc),
+            checked = settings.hudServerEnabled,
+            onCheckedChange = { viewModel.updateHudServerEnabled(it) }
+        )
+
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_show_navigation),
+            description = stringResource(R.string.hud_show_navigation_desc),
+            checked = settings.hudShowNavigation,
+            onCheckedChange = { viewModel.updateHudShowNavigation(it) }
+        )
+
+        SectionHeader(stringResource(R.string.section_hud_network))
+
+        var portText by remember(settings.hudServerPort) {
+            mutableStateOf(settings.hudServerPort.toString())
+        }
+        OutlinedTextField(
+            value = portText,
+            onValueChange = { new ->
+                // Restrict to digits and a max of 5 chars (max valid TCP
+                // port is 65535). The viewmodel coerces into a legal range
+                // before persistence, so an out-of-band 1023 entry quietly
+                // snaps to 1024 rather than throwing.
+                if (new.length <= 5 && new.all { it.isDigit() }) {
+                    portText = new
+                    new.toIntOrNull()?.let { viewModel.updateHudServerPort(it) }
+                }
+            },
+            label = { Text(stringResource(R.string.hud_server_port)) },
+            supportingText = { Text(stringResource(R.string.hud_server_port_desc)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }
