@@ -125,6 +125,17 @@ class WearBridge @Inject constructor(
     private var started = false
 
     /**
+     * Names of currently-paired Wear OS nodes — empty when no watch is
+     * paired, otherwise one entry per Wear OS device the phone has
+     * connected to (typically one, occasionally more if the rider has both
+     * a Galaxy Watch and a Pixel Watch). Polled every 5 s on a background
+     * coroutine so the Settings UI's collapsible "Paired devices" card has
+     * something fresh to render. Empty list means "show no Wear OS row".
+     */
+    private val _pairedNodes = kotlinx.coroutines.flow.MutableStateFlow<List<String>>(emptyList())
+    val pairedNodes: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedNodes
+
+    /**
      * Idempotent. Begins streaming snapshots to any paired Wear OS device.
      * Safe to call from Application.onCreate even if no watch is paired; the
      * Data Layer just keeps a local cache that future watches sync from.
@@ -217,6 +228,25 @@ class WearBridge @Inject constructor(
         // First wake on bridge startup. Additional wakes fire whenever
         // MainActivity resumes; see pingWatchToWake() below.
         pingWatchToWake()
+
+        // Background paired-node poller. Refreshes [pairedNodes] every 5 s
+        // so the Settings UI can show which Wear OS watches are connected.
+        // 5 s is rare enough not to drain battery and frequent enough to
+        // catch a watch coming online while the user is on Settings.
+        scope.launch {
+            while (true) {
+                try {
+                    val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+                    val names = nodes.map { it.displayName }
+                    if (names != _pairedNodes.value) {
+                        _pairedNodes.value = names
+                    }
+                } catch (e: Exception) {
+                    if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
+                }
+                delay(5_000L)
+            }
+        }
 
         // Periodic publisher rather than a Flow combine. Reasoning: when the
         // wheel is disconnected the upstream flows don't emit, so a sample +

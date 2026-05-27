@@ -18,6 +18,7 @@ wearCompose = "1.4.0"
 playServicesWearable = "18.2.0"
 media3 = "1.4.1"
 camerax = "1.4.1"
+garminCiq = "2.4.0"
 
 [libraries]
 # Compose
@@ -93,6 +94,9 @@ wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-fou
 wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wearCompose" }
 wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+
+# Garmin Connect IQ Mobile SDK (paired Garmin watch / Edge companion)
+garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "garminCiq" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

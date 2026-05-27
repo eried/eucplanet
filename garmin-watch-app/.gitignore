@@ -1,0 +1,9 @@
+build/
+bin/
+*.iq
+*.prg
+*.debug.xml
+*.iq.debug.xml
+*.lock
+developer_key.der
+developer_key.pem

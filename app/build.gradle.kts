@@ -107,9 +107,30 @@ android {
 // installs), just packaged as two AABs in one release instead of one embedded.
 val embedWear = (project.findProperty("embedWear") as? String)?.lowercase() != "false"
 
+// Garmin Connect IQ Mobile SDK (talks to a paired Garmin watch / Edge running
+// the garmin-watch-app/ Monkey C companion). Pulled from Maven Central
+// (`com.garmin.connectiq:ciq-companion-app-sdk`) so a fresh clone builds
+// without any manual download.
+//
+// `garminStub` source set is the fallback when the build property
+// `-PgarminEnabled=false` is set, useful for slim builds that don't need
+// Garmin support (saves ~150 KB on the apk). Default is enabled.
+val garminEnabled = (project.findProperty("garminEnabled") as? String)?.lowercase() != "false"
+
+android {
+    sourceSets {
+        getByName("main") {
+            kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
+        }
+    }
+}
+
 dependencies {
     if (embedWear) {
         "releaseWearApp"(project(":wear"))
+    }
+    if (garminEnabled) {
+        implementation(libs.garmin.ciq)
     }
 
     // Compose

@@ -50,6 +50,12 @@ import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.BluetoothConnected
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Refresh
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Sensors
@@ -82,8 +88,13 @@ import kotlin.math.roundToInt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
@@ -1504,68 +1515,94 @@ private fun WatchTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
+    val pairedSurfaces by viewModel.pairedSurfaces.collectAsStateWithLifecycle()
+    val hasWearOs by viewModel.hasWearOsPaired.collectAsStateWithLifecycle()
+    val hasHardwareButtons by viewModel.hasHardwareButtonCapableWatch.collectAsStateWithLifecycle()
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // "Device" section: a tinted panel of compact pills, one per paired
+        // watch / Edge. Sits above General so the rider sees "what surfaces
+        // will receive this" before the actual toggles. Each row holds up
+        // to 3 pills; more devices wrap to additional rows.
+        SectionHeader(stringResource(R.string.section_watch_device))
+        DeviceRegion(pairedSurfaces)
+
         SectionHeader(stringResource(R.string.section_watch_general))
 
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_auto_start),
-            description = stringResource(R.string.watch_auto_start_desc),
-            checked = settings.watchAutoStart,
-            onCheckedChange = { viewModel.updateWatchAutoStart(it) },
-            onTest = { viewModel.testWatchWake() }
-        )
+        // Auto-start is Wear OS-only (CIQ apps can't be launched
+        // remotely). Hidden when no Wear OS watch is paired so the toggle
+        // doesn't read as universally applicable.
+        if (hasWearOs) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_auto_start),
+                description = stringResource(R.string.watch_auto_start_desc),
+                checked = settings.watchAutoStart,
+                onCheckedChange = { viewModel.updateWatchAutoStart(it) },
+                onTest = { viewModel.testWatchWake() }
+            )
+        }
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_close_on_exit),
             description = stringResource(R.string.watch_close_on_exit_desc),
             checked = settings.watchCloseOnExit,
             onCheckedChange = { viewModel.updateWatchCloseOnExit(it) }
         )
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_keep_on),
-            description = stringResource(R.string.watch_keep_on_desc),
-            checked = settings.watchKeepScreenOn,
-            onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
-        )
-        Text(
-            stringResource(R.string.watch_update_rate),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val updateRateOptions = listOf(
-            "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
-            "NORMAL" to stringResource(R.string.watch_update_normal),
-            "FAST" to stringResource(R.string.watch_update_fast)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            updateRateOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.watchUpdateRate,
-                    onClick = { viewModel.updateWatchUpdateRate(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+        // Keep-screen-on is also Wear OS-only — Garmin watches manage
+        // screen timeout in their own system Settings, not via the app.
+        if (hasWearOs) {
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_keep_on),
+                description = stringResource(R.string.watch_keep_on_desc),
+                checked = settings.watchKeepScreenOn,
+                onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
+            )
+        }
+        // Update rate is Wear-OS-only: the Connect IQ Mobile SDK enforces
+        // its own rate cap on the Garmin transport regardless of what we
+        // set here, so the choice would be misleading on a Garmin-only
+        // setup. Surfaced only when a Wear OS device is paired.
+        if (hasWearOs) {
+            Text(
+                stringResource(R.string.watch_update_rate),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val updateRateOptions = listOf(
+                "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
+                "NORMAL" to stringResource(R.string.watch_update_normal),
+                "FAST" to stringResource(R.string.watch_update_fast)
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max)
+            ) {
+                updateRateOptions.forEachIndexed { index, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == settings.watchUpdateRate,
+                        onClick = { viewModel.updateWatchUpdateRate(key) },
+                        shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
+                    ) {
+                        Text(
+                            label,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
+            // Supporting text after the control, it describes a consequence of
+            // the choice (battery cost), so it reads as a footnote, not a header.
+            Text(
+                stringResource(R.string.watch_update_rate_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-        // Supporting text after the control, it describes a consequence of
-        // the choice (battery cost), so it reads as a footnote, not a header.
-        Text(
-            stringResource(R.string.watch_update_rate_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
 
         SectionHeader(stringResource(R.string.section_watch_display))
 
@@ -1652,16 +1689,49 @@ private fun WatchTab(
             onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
         )
 
-        // Hardware-button mappings hidden for now, Samsung Watch Ultra and
-        // most Galaxy Wear OS devices don't deliver KEYCODE_STEM_* events to
-        // third-party apps. Keeping the AppSettings columns and dispatch
-        // plumbing in place so the section can come back when we test on a
-        // watch that actually surfaces stem keys.
+        // Hardware-button bindings. Conditionally rendered for surfaces
+        // that actually deliver hardware key events to third-party apps:
+        //   - Every Garmin (Fenix, Epix, Forerunner, Venu, Edge, …) ships
+        //     ≥2 physical buttons; the CIQ Delegate maps Start → stem1
+        //     and Up-hold → stem2.
+        //   - Galaxy Watch Ultra is the only Wear OS device that exposes
+        //     KEYCODE_STEM_1 (orange Action) and KEYCODE_STEM_2 (bottom
+        //     side). Pixel Watch / non-Ultra Galaxy Watches are excluded
+        //     by [hasHardwareButtonCapableWatch] in the ViewModel.
+        if (hasHardwareButtons) {
+            SectionHeader(stringResource(R.string.section_watch_hardware_buttons))
+            Text(
+                stringResource(R.string.section_watch_hardware_buttons_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            HardwareButtonGroup(
+                title = stringResource(R.string.watch_hardware_button_1),
+                subtitle = stringResource(R.string.watch_hardware_button_1_subtitle),
+                clickKey = settings.watchStem1Click,
+                holdKey = settings.watchStem1Hold,
+                onClick = { viewModel.updateWatchStem1Click(it) },
+                onHold = { viewModel.updateWatchStem1Hold(it) }
+            )
+            HardwareButtonGroup(
+                title = stringResource(R.string.watch_hardware_button_2),
+                subtitle = stringResource(R.string.watch_hardware_button_2_subtitle),
+                clickKey = settings.watchStem2Click,
+                holdKey = settings.watchStem2Hold,
+                onClick = { viewModel.updateWatchStem2Click(it) },
+                onHold = { viewModel.updateWatchStem2Hold(it) }
+            )
+        }
 
         // On-screen button bindings (replaces the hardcoded Horn / Light
         // buttons that used to live on the watch dial). These DO work on
         // every Wear OS watch since they're regular touch targets.
         SectionHeader(stringResource(R.string.section_watch_screen_buttons))
+        Text(
+            stringResource(R.string.section_watch_screen_buttons_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         WatchActionPicker(
             label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
             currentKey = settings.watchScreen1Click,
@@ -1706,6 +1776,42 @@ private fun WatchActionPicker(
         options = options,
         onSelect = onSelect
     )
+}
+
+/**
+ * One hardware-button entry in the "Hardware buttons" section: a title +
+ * device-specific subtitle (so the rider sees which physical key they're
+ * mapping on their actual watch) plus the click and long-press pickers.
+ * Groups click+hold under one heading rather than four flat dropdowns so
+ * the bindings read as a single button, not as four independent slots.
+ */
+@Composable
+private fun HardwareButtonGroup(
+    title: String,
+    subtitle: String,
+    clickKey: String,
+    holdKey: String,
+    onClick: (String) -> Unit,
+    onHold: (String) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(title, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_click_label),
+            currentKey = clickKey,
+            onSelect = onClick
+        )
+        WatchActionPicker(
+            label = stringResource(R.string.watch_button_hold_label),
+            currentKey = holdKey,
+            onSelect = onHold
+        )
+    }
 }
 
 @Composable
@@ -3389,3 +3495,260 @@ private fun RestorePickerDialog(
         }
     )
 }
+
+/**
+ * "Device" region: a tinted panel containing one detailed card per
+ * paired surface. Each card shows the device name + kind, an Active/Idle
+ * status chip, and the surface's effective update rate (Wear OS = the
+ * bridge's publish interval, Garmin = the SDK-rate-capped delivery rate
+ * from [GarminBridge.deliveryRateHz]). Cards lay out 2 per row on a
+ * standard phone width; single device gets a full-width card; an empty
+ * state shows the hint-only pill.
+ *
+ * Garmin limitations text renders below the panel when any Garmin card
+ * is present — it's surface-level info, not per-device.
+ */
+/**
+ * "Device" region: a tinted panel containing one compact card per paired
+ * surface, stacked vertically (1 per row, full-width). Each card shows
+ * the device name + kind subtitle on the left, and live/idle + update
+ * rate badges on the right. Sits above General so the rider sees "what
+ * receives this" before they touch any toggles.
+ *
+ * Garmin limitations text renders below the panel when any Garmin card
+ * is present.
+ */
+@Composable
+private fun DeviceRegion(
+    surfaces: List<com.eried.eucplanet.data.model.PairedSurface>
+) {
+    // No outer Surface — cards extend to the same horizontal margin as
+    // the surrounding text, so the "Device" section feels integrated
+    // rather than boxed-in. Cards stack vertically with a small gap;
+    // each card has its own tinted background.
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (surfaces.isEmpty()) {
+            EmptyDevicePill()
+        } else {
+            surfaces.forEach { surface -> DeviceCard(surface) }
+        }
+    }
+    val hasGarmin = surfaces.any { it.kind == com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN }
+    if (hasGarmin) {
+        GarminLimitationsCard()
+    }
+}
+
+/**
+ * Collapsible Garmin-limitations card, modelled on [CloudHelpCard]: title
+ * + chevron, expands to show the two real limitations of the Connect IQ
+ * companion (no auto-launch, slower telemetry). Collapsed by default so
+ * it doesn't dominate the Watch tab; the rider can pop it open when they
+ * wonder why their Garmin behaves differently from their Wear OS.
+ */
+@Composable
+private fun GarminLimitationsCard() {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+                Text(
+                    stringResource(R.string.watch_paired_garmin_limits_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.watch_paired_garmin_limit_launch),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        stringResource(R.string.watch_paired_garmin_limit_rate),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * One device card, 1-per-row full-width. Left column: kind icon + device
+ * name (title) + kind label (subtitle). Right column: compact status and
+ * update-rate badges. Active cards tint with primaryContainer so the
+ * rider can spot at a glance which wrist is currently receiving frames.
+ */
+@Composable
+private fun DeviceCard(
+    surface: com.eried.eucplanet.data.model.PairedSurface
+) {
+    val container = if (surface.active) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val content = if (surface.active) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.small,
+        color = container,
+        contentColor = content
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = when (surface.kind) {
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS -> Icons.Default.Watch
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN -> Icons.Default.Smartphone
+                },
+                contentDescription = null,
+                modifier = Modifier.size(22.dp)
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    surface.name.ifBlank { surfaceKindLabel(surface.kind) },
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    surfaceKindLabel(surface.kind),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.72f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            StatusBadge(active = surface.active)
+            RateBadge(hz = surface.updateRateHz)
+        }
+    }
+}
+
+/** Compact live/idle indicator: filled dot (green when live, dim grey
+ *  when idle) + status text. Reads as a single visual unit. */
+@Composable
+private fun StatusBadge(active: Boolean) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.FiberManualRecord,
+            contentDescription = null,
+            tint = if (active) Color(0xFF2ECC40) else LocalContentColor.current.copy(alpha = 0.5f),
+            modifier = Modifier.size(10.dp)
+        )
+        Text(
+            stringResource(
+                if (active) R.string.watch_paired_active
+                else R.string.watch_paired_idle
+            ),
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
+}
+
+/** Compact update-rate indicator: refresh icon + Hz value. */
+@Composable
+private fun RateBadge(hz: Double) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Refresh,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp)
+        )
+        Text(
+            stringResource(R.string.watch_paired_rate_hz, hz),
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
+}
+
+/**
+ * Empty-state pill, full-width, when no Wear OS / Garmin is paired.
+ * Reads as a placeholder rather than a real device so the rider knows
+ * to open the companion app on the watch.
+ */
+@Composable
+private fun EmptyDevicePill() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Watch,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Column {
+                Text(
+                    stringResource(R.string.watch_paired_none),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    stringResource(R.string.watch_paired_none_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun surfaceKindLabel(kind: com.eried.eucplanet.data.model.PairedSurface.Kind): String =
+    when (kind) {
+        com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS ->
+            stringResource(R.string.watch_paired_kind_wear)
+        com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN ->
+            stringResource(R.string.watch_paired_kind_garmin)
+    }

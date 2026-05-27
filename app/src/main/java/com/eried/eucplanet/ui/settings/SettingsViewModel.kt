@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -37,6 +38,7 @@ class SettingsViewModel @Inject constructor(
     private val syncManager: SyncManager,
     private val automationManager: AutomationManager,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
+    private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState
 ) : ViewModel() {
@@ -56,6 +58,69 @@ class SettingsViewModel @Inject constructor(
     val isConnected: StateFlow<Boolean> = wheelRepository.connectionState
         .map { it == ConnectionState.CONNECTED }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /**
+     * Unified view of every paired companion device — Wear OS + Garmin —
+     * for the Settings "Device" region. Bridges expose raw name lists and
+     * delivery-rate flows; we combine, tag with [PairedSurface.Kind], and
+     * stamp each entry with the surface's current update rate so the UI
+     * card can show what the rider's actual frame rate looks like on the
+     * wire (Wear OS at the configured publish interval, Garmin at the
+     * CIQ SDK-rate-capped delivery rate).
+     */
+    val pairedSurfaces: StateFlow<List<PairedSurface>> =
+        combine(
+            wearBridge.pairedNodes,
+            garminBridge.pairedDevices,
+            settingsRepository.settings,
+            garminBridge.deliveryRateHz
+        ) { wear, garmin, settings, garminHz ->
+            val wearHz = settings?.let { wearRateHzFor(it.watchUpdateRate) } ?: 5.0
+            buildList {
+                wear.forEach { name ->
+                    add(PairedSurface(PairedSurface.Kind.WEAR_OS, name, true, wearHz))
+                }
+                garmin.forEach { name ->
+                    add(PairedSurface(PairedSurface.Kind.GARMIN, name, true, garminHz))
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Configured publish-interval → Hz mapping for the Wear OS surface,
+     *  matching the values WearBridge actually drives the publish loop at. */
+    private fun wearRateHzFor(key: String): Double = when (key) {
+        "CONSERVATIVE" -> 1000.0 / 750.0
+        "FAST" -> 1000.0 / 150.0
+        else -> 1000.0 / 200.0 // NORMAL
+    }
+
+    /** True when at least one Wear OS device is paired right now. Settings
+     *  uses this to hide toggles that have no effect on Garmin-only setups
+     *  (auto-start, keep-screen-on). */
+    val hasWearOsPaired: StateFlow<Boolean> =
+        wearBridge.pairedNodes
+            .map { it.isNotEmpty() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /**
+     * True when at least one paired surface has bindable hardware buttons:
+     *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,
+     *    and our CIQ Delegate maps the universal Start + Up-hold pair to
+     *    `stem1` and `stem2`).
+     *  - A Galaxy Watch Ultra on Wear OS — the only Wear OS device that
+     *    delivers `KEYCODE_STEM_1` (orange Action) and `KEYCODE_STEM_2`
+     *    (bottom side) to third-party apps. Detected by friendly-name
+     *    containing "Ultra" (case-insensitive); Pixel Watch / Galaxy
+     *    Watch 4/5/6 non-Ultra are excluded.
+     *
+     * Settings → Watch uses this to gate the "Hardware buttons" picker
+     * section so riders without compatible devices don't see dropdowns
+     * that wouldn't do anything.
+     */
+    val hasHardwareButtonCapableWatch: StateFlow<Boolean> =
+        wearBridge.pairedNodes.combine(garminBridge.pairedDevices) { wear, garmin ->
+            garmin.isNotEmpty() || wear.any { it.contains("Ultra", ignoreCase = true) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * Engine-sound preview buttons should only fire while the rider is parked,

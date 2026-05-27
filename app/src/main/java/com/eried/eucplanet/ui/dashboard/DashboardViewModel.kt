@@ -55,6 +55,7 @@ class DashboardViewModel @Inject constructor(
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
+    private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -333,6 +334,7 @@ class DashboardViewModel @Inject constructor(
                 val settings = settingsRepository.get()
                 if (settings.watchCloseOnExit) {
                     wearBridge.sendCloseToWatchBlocking()
+                    garminBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
         }

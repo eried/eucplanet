@@ -55,6 +55,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
 
     // Voice announcement
@@ -286,6 +287,7 @@ class WheelService : LifecycleService() {
         // line never runs, the watch's 3-s stale timer kicks in as
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
+        try { garminBridge.publishFarewell() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         voiceService.shutdown()

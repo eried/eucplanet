@@ -85,6 +85,7 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 - **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
 - **External GPS**: pair a RaceBox (or any compatible BLE GPS) for centimetre-class speed and altitude without burning the phone radio. Falls back to phone GPS automatically.
 - **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
+- **Garmin companion** (preview): same dial on Garmin Connect IQ watches and Edge bike computers. Shares the rider's Watch settings with the Wear OS companion (both surfaces read the same fields), so flipping a toggle in Settings → Watch applies to both wrists. See [`docs/GARMIN_SETUP.md`](docs/GARMIN_SETUP.md) to build and sideload the watch app today; Connect IQ Store release pending real-device testing.
 
 ---
 
