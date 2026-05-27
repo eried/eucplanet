@@ -58,12 +58,6 @@ fun RadarSection(
     val frame by viewModel.currentFrame.collectAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            stringResource(R.string.radar_section_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold
-        )
-
         if (pairedAddress == null) {
             HintText(stringResource(R.string.radar_caption), small = true)
             UnpairedRadarCard(
@@ -238,7 +232,7 @@ private fun PairedRadarCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                stringResource(R.string.radar_paired_with, deviceName),
+                deviceName,
                 style = MaterialTheme.typography.titleMedium
             )
             val battery = frame?.batteryPercent

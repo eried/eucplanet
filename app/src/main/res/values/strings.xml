@@ -420,12 +420,10 @@
 
     <!-- Rear-view radar (Garmin Varia today) -->
     <string name="section_radar">Rear-view radar</string>
-    <string name="radar_section_title">Paired radar</string>
     <string name="radar_caption">Hold the Varia button for 2 seconds until it pulses purple, then start a scan.</string>
     <string name="radar_pair_button">Start scan</string>
     <string name="radar_pair_action">Pair</string>
     <string name="radar_stop_scan">Stop scan</string>
-    <string name="radar_paired_with">Paired with %1$s</string>
     <string name="radar_state_connected">Connected</string>
     <string name="radar_state_connecting">Connecting…</string>
     <string name="radar_state_disconnected">Disconnected</string>
