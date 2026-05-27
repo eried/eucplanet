@@ -1,6 +1,9 @@
 package com.eried.eucplanet.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -255,23 +258,32 @@ private fun PairedRadarCard(
                 } else {
                     // Debug-friendly per-target dump so the user can confirm
                     // the parser works against their actual hardware before
-                    // we commit to the overlay UI.
+                    // we commit to the overlay UI. Fixed-height scroll area
+                    // so the card stays a constant size while threat count
+                    // bounces around in demo / busy-road mode.
                     Text(
                         stringResource(R.string.radar_threats_count, frame.threats.size),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )
-                    frame.threats.sortedBy { it.distanceM }.forEach { t ->
-                        val color = when (t.threatLevel) {
-                            ThreatLevel.FAST_APPROACH -> AccentRed
-                            ThreatLevel.APPROACHING -> AccentOrange
-                            ThreatLevel.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = 132.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        frame.threats.sortedBy { it.distanceM }.forEach { t ->
+                            val color = when (t.threatLevel) {
+                                ThreatLevel.FAST_APPROACH -> AccentRed
+                                ThreatLevel.APPROACHING -> AccentOrange
+                                ThreatLevel.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                            Text(
+                                "#${t.id}  ·  ${t.distanceM} m  ·  ${t.approachSpeedKmh} km/h",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = color
+                            )
                         }
-                        Text(
-                            "#${t.id}  ·  ${t.distanceM} m  ·  ${t.approachSpeedKmh} km/h",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = color
-                        )
                     }
                 }
             }

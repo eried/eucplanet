@@ -6,35 +6,46 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Garmin Varia (RTL515, RTL516, RVR315, RCT715, eRTL615, RearVue 820) rear-view
- * radar adapter.
+ * Garmin Varia (RTL515, RTL516, RVR315, RCT715, eRTL615, RearVue 820,
+ * RVR53320, ...) rear-view radar adapter.
  *
- * Wire format (the `…3203` notify characteristic, the only publicly-readable
- * one on Varia today; the rest of the `6A4E32xx` family is NDA-gated behind
- * Garmin's Radar Data BLE Program):
+ * Wire format (the `...3203` notify characteristic, the only publicly-
+ * readable one on Varia today; the rest of the `6A4E32xx` family is NDA-
+ * gated behind Garmin's Radar Data BLE Program):
  *
- *     byte[0]      = packet identifier / fragment sequence
- *                    Low nibble is the fragment ID; frames larger than the
- *                    default 20-byte ATT MTU are split across multiple
- *                    notifications. We currently ignore reassembly: with the
- *                    larger MTU we negotiate in [RadarConnectionManager] every
- *                    real-world Varia frame fits in one packet (up to ~6 cars).
- *     byte[1..]    = (id: u8, distance_m: u8, approach_speed_kmh: u8) per car
+ *     byte[0]      = packet header
+ *                    Low nibble = fragment flag:
+ *                      0 = "more fragments coming"
+ *                      2 = "final fragment, or standalone frame"
+ *                    High nibble = wrapping sequence counter (unused here;
+ *                                  the 0/2 flag is enough for reassembly).
+ *     byte[1..]    = (id: u8, distance_m: u8, approach_speed_kmh: u8)
+ *                    per detected vehicle.
+ *
+ * **Fragmentation.** Even with a larger negotiated MTU, the Varia firmware
+ * caps each BLE notification at <= 20 payload bytes, so one notification
+ * carries at most 6 cars (1 header + 6 * 3 bytes). When the radar has 7+
+ * cars in view it splits the logical frame across two notifications: the
+ * first ends in `_0` (with up to 6 cars), the second ends in `_2` (with
+ * the remaining cars). Treating each notification standalone produces the
+ * visible-car-count "jumping" the testers report (a 7-car scene reads as
+ * alternating 6 / 1 / 6 / 1 frames). We buffer `_0` payloads and emit the
+ * concatenated triplets only when the matching `_2` arrives.
  *
  * Reference implementations:
- *  - pycycling/rear_view_radar.py ,  cleanest parser, same struct
- *  - Wunderfitz/harbour-tacho src/variaconnectivity.cpp ,  C++ port with the
- *    same shape
+ *  - pycycling/rear_view_radar.py , triplet parser
+ *  - Wunderfitz/harbour-tacho src/variaconnectivity.cpp , C++ port with
+ *    fragment-aware reassembly using the same low-nibble flag.
  *
- * Vehicles that have moved out of range simply stop appearing in the list , 
+ * Vehicles that have moved out of range simply stop appearing in the list,
  * there's no explicit "dropped" event, so a missing id this frame means
  * the radar has lost the track. [RadarRepository] handles drop-out timing.
  *
- * The "threat level" field that the Garmin head units display (none / medium
- * / high) is NOT in this channel; the marketing description suggests it
- * comes from the NDA `…3201` characteristic. We derive it locally from
- * distance + closing rate in the repository ,  that's what every other
- * open-source client does, and it works fine in practice.
+ * The "threat level" field that the Garmin head units display (none /
+ * medium / high) is NOT in this channel; the marketing description
+ * suggests it comes from the NDA `...3201` characteristic. We derive it
+ * locally from distance + closing rate in the repository, that's what
+ * every other open-source client does, and it works fine in practice.
  */
 @Singleton
 class VariaAdapter @Inject constructor() : RadarAdapter {
@@ -56,30 +67,66 @@ class VariaAdapter @Inject constructor() : RadarAdapter {
     /** All known Varia advertised-name prefixes. Case-insensitive. */
     private val namePrefixes = listOf("RTL", "RVR", "RCT", "eRTL", "Varia")
 
+    /**
+     * Buffer for the payload of `_0` fragments waiting for their `_2`
+     * completion. Decode runs sequentially from a single Flow collector
+     * on Dispatchers.IO ([RadarRepository]) so no synchronisation is
+     * needed. Reset whenever a new `_0` arrives so a lost `_2` (BLE drop)
+     * doesn't taint the next logical frame.
+     */
+    private var pendingPayload: ByteArray = ByteArray(0)
+
     override fun matches(deviceName: String): Boolean {
         val n = deviceName.trim()
         return namePrefixes.any { n.startsWith(it, ignoreCase = true) }
     }
 
     override fun decode(notification: ByteArray): List<DecodedThreat>? {
-        // Smallest valid frame is the 1-byte header alone (lane clear). A
-        // frame with cars adds (id, distance, speed) triples after byte 0.
         if (notification.isEmpty()) return null
-        val payloadLen = notification.size - 1
-        if (payloadLen < 0 || payloadLen % 3 != 0) {
-            // Either a status frame the device interleaves, or a fragment we
-            // can't reassemble without more state. Treat as "no info this
-            // tick" rather than crashing the listener.
-            return null
+        val header = notification[0].toInt() and 0xFF
+        val fragmentFlag = header and 0x0F
+        val payload = if (notification.size > 1) {
+            notification.copyOfRange(1, notification.size)
+        } else ByteArray(0)
+
+        return when (fragmentFlag) {
+            0 -> {
+                // First / continuation fragment. Reset the buffer (rather
+                // than append) so we drop any half-completed frame left
+                // behind by a missing `_2`. Wait for the matching `_2`
+                // before emitting anything.
+                pendingPayload = payload
+                null
+            }
+            2 -> {
+                // Final fragment (or standalone if no `_0` preceded). Glue
+                // any buffered payload onto this one, then parse triplets.
+                val combined = if (pendingPayload.isNotEmpty()) {
+                    pendingPayload + payload
+                } else payload
+                pendingPayload = ByteArray(0)
+                parseTriplets(combined)
+            }
+            else -> {
+                // Unknown fragment flag. Treat the payload as standalone
+                // so a firmware revision adding new flags doesn't silently
+                // freeze the listener. Clear any pending buffer for safety.
+                pendingPayload = ByteArray(0)
+                parseTriplets(payload)
+            }
         }
-        val count = payloadLen / 3
+    }
+
+    private fun parseTriplets(payload: ByteArray): List<DecodedThreat>? {
+        if (payload.size % 3 != 0) return null
+        val count = payload.size / 3
         if (count == 0) return emptyList()
         val out = ArrayList<DecodedThreat>(count)
-        var i = 1
+        var i = 0
         repeat(count) {
-            val id = notification[i].toInt() and 0xFF
-            val distance = notification[i + 1].toInt() and 0xFF
-            val speed = notification[i + 2].toInt() and 0xFF
+            val id = payload[i].toInt() and 0xFF
+            val distance = payload[i + 1].toInt() and 0xFF
+            val speed = payload[i + 2].toInt() and 0xFF
             // The Varia firmware sometimes pads the trailing triples with
             // (0,0,0) when fewer than the maximum cars are tracked. Skip
             // those so the UI doesn't show ghost cars at 0 m.
