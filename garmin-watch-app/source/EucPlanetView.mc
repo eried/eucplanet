@@ -173,6 +173,23 @@ class EucPlanetView extends WatchUi.View {
         if (s.navActive) {
             drawNavOverlay(dc, s);
         }
+
+        drawFrameCounter(dc, s);
+    }
+
+    //! Tiny "rx N" indicator in the lower-right of the dial showing the
+    //! total number of phone frames the watch has parsed since launch.
+    //! Provides a live "is the wire actually delivering settings updates"
+    //! signal for diagnosing real-phone delivery issues without needing
+    //! adb logcat on a watch.
+    private function drawFrameCounter(dc as Graphics.Dc, s as WatchSnapshot) as Void {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        dc.setColor(0x666666, Graphics.COLOR_TRANSPARENT);
+        dc.drawText((w * 75) / 100, (h * 95) / 100,
+                    Graphics.FONT_XTINY,
+                    "rx " + s.frameCount.format("%d"),
+                    Graphics.TEXT_JUSTIFY_LEFT);
     }
 
     //! Center-aligned text with line-break support. CIQ's drawText doesn't
@@ -210,14 +227,15 @@ class EucPlanetView extends WatchUi.View {
         return lines;
     }
 
-    //! PWM bar at y=53% — a horizontal track + filled portion, with the
-    //! percentage to the right. Mirrors the Wear OS dial: bar runs about
-    //! 32% of the width, percentage text sits flush-right after a 4-px gap.
+    //! PWM bar + percentage. When the rider has Prioritize PWM enabled,
+    //! the bar grows ~2x in width and height, the percentage scales up to
+    //! a real number font, and the speed numeral above shrinks (handled
+    //! in SpeedGauge.draw) so PWM becomes the focal element. Mirrors the
+    //! Wear OS dial's prioritize-PWM size hierarchy.
     private function drawPwmBadge(dc as Graphics.Dc, s as WatchSnapshot) as Void {
         var w = dc.getWidth();
         var h = dc.getHeight();
         var cx = w / 2;
-        var y = (h * 50) / 100;
         var pct = s.pwmPercent;
         var color = pct >= 90 ? SpeedGauge.COLOR_DANGER
                   : pct >= 70 ? SpeedGauge.COLOR_WARN
@@ -225,14 +243,19 @@ class EucPlanetView extends WatchUi.View {
 
         var showBar = s.pwmDisplay.equals("BAR") || s.pwmDisplay.equals("BOTH");
         var showNum = s.pwmDisplay.equals("NUMBERS") || s.pwmDisplay.equals("BOTH");
+        var priority = s.prioritizePwm;
 
-        var barW = (w * 32) / 100;
-        var barH = (h * 18) / 1000; // ~1.8% of height
+        // Geometry per mode: wider bar + taller pill + bigger pct font
+        // when prioritized; original compact placement otherwise.
+        var y         = priority ? (h * 56) / 100 : (h * 50) / 100;
+        var barW      = priority ? (w * 60) / 100 : (w * 32) / 100;
+        var barH      = priority ? (h * 4)  / 100 : (h * 18) / 1000;
         if (barH < 6) { barH = 6; }
+        var pctFont   = priority ? Graphics.FONT_NUMBER_MILD : Graphics.FONT_XTINY;
+        var pctOffset = priority ? (w * 5)  / 100 : (w * 3)  / 100;
+        var pctWReserve = priority ? (w * 22) / 100 : (w * 14) / 100;
 
-        // Layout: bar on the left side of the inner area, % on the right.
-        // Both sit on the same horizontal line.
-        var groupW = showBar && showNum ? (barW + (w * 14) / 100) : (showBar ? barW : (w * 14) / 100);
+        var groupW = showBar && showNum ? (barW + pctWReserve) : (showBar ? barW : pctWReserve);
         var groupX = cx - (groupW / 2);
 
         if (showBar) {
@@ -247,10 +270,8 @@ class EucPlanetView extends WatchUi.View {
         }
         if (showNum) {
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            var textX = showBar ? (groupX + barW + (w * 3) / 100) : cx;
+            var textX = showBar ? (groupX + barW + pctOffset) : cx;
             var justify = showBar ? Graphics.TEXT_JUSTIFY_LEFT : Graphics.TEXT_JUSTIFY_CENTER;
-            // Center the % text vertically against the bar.
-            var pctFont = Graphics.FONT_XTINY;
             var pctH = Graphics.getFontHeight(pctFont);
             dc.drawText(textX, y + (barH / 2) - (pctH / 2),
                         pctFont, pct.format("%d") + "%", justify);

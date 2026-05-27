@@ -131,18 +131,19 @@ module SpeedGauge {
         var displaySpeed = Units.convertSpeedFromKmh(speedKmh, speedUnit).toNumber();
         var speedText = displaySpeed.format("%d");
 
-        // Pick a font that fits the inner area. FONT_NUMBER_THAI_HOT is the
-        // SDK's largest numeral font (huge) and overflows everywhere;
-        // FONT_NUMBER_HOT is the right "speedometer" size on 416-px watches.
-        // When the rider has [prioritizePwm] on, drop the speed font one tier
-        // so PWM becomes the visual focal element — same effect the Wear OS
-        // dial achieves by swapping the size hierarchy.
+        // Pick a font that fits the inner area. FONT_NUMBER_THAI_HOT is
+        // the SDK's largest numeral font (huge) and overflows everywhere;
+        // FONT_NUMBER_HOT is the right "speedometer" size on 416-px
+        // watches. When the rider has [prioritizePwm] on, drop two font
+        // tiers (HOT → MILD) so the speed becomes a small caption and
+        // PWM becomes the focal element below — mirrors the Wear OS
+        // dial's prioritize-PWM size swap.
         var speedFont = prioritizePwm
-            ? Graphics.FONT_NUMBER_MEDIUM
+            ? Graphics.FONT_NUMBER_MILD
             : Graphics.FONT_NUMBER_HOT;
         var innerW = (arcRadius * 2) - arcThickness * 2;
         var textW = dc.getTextWidthInPixels(speedText, speedFont);
-        if (textW > (innerW * 70) / 100) {
+        if (!prioritizePwm && textW > (innerW * 70) / 100) {
             speedFont = Graphics.FONT_NUMBER_MEDIUM;
             textW = dc.getTextWidthInPixels(speedText, speedFont);
         }
