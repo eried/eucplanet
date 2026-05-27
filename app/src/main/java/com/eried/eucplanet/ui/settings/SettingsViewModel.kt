@@ -288,7 +288,6 @@ class SettingsViewModel @Inject constructor(
 
     // HUD companion
     fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
-    fun updateHudShowNavigation(v: Boolean) = update { copy(hudShowNavigation = v) }
     fun updateHudServerPort(v: Int) = update {
         // Match the same port-range guard the server itself enforces. Below
         // 1024 needs root; above 65535 isn't a port.

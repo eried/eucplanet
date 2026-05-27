@@ -425,8 +425,7 @@ fun SettingsScreen(
         stringResource(R.string.section_flic_buttons),
         stringResource(R.string.section_volume_keys),
         stringResource(R.string.volume_keys_enable),
-        stringResource(R.string.section_hud_general),
-        stringResource(R.string.section_hud_network),
+        stringResource(R.string.section_hud_companion),
         stringResource(R.string.hud_server_enabled),
         stringResource(R.string.hud_search_corpus)
     ).joinToString(" ")
@@ -3397,6 +3396,52 @@ private fun RestorePickerDialog(
     )
 }
 
+/**
+ * Small info row shown under the HUD server toggle when the rider has it on
+ * but the phone's WiFi hotspot isn't broadcasting. Detects hotspot state by
+ * reflecting into WifiManager.isWifiApEnabled, which is hidden API but stable
+ * across Android 10 - 14. Falls back silently if reflection fails; the hint
+ * just doesn't render.
+ *
+ * Refreshes every 5 s while the Settings tab is visible -- toggling a hotspot
+ * usually involves leaving Settings, so we don't need a faster poll.
+ */
+@Composable
+private fun HudHotspotHint() {
+    val ctx = LocalContext.current
+    var hotspotOn by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            hotspotOn = runCatching {
+                val wifi = ctx.applicationContext
+                    .getSystemService(android.content.Context.WIFI_SERVICE)
+                    as android.net.wifi.WifiManager
+                // isWifiApEnabled() is @hide but available via reflection on
+                // every Android version we support. UnsupportedAppUsage gates
+                // it at runtime on Android 11+ for app-stable signatures,
+                // which this one is.
+                val m = wifi.javaClass.getMethod("isWifiApEnabled")
+                m.invoke(wifi) as? Boolean ?: true
+            }.getOrDefault(true)
+            kotlinx.coroutines.delay(5_000L)
+        }
+    }
+    if (!hotspotOn) {
+        androidx.compose.material3.Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.hud_hotspot_off_hint),
+                modifier = Modifier.padding(12.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onTertiaryContainer
+            )
+        }
+    }
+}
+
 // --- HUD section (lives inside the Integration tab) ---
 
 /**
@@ -3421,7 +3466,7 @@ private fun HudIntegrationSection(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        SectionHeader(stringResource(R.string.section_hud_general))
+        SectionHeader(stringResource(R.string.section_hud_companion))
 
         SwitchSettingWithDesc(
             label = stringResource(R.string.hud_server_enabled),
@@ -3430,34 +3475,31 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.hud_show_navigation),
-            description = stringResource(R.string.hud_show_navigation_desc),
-            checked = settings.hudShowNavigation,
-            onCheckedChange = { viewModel.updateHudShowNavigation(it) }
-        )
+        // Server-enabled subsection: only render once the rider has opted in.
+        // No point asking them to pick a port for a service that's off.
+        if (settings.hudServerEnabled) {
+            HudHotspotHint()
 
-        SectionHeader(stringResource(R.string.section_hud_network))
-
-        var portText by remember(settings.hudServerPort) {
-            mutableStateOf(settings.hudServerPort.toString())
+            var portText by remember(settings.hudServerPort) {
+                mutableStateOf(settings.hudServerPort.toString())
+            }
+            OutlinedTextField(
+                value = portText,
+                onValueChange = { new ->
+                    // Restrict to digits and a max of 5 chars (max valid TCP
+                    // port is 65535). The viewmodel coerces into a legal
+                    // range before persistence, so an out-of-band 1023 entry
+                    // quietly snaps to 1024 rather than throwing.
+                    if (new.length <= 5 && new.all { it.isDigit() }) {
+                        portText = new
+                        new.toIntOrNull()?.let { viewModel.updateHudServerPort(it) }
+                    }
+                },
+                label = { Text(stringResource(R.string.hud_server_port)) },
+                supportingText = { Text(stringResource(R.string.hud_server_port_desc)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-        OutlinedTextField(
-            value = portText,
-            onValueChange = { new ->
-                // Restrict to digits and a max of 5 chars (max valid TCP
-                // port is 65535). The viewmodel coerces into a legal range
-                // before persistence, so an out-of-band 1023 entry quietly
-                // snaps to 1024 rather than throwing.
-                if (new.length <= 5 && new.all { it.isDigit() }) {
-                    portText = new
-                    new.toIntOrNull()?.let { viewModel.updateHudServerPort(it) }
-                }
-            },
-            label = { Text(stringResource(R.string.hud_server_port)) },
-            supportingText = { Text(stringResource(R.string.hud_server_port_desc)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }

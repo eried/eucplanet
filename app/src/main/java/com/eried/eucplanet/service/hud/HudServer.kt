@@ -85,6 +85,10 @@ class HudServer @Inject constructor(
         // Fixed multicast lock tag for diagnostics; JmDNS needs the lock so
         // the phone's WiFi hotspot subnet sees its own mDNS group join.
         private const val MULTICAST_LOCK_TAG = "eucplanet-hud-mdns"
+        // How often the mDNS watchdog rechecks for a better bind address.
+        // 5 s is responsive enough that a rider toggling hotspot ON gets
+        // discoverable in well under the SSE reconnect window.
+        private const val WATCHDOG_INTERVAL_MS = 5_000L
     }
 
     private val json = Json {
@@ -99,6 +103,7 @@ class HudServer @Inject constructor(
     @Volatile private var engine: io.ktor.server.engine.ApplicationEngine? = null
     @Volatile private var jmdns: JmDNS? = null
     @Volatile private var multicastLock: WifiManager.MulticastLock? = null
+    @Volatile private var serverPort: Int = HudDiscovery.DEFAULT_PORT
 
     /** Latest [HudState] computed by the publisher loop. SSE handlers read
      *  this volatile reference rather than holding their own subscription, so
@@ -122,6 +127,7 @@ class HudServer @Inject constructor(
                 val port = runCatching { settingsRepository.get().hudServerPort }
                     .getOrDefault(HudDiscovery.DEFAULT_PORT)
                     .takeIf { it in 1024..65535 } ?: HudDiscovery.DEFAULT_PORT
+                serverPort = port
 
                 engine = embeddedServer(CIO, port = port, host = "0.0.0.0") {
                     install(StatusPages) {
@@ -219,6 +225,31 @@ class HudServer @Inject constructor(
                 delay(PUBLISH_INTERVAL_MS)
             }
         }
+
+        // mDNS watchdog: the TCP socket binds to 0.0.0.0 so it accepts new
+        // interfaces (e.g. the rider enabling hotspot after toggling the
+        // HUD server on) automatically, but the mDNS advertisement is
+        // one-shot at server start. Re-register every WATCHDOG_INTERVAL_MS
+        // whenever the best-available IPv4 address differs from what we
+        // last advertised, so a freshly-enabled hotspot becomes
+        // discoverable within a few seconds without the rider restarting
+        // the app.
+        scope.launch {
+            var lastBind: InetAddress? = null
+            while (true) {
+                try {
+                    val current = pickHotspotAddress()
+                    if (current != lastBind && current != null) {
+                        Log.i(TAG, "mDNS bind changed (${lastBind?.hostAddress} -> ${current.hostAddress}), re-registering")
+                        readvertiseMdns(serverPort, current)
+                        lastBind = current
+                    }
+                } catch (t: Throwable) {
+                    Log.w(TAG, "mDNS watchdog tick failed: ${t.message}")
+                }
+                delay(WATCHDOG_INTERVAL_MS)
+            }
+        }
     }
 
     fun stop() {
@@ -259,8 +290,12 @@ class HudServer @Inject constructor(
             else -> null
         }
 
-        val navShow = nav.active && !nav.minimized && nav.cueVisible &&
-            s.hudShowNavigation
+        // Nav screen mirrors the phone popup verbatim: active while a route
+        // is running and the cue is on the phone's screen. The HUD has a
+        // dedicated screen for nav so there's no risk of "clutter" the way
+        // the watch dial has; if a rider doesn't want nav they just don't
+        // switch to that screen.
+        val navShow = nav.active && !nav.minimized && nav.cueVisible
 
         // Demo overlay: if the synthetic source is running, replace the
         // wheel + nav fields with its scripted values while keeping the
@@ -325,17 +360,35 @@ class HudServer @Inject constructor(
     }
 
     private fun advertiseMdns(port: Int) {
+        // First-time setup: acquire the multicast lock once (JmDNS needs it
+        // to join 224.0.0.251 on the phone's hotspot subnet), then advertise.
         try {
             val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
             multicastLock = wifi?.createMulticastLock(MULTICAST_LOCK_TAG)?.apply {
                 setReferenceCounted(false)
                 acquire()
             }
-            // Bind JmDNS to the hotspot interface when possible. getLocalHost
-            // returns the loopback on Android, which never reaches the HUD;
-            // pick a routable address from the first non-loopback up
-            // interface, falling back to wildcard so JmDNS picks for itself.
-            val bind: InetAddress? = pickHotspotAddress()
+        } catch (t: Throwable) {
+            Log.w(TAG, "multicast lock acquire failed", t)
+        }
+        readvertiseMdns(port, pickHotspotAddress())
+    }
+
+    /**
+     * (Re-)register the mDNS service on the given bind address. Safe to call
+     * repeatedly: any prior advertisement is torn down first. Called once at
+     * server start and on every watchdog tick where the bind address changed,
+     * so a rider enabling hotspot AFTER toggling the HUD server on still gets
+     * mDNS discovery within a few seconds without restarting the app.
+     */
+    private fun readvertiseMdns(port: Int, bind: InetAddress?) {
+        // Tear down the prior JmDNS instance so we don't leak a thread per
+        // re-advertise. Failures here are non-fatal: a half-closed JmDNS
+        // would still be replaced by the create() below.
+        try { jmdns?.unregisterAllServices() } catch (_: Throwable) {}
+        try { jmdns?.close() } catch (_: Throwable) {}
+        jmdns = null
+        try {
             jmdns = if (bind != null) JmDNS.create(bind) else JmDNS.create()
             val txt = mapOf(
                 HudDiscovery.TXT_VERSION to HudState.PROTOCOL_VERSION.toString(),

@@ -349,8 +349,6 @@ data class AppSettings(
      * route certain port ranges; riders rarely need to touch it.
      */
     val hudServerPort: Int = 28080,
-    /** Mirror the live navigation popup on the HUD when [hudServerEnabled]. */
-    val hudShowNavigation: Boolean = true,
 
     // --- Motor Sound generator ---
     //
