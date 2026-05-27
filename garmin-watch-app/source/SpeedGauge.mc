@@ -176,7 +176,7 @@ module SpeedGauge {
             var unitFont = Graphics.FONT_XTINY;
             dc.setColor(COLOR_DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(speedRightX + 4,
-                        speedY + (fontH * 38) / 100,
+                        speedY + (fontH * 18) / 100 - 1,
                         unitFont, unitText,
                         Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         }

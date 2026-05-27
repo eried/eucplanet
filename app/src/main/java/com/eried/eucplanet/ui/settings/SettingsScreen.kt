@@ -1671,23 +1671,29 @@ private fun WatchTab(
             onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
 
-        Text(
-            stringResource(R.string.watch_dial_rotation),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        SliderSetting(
-            label = "",
-            // Fixed -90 / 90 captions under the slider ends; the live angle is
-            // intentionally not shown, the thumb position is the feedback.
-            value = settings.watchDialRotationDeg.toFloat(),
-            range = -90f..90f,
-            unit = "°",
-            steps = 35,                         // 36 segments → -90,-85,…,+90
-            minLabel = "-90",
-            maxLabel = "90",
-            onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
-        )
+        // Dial rotation is Wear-OS-only: the Connect IQ Dc API has no
+        // native transform matrix, so a rotated dial would need an
+        // offscreen-bitmap-and-rotate path on Garmin that we haven't
+        // implemented yet. Surfaced only when a Wear OS device is paired.
+        if (hasWearOs) {
+            Text(
+                stringResource(R.string.watch_dial_rotation),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SliderSetting(
+                label = "",
+                // Fixed -90 / 90 captions under the slider ends; the live angle is
+                // intentionally not shown, the thumb position is the feedback.
+                value = settings.watchDialRotationDeg.toFloat(),
+                range = -90f..90f,
+                unit = "°",
+                steps = 35,                         // 36 segments → -90,-85,…,+90
+                minLabel = "-90",
+                maxLabel = "90",
+                onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
+            )
+        }
 
         // Hardware-button bindings. Conditionally rendered for surfaces
         // that actually deliver hardware key events to third-party apps:
