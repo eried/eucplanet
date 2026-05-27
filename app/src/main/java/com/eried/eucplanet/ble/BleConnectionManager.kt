@@ -315,7 +315,19 @@ class BleConnectionManager @Inject constructor(
                 BluetoothProfile.STATE_CONNECTED -> {
                     Log.i(TAG, "Connected to GATT server")
                     _connectionState.value = ConnectionState.INITIALIZING
-                    gatt.requestMtu(512)
+                    // Go straight to service discovery instead of gating on an
+                    // MTU exchange the wheel may never acknowledge. KingSong
+                    // S18 (and other cheap HM-10 modules) silently drop the
+                    // MTU request and never deliver onMtuChanged, which used
+                    // to wedge us in INITIALIZING forever. MTU 512 is now
+                    // requested fire-and-forget AFTER the CCCD subscription
+                    // is up - it's a latency optimization for the InMotion V2
+                    // family (V14 / P6 telemetry frames are 65-86 bytes and
+                    // would otherwise arrive as multi-chunk reassembly), not
+                    // a correctness requirement; the V2 adapter reassembles
+                    // either way. WheelLog upstream uses the same fire-and-
+                    // forget pattern via the Blessed library.
+                    gatt.discoverServices()
                 }
                 BluetoothProfile.STATE_DISCONNECTED -> {
                     Log.i(TAG, "Disconnected from GATT (status=$status, shouldReconnect=$shouldReconnect)")
@@ -356,8 +368,9 @@ class BleConnectionManager @Inject constructor(
         }
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
+            // Log only - no state transition gated on this callback. See
+            // onConnectionStateChange for the reasoning behind the decoupling.
             Log.i(TAG, "MTU changed to $mtu (status=$status)")
-            gatt.discoverServices()
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
@@ -467,6 +480,7 @@ class BleConnectionManager @Inject constructor(
      * the real callback cannot double-fire it, and a late callback after a
      * disconnect is a no-op.
      */
+    @SuppressLint("MissingPermission")
     private fun markReadyAndConnected() {
         if (_connectionState.value != ConnectionState.INITIALIZING) return
         writeReady = true
@@ -475,6 +489,14 @@ class BleConnectionManager @Inject constructor(
         com.eried.eucplanet.diagnostics.DiagnosticsLogger.note(
             "Connected: name=${currentName ?: "(unknown)"} adapter=${wheelAdapter.familyId}"
         )
+        // Fire-and-forget MTU bump. Has to happen AFTER the CCCD descriptor
+        // write completes - Android GATT is strictly serial and overlapping
+        // requestMtu with a pending descriptor write can wedge with status
+        // 133 on stricter stacks. If the wheel honors it, V14 / P6 telemetry
+        // frames arrive in one notification instead of being reassembled; if
+        // not, the V2 adapter's reassembly path picks up the chunked frames
+        // exactly as it has always done.
+        try { gatt?.requestMtu(512) } catch (_: Exception) {}
     }
 
     /**
