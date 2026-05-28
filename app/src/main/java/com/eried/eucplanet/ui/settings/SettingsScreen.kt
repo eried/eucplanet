@@ -1039,10 +1039,14 @@ private fun SpeedTab(
         )
 
         SectionHeader(stringResource(R.string.section_speed_limits))
+        // Lower bound is 0 km/h to match WheelLog: some Begode/Veteran wheels
+        // report tiltback at 0 (= disabled) or a very low value the rider set
+        // on the wheel itself, and clamping the slider's floor at 10 used to
+        // produce inverted ranges (10..0) that crashed the screen.
         SpeedSliderSetting(
             label = stringResource(R.string.speed_tiltback),
             valueKmh = settings.tiltbackSpeedKmh,
-            rangeKmh = 10f..maxSpeedCap,
+            rangeKmh = 0f..maxSpeedCap,
             speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateTiltbackSpeed(it) }
@@ -1050,7 +1054,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_alarm),
             valueKmh = settings.alarmSpeedKmh,
-            rangeKmh = 10f..settings.tiltbackSpeedKmh,
+            rangeKmh = 0f..settings.tiltbackSpeedKmh,
             speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateAlarmSpeed(it) }
@@ -1061,7 +1065,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_legal_tiltback),
             valueKmh = settings.safetyTiltbackKmh,
-            rangeKmh = 10f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(11f),
+            rangeKmh = 0f..(settings.tiltbackSpeedKmh - 1f).coerceAtLeast(0f),
             speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyTiltback(it) }
@@ -1069,7 +1073,7 @@ private fun SpeedTab(
         SpeedSliderSetting(
             label = stringResource(R.string.speed_legal_alarm),
             valueKmh = settings.safetyAlarmKmh,
-            rangeKmh = 10f..settings.safetyTiltbackKmh,
+            rangeKmh = 0f..settings.safetyTiltbackKmh,
             speedUnit = speedUnit,
             enabled = isConnected,
             onValueChangeKmh = { viewModel.updateSafetyAlarm(it) }
@@ -2275,12 +2279,16 @@ private fun SliderSetting(
                     )
                 }
             }
+            // Defensive: if upstream produces an inverted range (e.g. a stale
+            // settings value lower than the slider's minimum), collapse to a
+            // single-point range so the Slider doesn't crash on coerceIn.
+            val safeRange = if (range.endInclusive < range.start) range.start..range.start else range
             val computedSteps = steps
-                ?: ((range.endInclusive - range.start) - 1).toInt().coerceAtLeast(0)
+                ?: ((safeRange.endInclusive - safeRange.start) - 1).toInt().coerceAtLeast(0)
             Slider(
-                value = value.coerceIn(range),
+                value = value.coerceIn(safeRange),
                 onValueChange = onValueChange,
-                valueRange = range,
+                valueRange = safeRange,
                 steps = computedSteps,
                 enabled = enabled
             )
