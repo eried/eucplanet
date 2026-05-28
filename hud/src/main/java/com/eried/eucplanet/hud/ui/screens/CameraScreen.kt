@@ -46,10 +46,12 @@ import com.eried.eucplanet.hud.ui.parseHexColor
 fun CameraScreen(hud: HudState) {
     val ctx = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val hasPermission = remember {
-        ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED
-    }
+    // Re-evaluate every recomposition, not just once: the rider may grant
+    // the permission via the launch-time dialog AFTER this screen first
+    // composed (cold start: dashboard first, camera screen entered later).
+    val hasPermission = ContextCompat.checkSelfPermission(
+        ctx, Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
     var cameraReady by remember { mutableStateOf(false) }
     var cameraFailed by remember { mutableStateOf(false) }
     val accent = parseHexColor(hud.accentArgb)
@@ -87,11 +89,15 @@ fun CameraScreen(hud: HudState) {
                 }
             )
         } else {
+            // Distinguish the two failure modes so the rider knows whether
+            // to grant the permission (recoverable) or treat their device
+            // as cameraless (not).
+            val msg = when {
+                !hasPermission -> ctx.getString(R.string.hud_camera_permission_denied)
+                else -> ctx.getString(R.string.hud_camera_unavailable)
+            }
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = ctx.getString(R.string.hud_camera_unavailable),
-                    color = Color.White.copy(alpha = 0.7f)
-                )
+                Text(text = msg, color = Color.White.copy(alpha = 0.7f))
             }
         }
 

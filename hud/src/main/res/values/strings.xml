@@ -16,6 +16,7 @@
     <string name="hud_dash_trip">Trip</string>
     <string name="hud_dash_gps">GPS</string>
     <string name="hud_camera_unavailable">Rear camera not available on this HUD</string>
+    <string name="hud_camera_permission_denied">Camera permission denied. Grant it in device Settings to enable rear-view.</string>
     <string name="hud_map_offline">Map tiles not reachable (phone has no internet?)</string>
     <string name="hud_nav_idle">No active route</string>
     <string name="hud_nav_arrived">You have arrived</string>

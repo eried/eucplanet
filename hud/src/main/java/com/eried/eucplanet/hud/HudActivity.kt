@@ -1,11 +1,15 @@
 package com.eried.eucplanet.hud
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -29,8 +33,29 @@ class HudActivity : ComponentActivity() {
     private lateinit var client: HudClient
     private lateinit var controller: HudUiController
 
+    /**
+     * One-shot launcher for the CAMERA runtime permission. Triggered on
+     * first launch so the rear-camera screen has a working preview without
+     * the rider having to dig into device settings. The result is read by
+     * [com.eried.eucplanet.hud.ui.screens.CameraScreen] via the activity
+     * context, so we don't need to thread the result through Compose state.
+     */
+    private val cameraPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* CameraScreen re-checks on next composition */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Ask once at launch. If the rider denies it the placeholder text
+        // on the rear-camera screen will say "permission denied" rather
+        // than "no camera". The Motoeye does have a rear camera; we just
+        // need to ask for access on Android 6+.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
 
         // Fullscreen, no system bars, screen stays on while the app is up.
         WindowCompat.setDecorFitsSystemWindows(window, false)
