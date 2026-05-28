@@ -253,17 +253,34 @@ class HudServer @Inject constructor(
     }
 
     fun stop() {
+        // Move every blocking shutdown call OFF the caller thread. The
+        // caller is WheelService's settings-collect coroutine, which runs
+        // on Main; jmdns.close() and engine.stop() can each take a full
+        // second on a slow device, and together they freeze the toggle UI
+        // long enough that the rider thinks the app crashed. Snapshot the
+        // references, null the fields synchronously so the next start()
+        // sees a fresh slate, and let the IO coroutine drain the old
+        // instances in background.
         Log.i(TAG, "Stopping HUD server")
-        try { demo.stop() } catch (_: Throwable) {}
-        try { jmdns?.unregisterAllServices() } catch (_: Throwable) {}
-        try { jmdns?.close() } catch (_: Throwable) {}
+        val oldJmdns = jmdns
+        val oldLock = multicastLock
+        val oldEngine = engine
+        val oldPublishJob = publishJob
+        val oldServerJob = serverJob
         jmdns = null
-        try { multicastLock?.release() } catch (_: Throwable) {}
         multicastLock = null
-        try { engine?.stop(500L, 1000L) } catch (_: Throwable) {}
         engine = null
-        publishJob?.cancel(); publishJob = null
-        serverJob?.cancel(); serverJob = null
+        publishJob = null
+        serverJob = null
+        scope.launch {
+            try { demo.stop() } catch (_: Throwable) {}
+            try { oldJmdns?.unregisterAllServices() } catch (_: Throwable) {}
+            try { oldJmdns?.close() } catch (_: Throwable) {}
+            try { oldLock?.release() } catch (_: Throwable) {}
+            try { oldEngine?.stop(500L, 1000L) } catch (_: Throwable) {}
+            oldPublishJob?.cancel()
+            oldServerJob?.cancel()
+        }
     }
 
     private suspend fun snapshot(): HudState {
