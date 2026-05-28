@@ -34,8 +34,8 @@ android {
         // Offset by 300000 so the HUD APK's version line never collides with
         // the phone (1..99999) or the wear companion (100000-prefixed) when
         // both are visible in the same release notes.
-        versionCode = 300001
-        versionName = "0.1.0"
+        versionCode = 300002
+        versionName = "0.1.1"
     }
 
     signingConfigs {

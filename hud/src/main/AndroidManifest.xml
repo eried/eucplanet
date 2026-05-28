@@ -12,6 +12,23 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 
+    <!-- ACCESS_WIFI_STATE auto-implies <uses-feature android.hardware.wifi
+         required=true>, which blocks install on aftermarket HUDs whose
+         custom Android ROM doesn't advertise wifi as a system feature even
+         though the hardware obviously has it. Same trap caught the
+         competitor app's first build. We need wifi at runtime but mark it
+         not-required here so the device's package parser doesn't reject
+         the APK at install time. -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+
+    <!-- The activity declares screenOrientation="landscape", which AGP
+         auto-promotes to a required android.hardware.screen.landscape
+         feature. Some aftermarket HUDs don't declare that feature either
+         (their launcher hard-codes landscape system-side). Override to
+         not-required so the parser accepts us. -->
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
+
     <!-- Rear-camera screen. Optional: the screen degrades to a placeholder if
          the HUD doesn't expose a camera through the standard HAL. -->
     <uses-permission android:name="android.permission.CAMERA" />
