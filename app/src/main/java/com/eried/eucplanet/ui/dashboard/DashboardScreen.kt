@@ -580,7 +580,7 @@ fun DashboardScreen(
                     // Scale with the gauge so phones and tablets see a
                     // proportional unit label, matching the prominence the
                     // old Canvas-drawn version had.
-                    fontSize = (dialW.value * 0.18f).sp,
+                    fontSize = (dialW.value * 0.15f).sp,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         // paddingFromBaseline pins the BASELINE of the text
