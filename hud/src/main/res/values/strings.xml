@@ -5,11 +5,10 @@
     <string name="hud_screen_camera">Rear camera</string>
     <string name="hud_screen_map">Map</string>
     <string name="hud_screen_nav">Navigator</string>
-    <string name="hud_status_searching">Searching for phone…</string>
+    <string name="hud_status_waiting">Waiting for phone companion</string>
     <string name="hud_status_paired">Paired with %1$s</string>
-    <string name="hud_status_disconnected">Phone disconnected</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>
-    <string name="hud_status_enable_hint">Phone: EUC Planet → Integration → Run companion server</string>
+    <string name="hud_status_enable_hint">EUC Planet → Settings → Integration → Motoeye HUD</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>

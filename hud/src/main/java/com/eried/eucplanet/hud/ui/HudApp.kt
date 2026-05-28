@@ -105,11 +105,11 @@ private fun StatusBanner(
     // real estate for the dashboard dial.
     if (status == HudClient.Status.PAIRED) return
     val ctx = LocalContext.current
-    val statusText = when (status) {
-        HudClient.Status.SEARCHING -> ctx.getString(R.string.hud_status_searching)
-        HudClient.Status.DISCONNECTED -> ctx.getString(R.string.hud_status_disconnected)
-        HudClient.Status.PAIRED -> ctx.getString(R.string.hud_status_paired, peer ?: "")
-    }
+    // SEARCHING and DISCONNECTED were always going to read the same to a
+    // rider -- the only useful thing in both cases is "the phone app
+    // isn't sending us anything." Collapse them to one message so the
+    // banner isn't fighting itself between two near-synonyms.
+    val statusText = ctx.getString(R.string.hud_status_waiting)
     // Alternate between the status itself ("Phone disconnected") and the
     // actionable hint ("Phone: EUC Planet → ...") every BANNER_CYCLE_MS so
     // a rider glancing up at the HUD can both diagnose AND fix without
@@ -148,10 +148,9 @@ private fun StatusBanner(
 }
 
 /** One banner phase in millis. Each (status, hint) pair gets this long
- *  before flipping; the full cycle is therefore 2 × this. 3500 ms keeps
- *  the hint on screen long enough to read but doesn't linger so long that
- *  the rider misses the status flipping back. */
-private const val BANNER_CYCLE_MS: Long = 3500L
+ *  before flipping; the full cycle is therefore 2 × this. 5000 ms gives
+ *  the hint enough time to read the full breadcrumb without skimming. */
+private const val BANNER_CYCLE_MS: Long = 5000L
 
 /** Parse `#AARRGGBB` (or `#RRGGBB`) into a Compose [Color], falling back to
  *  the accent default if the wire payload is malformed. */
