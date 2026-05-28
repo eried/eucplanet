@@ -34,7 +34,8 @@ enum class BegodeModel(
     T3(       "Begode T3",         84,  45),
     T4(       "Begode T4",        134, 100),
     MASTER(   "Begode Master",    134, 100),
-    MASTER_PRO("Begode Master Pro", 151, 120);
+    MASTER_PRO("Begode Master Pro", 151, 120),
+    RACE(     "Begode Race",      134, 100);
 
     companion object {
         /**
@@ -63,6 +64,7 @@ enum class BegodeModel(
                 "mcm5"   in n -> MCM5_V2
                 "t4"     in n -> T4
                 "t3"     in n -> T3
+                "race"   in n -> RACE
                 else -> null
             }
         }

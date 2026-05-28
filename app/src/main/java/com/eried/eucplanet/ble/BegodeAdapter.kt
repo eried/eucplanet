@@ -197,7 +197,12 @@ class BegodeAdapter @Inject constructor() : WheelAdapter {
             text.startsWith("JN") -> Banner(firmware = text, model = null)
             text.startsWith("CF") -> Banner(firmware = text, model = null)
             text.startsWith("NAME=") -> Banner(firmware = null, model = text.removePrefix("NAME=").trim())
-            text.startsWith("NAME") -> Banner(firmware = null, model = text.removePrefix("NAME").trim().removePrefix("=").trim())
+            // Some Begode firmwares (Race observed) answer with "NAME:RACE"
+            // using a colon. Strip either separator before keeping the value.
+            text.startsWith("NAME") -> Banner(
+                firmware = null,
+                model = text.removePrefix("NAME").trimStart(':', '=', ' ').trim()
+            )
             else -> null
         }
     }

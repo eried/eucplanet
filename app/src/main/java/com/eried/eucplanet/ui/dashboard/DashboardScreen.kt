@@ -1873,16 +1873,23 @@ private fun SpeedGauge(
         )
 
         // Speed unit pinned against refHeight, fixed position regardless of
-        // how many digits the speed has.
+        // how many digits the speed has. Clamped to never extend past the
+        // scale-label row at the arc bottom, otherwise the experimental
+        // banner squeezing the gauge vertically pushes "mph" onto the cards
+        // below (reported on Pixel 6 Pro / Begode Race).
         val unitMeasured = textMeasurer.measure(
             unitLabel,
-            style = TextStyle(fontSize = (size.minDimension * 0.06f).sp, color = dimColor)
+            style = TextStyle(fontSize = (size.minDimension * 0.045f).sp, color = dimColor)
         )
+        val scaleLabelBottomY =
+            center.y + labelRadius * sin(Math.toRadians(140.0)).toFloat()
+        val preferredUnitTop = center.y + refHeight / 2f - size.minDimension * 0.01f
+        val maxUnitTop = scaleLabelBottomY - unitMeasured.size.height - size.minDimension * 0.015f
         drawText(
             unitMeasured,
             topLeft = Offset(
                 center.x - unitMeasured.size.width / 2f,
-                center.y + refHeight / 2f - size.minDimension * 0.01f
+                preferredUnitTop.coerceAtMost(maxUnitTop)
             )
         )
 
