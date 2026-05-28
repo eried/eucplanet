@@ -38,6 +38,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -96,7 +97,29 @@ class HudServer @Inject constructor(
         encodeDefaults = true
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    /**
+     * Catch any uncaught exception thrown inside coroutines spawned on
+     * [scope] - notably Ktor's accept-loop, which lives in its OWN
+     * coroutine outside our `try/catch` wrappers. Without this, a
+     * BindException from an in-progress old socket release crashes the
+     * whole app process. Logging is enough; the start/stop mutex (see
+     * lifecycleLock) prevents the bad state from recurring.
+     */
+    private val scope = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO +
+            kotlinx.coroutines.CoroutineExceptionHandler { _, t ->
+                Log.e(TAG, "uncaught in HudServer scope", t)
+            }
+    )
+
+    /**
+     * Serializes start() and stop() so a rider rapidly toggling the
+     * "Run companion server" switch can't fire a new start() while the
+     * previous stop()'s socket close is still in flight. Without it the
+     * second bind() races the kernel's TIME_WAIT release of port 28080
+     * and dies with BindException.
+     */
+    private val lifecycleLock = kotlinx.coroutines.sync.Mutex()
 
     @Volatile private var serverJob: Job? = null
     @Volatile private var publishJob: Job? = null
@@ -114,7 +137,20 @@ class HudServer @Inject constructor(
      *  inactive until [start] sees `debug.eucplanet.demo=true`. */
     private val demo = HudDemoSource()
 
+    /**
+     * Public start. Returns immediately; the real work runs on the IO
+     * scope under [lifecycleLock] so a rapidly-toggled start/stop sequence
+     * can't race. The mutex guarantees that any pending stop() drains
+     * fully -- including engine.stop() releasing the TCP socket -- before
+     * the next start() tries to bind port 28080. Without serialization the
+     * second bind hits the kernel's still-open listening socket and Ktor's
+     * accept-loop crashes the app with BindException.
+     */
     fun start() {
+        scope.launch { lifecycleLock.withLock { doStart() } }
+    }
+
+    private suspend fun doStart() {
         if (serverJob != null) return
         Log.i(TAG, "Starting HUD server")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
@@ -252,15 +288,21 @@ class HudServer @Inject constructor(
         }
     }
 
+    /**
+     * Public stop. Returns immediately; teardown runs under [lifecycleLock]
+     * on the IO scope. Two reasons for the lock:
+     *  1. Heavy calls (jmdns.close ~3s, engine.stop ~1s) must not block the
+     *     caller thread, which is WheelService's Main-thread collect.
+     *  2. A subsequent start() that grabs the lock will wait for this
+     *     teardown to finish, guaranteeing port 28080 is released before
+     *     it tries to rebind. Without that the rapid toggle hits Ktor's
+     *     accept-loop with BindException and crashes the app.
+     */
     fun stop() {
-        // Move every blocking shutdown call OFF the caller thread. The
-        // caller is WheelService's settings-collect coroutine, which runs
-        // on Main; jmdns.close() and engine.stop() can each take a full
-        // second on a slow device, and together they freeze the toggle UI
-        // long enough that the rider thinks the app crashed. Snapshot the
-        // references, null the fields synchronously so the next start()
-        // sees a fresh slate, and let the IO coroutine drain the old
-        // instances in background.
+        scope.launch { lifecycleLock.withLock { doStop() } }
+    }
+
+    private suspend fun doStop() {
         Log.i(TAG, "Stopping HUD server")
         val oldJmdns = jmdns
         val oldLock = multicastLock
@@ -272,15 +314,16 @@ class HudServer @Inject constructor(
         engine = null
         publishJob = null
         serverJob = null
-        scope.launch {
-            try { demo.stop() } catch (_: Throwable) {}
-            try { oldJmdns?.unregisterAllServices() } catch (_: Throwable) {}
-            try { oldJmdns?.close() } catch (_: Throwable) {}
-            try { oldLock?.release() } catch (_: Throwable) {}
-            try { oldEngine?.stop(500L, 1000L) } catch (_: Throwable) {}
-            oldPublishJob?.cancel()
-            oldServerJob?.cancel()
-        }
+        try { demo.stop() } catch (_: Throwable) {}
+        try { oldJmdns?.unregisterAllServices() } catch (_: Throwable) {}
+        try { oldJmdns?.close() } catch (_: Throwable) {}
+        try { oldLock?.release() } catch (_: Throwable) {}
+        // Block until the engine has fully released its sockets, otherwise
+        // the next start() inside the same mutex cycle will hit a
+        // still-bound port.
+        try { oldEngine?.stop(500L, 1000L) } catch (_: Throwable) {}
+        oldPublishJob?.cancel()
+        oldServerJob?.cancel()
     }
 
     private suspend fun snapshot(): HudState {
