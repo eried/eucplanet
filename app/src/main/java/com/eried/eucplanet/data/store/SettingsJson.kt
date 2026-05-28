@@ -188,6 +188,8 @@ object SettingsJson {
         put("navMapType", s.navMapType)
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("hudServerEnabled", s.hudServerEnabled)
+        put("hudServerPort", s.hudServerPort)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -354,6 +356,8 @@ object SettingsJson {
             j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
         else base.navUserMarkerPhotoDataUrl,
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),
