@@ -44,12 +44,25 @@ object CrashHandler {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"
         } catch (_: Throwable) { "?" }
 
+        val dm = context.resources.displayMetrics
+        val cfg = context.resources.configuration
+        val locale = try {
+            if (android.os.Build.VERSION.SDK_INT >= 24) cfg.locales[0].toLanguageTag()
+            else @Suppress("DEPRECATION") cfg.locale.toLanguageTag()
+        } catch (_: Throwable) { "?" }
+        val rt = Runtime.getRuntime()
+        val memMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)
+        val maxMb = rt.maxMemory() / (1024 * 1024)
+
         val header = buildString {
             appendLine("Time: ${Date()}")
             appendLine("App: ${context.packageName} $versionName")
             appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
             appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.DEVICE})")
             appendLine("ABI: ${Build.SUPPORTED_ABIS.joinToString(",")}")
+            appendLine("Display: ${dm.widthPixels}x${dm.heightPixels} @${dm.densityDpi}dpi (x${dm.density})")
+            appendLine("Locale: $locale")
+            appendLine("Memory: ${memMb}MB used / ${maxMb}MB max")
             appendLine("Thread: ${thread.name}")
             appendLine()
         }
