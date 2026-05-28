@@ -26,16 +26,20 @@ android {
         // That way a rider can have both apps installed side by side on a
         // tablet during development without one masking the other.
         applicationId = "com.eried.eucplanet.hud"
-        // Motoeye E6 ships with Android 11 (API 30). minSdk 29 keeps room for
-        // any earlier variant; targetSdk 33 because the device firmware doesn't
-        // surface API 34's foreground-service typing rigorously.
-        minSdk = 29
+        // The Motoeye E6 ships with what aftermarket vendors call "Android",
+        // but the firmware revision is unpublished and the manuals are vague.
+        // The EUC World HUD app (known to install) targets minSdk=24
+        // (Android 7), so we match that. Some E6 units appear to be Android
+        // 7 or 8 from forum reports, which would parse-reject any APK with
+        // minSdk >= 26. targetSdk 33 keeps us inside the API surface we
+        // actually exercise (Compose, CameraX, OkHttp all support 24).
+        minSdk = 24
         targetSdk = 33
         // Offset by 300000 so the HUD APK's version line never collides with
         // the phone (1..99999) or the wear companion (100000-prefixed) when
         // both are visible in the same release notes.
-        versionCode = 300002
-        versionName = "0.1.1"
+        versionCode = 300003
+        versionName = "0.1.2"
     }
 
     signingConfigs {

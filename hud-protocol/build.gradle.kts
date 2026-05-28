@@ -9,7 +9,10 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 29
+        // Pure data classes - no API surface that requires anything newer.
+        // Keep low so :hud (which targets Android 7 to cover aftermarket
+        // HUDs) can depend on us without lifting its own minSdk.
+        minSdk = 21
     }
 
     compileOptions {
