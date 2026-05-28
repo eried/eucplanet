@@ -14,8 +14,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -102,11 +105,27 @@ private fun StatusBanner(
     // real estate for the dashboard dial.
     if (status == HudClient.Status.PAIRED) return
     val ctx = LocalContext.current
-    val text = when (status) {
+    val statusText = when (status) {
         HudClient.Status.SEARCHING -> ctx.getString(R.string.hud_status_searching)
         HudClient.Status.DISCONNECTED -> ctx.getString(R.string.hud_status_disconnected)
         HudClient.Status.PAIRED -> ctx.getString(R.string.hud_status_paired, peer ?: "")
     }
+    // Alternate between the status itself ("Phone disconnected") and the
+    // actionable hint ("Phone: Settings → ...") every BANNER_CYCLE_MS so a
+    // rider glancing up at the HUD can both diagnose AND fix the situation
+    // without needing the manual on hand. Reset on status change so the
+    // first frame after a transition is always the bare status, not the
+    // hint mid-cycle.
+    val hintText = ctx.getString(R.string.hud_status_enable_hint)
+    var showHint by remember(status) { mutableStateOf(false) }
+    LaunchedEffect(status) {
+        while (true) {
+            kotlinx.coroutines.delay(BANNER_CYCLE_MS)
+            showHint = !showHint
+        }
+    }
+    val displayed = if (showHint) hintText else statusText
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -114,9 +133,23 @@ private fun StatusBanner(
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text, color = Color.White)
+        // Crossfade so the alternation reads as a polished status surface
+        // rather than text snapping from one line to another.
+        androidx.compose.animation.Crossfade(
+            targetState = displayed,
+            animationSpec = androidx.compose.animation.core.tween(durationMillis = 300),
+            label = "hud-banner"
+        ) { t ->
+            Text(t, color = Color.White)
+        }
     }
 }
+
+/** One banner phase in millis. Each (status, hint) pair gets this long
+ *  before flipping; the full cycle is therefore 2 × this. 3500 ms keeps
+ *  the hint on screen long enough to read but doesn't linger so long that
+ *  the rider misses the status flipping back. */
+private const val BANNER_CYCLE_MS: Long = 3500L
 
 /** Parse `#AARRGGBB` (or `#RRGGBB`) into a Compose [Color], falling back to
  *  the accent default if the wire payload is malformed. */

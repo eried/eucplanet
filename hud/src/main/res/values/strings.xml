@@ -9,6 +9,7 @@
     <string name="hud_status_paired">Paired with %1$s</string>
     <string name="hud_status_disconnected">Phone disconnected</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>
+    <string name="hud_status_enable_hint">Phone: Settings → Integration → Run companion server</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>
