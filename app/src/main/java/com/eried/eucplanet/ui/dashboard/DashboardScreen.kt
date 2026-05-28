@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -579,10 +580,15 @@ fun DashboardScreen(
                     // Scale with the gauge so phones and tablets see a
                     // proportional unit label, matching the prominence the
                     // old Canvas-drawn version had.
-                    fontSize = (dialW.value * 0.13f).sp,
+                    fontSize = (dialW.value * 0.18f).sp,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 10.dp)
+                        // paddingFromBaseline pins the BASELINE of the text
+                        // (the bottom of 'm' and 'h'), not the descender bottom
+                        // of 'p', to 10dp above the parent's bottom edge --
+                        // matching the Map icon's bottom padding so all three
+                        // sit on the same line.
+                        .paddingFromBaseline(bottom = 10.dp)
                 )
                 // Only the centre of the dial opens speed history, the empty
                 // corners of the gauge's bounding box no longer steal taps
