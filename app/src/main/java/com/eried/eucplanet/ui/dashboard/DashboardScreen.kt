@@ -576,7 +576,10 @@ fun DashboardScreen(
                 Text(
                     text = com.eried.eucplanet.util.Units.speedUnit(LocalContext.current, speedUnit),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 28.sp,
+                    // Scale with the gauge so phones and tablets see a
+                    // proportional unit label, matching the prominence the
+                    // old Canvas-drawn version had.
+                    fontSize = (dialW.value * 0.13f).sp,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 10.dp)
