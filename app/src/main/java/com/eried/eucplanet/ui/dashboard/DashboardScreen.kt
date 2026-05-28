@@ -569,6 +569,18 @@ fun DashboardScreen(
                         .aspectRatio(ratio)
                         .align(Alignment.Center)
                 )
+                // Unit label ("mph" / "km/h") aligned to the same bottom line
+                // as the Map / Camera glyphs below, so when the experimental
+                // banner squeezes the BoxWithConstraints they all move up
+                // together instead of the unit text falling onto the cards.
+                Text(
+                    text = com.eried.eucplanet.util.Units.speedUnit(LocalContext.current, speedUnit),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 10.dp)
+                )
                 // Only the centre of the dial opens speed history, the empty
                 // corners of the gauge's bounding box no longer steal taps
                 // meant for the P/D, GPS, map and camera glyphs.
@@ -1725,8 +1737,6 @@ private fun SpeedGauge(
     val maxInt = displayMax.toInt()
     val step = (maxInt / 3f).toInt().coerceAtLeast(5)
     val scaleLabels = listOf(0, step, step * 2, maxInt)
-    val unitLabel = com.eried.eucplanet.util.Units.speedUnit(androidx.compose.ui.platform.LocalContext.current, speedUnit)
-
     Canvas(modifier = modifier) {
         val dim = size.minDimension
         val arcThickness = dim * 0.07f
@@ -1872,26 +1882,11 @@ private fun SpeedGauge(
             )
         )
 
-        // Speed unit pinned against refHeight, fixed position regardless of
-        // how many digits the speed has. Clamped to never extend past the
-        // scale-label row at the arc bottom, otherwise the experimental
-        // banner squeezing the gauge vertically pushes "mph" onto the cards
-        // below (reported on Pixel 6 Pro / Begode Race).
-        val unitMeasured = textMeasurer.measure(
-            unitLabel,
-            style = TextStyle(fontSize = (size.minDimension * 0.045f).sp, color = dimColor)
-        )
-        val scaleLabelBottomY =
-            center.y + labelRadius * sin(Math.toRadians(140.0)).toFloat()
-        val preferredUnitTop = center.y + refHeight / 2f - size.minDimension * 0.01f
-        val maxUnitTop = scaleLabelBottomY - unitMeasured.size.height - size.minDimension * 0.015f
-        drawText(
-            unitMeasured,
-            topLeft = Offset(
-                center.x - unitMeasured.size.width / 2f,
-                preferredUnitTop.coerceAtMost(maxUnitTop)
-            )
-        )
+        // Speed unit (mph / km/h) is drawn OUTSIDE this canvas by the
+        // dashboard layout, aligned to the same bottom as the Map / Camera
+        // glyphs in the gauge container. Drawing it here used to push it
+        // onto the cards row when the experimental banner squeezed the
+        // gauge vertically (Pixel 6 Pro / Begode Race).
 
         // External GPS marker. Tiny dot on the arc at the angle matching the
         // external speed, plus a small numeric readout under the main number.
