@@ -438,6 +438,10 @@ class BegodeParser {
                 134 -> 2.00f
                 151 -> 2.25f
                 168 -> 2.50f
+                // 50S packs (Begode Race) - not in WheelLog's stock table, but
+                // ratio = nominalV / 67.2 fits the family pattern and matches
+                // labelled cell-voltage telemetry (4.085 V x 50 = 204 V real).
+                210 -> 3.125f
                 else -> 1.25f
             }
         }

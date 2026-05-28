@@ -35,7 +35,12 @@ enum class BegodeModel(
     T4(       "Begode T4",        134, 100),
     MASTER(   "Begode Master",    134, 100),
     MASTER_PRO("Begode Master Pro", 151, 120),
-    RACE(     "Begode Race",      134, 100);
+    // Race is a 50S/210V pack: cell-voltage frames show 4.085V x 50 cells
+    // = ~204V real, which means the Live-A raw centivolt reading needs
+    // the 210V-tier ratio (~3.125), not the 134V one (2.00) used by other
+    // Begode flagships. Different protocol class than nominal-voltage
+    // peers like the Master.
+    RACE(     "Begode Race",      210, 100);
 
     companion object {
         /**
