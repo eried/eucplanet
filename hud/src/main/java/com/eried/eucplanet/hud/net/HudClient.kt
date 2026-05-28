@@ -154,7 +154,15 @@ class HudClient(private val context: Context) {
             }
             attempt = 0
             _peer.value = peerUrl
-            _status.value = Status.PAIRED
+            // DON'T flip status to PAIRED here. We only know we're paired
+            // once the SSE handshake completes, which streamUntilClosed
+            // signals via the onOpen callback (look for the call to
+            // _status.value = Status.PAIRED there). Premature PAIRED
+            // status hides the "Phone disconnected" banner during attempts
+            // that ultimately fail, leaving the rider with no on-screen
+            // signal that anything is wrong. Stay in SEARCHING until SSE
+            // actually opens.
+            _status.value = Status.SEARCHING
             // Re-send the Pair command on every fresh connection so the phone
             // log shows the HUD reappearing after a hotspot blip.
             send(HudCommand.Pair(hudId, hudVersion))
@@ -179,6 +187,10 @@ class HudClient(private val context: Context) {
         val listener = object : EventSourceListener() {
             override fun onOpen(eventSource: EventSource, response: Response) {
                 Log.i(TAG, "SSE open: $peerUrl")
+                // Now that the server has accepted us we can claim PAIRED.
+                // discoverAndConnect stays in SEARCHING during the attempt;
+                // this is the single point where we flip.
+                _status.value = Status.PAIRED
             }
             override fun onEvent(
                 eventSource: EventSource, id: String?, type: String?, data: String

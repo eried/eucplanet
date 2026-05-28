@@ -111,14 +111,20 @@ private fun StatusBanner(
         HudClient.Status.PAIRED -> ctx.getString(R.string.hud_status_paired, peer ?: "")
     }
     // Alternate between the status itself ("Phone disconnected") and the
-    // actionable hint ("Phone: Settings → ...") every BANNER_CYCLE_MS so a
-    // rider glancing up at the HUD can both diagnose AND fix the situation
-    // without needing the manual on hand. Reset on status change so the
-    // first frame after a transition is always the bare status, not the
-    // hint mid-cycle.
+    // actionable hint ("Phone: EUC Planet → ...") every BANNER_CYCLE_MS so
+    // a rider glancing up at the HUD can both diagnose AND fix without
+    // needing the manual on hand.
+    //
+    // DON'T key remember / LaunchedEffect on `status`: during reconnect
+    // attempts the client flips between SEARCHING and DISCONNECTED multiple
+    // times per second. Keying on status would reset showHint to false and
+    // restart the 3.5s timer every flicker -- the hint would never finish
+    // a phase, so the rider only sees the status text "blinking faster"
+    // (exactly what got reported). Keep the alternation cycle steady; the
+    // text content already follows whatever status is current.
     val hintText = ctx.getString(R.string.hud_status_enable_hint)
-    var showHint by remember(status) { mutableStateOf(false) }
-    LaunchedEffect(status) {
+    var showHint by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(BANNER_CYCLE_MS)
             showHint = !showHint
@@ -133,15 +139,11 @@ private fun StatusBanner(
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Crossfade so the alternation reads as a polished status surface
-        // rather than text snapping from one line to another.
-        androidx.compose.animation.Crossfade(
-            targetState = displayed,
-            animationSpec = androidx.compose.animation.core.tween(durationMillis = 300),
-            label = "hud-banner"
-        ) { t ->
-            Text(t, color = Color.White)
-        }
+        // Plain Text. Earlier I had a Crossfade wrap here for a polished
+        // fade between phases, but tester reported the second phase
+        // rendered as empty. Bare swap is reliable; we lose a little
+        // polish but riders see the hint, which is the whole point.
+        Text(displayed, color = Color.White)
     }
 }
 
