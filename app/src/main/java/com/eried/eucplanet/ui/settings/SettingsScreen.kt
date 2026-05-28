@@ -3398,35 +3398,42 @@ private fun RestorePickerDialog(
 
 /**
  * Small info row shown under the HUD server toggle when the rider has it on
- * but the phone's WiFi hotspot isn't broadcasting. Detects hotspot state by
- * reflecting into WifiManager.isWifiApEnabled, which is hidden API but stable
- * across Android 10 - 14. Falls back silently if reflection fails; the hint
- * just doesn't render.
+ * but the phone's WiFi hotspot isn't broadcasting.
  *
- * Refreshes every 5 s while the Settings tab is visible -- toggling a hotspot
- * usually involves leaving Settings, so we don't need a faster poll.
+ * Detecting hotspot state on modern Android is annoying:
+ *   - WifiManager.isWifiApEnabled is @hide and gated by UnsupportedAppUsage
+ *     on API 30+, so reflection works on some devices and silently fails on
+ *     others (and always fails on the emulator).
+ *   - TetheringManager is API 30+ but its query is gated behind a system
+ *     permission we can't hold.
+ *   - The only universal signal is the kernel-level "tether" or "softap"
+ *     network interface that comes up when the user enables hotspot. It is
+ *     a generally-reliable indicator across vendors.
+ *
+ * Strategy: try reflection first (cheapest, gives the most accurate answer
+ * when it works), fall back to scanning NetworkInterface names for known
+ * hotspot prefixes. If both fail we assume hotspot is OFF and surface the
+ * hint -- a false positive is harmless (rider sees it, ignores it) while a
+ * false negative leaves them staring at "Searching for phone..." with no
+ * explanation.
+ *
+ * Refreshes every 5 s -- enabling a hotspot usually involves leaving the
+ * Settings screen, so we don't need a faster poll.
  */
 @Composable
 private fun HudHotspotHint() {
     val ctx = LocalContext.current
-    var hotspotOn by remember { mutableStateOf(true) }
+    var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {
         while (true) {
-            hotspotOn = runCatching {
-                val wifi = ctx.applicationContext
-                    .getSystemService(android.content.Context.WIFI_SERVICE)
-                    as android.net.wifi.WifiManager
-                // isWifiApEnabled() is @hide but available via reflection on
-                // every Android version we support. UnsupportedAppUsage gates
-                // it at runtime on Android 11+ for app-stable signatures,
-                // which this one is.
-                val m = wifi.javaClass.getMethod("isWifiApEnabled")
-                m.invoke(wifi) as? Boolean ?: true
-            }.getOrDefault(true)
+            hotspotOn = detectHotspotEnabled(ctx)
             kotlinx.coroutines.delay(5_000L)
         }
     }
-    if (!hotspotOn) {
+    // null = not yet detected; don't flash the hint while the first probe
+    // is in flight. false = definitely off (or could-not-detect, equivalent
+    // for UX purposes). true = confirmed on, hint hidden.
+    if (hotspotOn == false) {
         androidx.compose.material3.Surface(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.tertiaryContainer,
@@ -3440,6 +3447,37 @@ private fun HudHotspotHint() {
             )
         }
     }
+}
+
+/**
+ * Two-stage hotspot detection. Returns true/false when we have a signal, or
+ * false when nothing answered (so the UI defaults to surfacing the hint).
+ */
+private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
+    // Stage 1: reflection into the legacy isWifiApEnabled API.
+    val viaReflection: Boolean? = runCatching {
+        val wifi = ctx.applicationContext
+            .getSystemService(android.content.Context.WIFI_SERVICE)
+            as android.net.wifi.WifiManager
+        val m = wifi.javaClass.getMethod("isWifiApEnabled")
+        m.invoke(wifi) as? Boolean
+    }.getOrNull()
+    if (viaReflection != null) return viaReflection
+
+    // Stage 2: look for a SoftAP-style network interface. When the rider
+    // toggles hotspot on, the kernel brings up an interface named "ap0",
+    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI). When hotspot
+    // is off, none of those exist - only "wlan0" for the regular client.
+    return runCatching {
+        val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
+        ifs.any { iface ->
+            val name = iface.name.orEmpty().lowercase()
+            iface.isUp && !iface.isLoopback && (
+                name.startsWith("ap") || name.startsWith("softap") ||
+                name.startsWith("swlan") || name == "wlan1"
+            )
+        }
+    }.getOrDefault(false)
 }
 
 // --- HUD section (lives inside the Integration tab) ---

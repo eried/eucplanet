@@ -103,8 +103,8 @@
     <string name="tab_cloud">Backup settings &amp; trips</string>
 
     <!-- HUD companion settings -->
-    <string name="section_hud_companion">HUD companion</string>
-    <string name="hud_server_enabled">HUD companion server</string>
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Run companion server</string>
     <string name="hud_server_enabled_desc">Stream telemetry to a paired aftermarket HUD over the phone\'s WiFi hotspot. Off by default.</string>
     <string name="hud_server_port">Server port</string>
     <string name="hud_server_port_desc">Default 28080. Change only if another app on this phone listens on the same port.</string>
