@@ -105,7 +105,7 @@
     <!-- HUD companion settings -->
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Run companion server</string>
-    <string name="hud_server_enabled_desc">Stream telemetry to a paired Motoeye HUD.</string>
+    <string name="hud_server_enabled_desc">Mirror dashboard, map and navigation to the HUD.</string>
     <string name="hud_server_port">Server port</string>
     <string name="hud_server_port_desc">Default 28080. Change only if another app on this phone listens on the same port.</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Turn it on in Android Settings so the HUD can reach the phone over WiFi.</string>
