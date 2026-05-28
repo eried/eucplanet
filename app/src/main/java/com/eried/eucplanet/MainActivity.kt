@@ -231,9 +231,14 @@ class MainActivity : AppCompatActivity() {
                     // with location/connectedDevice types if neither perm is granted.
                     // Either always-on voice OR the HUD companion server can
                     // require the foreground service before a wheel is paired.
+                    // The HUD-force debug prop is honoured too so emulator
+                    // testers don't have to find the Compose toggle by tap.
+                    val forceHud = com.eried.eucplanet.service.hud.HudDebug
+                        .read("debug.eucplanet.hud.force") == "true"
                     val needsService = canStartWheelService() && (
                         (it.voiceEnabled && !it.voiceOnlyWhenConnected) ||
-                        it.hudServerEnabled
+                        it.hudServerEnabled ||
+                        forceHud
                     )
                     if (needsService) {
                         startForegroundService(Intent(this@MainActivity, WheelService::class.java))

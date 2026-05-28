@@ -125,9 +125,16 @@ class WheelService : LifecycleService() {
                 // HUD server lives only while the toggle is on AND the service
                 // is running. Watching the settings flow rather than checking
                 // once at onCreate so the rider can toggle it mid-session.
-                if (s.hudServerEnabled != hudWasOn) {
-                    if (s.hudServerEnabled) hudServer.start() else hudServer.stop()
-                    hudWasOn = s.hudServerEnabled
+                // Debug prop `debug.eucplanet.hud.force=true` bypasses the
+                // toggle for emulator testing, where finding the Compose
+                // switch coordinates over adb is painful. No effect on real
+                // devices, which never have this prop set.
+                val forceOn = com.eried.eucplanet.service.hud.HudDebug
+                    .read("debug.eucplanet.hud.force") == "true"
+                val effective = s.hudServerEnabled || forceOn
+                if (effective != hudWasOn) {
+                    if (effective) hudServer.start() else hudServer.stop()
+                    hudWasOn = effective
                 }
             }
         }

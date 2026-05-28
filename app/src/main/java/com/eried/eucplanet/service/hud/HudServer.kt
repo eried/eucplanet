@@ -117,7 +117,7 @@ class HudServer @Inject constructor(
     fun start() {
         if (serverJob != null) return
         Log.i(TAG, "Starting HUD server")
-        if (readDebugProp("debug.eucplanet.demo") == "true") {
+        if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
             demo.start()
         }
@@ -341,15 +341,6 @@ class HudServer @Inject constructor(
         )
     }
 
-    /** Read a `debug.*` system property without compiling against the
-     *  reflection-only `android.os.SystemProperties` class. Returns null
-     *  on any error. */
-    private fun readDebugProp(name: String): String? = try {
-        val cls = Class.forName("android.os.SystemProperties")
-        cls.getMethod("get", String::class.java).invoke(null, name) as? String
-    } catch (_: Throwable) {
-        null
-    }
 
     private fun resolveAccentArgb(s: AppSettings): String {
         // Mirror the same lookup the phone theme does, but render to a hex
