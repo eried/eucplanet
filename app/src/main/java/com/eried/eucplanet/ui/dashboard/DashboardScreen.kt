@@ -1166,10 +1166,10 @@ fun DashboardScreen(
                                             val firstDown = awaitFirstDown(requireUnconsumed = false)
                                             logoPressed = true
                                             val pointerId = firstDown.id
-                                            val deadline = System.currentTimeMillis() + 5000L
+                                            val deadline = System.currentTimeMillis() + 3000L
                                             // Poll pointer events while bounding each wait by the
                                             // remaining time. Three exit conditions:
-                                            //  - 5s elapses with the finger still down inside the
+                                            //  - 3s elapses with the finger still down inside the
                                             //    logo bounds  -> trigger Service Mode
                                             //  - user lifts the finger early                 -> abort
                                             //  - user drags the finger off the logo          -> abort
