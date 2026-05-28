@@ -8,7 +8,7 @@
     <string name="hud_status_waiting">Waiting for phone companion…</string>
     <string name="hud_status_paired">Paired with %1$s</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>
-    <string name="hud_status_enable_hint">EUC Planet - Settings - Integration - Motoeye HUD</string>
+    <string name="hud_status_enable_hint">EUC Planet / Settings / Integration / Motoeye HUD</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>
