@@ -576,7 +576,7 @@ fun DashboardScreen(
                 Text(
                     text = com.eried.eucplanet.util.Units.speedUnit(LocalContext.current, speedUnit),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 28.sp,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 10.dp)
