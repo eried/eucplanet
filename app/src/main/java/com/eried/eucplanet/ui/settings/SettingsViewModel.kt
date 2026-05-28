@@ -81,11 +81,14 @@ class SettingsViewModel @Inject constructor(
 
     fun updateTiltbackSpeed(value: Float) {
         update {
+            // Now that the slider floor is 0 km/h (Begode parity), the legal
+            // cap can land on 0 without going negative.
+            val legalCap = (value - 1f).coerceAtLeast(0f)
             copy(
                 tiltbackSpeedKmh = value,
                 alarmSpeedKmh = alarmSpeedKmh.coerceAtMost(value),
-                safetyTiltbackKmh = safetyTiltbackKmh.coerceAtMost(value - 1f),
-                safetyAlarmKmh = safetyAlarmKmh.coerceAtMost((value - 1f).coerceAtLeast(10f))
+                safetyTiltbackKmh = safetyTiltbackKmh.coerceAtMost(legalCap),
+                safetyAlarmKmh = safetyAlarmKmh.coerceAtMost(legalCap)
             )
         }
         viewModelScope.launch {
@@ -103,7 +106,7 @@ class SettingsViewModel @Inject constructor(
     }
     fun updateSafetyTiltback(value: Float) =
         update {
-            val capped = value.coerceAtMost(tiltbackSpeedKmh - 1f)
+            val capped = value.coerceAtMost((tiltbackSpeedKmh - 1f).coerceAtLeast(0f))
             copy(safetyTiltbackKmh = capped, safetyAlarmKmh = safetyAlarmKmh.coerceAtMost(capped))
         }
 
