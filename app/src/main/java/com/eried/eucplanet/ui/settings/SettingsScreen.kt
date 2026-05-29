@@ -3518,16 +3518,13 @@ private fun HudIntegrationSection(
         // default. They're disabled while the link is active so an
         // accidental keystroke can't drop a live connection.
         val fieldsEnabled = !settings.hudServerEnabled
-        // Local edit buffer for the port. We DON'T re-key on
-        // settings.hudServerPort because the ViewModel coerces values
-        // into [1024, 65535] -- typing "2" mid-edit would clamp to 1024
-        // and re-key the field to "1024", yanking the cursor. Local
-        // buffer stays raw; we push to the ViewModel only when the user
-        // moves on (Done / focus loss / valid full value).
+        // Local edit buffers, seeded from settings ONCE at first
+        // composition and never re-keyed. The DataStore-backed write
+        // back from updateHudIp / updateHudServerPort is asynchronous;
+        // re-keying these on settings.* would race the IME and scramble
+        // mid-edit keystrokes (testers reported "192" appearing as "921").
+        var ipText by remember { mutableStateOf(settings.hudIp) }
         var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
-        // Mirror persisted port into the buffer once at initial composition;
-        // settings is the source of truth across launches.
-        LaunchedEffect(Unit) { portText = settings.hudServerPort.toString() }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -3537,17 +3534,14 @@ private fun HudIntegrationSection(
             // (which is always visible) instead of the placeholder (which
             // only shows when the field is focused) so the rider sees the
             // autodetect state without having to tap into the field first.
-            val ipLabel = if (settings.hudServerEnabled && settings.hudIp.isBlank())
+            val ipLabel = if (settings.hudServerEnabled && ipText.isBlank())
                 stringResource(R.string.hud_ip_label_autodetect)
             else stringResource(R.string.hud_ip_label)
-            // Bind directly to settings.hudIp -- no local edit buffer, no
-            // remember/mutableStateOf. Previously a local buffer keyed on
-            // settings.hudIp re-keyed on every ViewModel write-back, which
-            // could yank the cursor and drop focus mid-type.
             OutlinedTextField(
-                value = settings.hudIp,
+                value = ipText,
                 onValueChange = { new ->
                     if (new.length <= 15 && new.all { it.isDigit() || it == '.' }) {
+                        ipText = new
                         viewModel.updateHudIp(new)
                     }
                 },
