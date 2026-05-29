@@ -3537,7 +3537,18 @@ private fun HudIntegrationSection(
                     }
                 },
                 label = { Text(stringResource(R.string.hud_ip_label)) },
-                placeholder = { Text("192.168.43.1") },
+                // When the link is on and the field is blank, the client
+                // falls back to mDNS discovery; signal that in the
+                // placeholder so the rider knows they don't have to type
+                // anything. When the link is off we show the example IP
+                // so they have something concrete to start from.
+                placeholder = {
+                    Text(
+                        if (settings.hudServerEnabled)
+                            stringResource(R.string.hud_ip_autodetect)
+                        else "192.168.43.1"
+                    )
+                },
                 singleLine = true,
                 enabled = fieldsEnabled,
                 modifier = Modifier.weight(2f)

@@ -1,6 +1,7 @@
 package com.eried.eucplanet.service.hud
 
 import android.content.Context
+import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
@@ -35,6 +36,9 @@ import okhttp3.WebSocketListener
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import javax.jmdns.JmDNS
+import javax.jmdns.ServiceEvent
+import javax.jmdns.ServiceListener
 
 /**
  * Phone-side dialer that streams the current wheel telemetry to an external
@@ -76,6 +80,11 @@ class HudServer @Inject constructor(
         // above it the HUD feels stuck.
         private const val BACKOFF_MIN_MS = 1_000L
         private const val BACKOFF_MAX_MS = 5_000L
+        // mDNS resolve timeout. Generous so a flaky multicast path on the
+        // hotspot gets a fair chance, but bounded so the rider sees the
+        // "no IP / not autodetected" state within a reasonable wait.
+        private const val MDNS_RESOLVE_TIMEOUT_MS = 5_000L
+        private const val MULTICAST_LOCK_TAG = "eucplanet-hud-discovery"
     }
 
     private val json = Json {
@@ -100,6 +109,7 @@ class HudServer @Inject constructor(
     @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
     @Volatile private var ws: WebSocket? = null
+    @Volatile private var multicastLock: WifiManager.MulticastLock? = null
 
     private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
@@ -141,6 +151,8 @@ class HudServer @Inject constructor(
         ws = null
         publishJob?.cancel(); publishJob = null
         loopJob?.cancel(); loopJob = null
+        try { multicastLock?.release() } catch (_: Throwable) {}
+        multicastLock = null
     }
 
     /**
@@ -161,16 +173,23 @@ class HudServer @Inject constructor(
             // testing where there's no UI input device:
             //   adb shell setprop debug.eucplanet.hud.peer 10.0.2.2:28080
             val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
-            val peer = override ?: if (hudIp.isNotBlank()) {
-                val port = s?.hudServerPort?.takeIf { it in 1..65535 }
-                    ?: HudDiscovery.DEFAULT_PORT
-                "$hudIp:$port"
-            } else null
+            val peer = when {
+                override != null -> override
+                hudIp.isNotBlank() -> {
+                    val port = s?.hudServerPort?.takeIf { it in 1..65535 }
+                        ?: HudDiscovery.DEFAULT_PORT
+                    "$hudIp:$port"
+                }
+                // Blank IP: fall back to mDNS so the rider doesn't have to
+                // type anything when the HUD is on the same network. The
+                // HUD advertises _eucplanet._tcp via JmDNS on its side.
+                else -> resolveViaMdns()
+            }
 
             if (peer == null) {
-                // Nothing to connect to yet -- the rider hasn't entered an
-                // IP. Idle and recheck periodically; this is cheap because
-                // we're not opening sockets.
+                // No setting, no mDNS hit yet. Wait briefly before the
+                // next resolve attempt -- mDNS responses can take a few
+                // seconds when multicast is congested.
                 delay(2_000L)
                 continue
             }
@@ -180,6 +199,66 @@ class HudServer @Inject constructor(
             } else {
                 attempt = 0
             }
+        }
+    }
+
+    /** Resolve `_eucplanet._tcp.local.` on whatever subnet we have. Returns
+     *  `host:port` of the first matching HUD with a compatible protocol
+     *  version, or null if nothing answered within [MDNS_RESOLVE_TIMEOUT_MS].
+     *
+     *  Each call opens its own JmDNS instance so a network change between
+     *  attempts (rider switching hotspot on, walking out of range) gets a
+     *  fresh socket bound to the current interface. JmDNS doesn't always
+     *  rebind cleanly when the underlying address changes. */
+    private suspend fun resolveViaMdns(): String? {
+        ensureMulticastLock()
+        var md: JmDNS? = null
+        try {
+            md = JmDNS.create()
+            val resolved = kotlinx.coroutines.CompletableDeferred<String?>()
+            val listener = object : ServiceListener {
+                override fun serviceAdded(event: ServiceEvent) {
+                    md.requestServiceInfo(event.type, event.name, 1_000L)
+                }
+                override fun serviceRemoved(event: ServiceEvent) {}
+                override fun serviceResolved(event: ServiceEvent) {
+                    val info = event.info
+                    val ipv4 = info.inet4Addresses?.firstOrNull()
+                    if (ipv4 != null) {
+                        val versionOk = (info.getPropertyString(HudDiscovery.TXT_VERSION)
+                            ?.toIntOrNull() ?: 1) <= HudState.PROTOCOL_VERSION
+                        if (versionOk) {
+                            resolved.complete("${ipv4.hostAddress}:${info.port}")
+                        }
+                    }
+                }
+            }
+            md.addServiceListener(HudDiscovery.SERVICE_TYPE, listener)
+            val winner = kotlinx.coroutines.withTimeoutOrNull(MDNS_RESOLVE_TIMEOUT_MS) {
+                resolved.await()
+            }
+            try { md.removeServiceListener(HudDiscovery.SERVICE_TYPE, listener) } catch (_: Throwable) {}
+            return winner
+        } catch (t: Throwable) {
+            Log.w(TAG, "mDNS resolve failed: ${t.message}")
+            return null
+        } finally {
+            try { md?.close() } catch (_: Throwable) {}
+        }
+    }
+
+    /** Acquire a multicast lock once; JmDNS needs it to join 224.0.0.251 on
+     *  the WiFi subnet. Idempotent. */
+    private fun ensureMulticastLock() {
+        if (multicastLock != null) return
+        try {
+            val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+            multicastLock = wifi?.createMulticastLock(MULTICAST_LOCK_TAG)?.apply {
+                setReferenceCounted(false)
+                acquire()
+            }
+        } catch (t: Throwable) {
+            Log.w(TAG, "multicast lock acquire failed: ${t.message}")
         }
     }
 

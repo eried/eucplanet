@@ -124,6 +124,12 @@ dependencies {
     // needed beyond the core artifact.
     implementation(libs.okhttp)
 
+    // JmDNS: when the rider leaves the HUD IP blank, the phone falls back
+    // to mDNS auto-discovery, looking for the HUD's _eucplanet._tcp
+    // advertisement on whatever subnet the phone has. Same library on
+    // both ends so behaviour is consistent.
+    implementation(libs.jmdns)
+
     // Compose
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
