@@ -510,10 +510,1106 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    // ---- Dashboard layout (catalog model) ----
+    //
+    // Mental model:
+    //   - knownDashboardMetrics / knownDashboardActions are the CATALOG: every
+    //     static key the dashboard knows about. The pool in the layout editor
+    //     renders this list alphabetically (sorted by display label).
+    //   - dashboardMetricOrder / dashboardActionOrder are the GRID: the first
+    //     ACTIVE_DASHBOARD_TILE_COUNT entries are what the rider sees on the
+    //     active dashboard. The catalog stays full regardless.
+    //   - Dynamic instances (`M:uuid` composites, `C:uuid` custom tiles,
+    //     `G:uuid` action groups) only live in the grid order, never the
+    //     catalog. Templates (+MULTI / +GROUP) spawn fresh instances when
+    //     dragged onto a slot.
+    //
+    // Drag semantics (DashboardDragController.sourceFromGrid drives the branch):
+    //   - Grid → grid (sourceFromGrid=true): SWAP via moveDashboard*ToIndex
+    //   - Pool → grid (sourceFromGrid=false): COPY via setDashboard*AtIndex
+    //     (catalog stays full; displaced grid tile is discarded)
+    //   - Grid → pool: discard. Dynamic → delete definition. Static metric →
+    //     demote (slot becomes empty custom tile). Static action → no-op
+    //     (catalog always has it; rider uses Restore slot for default).
+    //
+    // To add a new metric:
+    //   1. Append its key to knownDashboardMetrics below.
+    //   2. Add a label entry in SettingsScreen.kt::metricChipLabel and an
+    //      optional description in metricDescription.
+    //   3. Add a placeholder/value in metricPlaceholderValue.
+    //   4. Optionally an accent color in metricAccentColor and stats support
+    //      flag in metricSupportsStats.
+    //   5. When the dashboard renderer (DashboardScreen.kt) is wired in
+    //      phase 2, also surface the metric there.
+    //
+    // To add a new ACTION: see the comment on knownDashboardActions below —
+    // multiple files need touching because Flic / volume keys / WearOS have
+    // their own definitions today (see audit comment there).
+    //
+    // Saved orders are sanitized against the catalog so unknown tokens
+    // (renames, removals) drop silently and newly-added entries appear at
+    // the end of the order on first read.
+    val knownDashboardMetrics = listOf(
+        // Currently active by default — keep these 6 first so a fresh install
+        // mirrors the hard-coded layout byte-for-byte.
+        "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
+        // Pool — already-buffered or simple-to-derive metrics.
+        "SPEED", "POWER", "ODOMETER",
+        "MOTOR_POWER", "BATTERY_POWER",
+        "BATTERY_1", "BATTERY_2",
+        "PITCH", "ROLL",
+        "G_FORCE", "LATERAL_G", "FORWARD_G",
+        "TORQUE", "DYN_SPEED_LIMIT", "DYN_CURRENT_LIMIT",
+        // Individual temperature sensors (WheelData.temperatures by index).
+        "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP",
+        // Derived trip metrics (computed from speed/voltage/current histories
+        // once Phase 3 aggregation lands).
+        "HEADROOM", "TRIP_TIME", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED",
+        "WH_CONSUMED", "RANGE_ESTIMATE", "WH_PER_KM",
+        // Phone + GPS feeds — sourced outside WheelData.
+        "PHONE_BATTERY", "GPS_ALTITUDE", "GPS_SPEED", "GPS_HEADING",
+        "GPS_ACCURACY",
+        // Derived motion + pack health — slope/altitude integration and
+        // wheel-firmware fields some boards expose.
+        "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
+        // Connectivity diagnostic — useful when debugging dropouts.
+        "BT_RSSI"
+    )
+    /**
+     * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a
+     * new action is a single entry in `ActionCatalog.all` — no edit here.
+     *
+     * The dashboard surface accepts every action regardless of
+     * [ActionSpec.isEyesFreeSafe]; physical surfaces (Flic / volume key /
+     * watch) filter via [ActionCatalog.keysFor]. See ActionCatalog.kt for
+     * the full design.
+     */
+    val knownDashboardActions: List<String> =
+        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+            com.eried.eucplanet.data.model.ActionSurface.DASHBOARD
+        )
+
+    private fun sanitize(
+        saved: String,
+        known: List<String>,
+        dynamic: Set<String> = emptySet()
+    ): List<String> {
+        val s = saved.split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() && (it in known || it in dynamic) }
+        // Append known keys that aren't already in the saved order so the pool
+        // surfaces new defaults after an app upgrade. Dynamic IDs are NOT
+        // auto-added — they only exist while the rider has them on the grid
+        // or until they delete the underlying composite/group definition.
+        return s + known.filter { it !in s }
+    }
+
+    fun dashboardMetricOrder(s: AppSettings): List<String> =
+        sanitize(
+            s.dashboardMetricOrder,
+            knownDashboardMetrics,
+            listCompositeMetrics(s).keys + listCustomTiles(s).keys
+        )
+    fun dashboardActionOrder(s: AppSettings): List<String> =
+        sanitize(s.dashboardActionOrder, knownDashboardActions, listActionGroups(s).keys)
+
+    // --- Composite metrics (multi-cell tiles) -----------------------------
+    //
+    // A composite is one grid tile that stacks 2 or 3 sub-metric current
+    // values in a chosen layout. Definitions live in [AppSettings.
+    // dashboardCompositeMetrics] keyed by `M:<uuid>` so the rider can have
+    // several composite instances on the grid simultaneously. The same ID
+    // appears in [AppSettings.dashboardMetricOrder] to position the tile.
+
+    fun listCompositeMetrics(s: AppSettings): Map<String, MetricComposite> {
+        val root = parseSlotStatsRoot(s.dashboardCompositeMetrics)
+        val out = LinkedHashMap<String, MetricComposite>()
+        val it = root.keys()
+        while (it.hasNext()) {
+            val id = it.next()
+            val node = root.optJSONObject(id) ?: continue
+            val layout = runCatching {
+                CompositeLayout.valueOf(node.optString("layout", CompositeLayout.ROW2.name))
+            }.getOrDefault(CompositeLayout.ROW2)
+            val cellsArr = node.optJSONArray("cells")
+            val cells = if (cellsArr != null) {
+                (0 until cellsArr.length()).mapNotNull { cellsArr.optString(it).takeIf { s -> s.isNotEmpty() } }
+            } else emptyList()
+            // Parallel "cellStats" array. Missing entries (older composites
+            // saved before per-cell stats existed) default to CURRENT so
+            // the rider's prior layout keeps looking the same.
+            val statsArr = node.optJSONArray("cellStats")
+            val cellStats: List<DashboardStat> = if (statsArr != null) {
+                (0 until statsArr.length()).map { idx ->
+                    runCatching {
+                        DashboardStat.valueOf(statsArr.optString(idx, DashboardStat.CURRENT.name))
+                    }.getOrDefault(DashboardStat.CURRENT)
+                }
+            } else List(cells.size) { DashboardStat.CURRENT }
+            out[id] = MetricComposite(layout, cells, cellStats)
+        }
+        return out
+    }
+
+    fun getCompositeMetric(s: AppSettings, id: String): MetricComposite? = listCompositeMetrics(s)[id]
+
+    /**
+     * Creates a new composite-metric instance with default content, inserts
+     * its ID into [AppSettings.dashboardMetricOrder] at [insertAtIndex] (and
+     * drops whatever previously occupied that slot back to the pool), and
+     * returns the new ID so the caller can route the rider into the edit
+     * sheet.
+     */
+    fun createCompositeMetricAt(insertAtIndex: Int): String {
+        val newId = "${COMPOSITE_METRIC_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCompositeMetrics)
+            val node = org.json.JSONObject()
+                .put("layout", CompositeLayout.ROW2.name)
+                .put("cells", org.json.JSONArray(listOf("SPEED", "BATTERY")))
+            root.put(newId, node)
+
+            // Insert into the order at the target index, replacing whatever
+            // was there. The displaced key is appended so it doesn't vanish.
+            val order = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                root.keys().asSequence().toSet()
+            ).toMutableList()
+            val safeIdx = insertAtIndex.coerceIn(0, order.size)
+            if (safeIdx < order.size) {
+                val displaced = order.removeAt(safeIdx)
+                order.add(safeIdx, newId)
+                order.add(displaced)
+            } else {
+                order.add(newId)
+            }
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardCompositeMetrics = root.toString(),
+                    dashboardMetricOrder = order.joinToString(",")
+                )
+            )
+        }
+        return newId
+    }
+
+    fun updateCompositeMetric(
+        id: String,
+        layout: CompositeLayout,
+        cells: List<String>,
+        cellStats: List<DashboardStat> = List(cells.size) { DashboardStat.CURRENT }
+    ) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCompositeMetrics)
+            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            node.put("layout", layout.name)
+            val truncatedCells = cells.take(layout.cellCount)
+            val truncatedStats = cellStats.take(layout.cellCount).let { existing ->
+                // Pad with CURRENT if the rider widened the layout before
+                // picking a stat for the new cell.
+                if (existing.size >= truncatedCells.size) existing
+                else existing + List(truncatedCells.size - existing.size) { DashboardStat.CURRENT }
+            }
+            node.put("cells", org.json.JSONArray(truncatedCells))
+            node.put("cellStats", org.json.JSONArray(truncatedStats.map { it.name }))
+            root.put(id, node)
+            settingsRepository.update(current.copy(dashboardCompositeMetrics = root.toString()))
+        }
+    }
+
+    fun deleteCompositeMetric(id: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCompositeMetrics)
+            root.remove(id)
+            val order = current.dashboardMetricOrder
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && it != id }
+                .joinToString(",")
+            settingsRepository.update(
+                current.copy(
+                    dashboardCompositeMetrics = root.toString(),
+                    dashboardMetricOrder = order
+                )
+            )
+        }
+    }
+
+    // --- Action groups (one button → popover with N sub-actions) ----------
+
+    fun listActionGroups(s: AppSettings): Map<String, ActionGroup> {
+        val root = parseSlotStatsRoot(s.dashboardActionGroups)
+        val out = LinkedHashMap<String, ActionGroup>()
+        val it = root.keys()
+        while (it.hasNext()) {
+            val id = it.next()
+            val node = root.optJSONObject(id) ?: continue
+            val name = node.optString("name", "")
+            val icon = node.optString("icon", GROUP_DEFAULT_ICON).ifEmpty { GROUP_DEFAULT_ICON }
+            val arr = node.optJSONArray("actions")
+            val actions = if (arr != null) {
+                (0 until arr.length()).mapNotNull { arr.optString(it).takeIf { s -> s.isNotEmpty() } }
+            } else emptyList()
+            out[id] = ActionGroup(name = name, icon = icon, actions = actions)
+        }
+        return out
+    }
+
+    fun getActionGroup(s: AppSettings, id: String): ActionGroup? = listActionGroups(s)[id]
+
+    fun createActionGroupAt(insertAtIndex: Int): String {
+        val newId = "${ACTION_GROUP_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardActionGroups)
+            val node = org.json.JSONObject()
+                .put("name", "")
+                .put("icon", GROUP_DEFAULT_ICON)
+                .put("actions", org.json.JSONArray(emptyList<String>()))
+            root.put(newId, node)
+
+            val order = sanitize(
+                current.dashboardActionOrder,
+                knownDashboardActions,
+                root.keys().asSequence().toSet()
+            ).toMutableList()
+            val safeIdx = insertAtIndex.coerceIn(0, order.size)
+            if (safeIdx < order.size) {
+                val displaced = order.removeAt(safeIdx)
+                order.add(safeIdx, newId)
+                order.add(displaced)
+            } else {
+                order.add(newId)
+            }
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardActionGroups = root.toString(),
+                    dashboardActionOrder = order.joinToString(",")
+                )
+            )
+        }
+        return newId
+    }
+
+    fun updateActionGroup(id: String, name: String, icon: String, actions: List<String>) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardActionGroups)
+            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            node.put("name", name)
+            node.put("icon", icon.ifEmpty { GROUP_DEFAULT_ICON })
+            node.put("actions", org.json.JSONArray(actions.take(4)))
+            root.put(id, node)
+            settingsRepository.update(current.copy(dashboardActionGroups = root.toString()))
+        }
+    }
+
+    fun deleteActionGroup(id: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardActionGroups)
+            root.remove(id)
+            val order = current.dashboardActionOrder
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && it != id }
+                .joinToString(",")
+            settingsRepository.update(
+                current.copy(
+                    dashboardActionGroups = root.toString(),
+                    dashboardActionOrder = order
+                )
+            )
+        }
+    }
+
+    // --- Custom tiles (rider text + icon + optional URL / QR action) ----
+
+    fun listCustomTiles(s: AppSettings): Map<String, CustomTile> {
+        val root = parseSlotStatsRoot(s.dashboardCustomTiles)
+        val out = LinkedHashMap<String, CustomTile>()
+        val it = root.keys()
+        while (it.hasNext()) {
+            val id = it.next()
+            val node = root.optJSONObject(id) ?: continue
+            val text = node.optString("text", "")
+            val icon = node.optString("icon", CUSTOM_TILE_DEFAULT_ICON).ifEmpty { CUSTOM_TILE_DEFAULT_ICON }
+            val action = runCatching {
+                CustomTileAction.valueOf(node.optString("action", CustomTileAction.NONE.name))
+            }.getOrDefault(CustomTileAction.NONE)
+            val url = node.optString("url", "")
+            out[id] = CustomTile(text = text, icon = icon, action = action, url = url)
+        }
+        return out
+    }
+
+    fun getCustomTile(s: AppSettings, id: String): CustomTile? = listCustomTiles(s)[id]
+
+    fun createCustomTileAt(insertAtIndex: Int): String {
+        val newId = "${CUSTOM_TILE_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomTiles)
+            val node = org.json.JSONObject()
+                .put("text", "")
+                .put("icon", CUSTOM_TILE_DEFAULT_ICON)
+                .put("action", CustomTileAction.NONE.name)
+                .put("url", "")
+            root.put(newId, node)
+
+            val order = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                listCompositeMetrics(current).keys + root.keys().asSequence().toSet()
+            ).toMutableList()
+            val safeIdx = insertAtIndex.coerceIn(0, order.size)
+            if (safeIdx < order.size) {
+                val displaced = order.removeAt(safeIdx)
+                order.add(safeIdx, newId)
+                order.add(displaced)
+            } else {
+                order.add(newId)
+            }
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardCustomTiles = root.toString(),
+                    dashboardMetricOrder = order.joinToString(",")
+                )
+            )
+        }
+        return newId
+    }
+
+    fun updateCustomTile(id: String, text: String, icon: String, action: CustomTileAction, url: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomTiles)
+            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            node.put("text", text)
+            node.put("icon", icon.ifEmpty { CUSTOM_TILE_DEFAULT_ICON })
+            node.put("action", action.name)
+            node.put("url", url)
+            root.put(id, node)
+            settingsRepository.update(current.copy(dashboardCustomTiles = root.toString()))
+        }
+    }
+
+    /**
+     * Demotes an active-grid metric to the pool and spawns a new empty
+     * custom tile in the slot it vacated. The rider then taps the new tile
+     * to fill in their text / URL / QR. No-op when [metricKey] isn't in the
+     * active portion of the grid — dragging a pool pill back to the pool
+     * shouldn't create custom tiles.
+     */
+    fun demoteMetricToCustomTile(metricKey: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                listCompositeMetrics(current).keys + listCustomTiles(current).keys
+            ).toMutableList()
+            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val idx = items.indexOf(metricKey)
+            if (idx < 0 || idx >= activeCount) return@launch
+
+            // Create the new custom tile with defaults; rider edits it via tap.
+            val newId = "${CUSTOM_TILE_PREFIX}${java.util.UUID.randomUUID().toString().take(8)}"
+            val root = parseSlotStatsRoot(current.dashboardCustomTiles)
+            val node = org.json.JSONObject()
+                .put("text", "")
+                .put("icon", CUSTOM_TILE_DEFAULT_ICON)
+                .put("action", CustomTileAction.NONE.name)
+                .put("url", "")
+            root.put(newId, node)
+
+            // Swap: new custom tile takes the vacated slot, demoted metric
+            // appends to the end (lands in the pool because it's past
+            // activeCount in the order list).
+            items[idx] = newId
+            items.add(metricKey)
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardCustomTiles = root.toString(),
+                    dashboardMetricOrder = items.joinToString(",")
+                )
+            )
+        }
+    }
+
+    fun deleteCustomTile(id: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomTiles)
+            root.remove(id)
+            val order = current.dashboardMetricOrder
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() && it != id }
+                .joinToString(",")
+            settingsRepository.update(
+                current.copy(
+                    dashboardCustomTiles = root.toString(),
+                    dashboardMetricOrder = order
+                )
+            )
+        }
+    }
+
+    /**
+     * Catalog-model copy: write [key] into grid slot [slotIndex], leaving
+     * the pool catalog untouched. Used when the drag source is a pool
+     * pill (i.e. `sourceFromGrid = false` on the controller). Whatever
+     * was at [slotIndex] is discarded — for dynamic instances (composite
+     * / custom tile) the definition is deleted too. The displaced static
+     * metric is NOT added to the pool because the pool is the always-
+     * present catalog of known metrics.
+     */
+    fun setDashboardMetricAtIndex(key: String, slotIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                listCompositeMetrics(current).keys + listCustomTiles(current).keys
+            ).toMutableList()
+            if (slotIndex !in 0 until ACTIVE_DASHBOARD_TILE_COUNT) return@launch
+            if (slotIndex !in items.indices) return@launch
+            val displaced = items[slotIndex]
+            if (displaced == key) return@launch
+
+            // Replace the slot with the new key.
+            items[slotIndex] = key
+            // If the displaced was a dynamic instance, drop its order
+            // entry past the active region too (it's getting deleted).
+            if (isCompositeMetricKey(displaced) || isCustomTileKey(displaced)) {
+                items.removeAll { it == displaced }
+            }
+
+            val newComposites = if (isCompositeMetricKey(displaced))
+                parseSlotStatsRoot(current.dashboardCompositeMetrics)
+                    .also { it.remove(displaced) }.toString()
+            else current.dashboardCompositeMetrics
+            val newCustomTiles = if (isCustomTileKey(displaced))
+                parseSlotStatsRoot(current.dashboardCustomTiles)
+                    .also { it.remove(displaced) }.toString()
+            else current.dashboardCustomTiles
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardMetricOrder = items.joinToString(","),
+                    dashboardCompositeMetrics = newComposites,
+                    dashboardCustomTiles = newCustomTiles
+                )
+            )
+        }
+    }
+
+    /**
+     * Catalog-model copy for actions — symmetric counterpart to
+     * [setDashboardMetricAtIndex]. Deletes the displaced action group's
+     * definition if any.
+     */
+    fun setDashboardActionAtIndex(key: String, slotIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardActionOrder,
+                knownDashboardActions,
+                listActionGroups(current).keys
+            ).toMutableList()
+            if (slotIndex !in 0 until ACTIVE_DASHBOARD_TILE_COUNT) return@launch
+            if (slotIndex !in items.indices) return@launch
+            val displaced = items[slotIndex]
+            if (displaced == key) return@launch
+
+            items[slotIndex] = key
+            if (isActionGroupKey(displaced)) {
+                items.removeAll { it == displaced }
+            }
+
+            val newGroups = if (isActionGroupKey(displaced))
+                parseSlotStatsRoot(current.dashboardActionGroups)
+                    .also { it.remove(displaced) }.toString()
+            else current.dashboardActionGroups
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardActionOrder = items.joinToString(","),
+                    dashboardActionGroups = newGroups
+                )
+            )
+        }
+    }
+
+    /**
+     * Drops [key] into position [toIndex] of the metric order, swapping with
+     * whatever previously occupied that slot. Works for both grid-to-grid
+     * reorder and pool-to-grid promotion: anything pushed past the active-slot
+     * count (cols * 3) naturally lands in the pool again.
+     */
+    fun moveDashboardMetricToIndex(key: String, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            // Pass composite + custom-tile IDs as `dynamic` so sanitize keeps
+            // them in the order list — otherwise a stack or custom-link tile
+            // dragged between slots would silently vanish from the persisted
+            // layout.
+            val items = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                listCompositeMetrics(current).keys + listCustomTiles(current).keys
+            ).toMutableList()
+            val fromIndex = items.indexOf(key)
+            if (fromIndex < 0 || toIndex !in items.indices) return@launch
+            if (fromIndex == toIndex) return@launch
+            // Swap so the slot the user dragged onto receives the new metric and
+            // its previous occupant takes the dragged item's old position.
+            val a = items[fromIndex]
+            items[fromIndex] = items[toIndex]
+            items[toIndex] = a
+
+            // Composites and custom tiles are rider-personal artifacts that
+            // only make sense on the active grid. If a swap pushed one into
+            // the pool, delete it (definition + order entry) rather than
+            // leaving it cluttering Available metrics. Within the active
+            // grid the rider can still reorder them freely — only the trip
+            // into the pool is destructive.
+            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val orphanedComposites = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isCompositeMetricKey(k) }
+                .map { it.value }
+            val orphanedCustomTiles = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isCustomTileKey(k) }
+                .map { it.value }
+            if (orphanedComposites.isEmpty() && orphanedCustomTiles.isEmpty()) {
+                settingsRepository.update(current.copy(dashboardMetricOrder = items.joinToString(",")))
+            } else {
+                val compositesRoot = parseSlotStatsRoot(current.dashboardCompositeMetrics)
+                orphanedComposites.forEach { compositesRoot.remove(it) }
+                val tilesRoot = parseSlotStatsRoot(current.dashboardCustomTiles)
+                orphanedCustomTiles.forEach { tilesRoot.remove(it) }
+                val toRemove = (orphanedComposites + orphanedCustomTiles).toSet()
+                val cleaned = items.filter { it !in toRemove }
+                settingsRepository.update(
+                    current.copy(
+                        dashboardMetricOrder = cleaned.joinToString(","),
+                        dashboardCompositeMetrics = compositesRoot.toString(),
+                        dashboardCustomTiles = tilesRoot.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    fun moveDashboardActionToIndex(key: String, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardActionOrder,
+                knownDashboardActions,
+                listActionGroups(current).keys
+            ).toMutableList()
+            val fromIndex = items.indexOf(key)
+            if (fromIndex < 0 || toIndex !in items.indices) return@launch
+            if (fromIndex == toIndex) return@launch
+            val a = items[fromIndex]
+            items[fromIndex] = items[toIndex]
+            items[toIndex] = a
+
+            // Symmetric to the metric grid: an action group only makes sense
+            // on the active grid. If a swap pushed one into the pool, delete
+            // its definition + order entry — no orphan groups in Available
+            // actions.
+            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val orphanedGroups = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isActionGroupKey(k) }
+                .map { it.value }
+            if (orphanedGroups.isEmpty()) {
+                settingsRepository.update(current.copy(dashboardActionOrder = items.joinToString(",")))
+            } else {
+                val groupsRoot = parseSlotStatsRoot(current.dashboardActionGroups)
+                orphanedGroups.forEach { groupsRoot.remove(it) }
+                val cleaned = items.filter { it !in orphanedGroups }
+                settingsRepository.update(
+                    current.copy(
+                        dashboardActionOrder = cleaned.joinToString(","),
+                        dashboardActionGroups = groupsRoot.toString()
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * Restore the metric slot at [slotIndex] to the metric the app ships
+     * there (`knownDashboardMetrics[slotIndex]`), regardless of what the
+     * rider currently has in that slot. If the natural occupant lives in
+     * a different position, swap so it returns home and the displaced
+     * tile takes its place. Any dynamic tile (composite / custom-tile)
+     * pushed past the active region by the swap is cleaned up the same
+     * way the swap-via-drag path handles it.
+     */
+    fun resetDashboardMetricAtIndex(slotIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardMetricOrder,
+                knownDashboardMetrics,
+                listCompositeMetrics(current).keys + listCustomTiles(current).keys
+            ).toMutableList()
+            val naturalKey = knownDashboardMetrics.getOrNull(slotIndex) ?: return@launch
+            if (slotIndex !in items.indices) return@launch
+            val currentOccupant = items[slotIndex]
+
+            // Note: don't early-return when currentOccupant == naturalKey.
+            // The rider may have customized corner stats (AVG / MIN / etc.)
+            // on the natural occupant, and Reset still needs to wipe those
+            // so the slot looks like a fresh install.
+
+            val occupantIsDynamic = isCompositeMetricKey(currentOccupant) ||
+                isCustomTileKey(currentOccupant)
+            val needsReorder = currentOccupant != naturalKey
+
+            if (needsReorder && occupantIsDynamic) {
+                // Dynamic occupant (composite / custom tile) gets deleted —
+                // the rider's "restore this slot" intent doesn't preserve
+                // dynamic instances. Remove it from the order, then move
+                // the natural metric into slotIndex (closing any gap).
+                items.removeAt(slotIndex)
+                val naturalIdx = items.indexOf(naturalKey)
+                if (naturalIdx >= 0) items.removeAt(naturalIdx)
+                items.add(slotIndex.coerceAtMost(items.size), naturalKey)
+            } else if (needsReorder) {
+                // Static occupant — swap with the natural metric's current
+                // position so neither static metric is lost.
+                val naturalIdx = items.indexOf(naturalKey)
+                if (naturalIdx >= 0) {
+                    items[naturalIdx] = currentOccupant
+                    items[slotIndex] = naturalKey
+                } else {
+                    items[slotIndex] = naturalKey
+                    items.add(currentOccupant)
+                }
+            }
+
+            // Clean up: any dynamic tile sitting in the pool (past
+            // activeCount) is implicitly orphaned, plus the one we just
+            // deleted at slotIndex (if any). Drop them from the order and
+            // their JSON definition map.
+            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val orphanedComposites = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isCompositeMetricKey(k) }
+                .map { it.value }
+                .toMutableSet()
+            val orphanedCustomTiles = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isCustomTileKey(k) }
+                .map { it.value }
+                .toMutableSet()
+            if (occupantIsDynamic) {
+                if (isCompositeMetricKey(currentOccupant)) orphanedComposites.add(currentOccupant)
+                if (isCustomTileKey(currentOccupant)) orphanedCustomTiles.add(currentOccupant)
+            }
+            val toRemove = (orphanedComposites + orphanedCustomTiles)
+            val cleaned = if (toRemove.isEmpty()) items else items.filter { it !in toRemove }
+            val newComposites = if (orphanedComposites.isEmpty()) current.dashboardCompositeMetrics
+                else parseSlotStatsRoot(current.dashboardCompositeMetrics)
+                    .also { root -> orphanedComposites.forEach { root.remove(it) } }
+                    .toString()
+            val newCustomTiles = if (orphanedCustomTiles.isEmpty()) current.dashboardCustomTiles
+                else parseSlotStatsRoot(current.dashboardCustomTiles)
+                    .also { root -> orphanedCustomTiles.forEach { root.remove(it) } }
+                    .toString()
+
+            // Also wipe the natural key's per-slot stats so the restored
+            // metric shows up with its shipped appearance (current value
+            // in the center, no AVG / MIN / sparkline carry-over from the
+            // slot it used to live in). Without this, BATTERY brings its
+            // previously-configured corner stats along when it returns
+            // home, which makes the "Default" button feel half-applied.
+            val statsRoot = parseSlotStatsRoot(current.dashboardMetricStats)
+            statsRoot.remove(naturalKey)
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardMetricOrder = cleaned.joinToString(","),
+                    dashboardCompositeMetrics = newComposites,
+                    dashboardCustomTiles = newCustomTiles,
+                    dashboardMetricStats = statsRoot.toString()
+                )
+            )
+        }
+    }
+
+    /**
+     * Restore the action slot at [slotIndex] to `knownDashboardActions[slotIndex]`
+     * — symmetric counterpart to [resetDashboardMetricAtIndex]. Cleans up any
+     * action-group definitions pushed past the active region.
+     */
+    fun resetDashboardActionAtIndex(slotIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(
+                current.dashboardActionOrder,
+                knownDashboardActions,
+                listActionGroups(current).keys
+            ).toMutableList()
+            val naturalKey = knownDashboardActions.getOrNull(slotIndex) ?: return@launch
+            if (slotIndex !in items.indices) return@launch
+            val currentOccupant = items[slotIndex]
+
+            val occupantIsGroup = isActionGroupKey(currentOccupant)
+            val needsReorder = currentOccupant != naturalKey
+
+            if (needsReorder && occupantIsGroup) {
+                items.removeAt(slotIndex)
+                val naturalIdx = items.indexOf(naturalKey)
+                if (naturalIdx >= 0) items.removeAt(naturalIdx)
+                items.add(slotIndex.coerceAtMost(items.size), naturalKey)
+            } else if (needsReorder) {
+                val naturalIdx = items.indexOf(naturalKey)
+                if (naturalIdx >= 0) {
+                    items[naturalIdx] = currentOccupant
+                    items[slotIndex] = naturalKey
+                } else {
+                    items[slotIndex] = naturalKey
+                    items.add(currentOccupant)
+                }
+            }
+
+            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val orphanedGroups = items.withIndex()
+                .filter { (idx, k) -> idx >= activeCount && isActionGroupKey(k) }
+                .map { it.value }
+                .toMutableSet()
+            if (occupantIsGroup) orphanedGroups.add(currentOccupant)
+
+            val cleaned = if (orphanedGroups.isEmpty()) items else items.filter { it !in orphanedGroups }
+            val newGroups = if (orphanedGroups.isEmpty()) current.dashboardActionGroups
+                else parseSlotStatsRoot(current.dashboardActionGroups)
+                    .also { root -> orphanedGroups.forEach { root.remove(it) } }
+                    .toString()
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardActionOrder = cleaned.joinToString(","),
+                    dashboardActionGroups = newGroups
+                )
+            )
+        }
+    }
+
+    // ---- Per-slot stat configuration ----
+    //
+    // Each metric in the active dashboard grid can put a different reading in
+    // its center and four corners: NONE, CURRENT, MIN, MAX or AVG over the
+    // configured rolling stats window. Stored as one JSON blob in AppSettings
+    // so adding a new corner or stat doesn't require a schema change.
+
+    fun dashboardMetricSlotStats(s: AppSettings, key: String): MetricSlotStats =
+        parseSlotStats(s.dashboardMetricStats, key)
+
+    fun updateDashboardMetricSlotStat(key: String, corner: SlotCorner, stat: DashboardStat) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardMetricStats)
+            val node = root.optJSONObject(key) ?: org.json.JSONObject()
+            node.put(corner.jsonKey, stat.name)
+            root.put(key, node)
+            settingsRepository.update(current.copy(dashboardMetricStats = root.toString()))
+        }
+    }
+
+    fun updateDashboardMetricSparkline(key: String, enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardMetricStats)
+            val node = root.optJSONObject(key) ?: org.json.JSONObject()
+            node.put("spark", enabled)
+            root.put(key, node)
+            settingsRepository.update(current.copy(dashboardMetricStats = root.toString()))
+        }
+    }
+
+    fun resetDashboardMetricSlotStats(key: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardMetricStats)
+            root.remove(key)
+            settingsRepository.update(current.copy(dashboardMetricStats = root.toString()))
+        }
+    }
+
+    private fun parseSlotStatsRoot(s: String): org.json.JSONObject =
+        try { org.json.JSONObject(s.ifBlank { "{}" }) } catch (_: Exception) { org.json.JSONObject() }
+
+    private fun parseSlotStats(s: String, key: String): MetricSlotStats {
+        val root = parseSlotStatsRoot(s)
+        val n = root.optJSONObject(key) ?: return MetricSlotStats()
+        fun stat(k: String, default: DashboardStat) =
+            runCatching { DashboardStat.valueOf(n.optString(k, default.name)) }.getOrDefault(default)
+        return MetricSlotStats(
+            left = stat("l", DashboardStat.NONE),
+            center = stat("c", DashboardStat.CURRENT),
+            right = stat("r", DashboardStat.NONE),
+            sparkline = n.optBoolean("spark", true)
+        )
+    }
+
+    fun updateDashboardMetricsColumns(n: Int) = update { copy(dashboardMetricsColumns = n.coerceIn(2, 4)) }
+    fun updateDashboardActionsColumns(n: Int) = update { copy(dashboardActionsColumns = n.coerceIn(2, 4)) }
+    fun updateDashboardRollingWindowSeconds(seconds: Int) = update {
+        // Snap to the nearest preset so the dropdown's choices stay
+        // round-trippable even if a stray value sneaks in via JSON migration.
+        val snapped = ROLLING_WINDOW_PRESETS_SECONDS.minByOrNull { kotlin.math.abs(it - seconds) }
+            ?: ROLLING_WINDOW_DEFAULT_SECONDS
+        copy(dashboardRollingWindowSeconds = snapped)
+    }
+
+    fun moveDashboardMetric(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(current.dashboardMetricOrder, knownDashboardMetrics).toMutableList()
+            if (fromIndex in items.indices && toIndex in items.indices) {
+                val item = items.removeAt(fromIndex)
+                items.add(toIndex, item)
+                settingsRepository.update(current.copy(dashboardMetricOrder = items.joinToString(",")))
+            }
+        }
+    }
+
+    fun moveDashboardAction(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val items = sanitize(current.dashboardActionOrder, knownDashboardActions).toMutableList()
+            if (fromIndex in items.indices && toIndex in items.indices) {
+                val item = items.removeAt(fromIndex)
+                items.add(toIndex, item)
+                settingsRepository.update(current.copy(dashboardActionOrder = items.joinToString(",")))
+            }
+        }
+    }
+
+    fun resetDashboardMetrics() = update {
+        copy(
+            dashboardMetricsColumns = 2,
+            dashboardMetricOrder = knownDashboardMetrics.joinToString(","),
+            dashboardRollingWindowSeconds = ROLLING_WINDOW_DEFAULT_SECONDS,
+            // Wipe composite + custom-tile definitions too — the rider's
+            // reset action is a "back to defaults" signal, which includes
+            // any custom stacks and personal-link tiles they had.
+            dashboardCompositeMetrics = "{}",
+            dashboardCustomTiles = "{}"
+        )
+    }
+
+    fun resetDashboardActions() = update {
+        copy(
+            dashboardActionsColumns = 3,
+            dashboardActionOrder = knownDashboardActions.joinToString(","),
+            dashboardActionGroups = "{}"
+        )
+    }
+
     fun syncFolderDisplayName(): String? {
         val s = settings.value ?: return null
         return syncManager.getSyncFolderDisplayName(s)
     }
+}
+
+/**
+ * Allowed rolling-window durations (seconds). Stored as a list so the dropdown
+ * UI and the snap-to-nearest validation share a single source of truth.
+ * Range covers a quick burst (30 s) up to a full commute hour.
+ */
+val ROLLING_WINDOW_PRESETS_SECONDS: List<Int> = listOf(
+    30, 60, 120, 180, 300, 600, 900, 1800, 3600
+)
+
+const val ROLLING_WINDOW_DEFAULT_SECONDS: Int = 300
+
+/**
+ * Layouts a composite metric tile can take. The cell count drives how many
+ * sub-metrics the rider picks in the edit sheet; the orientation drives how
+ * those values stack inside a single grid tile.
+ */
+enum class CompositeLayout(val cellCount: Int) {
+    /** Two cells stacked top/bottom — best for long values with units. */
+    ROW2(2),
+    /** Two cells side-by-side. */
+    COL2(2),
+    /** Three cells side-by-side. */
+    COL3(3)
+}
+
+/**
+ * Definition of a single composite metric instance. Stored in
+ * [AppSettings.dashboardCompositeMetrics] as `{ id: { layout, cells } }`.
+ * Sub-metric stats (min/max/avg) are intentionally NOT supported here — a
+ * composite always shows current values for each sub-metric.
+ */
+data class MetricComposite(
+    val layout: CompositeLayout = CompositeLayout.ROW2,
+    val cells: List<String> = listOf("SPEED", "BATTERY"),
+    /**
+     * Per-cell stat selector — what each cell displays. Parallel to
+     * [cells]. Defaults to [DashboardStat.CURRENT] (live value) so
+     * existing composites and freshly-spawned ones look the same as
+     * before. The rider can change it per cell in the composite edit
+     * sheet (Now / Min / Max / Avg / Sustained peak / Median / P75 /
+     * P95 / P99).
+     */
+    val cellStats: List<DashboardStat> = listOf(DashboardStat.CURRENT, DashboardStat.CURRENT, DashboardStat.CURRENT)
+)
+
+/**
+ * Tap behaviour for a custom tile. NONE renders as a display-only label;
+ * OPEN_URL launches the rider's URL in the default browser; SHOW_QR opens
+ * a QR-code popup so other riders can scan and visit the same URL (the
+ * Instagram-share use case).
+ */
+enum class CustomTileAction { NONE, OPEN_URL, SHOW_QR }
+
+/**
+ * Rider-defined dashboard tile: a chosen icon + text label, optionally
+ * paired with a tap action (open URL in browser, or show QR code popup).
+ * Lets the rider drop a contact card / social handle / club page onto the
+ * dashboard alongside their telemetry. Stored in
+ * [AppSettings.dashboardCustomTiles] keyed by `C:<uuid>`.
+ */
+data class CustomTile(
+    val text: String = "",
+    val icon: String = CUSTOM_TILE_DEFAULT_ICON,
+    val action: CustomTileAction = CustomTileAction.NONE,
+    val url: String = ""
+)
+
+/** Default icon for newly-spawned custom tiles. LINK reads as "tap-target"
+ *  even before the rider configures the action — most riders dragging the
+ *  template in are setting up a URL or QR, not just text. */
+const val CUSTOM_TILE_DEFAULT_ICON = "LINK"
+
+/**
+ * Definition of a single action group instance. Stored in
+ * [AppSettings.dashboardActionGroups] as `{ id: { name, icon, actions } }`.
+ * Up to 4 sub-actions; the rider can intentionally duplicate an action
+ * (e.g. two `RECORD_TOGGLE` entries if they want it twice in the popover).
+ * [icon] is a stable key from a curated set rendered by `groupIconFor` —
+ * not a raw image vector, so the storage stays JSON-stable across icon-set
+ * upgrades.
+ */
+data class ActionGroup(
+    val name: String = "",
+    val icon: String = GROUP_DEFAULT_ICON,
+    val actions: List<String> = emptyList()
+)
+
+/** Default icon key for new action groups. Matches the "+ GROUP" template
+ *  pill so the rider immediately recognises the freshly-spawned tile. */
+const val GROUP_DEFAULT_ICON = "FOLDER"
+
+/** Curated icon keys the rider can pick from in the group edit sheet and
+ *  the custom-tile edit sheet. The list lives here (not in the screen) so
+ *  the icon picker and the tile renderer share a single source of truth —
+ *  adding a new entry shows up everywhere automatically. */
+val GROUP_ICON_CHOICES: List<String> = listOf(
+    "FOLDER", "STAR", "BOLT", "FAVORITE", "DASHBOARD",
+    "EXTENSION", "TUNE", "WIDGETS", "APPS", "BUILD",
+    "HOME", "PERSON", "SETTINGS", "SHIELD", "MAP",
+    "PHOTO_CAMERA", "MUSIC_NOTE", "PHONE", "WIFI", "SEARCH",
+    "SAVE", "SEND", "SHARE", "EDIT", "REFRESH",
+    "DONE", "INFO", "WARNING", "NOTIFICATIONS", "LINK"
+)
+
+/** Number of active tiles in each dashboard grid (metrics + actions). The
+ *  rider always picks 6 active items regardless of column count (2×3 vs 3×2
+ *  is just a visual layout choice). VM logic uses this to decide whether a
+ *  given order-list index lands in the active grid or in the pool. */
+const val ACTIVE_DASHBOARD_TILE_COUNT = 6
+
+/** Prefix on order-list entries that identifies a composite metric instance. */
+const val COMPOSITE_METRIC_PREFIX = "M:"
+/** Prefix on order-list entries that identifies an action group instance. */
+const val ACTION_GROUP_PREFIX = "G:"
+/** Pool template key for the "+ Stack" composite-metric source. */
+const val COMPOSITE_TEMPLATE_KEY = "+M"
+/** Pool template key for the "+ Group" action-group source. */
+const val ACTION_GROUP_TEMPLATE_KEY = "+G"
+/**
+ * Prefix marking a composite cell value as rider-typed text rather than a
+ * metric key. The string after the prefix is the literal text the cell
+ * renders on the grid; blank content reads as "(empty)" faint placeholder.
+ * Lets the rider drop a label like "Pack 1" into a stack tile next to the
+ * actual battery reading.
+ *
+ * Examples:
+ *  - "TEXT:" → empty text cell, shows "(empty)" placeholder
+ *  - "TEXT:Right pack" → cell renders "Right pack"
+ */
+const val COMPOSITE_TEXT_PREFIX = "TEXT:"
+
+/** Pseudo-metric for an unbound composite cell. Stored as the TEXT prefix
+ *  with no content, which renders as the "(empty)" placeholder. Treated as
+ *  equivalent to the legacy "EMPTY" sentinel from earlier in-development
+ *  builds. */
+const val COMPOSITE_CELL_EMPTY = COMPOSITE_TEXT_PREFIX
+
+/** Prefix on order-list entries that identifies a custom tile (rider-typed
+ *  text + icon + optional tap action like launching a URL or showing a QR
+ *  code). Lives in [AppSettings.dashboardCustomTiles] keyed by `C:<uuid>`. */
+const val CUSTOM_TILE_PREFIX = "C:"
+/** Pool template key for the "+ Custom" custom-tile source. */
+const val CUSTOM_TILE_TEMPLATE_KEY = "+C"
+
+fun isCompositeMetricKey(key: String): Boolean = key.startsWith(COMPOSITE_METRIC_PREFIX)
+fun isActionGroupKey(key: String): Boolean = key.startsWith(ACTION_GROUP_PREFIX)
+fun isCustomTileKey(key: String): Boolean = key.startsWith(CUSTOM_TILE_PREFIX)
+fun isTextCell(key: String): Boolean = key.startsWith(COMPOSITE_TEXT_PREFIX) || key == "EMPTY"
+fun textCellContent(key: String): String = when {
+    key == "EMPTY" -> ""
+    key.startsWith(COMPOSITE_TEXT_PREFIX) -> key.removePrefix(COMPOSITE_TEXT_PREFIX)
+    else -> ""
+}
+fun wrapAsTextCell(content: String): String = COMPOSITE_TEXT_PREFIX + content
+
+// Stats are listed in dropdown order. SUSTAINED_PEAK sits next to MAX because
+// it's a softer "Peak ignoring spikes shorter than 2s" companion — the same
+// reading Inmotion shows as "Sustained peak". Percentiles ascend so the
+// picker reads: None / Now / Min / Max / Sustained peak / Avg / Median (P50)
+// / P75 / P95 / P99.
+enum class DashboardStat {
+    NONE, CURRENT, MIN, MAX, SUSTAINED_PEAK, AVG, MEDIAN, P75, P95, P99
+}
+
+enum class SlotCorner(val jsonKey: String) {
+    LEFT("l"), CENTER("c"), RIGHT("r")
+}
+
+data class MetricSlotStats(
+    val left: DashboardStat = DashboardStat.NONE,
+    val center: DashboardStat = DashboardStat.CURRENT,
+    val right: DashboardStat = DashboardStat.NONE,
+    val sparkline: Boolean = true
+) {
+    fun stat(corner: SlotCorner): DashboardStat = when (corner) {
+        SlotCorner.LEFT -> left
+        SlotCorner.CENTER -> center
+        SlotCorner.RIGHT -> right
+    }
+
+    /** True only when the rider hasn't customized any side reading. */
+    val isDefault: Boolean
+        get() = left == DashboardStat.NONE &&
+            center == DashboardStat.CURRENT &&
+            right == DashboardStat.NONE
 }
 
 sealed interface CloudEvent {

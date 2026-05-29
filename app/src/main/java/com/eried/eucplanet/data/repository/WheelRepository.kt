@@ -142,6 +142,31 @@ class WheelRepository @Inject constructor(
     private val _fullHistory = MutableStateFlow(FullMetricHistory())
     val fullHistory: StateFlow<FullMetricHistory> = _fullHistory.asStateFlow()
 
+    /**
+     * Clears the in-memory rolling history buffer for one metric key.
+     * Used by the metric-detail Reset button so the rider can re-seed
+     * a clean chart (e.g. after a recovery from a noisy connection).
+     * Settings and trip records are untouched — fresh samples re-seed
+     * the buffer at the next 1Hz tick.
+     */
+    fun resetHistory(key: String) {
+        val current = _fullHistory.value
+        _fullHistory.value = when (key) {
+            "BATTERY" -> current.copy(battery = emptyList())
+            "TEMPERATURE" -> current.copy(temperature = emptyList())
+            "VOLTAGE" -> current.copy(voltage = emptyList())
+            "CURRENT" -> current.copy(current = emptyList())
+            "LOAD" -> current.copy(load = emptyList())
+            "SPEED" -> current.copy(speed = emptyList())
+            else -> current
+        }
+    }
+
+    /** Clears every in-memory rolling history buffer. */
+    fun resetAllHistory() {
+        _fullHistory.value = FullMetricHistory()
+    }
+
     // Auth state for lock/unlock (V14 requires password verification)
     private var authKey: ByteArray? = null
     private var pendingAuthKeyDeferred: CompletableDeferred<ByteArray>? = null

@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentRed
@@ -254,10 +253,16 @@ private fun ActionDropdown(
     onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentAction = try {
-        FlicAction.valueOf(currentValue)
-    } catch (_: Exception) {
-        FlicAction.NONE
+    val flicKeys = remember {
+        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+            com.eried.eucplanet.data.model.ActionSurface.FLIC
+        )
+    }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val currentLabel = when {
+        currentValue.isEmpty() || currentValue == "NONE" -> noneLabel
+        else -> com.eried.eucplanet.data.model.ActionCatalog.byKey(currentValue)
+            ?.labelRes?.let { stringResource(it) } ?: noneLabel
     }
 
     ExposedDropdownMenuBox(
@@ -265,7 +270,7 @@ private fun ActionDropdown(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = stringResource(currentAction.labelRes),
+            value = currentLabel,
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
@@ -278,11 +283,22 @@ private fun ActionDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            FlicAction.entries.forEach { action ->
+            // "None" is a synthetic first option — represents the
+            // unbound state. The catalog itself doesn't carry a NONE
+            // entry because nothing fires it.
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = {
+                    onValueChange("NONE")
+                    expanded = false
+                }
+            )
+            flicKeys.forEach { key ->
+                val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return@forEach
                 DropdownMenuItem(
-                    text = { Text(stringResource(action.labelRes)) },
+                    text = { Text(stringResource(spec.labelRes)) },
                     onClick = {
-                        onValueChange(action.name)
+                        onValueChange(key)
                         expanded = false
                     }
                 )

@@ -140,6 +140,23 @@ class DashboardViewModel @Inject constructor(
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /** Raw location for catalog metrics (altitude / accuracy / GPS speed / heading). */
+    val currentLocation = tripRepository.currentLocation
+
+    /**
+     * Phone battery percentage (0–100). Polled from the system service
+     * via a 30-second tick, since it doesn't change fast enough to
+     * justify a registered receiver here. Returns -1 when unavailable.
+     */
+    val phoneBatteryPercent: StateFlow<Int> = kotlinx.coroutines.flow.flow {
+        while (true) {
+            val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
+            val pct = bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            emit(pct)
+            kotlinx.coroutines.delay(30_000L)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), -1)
+
     private val _locationPermissionGranted = kotlinx.coroutines.flow.MutableStateFlow(hasLocationPermission())
     val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted
 
@@ -272,6 +289,41 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "MODEL")
 
     val firmwareVersion: StateFlow<String?> = wheelRepository.firmwareVersion
+
+    // ---- Customizable dashboard layout (Phase 2B+) ----
+    //
+    // The editor in Settings writes these fields; the live dashboard
+    // reads them here to drive which tile renders in each slot, with
+    // what per-slot stats (sparkline on/off, corner readouts) and
+    // dynamic-instance state (composites, custom tiles, action groups).
+    //
+    // Order strings sanitize against [com.eried.eucplanet.data.model.MetricCatalog]
+    // / ActionCatalog upstream; here they're just raw strings until the
+    // dashboard composable parses them.
+    val dashboardMetricOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardMetricOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+    val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardMetricStats }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+    val dashboardMetricsColumns: StateFlow<Int> = settingsRepository.settings
+        .map { it.dashboardMetricsColumns }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2)
+    val dashboardCompositeMetrics: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCompositeMetrics }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+    val dashboardCustomTiles: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCustomTiles }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+    val dashboardActionOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardActionOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+    val dashboardActionGroups: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardActionGroups }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+
+    /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
+    fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 

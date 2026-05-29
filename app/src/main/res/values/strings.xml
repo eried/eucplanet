@@ -102,6 +102,173 @@
     <string name="tab_watch">Watch</string>
     <string name="tab_cloud">Backup settings &amp; trips</string>
 
+    <!-- Dashboard layout (customizable home screen) -->
+    <string name="tab_dashboard">Dashboard layout</string>
+    <string name="dashboard_section_gauge">Speed gauge</string>
+    <string name="dashboard_section_gauge_caption">The gauge always shows speed and stays at the top of the dashboard.</string>
+    <string name="dashboard_section_metrics">Metrics</string>
+    <string name="dashboard_section_actions">Action buttons</string>
+    <string name="dashboard_columns">Columns</string>
+    <string name="dashboard_grid_hint">Long-press to drag. Tap to edit.</string>
+    <string name="dashboard_pool_metrics">Available metrics</string>
+    <string name="dashboard_pool_actions">Available actions</string>
+    <string name="dashboard_pool_hint">Drag onto the grid to use.</string>
+    <string name="dashboard_pool_tap_toast">Long-press and drag onto a slot above to use.</string>
+    <string name="dashboard_rolling_window">Rolling stats window</string>
+    <string name="dashboard_stats_length">Stats length</string>
+    <string name="dashboard_view">View</string>
+    <string name="dashboard_view_default">Default</string>
+    <string name="dashboard_view_wide">Wide</string>
+    <string name="dashboard_composite_template_label">MULTI</string>
+    <string name="dashboard_group_template_label">GROUP</string>
+    <string name="dashboard_composite_layout_label">Layout</string>
+    <string name="dashboard_composite_layout_row2">2 rows</string>
+    <string name="dashboard_composite_layout_col2">2 cols</string>
+    <string name="dashboard_composite_layout_col3">3 cols</string>
+    <string name="dashboard_composite_cell_label">Cell %1$d</string>
+    <string name="dashboard_composite_empty_label">(empty)</string>
+    <string name="dashboard_group_default_name">My actions</string>
+    <string name="dashboard_group_name_label">Group name</string>
+    <string name="dashboard_group_icon_label">Icon</string>
+    <string name="dashboard_group_action_slot">Action %1$d</string>
+    <string name="dashboard_group_action_none">(none)</string>
+    <string name="dashboard_custom_tile_template_label">TEXT</string>
+    <string name="dashboard_custom_tile_text_label">Text</string>
+    <string name="dashboard_custom_tile_text_placeholder">e.g. My Instagram</string>
+    <string name="dashboard_custom_tile_action_label">Tap action</string>
+    <string name="dashboard_custom_tile_action_none">Text</string>
+    <string name="dashboard_custom_tile_action_url">Open URL</string>
+    <string name="dashboard_custom_tile_action_qr">Show QR</string>
+    <string name="dashboard_custom_tile_url_label">URL</string>
+    <string name="dashboard_rolling_window_30s">30 sec</string>
+    <string name="dashboard_rolling_window_1m">1 min</string>
+    <string name="dashboard_rolling_window_2m">2 min</string>
+    <string name="dashboard_rolling_window_3m">3 min</string>
+    <string name="dashboard_rolling_window_5m">5 min</string>
+    <string name="dashboard_rolling_window_10m">10 min</string>
+    <string name="dashboard_rolling_window_15m">15 min</string>
+    <string name="dashboard_rolling_window_30m">30 min</string>
+    <string name="dashboard_rolling_window_1h">1 hour</string>
+    <string name="dashboard_wide_hint">Tablets and foldables get +1 column.</string>
+    <string name="dashboard_wide_preview">Showing the %1$d-column tablet layout for the current %2$d-column setting.</string>
+    <string name="dashboard_slot_reset">Reset this metric to default position</string>
+    <string name="dashboard_slot_reset_action">Reset this action to default position</string>
+    <string name="dashboard_reset_short">Reset</string>
+    <string name="dashboard_restore_slot">Restore slot</string>
+    <string name="metric_detail_reset">Reset</string>
+    <string name="metric_detail_reset_all">Reset all</string>
+    <string name="metric_detail_reset_all_confirm_title">Reset all history?</string>
+    <string name="metric_detail_reset_all_confirm_body">Clears the rolling history buffer for every metric. Settings and trip records are not affected.</string>
+    <string name="metric_detail_show_label">Value</string>
+    <string name="metric_detail_long_press_hint">Long-press for Reset all</string>
+    <string name="dashboard_close">Close</string>
+    <string name="dashboard_slot_corners_label">Side readings</string>
+    <string name="dashboard_corner_left">Left</string>
+    <string name="dashboard_corner_center">Center</string>
+    <string name="dashboard_corner_right">Right</string>
+    <string name="dashboard_slot_sparkline">Live trend background</string>
+    <string name="dashboard_slot_sparkline_chip">Stats</string>
+    <string name="dashboard_slot_reset_hint">Removes the side readings and moves this metric back to its starting position in the grid.</string>
+    <string name="dashboard_slot_reset_hint_action">Moves this action back to its starting position in the grid.</string>
+    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_current">Now</string>
+    <string name="dashboard_stat_min">Min</string>
+    <string name="dashboard_stat_max">Max / Peak</string>
+    <string name="dashboard_stat_sustained_peak">Sustained peak</string>
+    <string name="dashboard_stat_sustained_peak_short">S.Peak</string>
+    <string name="dashboard_stat_avg">Avg</string>
+    <string name="dashboard_stat_median">Median (P50)</string>
+    <string name="dashboard_stat_p75">75th percentile</string>
+    <string name="dashboard_stat_p95">95th percentile</string>
+    <string name="dashboard_stat_p99">99th percentile</string>
+    <!-- Short variants used inside the dropdown trailing-icon field when an
+         option is selected; the menu list still shows the verbose name above. -->
+    <string name="dashboard_stat_median_short">P50</string>
+    <string name="dashboard_stat_p75_short">P75</string>
+    <string name="dashboard_stat_p95_short">P95</string>
+    <string name="dashboard_stat_p99_short">P99</string>
+
+    <!-- Metric labels for the dashboard layout chips -->
+    <string name="metric_chip_battery">Battery</string>
+    <string name="metric_chip_temperature">Temperature</string>
+    <string name="metric_chip_voltage">Voltage</string>
+    <string name="metric_chip_current">Amps</string>
+    <string name="metric_chip_load">Load (PWM)</string>
+    <string name="metric_chip_trip">Trip</string>
+    <string name="metric_chip_speed">Speed</string>
+    <string name="metric_chip_power">Power</string>
+    <string name="metric_chip_odometer">Odometer</string>
+    <string name="metric_chip_motor_power">Motor power</string>
+    <string name="metric_chip_battery_power">Battery power</string>
+    <string name="metric_chip_battery_1">Pack 1</string>
+    <string name="metric_chip_battery_2">Pack 2</string>
+    <string name="metric_chip_pitch">Pitch</string>
+    <string name="metric_chip_roll">Roll</string>
+    <string name="metric_chip_g_force">G-force</string>
+    <string name="metric_chip_lateral_g">Lateral g</string>
+    <string name="metric_chip_forward_g">Forward g</string>
+    <string name="metric_chip_torque">Torque</string>
+    <string name="metric_chip_dyn_speed_limit">Dyn. speed lim.</string>
+    <string name="metric_chip_dyn_current_limit">Dyn. current lim.</string>
+    <string name="metric_chip_motor_temp">Motor temp</string>
+    <string name="metric_chip_controller_temp">Controller</string>
+    <string name="metric_chip_battery_temp">Battery temp</string>
+    <string name="metric_chip_headroom">Headroom</string>
+    <string name="metric_chip_trip_time">Trip time</string>
+    <string name="metric_chip_trip_max_speed">Trip max</string>
+    <string name="metric_chip_avg_trip_speed">Avg speed</string>
+    <string name="metric_chip_wh_consumed">Energy</string>
+    <string name="metric_chip_range_estimate">Range</string>
+    <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_phone_battery">Phone bat.</string>
+    <string name="metric_chip_gps_altitude">Altitude</string>
+    <string name="metric_chip_gps_speed">GPS speed</string>
+    <string name="metric_chip_gps_heading">Heading</string>
+    <string name="metric_chip_gps_accuracy">GPS acc.</string>
+    <string name="metric_chip_slope">Slope</string>
+    <string name="metric_chip_ascent">Ascent</string>
+    <string name="metric_chip_descent">Descent</string>
+    <string name="metric_chip_motor_rpm">RPM</string>
+    <string name="metric_chip_regen_wh">Regen</string>
+    <string name="metric_chip_bt_rssi">BT signal</string>
+
+    <!-- Descriptions shown in the slot-sheet info box for metrics whose
+         meaning isn't obvious from the name alone. Strings end with a
+         period so they read like complete sentences. -->
+    <string name="metric_desc_headroom">Speed margin remaining before tilt-back kicks in. Big number = more safety buffer.</string>
+    <string name="metric_desc_trip_max_speed">Peak speed during the current trip (resets on a new trip).</string>
+    <string name="metric_desc_avg_trip_speed">Trip distance divided by riding time so far.</string>
+    <string name="metric_desc_wh_consumed">Total watt-hours drawn from the battery this trip.</string>
+    <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
+    <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
+    <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
+    <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
+    <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
+    <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
+
+    <!-- Action labels for the dashboard layout chips -->
+    <string name="action_chip_horn">Horn</string>
+    <string name="action_chip_light">Light</string>
+    <string name="action_chip_voice">Voice</string>
+    <string name="action_chip_safety">Legal mode</string>
+    <string name="action_chip_lock">Lock wheel</string>
+    <string name="action_chip_record">Recorder</string>
+    <string name="action_chip_safety_on">Legal ON</string>
+    <string name="action_chip_safety_off">Legal OFF</string>
+    <string name="action_chip_record_start">Rec start</string>
+    <string name="action_chip_record_stop">Rec stop</string>
+    <string name="action_chip_media_play">Play / pause</string>
+    <string name="action_chip_media_next">Next track</string>
+    <string name="action_chip_media_prev">Prev track</string>
+    <string name="action_chip_open_navigation">Show map</string>
+    <string name="action_chip_open_studio">Overlay studio</string>
+    <string name="action_chip_open_about">About</string>
+    <string name="action_chip_open_service">Service mode</string>
+    <string name="action_chip_open_trips">Trips</string>
+    <string name="action_chip_mute_alarms">Mute alarms</string>
+    <string name="action_chip_reset_trip">Reset trip</string>
+    <string name="action_chip_toggle_units">Toggle units</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
@@ -501,7 +668,7 @@
     <string name="scan_show_all_subtitle">Turn on if your wheel does not appear</string>
 
     <!-- Metric detail -->
-    <string name="metric_detail_title">%1$s</string>
+    <string name="metric_detail_title">History</string>
     <string name="metric_no_data">No data</string>
     <string name="metric_min">MIN</string>
     <string name="metric_avg">AVG</string>

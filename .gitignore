@@ -38,3 +38,28 @@ delete.html
 **/build/eucplanet_*
 
 test-out/
+
+# Debug session dumps at repo root (uiautomator XML dumps, ad-hoc PNGs,
+# settings_dump.bin, ...). Patterns are anchored to the repo root so they
+# don't accidentally match real assets nested in res/ or wear/.
+/[a-z].xml
+/[a-z][0-9].xml
+/u[a-z].xml
+/u-pre.xml
+/u-post.xml
+/po*.xml
+/p[0-9].xml
+/tab[0-9].xml
+/t[0-9].xml
+/m.xml
+/all.xml
+/settings_dump.bin
+/baseline-*.png
+/bug*.png
+/polish*.png
+/step*.png
+/u[0-9]*.png
+/u[0-9]*-s.png
+/u[0-9]*-state*.png
+/v[0-9]*.png
+/v[0-9]*-*.png
