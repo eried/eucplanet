@@ -334,21 +334,34 @@ data class AppSettings(
      */
     val watchShowNavigation: Boolean = true,
 
-    // --- HUD companion (paired via WiFi hotspot, see HudServer) ---
+    // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
     /**
-     * Master switch for the in-app HTTP/SSE server that feeds an external HUD
-     * (e.g. an aftermarket E6-class motorcycle HUD) over the phone's WiFi
-     * hotspot. Off by default; lighting it up opens a listening socket and an
-     * mDNS advertisement only while [WheelService] is running. The HUD itself
-     * is a separate APK (`:hud` module), the phone is the data source.
+     * Master switch for the phone-side WebSocket dialer that pushes telemetry
+     * to an external HUD (e.g. an aftermarket E6-class motorcycle HUD). Off
+     * by default. The HUD itself is a separate APK (`:hud` module) and acts
+     * as the listener; we connect out to it because phone hotspots routinely
+     * block multicast and inbound peer traffic.
+     *
+     * Storage key kept as `hudServerEnabled` for backwards compat with
+     * existing rider settings -- the meaning is "HUD link active", role was
+     * inverted in v0.1.4.
      */
     val hudServerEnabled: Boolean = false,
     /**
-     * TCP port the HUD server binds to. Default mirrors `HudDiscovery.DEFAULT_PORT`.
-     * Exposed as a setting only because some carrier-grade hotspots refuse to
+     * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
+     * Exposed as a setting because some carrier-grade hotspots refuse to
      * route certain port ranges; riders rarely need to touch it.
      */
     val hudServerPort: Int = 28080,
+    /**
+     * IPv4 of the HUD the rider reads off its on-screen banner and types into
+     * the phone settings. Blank means "no HUD configured"; we won't try to
+     * dial out until the rider fills this in. mDNS auto-discovery may
+     * populate this in a future build, but right now manual entry is the
+     * only path because softAP multicast filtering kills discovery on too
+     * many phones.
+     */
+    val hudIp: String = "",
 
     // --- Motor Sound generator ---
     //

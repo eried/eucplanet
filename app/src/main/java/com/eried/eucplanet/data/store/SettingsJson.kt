@@ -190,6 +190,7 @@ object SettingsJson {
         put("watchShowNavigation", s.watchShowNavigation)
         put("hudServerEnabled", s.hudServerEnabled)
         put("hudServerPort", s.hudServerPort)
+        put("hudIp", s.hudIp)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -358,6 +359,7 @@ object SettingsJson {
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
         hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
+        hudIp = j.optString("hudIp", base.hudIp),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),

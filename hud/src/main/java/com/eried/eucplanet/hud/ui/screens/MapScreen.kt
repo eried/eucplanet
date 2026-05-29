@@ -55,10 +55,13 @@ import kotlin.math.tan
 fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
-    val cache = remember(peer) { HudTileCache(peer) }
+    // Cache is independent of the phone peer now: the HUD hits the public
+    // CDN directly. `peer` is still threaded in for the offline-fallback
+    // text below (no peer = phone not connected = probably no telemetry).
+    val cache = remember { HudTileCache() }
 
     Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
-        if (peer == null || !hud.gpsHasFix) {
+        if (!hud.gpsHasFix) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = ctx.getString(R.string.hud_map_offline),
@@ -80,7 +83,7 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
         // Kick off async fetches for the visible tile window whenever the
         // viewport center or zoom changes. The fetch coroutine bumps `tick`
         // so the Canvas recomposes once new bitmaps arrive.
-        LaunchedEffect(z, cx.toInt(), cy.toInt(), size, peer) {
+        LaunchedEffect(z, cx.toInt(), cy.toInt(), size) {
             if (size.width == 0 || size.height == 0) return@LaunchedEffect
             val cols = (size.width / 256) + 2
             val rows = (size.height / 256) + 2

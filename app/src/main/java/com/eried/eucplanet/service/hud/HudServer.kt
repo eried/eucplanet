@@ -1,7 +1,6 @@
 package com.eried.eucplanet.service.hud
 
 import android.content.Context
-import android.net.wifi.WifiManager
 import android.util.Log
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
@@ -17,53 +16,44 @@ import com.eried.eucplanet.nav.NavigationEngine
 import com.eried.eucplanet.ui.theme.AccentOptions
 import com.eried.eucplanet.ui.theme.AccentTeal
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.cio.CIO
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.receiveText
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytes
-import io.ktor.server.response.respondText
-import io.ktor.server.response.respondTextWriter
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.jmdns.JmDNS
-import javax.jmdns.ServiceInfo
-import java.net.InetAddress
 
 /**
- * In-app HTTP/SSE server that feeds an external HUD companion app over the
- * phone's WiFi hotspot.
+ * Phone-side dialer that streams the current wheel telemetry to an external
+ * HUD over a WebSocket.
  *
- * Lifecycle is owned by [com.eried.eucplanet.service.WheelService]. The
- * server stays bound only while the rider is actively using the wheel; we
- * never want a lingering listening socket draining the radio when the app is
- * idle. Toggle via [AppSettings.hudServerEnabled].
+ * Architecture note: in v0.1.4 we flipped roles. Earlier versions ran a Ktor
+ * server here so the HUD could connect *in*; phone hotspots that filter
+ * multicast or enforce client isolation made that path unreachable for many
+ * testers. Now the HUD is the listener (`:hud` module's `HudServer.kt`) and
+ * we dial *out* using the IP the rider reads off the HUD's banner. Outbound
+ * TCP from a phone almost always works regardless of softAP policy.
  *
- * Wire format: [HudState] published as Server-Sent Events at /state once per
- * [PUBLISH_INTERVAL_MS]. Commands flow the other way via POST /command. mDNS
- * advertises the service as `_eucplanet._tcp` so the HUD can auto-pair
- * without the rider typing an IP.
+ * The class name stayed [HudServer] for storage-key compatibility (the
+ * `hudServerEnabled` flag in DataStore predates the rename); the role is
+ * now strictly client.
  *
- * Parallels [com.eried.eucplanet.wear.WearBridge] philosophically — same
- * field selection — but the transport is TCP-on-WiFi instead of the Wearable
- * Data Layer because the HUD is a generic Android device, not a Wear OS one.
+ * Lifecycle is owned by [com.eried.eucplanet.service.WheelService] -- start()
+ * fires when the rider toggles the link on AND service is up, stop() on
+ * either flipping off.
  */
 @Singleton
 class HudServer @Inject constructor(
@@ -73,23 +63,19 @@ class HudServer @Inject constructor(
     private val externalGpsRepository: ExternalGpsRepository,
     private val tripRepository: TripRepository,
     private val navigationEngine: NavigationEngine,
-    private val commandSink: HudCommandSink,
-    private val tileFetcher: TileFetcher
+    private val commandSink: HudCommandSink
 ) {
 
     companion object {
         private const val TAG = "HudServer"
         // 5 Hz: same rate WearBridge uses. Smooth speed needle without
-        // saturating the hotspot, and matches the BLE poll rate floor so the
-        // HUD never starves itself waiting for a new frame.
+        // saturating the hotspot.
         private const val PUBLISH_INTERVAL_MS = 200L
-        // Fixed multicast lock tag for diagnostics; JmDNS needs the lock so
-        // the phone's WiFi hotspot subnet sees its own mDNS group join.
-        private const val MULTICAST_LOCK_TAG = "eucplanet-hud-mdns"
-        // How often the mDNS watchdog rechecks for a better bind address.
-        // 5 s is responsive enough that a rider toggling hotspot ON gets
-        // discoverable in well under the SSE reconnect window.
-        private const val WATCHDOG_INTERVAL_MS = 5_000L
+        // Reconnect backoff: 1s, 2s, 4s, capped at 5s. Below the cap the
+        // rider gets a fresh try every time they walk back into range;
+        // above it the HUD feels stuck.
+        private const val BACKOFF_MIN_MS = 1_000L
+        private const val BACKOFF_MAX_MS = 5_000L
     }
 
     private val json = Json {
@@ -97,158 +83,41 @@ class HudServer @Inject constructor(
         encodeDefaults = true
     }
 
-    /**
-     * Catch any uncaught exception thrown inside coroutines spawned on
-     * [scope] - notably Ktor's accept-loop, which lives in its OWN
-     * coroutine outside our `try/catch` wrappers. Without this, a
-     * BindException from an in-progress old socket release crashes the
-     * whole app process. Logging is enough; the start/stop mutex (see
-     * lifecycleLock) prevents the bad state from recurring.
-     */
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO +
-            kotlinx.coroutines.CoroutineExceptionHandler { _, t ->
-                Log.e(TAG, "uncaught in HudServer scope", t)
-            }
+            CoroutineExceptionHandler { _, t -> Log.e(TAG, "uncaught", t) }
     )
 
-    /**
-     * Serializes start() and stop() so a rider rapidly toggling the
-     * "Run companion server" switch can't fire a new start() while the
-     * previous stop()'s socket close is still in flight. Without it the
-     * second bind() races the kernel's TIME_WAIT release of port 28080
-     * and dies with BindException.
-     */
-    private val lifecycleLock = kotlinx.coroutines.sync.Mutex()
+    private val lifecycleLock = Mutex()
 
-    @Volatile private var serverJob: Job? = null
+    private val http: OkHttpClient = OkHttpClient.Builder()
+        .pingInterval(15, TimeUnit.SECONDS)
+        .connectTimeout(4, TimeUnit.SECONDS)
+        .readTimeout(0, TimeUnit.MILLISECONDS)
+        .retryOnConnectionFailure(true)
+        .build()
+
+    @Volatile private var loopJob: Job? = null
     @Volatile private var publishJob: Job? = null
-    @Volatile private var engine: io.ktor.server.engine.ApplicationEngine? = null
-    @Volatile private var jmdns: JmDNS? = null
-    @Volatile private var multicastLock: WifiManager.MulticastLock? = null
-    @Volatile private var serverPort: Int = HudDiscovery.DEFAULT_PORT
+    @Volatile private var ws: WebSocket? = null
 
-    /** Latest [HudState] computed by the publisher loop. SSE handlers read
-     *  this volatile reference rather than holding their own subscription, so
-     *  late-connecting HUDs immediately get a current snapshot. */
+    private val demo = HudDemoSource()
     @Volatile private var latest: HudState = HudState()
 
-    /** Debug-only fake telemetry source. Lazily constructed; remains
-     *  inactive until [start] sees `debug.eucplanet.demo=true`. */
-    private val demo = HudDemoSource()
-
-    /**
-     * Public start. Returns immediately; the real work runs on the IO
-     * scope under [lifecycleLock] so a rapidly-toggled start/stop sequence
-     * can't race. The mutex guarantees that any pending stop() drains
-     * fully -- including engine.stop() releasing the TCP socket -- before
-     * the next start() tries to bind port 28080. Without serialization the
-     * second bind hits the kernel's still-open listening socket and Ktor's
-     * accept-loop crashes the app with BindException.
-     */
     fun start() {
         scope.launch { lifecycleLock.withLock { doStart() } }
     }
 
+    fun stop() {
+        scope.launch { lifecycleLock.withLock { doStop() } }
+    }
+
     private suspend fun doStart() {
-        if (serverJob != null) return
-        Log.i(TAG, "Starting HUD server")
+        if (loopJob != null) return
+        Log.i(TAG, "Starting HUD link")
         if (HudDebug.read("debug.eucplanet.demo") == "true") {
             Log.i(TAG, "Demo telemetry mode is ON")
             demo.start()
-        }
-
-        serverJob = scope.launch {
-            try {
-                val port = runCatching { settingsRepository.get().hudServerPort }
-                    .getOrDefault(HudDiscovery.DEFAULT_PORT)
-                    .takeIf { it in 1024..65535 } ?: HudDiscovery.DEFAULT_PORT
-                serverPort = port
-
-                engine = embeddedServer(CIO, port = port, host = "0.0.0.0") {
-                    install(StatusPages) {
-                        // CIO + SSE write loops can blow up with a generic IOException
-                        // when the HUD walks away from the hotspot. Swallow them at
-                        // the framework level so the server keeps serving the next
-                        // client instead of taking the whole module down.
-                        exception<Throwable> { call, cause ->
-                            Log.d(TAG, "HTTP exception on ${call.request.local.uri}: ${cause.message}")
-                            runCatching {
-                                call.respond(HttpStatusCode.InternalServerError)
-                            }
-                        }
-                    }
-                    routing {
-                        get(HudDiscovery.PATH_HEALTH) {
-                            call.respondText("eucplanet-hud ok", contentType = io.ktor.http.ContentType.Text.Plain)
-                        }
-                        get(HudDiscovery.PATH_STATE) {
-                            // Server-Sent Events: a long-lived response that
-                            // pushes one JSON-encoded HudState per cycle. CIO
-                            // closes the writer when the client disconnects,
-                            // which yields a CancellationException out of the
-                            // suspending write — propagated, caught above.
-                            call.response.headers.append(HttpHeaders.CacheControl, "no-cache")
-                            call.response.headers.append(HttpHeaders.Connection, "keep-alive")
-                            call.respondTextWriter(
-                                contentType = io.ktor.http.ContentType.Text.EventStream
-                            ) {
-                                while (true) {
-                                    val frame = latest
-                                    write("data: ")
-                                    write(json.encodeToString(frame))
-                                    write("\n\n")
-                                    flush()
-                                    delay(PUBLISH_INTERVAL_MS)
-                                }
-                            }
-                        }
-                        get("${HudDiscovery.PATH_TILES_PREFIX}/{z}/{x}/{y}") {
-                            // Pass-through raster tile proxy. The HUD has no
-                            // mobile data of its own; routing tiles through
-                            // the phone keeps the HUD usable as long as the
-                            // phone has a connection. Failures map to 502 so
-                            // the HUD's blank-tile fallback shows clearly.
-                            val z = call.parameters["z"]?.toIntOrNull()
-                            val x = call.parameters["x"]?.toIntOrNull()
-                            val y = call.parameters["y"]?.toIntOrNull()
-                            if (z == null || x == null || y == null ||
-                                z !in 0..19 || x < 0 || y < 0
-                            ) {
-                                call.respond(HttpStatusCode.BadRequest)
-                                return@get
-                            }
-                            try {
-                                val bytes = tileFetcher.fetch(z, x, y)
-                                if (bytes == null) {
-                                    call.respond(HttpStatusCode.BadGateway)
-                                } else {
-                                    call.respondBytes(bytes, io.ktor.http.ContentType.Image.PNG)
-                                }
-                            } catch (t: Throwable) {
-                                Log.w(TAG, "tile $z/$x/$y failed: ${t.message}")
-                                call.respond(HttpStatusCode.BadGateway)
-                            }
-                        }
-                        post(HudDiscovery.PATH_COMMAND) {
-                            val body = call.receiveText()
-                            try {
-                                val cmd = json.decodeFromString<HudCommand>(body)
-                                commandSink.dispatch(cmd)
-                                call.respond(HttpStatusCode.NoContent)
-                            } catch (t: Throwable) {
-                                Log.w(TAG, "bad command: ${t.message}: $body")
-                                call.respond(HttpStatusCode.BadRequest, "bad command")
-                            }
-                        }
-                    }
-                }.start(wait = false)
-
-                advertiseMdns(port)
-                Log.i(TAG, "HUD server listening on :$port")
-            } catch (t: Throwable) {
-                Log.e(TAG, "HUD server start failed", t)
-            }
         }
 
         publishJob = scope.launch {
@@ -262,68 +131,125 @@ class HudServer @Inject constructor(
             }
         }
 
-        // mDNS watchdog: the TCP socket binds to 0.0.0.0 so it accepts new
-        // interfaces (e.g. the rider enabling hotspot after toggling the
-        // HUD server on) automatically, but the mDNS advertisement is
-        // one-shot at server start. Re-register every WATCHDOG_INTERVAL_MS
-        // whenever the best-available IPv4 address differs from what we
-        // last advertised, so a freshly-enabled hotspot becomes
-        // discoverable within a few seconds without the rider restarting
-        // the app.
-        scope.launch {
-            var lastBind: InetAddress? = null
-            while (true) {
-                try {
-                    val current = pickHotspotAddress()
-                    if (current != lastBind && current != null) {
-                        Log.i(TAG, "mDNS bind changed (${lastBind?.hostAddress} -> ${current.hostAddress}), re-registering")
-                        readvertiseMdns(serverPort, current)
-                        lastBind = current
-                    }
-                } catch (t: Throwable) {
-                    Log.w(TAG, "mDNS watchdog tick failed: ${t.message}")
-                }
-                delay(WATCHDOG_INTERVAL_MS)
+        loopJob = scope.launch { dialLoop() }
+    }
+
+    private suspend fun doStop() {
+        Log.i(TAG, "Stopping HUD link")
+        try { demo.stop() } catch (_: Throwable) {}
+        try { ws?.close(1000, "stopping") } catch (_: Throwable) {}
+        ws = null
+        publishJob?.cancel(); publishJob = null
+        loopJob?.cancel(); loopJob = null
+    }
+
+    /**
+     * Outer loop: re-read the HUD address from settings every iteration so a
+     * rider editing the IP doesn't have to toggle the link off and on. Open
+     * a WebSocket, pump state until it dies, then back off and retry.
+     *
+     * Reading settings on each iteration (instead of subscribing to a flow)
+     * keeps the loop simple; the cost is a typed read per reconnect, which
+     * is negligible.
+     */
+    private suspend fun dialLoop() {
+        var attempt = 0
+        while (true) {
+            val s = runCatching { settingsRepository.get() }.getOrNull()
+            val hudIp = s?.hudIp?.trim().orEmpty()
+            // Allow a debug system prop to override settings for emulator
+            // testing where there's no UI input device:
+            //   adb shell setprop debug.eucplanet.hud.peer 10.0.2.2:28080
+            val override = HudDebug.read("debug.eucplanet.hud.peer")?.takeIf { it.isNotBlank() }
+            val peer = override ?: if (hudIp.isNotBlank()) {
+                val port = s?.hudServerPort?.takeIf { it in 1..65535 }
+                    ?: HudDiscovery.DEFAULT_PORT
+                "$hudIp:$port"
+            } else null
+
+            if (peer == null) {
+                // Nothing to connect to yet -- the rider hasn't entered an
+                // IP. Idle and recheck periodically; this is cheap because
+                // we're not opening sockets.
+                delay(2_000L)
+                continue
+            }
+            val ok = streamUntilClosed(peer)
+            if (!ok) {
+                delay(backoff(attempt++))
+            } else {
+                attempt = 0
             }
         }
     }
 
-    /**
-     * Public stop. Returns immediately; teardown runs under [lifecycleLock]
-     * on the IO scope. Two reasons for the lock:
-     *  1. Heavy calls (jmdns.close ~3s, engine.stop ~1s) must not block the
-     *     caller thread, which is WheelService's Main-thread collect.
-     *  2. A subsequent start() that grabs the lock will wait for this
-     *     teardown to finish, guaranteeing port 28080 is released before
-     *     it tries to rebind. Without that the rapid toggle hits Ktor's
-     *     accept-loop with BindException and crashes the app.
-     */
-    fun stop() {
-        scope.launch { lifecycleLock.withLock { doStop() } }
+    /** Open one WebSocket and pump frames until it closes. Returns true on
+     *  clean close, false on transport error (which gates backoff). */
+    private suspend fun streamUntilClosed(peer: String): Boolean {
+        val done = kotlinx.coroutines.CompletableDeferred<Boolean>()
+        val req = Request.Builder()
+            .url("ws://$peer${HudDiscovery.PATH_STATE}")
+            .build()
+        val listener = object : WebSocketListener() {
+            private var sendJob: Job? = null
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                Log.i(TAG, "HUD link open: $peer")
+                ws = webSocket
+                // Push a frame every PUBLISH_INTERVAL_MS off the snapshot
+                // buffer. We don't dedupe: even when no field changed, the
+                // timestamp bump in [snapshot] keeps the HUD's last-frame
+                // freshness signal live.
+                sendJob = scope.launch {
+                    while (true) {
+                        val frame = latest
+                        try {
+                            if (!webSocket.send(json.encodeToString(frame))) {
+                                // OkHttp returns false when the outbound
+                                // queue is over its bound; treat as transport
+                                // failure so we reconnect.
+                                Log.w(TAG, "send queue full, closing")
+                                webSocket.close(1011, "send-queue-full")
+                                break
+                            }
+                        } catch (t: Throwable) {
+                            Log.w(TAG, "send failed: ${t.message}")
+                            break
+                        }
+                        delay(PUBLISH_INTERVAL_MS)
+                    }
+                }
+            }
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                try {
+                    val cmd = json.decodeFromString<HudCommand>(text)
+                    commandSink.dispatch(cmd)
+                } catch (t: Throwable) {
+                    Log.w(TAG, "bad command: ${t.message}: $text")
+                }
+            }
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                Log.i(TAG, "HUD link closing: $code $reason")
+                webSocket.close(1000, null)
+            }
+            override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                sendJob?.cancel()
+                ws = null
+                done.complete(true)
+            }
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
+                sendJob?.cancel()
+                ws = null
+                done.complete(false)
+            }
+        }
+        http.newWebSocket(req, listener)
+        return done.await()
     }
 
-    private suspend fun doStop() {
-        Log.i(TAG, "Stopping HUD server")
-        val oldJmdns = jmdns
-        val oldLock = multicastLock
-        val oldEngine = engine
-        val oldPublishJob = publishJob
-        val oldServerJob = serverJob
-        jmdns = null
-        multicastLock = null
-        engine = null
-        publishJob = null
-        serverJob = null
-        try { demo.stop() } catch (_: Throwable) {}
-        try { oldJmdns?.unregisterAllServices() } catch (_: Throwable) {}
-        try { oldJmdns?.close() } catch (_: Throwable) {}
-        try { oldLock?.release() } catch (_: Throwable) {}
-        // Block until the engine has fully released its sockets, otherwise
-        // the next start() inside the same mutex cycle will hit a
-        // still-bound port.
-        try { oldEngine?.stop(500L, 1000L) } catch (_: Throwable) {}
-        oldPublishJob?.cancel()
-        oldServerJob?.cancel()
+    private fun backoff(attempt: Int): Long {
+        val expanded = BACKOFF_MIN_MS shl attempt.coerceAtMost(3)
+        return expanded.coerceAtMost(BACKOFF_MAX_MS)
     }
 
     private suspend fun snapshot(): HudState {
@@ -350,18 +276,8 @@ class HudServer @Inject constructor(
             else -> null
         }
 
-        // Nav screen mirrors the phone popup verbatim: active while a route
-        // is running and the cue is on the phone's screen. The HUD has a
-        // dedicated screen for nav so there's no risk of "clutter" the way
-        // the watch dial has; if a rider doesn't want nav they just don't
-        // switch to that screen.
         val navShow = nav.active && !nav.minimized && nav.cueVisible
 
-        // Demo overlay: if the synthetic source is running, replace the
-        // wheel + nav fields with its scripted values while keeping the
-        // rider's real settings (units, accent, gauge thresholds) intact.
-        // The map screen still uses real GPS so a real fix is visible; demo
-        // adds a small orbit offset so the rider marker drifts.
         val d = if (demo.active) demo.frame else null
 
         return HudState(
@@ -379,9 +295,6 @@ class HudServer @Inject constructor(
             gaugeMaxKmh = gaugeMax,
             gaugeOrangeThresholdPct = s.gaugeOrangeThresholdPct,
             gaugeRedThresholdPct = s.gaugeRedThresholdPct,
-            // Force the gauge colour band visible in demo mode so the
-            // synthetic PWM sweep through orange/red has something to colour.
-            // In production this stays whatever the rider has set.
             showGaugeColorBand = if (d != null) true else s.showGaugeColorBand,
             unitSpeed = com.eried.eucplanet.util.Units.effectiveSpeedUnit(s),
             unitDistance = com.eried.eucplanet.util.Units.effectiveDistanceUnit(s),
@@ -401,72 +314,9 @@ class HudServer @Inject constructor(
         )
     }
 
-
     private fun resolveAccentArgb(s: AppSettings): String {
-        // Mirror the same lookup the phone theme does, but render to a hex
-        // string the HUD can parse without pulling in :app's theme module.
         val accent = AccentOptions.firstOrNull { it.key == s.accentColor }?.color ?: AccentTeal
         val argb = accent.value.toLong().ushr(32).toInt()
         return "#%08X".format(argb)
-    }
-
-    private fun advertiseMdns(port: Int) {
-        // First-time setup: acquire the multicast lock once (JmDNS needs it
-        // to join 224.0.0.251 on the phone's hotspot subnet), then advertise.
-        try {
-            val wifi = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-            multicastLock = wifi?.createMulticastLock(MULTICAST_LOCK_TAG)?.apply {
-                setReferenceCounted(false)
-                acquire()
-            }
-        } catch (t: Throwable) {
-            Log.w(TAG, "multicast lock acquire failed", t)
-        }
-        readvertiseMdns(port, pickHotspotAddress())
-    }
-
-    /**
-     * (Re-)register the mDNS service on the given bind address. Safe to call
-     * repeatedly: any prior advertisement is torn down first. Called once at
-     * server start and on every watchdog tick where the bind address changed,
-     * so a rider enabling hotspot AFTER toggling the HUD server on still gets
-     * mDNS discovery within a few seconds without restarting the app.
-     */
-    private fun readvertiseMdns(port: Int, bind: InetAddress?) {
-        // Tear down the prior JmDNS instance so we don't leak a thread per
-        // re-advertise. Failures here are non-fatal: a half-closed JmDNS
-        // would still be replaced by the create() below.
-        try { jmdns?.unregisterAllServices() } catch (_: Throwable) {}
-        try { jmdns?.close() } catch (_: Throwable) {}
-        jmdns = null
-        try {
-            jmdns = if (bind != null) JmDNS.create(bind) else JmDNS.create()
-            val txt = mapOf(
-                HudDiscovery.TXT_VERSION to HudState.PROTOCOL_VERSION.toString(),
-                HudDiscovery.TXT_STATE_PATH to HudDiscovery.PATH_STATE,
-                HudDiscovery.TXT_COMMAND_PATH to HudDiscovery.PATH_COMMAND,
-                HudDiscovery.TXT_TILES_PATH to HudDiscovery.PATH_TILES_PREFIX
-            )
-            val info = ServiceInfo.create(
-                HudDiscovery.SERVICE_TYPE, "EUC Planet", port, 0, 0, txt
-            )
-            jmdns?.registerService(info)
-            Log.i(TAG, "mDNS registered ${info.qualifiedName} on $bind:$port")
-        } catch (t: Throwable) {
-            Log.w(TAG, "mDNS advertise failed", t)
-        }
-    }
-
-    private fun pickHotspotAddress(): InetAddress? = try {
-        val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
-        ifs.asSequence()
-            .filter { it.isUp && !it.isLoopback }
-            .flatMap { it.inetAddresses.toList().asSequence() }
-            .firstOrNull { addr ->
-                !addr.isLoopbackAddress && !addr.isLinkLocalAddress &&
-                    addr is java.net.Inet4Address
-            }
-    } catch (_: Throwable) {
-        null
     }
 }

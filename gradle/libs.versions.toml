@@ -96,15 +96,16 @@ camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", vers
 # so it doesn't pull this dependency in.
 camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 
-# Ktor: in-process HTTP/SSE server in :app that the HUD companion subscribes
-# to over the phone's WiFi hotspot. CIO engine to avoid pulling Netty.
+# Ktor: WebSocket server in :hud that the phone connects out to over the
+# rider's hotspot. CIO engine to avoid pulling Netty.
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
 ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
+ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets", version.ref = "ktor" }
 ktor-server-status-pages = { group = "io.ktor", name = "ktor-server-status-pages", version.ref = "ktor" }
 
-# OkHttp + SSE: HUD-side client of the phone's /state stream.
+# OkHttp: phone-side outbound WebSocket dialer. Built-in WebSocket support
+# means no extra module needed beyond the core artifact.
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-okhttp-sse = { group = "com.squareup.okhttp3", name = "okhttp-sse", version.ref = "okhttp" }
 
 # kotlinx.serialization for the JSON wire format. Used on both sides.
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }

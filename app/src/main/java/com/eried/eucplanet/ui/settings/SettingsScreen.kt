@@ -3513,10 +3513,31 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Server-enabled subsection: only render once the rider has opted in.
-        // No point asking them to pick a port for a service that's off.
+        // Link-enabled subsection: only render the IP/port fields once the
+        // rider has opted in. The HUD's own banner shows its IP so the
+        // rider can read it off the helmet and type it here.
         if (settings.hudServerEnabled) {
             HudHotspotHint()
+
+            var ipText by remember(settings.hudIp) {
+                mutableStateOf(settings.hudIp)
+            }
+            OutlinedTextField(
+                value = ipText,
+                onValueChange = { new ->
+                    // Restrict to dotted-quad characters; full validation
+                    // happens at dial time so we don't fight the rider mid-edit.
+                    if (new.length <= 15 && new.all { it.isDigit() || it == '.' }) {
+                        ipText = new
+                        viewModel.updateHudIp(new)
+                    }
+                },
+                label = { Text(stringResource(R.string.hud_ip_label)) },
+                supportingText = { Text(stringResource(R.string.hud_ip_desc)) },
+                placeholder = { Text("192.168.43.1") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             var portText by remember(settings.hudServerPort) {
                 mutableStateOf(settings.hudServerPort.toString())
@@ -3524,10 +3545,6 @@ private fun HudIntegrationSection(
             OutlinedTextField(
                 value = portText,
                 onValueChange = { new ->
-                    // Restrict to digits and a max of 5 chars (max valid TCP
-                    // port is 65535). The viewmodel coerces into a legal
-                    // range before persistence, so an out-of-band 1023 entry
-                    // quietly snaps to 1024 rather than throwing.
                     if (new.length <= 5 && new.all { it.isDigit() }) {
                         portText = new
                         new.toIntOrNull()?.let { viewModel.updateHudServerPort(it) }

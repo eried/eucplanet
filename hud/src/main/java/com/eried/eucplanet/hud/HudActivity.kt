@@ -2,7 +2,6 @@ package com.eried.eucplanet.hud
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -14,7 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import com.eried.eucplanet.hud.net.HudClient
+import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.ui.HudApp
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.launch
@@ -30,7 +29,7 @@ import kotlinx.coroutines.launch
  */
 class HudActivity : ComponentActivity() {
 
-    private lateinit var client: HudClient
+    private lateinit var server: HudServer
     private lateinit var controller: HudUiController
 
     /**
@@ -67,42 +66,32 @@ class HudActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         controller = HudUiController()
-        client = HudClient(applicationContext)
-        controller.onCommand = { client.send(it) }
-        // Allow a fixed peer override for emulator testing where mDNS can't
-        // traverse the host-only network between two AVDs. Read once at boot;
-        // change with:
-        //   adb shell setprop debug.eucplanet.hud.peer 10.0.2.2:28080
-        // and relaunch. Empty in production riders' world.
-        val debugPeer = runCatching {
-            val cls = Class.forName("android.os.SystemProperties")
-            cls.getMethod("get", String::class.java)
-                .invoke(null, "debug.eucplanet.hud.peer") as? String
-        }.getOrNull()?.takeIf { it.isNotBlank() }
-        client.start(
-            hudId = Build.MODEL.ifBlank { "hud" } + "/" + Build.SERIAL.ifBlank { "?" },
-            hudVersion = BuildConfig.VERSION_NAME,
-            fixedPeer = debugPeer
-        )
+        server = HudServer(applicationContext)
+        // OK / Nav buttons enqueue commands back to the phone over the
+        // WebSocket. Queued in HudServer so a tap during a momentary
+        // disconnect isn't lost -- it ships on the next reconnect.
+        controller.onCommand = { server.sendCommand(it) }
+        server.start()
 
         // Forward connection events into the UI status banner.
         lifecycleScope.launch {
-            client.status.collect { controller.updateStatus(it) }
+            server.status.collect { controller.updateStatus(it) }
         }
 
         setContent {
             HudApp(
-                state = client.state,
-                status = client.status,
-                peer = client.peer,
+                state = server.state,
+                status = server.status,
+                peer = server.peer,
+                localIp = server.localIp,
                 controller = controller,
-                onCommand = client::send
+                onCommand = server::sendCommand
             )
         }
     }
 
     override fun onDestroy() {
-        client.stop()
+        server.stop()
         super.onDestroy()
     }
 

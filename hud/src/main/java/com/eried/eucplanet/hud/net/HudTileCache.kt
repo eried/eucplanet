@@ -3,7 +3,6 @@ package com.eried.eucplanet.hud.net
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
-import com.eried.eucplanet.hud.protocol.HudDiscovery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,17 +15,24 @@ import java.util.concurrent.TimeUnit
 /**
  * HUD-side tile fetch + cache.
  *
- * Talks to the phone's `/tiles/{z}/{x}/{y}` endpoint (forwarded from
- * CartoCDN by [com.eried.eucplanet.service.hud.TileFetcher]). One cache
- * instance per paired peer URL; switching peers throws the bitmaps away so a
- * stale phone's tiles never bleed into a new pairing.
+ * Talks directly to the public CartoCDN dark basemap -- same one the phone
+ * Navigator uses for night mode, picked because the HUD is always
+ * dark-themed. The HUD has its own wifi adapter and is generally on the
+ * rider's hotspot (or an external AP), so it can hit the CDN without
+ * routing through the phone.
  *
- * LRU keeps memory bounded: 64 tiles × ~30 KB each = ~2 MB, comfortably below
- * what the HUD has to spare. Tiles outside the cache fall through to the
- * "checkerboard" placeholder in [com.eried.eucplanet.hud.ui.screens.MapScreen]
- * until they load.
+ * LRU keeps memory bounded: 64 tiles × ~30 KB each = ~2 MB. Tiles outside
+ * the cache fall through to the "checkerboard" placeholder in
+ * [com.eried.eucplanet.hud.ui.screens.MapScreen] until they load.
  */
-class HudTileCache(private val peer: String?) {
+class HudTileCache {
+
+    companion object {
+        private const val URL_TEMPLATE =
+            "https://%s.basemaps.cartocdn.com/dark_all/%d/%d/%d.png"
+        private val SHARDS = arrayOf("a", "b", "c", "d")
+        private const val USER_AGENT = "eucplanet-hud/1"
+    }
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(3, TimeUnit.SECONDS)
@@ -52,11 +58,14 @@ class HudTileCache(private val peer: String?) {
         val k = key(z, x, y)
         if (cache.get(k) != null) return
         if (!inflight.add(k)) return
-        val base = peer ?: run { inflight.remove(k); return }
         scope.launch {
             try {
-                val url = "http://$base${HudDiscovery.PATH_TILES_PREFIX}/$z/$x/$y"
-                val req = Request.Builder().url(url).build()
+                val shard = SHARDS[(x + y) % SHARDS.size]
+                val url = URL_TEMPLATE.format(shard, z, x, y)
+                val req = Request.Builder()
+                    .url(url)
+                    .header("User-Agent", USER_AGENT)
+                    .build()
                 client.newCall(req).execute().use { resp ->
                     if (!resp.isSuccessful) return@launch
                     val bytes = resp.body?.bytes() ?: return@launch

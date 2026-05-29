@@ -28,8 +28,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 222
-        versionName = "0.8.11"
+        versionCode = 223
+        versionName = "0.8.12"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -119,19 +119,10 @@ dependencies {
     implementation(project(":hud-protocol"))
     implementation(libs.kotlinx.serialization.json)
 
-    // Embedded HTTP/SSE server. Off by default; lit up by HudServer when the
-    // rider toggles "HUD server" in Settings.
-    implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.cio)
-    implementation(libs.ktor.server.status.pages)
-
-    // OkHttp powers the HudServer tile-proxy. The phone fetches map tiles
-    // from the public CDN over its data connection and forwards them to the
-    // HUD over the hotspot, so the HUD never needs its own internet plan.
+    // OkHttp powers the outbound WebSocket [HudServer] uses to dial the HUD
+    // and push telemetry frames. Built-in WebSocket support, no extra module
+    // needed beyond the core artifact.
     implementation(libs.okhttp)
-
-    // mDNS advertisement for _eucplanet._tcp on the phone hotspot subnet.
-    implementation(libs.jmdns)
 
     // Compose
     val composeBom = platform(libs.compose.bom)

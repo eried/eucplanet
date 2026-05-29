@@ -3,7 +3,7 @@ package com.eried.eucplanet.hud.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.eried.eucplanet.hud.net.HudClient
+import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.protocol.HudCommand
 
 /**
@@ -40,10 +40,10 @@ class HudUiController {
         private set
 
     /** Most recent HUD connection status, surfaced as a banner. */
-    var status: HudClient.Status by mutableStateOf(HudClient.Status.SEARCHING)
+    var status: HudServer.Status by mutableStateOf(HudServer.Status.LISTENING)
         private set
 
-    fun updateStatus(s: HudClient.Status) { status = s }
+    fun updateStatus(s: HudServer.Status) { status = s }
 
     fun nextScreen() {
         val idx = screens.indexOf(current)

@@ -38,8 +38,8 @@ android {
         // Offset by 300000 so the HUD APK's version line never collides with
         // the phone (1..99999) or the wear companion (100000-prefixed) when
         // both are visible in the same release notes.
-        versionCode = 300004
-        versionName = "0.1.3"
+        versionCode = 300005
+        versionName = "0.1.4"
     }
 
     signingConfigs {
@@ -106,13 +106,23 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-    // OkHttp for the long-lived SSE stream to the phone. Stays connected for
-    // hours, reconnects on hotspot blips. We use the sse module's EventSource.
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.sse)
+    // Ktor server: the HUD listens for the phone's outbound WebSocket. Hosting
+    // here (instead of on the phone) flips the dial direction so client
+    // isolation / multicast filters on the phone's softAP don't block us --
+    // outbound TCP almost always works even when peer-to-peer doesn't.
+    implementation(libs.ktor.server.core)
+    implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.websockets)
 
-    // JmDNS for resolving the phone's _eucplanet._tcp advertisement on the
-    // hotspot subnet. Same library on both ends keeps behaviour identical.
+    // OkHttp powers the direct-to-CartoCDN map tile fetcher on the HUD side.
+    // The HUD usually has its own internet through the rider's hotspot, so we
+    // can skip the phone-as-proxy hop the previous build used.
+    implementation(libs.okhttp)
+
+    // JmDNS: the HUD advertises _eucplanet._tcp on whatever subnet it has,
+    // so the phone can auto-discover when manual IP isn't set. When
+    // multicast is filtered, the rider falls back to typing the IP shown on
+    // the HUD's banner.
     implementation(libs.jmdns)
 
     // CameraX for the rear-camera screen. The Motoeye exposes the rear cam
