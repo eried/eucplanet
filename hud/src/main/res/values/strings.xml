@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">EUC Planet</string>
+    <string name="app_name">HUD</string>
     <string name="hud_screen_dashboard">Dashboard</string>
     <string name="hud_screen_camera">Rear camera</string>
     <string name="hud_screen_map">Map</string>

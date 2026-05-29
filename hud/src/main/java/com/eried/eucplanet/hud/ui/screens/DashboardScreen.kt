@@ -152,18 +152,23 @@ private fun Tile(
     modifier: Modifier = Modifier
 ) {
     // Each tile auto-scales its label/value/subtitle to its own rendered
-    // height, so a tile that ended up at 70 dp on a small Motoeye panel
-    // gets correspondingly smaller text -- nothing clips. The label gets
-    // ~17 % of the tile height, the value ~50 %, the subtitle ~17 %, with
-    // padding eating the remainder.
+    // height. Sizes derived from the tile's `maxHeight` via dp.toSp() so
+    // the rider's system font-scale (some HUD firmwares ship with 1.15+
+    // by default) doesn't blow the text past the tile boundary.
+    //
+    // Budget: label 16 % + value 36 % + subtitle 16 % + spacing/padding
+    // = ~88 % of tile height, leaving ~12 % breathing room so a heavier
+    // typeface still fits on cramped Motoeye panels. Earlier 50 % value
+    // overflowed reports from real-device testers.
     BoxWithConstraints(modifier = modifier) {
+        val density = androidx.compose.ui.platform.LocalDensity.current
         val h = maxHeight.value
-        val labelSize = (h * 0.17f).sp
-        val valueSize = (h * 0.50f).sp
-        val subSize = (h * 0.17f).sp
+        val labelSize = with(density) { (h * 0.16f).dp.toSp() }
+        val valueSize = with(density) { (h * 0.36f).dp.toSp() }
+        val subSize = with(density) { (h * 0.16f).dp.toSp() }
         val cornerR = (h * 0.13f).coerceAtMost(16f).dp
         val padH = (maxWidth.value * 0.05f).dp
-        val padV = (h * 0.08f).dp
+        val padV = (h * 0.06f).dp
         val strokeW = (h * 0.012f).coerceAtLeast(1f).dp
 
         Canvas(Modifier.fillMaxSize()) {
