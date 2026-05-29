@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhonelinkOff
@@ -158,25 +163,30 @@ private fun DisconnectedDialog(localIp: String?) {
         contentAlignment = Alignment.Center
     ) {
         val side = min(maxWidth.value, maxHeight.value)
-        val dialogW = (maxWidth.value * 0.7f).coerceAtMost(maxHeight.value * 1.6f).dp
         val iconSize = (side * 0.18f).dp
         val titleSize = (side * 0.07f).sp
-        val ipSize = (side * 0.075f).sp
-        val captionSize = (side * 0.035f).sp
+        val captionSize = (side * 0.038f).sp
+
+        // Dialog frame: static neutral border (Material outline gray)
+        // so only the icon draws the eye. Cells use the same gray. One
+        // source of motion is enough; the rider's gaze lands on the icon
+        // first, then walks down to the IP/PORT.
+        val frameColor = Color(0xFF6B6B6B)
         val pad = (side * 0.04f).dp
 
-        // Dialog frame: static red border so only the icon draws the eye.
-        // A blinking outer chrome competed with the icon and made the dialog
-        // feel busy; one source of motion is enough.
-        val staticRed = Color(0xFFB71C1C)
         Column(
             modifier = Modifier
-                .width(dialogW)
+                // wrapContentSize lets the dialog grow to fit IP/PORT cells
+                // on small panels where they otherwise would push past a
+                // fixed 70%-of-width box. Capped by widthIn so it never
+                // takes the whole screen on a wide dev emulator.
+                .widthIn(min = (maxWidth.value * 0.5f).dp, max = (maxWidth.value * 0.92f).dp)
+                .wrapContentSize()
                 .clip(RoundedCornerShape((side * 0.025f).dp))
                 .background(Color(0xE6111111))
                 .border(
                     width = (side * 0.004f).coerceAtLeast(1f).dp,
-                    color = staticRed.copy(alpha = 0.7f),
+                    color = frameColor.copy(alpha = 0.7f),
                     shape = RoundedCornerShape((side * 0.025f).dp)
                 )
                 .padding(PaddingValues(horizontal = pad, vertical = pad)),
@@ -196,26 +206,24 @@ private fun DisconnectedDialog(localIp: String?) {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
-            // Each octet + the port live in their own bounded cell, the way
-            // a network engineer would draw an address on a whiteboard. Far
-            // easier to read off than a single "10.0.2.15:28080" string,
-            // because each number sits in its own visually-distinct frame.
-            // Cells use the static red, not the blinking tint -- only the
-            // icon animates, so the rider's eye lands on it first.
-            IpPortMatrix(
-                ipText = ipText,
-                port = port,
-                accent = staticRed,
-                side = side
-            )
-            // Single caption combining "where to type" + "what menu path",
-            // so the rider reads one continuous instruction instead of two
-            // detached lines. Wraps naturally on narrow panels.
+            // Instruction goes ABOVE the values so the rider reads the
+            // sentence first, then the things to type appear right below
+            // it -- natural top-down flow.
             Text(
                 text = ctx.getString(R.string.hud_disconnected_instructions),
                 color = Color(0xFFB0B0B0),
                 fontSize = captionSize,
                 textAlign = TextAlign.Center
+            )
+            // Two cells, one per phone-side input field. Cells size to their
+            // own text content via wrapContentSize so a panel half the width
+            // of the dev emulator still renders both numbers without
+            // clipping -- no hardcoded widths anywhere in the cell.
+            IpPortMatrix(
+                ipText = ipText,
+                port = port,
+                accent = frameColor,
+                side = side
             )
         }
     }
@@ -224,8 +232,13 @@ private fun DisconnectedDialog(localIp: String?) {
 /**
  * Two-cell address display: one cell for the whole IP, one cell for the
  * port, with "IP" / "PORT" labels underneath. Mirrors the two phone-side
- * input fields exactly -- the rider reads each cell into the matching field
- * on the phone, no chance of "wait which octet was that".
+ * input fields exactly.
+ *
+ * Cells size themselves to their text content (wrapContentSize) instead of
+ * fixed widths -- earlier builds hardcoded ipW/portW as fractions of `side`
+ * and a slightly-wide port string ("28080") was getting clipped on a real
+ * device. Letting Compose measure the text removes that whole class of
+ * sizing bug.
  */
 @Composable
 private fun IpPortMatrix(
@@ -234,90 +247,92 @@ private fun IpPortMatrix(
     accent: Color,
     side: Float
 ) {
-    // Bigger than before so the IP+PORT are the dominant numbers in the
-    // dialog -- they're the thing the rider has to actually read. Icon
-    // catches the eye via motion; the IP holds it once they look.
-    val cellH = (side * 0.20f).dp
-    val ipW = (side * 0.65f).dp
-    // 5-digit port at the larger cellFont needs noticeably more width; a
-    // tester report had "28080" clipped to "2808" at the prior size.
-    val portW = (side * 0.36f).dp
+    val cellHMin = (side * 0.20f).dp
     val cellFont = (side * 0.10f).sp
     val labelFont = (side * 0.034f).sp
     val groupGap = (side * 0.05f).dp
     val intraGap = (side * 0.014f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
+    // Horizontal padding inside each cell. Scales with the dialog so the
+    // cell visually breathes around the digits at any size.
+    val innerHPad = (side * 0.04f).dp
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(groupGap)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AddressCell(
-                text = ipText,
-                widthDp = ipW,
-                heightDp = cellH,
-                fontSize = cellFont,
-                accent = accent,
-                cornerR = cornerR,
-                borderW = borderW
-            )
-            Spacer(Modifier.height(intraGap))
-            Text(
-                text = "IP",
-                color = Color(0xFF808080),
-                fontSize = labelFont,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            AddressCell(
-                text = port.toString(),
-                widthDp = portW,
-                heightDp = cellH,
-                fontSize = cellFont,
-                accent = accent,
-                cornerR = cornerR,
-                borderW = borderW
-            )
-            Spacer(Modifier.height(intraGap))
-            Text(
-                text = "PORT",
-                color = Color(0xFF808080),
-                fontSize = labelFont,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        AddressColumn(
+            value = ipText,
+            label = "IP",
+            cellHMin = cellHMin,
+            innerHPad = innerHPad,
+            valueFont = cellFont,
+            labelFont = labelFont,
+            cornerR = cornerR,
+            borderW = borderW,
+            border = accent,
+            intraGap = intraGap
+        )
+        AddressColumn(
+            value = port.toString(),
+            label = "PORT",
+            cellHMin = cellHMin,
+            innerHPad = innerHPad,
+            valueFont = cellFont,
+            labelFont = labelFont,
+            cornerR = cornerR,
+            borderW = borderW,
+            border = accent,
+            intraGap = intraGap
+        )
     }
 }
 
+/**
+ * One labeled cell (value above, label below). The cell wraps its content
+ * width so any digit string fits without clipping; the min height keeps a
+ * consistent look across cells of different widths.
+ */
 @Composable
-private fun AddressCell(
-    text: String,
-    widthDp: androidx.compose.ui.unit.Dp,
-    heightDp: androidx.compose.ui.unit.Dp,
-    fontSize: androidx.compose.ui.unit.TextUnit,
-    accent: Color,
+private fun AddressColumn(
+    value: String,
+    label: String,
+    cellHMin: androidx.compose.ui.unit.Dp,
+    innerHPad: androidx.compose.ui.unit.Dp,
+    valueFont: androidx.compose.ui.unit.TextUnit,
+    labelFont: androidx.compose.ui.unit.TextUnit,
     cornerR: androidx.compose.ui.unit.Dp,
-    borderW: androidx.compose.ui.unit.Dp
+    borderW: androidx.compose.ui.unit.Dp,
+    border: Color,
+    intraGap: androidx.compose.ui.unit.Dp
 ) {
-    Box(
-        modifier = Modifier
-            .width(widthDp)
-            .height(heightDp)
-            .clip(RoundedCornerShape(cornerR))
-            .background(Color(0xFF0F0F0F))
-            .border(borderW, accent.copy(alpha = 0.55f), RoundedCornerShape(cornerR)),
-        contentAlignment = Alignment.Center
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .heightIn(min = cellHMin)
+                .wrapContentSize()
+                .clip(RoundedCornerShape(cornerR))
+                .background(Color(0xFF0F0F0F))
+                .border(borderW, border.copy(alpha = 0.55f), RoundedCornerShape(cornerR))
+                .padding(horizontal = innerHPad),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = value,
+                color = Color.White,
+                fontSize = valueFont,
+                fontFamily = FontFamily.Monospace,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+        }
+        Spacer(Modifier.height(intraGap))
         Text(
-            text = text,
-            color = Color.White,
-            fontSize = fontSize,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1
+            text = label,
+            color = Color(0xFF808080),
+            fontSize = labelFont,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }
