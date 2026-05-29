@@ -3528,6 +3528,14 @@ private fun HudIntegrationSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // When the link is on and the field is empty, the client falls
+            // back to mDNS auto-discovery. We surface that in the LABEL
+            // (which is always visible) instead of the placeholder (which
+            // only shows when the field is focused) so the rider sees the
+            // autodetect state without having to tap into the field first.
+            val ipLabel = if (settings.hudServerEnabled && ipText.isBlank())
+                stringResource(R.string.hud_ip_label_autodetect)
+            else stringResource(R.string.hud_ip_label)
             OutlinedTextField(
                 value = ipText,
                 onValueChange = { new ->
@@ -3536,19 +3544,8 @@ private fun HudIntegrationSection(
                         viewModel.updateHudIp(new)
                     }
                 },
-                label = { Text(stringResource(R.string.hud_ip_label)) },
-                // When the link is on and the field is blank, the client
-                // falls back to mDNS discovery; signal that in the
-                // placeholder so the rider knows they don't have to type
-                // anything. When the link is off we show the example IP
-                // so they have something concrete to start from.
-                placeholder = {
-                    Text(
-                        if (settings.hudServerEnabled)
-                            stringResource(R.string.hud_ip_autodetect)
-                        else "192.168.43.1"
-                    )
-                },
+                label = { Text(ipLabel) },
+                placeholder = { Text("192.168.43.1") },
                 singleLine = true,
                 enabled = fieldsEnabled,
                 modifier = Modifier.weight(2f)
