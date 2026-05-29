@@ -107,7 +107,7 @@
     <string name="hud_server_enabled">Connect to HUD</string>
     <string name="hud_server_enabled_desc">Mirror dashboard, map and navigation to the HUD.</string>
     <string name="hud_ip_label">HUD IP</string>
-    <string name="hud_ip_label_autodetect">HUD IP — autodetecting…</string>
+    <string name="hud_ip_label_autodetect">HUD IP (automatic)</string>
     <string name="hud_ip_desc">Type the IP the HUD shows on its on-screen banner.</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Default 28080. Change only if the HUD is listening on a different port.</string>
