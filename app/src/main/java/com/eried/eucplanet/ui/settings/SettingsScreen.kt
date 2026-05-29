@@ -3546,17 +3546,28 @@ private fun HudIntegrationSection(
                     }
                 },
                 label = { Text(ipLabel) },
-                placeholder = { Text("192.168.43.1") },
+                // 192.168.43.42 looks like a typical Android-hotspot
+                // client IP (43.0/24 is the legacy AOSP softAP subnet,
+                // .42 is obviously placeholder-ish so it doesn't get
+                // mistaken for an actual fixed address).
+                placeholder = { Text("192.168.43.42") },
                 singleLine = true,
                 enabled = fieldsEnabled,
-                // KeyboardType.Phone for digits + dots without slipping
-                // into autocomplete / emoji. autoCorrectEnabled=false to
-                // suppress the IME suggestion strip, which on Gboard +
-                // dark theme reads as a black bar above the keyboard.
+                // KeyboardType.Phone for digits + dots.
+                //
+                // platformImeOptions passes Android IME flags Compose
+                // doesn't expose directly:
+                //  - flagNoPersonalizedLearning: don't store typed IPs
+                //  - flagNoExtractUi: suppress Gboard's candidate strip,
+                //    which on dark theme rendered as the "black bar"
+                //    below the field testers reported.
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone,
                     imeAction = androidx.compose.ui.text.input.ImeAction.Next,
-                    autoCorrectEnabled = false
+                    autoCorrectEnabled = false,
+                    platformImeOptions = androidx.compose.ui.text.input.PlatformImeOptions(
+                        "flagNoPersonalizedLearning|flagNoExtractUi"
+                    )
                 ),
                 modifier = Modifier.weight(2f)
             )
@@ -3579,7 +3590,10 @@ private fun HudIntegrationSection(
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
                     imeAction = androidx.compose.ui.text.input.ImeAction.Done,
-                    autoCorrectEnabled = false
+                    autoCorrectEnabled = false,
+                    platformImeOptions = androidx.compose.ui.text.input.PlatformImeOptions(
+                        "flagNoPersonalizedLearning|flagNoExtractUi"
+                    )
                 ),
                 modifier = Modifier.weight(1f)
             )
