@@ -3430,22 +3430,25 @@ private fun HudHotspotHint() {
             kotlinx.coroutines.delay(5_000L)
         }
     }
-    // null = not yet detected; don't flash the hint while the first probe
-    // is in flight. false = definitely off (or could-not-detect, equivalent
-    // for UX purposes). true = confirmed on, hint hidden.
-    if (hotspotOn == false) {
-        androidx.compose.material3.Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.tertiaryContainer,
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.hud_hotspot_off_hint),
-                modifier = Modifier.padding(12.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        }
+    // Always informational, never alarming -- the hotspot card describes
+    // the current network state but it's not an error either way. We use
+    // surfaceVariant (neutral gray) for both states instead of the prior
+    // tertiaryContainer (pinkish/red-ish) which read as a warning.
+    // null = first probe in flight; suppress so the card doesn't flash.
+    val on = hotspotOn ?: return
+    androidx.compose.material3.Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Text(
+            text = stringResource(
+                if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+            ),
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -3607,10 +3610,11 @@ private fun HudIntegrationSection(
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
         // it also locks the fields above so the live connection can't
-        // be edited out from under itself.
-        SwitchSettingWithDesc(
+        // be edited out from under itself. No description below the
+        // label: the rider already knows what they're enabling by this
+        // point (they typed in an IP just above).
+        SwitchSetting(
             label = stringResource(R.string.hud_server_enabled),
-            description = stringResource(R.string.hud_server_enabled_desc),
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
