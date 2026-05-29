@@ -247,17 +247,27 @@ private fun IpPortMatrix(
     side: Float
 ) {
     val cellHMin = (side * 0.18f).dp
-    val cellFont = (side * 0.095f).sp
-    val labelFont = (side * 0.045f).sp
-    val rowGap = (side * 0.018f).dp
+    // Font sized so 15 monospace chars ("255.255.255.255") fit comfortably
+    // inside the common cell width below. Tuned by inspecting renders at
+    // 800×480; the previous 0.10×side was too aggressive and clipped
+    // "10.0.2.15" because monospace char width at that size landed close
+    // to cellW/9.
+    val cellFont = (side * 0.085f).sp
+    // Labels bumped up so they read as equal partners with the values
+    // rather than tiny captions. The rider scans the label first.
+    val labelFont = (side * 0.075f).sp
+    // Tight vertical gap so IP and PORT read as a single block of
+    // information instead of two unrelated lines.
+    val rowGap = (side * 0.006f).dp
     val labelGap = (side * 0.025f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
-    // Inner padding so the digits breathe inside their cell at any size.
-    val innerHPad = (side * 0.04f).dp
-    // Reserve enough room for the wider label ("PORT") so the IP/PORT
-    // cells line up flush left on the same x coordinate.
-    val labelMinW = (side * 0.10f).dp
+    val innerHPad = (side * 0.035f).dp
+    val labelMinW = (side * 0.13f).dp
+    // Common cell width sized for the longest possible IPv4 + a comfortable
+    // margin. PORT inherits the same width so both right edges align and
+    // the two cells form a clean column.
+    val cellW = (side * 0.70f).dp
 
     Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
         AddressRow(
@@ -265,6 +275,7 @@ private fun IpPortMatrix(
             value = ipText,
             labelMinW = labelMinW,
             labelGap = labelGap,
+            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -278,6 +289,7 @@ private fun IpPortMatrix(
             value = port.toString(),
             labelMinW = labelMinW,
             labelGap = labelGap,
+            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -289,14 +301,16 @@ private fun IpPortMatrix(
     }
 }
 
-/** A single label-on-left, value-cell-on-right row. The label gets a
- *  fixed minimum width so IP and PORT rows align their cell left edges. */
+/** A single label-on-left, value-cell-on-right row. Both labels share
+ *  [labelMinW] and both cells share [cellW] so the two rows form a clean
+ *  aligned grid. */
 @Composable
 private fun AddressRow(
     label: String,
     value: String,
     labelMinW: androidx.compose.ui.unit.Dp,
     labelGap: androidx.compose.ui.unit.Dp,
+    cellW: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
     innerHPad: androidx.compose.ui.unit.Dp,
     valueFont: androidx.compose.ui.unit.TextUnit,
@@ -316,8 +330,8 @@ private fun AddressRow(
         Spacer(Modifier.width(labelGap))
         Box(
             modifier = Modifier
+                .width(cellW)
                 .heightIn(min = cellHMin)
-                .wrapContentSize()
                 .clip(RoundedCornerShape(cornerR))
                 .background(Color(0xFF0F0F0F))
                 .border(borderW, border.copy(alpha = 0.55f), RoundedCornerShape(cornerR))
