@@ -165,6 +165,10 @@ private fun DisconnectedDialog(localIp: String?) {
         val captionSize = (side * 0.035f).sp
         val pad = (side * 0.04f).dp
 
+        // Dialog frame: static red border so only the icon draws the eye.
+        // A blinking outer chrome competed with the icon and made the dialog
+        // feel busy; one source of motion is enough.
+        val staticRed = Color(0xFFB71C1C)
         Column(
             modifier = Modifier
                 .width(dialogW)
@@ -172,7 +176,7 @@ private fun DisconnectedDialog(localIp: String?) {
                 .background(Color(0xE6111111))
                 .border(
                     width = (side * 0.004f).coerceAtLeast(1f).dp,
-                    color = animatedTint.copy(alpha = 0.7f),
+                    color = staticRed.copy(alpha = 0.7f),
                     shape = RoundedCornerShape((side * 0.025f).dp)
                 )
                 .padding(PaddingValues(horizontal = pad, vertical = pad)),
@@ -195,12 +199,13 @@ private fun DisconnectedDialog(localIp: String?) {
             // Each octet + the port live in their own bounded cell, the way
             // a network engineer would draw an address on a whiteboard. Far
             // easier to read off than a single "10.0.2.15:28080" string,
-            // because each number sits in its own visually-distinct frame
-            // -- the rider can't miss a dot or run digits together.
+            // because each number sits in its own visually-distinct frame.
+            // Cells use the static red, not the blinking tint -- only the
+            // icon animates, so the rider's eye lands on it first.
             IpPortMatrix(
                 ipText = ipText,
                 port = port,
-                accent = animatedTint,
+                accent = staticRed,
                 side = side
             )
             // Single caption combining "where to type" + "what menu path",
@@ -229,15 +234,20 @@ private fun IpPortMatrix(
     accent: Color,
     side: Float
 ) {
-    val cellH = (side * 0.13f).dp
-    val ipW = (side * 0.55f).dp
-    val portW = (side * 0.22f).dp
-    val cellFont = (side * 0.065f).sp
-    val labelFont = (side * 0.028f).sp
+    // Bigger than before so the IP+PORT are the dominant numbers in the
+    // dialog -- they're the thing the rider has to actually read. Icon
+    // catches the eye via motion; the IP holds it once they look.
+    val cellH = (side * 0.20f).dp
+    val ipW = (side * 0.65f).dp
+    // 5-digit port at the larger cellFont needs noticeably more width; a
+    // tester report had "28080" clipped to "2808" at the prior size.
+    val portW = (side * 0.36f).dp
+    val cellFont = (side * 0.10f).sp
+    val labelFont = (side * 0.034f).sp
     val groupGap = (side * 0.05f).dp
-    val intraGap = (side * 0.012f).dp
-    val cornerR = (side * 0.012f).dp
-    val borderW = (side * 0.0035f).coerceAtLeast(1f).dp
+    val intraGap = (side * 0.014f).dp
+    val cornerR = (side * 0.014f).dp
+    val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
