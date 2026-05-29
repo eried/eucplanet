@@ -20,7 +20,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.eried.eucplanet.ui.dashboard.DashboardScreen
 import com.eried.eucplanet.ui.dashboard.MetricDetailScreen
-import com.eried.eucplanet.ui.dashboard.MetricType
 import com.eried.eucplanet.ui.navigator.RouteBuilderScreen
 import com.eried.eucplanet.ui.recording.EucViewerScreen
 import com.eried.eucplanet.ui.recording.RecordingScreen
@@ -223,19 +222,29 @@ fun NavGraph(navController: NavHostController) {
             arguments = listOf(navArgument("metric") { type = NavType.StringType })
         ) { backStackEntry ->
             val metricName = backStackEntry.arguments?.getString("metric")
-            val metricType = metricName?.let {
-                try { MetricType.valueOf(it) } catch (_: Exception) { null }
-            }
-            if (metricType != null) {
-                MetricDetailScreen(
-                    metricType = metricType,
-                    onBack = { navController.popSingle() }
-                )
-            } else {
+            if (metricName.isNullOrBlank()) {
                 LaunchedEffect(metricName) {
-                    Log.w("EucNav", "MetricDetail: invalid metric '$metricName', popping back")
+                    Log.w("EucNav", "MetricDetail: blank metric key, popping back")
                     navController.popBackStack()
                 }
+            } else {
+                // Route argument shape:
+                //   "BATTERY"                  → single tab
+                //   "SPEED,BATTERY,POWER"      → 3 tabs, default initial 0
+                //   "SPEED,BATTERY,POWER|2"    → 3 tabs, pre-select POWER
+                // The "|<index>" suffix is optional and lets the composite
+                // tile side-tap pre-select a specific tab WITHOUT changing
+                // the tab order — riders see the same strip regardless of
+                // which sub-tile they tapped on the dashboard.
+                val (keysPart, idxPart) = metricName.split("|", limit = 2)
+                    .let { if (it.size == 2) it[0] to it[1] else metricName to "0" }
+                val keys = keysPart.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val initialIdx = idxPart.toIntOrNull()?.coerceIn(0, (keys.size - 1).coerceAtLeast(0)) ?: 0
+                MetricDetailScreen(
+                    metricKeys = keys,
+                    initialTabIndex = initialIdx,
+                    onBack = { navController.popSingle() }
+                )
             }
         }
     }

@@ -22,7 +22,9 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.ui.draw.rotate
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.foundation.Canvas
@@ -136,6 +138,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
+import com.eried.eucplanet.data.model.MetricCatalog
+import com.eried.eucplanet.data.model.SparklineStyle
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
 import com.eried.eucplanet.ui.theme.AccentBlue
@@ -208,15 +212,10 @@ fun DashboardScreen(
     val tiltbackSpeed by viewModel.tiltbackSpeed.collectAsState()
     val safetyTiltbackSpeed by viewModel.safetyTiltbackSpeed.collectAsState()
     val realHistory by viewModel.history.collectAsState()
-    // Show demo sparklines when disconnected so the feature is visible
-    val history = if (realHistory.battery.size >= 2) realHistory else MetricHistory(
-        battery = listOf(85f, 84f, 83f, 84f, 82f, 80f, 79f, 78f, 77f, 78f, 76f, 75f, 74f, 73f, 72f),
-        temperature = listOf(32f, 33f, 34f, 35f, 36f, 37f, 38f, 37f, 36f, 38f, 39f, 40f, 41f, 40f, 39f),
-        voltage = listOf(98f, 97.5f, 97f, 96.5f, 97f, 96f, 95.5f, 95f, 96f, 95f, 94.5f, 94f, 93.5f, 94f, 93f),
-        current = listOf(2f, 5f, 12f, 8f, 3f, 15f, 20f, 10f, 4f, 8f, 18f, 6f, 3f, 7f, 11f),
-        load = listOf(5f, 12f, 25f, 18f, 8f, 35f, 50f, 30f, 10f, 20f, 45f, 15f, 8f, 22f, 28f),
-        speed = emptyList()
-    )
+    // No fake disconnected demo. The dashboard shows real samples only —
+    // sparklines remain empty until the wheel sends at least 2 frames,
+    // matching the per-catalog metric behavior we adopted in Phase 2.
+    val history = realHistory
     val modelName by viewModel.modelName.collectAsState()
     val connectedDeviceName by viewModel.connectedDeviceName.collectAsState()
     val connectedBrand by viewModel.connectedBrand.collectAsState()
@@ -239,6 +238,21 @@ fun DashboardScreen(
     val gaugeOrangePct by viewModel.gaugeOrangePct.collectAsState()
     val gaugeRedPct by viewModel.gaugeRedPct.collectAsState()
     val currentMode by viewModel.currentDisplayMode.collectAsState()
+    // Customizable dashboard layout — falls back to the catalog defaults
+    // (BATTERY, TEMPERATURE, VOLTAGE, CURRENT, LOAD, TRIP) when the
+    // saved order is blank or has fewer than 6 entries.
+    val dashboardMetricOrderRaw by viewModel.dashboardMetricOrder.collectAsState()
+    val dashboardMetricStatsJson by viewModel.dashboardMetricStats.collectAsState()
+    val dashboardMetricsColumnsSetting by viewModel.dashboardMetricsColumns.collectAsState()
+    val dashboardCompositesJson by viewModel.dashboardCompositeMetrics.collectAsState()
+    val dashboardCustomTilesJson by viewModel.dashboardCustomTiles.collectAsState()
+    val dashboardActionOrderRaw by viewModel.dashboardActionOrder.collectAsState()
+    val dashboardActionGroupsJson by viewModel.dashboardActionGroups.collectAsState()
+    // Phone-battery and GPS feeds for the catalog metrics that aren't
+    // sourced from WheelData. Both update lazily; the value pipeline
+    // just reads the latest StateFlow snapshot on each recomposition.
+    val phoneBatteryPct by viewModel.phoneBatteryPercent.collectAsState()
+    val gpsLocation by viewModel.currentLocation.collectAsState()
     val hasFlic by viewModel.hasFlicConfigured.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
@@ -255,6 +269,12 @@ fun DashboardScreen(
     var showNoTripsDialog by remember { mutableStateOf(false) }
     var showSourcesSheet by remember { mutableStateOf(false) }
     var showSettingsMenu by remember { mutableStateOf(false) }
+    // Lifted from the bottom-info-row block so OPEN_ABOUT (when bound
+    // to an action grid slot) can open the same dialog the version-text
+    // tap opens.
+    var showAboutDialog by remember { mutableStateOf(false) }
+    var showDiagnosticsDialog by remember { mutableStateOf(false) }
+    var showDiagnosticsConfirm by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
@@ -814,96 +834,403 @@ fun DashboardScreen(
             // fields at the WheelData defaults (0). Showing "0%" or "0.0V"
             // looks like a real reading; the placeholder makes it obvious
             // we're waiting for the wheel to talk.
-            val batteryCard: @Composable RowScope.() -> Unit = {
-                StatCard(stringResource(R.string.stat_battery),
-                    if (live && wheelData.batteryPercent > 0)
-                        "${wheelData.batteryPercent}%" else placeholder,
-                    battColor, history.battery, Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("BATTERY") })
+            // Read the rider's customized metric order. Falls back to
+            // the catalog defaults (BATTERY, TEMPERATURE, VOLTAGE,
+            // CURRENT, LOAD, TRIP) when blank or short — guarantees the
+            // out-of-box layout is byte-identical to the old hardcoded
+            // 6-card grid.
+            val activeMetricKeys = remember(dashboardMetricOrderRaw) {
+                val parsed = dashboardMetricOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val defaults = listOf("BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP")
+                (parsed + defaults).distinct().take(6)
             }
-            val tempCard: @Composable RowScope.() -> Unit = {
-                // Show the placeholder when the parser couldn't decode a
-                // motor reading (maxTemperature stays at 0). Without this,
-                // imperial users see "32°F", the °F equivalent of 0°C , 
-                // which looks like a real reading and "sticks" until the
-                // next valid frame.
-                val tempUnknown = wheelData.maxTemperature <= 0f
-                StatCard(stringResource(R.string.stat_temp),
-                    if (live && !tempUnknown) "%.0f%s".format(tempValue, tempUnitLabel) else placeholder,
-                    tempColor, history.temperature, Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("TEMPERATURE") })
-            }
-            val voltageCard: @Composable RowScope.() -> Unit = {
-                StatCard(stringResource(R.string.stat_voltage),
-                    if (live && wheelData.voltage > 0f)
-                        "%.1fV".format(wheelData.voltage) else placeholder,
-                    primary, history.voltage, Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("VOLTAGE") })
-            }
-            val currentCard: @Composable RowScope.() -> Unit = {
-                StatCard(
-                    if (showWatts) wattsLabel else ampsLabel,
-                    currentText,
-                    if (live && wheelData.current > 20) AccentOrange else primary,
-                    history.current,
-                    Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("CURRENT") },
-                    onLongClick = { viewModel.toggleCurrentDisplayMode() }
-                )
-            }
-            val loadCard: @Composable RowScope.() -> Unit = {
-                StatCard(stringResource(R.string.stat_load),
-                    if (live) "%.0f%%".format(pwm) else placeholder,
-                    loadColor, history.load, Modifier.weight(1f),
-                    onClick = { onNavigateToMetric("LOAD") })
-            }
-            val tripCard: @Composable RowScope.() -> Unit = {
-                StatCard(stringResource(R.string.stat_trip),
-                    if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
-                    primary, emptyList(), Modifier.weight(1f),
-                    onClick = {
-                        val targetTripId = currentTripId ?: latestTripId
-                        if (targetTripId != null) onNavigateToTripDetail(targetTripId)
-                        else showNoTripsDialog = true
-                    })
+            // Tablets force 3 columns to honour wideStats. Phones use
+            // whatever the rider set in the editor (2 or 3).
+            val metricColumns = if (wideStats) 3
+                else dashboardMetricsColumnsSetting.coerceIn(2, 3)
+            val metricRows = (activeMetricKeys.size + metricColumns - 1) / metricColumns
+
+            // Per-slot sparkline-enabled flag. JSON shape mirrors
+            // SettingsViewModel.parseSlotStats: { "<KEY>": { "spark": Bool, "l": Stat, "r": Stat } }
+            // Sparkline defaults to true so unconfigured tiles match
+            // today's always-on rendering.
+            fun sparkEnabledFor(key: String): Boolean = try {
+                val root = org.json.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
+                root.optJSONObject(key)?.optBoolean("spark", true) ?: true
+            } catch (_: Exception) { true }
+
+            // Per-slot value resolver — turns any metric key into its
+            // current displayable value. Reused by composite tiles to
+            // populate each of their 2-3 cells. Static metric formatting
+            // mirrors the default-6 cards above; new metric keys fall
+            // back to placeholder until their value path lands.
+            fun displayValueFor(metricKey: String): String {
+                if (!live) return placeholder
+                return when (metricKey) {
+                    "BATTERY" -> if (wheelData.batteryPercent > 0) "${wheelData.batteryPercent}%" else placeholder
+                    "TEMPERATURE" -> if (wheelData.maxTemperature > 0f)
+                        "%.0f%s".format(tempValue, tempUnitLabel) else placeholder
+                    "VOLTAGE" -> if (wheelData.voltage > 0f) "%.1fV".format(wheelData.voltage) else placeholder
+                    "CURRENT" -> currentText
+                    "LOAD" -> "%.0f%%".format(pwm)
+                    "TRIP" -> "%.1f %s".format(tripValue, distUnit)
+                    "SPEED" -> "%.0f".format(wheelData.speed)
+                    "POWER", "BATTERY_POWER" -> "${wheelData.batteryPower}W"
+                    "MOTOR_POWER" -> "${wheelData.motorPower}W"
+                    "ODOMETER" -> "%.1f %s".format(
+                        com.eried.eucplanet.util.Units.distance(wheelData.totalDistance, distanceUnit),
+                        distUnit
+                    )
+                    "BATTERY_1" -> if (wheelData.battery1Percent > 0f) "%.0f%%".format(wheelData.battery1Percent) else placeholder
+                    "BATTERY_2" -> if (wheelData.battery2Percent > 0f) "%.0f%%".format(wheelData.battery2Percent) else placeholder
+                    "PITCH" -> "%.1f°".format(wheelData.pitchAngle)
+                    "ROLL" -> "%.1f°".format(wheelData.rollAngle)
+                    "G_FORCE" -> "%.2fg".format(wheelData.gForce)
+                    "LATERAL_G" -> "%.2fg".format(wheelData.accelX)
+                    "FORWARD_G" -> "%.2fg".format(wheelData.accelY)
+                    "TORQUE" -> "%.1fNm".format(wheelData.torque)
+                    "DYN_SPEED_LIMIT" -> if (wheelData.dynamicSpeedLimit > 0f)
+                        "%.0f".format(wheelData.dynamicSpeedLimit) else placeholder
+                    "DYN_CURRENT_LIMIT" -> if (wheelData.dynamicCurrentLimit > 0f)
+                        "%.1fA".format(wheelData.dynamicCurrentLimit) else placeholder
+                    "MOTOR_TEMP" -> wheelData.temperatures.getOrNull(0)?.let { "%.0f%s".format(
+                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
+                    ) } ?: placeholder
+                    "CONTROLLER_TEMP" -> wheelData.temperatures.getOrNull(1)?.let { "%.0f%s".format(
+                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
+                    ) } ?: placeholder
+                    "BATTERY_TEMP" -> wheelData.temperatures.getOrNull(2)?.let { "%.0f%s".format(
+                        com.eried.eucplanet.util.Units.temperature(it, tempUnit), tempUnitLabel
+                    ) } ?: placeholder
+                    "PHONE_BATTERY" -> if (phoneBatteryPct in 0..100) "$phoneBatteryPct%" else placeholder
+                    "GPS_ALTITUDE" -> gpsLocation?.altitude?.let { alt ->
+                        "%.0fm".format(alt.toFloat())
+                    } ?: placeholder
+                    "GPS_SPEED" -> gpsLocation?.let { loc ->
+                        if (loc.hasSpeed()) "%.1f".format(loc.speed * 3.6f) else placeholder
+                    } ?: placeholder
+                    "GPS_HEADING" -> gpsLocation?.let { loc ->
+                        if (loc.hasBearing()) "%.0f°".format(loc.bearing) else placeholder
+                    } ?: placeholder
+                    "GPS_ACCURACY" -> gpsLocation?.let { loc ->
+                        if (loc.hasAccuracy()) "%.0fm".format(loc.accuracy) else placeholder
+                    } ?: placeholder
+                    // SLOPE / ASCENT / DESCENT need integrated altitude
+                    // history (not yet wired). MOTOR_RPM / REGEN_WH /
+                    // BT_RSSI aren't surfaced on WheelData today — those
+                    // need adapter-side plumbing. Placeholder for now.
+                    else -> placeholder
+                }
             }
 
-            // Foldables / tablets: 3 columns × 2 rows. Phones: 2 columns × 3 rows.
-            if (wideStats) {
+            // Lookup composite definition by id from the JSON blob the
+            // editor writes. Returns null if the id isn't found (which
+            // means the rider deleted it but the order entry still
+            // points at it — render an empty placeholder in that case).
+            fun compositeFor(id: String): com.eried.eucplanet.ui.settings.MetricComposite? = try {
+                val root = org.json.JSONObject(dashboardCompositesJson.ifBlank { "{}" })
+                val node = root.optJSONObject(id) ?: return@compositeFor null
+                val layout = runCatching {
+                    com.eried.eucplanet.ui.settings.CompositeLayout.valueOf(
+                        node.optString("layout", com.eried.eucplanet.ui.settings.CompositeLayout.ROW2.name)
+                    )
+                }.getOrDefault(com.eried.eucplanet.ui.settings.CompositeLayout.ROW2)
+                val cellsArr = node.optJSONArray("cells")
+                val cells = if (cellsArr != null) {
+                    (0 until cellsArr.length()).mapNotNull {
+                        cellsArr.optString(it).takeIf { s -> s.isNotEmpty() }
+                    }
+                } else emptyList()
+                val statsArr = node.optJSONArray("cellStats")
+                val cellStats: List<com.eried.eucplanet.ui.settings.DashboardStat> = if (statsArr != null) {
+                    (0 until statsArr.length()).map { idx ->
+                        runCatching {
+                            com.eried.eucplanet.ui.settings.DashboardStat.valueOf(
+                                statsArr.optString(idx, com.eried.eucplanet.ui.settings.DashboardStat.CURRENT.name)
+                            )
+                        }.getOrDefault(com.eried.eucplanet.ui.settings.DashboardStat.CURRENT)
+                    }
+                } else List(cells.size) { com.eried.eucplanet.ui.settings.DashboardStat.CURRENT }
+                com.eried.eucplanet.ui.settings.MetricComposite(layout, cells, cellStats)
+            } catch (_: Exception) { null }
+
+            fun customTileFor(id: String): com.eried.eucplanet.ui.settings.CustomTile? = try {
+                val root = org.json.JSONObject(dashboardCustomTilesJson.ifBlank { "{}" })
+                val node = root.optJSONObject(id) ?: return@customTileFor null
+                val text = node.optString("text", "")
+                val icon = node.optString("icon", "")
+                val url = node.optString("url", "")
+                val action = runCatching {
+                    com.eried.eucplanet.ui.settings.CustomTileAction.valueOf(
+                        node.optString("action", com.eried.eucplanet.ui.settings.CustomTileAction.NONE.name)
+                    )
+                }.getOrDefault(com.eried.eucplanet.ui.settings.CustomTileAction.NONE)
+                com.eried.eucplanet.ui.settings.CustomTile(text, icon, action, url)
+            } catch (_: Exception) { null }
+
+            for (rowIdx in 0 until metricRows) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    batteryCard(); tempCard(); voltageCard()
+                    for (colIdx in 0 until metricColumns) {
+                        val slotIdx = rowIdx * metricColumns + colIdx
+                        val key = activeMetricKeys.getOrNull(slotIdx)
+                        if (key == null) {
+                            Box(modifier = Modifier.weight(1f))
+                            continue
+                        }
+                        val spec = MetricCatalog.byKey(key)
+                        val sparklineEnabled = sparkEnabledFor(key)
+                        // Per-key value / colour / click ingredients.
+                        // The default 6 keys preserve every quirk of the
+                        // old StatCard era — long-press on CURRENT toggles
+                        // A↔W, tap on TRIP opens the latest trip detail.
+                        // New / customized keys still render via the
+                        // catalog with a placeholder value where the
+                        // dashboard hasn't extended the value path yet.
+                        when (key) {
+                            "BATTERY" -> LiveMetricTile(
+                                label = stringResource(R.string.stat_battery),
+                                value = if (live && wheelData.batteryPercent > 0)
+                                    "${wheelData.batteryPercent}%" else placeholder,
+                                accent = battColor,
+                                sparkData = history.battery,
+                                sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
+                                sparklineEnabled = sparklineEnabled,
+                                bipolarBaseline = spec?.bipolarBaseline ?: 0f,
+                                bipolarNegativeAccent = spec?.bipolarNegativeAccent,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigateToMetric("BATTERY") }
+                            )
+                            "TEMPERATURE" -> {
+                                val tempUnknown = wheelData.maxTemperature <= 0f
+                                LiveMetricTile(
+                                    label = stringResource(R.string.stat_temp),
+                                    value = if (live && !tempUnknown)
+                                        "%.0f%s".format(tempValue, tempUnitLabel) else placeholder,
+                                    accent = tempColor,
+                                    sparkData = history.temperature,
+                                    sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
+                                    sparklineEnabled = sparklineEnabled,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { onNavigateToMetric("TEMPERATURE") }
+                                )
+                            }
+                            "VOLTAGE" -> LiveMetricTile(
+                                label = stringResource(R.string.stat_voltage),
+                                value = if (live && wheelData.voltage > 0f)
+                                    "%.1fV".format(wheelData.voltage) else placeholder,
+                                accent = primary,
+                                sparkData = history.voltage,
+                                sparkStyle = spec?.sparkline ?: SparklineStyle.LINE,
+                                sparklineEnabled = sparklineEnabled,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigateToMetric("VOLTAGE") }
+                            )
+                            "CURRENT" -> LiveMetricTile(
+                                label = if (showWatts) wattsLabel else ampsLabel,
+                                value = currentText,
+                                accent = if (live && wheelData.current > 20) AccentOrange else primary,
+                                sparkData = history.current,
+                                sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
+                                sparklineEnabled = sparklineEnabled,
+                                bipolarBaseline = spec?.bipolarBaseline ?: 0f,
+                                bipolarNegativeAccent = spec?.bipolarNegativeAccent ?: AccentGreen,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigateToMetric("CURRENT") },
+                                onLongClick = { viewModel.toggleCurrentDisplayMode() }
+                            )
+                            "LOAD" -> LiveMetricTile(
+                                label = stringResource(R.string.stat_load),
+                                value = if (live) "%.0f%%".format(pwm) else placeholder,
+                                accent = loadColor,
+                                sparkData = history.load,
+                                sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
+                                sparklineEnabled = sparklineEnabled,
+                                modifier = Modifier.weight(1f),
+                                onClick = { onNavigateToMetric("LOAD") }
+                            )
+                            "TRIP" -> LiveMetricTile(
+                                label = stringResource(R.string.stat_trip),
+                                value = if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
+                                accent = primary,
+                                sparkData = emptyList(),
+                                sparkStyle = SparklineStyle.NONE,
+                                sparklineEnabled = false,
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    val targetTripId = currentTripId ?: latestTripId
+                                    if (targetTripId != null) onNavigateToTripDetail(targetTripId)
+                                    else showNoTripsDialog = true
+                                }
+                            )
+                            else -> when {
+                                // Composite metric instance — render via
+                                // the shared CompositeMetricBody so the
+                                // live dashboard, the editor preview,
+                                // and the pool pill all draw the tile
+                                // the same way. Cell values come from
+                                // displayValueFor so each sub-metric
+                                // gets the same formatting it would in
+                                // a standalone slot.
+                                key.startsWith("M:") -> {
+                                    val composite = compositeFor(key)
+                                    // Tap-side detection: derive which
+                                    // cell the rider hit so the History
+                                    // popup opens on that cell's tab.
+                                    // COL3 splits horizontally into
+                                    // thirds, COL2 in halves, ROW2 splits
+                                    // vertically. Tap position is the
+                                    // only signal; long-press still goes
+                                    // through the drag controller above.
+                                    val allCells = remember(composite) {
+                                        composite?.cells?.filter { it.isNotBlank() }.orEmpty()
+                                    }
+                                    val tappedCellIndex = remember { mutableStateOf(0) }
+                                    val tileSize = remember { mutableStateOf(androidx.compose.ui.unit.IntSize.Zero) }
+                                    fun openTabsStartingAt(cellIdx: Int) {
+                                        if (allCells.isEmpty()) {
+                                            onNavigateToMetric(key)
+                                            return
+                                        }
+                                        val safeIdx = cellIdx.coerceIn(0, allCells.lastIndex)
+                                        // Keep the original cell order so
+                                        // the History tab strip looks the
+                                        // same whichever cell the rider
+                                        // tapped. The "|<index>" suffix
+                                        // tells the History screen which
+                                        // tab to pre-select.
+                                        val payload = allCells.joinToString(",") + "|" + safeIdx
+                                        onNavigateToMetric(payload)
+                                    }
+                                    // Per-cell renderer: applies the
+                                    // cell's chosen stat (Now / Min /
+                                    // Max / Avg / percentiles) over the
+                                    // matching history buffer when
+                                    // available. CURRENT short-circuits
+                                    // to displayValueFor for live wheel
+                                    // values; computed stats render with
+                                    // no unit suffix because the buffer
+                                    // values are already in display
+                                    // units (BATTERY %, etc.).
+                                    val historySnapshot = history
+                                    val cellRenderer: (String) -> String =
+                                        cellRenderer@ { metricKey ->
+                                            // Default path = whatever
+                                            // the stat-less renderer
+                                            // would have produced. The
+                                            // body iterates by key so
+                                            // we look up which cell
+                                            // index this key occupies
+                                            // and apply that cell's
+                                            // selected stat.
+                                            if (composite == null) return@cellRenderer displayValueFor(metricKey)
+                                            val cellIdx = composite.cells.indexOf(metricKey)
+                                            val stat = composite.cellStats.getOrNull(cellIdx)
+                                                ?: com.eried.eucplanet.ui.settings.DashboardStat.CURRENT
+                                            if (stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT) {
+                                                return@cellRenderer displayValueFor(metricKey)
+                                            }
+                                            val buf = when (metricKey) {
+                                                "BATTERY" -> historySnapshot.battery
+                                                "TEMPERATURE" -> historySnapshot.temperature
+                                                "VOLTAGE" -> historySnapshot.voltage
+                                                "CURRENT" -> historySnapshot.current
+                                                "LOAD" -> historySnapshot.load
+                                                "SPEED" -> historySnapshot.speed
+                                                else -> emptyList()
+                                            }
+                                            if (buf.size < 2) return@cellRenderer placeholder
+                                            val samples = buf.mapIndexed { idx, v ->
+                                                com.eried.eucplanet.data.repository.MetricSample(idx.toLong(), v)
+                                            }
+                                            val value = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                                                stat, samples, fallbackCurrent = buf.last()
+                                            ) ?: return@cellRenderer placeholder
+                                            "%.1f".format(value)
+                                        }
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(61.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .onGloballyPositioned { coords ->
+                                                tileSize.value = coords.size
+                                            }
+                                            .pointerInput(composite?.layout, allCells) {
+                                                detectTapGestures { offset ->
+                                                    val sz = tileSize.value
+                                                    if (sz.width == 0 || sz.height == 0 || allCells.isEmpty()) {
+                                                        openTabsStartingAt(0); return@detectTapGestures
+                                                    }
+                                                    val idx = when (composite?.layout) {
+                                                        com.eried.eucplanet.ui.settings.CompositeLayout.COL3 -> {
+                                                            val third = sz.width / 3f
+                                                            (offset.x / third).toInt().coerceIn(0, 2)
+                                                        }
+                                                        com.eried.eucplanet.ui.settings.CompositeLayout.COL2 -> {
+                                                            if (offset.x < sz.width / 2f) 0 else 1
+                                                        }
+                                                        com.eried.eucplanet.ui.settings.CompositeLayout.ROW2 -> {
+                                                            if (offset.y < sz.height / 2f) 0 else 1
+                                                        }
+                                                        else -> 0
+                                                    }
+                                                    tappedCellIndex.value = idx
+                                                    openTabsStartingAt(idx)
+                                                }
+                                            }
+                                    ) {
+                                        if (composite != null) {
+                                            com.eried.eucplanet.ui.settings.CompositeMetricBody(
+                                                composite = composite,
+                                                valueOf = cellRenderer
+                                            )
+                                        }
+                                    }
+                                }
+                                // Custom tile — rider's icon + text label.
+                                key.startsWith("C:") -> {
+                                    val tile = customTileFor(key)
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(61.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                                            .clickable { onNavigateToMetric(key) }
+                                    ) {
+                                        if (tile != null) {
+                                            com.eried.eucplanet.ui.settings.CustomTileBody(tile)
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    // Catalog-driven generic rendering
+                                    // for any other static metric the
+                                    // rider drops into a slot. Value
+                                    // pipeline for these keys is wired in
+                                    // a follow-up.
+                                    LiveMetricTile(
+                                        label = spec?.let { stringResource(it.labelRes) } ?: key,
+                                        value = displayValueFor(key),
+                                        accent = spec?.accent ?: primary,
+                                        sparkData = emptyList(),
+                                        sparkStyle = spec?.sparkline ?: SparklineStyle.NONE,
+                                        sparklineEnabled = sparklineEnabled,
+                                        bipolarBaseline = spec?.bipolarBaseline ?: 0f,
+                                        bipolarNegativeAccent = spec?.bipolarNegativeAccent,
+                                        modifier = Modifier.weight(1f),
+                                        onClick = { onNavigateToMetric(key) }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    currentCard(); loadCard(); tripCard()
-                }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    batteryCard(); tempCard()
-                }
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    voltageCard(); currentCard()
-                }
-                Spacer(Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    loadCard(); tripCard()
-                }
+                if (rowIdx < metricRows - 1) Spacer(Modifier.height(10.dp))
             }
 
             Spacer(Modifier.height(14.dp))
@@ -913,161 +1240,294 @@ fun DashboardScreen(
             val actionAspect: Float? = null
             val actionHeight: Int? = if (wideStats) 88 else 104
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ActionButton(Icons.Default.Campaign, stringResource(R.string.action_horn),
-                    enabled = connectionState == ConnectionState.CONNECTED,
-                    onClick = { viewModel.onHornPress() },
-                    modifier = Modifier.weight(1f),
-                    aspectRatio = actionAspect, heightDp = actionHeight)
-                ActionTile(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.FlashlightOn,
-                    label = stringResource(R.string.action_light),
-                    active = wheelData.lightOn,
-                    activeColor = if (useAccent) primary else AccentYellow,
-                    enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
-                    onClick = { viewModel.onLightToggle() },
-                    aspectRatio = actionAspect, heightDp = actionHeight,
-                    menu = { dismiss ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.menu_auto_lights)) },
-                            onClick = { dismiss(); onNavigateToSettings(6) }
-                        )
-                    }
+            // Read the rider's customized action order. Falls back to the
+            // catalog defaults (HORN / LIGHT / VOICE / SAFETY / LOCK /
+            // RECORD) when blank — out-of-box layout stays byte-identical
+            // to the old hardcoded 6-button arrangement.
+            val activeActionKeys = remember(dashboardActionOrderRaw) {
+                val parsed = dashboardActionOrderRaw.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val defaults = listOf(
+                    "HORN", "LIGHT_TOGGLE", "VOICE_ANNOUNCE",
+                    "SAFETY_TOGGLE", "LOCK_TOGGLE", "RECORD_TOGGLE"
                 )
-                val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
-                ActionTile(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.RecordVoiceOver,
-                    label = stringResource(R.string.action_voice),
-                    onClick = { viewModel.onVoiceAnnounce() },
-                    aspectRatio = actionAspect, heightDp = actionHeight,
-                    menu = { dismiss ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.tab_voice)) },
-                            onClick = { dismiss(); onNavigateToSettings(3) }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.tab_alarms)) },
-                            onClick = { dismiss(); onNavigateToSettings(5) }
-                        )
-                        androidx.compose.material3.HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    if (periodicVoiceOn) stringResource(R.string.menu_voice_periodic_off)
-                                    else stringResource(R.string.menu_voice_periodic_on)
-                                )
-                            },
-                            onClick = { dismiss(); viewModel.toggleVoicePeriodic() }
-                        )
-                    }
-                )
+                (parsed + defaults).distinct().take(6)
             }
+            val periodicVoiceOn by viewModel.voicePeriodicEnabled.collectAsState()
+            val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
+            val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
 
-            Spacer(Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                ActionTile(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.Shield,
-                    label = if (safetyActive) stringResource(R.string.action_legal_on) else stringResource(R.string.action_legal_mode),
-                    active = safetyActive,
-                    activeColor = if (useAccent) primary else AccentOrange,
-                    enabled = connectionState == ConnectionState.CONNECTED,
-                    onClick = { viewModel.onSafetySpeedToggle() },
-                    aspectRatio = actionAspect, heightDp = actionHeight,
-                    menu = { dismiss ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.section_legal_mode_speed)) },
-                            onClick = { dismiss(); onNavigateToSettings(2) }
-                        )
-                    }
-                )
-                // Lock direction is hard-blocked above LOCK_MAX_SPEED_KMH in
-                // the repository (covers Flic / watch / volume keys / dash).
-                // The button used to mirror that gate visually, but the
-                // resulting enable/disable flicker as the rider drifts around
-                // 5 km/h was distracting. Keep the button enabled and let the
-                // tap surface a toast when the wheel is in motion, the
-                // repository still refuses the actual lock.
-                val lockAtAnySpeed by viewModel.cheatState.lockAtAnySpeed.collectAsState()
-                val lockBlockedBySpeed = !locked && kotlin.math.abs(wheelData.speed) >= 5f && !lockAtAnySpeed
-                ActionButton(
-                    if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
-                    if (locked) stringResource(R.string.action_locked) else stringResource(R.string.action_lock_wheel),
-                    active = locked, activeColor = if (useAccent) primary else AccentRed,
-                    enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
-                    onClick = {
-                        if (lockBlockedBySpeed) {
-                            val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
-                            snackbarScope.launch { snackbar.showSnackbar(msg) }
-                        } else {
-                            viewModel.onLockToggle()
+            // Two rows of 3 — match today's layout. Tablets (wideStats)
+            // and phones both render 3 columns; only the height changes.
+            for (rowIdx in 0 until 2) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    for (colIdx in 0 until 3) {
+                        val slotIdx = rowIdx * 3 + colIdx
+                        val key = activeActionKeys.getOrNull(slotIdx)
+                        if (key == null) {
+                            Box(modifier = Modifier.weight(1f))
+                            continue
                         }
-                    },
-                    modifier = Modifier.weight(1f),
-                    aspectRatio = actionAspect, heightDp = actionHeight)
-                ActionTile(
-                    modifier = Modifier.weight(1f),
-                    icon = Icons.Default.FiberManualRecord,
-                    label = if (tripCount > 0) stringResource(R.string.action_recorder_trips, tripCount)
-                        else stringResource(R.string.action_recorder),
-                    active = recording,
-                    activeColor = if (useAccent) primary else AccentRed,
-                    onClick = { onNavigateToRecording() },
-                    aspectRatio = actionAspect, heightDp = actionHeight,
-                    menu = { dismiss ->
-                        val targetTripId = currentTripId ?: latestTripId
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_trip_backup_options)) },
-                            onClick = { dismiss(); onNavigateToSettings(4) }
-                        )
-                        androidx.compose.material3.HorizontalDivider(
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    if (recording) stringResource(R.string.menu_view_current_trip)
-                                    else stringResource(R.string.menu_view_last_trip)
-                                )
-                            },
-                            enabled = targetTripId != null,
-                            onClick = {
-                                dismiss()
-                                targetTripId?.let { onNavigateToTripDetail(it) }
+                        // Per-key bridge: today's 6 defaults preserve
+                        // every quirk (active highlights, submenus,
+                        // lock-in-motion toast, trip-count label, etc.).
+                        // Any other key the rider drops in renders as a
+                        // catalog-driven generic tile that fires through
+                        // FlicManager via the standard onAction handler.
+                        when (key) {
+                            "HORN" -> ActionButton(
+                                Icons.Default.Campaign,
+                                stringResource(R.string.action_horn),
+                                enabled = connectionState == ConnectionState.CONNECTED,
+                                onClick = { viewModel.onHornPress() },
+                                modifier = Modifier.weight(1f),
+                                aspectRatio = actionAspect, heightDp = actionHeight
+                            )
+                            "LIGHT_TOGGLE" -> ActionTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.FlashlightOn,
+                                label = stringResource(R.string.action_light),
+                                active = wheelData.lightOn,
+                                activeColor = if (useAccent) primary else AccentYellow,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
+                                onClick = { viewModel.onLightToggle() },
+                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                menu = { dismiss ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.menu_auto_lights)) },
+                                        onClick = { dismiss(); onNavigateToSettings(6) }
+                                    )
+                                }
+                            )
+                            "VOICE_ANNOUNCE" -> ActionTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.RecordVoiceOver,
+                                label = stringResource(R.string.action_voice),
+                                onClick = { viewModel.onVoiceAnnounce() },
+                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                menu = { dismiss ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.tab_voice)) },
+                                        onClick = { dismiss(); onNavigateToSettings(3) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.tab_alarms)) },
+                                        onClick = { dismiss(); onNavigateToSettings(5) }
+                                    )
+                                    androidx.compose.material3.HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (periodicVoiceOn) stringResource(R.string.menu_voice_periodic_off)
+                                                else stringResource(R.string.menu_voice_periodic_on)
+                                            )
+                                        },
+                                        onClick = { dismiss(); viewModel.toggleVoicePeriodic() }
+                                    )
+                                }
+                            )
+                            "SAFETY_TOGGLE" -> ActionTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.Shield,
+                                label = if (safetyActive) stringResource(R.string.action_legal_on)
+                                    else stringResource(R.string.action_legal_mode),
+                                active = safetyActive,
+                                activeColor = if (useAccent) primary else AccentOrange,
+                                enabled = connectionState == ConnectionState.CONNECTED,
+                                onClick = { viewModel.onSafetySpeedToggle() },
+                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                menu = { dismiss ->
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.section_legal_mode_speed)) },
+                                        onClick = { dismiss(); onNavigateToSettings(2) }
+                                    )
+                                }
+                            )
+                            "LOCK_TOGGLE" -> ActionButton(
+                                if (locked) Icons.Default.Lock else Icons.Default.LockOpen,
+                                if (locked) stringResource(R.string.action_locked)
+                                    else stringResource(R.string.action_lock_wheel),
+                                active = locked,
+                                activeColor = if (useAccent) primary else AccentRed,
+                                enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
+                                onClick = {
+                                    if (lockBlockedBySpeed) {
+                                        val msg = toastContext.getString(R.string.lock_blocked_in_motion_toast)
+                                        snackbarScope.launch { snackbar.showSnackbar(msg) }
+                                    } else {
+                                        viewModel.onLockToggle()
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                aspectRatio = actionAspect, heightDp = actionHeight
+                            )
+                            "RECORD_TOGGLE" -> ActionTile(
+                                modifier = Modifier.weight(1f),
+                                icon = Icons.Default.FiberManualRecord,
+                                label = if (tripCount > 0)
+                                    stringResource(R.string.action_recorder_trips, tripCount)
+                                    else stringResource(R.string.action_recorder),
+                                active = recording,
+                                activeColor = if (useAccent) primary else AccentRed,
+                                onClick = { onNavigateToRecording() },
+                                aspectRatio = actionAspect, heightDp = actionHeight,
+                                menu = { dismiss ->
+                                    val targetTripId = currentTripId ?: latestTripId
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.action_trip_backup_options)) },
+                                        onClick = { dismiss(); onNavigateToSettings(4) }
+                                    )
+                                    androidx.compose.material3.HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (recording) stringResource(R.string.menu_view_current_trip)
+                                                else stringResource(R.string.menu_view_last_trip)
+                                            )
+                                        },
+                                        enabled = targetTripId != null,
+                                        onClick = {
+                                            dismiss()
+                                            targetTripId?.let { onNavigateToTripDetail(it) }
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                if (recording) stringResource(R.string.menu_stop_recording)
+                                                else stringResource(R.string.menu_start_recording)
+                                            )
+                                        },
+                                        onClick = {
+                                            dismiss()
+                                            if (recording) viewModel.stopRecording()
+                                            else viewModel.startRecording()
+                                        }
+                                    )
+                                }
+                            )
+                            else -> when {
+                                // Action group instance (G:uuid). Reads
+                                // the rider's chosen name + icon from
+                                // dashboardActionGroupsJson. Tapping a
+                                // group should open a popover with its
+                                // sub-actions (matches the editor's
+                                // preview), but the popover machinery
+                                // lives in the settings module; for
+                                // now the tap is a no-op so the rider
+                                // still sees a recognisable tile.
+                                key.startsWith("G:") -> {
+                                    // Parse the group definition once per
+                                    // change to the groups JSON. Name +
+                                    // icon drive the tile face; the
+                                    // actions list drives the popover.
+                                    val parsedGroup = remember(dashboardActionGroupsJson, key) {
+                                        try {
+                                            val root = org.json.JSONObject(
+                                                dashboardActionGroupsJson.ifBlank { "{}" }
+                                            )
+                                            val node = root.optJSONObject(key)
+                                            val name = node?.optString("name", "") ?: ""
+                                            val iconKey = node?.optString("icon", "") ?: ""
+                                            val actionsArr = node?.optJSONArray("actions")
+                                            val actions = if (actionsArr != null) {
+                                                (0 until actionsArr.length()).mapNotNull {
+                                                    actionsArr.optString(it).takeIf { s -> s.isNotEmpty() }
+                                                }
+                                            } else emptyList()
+                                            Triple(name, iconKey, actions)
+                                        } catch (_: Exception) {
+                                            Triple("", "", emptyList<String>())
+                                        }
+                                    }
+                                    val (groupName, groupIcon, groupActions) = parsedGroup
+                                    val defaultGroupLabel = stringResource(
+                                        R.string.dashboard_group_default_name
+                                    )
+                                    // Capture the anchor tile's measured
+                                    // size so the popover can render its
+                                    // sub-action buttons at exactly the
+                                    // same width and height as the
+                                    // dashboard action row.
+                                    var anchorSizePx by remember {
+                                        mutableStateOf(androidx.compose.ui.unit.IntSize.Zero)
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .onGloballyPositioned { coords ->
+                                                anchorSizePx = coords.size
+                                            }
+                                    ) {
+                                        var popoverOpen by remember { mutableStateOf(false) }
+                                        ActionButton(
+                                            icon = if (groupIcon.isNotBlank())
+                                                com.eried.eucplanet.ui.settings.groupIconFor(groupIcon)
+                                            else Icons.Default.Campaign,
+                                            label = groupName.ifBlank { defaultGroupLabel },
+                                            enabled = true,
+                                            onClick = {
+                                                if (groupActions.isNotEmpty()) popoverOpen = true
+                                            },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                        )
+                                        if (popoverOpen) {
+                                            ActionGroupPopover(
+                                                actions = groupActions,
+                                                anchorSizePx = anchorSizePx,
+                                                onPick = { subKey ->
+                                                    viewModel.dispatchActionByName(subKey)
+                                                    popoverOpen = false
+                                                },
+                                                onDismiss = { popoverOpen = false }
+                                            )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    // Catalog-driven generic action.
+                                    // OPEN_* actions need explicit UI
+                                    // navigation (FlicManager has no
+                                    // navController); everything else
+                                    // routes through the shared dispatch.
+                                    val actionSpec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key)
+                                    val labelText = actionSpec?.let { stringResource(it.labelRes) } ?: key
+                                    val tap: () -> Unit = when (key) {
+                                        "OPEN_ABOUT" -> ({ showAboutDialog = true })
+                                        "OPEN_NAVIGATION" -> onNavigateToNavigator
+                                        "OPEN_STUDIO" -> onNavigateToStudio
+                                        "OPEN_SERVICE" -> ({ onNavigateToSettings(7) })
+                                        "OPEN_TRIPS" -> onNavigateToRecording
+                                        else -> ({ viewModel.dispatchActionByName(key) })
+                                    }
+                                    ActionButton(
+                                        icon = actionSpec?.icon ?: Icons.Default.Campaign,
+                                        label = labelText,
+                                        enabled = connectionState == ConnectionState.CONNECTED || key.startsWith("OPEN_"),
+                                        onClick = tap,
+                                        modifier = Modifier.weight(1f),
+                                        aspectRatio = actionAspect, heightDp = actionHeight
+                                    )
+                                }
                             }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    if (recording) stringResource(R.string.menu_stop_recording)
-                                    else stringResource(R.string.menu_start_recording)
-                                )
-                            },
-                            onClick = {
-                                dismiss()
-                                if (recording) viewModel.stopRecording() else viewModel.startRecording()
-                            }
-                        )
+                        }
                     }
-                )
+                }
+                if (rowIdx == 0) Spacer(Modifier.height(8.dp))
             }
 
             Spacer(Modifier.height(12.dp))
 
             // Bottom info row: ODO + wheel model + firmware + version (tap for About)
-            var showAboutDialog by remember { mutableStateOf(false) }
-            var showDiagnosticsDialog by remember { mutableStateOf(false) }
+            // (showAboutDialog / showDiagnosticsDialog hoisted to the top of
+            // the screen so OPEN_ABOUT action bindings can trigger them.)
             val context = LocalContext.current
             val versionName = remember {
                 try {
@@ -1129,7 +1589,6 @@ fun DashboardScreen(
                             }
                     } catch (_: Exception) { "" }
                 }
-                var showDiagnosticsConfirm by remember { mutableStateOf(false) }
                 var logoPressed by remember { mutableStateOf(false) }
                 val logoAlpha by animateFloatAsState(
                     targetValue = if (logoPressed) 0.55f else 1f,
@@ -2152,6 +2611,172 @@ private fun ConnectionDot(state: ConnectionState) {
             .clip(CircleShape)
             .background(color)
     )
+}
+
+/**
+ * PopupPositionProvider that surfaces a popup just above the anchor
+ * with a slight overlap (top 25% of anchor sits under the popup) and a
+ * horizontal shift that depends on the anchor's column position:
+ *
+ *   - Left column (anchor in left third of window):
+ *       popup.left aligns to (anchor.left + 25% of anchor.width),
+ *       so the leftmost 25% of the anchor stays visible.
+ *   - Center column:
+ *       popup centers horizontally on the anchor.
+ *   - Right column (anchor in right third):
+ *       popup.right aligns to (anchor.right - 25% of anchor.width),
+ *       so the rightmost 25% of the anchor stays visible.
+ *
+ * The 25% slivers let the rider see where the popup came from while
+ * keeping the popup body close to the finger position.
+ */
+private class AboveAnchorPositionProvider : androidx.compose.ui.window.PopupPositionProvider {
+    override fun calculatePosition(
+        anchorBounds: androidx.compose.ui.unit.IntRect,
+        windowSize: androidx.compose.ui.unit.IntSize,
+        layoutDirection: androidx.compose.ui.unit.LayoutDirection,
+        popupContentSize: androidx.compose.ui.unit.IntSize
+    ): androidx.compose.ui.unit.IntOffset {
+        val overlapFraction = 0.25f
+        // Vertical overlap: pull the popup's bottom edge 25% of the
+        // anchor's height INTO the anchor, so the popup overlaps the
+        // top of the button.
+        val verticalOverlap = (anchorBounds.height * overlapFraction).toInt()
+        val y = (anchorBounds.top - popupContentSize.height + verticalOverlap)
+            .coerceAtLeast(8)
+
+        // Horizontal: figure out which third of the window the anchor
+        // sits in, then anchor the popup's left/center/right
+        // accordingly so the rider gets a 25% "sliver" visible on the
+        // far side from the screen center.
+        val anchorCenterX = anchorBounds.left + anchorBounds.width / 2
+        val leftThird = windowSize.width / 3
+        val rightThird = windowSize.width * 2 / 3
+        val edgeSliver = (anchorBounds.width * overlapFraction).toInt()
+        val rawX = when {
+            anchorCenterX < leftThird ->
+                anchorBounds.left + edgeSliver
+            anchorCenterX > rightThird ->
+                anchorBounds.right - edgeSliver - popupContentSize.width
+            else ->
+                anchorBounds.left + (anchorBounds.width - popupContentSize.width) / 2
+        }
+        val maxX = (windowSize.width - popupContentSize.width - 8).coerceAtLeast(8)
+        val clampedX = rawX.coerceIn(8, maxX)
+        return androidx.compose.ui.unit.IntOffset(clampedX, y)
+    }
+}
+
+/**
+ * Floating popover that renders an action group's sub-actions as compact
+ * tile-shaped buttons, surfacing ABOVE the tapped tile so the popup never
+ * lands under the rider's finger. Layout adapts to the number of actions:
+ *   - 1 action  → single tile
+ *   - 2 actions → one row of 2
+ *   - 3 actions → one row of 3
+ *   - 4 actions → 2x2 grid
+ *
+ * Tap any tile → [onPick] fires (which dispatches the sub-action) and
+ * the parent closes the popover. Tapping outside dismisses without
+ * firing anything.
+ */
+@OptIn(androidx.compose.animation.ExperimentalAnimationApi::class)
+@Composable
+private fun ActionGroupPopover(
+    actions: List<String>,
+    anchorSizePx: androidx.compose.ui.unit.IntSize,
+    onPick: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    // Convert the anchor tile's measured size to dp so each sub-action
+    // button can render at the EXACT same width and height. Fallback to
+    // sensible defaults if the anchor hasn't measured yet (first frame).
+    val buttonWidthDp = with(density) {
+        if (anchorSizePx.width > 0) anchorSizePx.width.toDp() else 104.dp
+    }
+    val buttonHeightDp = with(density) {
+        if (anchorSizePx.height > 0) anchorSizePx.height.toDp() else 104.dp
+    }
+
+    // Animation: scale-in + fade-in from the bottom-center so the popup
+    // visibly pops out of the button the rider tapped. Trigger by
+    // flipping `visible` to true on first composition.
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { visible = true }
+
+    androidx.compose.ui.window.Popup(
+        popupPositionProvider = AboveAnchorPositionProvider(),
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.PopupProperties(
+            focusable = true,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = visible,
+            enter = androidx.compose.animation.scaleIn(
+                initialScale = 0.85f,
+                animationSpec = androidx.compose.animation.core.tween(180),
+                // Pivot the scale-in from the bottom of the popup so it
+                // visibly "grows out" of the action button below it.
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin(0.5f, 1.0f)
+            ) + androidx.compose.animation.fadeIn(
+                animationSpec = androidx.compose.animation.core.tween(150)
+            ),
+            exit = androidx.compose.animation.fadeOut(
+                animationSpec = androidx.compose.animation.core.tween(100)
+            )
+        ) {
+            // ElevatedCard draws a native Android drop shadow at the
+            // requested elevation (handled by the platform Renderer,
+            // not a custom blur), which is what the rider asked for —
+            // crisp and consistent with other M3 surfaces.
+            androidx.compose.material3.ElevatedCard(
+                shape = RoundedCornerShape(14.dp),
+                colors = androidx.compose.material3.CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = androidx.compose.material3.CardDefaults.elevatedCardElevation(
+                    defaultElevation = 8.dp
+                )
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    val takeFour = actions.take(4)
+                    val rows: List<List<String>> = when (takeFour.size) {
+                        4 -> listOf(takeFour.subList(0, 2), takeFour.subList(2, 4))
+                        else -> listOf(takeFour)
+                    }
+                    rows.forEachIndexed { rowIdx, rowActions ->
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            rowActions.forEach { subKey ->
+                                val subSpec = com.eried.eucplanet.data.model.ActionCatalog.byKey(subKey)
+                                val subLabel = subSpec?.let { stringResource(it.labelRes) } ?: subKey
+                                // Each tile gets the anchor's exact
+                                // pixel-perfect width and height so it
+                                // looks identical to the dashboard
+                                // action button row.
+                                ActionButton(
+                                    icon = subSpec?.icon ?: Icons.Default.Campaign,
+                                    label = subLabel,
+                                    onClick = { onPick(subKey) },
+                                    modifier = Modifier
+                                        .width(buttonWidthDp)
+                                        .height(buttonHeightDp),
+                                    aspectRatio = null,
+                                    heightDp = null
+                                )
+                            }
+                        }
+                        if (rowIdx < rows.lastIndex) Spacer(Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
