@@ -110,7 +110,6 @@
     <string name="hud_ip_desc">Type the IP the HUD shows on its on-screen banner.</string>
     <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Default 28080.</string>
-    <string name="hud_ip_port_desc">The IP is shown on the HUD screen when it boots.</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>

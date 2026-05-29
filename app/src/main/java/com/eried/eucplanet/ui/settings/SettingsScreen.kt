@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
@@ -3430,10 +3431,9 @@ private fun HudHotspotHint() {
             kotlinx.coroutines.delay(5_000L)
         }
     }
-    // Always informational, never alarming -- the hotspot card describes
-    // the current network state but it's not an error either way. We use
-    // surfaceVariant (neutral gray) for both states instead of the prior
-    // tertiaryContainer (pinkish/red-ish) which read as a warning.
+    // Always informational, never alarming. surfaceVariant + the outlined
+    // Info icon matches the InfoHint pattern used elsewhere in the app, so
+    // this reads as a regular "here's some context" card, not a red error.
     // null = first probe in flight; suppress so the card doesn't flash.
     val on = hotspotOn ?: return
     androidx.compose.material3.Surface(
@@ -3441,14 +3441,25 @@ private fun HudHotspotHint() {
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(8.dp)
     ) {
-        Text(
-            text = stringResource(
-                if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
-            ),
-            modifier = Modifier.padding(12.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = stringResource(
+                    if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
@@ -3601,12 +3612,6 @@ private fun HudIntegrationSection(
                 modifier = Modifier.weight(1f)
             )
         }
-        Text(
-            text = stringResource(R.string.hud_ip_port_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
         // Toggle goes UNDER the IP/port -- the rider configures the
         // address first and then flips the switch to dial out. Flipping
         // it also locks the fields above so the live connection can't
