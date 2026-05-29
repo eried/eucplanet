@@ -230,15 +230,14 @@ private fun DisconnectedDialog(localIp: String?) {
 }
 
 /**
- * Two-cell address display: one cell for the whole IP, one cell for the
- * port, with "IP" / "PORT" labels underneath. Mirrors the two phone-side
- * input fields exactly.
+ * IP and PORT each laid out as one row: a left-side label ("IP" / "PORT")
+ * followed by a bounded cell containing the value. Stacked vertically so
+ * the rider reads top-to-bottom -- IP first, port underneath -- matching
+ * the order of the fields on the phone form.
  *
- * Cells size themselves to their text content (wrapContentSize) instead of
- * fixed widths -- earlier builds hardcoded ipW/portW as fractions of `side`
- * and a slightly-wide port string ("28080") was getting clipped on a real
- * device. Letting Compose measure the text removes that whole class of
- * sizing bug.
+ * Cells use wrapContentSize so any digit string fits at any panel size.
+ * Labels share a single fixed-width column so both cells line up on the
+ * same x coordinate.
  */
 @Composable
 private fun IpPortMatrix(
@@ -247,67 +246,74 @@ private fun IpPortMatrix(
     accent: Color,
     side: Float
 ) {
-    val cellHMin = (side * 0.20f).dp
-    val cellFont = (side * 0.10f).sp
-    val labelFont = (side * 0.034f).sp
-    val groupGap = (side * 0.05f).dp
-    val intraGap = (side * 0.014f).dp
+    val cellHMin = (side * 0.18f).dp
+    val cellFont = (side * 0.095f).sp
+    val labelFont = (side * 0.045f).sp
+    val rowGap = (side * 0.018f).dp
+    val labelGap = (side * 0.025f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
-    // Horizontal padding inside each cell. Scales with the dialog so the
-    // cell visually breathes around the digits at any size.
+    // Inner padding so the digits breathe inside their cell at any size.
     val innerHPad = (side * 0.04f).dp
+    // Reserve enough room for the wider label ("PORT") so the IP/PORT
+    // cells line up flush left on the same x coordinate.
+    val labelMinW = (side * 0.10f).dp
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(groupGap)
-    ) {
-        AddressColumn(
-            value = ipText,
+    Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
+        AddressRow(
             label = "IP",
+            value = ipText,
+            labelMinW = labelMinW,
+            labelGap = labelGap,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
             labelFont = labelFont,
             cornerR = cornerR,
             borderW = borderW,
-            border = accent,
-            intraGap = intraGap
+            border = accent
         )
-        AddressColumn(
-            value = port.toString(),
+        AddressRow(
             label = "PORT",
+            value = port.toString(),
+            labelMinW = labelMinW,
+            labelGap = labelGap,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
             labelFont = labelFont,
             cornerR = cornerR,
             borderW = borderW,
-            border = accent,
-            intraGap = intraGap
+            border = accent
         )
     }
 }
 
-/**
- * One labeled cell (value above, label below). The cell wraps its content
- * width so any digit string fits without clipping; the min height keeps a
- * consistent look across cells of different widths.
- */
+/** A single label-on-left, value-cell-on-right row. The label gets a
+ *  fixed minimum width so IP and PORT rows align their cell left edges. */
 @Composable
-private fun AddressColumn(
-    value: String,
+private fun AddressRow(
     label: String,
+    value: String,
+    labelMinW: androidx.compose.ui.unit.Dp,
+    labelGap: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
     innerHPad: androidx.compose.ui.unit.Dp,
     valueFont: androidx.compose.ui.unit.TextUnit,
     labelFont: androidx.compose.ui.unit.TextUnit,
     cornerR: androidx.compose.ui.unit.Dp,
     borderW: androidx.compose.ui.unit.Dp,
-    border: Color,
-    intraGap: androidx.compose.ui.unit.Dp
+    border: Color
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = label,
+            color = Color(0xFFB0B0B0),
+            fontSize = labelFont,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.widthIn(min = labelMinW)
+        )
+        Spacer(Modifier.width(labelGap))
         Box(
             modifier = Modifier
                 .heightIn(min = cellHMin)
@@ -327,13 +333,6 @@ private fun AddressColumn(
                 maxLines = 1
             )
         }
-        Spacer(Modifier.height(intraGap))
-        Text(
-            text = label,
-            color = Color(0xFF808080),
-            fontSize = labelFont,
-            fontWeight = FontWeight.SemiBold
-        )
     }
 }
 
