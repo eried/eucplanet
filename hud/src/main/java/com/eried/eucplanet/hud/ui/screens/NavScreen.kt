@@ -3,6 +3,7 @@ package com.eried.eucplanet.hud.ui.screens
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import kotlin.math.min
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,56 +49,65 @@ fun NavScreen(hud: HudState) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
 
-    if (!hud.navActive) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = ctx.getString(R.string.hud_nav_idle),
-                color = Color.White.copy(alpha = 0.6f),
-                fontSize = 28.sp
-            )
-        }
-        return
-    }
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val containerH = maxHeight.value
+        val side = min(maxWidth.value, containerH)
+        val pad = (side * 0.04f).dp
 
-    if (hud.navArrived) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = ctx.getString(R.string.hud_nav_arrived),
-                color = accent,
-                fontSize = 48.sp,
-                fontWeight = FontWeight.Bold
-            )
+        if (!hud.navActive) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = ctx.getString(R.string.hud_nav_idle),
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = (side * 0.06f).sp,
+                    maxLines = 1
+                )
+            }
+            return@BoxWithConstraints
         }
-        return
-    }
 
-    Row(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier.weight(0.9f).fillMaxHeight(),
-            contentAlignment = Alignment.Center
-        ) {
-            TurnArrow(angleDeg = hud.navArrowAngleDeg, color = accent)
+        if (hud.navArrived) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = ctx.getString(R.string.hud_nav_arrived),
+                    color = accent,
+                    fontSize = (side * 0.10f).sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            }
+            return@BoxWithConstraints
         }
-        Spacer(Modifier.width(24.dp))
-        Column(
-            modifier = Modifier.weight(1f).fillMaxHeight(),
-            verticalArrangement = Arrangement.Center
+
+        Row(
+            modifier = Modifier.fillMaxSize().padding(pad),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = hud.navDistance,
-                color = Color.White,
-                fontSize = 64.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = hud.navPrimary,
-                color = Color.White.copy(alpha = 0.85f),
-                fontSize = 22.sp,
-                textAlign = TextAlign.Start
-            )
+            Box(
+                modifier = Modifier.weight(0.9f).fillMaxHeight(),
+                contentAlignment = Alignment.Center
+            ) {
+                TurnArrow(angleDeg = hud.navArrowAngleDeg, color = accent)
+            }
+            Spacer(Modifier.width(pad))
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = hud.navDistance,
+                    color = Color.White,
+                    fontSize = (containerH * 0.18f).sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = hud.navPrimary,
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = (containerH * 0.06f).sp,
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
 }
