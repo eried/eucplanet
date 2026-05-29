@@ -217,14 +217,10 @@ private fun DisconnectedDialog(localIp: String?) {
 }
 
 /**
- * "Matrix"-style address display: IP octets and port in their own bounded
- * boxes with a tiny caption under each group. Sized off `side` so the cells
- * scale with the rest of the dialog.
- *
- * Splitting the IP into four labeled cells protects against the most common
- * tester typo -- running two octets together because there's a stray space
- * before a dot. The visual grouping leaves no ambiguity about what goes
- * where on the phone form.
+ * Two-cell address display: one cell for the whole IP, one cell for the
+ * port, with "IP" / "PORT" labels underneath. Mirrors the two phone-side
+ * input fields exactly -- the rider reads each cell into the matching field
+ * on the phone, no chance of "wait which octet was that".
  */
 @Composable
 private fun IpPortMatrix(
@@ -233,20 +229,12 @@ private fun IpPortMatrix(
     accent: Color,
     side: Float
 ) {
-    val octs = ipText.split(".").let {
-        if (it.size == 4) it else List(4) { "?" }
-    }
     val cellH = (side * 0.13f).dp
-    val octetW = (side * 0.10f).dp
-    // Port box has to fit a 5-digit number in monospace at cellFont -- needs
-    // wider than an octet cell. 0.24×side gives a comfortable margin so the
-    // digits don't crowd the rounded corners.
-    val portW = (side * 0.24f).dp
-    val cellFont = (side * 0.06f).sp
+    val ipW = (side * 0.55f).dp
+    val portW = (side * 0.22f).dp
+    val cellFont = (side * 0.065f).sp
     val labelFont = (side * 0.028f).sp
-    // Visible gap between the IP group and PORT group so they read as two
-    // separate fields rather than one continuous number.
-    val groupGap = (side * 0.06f).dp
+    val groupGap = (side * 0.05f).dp
     val intraGap = (side * 0.012f).dp
     val cornerR = (side * 0.012f).dp
     val borderW = (side * 0.0035f).coerceAtLeast(1f).dp
@@ -255,30 +243,16 @@ private fun IpPortMatrix(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(groupGap)
     ) {
-        // IP group
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                octs.forEachIndexed { i, oct ->
-                    if (i > 0) {
-                        Text(
-                            text = ".",
-                            color = Color.White,
-                            fontSize = cellFont,
-                            fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.padding(horizontal = intraGap)
-                        )
-                    }
-                    AddressCell(
-                        text = oct,
-                        widthDp = octetW,
-                        heightDp = cellH,
-                        fontSize = cellFont,
-                        accent = accent,
-                        cornerR = cornerR,
-                        borderW = borderW
-                    )
-                }
-            }
+            AddressCell(
+                text = ipText,
+                widthDp = ipW,
+                heightDp = cellH,
+                fontSize = cellFont,
+                accent = accent,
+                cornerR = cornerR,
+                borderW = borderW
+            )
             Spacer(Modifier.height(intraGap))
             Text(
                 text = "IP",
@@ -287,7 +261,6 @@ private fun IpPortMatrix(
                 fontWeight = FontWeight.SemiBold
             )
         }
-        // PORT group
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             AddressCell(
                 text = port.toString(),
