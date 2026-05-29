@@ -15,7 +15,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.hud.net.HudClient
-import com.eried.eucplanet.hud.net.HudPeerStore
 import com.eried.eucplanet.hud.ui.HudApp
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.launch
@@ -33,7 +32,6 @@ class HudActivity : ComponentActivity() {
 
     private lateinit var client: HudClient
     private lateinit var controller: HudUiController
-    private lateinit var peerStore: HudPeerStore
 
     /**
      * One-shot launcher for the CAMERA runtime permission. Triggered on
@@ -70,7 +68,6 @@ class HudActivity : ComponentActivity() {
 
         controller = HudUiController()
         client = HudClient(applicationContext)
-        peerStore = HudPeerStore(applicationContext)
         controller.onCommand = { client.send(it) }
         // Allow a fixed peer override for emulator testing where mDNS can't
         // traverse the host-only network between two AVDs. Read once at boot;
@@ -85,10 +82,7 @@ class HudActivity : ComponentActivity() {
         client.start(
             hudId = Build.MODEL.ifBlank { "hud" } + "/" + Build.SERIAL.ifBlank { "?" },
             hudVersion = BuildConfig.VERSION_NAME,
-            fixedPeer = debugPeer,
-            // Persisted rider-entered IP from a prior session. mDNS still
-            // runs as a fallback when this is null/blank.
-            manualPeer = peerStore.load()
+            fixedPeer = debugPeer
         )
 
         // Forward connection events into the UI status banner.
@@ -113,33 +107,10 @@ class HudActivity : ComponentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // When the manual-peer editor is open, all DPAD input goes to it; the
-        // screen carousel and short-press CENTER action are bypassed. This
-        // makes the editor truly modal -- the rider can't accidentally swipe
-        // to the dashboard while typing an IP.
-        if (controller.editor != null) {
-            return when (keyCode) {
-                KeyEvent.KEYCODE_DPAD_LEFT  -> { controller.editorLeft(); true }
-                KeyEvent.KEYCODE_DPAD_RIGHT -> { controller.editorRight(); true }
-                KeyEvent.KEYCODE_DPAD_UP    -> { controller.editorUp(); true }
-                KeyEvent.KEYCODE_DPAD_DOWN  -> { controller.editorDown(); true }
-                // CENTER short-press handled in onKeyUp so we can distinguish
-                // it from a long press. Start tracking here so the framework
-                // dispatches onKeyLongPress.
-                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                    event?.startTracking(); true
-                }
-                // ESC short-press cancels the editor without saving.
-                KeyEvent.KEYCODE_ESCAPE, KeyEvent.KEYCODE_BACK -> {
-                    controller.closeManualPeerEditor(); true
-                }
-                else -> super.onKeyDown(keyCode, event)
-            }
-        }
-
-        // Normal carousel routing. We special-case CENTER to startTracking so
-        // a long-press is delivered to onKeyLongPress (opens the editor); the
-        // short-press action fires in onKeyUp instead.
+        // Map HUD remote keys to UI actions. The Motoeye remote reports these
+        // standard codes; we keep the wear-OS-style "if not consumed by us,
+        // fall through" pattern so a real keyboard during development still
+        // works for back/menu.
         return when (keyCode) {
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }
@@ -147,33 +118,10 @@ class HudActivity : ComponentActivity() {
             KeyEvent.KEYCODE_BUTTON_R1 -> { controller.nextScreen(); true }
             KeyEvent.KEYCODE_DPAD_UP -> { controller.upAction(); true }
             KeyEvent.KEYCODE_DPAD_DOWN -> { controller.downAction(); true }
-            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                if (event?.repeatCount == 0) event.startTracking()
-                true
-            }
+            KeyEvent.KEYCODE_DPAD_CENTER,
+            KeyEvent.KEYCODE_ENTER -> { controller.centerAction(); true }
             else -> super.onKeyDown(keyCode, event)
         }
-    }
-
-    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        // CENTER short-press behaviour. If the long-press flag fired we don't
-        // want the short action to also run, so isCanceled / isLongPress are
-        // both checked.
-        if ((keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) &&
-            event?.isCanceled == false && event.flags and KeyEvent.FLAG_LONG_PRESS == 0
-        ) {
-            if (controller.editor != null) {
-                // SAVE on short CENTER while editor is open.
-                val newPeer = controller.editorPeerString()
-                peerStore.save(newPeer)
-                client.setManualPeer(newPeer)
-                controller.closeManualPeerEditor()
-            } else {
-                controller.centerAction()
-            }
-            return true
-        }
-        return super.onKeyUp(keyCode, event)
     }
 
     override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
@@ -181,20 +129,7 @@ class HudActivity : ComponentActivity() {
         // memory transfers). A short ESC press would interfere with hardware
         // back behaviours we may want later, so we keep it as a long press.
         if (keyCode == KeyEvent.KEYCODE_ESCAPE || keyCode == KeyEvent.KEYCODE_BACK) {
-            // While the editor is open, ESC short-press already cancels it,
-            // so long-press should not also exit -- riders use long-press ESC
-            // to leave the app, not the editor.
-            if (controller.editor != null) return true
             finish(); return true
-        }
-        // Long-press CENTER opens the manual-peer editor. Seeded with the
-        // peer the client is currently using (manual override or last mDNS
-        // hit) so the rider can edit one octet instead of typing from
-        // scratch.
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
-            val seed = client.manualPeer.value ?: client.peer.value
-            controller.openManualPeerEditor(seed)
-            return true
         }
         return super.onKeyLongPress(keyCode, event)
     }

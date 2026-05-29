@@ -9,10 +9,6 @@
     <string name="hud_status_paired">Paired with %1$s</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>
     <string name="hud_status_enable_hint">EUC Planet → Settings / Integration / Motoeye HUD</string>
-    <string name="hud_status_manual_ip_hint">Hold OK to enter phone IP manually</string>
-    <string name="hud_manual_peer_title">Phone IP and port</string>
-    <string name="hud_manual_peer_help">LEFT/RIGHT move • UP/DOWN change • OK save • ESC cancel</string>
-    <string name="hud_manual_peer_clear_hint">Set all four octets to 0 to clear and auto-discover</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
     <string name="hud_dash_pwm">PWM</string>

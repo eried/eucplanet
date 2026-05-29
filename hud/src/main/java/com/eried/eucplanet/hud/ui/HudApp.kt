@@ -90,11 +90,6 @@ fun HudApp(
                     status = st, peer = pr,
                     modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp)
                 )
-
-                // Modal overlay for entering the phone IP manually. Rendered
-                // last so it stacks above the carousel + banner. Key events
-                // are routed to it by HudActivity while this is non-null.
-                controller.editor?.let { ManualPeerOverlay(it) }
             }
         }
     }
@@ -115,33 +110,27 @@ private fun StatusBanner(
     // isn't sending us anything." Collapse them to one message so the
     // banner isn't fighting itself between two near-synonyms.
     val statusText = ctx.getString(R.string.hud_status_waiting)
-    // Cycle through three phases so a rider glancing up at the HUD can both
-    // diagnose AND fix without the manual:
-    //   0 = "Waiting for phone companion…"
-    //   1 = "EUC Planet → Settings / Integration / Motoeye HUD"
-    //   2 = "Hold OK to enter phone IP manually"
-    // Phase 2 is the escape hatch for testers whose hotspots block mDNS or
-    // enforce client isolation; without it they have no path to a working
-    // connection.
+    // Alternate between the status itself ("Phone disconnected") and the
+    // actionable hint ("Phone: EUC Planet → ...") every BANNER_CYCLE_MS so
+    // a rider glancing up at the HUD can both diagnose AND fix without
+    // needing the manual on hand.
     //
     // DON'T key remember / LaunchedEffect on `status`: during reconnect
     // attempts the client flips between SEARCHING and DISCONNECTED multiple
-    // times per second. Keying on status would restart the cycle on every
-    // flicker -- the hint would never finish a phase, so the rider would
-    // only ever see phase 0.
-    val phases = listOf(
-        statusText,
-        ctx.getString(R.string.hud_status_enable_hint),
-        ctx.getString(R.string.hud_status_manual_ip_hint)
-    )
-    var phase by remember { mutableStateOf(0) }
+    // times per second. Keying on status would reset showHint to false and
+    // restart the 3.5s timer every flicker -- the hint would never finish
+    // a phase, so the rider only sees the status text "blinking faster"
+    // (exactly what got reported). Keep the alternation cycle steady; the
+    // text content already follows whatever status is current.
+    val hintText = ctx.getString(R.string.hud_status_enable_hint)
+    var showHint by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         while (true) {
             kotlinx.coroutines.delay(BANNER_CYCLE_MS)
-            phase = (phase + 1) % phases.size
+            showHint = !showHint
         }
     }
-    val displayed = phases[phase]
+    val displayed = if (showHint) hintText else statusText
 
     Box(
         modifier = modifier

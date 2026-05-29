@@ -93,28 +93,12 @@ class HudClient(private val context: Context) {
     /** Test override: if non-null, skip mDNS and connect directly to this
      *  `host:port`. Set via a system property at boot; see HudActivity. */
     private var fixedPeer: String? = null
-    /** Rider-entered manual peer override, persisted via [HudPeerStore]. When
-     *  present, supersedes mDNS so the HUD works even on hotspots that filter
-     *  multicast or enforce client isolation against discovery traffic. */
-    private val _manualPeer = MutableStateFlow<String?>(null)
-    val manualPeer: StateFlow<String?> = _manualPeer.asStateFlow()
 
-    fun start(hudId: String, hudVersion: String, fixedPeer: String? = null, manualPeer: String? = null) {
+    fun start(hudId: String, hudVersion: String, fixedPeer: String? = null) {
         this.hudId = hudId
         this.hudVersion = hudVersion
         this.fixedPeer = fixedPeer
-        _manualPeer.value = manualPeer?.takeIf { it.isNotBlank() }
         scope.launch { discoverAndConnect() }
-    }
-
-    /** Update the rider-entered manual peer. Pass null/blank to clear and fall
-     *  back to mDNS. The active SSE is dropped so the outer loop reconnects
-     *  against the new address without waiting out a backoff window. */
-    fun setManualPeer(peer: String?) {
-        val cleaned = peer?.trim()?.takeIf { it.isNotBlank() }
-        if (_manualPeer.value == cleaned) return
-        _manualPeer.value = cleaned
-        try { sse?.cancel() } catch (_: Throwable) {}
     }
 
     fun stop() {
@@ -155,11 +139,7 @@ class HudClient(private val context: Context) {
 
         var attempt = 0
         while (scope.isActiveScope()) {
-            // Precedence: debug system-prop > rider-set manual IP > mDNS.
-            // The manual IP is the rider's escape hatch when the hotspot
-            // blocks discovery; trust it on every attempt so they don't have
-            // to relaunch after editing.
-            val peerUrl = fixedPeer ?: _manualPeer.value ?: try {
+            val peerUrl = fixedPeer ?: try {
                 resolvePeer()
             } catch (t: Throwable) {
                 Log.w(TAG, "discovery failed: ${t.message}")
