@@ -115,7 +115,20 @@ fun HudApp(
                 }
 
                 if (st != HudServer.Status.CONNECTED) {
-                    DisconnectedDialog(localIp = ip)
+                    if (controller.disconnectedModalDismissed) {
+                        // Mini corner badge: the rider dismissed the full
+                        // modal so they can keep using the HUD; we keep a
+                        // small reminder that the link is down + the IP
+                        // for re-entry.
+                        DisconnectedBadge(
+                            localIp = ip,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(12.dp)
+                        )
+                    } else {
+                        DisconnectedDialog(localIp = ip)
+                    }
                 }
             }
         }
@@ -361,6 +374,54 @@ private fun AddressRow(
                 maxLines = 1
             )
         }
+    }
+}
+
+/**
+ * Compact corner badge shown after the rider dismisses the full
+ * disconnected modal with a button press. Keeps the icon + IP + port
+ * visible so the rider can still copy them onto the phone, but takes only
+ * a corner of the screen so the underlying dashboard / camera / map are
+ * usable.
+ */
+@Composable
+private fun DisconnectedBadge(localIp: String?, modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    val ipText = localIp ?: ctx.getString(R.string.hud_status_ip_unknown)
+    val port = HudDiscovery.DEFAULT_PORT
+
+    var bright by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(BLINK_INTERVAL_MS)
+            bright = !bright
+        }
+    }
+    val tint = if (bright) Color(0xFFEF5350) else Color(0xFF7F0000)
+
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xE6111111))
+            .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.PhonelinkOff,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "$ipText:$port",
+            color = Color.White,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
     }
 }
 

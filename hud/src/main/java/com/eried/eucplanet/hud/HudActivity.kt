@@ -100,6 +100,12 @@ class HudActivity : ComponentActivity() {
         // standard codes; we keep the wear-OS-style "if not consumed by us,
         // fall through" pattern so a real keyboard during development still
         // works for back/menu.
+        //
+        // Side effect: any DPAD press while the rider is disconnected
+        // collapses the disconnected modal to a corner badge so they can
+        // keep using the screens (camera, map) without the IP splash
+        // covering everything.
+        controller.dismissDisconnectedModal()
         return when (keyCode) {
             KeyEvent.KEYCODE_DPAD_LEFT,
             KeyEvent.KEYCODE_BUTTON_L1 -> { controller.previousScreen(); true }

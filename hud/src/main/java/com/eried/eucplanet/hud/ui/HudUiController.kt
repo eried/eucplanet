@@ -43,7 +43,32 @@ class HudUiController {
     var status: HudServer.Status by mutableStateOf(HudServer.Status.LISTENING)
         private set
 
-    fun updateStatus(s: HudServer.Status) { status = s }
+    /** True once the rider has pressed any button to dismiss the
+     *  disconnected modal. The modal shrinks to a corner badge so the
+     *  rider can keep using the screens (camera, map) without the IP
+     *  splash covering everything. Reset back to false on every fresh
+     *  transition into LISTENING so a reconnect-disconnect cycle restores
+     *  the full modal. */
+    var disconnectedModalDismissed: Boolean by mutableStateOf(false)
+        private set
+
+    fun updateStatus(s: HudServer.Status) {
+        // Reset the dismiss flag every time we re-enter the disconnected
+        // state -- the rider should see the full IP splash again on a
+        // new disconnect, not a stale "I dismissed it" carryover.
+        if (s == HudServer.Status.LISTENING && status != HudServer.Status.LISTENING) {
+            disconnectedModalDismissed = false
+        }
+        status = s
+    }
+
+    /** Called by the Activity on any DPAD key while the disconnected modal
+     *  is on screen. Collapses the modal to a small corner badge. */
+    fun dismissDisconnectedModal() {
+        if (status != HudServer.Status.CONNECTED) {
+            disconnectedModalDismissed = true
+        }
+    }
 
     fun nextScreen() {
         val idx = screens.indexOf(current)

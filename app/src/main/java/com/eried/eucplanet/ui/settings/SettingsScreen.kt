@@ -3548,6 +3548,14 @@ private fun HudIntegrationSection(
                 placeholder = { Text("192.168.43.1") },
                 singleLine = true,
                 enabled = fieldsEnabled,
+                // KeyboardType.Phone lets the user type digits + dots
+                // without the IME slipping into autocomplete / emoji
+                // mode. Without it the rider saw a black suggestion
+                // strip under the field on dark theme.
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Next
+                ),
                 modifier = Modifier.weight(2f)
             )
             OutlinedTextField(
@@ -3561,6 +3569,10 @@ private fun HudIntegrationSection(
                 label = { Text(stringResource(R.string.hud_server_port)) },
                 singleLine = true,
                 enabled = fieldsEnabled,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
+                ),
                 modifier = Modifier.weight(1f)
             )
         }
