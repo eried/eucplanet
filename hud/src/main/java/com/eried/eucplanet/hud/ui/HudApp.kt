@@ -11,7 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -189,24 +192,16 @@ private fun DisconnectedDialog(localIp: String?) {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
-            // IP and PORT on separate lines so each label-value pair stays
-            // visually grouped -- the rider scans the labels first to find
-            // the IP, then types it into the matching field on the phone.
-            Text(
-                text = ctx.getString(R.string.hud_disconnected_ip_line, ipText),
-                color = Color.White,
-                fontSize = ipSize,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = ctx.getString(R.string.hud_disconnected_port_line, port),
-                color = Color.White,
-                fontSize = ipSize,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = FontFamily.Monospace,
-                textAlign = TextAlign.Center
+            // Each octet + the port live in their own bounded cell, the way
+            // a network engineer would draw an address on a whiteboard. Far
+            // easier to read off than a single "10.0.2.15:28080" string,
+            // because each number sits in its own visually-distinct frame
+            // -- the rider can't miss a dot or run digits together.
+            IpPortMatrix(
+                ipText = ipText,
+                port = port,
+                accent = animatedTint,
+                side = side
             )
             // Single caption combining "where to type" + "what menu path",
             // so the rider reads one continuous instruction instead of two
@@ -218,6 +213,129 @@ private fun DisconnectedDialog(localIp: String?) {
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+/**
+ * "Matrix"-style address display: IP octets and port in their own bounded
+ * boxes with a tiny caption under each group. Sized off `side` so the cells
+ * scale with the rest of the dialog.
+ *
+ * Splitting the IP into four labeled cells protects against the most common
+ * tester typo -- running two octets together because there's a stray space
+ * before a dot. The visual grouping leaves no ambiguity about what goes
+ * where on the phone form.
+ */
+@Composable
+private fun IpPortMatrix(
+    ipText: String,
+    port: Int,
+    accent: Color,
+    side: Float
+) {
+    val octs = ipText.split(".").let {
+        if (it.size == 4) it else List(4) { "?" }
+    }
+    val cellH = (side * 0.13f).dp
+    val octetW = (side * 0.10f).dp
+    // Port box has to fit a 5-digit number in monospace at cellFont -- needs
+    // wider than an octet cell. 0.24×side gives a comfortable margin so the
+    // digits don't crowd the rounded corners.
+    val portW = (side * 0.24f).dp
+    val cellFont = (side * 0.06f).sp
+    val labelFont = (side * 0.028f).sp
+    // Visible gap between the IP group and PORT group so they read as two
+    // separate fields rather than one continuous number.
+    val groupGap = (side * 0.06f).dp
+    val intraGap = (side * 0.012f).dp
+    val cornerR = (side * 0.012f).dp
+    val borderW = (side * 0.0035f).coerceAtLeast(1f).dp
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(groupGap)
+    ) {
+        // IP group
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                octs.forEachIndexed { i, oct ->
+                    if (i > 0) {
+                        Text(
+                            text = ".",
+                            color = Color.White,
+                            fontSize = cellFont,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.padding(horizontal = intraGap)
+                        )
+                    }
+                    AddressCell(
+                        text = oct,
+                        widthDp = octetW,
+                        heightDp = cellH,
+                        fontSize = cellFont,
+                        accent = accent,
+                        cornerR = cornerR,
+                        borderW = borderW
+                    )
+                }
+            }
+            Spacer(Modifier.height(intraGap))
+            Text(
+                text = "IP",
+                color = Color(0xFF808080),
+                fontSize = labelFont,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        // PORT group
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            AddressCell(
+                text = port.toString(),
+                widthDp = portW,
+                heightDp = cellH,
+                fontSize = cellFont,
+                accent = accent,
+                cornerR = cornerR,
+                borderW = borderW
+            )
+            Spacer(Modifier.height(intraGap))
+            Text(
+                text = "PORT",
+                color = Color(0xFF808080),
+                fontSize = labelFont,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddressCell(
+    text: String,
+    widthDp: androidx.compose.ui.unit.Dp,
+    heightDp: androidx.compose.ui.unit.Dp,
+    fontSize: androidx.compose.ui.unit.TextUnit,
+    accent: Color,
+    cornerR: androidx.compose.ui.unit.Dp,
+    borderW: androidx.compose.ui.unit.Dp
+) {
+    Box(
+        modifier = Modifier
+            .width(widthDp)
+            .height(heightDp)
+            .clip(RoundedCornerShape(cornerR))
+            .background(Color(0xFF0F0F0F))
+            .border(borderW, accent.copy(alpha = 0.55f), RoundedCornerShape(cornerR)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = fontSize,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
     }
 }
 
