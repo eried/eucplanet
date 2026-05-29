@@ -1,12 +1,6 @@
 package com.eried.eucplanet.hud.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -23,15 +17,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SignalWifiOff
+import androidx.compose.material.icons.filled.PhonelinkOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -135,20 +132,18 @@ private fun DisconnectedDialog(localIp: String?) {
     val ipText = localIp ?: ctx.getString(R.string.hud_status_ip_unknown)
     val port = HudDiscovery.DEFAULT_PORT
 
-    // Slow pulse between two reds so a rider's peripheral vision picks up
-    // "link broken" without the icon being so loud it distracts when the
-    // rider's busy. 1800 ms / direction = full cycle 3.6 s, comfortable
-    // for glancing.
-    val pulse = rememberInfiniteTransition(label = "disconnect-pulse")
-    val animatedTint by pulse.animateColor(
-        initialValue = Color(0xFFB71C1C), // dark red
-        targetValue = Color(0xFFEF5350),  // bright red
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1_800, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "tint"
-    )
+    // Sharp slow blink between two reds. A fade was too soft -- the rider
+    // wanted a clear on/off signal, not a smooth pulse. Toggle every
+    // BLINK_INTERVAL_MS via a delay loop so the swap is instantaneous; using
+    // animateColor with a tween would interpolate even at minimal duration.
+    var bright by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(BLINK_INTERVAL_MS)
+            bright = !bright
+        }
+    }
+    val animatedTint = if (bright) Color(0xFFEF5350) else Color(0xFF7F0000)
 
     BoxWithConstraints(
         modifier = Modifier
@@ -182,7 +177,7 @@ private fun DisconnectedDialog(localIp: String?) {
             verticalArrangement = Arrangement.spacedBy((side * 0.018f).dp)
         ) {
             Icon(
-                imageVector = Icons.Filled.SignalWifiOff,
+                imageVector = Icons.Filled.PhonelinkOff,
                 contentDescription = null,
                 tint = animatedTint,
                 modifier = Modifier.size(iconSize)
@@ -195,12 +190,6 @@ private fun DisconnectedDialog(localIp: String?) {
                 textAlign = TextAlign.Center
             )
             Text(
-                text = ctx.getString(R.string.hud_status_ready_label),
-                color = Color(0xFFB0B0B0),
-                fontSize = captionSize,
-                textAlign = TextAlign.Center
-            )
-            Text(
                 text = "$ipText:$port",
                 color = Color.White,
                 fontSize = ipSize,
@@ -208,15 +197,22 @@ private fun DisconnectedDialog(localIp: String?) {
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center
             )
+            // Single caption combining "where to type" + "what menu path",
+            // so the rider reads one continuous instruction instead of two
+            // detached lines. Wraps naturally on narrow panels.
             Text(
-                text = ctx.getString(R.string.hud_status_enable_hint),
-                color = Color(0xFF808080),
+                text = ctx.getString(R.string.hud_disconnected_instructions),
+                color = Color(0xFFB0B0B0),
                 fontSize = captionSize,
                 textAlign = TextAlign.Center
             )
         }
     }
 }
+
+/** Blink half-period: a sharp on/off swap every this many millis. 900 ms
+ *  reads as "slow, deliberate" rather than urgent. */
+private const val BLINK_INTERVAL_MS: Long = 900L
 
 /** Parse `#AARRGGBB` (or `#RRGGBB`) into a Compose [Color], falling back to
  *  the accent default if the wire payload is malformed. */
