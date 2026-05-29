@@ -31,4 +31,10 @@ class MetricDetailViewModel @Inject constructor(
     val tempUnit: StateFlow<String> = settingsRepository.settings
         .map { com.eried.eucplanet.util.Units.effectiveTempUnit(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "C")
+
+    /** Wipe this metric's rolling history; new samples re-seed at the next 1Hz tick. */
+    fun resetHistory(key: String) = wheelRepository.resetHistory(key)
+
+    /** Wipe every metric's rolling history. */
+    fun resetAllHistory() = wheelRepository.resetAllHistory()
 }
