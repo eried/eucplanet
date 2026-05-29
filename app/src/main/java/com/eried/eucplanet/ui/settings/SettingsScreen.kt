@@ -3518,12 +3518,16 @@ private fun HudIntegrationSection(
         // default. They're disabled while the link is active so an
         // accidental keystroke can't drop a live connection.
         val fieldsEnabled = !settings.hudServerEnabled
-        var ipText by remember(settings.hudIp) {
-            mutableStateOf(settings.hudIp)
-        }
-        var portText by remember(settings.hudServerPort) {
-            mutableStateOf(settings.hudServerPort.toString())
-        }
+        // Local edit buffer for the port. We DON'T re-key on
+        // settings.hudServerPort because the ViewModel coerces values
+        // into [1024, 65535] -- typing "2" mid-edit would clamp to 1024
+        // and re-key the field to "1024", yanking the cursor. Local
+        // buffer stays raw; we push to the ViewModel only when the user
+        // moves on (Done / focus loss / valid full value).
+        var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
+        // Mirror persisted port into the buffer once at initial composition;
+        // settings is the source of truth across launches.
+        LaunchedEffect(Unit) { portText = settings.hudServerPort.toString() }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -3533,14 +3537,17 @@ private fun HudIntegrationSection(
             // (which is always visible) instead of the placeholder (which
             // only shows when the field is focused) so the rider sees the
             // autodetect state without having to tap into the field first.
-            val ipLabel = if (settings.hudServerEnabled && ipText.isBlank())
+            val ipLabel = if (settings.hudServerEnabled && settings.hudIp.isBlank())
                 stringResource(R.string.hud_ip_label_autodetect)
             else stringResource(R.string.hud_ip_label)
+            // Bind directly to settings.hudIp -- no local edit buffer, no
+            // remember/mutableStateOf. Previously a local buffer keyed on
+            // settings.hudIp re-keyed on every ViewModel write-back, which
+            // could yank the cursor and drop focus mid-type.
             OutlinedTextField(
-                value = ipText,
+                value = settings.hudIp,
                 onValueChange = { new ->
                     if (new.length <= 15 && new.all { it.isDigit() || it == '.' }) {
-                        ipText = new
                         viewModel.updateHudIp(new)
                     }
                 },
@@ -3548,13 +3555,14 @@ private fun HudIntegrationSection(
                 placeholder = { Text("192.168.43.1") },
                 singleLine = true,
                 enabled = fieldsEnabled,
-                // KeyboardType.Phone lets the user type digits + dots
-                // without the IME slipping into autocomplete / emoji
-                // mode. Without it the rider saw a black suggestion
-                // strip under the field on dark theme.
+                // KeyboardType.Phone for digits + dots without slipping
+                // into autocomplete / emoji. autoCorrectEnabled=false to
+                // suppress the IME suggestion strip, which on Gboard +
+                // dark theme reads as a black bar above the keyboard.
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone,
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Next
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Next,
+                    autoCorrectEnabled = false
                 ),
                 modifier = Modifier.weight(2f)
             )
@@ -3563,7 +3571,12 @@ private fun HudIntegrationSection(
                 onValueChange = { new ->
                     if (new.length <= 5 && new.all { it.isDigit() }) {
                         portText = new
-                        new.toIntOrNull()?.let { viewModel.updateHudServerPort(it) }
+                        // Only commit to the ViewModel if the typed value
+                        // is inside the legal port range. Mid-edit values
+                        // like "2" would otherwise be coerced to 1024 and
+                        // re-render the field, eating the cursor.
+                        new.toIntOrNull()?.takeIf { it in 1024..65535 }
+                            ?.let { viewModel.updateHudServerPort(it) }
                     }
                 },
                 label = { Text(stringResource(R.string.hud_server_port)) },
@@ -3571,7 +3584,8 @@ private fun HudIntegrationSection(
                 enabled = fieldsEnabled,
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
-                    imeAction = androidx.compose.ui.text.input.ImeAction.Done
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    autoCorrectEnabled = false
                 ),
                 modifier = Modifier.weight(1f)
             )
