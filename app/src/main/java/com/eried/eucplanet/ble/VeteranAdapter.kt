@@ -132,31 +132,29 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Reassemble the byte stream into Veteran frames and dispatch each to
-     * the right parser. Short frames produce a [DecodeResult.Telemetry];
-     * long (smart-BMS) frames are parsed for cell/temp data but currently
-     * surfaced as Unknown: there's no DecodeResult shape for per-cell
-     * voltages yet, so we'd be losing fidelity by squeezing them through
-     * the existing telemetry record. They'll get their own result type
-     * once the dashboard grows a BMS panel.
+     * the right parser. Telemetry (voltage / speed / current / temp / trip)
+     * lives in the first ~36 bytes of every frame regardless of LEN, so
+     * parseTelemetry runs for both short and long frames. Long (smart-BMS)
+     * frames additionally carry per-cell data after offset 46; the cell
+     * slice is decoded but currently discarded until the dashboard grows
+     * a BMS panel. Without this, BMS-equipped wheels (Lynx S, Patton with
+     * smart BMS, Oryx) connect but the dashboard stays at zero because
+     * they only ever emit long frames.
      */
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         val frames = parser.feed(rawBytes)
         if (frames.isEmpty()) return emptyList()
         val out = mutableListOf<DecodeResult>()
         for (f in frames) {
+            DiagnosticsLogger.note(
+                "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
+            )
+            val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
+            if (telem != null) out += DecodeResult.Telemetry(telem)
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
                 // pipeline; result is discarded until the UI is ready for it.
                 VeteranParser.parseLongFrame(f.bytes)
-            } else {
-                // Surface the reassembled short frame to the Service Mode
-                // Inspect tab. Mirrors the V14/P6 path in InMotionV2Adapter so
-                // the picker can offer per-family realtime body inspection.
-                DiagnosticsLogger.note(
-                    "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
-                )
-                val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
-                if (telem != null) out += DecodeResult.Telemetry(telem)
             }
         }
         return out

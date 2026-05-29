@@ -50,8 +50,15 @@ Veteran frames are sent in pieces over BLE notifications and must be reassembled
 A reassembled frame looks like:
 
 ```
-| DC | 5A | 5C | LEN | payload (LEN-1 bytes)         | crc32 (optional, 4 bytes) |
-  off 0  1   2   3     4 .. LEN+2                       LEN+3 .. LEN+6 (if present)
+short (LEN <= 38, no CRC):
+| DC | 5A | 5C | LEN | payload                        |
+  off 0  1   2   3     4 .. LEN+3
+  total buffer = LEN + 4 bytes
+
+long (LEN > 38, with CRC):
+| DC | 5A | 5C | LEN | payload         | crc32 (u32 BE) |
+  off 0  1   2   3     4 .. LEN-1        LEN .. LEN+3
+  total buffer = LEN + 4 bytes (CRC included)
 ```
 
 Field rules:
@@ -59,9 +66,9 @@ Field rules:
 | Field     | Size | Notes |
 |-----------|------|-------|
 | Magic     | 3    | Constant `DC 5A 5C`. Frame start. |
-| Len       | u8   | Declares total frame length minus 4 (header). Total wire bytes without CRC = `LEN + 3` (so `buff[LEN+2]` is the last payload byte). |
-| Payload   | LEN-1 | Telemetry or BMS data. All multi-byte fields big-endian unless noted. |
-| CRC32     | u32 BE | Present when `LEN > 38` (newer firmwares with smart-BMS). Computed with the standard zlib CRC32 polynomial over `buff[0..LEN-1]` (i.e. excluding the CRC bytes themselves). |
+| Len       | u8   | Stored at offset 3. Total buffer size is always `LEN + 4` bytes (including magic, the LEN byte itself, payload, and the CRC trailer when present). |
+| Payload   | varies | Short frames: `LEN` payload bytes at offsets 4..LEN+3. Long frames: `LEN - 4` payload bytes at offsets 4..LEN-1, with the CRC at LEN..LEN+3. All multi-byte fields big-endian unless noted. |
+| CRC32     | u32 BE | Present when `LEN > 38` (newer firmwares with smart-BMS). Computed with the standard zlib CRC32 polynomial over `buff[0..LEN-1]` (the bytes preceding the CRC trailer). |
 
 Reassembly logic the parser must implement:
 
@@ -69,9 +76,9 @@ Reassembly logic the parser must implement:
 2. Watch for the magic `DC 5A 5C` triple. When seen, reset a new buffer with those
    three bytes already pushed.
 3. The next byte is `LEN`. Push it.
-4. Push subsequent bytes until the buffer holds `LEN + 3` bytes.
-5. If `LEN > 38`, read four more bytes as a big-endian u32 CRC. Verify against
-   `CRC32(buff[0..LEN-1])`. Drop the frame on mismatch.
+4. Push subsequent bytes until the buffer holds `LEN + 4` bytes total.
+5. If `LEN > 38`, the last four bytes of the buffer are a big-endian u32 CRC.
+   Verify against `CRC32(buff[0..LEN-1])`. Drop the frame on mismatch.
 6. If a packet stalls (no bytes for ~100 ms), drop the partial buffer and re-sync.
 
 WheelLog also sanity-checks specific bytes during accumulation (for example

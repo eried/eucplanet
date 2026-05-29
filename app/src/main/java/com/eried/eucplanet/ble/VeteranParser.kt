@@ -11,10 +11,11 @@ import kotlin.math.roundToInt
  *
  * Frames are sent in pieces over notifications and must be reassembled before
  * we can parse them. Each frame starts with the magic `DC 5A 5C`, a one-byte
- * LEN that declares total frame length minus 4 (header), then LEN-1 payload
- * bytes, then an optional 4-byte big-endian CRC32 when LEN > 38 (smart-BMS
- * wheels). Wire layout, offsets, scale factors and per-model voltage curves
- * come from docs/protocols/veteran.md.
+ * LEN at offset 3, then payload bytes; total buffer size is always LEN + 4
+ * bytes. For long (LEN > 38, smart-BMS) frames the last 4 bytes are a
+ * big-endian CRC32 covering bytes 0..LEN-1; short frames have no CRC and
+ * the full LEN + 4 bytes are payload data. Wire layout, offsets, scale
+ * factors and per-model voltage curves come from docs/protocols/veteran.md.
  *
  * The parser is a small state machine driven by [feed]. A 100 ms gap without
  * continuation drops the partial buffer and re-syncs on the next magic; the
@@ -107,14 +108,22 @@ class VeteranParser {
      * Pull one complete frame off the front of the buffer, or return null if
      * we don't have enough bytes yet. Drops the frame and re-syncs if the
      * CRC fails on a long frame.
+     *
+     * Frame size rule (verified against WheelLog's VeteranAdapter and against
+     * a captured Lynx S long frame whose CRC32 over the first LEN bytes
+     * matched the trailing 4 bytes exactly): total buffer = LEN + 4 bytes,
+     * always. For LEN > 38 the last 4 bytes are a CRC32 trailer covering
+     * bytes 0..LEN-1. For short (LEN <= 38) frames there is no CRC and all
+     * LEN+4 bytes are frame content (magic + LEN_byte + payload). An earlier
+     * version of this parser used LEN + 3 (+ optional 4 for CRC) which was
+     * off by 3 bytes for long frames and one of the causes of BMS-equipped
+     * Veterans (Lynx, Lynx S, Patton smart-BMS, Oryx) showing 0V / 0% on
+     * the dashboard.
      */
     private fun tryExtractFrame(): Frame? {
         if (buffer.size < 4) return null
         val len = buffer[3].toInt() and 0xFF
-        // Total frame size pre-CRC is LEN + 3 bytes (magic + LEN + payload).
-        // Long frames (LEN > 38) carry a 4-byte CRC32 trailer.
-        val hasCrc = len > LONG_FRAME_THRESHOLD
-        val totalSize = len + 3 + if (hasCrc) 4 else 0
+        val totalSize = len + 4
         if (buffer.size < totalSize) return null
 
         val frame = ByteArray(totalSize)
@@ -124,17 +133,17 @@ class VeteranParser {
         // the cheapest contiguous-prefix removal Kotlin gives us.
         buffer.subList(0, totalSize).clear()
 
-        if (hasCrc) {
-            // CRC32 over the bytes from magic through end-of-payload, big-endian
-            // 4-byte trailer. Mismatch means we resync on the next magic;
-            // partial garbage that aligned with a `DC 5A 5C` triple gets
-            // eaten this way.
-            val crc = CRC32().apply { update(frame, 0, totalSize - 4) }.value
-            val expected = ByteUtils.getUint32BE(frame, totalSize - 4)
+        val isLong = len > LONG_FRAME_THRESHOLD
+        if (isLong) {
+            // CRC32 covers bytes 0..LEN-1 (magic + LEN_byte + payload); trailer
+            // sits at offsets LEN..LEN+3 as a big-endian u32. Mismatch means
+            // we resync on the next magic; partial garbage that aligned with
+            // a `DC 5A 5C` triple gets eaten this way.
+            val crc = CRC32().apply { update(frame, 0, len) }.value
+            val expected = ByteUtils.getUint32BE(frame, len)
             if (crc != expected) return null
         }
 
-        val isLong = len > LONG_FRAME_THRESHOLD
         return Frame(frame, isLong)
     }
 
