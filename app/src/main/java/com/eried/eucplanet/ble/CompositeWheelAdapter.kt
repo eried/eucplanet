@@ -113,8 +113,39 @@ class CompositeWheelAdapter @Inject constructor(
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)
 
-    override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> =
-        active.onRawNotification(rawBytes)
+    override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
+        // Post-connect family rescue. Veteran wheels (Sherman / Patton /
+        // Lynx / Lynx S / Abrams / Oryx) share the HM-10 BLE profile with
+        // KingSong and Begode, so when a Veteran wheel advertises a name
+        // we don't recognise as Veteran (Lynx S in the wild has shipped
+        // with names that don't contain "lynx"), the name-based router in
+        // [pickAdapter] sticks us on the wrong adapter and the realtime
+        // stream parses to zeros. The Veteran magic `DC 5A 5C` is unique
+        // enough across the three HM-10 families to swap on first sight:
+        // KingSong frames start with `AA 55`, Begode frames start with
+        // `55 AA`. We only swap *away from* non-Veteran adapters so we
+        // never bounce back and forth on stray bytes that happen to look
+        // like the magic.
+        if (active !is VeteranAdapter && containsVeteranMagic(rawBytes)) {
+            active = veteran
+            active.notifyConnectingTo(null)
+        }
+        return active.onRawNotification(rawBytes)
+    }
+
+    private fun containsVeteranMagic(bytes: ByteArray): Boolean {
+        if (bytes.size < 3) return false
+        var i = 0
+        val end = bytes.size - 2
+        while (i < end) {
+            if (bytes[i] == 0xDC.toByte() &&
+                bytes[i + 1] == 0x5A.toByte() &&
+                bytes[i + 2] == 0x5C.toByte()
+            ) return true
+            i++
+        }
+        return false
+    }
 
     override fun onDisconnect() {
         active.onDisconnect()
