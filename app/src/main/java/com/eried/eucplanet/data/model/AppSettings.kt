@@ -391,22 +391,68 @@ data class AppSettings(
      * element to 100% opacity so half-transparent elements don't blend with
      * the chroma fill and look wrong. Default on.
      */
-    val studioReplayForceOpaque: Boolean = true
+    val studioReplayForceOpaque: Boolean = true,
+
+    // Dashboard layout (customizable home screen).
+    //
+    // Metric / action order is a comma-separated list of enum-name keys; unknown
+    // tokens are dropped and known-but-missing tokens are appended in canonical
+    // order when read, so adding a new metric or action later just expands the
+    // default list without breaking existing rider settings.
+    val dashboardMetricsColumns: Int = 2,
+    val dashboardActionsColumns: Int = 3,
+    val dashboardMetricOrder: String = "BATTERY,TEMPERATURE,VOLTAGE,CURRENT,LOAD,TRIP",
+    val dashboardActionOrder: String = "HORN,LIGHT_TOGGLE,VOICE_ANNOUNCE,SAFETY_TOGGLE,LOCK_TOGGLE,RECORD_TOGGLE",
+    val dashboardRollingWindowSeconds: Int = 300,
+
+    /**
+     * Composite metric definitions as a JSON object keyed by synthetic ID
+     * (`M:<uuid>`). Each value is `{ "layout": "ROW2"|"COL2"|"COL3", "cells":
+     * [<metric_key>, ...] }`. Composite IDs appear in [dashboardMetricOrder]
+     * alongside regular metric keys — a single grid slot renders the composite
+     * as a multi-cell tile instead of one metric. Empty object `"{}"` means
+     * the rider hasn't dragged the `+ Stack` template onto the grid yet.
+     */
+    val dashboardCompositeMetrics: String = "{}",
+
+    /**
+     * Action group definitions as a JSON object keyed by `G:<uuid>`. Each
+     * value is `{ "actions": [<action_key>, ...] }` with up to 4 entries.
+     * Group IDs appear in [dashboardActionOrder]; a single action slot
+     * renders the group as one button whose tap opens an anchored popover
+     * with the sub-actions.
+     */
+    val dashboardActionGroups: String = "{}",
+
+    /**
+     * Custom tile definitions as a JSON object keyed by `C:<uuid>`. Each value
+     * is `{ "text": <label>, "icon": <icon_key>, "action": <type>, "url": <url> }`.
+     * Action types: NONE (display-only label), OPEN_URL (tap opens default
+     * browser), SHOW_QR (tap shows a QR-code popup so other riders can scan
+     * and visit the URL — e.g. Instagram handle, club page). Custom tile IDs
+     * appear in [dashboardMetricOrder] alongside regular metrics.
+     */
+    val dashboardCustomTiles: String = "{}",
+
+    /**
+     * Per-metric corner-stat configuration as a JSON object. Each known metric
+     * key maps to a config object with five stat slots (center, top-left,
+     * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are
+     * applied at read time when an entry is missing — empty object means every
+     * metric uses center=CURRENT, others=NONE, sparkline=true. Persisted as a
+     * single string so we don't need to grow AppSettings each time a new stat
+     * lands.
+     *
+     * Schema:
+     * `{"BATTERY":{"c":"CURRENT","tl":"MIN","tr":"MAX","bl":"NONE","br":"AVG","spark":true}}`
+     *
+     * Stat values: NONE | CURRENT | MIN | MAX | AVG.
+     */
+    val dashboardMetricStats: String = "{}"
 )
 
-enum class FlicAction(val labelRes: Int) {
-    NONE(R.string.flic_action_none),
-    HORN(R.string.flic_action_horn),
-    LIGHT_TOGGLE(R.string.flic_action_light),
-    LOCK_TOGGLE(R.string.flic_action_lock),
-    SAFETY_TOGGLE(R.string.flic_action_legal_toggle),
-    SAFETY_ON(R.string.flic_action_legal_on),
-    SAFETY_OFF(R.string.flic_action_legal_off),
-    VOICE_ANNOUNCE(R.string.flic_action_voice),
-    RECORD_TOGGLE(R.string.flic_action_record),
-    RECORD_START(R.string.flic_action_record_start),
-    RECORD_STOP(R.string.flic_action_record_stop),
-    MEDIA_PLAY_PAUSE(R.string.flic_action_media_play),
-    MEDIA_NEXT(R.string.flic_action_media_next),
-    MEDIA_PREVIOUS(R.string.flic_action_media_prev)
-}
+// FlicAction enum removed (2026-05). Replaced by
+// [com.eried.eucplanet.data.model.ActionCatalog] which is the single source
+// of truth for every rider-triggerable command and the surfaces it can be
+// bound to. Settings still store the action name as a String (e.g. "HORN",
+// "VOICE_ANNOUNCE", or "NONE" for unbound) so there is no schema change.

@@ -1,8 +1,16 @@
 package com.eried.eucplanet.ui.settings
 
+import android.content.ClipData
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateBounds
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -14,6 +22,7 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,15 +32,24 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.AutoAwesome
@@ -41,8 +59,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.FiberManualRecord
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.FlashlightOn
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.GraphicEq
@@ -71,8 +128,16 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import com.eried.eucplanet.ui.theme.AccentOrange
@@ -86,15 +151,22 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -122,12 +194,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.launch
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -137,7 +213,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
@@ -145,7 +220,11 @@ import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.common.LocalSettingsSearchQuery
 import com.eried.eucplanet.ui.common.highlightMatches
 import com.eried.eucplanet.ui.theme.AccentBlue
+import com.eried.eucplanet.ui.theme.AccentGreen
+import com.eried.eucplanet.ui.theme.AccentPink
+import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -331,6 +410,7 @@ fun SettingsScreen(
     val titleWatch = stringResource(R.string.tab_watch)
     val titleNavigator = stringResource(R.string.nav_setting_params)
     val titleGpsSensors = stringResource(R.string.section_external_gps)
+    val titleDashboard = stringResource(R.string.tab_dashboard)
 
     val corpusGeneral = listOf(
         titleGeneral,
@@ -342,6 +422,26 @@ fun SettingsScreen(
         stringResource(R.string.auto_connect_on_start),
         stringResource(R.string.section_application),
         stringResource(R.string.back_button_action)
+    ).joinToString(" ")
+
+    val corpusDashboard = listOf(
+        titleDashboard,
+        stringResource(R.string.dashboard_section_metrics),
+        stringResource(R.string.dashboard_section_actions),
+        stringResource(R.string.dashboard_columns),
+        stringResource(R.string.dashboard_rolling_window),
+        stringResource(R.string.metric_chip_battery),
+        stringResource(R.string.metric_chip_temperature),
+        stringResource(R.string.metric_chip_voltage),
+        stringResource(R.string.metric_chip_current),
+        stringResource(R.string.metric_chip_load),
+        stringResource(R.string.metric_chip_trip),
+        stringResource(R.string.action_chip_horn),
+        stringResource(R.string.action_chip_light),
+        stringResource(R.string.action_chip_voice),
+        stringResource(R.string.action_chip_safety),
+        stringResource(R.string.action_chip_lock),
+        stringResource(R.string.action_chip_record)
     ).joinToString(" ")
 
     val corpusDisplay = listOf(
@@ -460,6 +560,9 @@ fun SettingsScreen(
     val sections: List<SectionDef> = listOf(
         SectionDef("general", titleGeneral, Icons.Default.Tune, corpusGeneral) {
             GeneralTab(settings, viewModel)
+        },
+        SectionDef("dashboard", titleDashboard, Icons.Default.Dashboard, corpusDashboard) {
+            DashboardLayoutTab(settings, viewModel)
         },
         SectionDef("display", titleDisplay, Icons.Default.DisplaySettings, corpusDisplay) {
             DisplayTab(settings, viewModel)
@@ -833,6 +936,3665 @@ private fun GeneralTab(
         HintText(stringResource(R.string.back_button_action_desc), small = true)
 
     }
+}
+
+// --- Dashboard Layout Tab ---
+//
+// Editor mirrors the live dashboard's look: the active slots render as a mini
+// version of the real StatCard / action-button grids, the rest of the catalog
+// shows up as draggable pills below. Long-press a tile or pill to drag, drop
+// on another tile to swap. Tap a tile to open the per-slot editor sheet (just
+// a reset-to-default button in this pass; corner-stat configuration lands
+// next). The configured order persists; wiring the live DashboardScreen to
+// read from it is the next phase.
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DashboardLayoutTab(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val metricOrderRaw = viewModel.dashboardMetricOrder(settings)
+    val actionOrderRaw = viewModel.dashboardActionOrder(settings)
+
+    // Column count is no longer user-configurable: it mirrors the live
+    // dashboard's form-factor rules so the editor always shows the rider's
+    // actual layout. Phone keeps the classic 2×3 metrics + 3×2 actions;
+    // tablets/foldables (≥600dp width) bump to 3×2 metrics + 4×... but we
+    // keep the active count at 6 so the rider picks the same number of
+    // tiles regardless of device. The dashboardMetricsColumns /
+    // dashboardActionsColumns AppSettings fields are kept for forward
+    // compatibility but unused here.
+    val isWideScreen = LocalConfiguration.current.screenWidthDp >= 600
+    // Tablets always render the Wide (3-column) metrics layout, overriding the
+    // rider's per-account preference. On phones the View combo picks 2 (Default)
+    // or 3 (Wide) columns; `dashboardMetricsColumns` stores the user's choice
+    // verbatim so it round-trips when the rider switches devices.
+    val metricColumnsEffective = if (isWideScreen) 3 else settings.dashboardMetricsColumns.coerceIn(2, 3)
+    val actionColumnsEffective = 3
+    val metricActiveCount = 6
+    val actionActiveCount = 6
+
+    // Per-slot bottom sheet: holds the metric/action key being edited and the
+    // group it belongs to so the reset action targets the right list.
+    var editing by remember { mutableStateOf<DashboardEditTarget?>(null) }
+
+    // Tapping a tile in the Available (pool) region is informational only:
+    // riders must drag the tile onto a slot above to use it. A short toast
+    // explains the gesture instead of opening the edit sheet, which would
+    // be misleading (pool-position settings are not what they're editing).
+    // Throttled to one toast per 5 taps so it doesn't spam the rider while
+    // they explore — the same counter governs +STACK / +TEXT / +group
+    // template taps too.
+    val poolTapContext = LocalContext.current
+    val poolTapMessage = stringResource(R.string.dashboard_pool_tap_toast)
+    var poolTapCount by remember { mutableStateOf(0) }
+    val showPoolTapToast: () -> Unit = {
+        poolTapCount += 1
+        if (poolTapCount % 5 == 1) {
+            Toast.makeText(poolTapContext, poolTapMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Custom drag system: the controller tracks the pointer in window
+    // coordinates and the registered drop targets, so the floating preview can
+    // animate its size, alpha and position live as the rider drags.
+    val dragController = remember { DashboardDragController() }
+    val poolAlpha by animateFloatAsState(
+        targetValue = if (dragController.isDragging) 0.4f else 1f,
+        label = "pool-alpha"
+    )
+
+    // Editor root's window-coordinate position is captured here so the
+    // floating preview can convert the controller's window-space pointer to
+    // a local offset relative to this Box and stay in the editor's own
+    // composition tree (rather than a Popup window, which would steal touch
+    // events from the drag source).
+    var editorRootInWindow by remember { mutableStateOf(Offset.Zero) }
+
+    // Order rendered to the grid stays equal to the persisted order during a
+    // drag: changing it mid-gesture caused the dragged tile to be relaid out
+    // under the rider's finger, which shifted the pointerInput's local frame
+    // and produced spurious drag deltas (the drag would "lurch" or get cut
+    // off). The make-space feel is now communicated via a slot highlight in
+    // the destination tile + the animateBounds slide on drop.
+    val metricOrder = metricOrderRaw
+    val actionOrder = actionOrderRaw
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { editorRootInWindow = it.positionInWindow() }
+    ) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // --- Metrics ------------------------------------------------------
+        SectionHeader(stringResource(R.string.dashboard_section_metrics))
+
+        // Two-column row: layout choice (Default/Wide) on the left, the
+        // rolling-stats window on the right. Both affect metric rendering so
+        // they share a single visual band above the grid. The grid hint
+        // ("Long-press to drag…") goes under this row so the riders see the
+        // dropdowns first and the interaction hint right above the grid.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ViewDropdown(
+                modifier = Modifier.weight(1f),
+                columns = settings.dashboardMetricsColumns.coerceIn(2, 3),
+                forcedWide = isWideScreen,
+                onSelect = { viewModel.updateDashboardMetricsColumns(it) }
+            )
+            RollingWindowDropdown(
+                modifier = Modifier.weight(1f),
+                valueSeconds = settings.dashboardRollingWindowSeconds,
+                onSelect = { viewModel.updateDashboardRollingWindowSeconds(it) }
+            )
+        }
+        HintText(stringResource(R.string.dashboard_grid_hint), small = true)
+
+        MetricMiniGrid(
+            order = metricOrder,
+            activeCount = metricActiveCount,
+            columns = metricColumnsEffective,
+            valueOf = { key -> metricPlaceholderValue(key, settings) },
+            statsOf = { key -> viewModel.dashboardMetricSlotStats(settings, key) },
+            compositeOf = { id -> viewModel.getCompositeMetric(settings, id) },
+            customTileOf = { id -> viewModel.getCustomTile(settings, id) },
+            onSwapInto = { key, index ->
+                // Catalog model: grid sources SWAP (preserves both tiles),
+                // pool sources COPY (catalog stays full, slot gets the new
+                // metric, displaced tile is discarded). Templates always
+                // spawn a fresh dynamic instance regardless of source.
+                when {
+                    key == COMPOSITE_TEMPLATE_KEY -> viewModel.createCompositeMetricAt(index)
+                    key == CUSTOM_TILE_TEMPLATE_KEY -> viewModel.createCustomTileAt(index)
+                    dragController.sourceFromGrid -> viewModel.moveDashboardMetricToIndex(key, index)
+                    else -> viewModel.setDashboardMetricAtIndex(key, index)
+                }
+            },
+            onTapTile = { key, slotIndex ->
+                editing = when {
+                    isCompositeMetricKey(key) -> DashboardEditTarget.Composite(key, slotIndex)
+                    isCustomTileKey(key) -> DashboardEditTarget.CustomTile(key, slotIndex)
+                    else -> DashboardEditTarget.Metric(key, slotIndex)
+                }
+            },
+            controller = dragController
+        )
+
+        Spacer(Modifier.height(4.dp))
+        Column(modifier = Modifier.alpha(poolAlpha)) {
+            Text(
+                stringResource(R.string.dashboard_pool_metrics),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            MetricPool(
+                catalogKeys = viewModel.knownDashboardMetrics,
+                valueOf = { key -> metricPlaceholderValue(key, settings) },
+                statsEnabledOf = { key ->
+                    val s = viewModel.dashboardMetricSlotStats(settings, key)
+                    s.left != DashboardStat.NONE || s.right != DashboardStat.NONE || s.sparkline
+                },
+                onTap = { _ -> showPoolTapToast() },
+                onDeleteComposite = { id -> viewModel.deleteCompositeMetric(id) },
+                onDeleteCustomTile = { id -> viewModel.deleteCustomTile(id) },
+                onDemoteMetric = { key -> viewModel.demoteMetricToCustomTile(key) },
+                controller = dragController
+            )
+        }
+
+        // --- Action buttons ----------------------------------------------
+        SectionHeader(stringResource(R.string.dashboard_section_actions))
+        HintText(stringResource(R.string.dashboard_grid_hint), small = true)
+
+        ActionMiniGrid(
+            order = actionOrder,
+            activeCount = actionActiveCount,
+            columns = actionColumnsEffective,
+            groupOf = { id -> viewModel.getActionGroup(settings, id) },
+            onSwapInto = { key, index ->
+                // Catalog model — see metric grid for explanation.
+                when {
+                    key == ACTION_GROUP_TEMPLATE_KEY -> viewModel.createActionGroupAt(index)
+                    dragController.sourceFromGrid -> viewModel.moveDashboardActionToIndex(key, index)
+                    else -> viewModel.setDashboardActionAtIndex(key, index)
+                }
+            },
+            onTapTile = { key, slotIndex ->
+                editing = if (isActionGroupKey(key)) DashboardEditTarget.Group(key, slotIndex)
+                else DashboardEditTarget.Action(key, slotIndex)
+            },
+            controller = dragController
+        )
+
+        Spacer(Modifier.height(4.dp))
+        Column(modifier = Modifier.alpha(poolAlpha)) {
+            Text(
+                stringResource(R.string.dashboard_pool_actions),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            ActionPool(
+                catalogKeys = viewModel.knownDashboardActions,
+                onTap = { _ -> showPoolTapToast() },
+                onDeleteGroup = { id -> viewModel.deleteActionGroup(id) },
+                controller = dragController
+            )
+        }
+    }
+        // Floating drag preview rendered as a sibling of the Column inside
+        // the editor's root Box. Stays in the same Compose hit-test tree as
+        // the source so the drag's pointerInput keeps receiving moves.
+        DashboardDragPreviewOverlay(
+            controller = dragController,
+            rootInWindow = editorRootInWindow,
+            renderMetric = { key, value ->
+                MetricDragPreview(key = key, value = value, settings = settings, viewModel = viewModel)
+            },
+            renderAction = { key ->
+                ActionDragPreview(key = key, settings = settings, viewModel = viewModel)
+            }
+        )
+    } // end editor root Box
+
+    editing?.let { target ->
+        // All five sheet kinds share the same "restore this slot to its
+        // shipped default" semantic. The VM reset path handles deleting
+        // any dynamic instance (composite / custom tile / group) that
+        // happens to occupy the slot AND wiping the natural key's stats
+        // so the restored metric shows its fresh out-of-box appearance.
+        val onResetSlot: () -> Unit = {
+            val isActionTarget = target is DashboardEditTarget.Action ||
+                target is DashboardEditTarget.Group
+            if (isActionTarget) {
+                viewModel.resetDashboardActionAtIndex(target.slotIndex)
+            } else {
+                viewModel.resetDashboardMetricAtIndex(target.slotIndex)
+            }
+            editing = null
+        }
+        when (target) {
+            is DashboardEditTarget.Composite -> CompositeMetricSheet(
+                id = target.key,
+                settings = settings,
+                viewModel = viewModel,
+                onDismiss = { editing = null },
+                onReset = onResetSlot
+            )
+            is DashboardEditTarget.Group -> ActionGroupSheet(
+                id = target.key,
+                settings = settings,
+                viewModel = viewModel,
+                onDismiss = { editing = null },
+                onReset = onResetSlot
+            )
+            is DashboardEditTarget.CustomTile -> CustomTileSheet(
+                id = target.key,
+                settings = settings,
+                viewModel = viewModel,
+                onDismiss = { editing = null },
+                onReset = onResetSlot
+            )
+            else -> DashboardSlotSheet(
+                target = target,
+                settings = settings,
+                viewModel = viewModel,
+                onDismiss = { editing = null },
+                onReset = onResetSlot
+            )
+        }
+    }
+}
+
+// Visual-only renderers used by DashboardDragPreviewOverlay. They mirror the
+// MetricTile / ActionTile content but skip the drag, drop and click wiring so
+// they can be rendered inside the floating Popup without re-entering the drag
+// state machine.
+
+@Composable
+private fun MetricDragPreview(
+    key: String,
+    value: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    // Composite + custom-tile instances (and their templates) render through
+    // this preview path too so the dragged tile looks like what it will
+    // become once the rider drops it. For templates we substitute a default
+    // placeholder instance so the rider sees a representative preview.
+    if (isCompositeMetricKey(key) || key == COMPOSITE_TEMPLATE_KEY) {
+        val composite = if (key == COMPOSITE_TEMPLATE_KEY) MetricComposite()
+        else viewModel.getCompositeMetric(settings, key) ?: MetricComposite()
+        val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+        val outlineColor = MaterialTheme.colorScheme.outlineVariant
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(10.dp))
+                .background(surfaceColor)
+                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+        ) {
+            CompositeMetricBody(
+                composite = composite,
+                valueOf = { k -> metricPlaceholderValue(k, settings) }
+            )
+        }
+        return
+    }
+    if (isCustomTileKey(key) || key == CUSTOM_TILE_TEMPLATE_KEY) {
+        val tile = if (key == CUSTOM_TILE_TEMPLATE_KEY) CustomTile()
+        else viewModel.getCustomTile(settings, key) ?: CustomTile()
+        val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+        val outlineColor = MaterialTheme.colorScheme.outlineVariant
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(10.dp))
+                .background(surfaceColor)
+                .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+        ) {
+            CustomTileBody(tile = tile)
+        }
+        return
+    }
+    val accent = metricAccentColor(key)
+    val label = metricChipLabel(key)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val stats = viewModel.dashboardMetricSlotStats(settings, key)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+    ) {
+        if (stats.sparkline) {
+            WavePatternBackground(accent = accent)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ThreeZoneRow(
+                metricLabel = label,
+                stats = stats,
+                value = value,
+                accent = accent,
+                centerBigSp = 14,
+                sideValueSp = 10,
+                sideLabelSp = 9,
+                metricLabelSp = 9
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionDragPreview(
+    key: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    // Group instance + template render through this preview too, with the
+    // accent-tinted folder icon so the floating preview reads as "you're
+    // moving a group" rather than a plain action.
+    val isGroup = isActionGroupKey(key) || key == ACTION_GROUP_TEMPLATE_KEY
+    val groupIconKey = if (isGroup) {
+        if (key == ACTION_GROUP_TEMPLATE_KEY) GROUP_DEFAULT_ICON
+        else viewModel.getActionGroup(settings, key)?.icon ?: GROUP_DEFAULT_ICON
+    } else null
+    val groupLabel = if (isGroup) {
+        if (key == ACTION_GROUP_TEMPLATE_KEY) stringResource(R.string.dashboard_group_default_name)
+        else viewModel.getActionGroup(settings, key)?.name?.ifBlank { null }
+            ?: stringResource(R.string.dashboard_group_default_name)
+    } else null
+    val icon = if (isGroup) groupIconFor(groupIconKey!!) else dashboardActionIcon(key)
+    val label = if (isGroup) groupLabel!! else actionChipLabel(key)
+    val tint = if (isGroup) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurfaceVariant
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = tint
+                )
+                Spacer(Modifier.height(4.dp))
+            }
+            Text(
+                label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private sealed interface DashboardEditTarget {
+    val key: String
+    /** Slot index in the active grid; Reset uses this to restore the shipped occupant. */
+    val slotIndex: Int
+    data class Metric(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+    data class Action(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+    /** Composite metric instance — `key` is the composite ID like `M:abc123`. */
+    data class Composite(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+    /** Action group instance — `key` is the group ID like `G:abc123`. */
+    data class Group(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+    /** Custom tile instance — `key` is the tile ID like `C:abc123`. */
+    data class CustomTile(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+}
+
+private const val DASHBOARD_DRAG_METRIC_LABEL = "eucplanet/dashMetric"
+private const val DASHBOARD_DRAG_ACTION_LABEL = "eucplanet/dashAction"
+
+// ---- Section helpers ---------------------------------------------------
+
+@Composable
+private fun DashboardColumnSelector(current: Int, onSelect: (Int) -> Unit) {
+    val options = listOf(2, 3, 4)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stringResource(R.string.dashboard_columns),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(end = 12.dp)
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            options.forEachIndexed { index, n ->
+                SegmentedButton(
+                    selected = n == current,
+                    onClick = { onSelect(n) },
+                    shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                ) { Text(n.toString()) }
+            }
+        }
+    }
+}
+
+
+// ---- Metric grid -------------------------------------------------------
+//
+// Rendered as a Column of Rows so the layout stays in one piece for drag
+// detection (LazyVerticalGrid swallows the drag-and-drop modifiers).
+
+// Custom bounds transform applied to every grid tile so column-count changes
+// (2 ↔ 3 ↔ 4) animate visibly. The default BoundsTransform settles too
+// quickly for small motion deltas — tiles that move only a few dp appear to
+// snap. This spring is slower (Spring.StiffnessLow) and slightly underdamped
+// (0.7) so motion reads as a smooth glide for both big and small repositions.
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+private val dashboardTileBoundsTransform = androidx.compose.animation.BoundsTransform { _, _ ->
+    androidx.compose.animation.core.spring(
+        stiffness = androidx.compose.animation.core.Spring.StiffnessLow,
+        dampingRatio = 0.75f
+    )
+}
+
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+@Composable
+private fun MetricMiniGrid(
+    order: List<String>,
+    activeCount: Int,
+    columns: Int,
+    valueOf: (String) -> String,
+    statsOf: (String) -> MetricSlotStats,
+    compositeOf: (String) -> MetricComposite?,
+    customTileOf: (String) -> CustomTile?,
+    onSwapInto: (String, Int) -> Unit,
+    onTapTile: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val active = order.take(activeCount)
+    val rows = (active.size + columns - 1) / columns
+    // LookaheadScope + animateBounds: when the rider drops a swap the
+    // displaced tile glides to its new slot instead of teleporting.
+    androidx.compose.ui.layout.LookaheadScope {
+        val lookahead = this
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            for (rowIdx in 0 until rows) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (colIdx in 0 until columns) {
+                        val slotIndex = rowIdx * columns + colIdx
+                        val key = active.getOrNull(slotIndex)
+                        if (key != null) {
+                            androidx.compose.runtime.key(key) {
+                                val tileModifier = Modifier
+                                    .weight(1f)
+                                    .height(74.dp)
+                                    .animateBounds(
+                                        lookaheadScope = lookahead,
+                                        boundsTransform = dashboardTileBoundsTransform
+                                    )
+                                when {
+                                    isCompositeMetricKey(key) -> {
+                                        val composite = compositeOf(key) ?: MetricComposite()
+                                        CompositeMetricTile(
+                                            id = key,
+                                            composite = composite,
+                                            slotIndex = slotIndex,
+                                            valueOf = valueOf,
+                                            modifier = tileModifier,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            onSwapInto = onSwapInto,
+                                            controller = controller
+                                        )
+                                    }
+                                    isCustomTileKey(key) -> {
+                                        val tile = customTileOf(key) ?: CustomTile()
+                                        CustomTileView(
+                                            id = key,
+                                            tile = tile,
+                                            slotIndex = slotIndex,
+                                            modifier = tileModifier,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            onSwapInto = onSwapInto,
+                                            controller = controller
+                                        )
+                                    }
+                                    else -> {
+                                        MetricTile(
+                                            key = key,
+                                            value = valueOf(key),
+                                            stats = statsOf(key),
+                                            slotIndex = slotIndex,
+                                            modifier = tileModifier,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            onSwapInto = onSwapInto,
+                                            controller = controller
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            Box(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Composite metric tile — one grid slot rendering 2 or 3 sub-metric current
+ * values in the chosen layout. Wraps the same drag/drop modifiers as
+ * [MetricTile] so the rider can re-position the composite or replace it
+ * with another tile.
+ */
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+@Composable
+private fun CompositeMetricTile(
+    id: String,
+    composite: MetricComposite,
+    slotIndex: Int,
+    valueOf: (String) -> String,
+    modifier: Modifier,
+    onTap: () -> Unit,
+    onSwapInto: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val isBeingDragged = controller.draggingKey == id
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != id &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.METRIC
+    // Accent for the highlight border picks the first cell's color so the
+    // composite reads as "the rider's chosen stack" rather than a generic
+    // neutral container.
+    val firstCellAccent = composite.cells.firstOrNull()?.let { metricAccentColor(it) }
+        ?: MaterialTheme.colorScheme.primary
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) firstCellAccent else outlineColor,
+        label = "composite-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "composite-tile-border-w"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "metric-slot-$slotIndex",
+                kind = DropKind.METRIC_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            CompositeMetricBody(composite = composite, valueOf = valueOf)
+        }
+    }
+}
+
+/**
+ * Inner layout switcher for a composite tile. Each layout renders its cells
+ * with a per-cell accent + uppercase short label; no stats, no sparkline.
+ * Public-internal so the live dashboard renderer can reuse the exact same
+ * body — the editor passes placeholder values, the live dashboard passes
+ * real telemetry, both go through this composable.
+ */
+@Composable
+fun CompositeMetricBody(
+    composite: MetricComposite,
+    valueOf: (String) -> String
+) {
+    val cells = composite.cells.take(composite.layout.cellCount)
+    val padded = cells + List(composite.layout.cellCount - cells.size) { "" }
+    // Parallel stats list, padded with CURRENT for missing entries so
+    // every cell has a defined stat. CURRENT means "no stat indicator"
+    // — the cell shows the metric label + value as before.
+    val paddedStats = composite.cellStats.take(composite.layout.cellCount) +
+        List(
+            (composite.layout.cellCount - composite.cellStats.size).coerceAtLeast(0)
+        ) { DashboardStat.CURRENT }
+    val divider = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    when (composite.layout) {
+        CompositeLayout.ROW2 -> Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 4.dp)
+        ) {
+            CompositeCellRow(padded[0], paddedStats[0], valueOf, Modifier.fillMaxWidth().weight(1f))
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(divider))
+            CompositeCellRow(padded[1], paddedStats[1], valueOf, Modifier.fillMaxWidth().weight(1f))
+        }
+        CompositeLayout.COL2 -> Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
+        ) {
+            CompositeCell(padded[0], paddedStats[0], valueOf, Modifier.weight(1f))
+            Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
+            CompositeCell(padded[1], paddedStats[1], valueOf, Modifier.weight(1f))
+        }
+        CompositeLayout.COL3 -> Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
+        ) {
+            CompositeCell(padded[0], paddedStats[0], valueOf, Modifier.weight(1f))
+            Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
+            CompositeCell(padded[1], paddedStats[1], valueOf, Modifier.weight(1f))
+            Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
+            CompositeCell(padded[2], paddedStats[2], valueOf, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun CompositeCell(
+    key: String,
+    stat: DashboardStat,
+    valueOf: (String) -> String,
+    modifier: Modifier = Modifier
+) {
+    val isEmpty = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
+    val accent = if (!isEmpty) metricAccentColor(key) else MaterialTheme.colorScheme.onSurfaceVariant
+    if (isEmpty) {
+        // Column-style cells live in COL2/COL3 layouts where horizontal space
+        // is tight (especially three side-by-side cells), so an "(empty)"
+        // word reads as crowded clutter. A single en-dash glyph is enough to
+        // signal "deliberately blank" without competing with the surrounding
+        // cells for attention.
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                "–",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                maxLines = 1
+            )
+        }
+        return
+    }
+    val label = metricChipLabel(key).uppercase()
+    val value = valueOf(key)
+    // Stat indicator on top — only shown when the rider picked a non-
+    // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
+    // the metric's accent so the cell reads as "MAX of SPEED" at a
+    // glance rather than the value alone being ambiguous.
+    val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
+    Box(
+        modifier = modifier.fillMaxHeight(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (showStat) {
+                Text(
+                    statShortLabel(stat),
+                    fontSize = 7.sp,
+                    color = accent.copy(alpha = 0.85f),
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp,
+                    maxLines = 1
+                )
+            }
+            Text(
+                label,
+                fontSize = 8.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                value,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = accent,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+/**
+ * ROW2 layout cell — label LEFT, value RIGHT. The 2-row composite is wide
+ * and short, so stacking label-above-value (the column form) wastes the
+ * horizontal space. Putting them side-by-side reads more like a row in a
+ * spec sheet ("SPEED   42 km/h"), which is what the rider asked for.
+ */
+@Composable
+private fun CompositeCellRow(
+    key: String,
+    stat: DashboardStat,
+    valueOf: (String) -> String,
+    modifier: Modifier = Modifier
+) {
+    val isEmpty = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
+    if (isEmpty) {
+        Box(
+            modifier = modifier.padding(horizontal = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                stringResource(R.string.dashboard_composite_empty_label),
+                fontSize = 10.sp,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        return
+    }
+    val accent = metricAccentColor(key)
+    val label = metricChipLabel(key).uppercase()
+    val value = valueOf(key)
+    val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
+    // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
+    // hold the leftover space after the value's natural width — that pins the
+    // value flush right while still ellipsising the label if it grows too long.
+    // Stat indicator (when present) sits as a small label INLINE with the
+    // metric label, separated by a · so the row reads as "MAX · SPEED  42".
+    Row(
+        modifier = modifier.padding(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (showStat) {
+            Text(
+                statShortLabel(stat),
+                fontSize = 8.sp,
+                color = accent.copy(alpha = 0.85f),
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+            Spacer(Modifier.width(4.dp))
+        }
+        Text(
+            label,
+            fontSize = 9.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.5.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            value,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            color = accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun MetricTile(
+    key: String,
+    value: String,
+    stats: MetricSlotStats,
+    slotIndex: Int,
+    modifier: Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    onTap: () -> Unit,
+    controller: DashboardDragController
+) {
+    val accent = metricAccentColor(key)
+    val label = metricChipLabel(key)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val hasSideReadings = !stats.isDefault
+    val isBeingDragged = controller.draggingKey == key
+    // Animated border when this slot is the drag's drop target — gives the
+    // rider visual feedback for "release here" without the recomposition
+    // glitches that mid-drag layout shifts caused.
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != key &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.METRIC
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) accent else outlineColor,
+        label = "metric-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "metric-tile-border-w"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = key,
+                value = value,
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "metric-slot-$slotIndex",
+                kind = DropKind.METRIC_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        // Drag state hides only the content — the border + surface stay so
+        // the slot reads as a clearly-marked empty placeholder for the tile
+        // the rider is holding.
+        Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            if (stats.sparkline) {
+                WavePatternBackground(accent = accent)
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 6.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                ThreeZoneRow(
+                    metricLabel = label,
+                    stats = stats,
+                    value = value,
+                    accent = accent,
+                    centerBigSp = if (hasSideReadings) 13 else 16,
+                    sideValueSp = 10,
+                    sideLabelSp = 9,
+                    metricLabelSp = 9
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Pool = catalog. Renders the metric template followed by every key in
+ * [catalogKeys] sorted alphabetically by its display label. Composite and
+ * custom-tile instances are NOT shown here — they live only in the grid;
+ * the catalog is the rider's source-of-truth list of static metrics.
+ *
+ * Drop behaviour (only fires when the drag started on a big grid tile —
+ * pool→pool drags are intentional no-ops):
+ *   - Composite tile → delete its definition
+ *   - Custom tile   → delete its definition
+ *   - Static metric → demote (slot becomes empty custom tile; the static
+ *     metric stays in the catalog so the rider can re-drag it)
+ *
+ * @param catalogKeys static metric keys present in the catalog
+ * @see SettingsViewModel.knownDashboardMetrics for the catalog source
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MetricPool(
+    catalogKeys: List<String>,
+    valueOf: (String) -> String,
+    statsEnabledOf: (String) -> Boolean,
+    onTap: (String) -> Unit,
+    onDeleteComposite: (String) -> Unit,
+    onDeleteCustomTile: (String) -> Unit,
+    onDemoteMetric: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    // metricChipLabel is @Composable (reads string resources), so resolve
+    // labels first then sort. Stable .uppercase() avoids locale-flips
+    // between "Speed" and "SPEED" when adding a metric.
+    val labeled = catalogKeys.map { it to metricChipLabel(it) }
+    val sorted = labeled.sortedBy { it.second.uppercase() }.map { it.first }
+    // Pool pill physical size in pixels — needs to live inside the composable
+    // since LocalDensity is composition-scoped. Used as the "shrink-back" size
+    // when a previously-grown pool pill is dragged back over this region.
+    val density = LocalDensity.current
+    val poolPillSizePx = androidx.compose.runtime.remember(density) {
+        with(density) { androidx.compose.ui.unit.IntSize(102.dp.roundToPx(), 52.dp.roundToPx()) }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            // Compact, scrollable pool: shows ~3.5 rows of pills so the half
+            // row peeking at the bottom hints that more content scrolls into
+            // view. Remaining pool items reveal via vertical scroll.
+            .heightIn(max = 210.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
+            .dashboardHintRegion(
+                key = "metric-pool",
+                sourceKind = DragSourceKind.METRIC,
+                expectedSizePx = poolPillSizePx,
+                controller = controller
+            )
+            // Pool handles three different "back to pool" actions in one
+            // drop target, distinguished by the source key:
+            //  - Composite tile → delete the composite definition
+            //  - Custom tile → delete the custom-tile definition
+            //  - Regular metric in active grid → demote: metric goes to the
+            //    pool, a fresh empty custom tile spawns in its place
+            // Template drags (COMPOSITE_TEMPLATE_KEY / CUSTOM_TILE_TEMPLATE_KEY)
+            // are rejected so dragging a template back here doesn't double-
+            // spawn anything. overrideExpectedSizePx shrinks the floating
+            // preview to pool-pill size on hover so the rider sees the
+            // "going back to pool" affordance regardless of which case fires.
+            .dashboardDropTarget(
+                key = "metric-pool-trash",
+                kind = DropKind.METRIC_POOL_TRASH,
+                controller = controller,
+                onDrop = { sourceKey ->
+                    // Only fire when the source was a big grid tile.
+                    // Pool→pool drags are no-ops (catalog stays full).
+                    if (controller.sourceFromGrid) {
+                        when {
+                            isCompositeMetricKey(sourceKey) -> onDeleteComposite(sourceKey)
+                            isCustomTileKey(sourceKey) -> onDeleteCustomTile(sourceKey)
+                            else -> onDemoteMetric(sourceKey)
+                        }
+                    }
+                },
+                acceptsSourceKey = { sourceKey ->
+                    sourceKey != COMPOSITE_TEMPLATE_KEY &&
+                        sourceKey != CUSTOM_TILE_TEMPLATE_KEY
+                },
+                overrideExpectedSizePx = poolPillSizePx
+            )
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp)
+    ) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Composite template sits at the head of the pool as an always-
+            // available source. Dragging it onto a grid slot spawns a new
+            // composite instance.
+            MetricCompositeTemplatePill(controller = controller)
+            // CustomTileTemplatePill is intentionally hidden — riders create
+            // custom tiles implicitly by dragging a regular metric back to
+            // the pool. The template pill code is preserved so we can
+            // re-surface it later if we want explicit creation.
+            sorted.forEach { key ->
+                MetricPoolPill(
+                    key = key,
+                    value = valueOf(key),
+                    statsEnabled = statsEnabledOf(key),
+                    onTap = onTap,
+                    controller = controller
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetricCompositeTemplatePill(
+    controller: DashboardDragController
+) {
+    val outlineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    val labelColor = MaterialTheme.colorScheme.primary
+    val density = LocalDensity.current
+    val dashSpec = remember(density) {
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = with(density) { 1.5.dp.toPx() },
+            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                floatArrayOf(
+                    with(density) { 4.dp.toPx() },
+                    with(density) { 3.dp.toPx() }
+                )
+            )
+        )
+    }
+    val cornerRadiusPx = with(density) { 10.dp.toPx() }
+    val isBeingDragged = controller.draggingKey == COMPOSITE_TEMPLATE_KEY
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(52.dp)
+            .drawBehind {
+                // Dashed rounded-rect outline drawn manually because Compose's
+                // `border` modifier doesn't accept a PathEffect for dashes.
+                drawRoundRect(
+                    color = outlineColor,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
+                    style = dashSpec
+                )
+            }
+            // Templates use the metric drag-source so the controller treats
+            // them like a pool pill. The downstream drop callback distinguishes
+            // template key from a real key and routes to createCompositeMetricAt
+            // instead of moveDashboardMetricToIndex.
+            .dashboardDragSource(
+                key = COMPOSITE_TEMPLATE_KEY,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 4.dp)
+                .alpha(if (isBeingDragged) 0.4f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = labelColor,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                stringResource(R.string.dashboard_composite_template_label),
+                fontSize = 9.sp,
+                color = labelColor,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Pool source pill for the rider's custom-text/URL/QR tile. Same dashed
+ * outline as the + STACK template so the two read as paired "drag me onto
+ * a slot to add a special tile" actions.
+ */
+@Composable
+private fun CustomTileTemplatePill(
+    controller: DashboardDragController
+) {
+    val outlineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    val labelColor = MaterialTheme.colorScheme.primary
+    val density = LocalDensity.current
+    val dashSpec = remember(density) {
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = with(density) { 1.5.dp.toPx() },
+            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                floatArrayOf(
+                    with(density) { 4.dp.toPx() },
+                    with(density) { 3.dp.toPx() }
+                )
+            )
+        )
+    }
+    val cornerRadiusPx = with(density) { 10.dp.toPx() }
+    val isBeingDragged = controller.draggingKey == CUSTOM_TILE_TEMPLATE_KEY
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(52.dp)
+            .drawBehind {
+                drawRoundRect(
+                    color = outlineColor,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
+                    style = dashSpec
+                )
+            }
+            .dashboardDragSource(
+                key = CUSTOM_TILE_TEMPLATE_KEY,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 4.dp)
+                .alpha(if (isBeingDragged) 0.4f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = labelColor,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                stringResource(R.string.dashboard_custom_tile_template_label),
+                fontSize = 9.sp,
+                color = labelColor,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Custom tile renderer for both grid slots and drag preview. Shows the
+ * rider's chosen icon and text. When the text is blank but a URL is set
+ * (OPEN_URL / SHOW_QR action), falls back to the URL's domain so the tile
+ * stays informative even before the rider types a label. A small action
+ * badge in the bottom-right marks the tap behaviour (link / QR) so a
+ * passenger can read the tile type at a glance.
+ */
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+@Composable
+private fun CustomTileView(
+    id: String,
+    tile: CustomTile,
+    slotIndex: Int,
+    modifier: Modifier,
+    onTap: () -> Unit,
+    onSwapInto: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.primary
+    val isBeingDragged = controller.draggingKey == id
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != id &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.METRIC
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) accent else outlineColor,
+        label = "custom-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "custom-tile-border-w"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "metric-slot-$slotIndex",
+                kind = DropKind.METRIC_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            CustomTileBody(tile = tile)
+            // Action badge — small icon hugging the bottom-right corner.
+            // Tells the rider at a glance whether tapping the tile will
+            // launch a browser or show a QR code popup.
+            val badge = actionBadgeIcon(tile.action)
+            if (badge != null) {
+                Icon(
+                    badge,
+                    contentDescription = null,
+                    tint = accent.copy(alpha = 0.85f),
+                    modifier = Modifier
+                        .size(14.dp)
+                        .padding(0.dp)
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 4.dp, bottom = 3.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Inner body of a custom tile (icon + text, with domain fallback for blank
+ * text). Public-internal so the live dashboard renders the same content; the
+ * editor adds the dashed-border drag-source wrapper, the live dashboard adds
+ * the actual tap-action handler.
+ */
+@Composable
+fun CustomTileBody(tile: CustomTile) {
+    val labelOrFallback = tile.text.ifBlank { extractDomainHint(tile.url) }
+    val labelColor = if (tile.text.isBlank() && tile.url.isBlank())
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+        else MaterialTheme.colorScheme.onSurfaceVariant
+    val labelStyle = if (tile.text.isBlank() && tile.url.isBlank())
+        androidx.compose.ui.text.font.FontStyle.Italic
+        else androidx.compose.ui.text.font.FontStyle.Normal
+    val displayText = labelOrFallback.ifBlank { stringResource(R.string.dashboard_composite_empty_label) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 6.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            groupIconFor(tile.icon),
+            contentDescription = null,
+            modifier = Modifier.size(22.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            displayText,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            fontStyle = labelStyle,
+            color = labelColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+/** Picks the small bottom-right badge icon based on the rider's tap-action
+ *  choice. None = no badge (tile is display-only). */
+internal fun actionBadgeIcon(action: CustomTileAction): ImageVector? = when (action) {
+    CustomTileAction.NONE -> null
+    CustomTileAction.OPEN_URL -> Icons.Filled.Link
+    CustomTileAction.SHOW_QR -> Icons.Filled.QrCode2
+}
+
+/**
+ * Strips a URL down to a short domain hint suitable as a fallback tile
+ * label. Drops scheme, "www.", and any path so "https://www.instagram.com/foo"
+ * reads as "instagram.com". Returns the input verbatim when it doesn't look
+ * like a URL the rider can recognise.
+ */
+internal fun extractDomainHint(url: String): String {
+    if (url.isBlank()) return ""
+    val noScheme = url
+        .substringAfter("://", missingDelimiterValue = url)
+        .substringAfter("@", missingDelimiterValue = url.substringAfter("://", url))
+    val host = noScheme.substringBefore("/").substringBefore("?").substringBefore("#")
+    val trimmed = host.removePrefix("www.").trim()
+    return trimmed.ifBlank { url }
+}
+
+
+/**
+ * Pool-sized variant of a composite tile. Same swap-with-grid drag semantics
+ * as a regular pool pill, but renders the composite's actual layout + cells
+ * inside the 102×52 pill so the rider sees what they have rather than the
+ * raw "M:abc12345" ID. Tap routes to the composite edit sheet.
+ */
+@Composable
+private fun CompositePoolPill(
+    id: String,
+    composite: MetricComposite,
+    valueOf: (String) -> String,
+    onTap: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val isBeingDragged = controller.draggingKey == id
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(52.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .clickable { onTap(id) }
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(if (isBeingDragged) 0f else 1f)
+        ) {
+            CompositeMetricBody(composite = composite, valueOf = valueOf)
+        }
+    }
+}
+
+/**
+ * Pool-sized variant of a custom tile. Renders the icon + text exactly like
+ * a grid tile so a custom tile that ends up in the pool (via swap with a
+ * pool metric) shows up as itself rather than the raw "C:abc12345" ID.
+ */
+@Composable
+private fun CustomTilePoolPill(
+    id: String,
+    tile: CustomTile,
+    onTap: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.primary
+    val isBeingDragged = controller.draggingKey == id
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(52.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .clickable { onTap(id) }
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            CustomTileBody(tile = tile)
+            actionBadgeIcon(tile.action)?.let { badge ->
+                Icon(
+                    badge,
+                    contentDescription = null,
+                    tint = accent.copy(alpha = 0.85f),
+                    modifier = Modifier
+                        .size(12.dp)
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 4.dp, bottom = 3.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetricPoolPill(
+    key: String,
+    value: String,
+    statsEnabled: Boolean,
+    onTap: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val accent = metricAccentColor(key)
+    val label = metricChipLabel(key)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val isBeingDragged = controller.draggingKey == key
+    // Sized so three pills + two 6dp gaps fit inside the pool container at
+    // phone width (~360dp usable after section + container padding).
+    val supportsStats = metricSupportsStats(key)
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(52.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .clickable { onTap(key) }
+            .dashboardDragSource(
+                key = key,
+                value = value,
+                sourceKind = DragSourceKind.METRIC,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        // Sparkline background mirrors the grid tiles' style. Three states:
+        // active (full accent), dimmed (gray ghost — disabled but available
+        // to re-enable on tap), or absent (metric doesn't support stats —
+        // counters / heading). No corner icon: the wave itself is the
+        // indicator.
+        if (supportsStats) {
+            val waveColor = if (statsEnabled) accent
+                else MaterialTheme.colorScheme.onSurfaceVariant
+            WavePatternBackground(
+                accent = waveColor,
+                dimmed = !statsEnabled,
+                modifier = Modifier.alpha(if (isBeingDragged) 0f else 1f)
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 4.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                label.uppercase(),
+                fontSize = 9.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.height(1.dp))
+            Text(
+                value,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = accent,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+// ---- Action grid -------------------------------------------------------
+
+@OptIn(androidx.compose.animation.ExperimentalSharedTransitionApi::class)
+@Composable
+private fun ActionMiniGrid(
+    order: List<String>,
+    activeCount: Int,
+    columns: Int,
+    groupOf: (String) -> ActionGroup?,
+    onSwapInto: (String, Int) -> Unit,
+    onTapTile: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val active = order.take(activeCount)
+    val rows = (active.size + columns - 1) / columns
+    androidx.compose.ui.layout.LookaheadScope {
+        val lookahead = this
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            for (rowIdx in 0 until rows) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    for (colIdx in 0 until columns) {
+                        val slotIndex = rowIdx * columns + colIdx
+                        val key = active.getOrNull(slotIndex)
+                        if (key != null) {
+                            androidx.compose.runtime.key(key) {
+                                val tileMod = Modifier
+                                    .weight(1f)
+                                    .height(86.dp)
+                                    .animateBounds(
+                                        lookaheadScope = lookahead,
+                                        boundsTransform = dashboardTileBoundsTransform
+                                    )
+                                if (isActionGroupKey(key)) {
+                                    val group = groupOf(key) ?: ActionGroup()
+                                    ActionGroupTile(
+                                        id = key,
+                                        group = group,
+                                        slotIndex = slotIndex,
+                                        modifier = tileMod,
+                                        onSwapInto = onSwapInto,
+                                        onTap = { onTapTile(key, slotIndex) },
+                                        controller = controller
+                                    )
+                                } else {
+                                    ActionTile(
+                                        key = key,
+                                        slotIndex = slotIndex,
+                                        modifier = tileMod,
+                                        onSwapInto = onSwapInto,
+                                        onTap = { onTapTile(key, slotIndex) },
+                                        controller = controller
+                                    )
+                                }
+                            }
+                        } else {
+                            Box(modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionTile(
+    key: String,
+    slotIndex: Int,
+    modifier: Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    onTap: () -> Unit,
+    controller: DashboardDragController
+) {
+    val icon = dashboardActionIcon(key)
+    val label = actionChipLabel(key)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.primary
+    val isBeingDragged = controller.draggingKey == key
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != key &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.ACTION
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) accent else outlineColor,
+        label = "action-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "action-tile-border-w"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = key,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "action-slot-$slotIndex",
+                kind = DropKind.ACTION_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        // Icon anchored at a fixed top offset so the cluster reads as
+        // visually centred for a 1-line label, and a 2-line label simply
+        // extends below the icon without pushing the icon up. Math: 86dp
+        // tile minus (26dp icon + 4dp gap + 14dp 1-line text) = 42dp of
+        // free space, halved = 21dp top padding for true centre.
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 4.dp, end = 4.dp, top = 21.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(4.dp))
+            }
+            Text(
+                label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/**
+ * Resolves a curated [GROUP_ICON_CHOICES] key to a Material icon. Used by
+ * both [ActionGroupTile] and the icon picker in [ActionGroupSheet] so the
+ * tile preview and the picker stay in sync — change one key here, both
+ * surfaces update.
+ */
+internal fun groupIconFor(key: String): ImageVector = when (key) {
+    "FOLDER" -> Icons.Filled.Folder
+    "STAR" -> Icons.Filled.Star
+    "BOLT" -> Icons.Filled.Bolt
+    "FAVORITE" -> Icons.Filled.Favorite
+    "DASHBOARD" -> Icons.Filled.Dashboard
+    "EXTENSION" -> Icons.Filled.Extension
+    "TUNE" -> Icons.Filled.Tune
+    "WIDGETS" -> Icons.Filled.Widgets
+    "APPS" -> Icons.Filled.Apps
+    "BUILD" -> Icons.Filled.Build
+    "HOME" -> Icons.Filled.Home
+    "PERSON" -> Icons.Filled.Person
+    "SETTINGS" -> Icons.Filled.Settings
+    "SHIELD" -> Icons.Filled.Shield
+    "MAP" -> Icons.Filled.Map
+    "PHOTO_CAMERA" -> Icons.Filled.PhotoCamera
+    "MUSIC_NOTE" -> Icons.Filled.MusicNote
+    "PHONE" -> Icons.Filled.Phone
+    "WIFI" -> Icons.Filled.Wifi
+    "SEARCH" -> Icons.Filled.Search
+    "SAVE" -> Icons.Filled.Save
+    "SEND" -> Icons.Filled.Send
+    "SHARE" -> Icons.Filled.Share
+    "EDIT" -> Icons.Filled.Edit
+    "REFRESH" -> Icons.Filled.Refresh
+    "DONE" -> Icons.Filled.Done
+    "INFO" -> Icons.Filled.Info
+    "WARNING" -> Icons.Filled.Warning
+    "NOTIFICATIONS" -> Icons.Filled.Notifications
+    "LINK" -> Icons.Filled.Link
+    else -> Icons.Filled.Folder
+}
+
+/**
+ * Action-group tile. Renders the rider's chosen icon + name. Tap opens the
+ * group edit sheet; long-press drags the whole group as a single unit (the
+ * sub-actions move with it). Same drop-target semantics as a regular
+ * [ActionTile] so the rider can swap a group with a plain action.
+ */
+@Composable
+private fun ActionGroupTile(
+    id: String,
+    group: ActionGroup,
+    slotIndex: Int,
+    modifier: Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    onTap: () -> Unit,
+    controller: DashboardDragController
+) {
+    val icon = groupIconFor(group.icon)
+    val label = group.name.ifBlank { stringResource(R.string.dashboard_group_default_name) }
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.primary
+    val isBeingDragged = controller.draggingKey == id
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != id &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.ACTION
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) accent else outlineColor,
+        label = "group-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "group-tile-border-w"
+    )
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "action-slot-$slotIndex",
+                kind = DropKind.ACTION_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 4.dp, end = 4.dp, top = 21.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+                // Tinted with the accent so the group reads as "different
+                // from a plain action" without needing a separate badge.
+                tint = accent
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/**
+ * Action pool = catalog. Renders the group template followed by every key
+ * in [catalogKeys] sorted alphabetically by display label. Action groups
+ * are dynamic instances and only live in the grid — pool drops only handle
+ * group deletion. Pool→pool drags of static actions land as no-ops because
+ * a static action can't be "removed" from the catalog.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ActionPool(
+    catalogKeys: List<String>,
+    onTap: (String) -> Unit,
+    onDeleteGroup: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val labeled = catalogKeys.map { it to actionChipLabel(it) }
+    val sorted = labeled.sortedBy { it.second.uppercase() }.map { it.first }
+    val density = LocalDensity.current
+    val poolPillSizePx = androidx.compose.runtime.remember(density) {
+        with(density) { androidx.compose.ui.unit.IntSize(102.dp.roundToPx(), 66.dp.roundToPx()) }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(max = 254.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
+            .dashboardHintRegion(
+                key = "action-pool",
+                sourceKind = DragSourceKind.ACTION,
+                expectedSizePx = poolPillSizePx,
+                controller = controller
+            )
+            // Trash for action-group instances. The predicate ensures regular
+            // pool pills and the template drag pass through unaffected, and
+            // overrideExpectedSizePx previews the tile shrinking to pool-pill
+            // size so the rider sees "this is being deleted" instead of the
+            // tile growing to fill the whole pool.
+            .dashboardDropTarget(
+                key = "action-pool-trash",
+                kind = DropKind.ACTION_POOL_TRASH,
+                controller = controller,
+                onDrop = { sourceKey ->
+                    // Only grid-sourced groups get deleted. Static actions
+                    // can't be removed from the catalog; pool→pool drags
+                    // are no-ops by the same rule.
+                    if (controller.sourceFromGrid && isActionGroupKey(sourceKey)) {
+                        onDeleteGroup(sourceKey)
+                    }
+                },
+                acceptsSourceKey = { sourceKey -> isActionGroupKey(sourceKey) },
+                overrideExpectedSizePx = poolPillSizePx
+            )
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp)
+    ) {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Group template lives at the head of the pool as an always-
+            // available source. Dragging it onto a grid slot spawns a new
+            // group instance; the template stays here because we render it
+            // unconditionally rather than from the order list.
+            ActionGroupTemplatePill(controller = controller)
+            sorted.forEach { key ->
+                ActionPoolPill(key = key, onTap = onTap, controller = controller)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ActionGroupTemplatePill(
+    controller: DashboardDragController
+) {
+    val outlineColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+    val labelColor = MaterialTheme.colorScheme.primary
+    val density = LocalDensity.current
+    val dashSpec = remember(density) {
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = with(density) { 1.5.dp.toPx() },
+            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                floatArrayOf(
+                    with(density) { 4.dp.toPx() },
+                    with(density) { 3.dp.toPx() }
+                )
+            )
+        )
+    }
+    val cornerRadiusPx = with(density) { 10.dp.toPx() }
+    val isBeingDragged = controller.draggingKey == ACTION_GROUP_TEMPLATE_KEY
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(66.dp)
+            .drawBehind {
+                drawRoundRect(
+                    color = outlineColor,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
+                    style = dashSpec
+                )
+            }
+            // Same action-source semantics as a pool pill — the controller
+            // treats this drag like a regular action move and the downstream
+            // drop callback routes the template key to createActionGroupAt.
+            .dashboardDragSource(
+                key = ACTION_GROUP_TEMPLATE_KEY,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 6.dp)
+                .alpha(if (isBeingDragged) 0.4f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = labelColor,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.dashboard_group_template_label),
+                fontSize = 10.sp,
+                color = labelColor,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Pool-sized variant of an action-group tile. Same drag-to-grid semantics
+ * as [ActionPoolPill] but renders the group's chosen icon + name inside
+ * the 102×66 pool pill so a group dragged into the pool (via swap) shows
+ * up as itself rather than the raw "G:abc12345" key.
+ */
+@Composable
+private fun ActionGroupPoolPill(
+    id: String,
+    group: ActionGroup,
+    onTap: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val icon = groupIconFor(group.icon)
+    val label = group.name.ifBlank { stringResource(R.string.dashboard_group_default_name) }
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.primary
+    val isBeingDragged = controller.draggingKey == id
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(66.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .clickable { onTap(id) }
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 4.dp, vertical = 6.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+                tint = accent
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                label,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+private fun ActionPoolPill(
+    key: String,
+    onTap: (String) -> Unit,
+    controller: DashboardDragController
+) {
+    val icon = dashboardActionIcon(key)
+    val label = actionChipLabel(key)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val isBeingDragged = controller.draggingKey == key
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(66.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(1.dp, outlineColor, RoundedCornerShape(10.dp))
+            .clickable { onTap(key) }
+            .dashboardDragSource(
+                key = key,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 4.dp, end = 4.dp, top = 16.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(3.dp))
+            }
+            Text(
+                label,
+                fontSize = 9.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+// ---- Per-slot bottom sheet --------------------------------------------
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DashboardSlotSheet(
+    target: DashboardEditTarget,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            when (target) {
+                is DashboardEditTarget.Metric -> {
+                    val stats = viewModel.dashboardMetricSlotStats(settings, target.key)
+                    SlotSheetMetricPreview(
+                        key = target.key,
+                        stats = stats,
+                        valueOf = { metricPlaceholderValue(target.key, settings) },
+                        onSparklineChange = { enabled ->
+                            viewModel.updateDashboardMetricSparkline(target.key, enabled)
+                        }
+                    )
+                    metricDescription(target.key)?.let { MetricInfoBox(it) }
+                    SlotStatsEditor(
+                        key = target.key,
+                        stats = stats,
+                        onCornerChange = { corner, stat ->
+                            viewModel.updateDashboardMetricSlotStat(target.key, corner, stat)
+                        }
+                    )
+                }
+                is DashboardEditTarget.Action -> SlotSheetActionPreview(target.key)
+                // Composite, group + custom-tile instances route to their
+                // dedicated sheets upstream so these branches are unreachable;
+                // keeping them for `when` exhaustiveness.
+                is DashboardEditTarget.Composite,
+                is DashboardEditTarget.Group,
+                is DashboardEditTarget.CustomTile -> Unit
+            }
+            SlotSheetFooter(onReset, onDismiss)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Edit sheet for a composite-metric instance. Lets the rider pick the layout
+ * (2-row, 2-col, 3-col) and which sub-metrics fill each cell. Deliberately
+ * stats-free; the rider deletes the instance by dragging the tile off the
+ * grid OR by hitting "Default metric" — which restores the slot to its
+ * shipped occupant and removes the composite definition.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CompositeMetricSheet(
+    id: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val composite = viewModel.getCompositeMetric(settings, id) ?: MetricComposite()
+    // Composite sheets now carry two dropdown rows per cell (metric +
+    // stat) plus the preview + layout switcher, so the default half-
+    // height bottom sheet feels cramped. Skip the partial state so
+    // the sheet opens at full height by default.
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var layout by remember(id, composite.layout) { mutableStateOf(composite.layout) }
+    val baseCells = remember(id, composite.cells) {
+        // Pad/truncate to 3 slots (the maximum any layout uses) so the
+        // dropdowns never reach for a missing index. EMPTY is the safe
+        // default for unused cells — switching to a wider layout reveals
+        // a blank slot rather than auto-injecting a duplicate metric.
+        val seeded = composite.cells + List(3) { COMPOSITE_CELL_EMPTY }
+        androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(seeded.take(3)) }
+    }
+    val baseStats = remember(id, composite.cellStats) {
+        val seeded = composite.cellStats + List(3) { DashboardStat.CURRENT }
+        androidx.compose.runtime.mutableStateListOf<DashboardStat>().apply { addAll(seeded.take(3)) }
+    }
+    val padded: List<String> = baseCells.take(layout.cellCount) +
+        List((layout.cellCount - baseCells.size).coerceAtLeast(0)) { COMPOSITE_CELL_EMPTY }
+    val paddedStats: List<DashboardStat> = baseStats.take(layout.cellCount) +
+        List((layout.cellCount - baseStats.size).coerceAtLeast(0)) { DashboardStat.CURRENT }
+
+    fun persist(newLayout: CompositeLayout, newCells: List<String>, newStats: List<DashboardStat>) {
+        viewModel.updateCompositeMetric(
+            id,
+            newLayout,
+            newCells.take(newLayout.cellCount),
+            newStats.take(newLayout.cellCount)
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Live preview of the composite using the current layout + cells.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+            ) {
+                CompositeMetricBody(
+                    composite = MetricComposite(layout, padded, paddedStats),
+                    valueOf = { k -> metricPlaceholderValue(k, settings) }
+                )
+            }
+
+            // Layout segmented control — three mutually-exclusive options
+            // (2 rows / 2 cols / 3 cols) feel more like a single switch
+            // when bound together as a segmented row rather than three
+            // independent chips. No title; the labels speak for themselves.
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = CompositeLayout.values()
+                options.forEachIndexed { index, lay ->
+                    SegmentedButton(
+                        selected = layout == lay,
+                        onClick = {
+                            layout = lay
+                            persist(lay, baseCells, baseStats)
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                    ) {
+                        Text(compositeLayoutLabel(lay))
+                    }
+                }
+            }
+
+            // Two-row picker per cell:
+            //   row 1 = which metric
+            //   row 2 = which stat (Now / Min / Max / Avg / percentiles…)
+            // 3 columns regardless of layout — cells past the active layout's
+            // cell count grey out instead of disappearing, so the row's
+            // overall height never jumps when the rider switches between
+            // ROW2/COL2 (2 cells) and COL3 (3 cells).
+            val cellCatalog = remember(viewModel) {
+                listOf(COMPOSITE_CELL_EMPTY) + viewModel.knownDashboardMetrics
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (cellIndex in 0 until 3) {
+                    val enabled = cellIndex < layout.cellCount
+                    CompositeCellDropdown(
+                        label = stringResource(R.string.dashboard_composite_cell_label, cellIndex + 1),
+                        currentKey = baseCells.getOrNull(cellIndex) ?: "SPEED",
+                        options = cellCatalog,
+                        enabled = enabled,
+                        onSelect = { newKey ->
+                            baseCells[cellIndex] = newKey
+                            persist(layout, baseCells, baseStats)
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                for (cellIndex in 0 until 3) {
+                    val enabled = cellIndex < layout.cellCount
+                    CompositeCellStatDropdown(
+                        currentStat = baseStats.getOrNull(cellIndex) ?: DashboardStat.CURRENT,
+                        enabled = enabled,
+                        onSelect = { newStat ->
+                            baseStats[cellIndex] = newStat
+                            persist(layout, baseCells, baseStats)
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            SlotSheetFooter(onReset, onDismiss)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Shared footer for every per-slot bottom sheet: Restore on the left,
+ * Close on the right. The "Restore slot" label is uniform across metric
+ * and action sheets so it translates as a single string.
+ */
+@Composable
+private fun SlotSheetFooter(
+    onReset: () -> Unit,
+    onClose: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = onReset) {
+            Icon(
+                Icons.Filled.Restore,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(stringResource(R.string.dashboard_restore_slot))
+        }
+        Spacer(Modifier.weight(1f))
+        FilledTonalButton(onClick = onClose) {
+            Text(stringResource(R.string.dashboard_close))
+        }
+    }
+}
+
+@Composable
+internal fun compositeLayoutLabel(layout: CompositeLayout): String = when (layout) {
+    CompositeLayout.ROW2 -> stringResource(R.string.dashboard_composite_layout_row2)
+    CompositeLayout.COL2 -> stringResource(R.string.dashboard_composite_layout_col2)
+    CompositeLayout.COL3 -> stringResource(R.string.dashboard_composite_layout_col3)
+}
+
+/**
+ * Dropdown letting the rider choose which catalog metric fills a composite
+ * cell. Reuses the same `metricChipLabel` mapping the rest of the editor
+ * uses so labels stay in sync. [enabled] is false for cells past the
+ * active layout's cell count — the field greys out instead of disappearing
+ * so the row's footprint stays stable as the rider switches layouts.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CompositeCellDropdown(
+    label: String,
+    currentKey: String,
+    options: List<String>,
+    enabled: Boolean,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = metricChipLabel(currentKey),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            enabled = enabled,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded && enabled,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { key ->
+                DropdownMenuItem(
+                    text = { Text(metricChipLabel(key)) },
+                    onClick = {
+                        onSelect(key)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Stat picker dropdown used under each composite cell. Lets the rider
+ * choose what the cell shows for its metric: Now (live value), Min, Max,
+ * Avg, Sustained peak, Median, P75, P95, P99 — all computed from the
+ * rolling history buffer for that metric. Greys out when the parent cell
+ * is past the active layout's cell count.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CompositeCellStatDropdown(
+    currentStat: DashboardStat,
+    enabled: Boolean,
+    onSelect: (DashboardStat) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = remember {
+        // Same option list the History screen used to expose. NONE is
+        // omitted because "show nothing in this cell" already has its
+        // own mechanism (the EMPTY metric key on the row above).
+        listOf(
+            DashboardStat.CURRENT,
+            DashboardStat.MIN,
+            DashboardStat.MAX,
+            DashboardStat.AVG,
+            DashboardStat.SUSTAINED_PEAK,
+            DashboardStat.MEDIAN,
+            DashboardStat.P75,
+            DashboardStat.P95,
+            DashboardStat.P99
+        )
+    }
+    ExposedDropdownMenuBox(
+        expanded = expanded && enabled,
+        onExpandedChange = { if (enabled) expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = compositeCellStatLabel(currentStat),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            enabled = enabled,
+            label = { Text(stringResource(R.string.metric_detail_show_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded && enabled,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { opt ->
+                DropdownMenuItem(
+                    text = { Text(compositeCellStatLabel(opt)) },
+                    onClick = {
+                        onSelect(opt)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
+    DashboardStat.NONE -> "—"
+    DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
+    DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
+    DashboardStat.MAX -> stringResource(R.string.dashboard_stat_max)
+    DashboardStat.SUSTAINED_PEAK -> stringResource(R.string.dashboard_stat_sustained_peak)
+    DashboardStat.AVG -> stringResource(R.string.dashboard_stat_avg)
+    DashboardStat.MEDIAN -> stringResource(R.string.dashboard_stat_median)
+    DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75)
+    DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95)
+    DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99)
+}
+
+/**
+ * Edit sheet for an action-group instance. Lets the rider rename the group,
+ * pick its tile icon from a curated 10-icon set, and configure up to four
+ * sub-actions in chosen order. Duplicate sub-actions are allowed (the rider
+ * may want the same action twice in a popover — e.g. two RECORD_TOGGLE
+ * entries). No reset / delete buttons — deletion happens by dragging the
+ * tile back to the pool.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ActionGroupSheet(
+    id: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val group = viewModel.getActionGroup(settings, id) ?: ActionGroup()
+    val sheetState = rememberModalBottomSheetState()
+    val defaultName = stringResource(R.string.dashboard_group_default_name)
+    var name by remember(id, group.name) { mutableStateOf(group.name) }
+    var icon by remember(id, group.icon) { mutableStateOf(group.icon) }
+    val actionSlots = remember(id, group.actions) {
+        val seeded = group.actions + List(4) { "" }
+        androidx.compose.runtime.mutableStateListOf<String>().apply { addAll(seeded.take(4)) }
+    }
+
+    fun persist() {
+        viewModel.updateActionGroup(
+            id = id,
+            name = name,
+            icon = icon,
+            actions = actionSlots.filter { it.isNotEmpty() }
+        )
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Preview tile intentionally omitted — the icon-picker button
+            // already shows what the group's icon looks like, and the
+            // name field shows the label. A full-width preview here would
+            // duplicate both for no extra information.
+
+            // Compact name + icon row. The icon lives as a leading button
+            // inside the OutlinedTextField's row so the picker takes zero
+            // extra vertical space — the rider can scan through icons from
+            // a popup grid without scrolling the sheet.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Wrap in a top-padded Box so the icon-button centers
+                // against the labelled OutlinedTextField (the floating
+                // label adds ~8dp at the top). Mirrors the CustomTileSheet
+                // icon-text band.
+                Box(
+                    modifier = Modifier.padding(top = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    GroupIconButton(
+                        currentKey = icon,
+                        onSelect = {
+                            icon = it
+                            persist()
+                        }
+                    )
+                }
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = {
+                        name = it
+                        persist()
+                    },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.dashboard_group_name_label)) },
+                    placeholder = { Text(defaultName) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Four sub-action dropdowns in a 2x2 grid. (none) is the
+            // first option so the rider can leave a slot empty — useful
+            // for groups with fewer than four actions. Packing two per
+            // row keeps the sheet from getting tall, and the labels on
+            // each field communicate which slot they map to.
+            val actionOptions = remember(viewModel) {
+                listOf("") + viewModel.knownDashboardActions
+            }
+            for (rowIdx in 0 until 2) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    for (col in 0 until 2) {
+                        val slotIdx = rowIdx * 2 + col
+                        ActionGroupSlotDropdown(
+                            label = stringResource(
+                                R.string.dashboard_group_action_slot,
+                                slotIdx + 1
+                            ),
+                            currentKey = actionSlots.getOrNull(slotIdx) ?: "",
+                            options = actionOptions,
+                            onSelect = { newKey ->
+                                actionSlots[slotIdx] = newKey
+                                persist()
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            SlotSheetFooter(onReset, onDismiss)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Square icon-button that shows the currently-chosen group/custom-tile
+ * icon. Tapping it pops a grid of curated icons; selecting one closes
+ * the popup. Lives next to the name OutlinedTextField in the edit sheet
+ * so the picker contributes zero extra vertical space — and scales to
+ * arbitrarily many icons via the popup's internal scroll.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun GroupIconButton(
+    currentKey: String,
+    onSelect: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val outline = MaterialTheme.colorScheme.outline
+    Box {
+        // Anchor — matches OutlinedTextField height so the row aligns
+        // visually with the name field next to it.
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, outline, RoundedCornerShape(8.dp))
+                .clickable { expanded = true },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                groupIconFor(currentKey),
+                contentDescription = null,
+                modifier = Modifier.size(26.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.width(264.dp)
+        ) {
+            // 6-wide grid inside a fixed-width popup keeps icons square
+            // and visible without scrolling for the first ~30 icons.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .padding(8.dp)
+                    .heightIn(max = 280.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                GROUP_ICON_CHOICES.forEach { key ->
+                    val selected = key == currentKey
+                    val tint = if (selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    val bg = if (selected) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surfaceVariant
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(bg)
+                            .clickable {
+                                onSelect(key)
+                                expanded = false
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            groupIconFor(key),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = tint
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Dropdown for picking a sub-action in the group edit sheet. Empty string
+ * means "no action assigned" and renders as a faint placeholder.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ActionGroupSlotDropdown(
+    label: String,
+    currentKey: String,
+    options: List<String>,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val noneLabel = stringResource(R.string.dashboard_group_action_none)
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = if (currentKey.isEmpty()) noneLabel else actionChipLabel(currentKey),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { key ->
+                DropdownMenuItem(
+                    text = { Text(if (key.isEmpty()) noneLabel else actionChipLabel(key)) },
+                    onClick = {
+                        onSelect(key)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Edit sheet for a custom tile (rider's text + icon + optional tap action).
+ * Icon picker shares [GroupIconButton] with the action-group sheet so both
+ * sheets feel like one editor family. Action picker is a 3-item segmented
+ * control (None / URL / QR); the URL field only renders for the URL/QR
+ * choices so the sheet stays compact for plain text labels.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomTileSheet(
+    id: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val tile = viewModel.getCustomTile(settings, id) ?: CustomTile()
+    val sheetState = rememberModalBottomSheetState()
+    var text by remember(id, tile.text) { mutableStateOf(tile.text) }
+    var icon by remember(id, tile.icon) { mutableStateOf(tile.icon) }
+    var action by remember(id, tile.action) { mutableStateOf(tile.action) }
+    var url by remember(id, tile.url) { mutableStateOf(tile.url) }
+
+    fun persist() = viewModel.updateCustomTile(id, text, icon, action, url)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Live tile preview using the rider's current draft values.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(110.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp))
+            ) {
+                CustomTileBody(
+                    tile = CustomTile(text = text, icon = icon, action = action, url = url)
+                )
+                actionBadgeIcon(action)?.let { badge ->
+                    Icon(
+                        badge,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                        modifier = Modifier
+                            .size(18.dp)
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 8.dp, bottom = 6.dp)
+                    )
+                }
+            }
+
+            // Compact icon + text row. The icon button is sized to match the
+            // OutlinedTextField (56dp tall) and centred so the two controls
+            // read as one band — no top-edge drift.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier.padding(top = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    GroupIconButton(
+                        currentKey = icon,
+                        onSelect = {
+                            icon = it
+                            persist()
+                        }
+                    )
+                }
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = {
+                        text = it
+                        persist()
+                    },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.dashboard_custom_tile_text_label)) },
+                    placeholder = {
+                        Text(stringResource(R.string.dashboard_custom_tile_text_placeholder))
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            // Three-way segmented control: Text (no action), Open URL,
+            // Show QR. NONE reads as "Text" because a custom tile with no
+            // action is just a label — the rider already named it via the
+            // text field above.
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                CustomTileAction.values().forEachIndexed { index, opt ->
+                    SegmentedButton(
+                        selected = action == opt,
+                        onClick = {
+                            action = opt
+                            persist()
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index, CustomTileAction.values().size),
+                        icon = {
+                            actionBadgeIcon(opt)?.let { v ->
+                                Icon(v, contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    ) {
+                        Text(customTileActionLabel(opt))
+                    }
+                }
+            }
+
+            if (action != CustomTileAction.NONE) {
+                // Rotating placeholder so the rider sees a different social /
+                // donation / portfolio URL each time the sheet opens — keeps
+                // the field from feeling Instagram-only. MySpace shows up
+                // roughly 1-in-25 times as a nod to early-web nostalgia.
+                val placeholder = remember(id) { urlPlaceholderSample() }
+                OutlinedTextField(
+                    value = url,
+                    onValueChange = {
+                        url = it
+                        persist()
+                    },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.dashboard_custom_tile_url_label)) },
+                    placeholder = { Text(placeholder) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            SlotSheetFooter(onReset, onDismiss)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+internal fun customTileActionLabel(action: CustomTileAction): String = when (action) {
+    CustomTileAction.NONE -> stringResource(R.string.dashboard_custom_tile_action_none)
+    CustomTileAction.OPEN_URL -> stringResource(R.string.dashboard_custom_tile_action_url)
+    CustomTileAction.SHOW_QR -> stringResource(R.string.dashboard_custom_tile_action_qr)
+}
+
+/**
+ * Picks a random URL sample for the custom-tile URL field placeholder so the
+ * rider sees a variety of services (social, donation, portfolio) instead of
+ * always-Instagram. MySpace is intentionally rare (~4%) as a nostalgic
+ * easter-egg for riders who'll catch the reference.
+ */
+private fun urlPlaceholderSample(): String {
+    val common = listOf(
+        "https://instagram.com/your-handle",
+        "https://x.com/your-handle",
+        "https://tiktok.com/@your-handle",
+        "https://youtube.com/@your-channel",
+        "https://patreon.com/your-handle",
+        "https://buymeacoffee.com/your-handle",
+        "https://ko-fi.com/your-handle",
+        "https://paypal.me/your-handle",
+        "https://github.com/your-handle",
+        "https://threads.net/@your-handle",
+        "https://reddit.com/u/your-handle",
+        "https://linkedin.com/in/your-handle",
+        "https://discord.gg/your-server",
+        "https://twitch.tv/your-channel"
+    )
+    // 4% chance to surface the MySpace easter egg.
+    return if (kotlin.random.Random.nextInt(25) == 0) {
+        "https://myspace.com/your-handle"
+    } else {
+        common.random()
+    }
+}
+
+@Composable
+private fun SlotSheetMetricPreview(
+    key: String,
+    stats: MetricSlotStats,
+    valueOf: () -> String,
+    onSparklineChange: (Boolean) -> Unit
+) {
+    val accent = metricAccentColor(key)
+    val label = metricChipLabel(key)
+    val value = valueOf()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        if (stats.sparkline) {
+            WavePatternBackground(accent = accent, animated = true)
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            ThreeZoneRow(
+                metricLabel = label,
+                stats = stats,
+                value = value,
+                accent = accent,
+                centerBigSp = 30,
+                sideValueSp = 18,
+                sideLabelSp = 11,
+                metricLabelSp = 11
+            )
+        }
+        // The trend-background toggle lives on the artifact it controls: a
+        // small FilterChip in the top-right corner of the preview. When
+        // selected the chip fills with secondaryContainer and shows a check
+        // alongside the line-chart icon; when unselected it's outlined.
+        // Tapping toggles the wave background instantly.
+        FilterChip(
+            selected = stats.sparkline,
+            onClick = { onSparklineChange(!stats.sparkline) },
+            // Default Material typography so the label baseline aligns
+            // naturally with the leading icon — overriding fontSize here
+            // throws off the chip's internal centering.
+            label = { Text(stringResource(R.string.dashboard_slot_sparkline_chip)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.BarChart,
+                    contentDescription = stringResource(R.string.dashboard_slot_sparkline),
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                // Asymmetric inset: 2dp from the top so the chip hugs the
+                // upper edge, full 8dp on the right so it clears the
+                // rounded corner.
+                .padding(top = 2.dp, end = 8.dp)
+        )
+    }
+}
+
+/**
+ * Renders the three columns (left / center / right) for a metric tile.
+ *
+ * The metric name lives ONLY in the centre column's label area, so the rider
+ * always reads the tile's identity in the middle of the row. The centre stat
+ * itself shows its own label (NOW / MIN / MAX / AVG) above the metric name
+ * only when it's something other than the default CURRENT — that way the
+ * common case looks clean ("BATTERY" above the big value, no "NOW" clutter).
+ *
+ * Arrangement: when BOTH left and right are populated the row spreads with
+ * SpaceBetween so the values hug the edges; otherwise the row clusters in
+ * the centre and a single side reading still looks balanced.
+ */
+@Composable
+private fun ThreeZoneRow(
+    metricLabel: String,
+    stats: MetricSlotStats,
+    value: String,
+    accent: androidx.compose.ui.graphics.Color,
+    centerBigSp: Int,
+    sideValueSp: Int,
+    sideLabelSp: Int,
+    metricLabelSp: Int
+) {
+    val showLeft = stats.left != DashboardStat.NONE
+    val showRight = stats.right != DashboardStat.NONE
+
+    // Fixed three-column layout: the left column always sits at the left edge
+    // of the tile, right at the right edge, centre centred. Each badge's own
+    // text aligns with its column's outer edge so the side readings never
+    // drift toward the centre regardless of which combination is set.
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.TopStart
+        ) {
+            if (showLeft) {
+                SideStatBadge(
+                    stat = stats.left,
+                    value = value,
+                    accent = accent,
+                    valueSp = sideValueSp,
+                    labelSp = sideLabelSp,
+                    align = Alignment.Start
+                )
+            }
+        }
+        Box(
+            modifier = Modifier.weight(1.2f),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            CenterStatBadge(
+                stat = stats.center,
+                metricLabel = metricLabel,
+                value = value,
+                accent = accent,
+                centerBigSp = centerBigSp,
+                statLabelSp = sideLabelSp,
+                metricLabelSp = metricLabelSp
+            )
+        }
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            if (showRight) {
+                SideStatBadge(
+                    stat = stats.right,
+                    value = value,
+                    accent = accent,
+                    valueSp = sideValueSp,
+                    labelSp = sideLabelSp,
+                    align = Alignment.End
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SideStatBadge(
+    stat: DashboardStat,
+    value: String,
+    accent: androidx.compose.ui.graphics.Color,
+    valueSp: Int,
+    labelSp: Int,
+    align: Alignment.Horizontal
+) {
+    if (stat == DashboardStat.NONE) return
+    Column(horizontalAlignment = align) {
+        // Side labels share the centre label's typography (same font size +
+        // weight) so the row reads as one header line, with only the value
+        // below sized smaller than the centre one.
+        Text(
+            statShortLabel(stat),
+            fontSize = labelSp.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.5.sp
+        )
+        Text(
+            value,
+            fontSize = valueSp.sp,
+            fontWeight = FontWeight.Bold,
+            color = accent,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun CenterStatBadge(
+    stat: DashboardStat,
+    metricLabel: String,
+    value: String,
+    accent: androidx.compose.ui.graphics.Color,
+    centerBigSp: Int,
+    statLabelSp: Int,
+    metricLabelSp: Int
+) {
+    val showStatLabel = stat != DashboardStat.NONE && stat != DashboardStat.CURRENT
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Stat name appears only when the center is set to a non-default
+        // aggregation (MIN / MAX / AVG / MEDIAN / P95). It sits on the SAME
+        // row as the metric name so the header reads as one line ("MIN
+        // BATTERY") instead of stacked labels. The default "NOW" stays hidden
+        // since it'd be redundant alongside the big value.
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (showStatLabel) {
+                Text(
+                    statShortLabel(stat),
+                    fontSize = metricLabelSp.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp
+                )
+            }
+            Text(
+                metricLabel.uppercase(),
+                fontSize = metricLabelSp.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        if (stat != DashboardStat.NONE) {
+            Text(
+                value,
+                fontSize = centerBigSp.sp,
+                fontWeight = FontWeight.Bold,
+                color = accent,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+private fun statShortLabel(stat: DashboardStat): String = when (stat) {
+    DashboardStat.NONE -> ""
+    DashboardStat.CURRENT -> "NOW"
+    DashboardStat.MIN -> "MIN"
+    DashboardStat.MAX -> "MAX"
+    DashboardStat.SUSTAINED_PEAK -> "S.PK"
+    DashboardStat.AVG -> "AVG"
+    DashboardStat.MEDIAN -> "MED"
+    DashboardStat.P75 -> "P75"
+    DashboardStat.P95 -> "P95"
+    DashboardStat.P99 -> "P99"
+}
+
+/**
+ * One-or-two-line description of what a metric means. Rendered as a subtle
+ * info row above the side-readings dropdowns, only for metrics whose meaning
+ * isn't obvious from the chip label alone (the rest get null from
+ * [metricDescription]).
+ */
+@Composable
+private fun MetricInfoBox(text: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Info,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SlotStatsEditor(
+    key: String,
+    stats: MetricSlotStats,
+    onCornerChange: (SlotCorner, DashboardStat) -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        CornerStatDropdown(
+            modifier = Modifier.weight(1f),
+            label = stringResource(R.string.dashboard_corner_left),
+            value = stats.left,
+            onSelect = { onCornerChange(SlotCorner.LEFT, it) }
+        )
+        CornerStatDropdown(
+            modifier = Modifier.weight(1f),
+            label = stringResource(R.string.dashboard_corner_center),
+            value = stats.center,
+            onSelect = { onCornerChange(SlotCorner.CENTER, it) }
+        )
+        CornerStatDropdown(
+            modifier = Modifier.weight(1f),
+            label = stringResource(R.string.dashboard_corner_right),
+            value = stats.right,
+            onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RollingWindowDropdown(
+    valueSeconds: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = ROLLING_WINDOW_PRESETS_SECONDS
+    val current = options.firstOrNull { it == valueSeconds }
+        ?: options.minByOrNull { kotlin.math.abs(it - valueSeconds) }
+        ?: ROLLING_WINDOW_DEFAULT_SECONDS
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = rollingWindowLabel(current),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(stringResource(R.string.dashboard_stats_length)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { seconds ->
+                DropdownMenuItem(
+                    text = { Text(rollingWindowLabel(seconds)) },
+                    onClick = {
+                        onSelect(seconds)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * View selector: Default (2-column metric grid) vs Wide (3-column).
+ * On tablets/foldables the layout is force-Wide regardless of the rider's
+ * stored choice, so the field is shown locked to "Wide" and disabled.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ViewDropdown(
+    columns: Int,
+    forcedWide: Boolean,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val effectiveColumns = if (forcedWide) 3 else columns
+    val options = listOf(2, 3)
+    ExposedDropdownMenuBox(
+        expanded = expanded && !forcedWide,
+        onExpandedChange = { if (!forcedWide) expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = viewLabel(effectiveColumns),
+            onValueChange = {},
+            readOnly = true,
+            enabled = !forcedWide,
+            singleLine = true,
+            label = { Text(stringResource(R.string.dashboard_view)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && !forcedWide) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = !forcedWide)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded && !forcedWide,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { cols ->
+                DropdownMenuItem(
+                    text = { Text(viewLabel(cols)) },
+                    onClick = {
+                        onSelect(cols)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun viewLabel(columns: Int): String = when (columns) {
+    3 -> stringResource(R.string.dashboard_view_wide)
+    else -> stringResource(R.string.dashboard_view_default)
+}
+
+@Composable
+private fun rollingWindowLabel(seconds: Int): String = when (seconds) {
+    30 -> stringResource(R.string.dashboard_rolling_window_30s)
+    60 -> stringResource(R.string.dashboard_rolling_window_1m)
+    120 -> stringResource(R.string.dashboard_rolling_window_2m)
+    180 -> stringResource(R.string.dashboard_rolling_window_3m)
+    300 -> stringResource(R.string.dashboard_rolling_window_5m)
+    600 -> stringResource(R.string.dashboard_rolling_window_10m)
+    900 -> stringResource(R.string.dashboard_rolling_window_15m)
+    1800 -> stringResource(R.string.dashboard_rolling_window_30m)
+    3600 -> stringResource(R.string.dashboard_rolling_window_1h)
+    else -> "$seconds s"
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CornerStatDropdown(
+    modifier: Modifier,
+    label: String,
+    value: DashboardStat,
+    onSelect: (DashboardStat) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = remember { DashboardStat.values().toList() }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier
+    ) {
+        OutlinedTextField(
+            value = statSelectedLabel(value),
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text(label, fontSize = 10.sp) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(statDisplayLabel(option)) },
+                    onClick = {
+                        onSelect(option)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Long, descriptive label shown for an option *inside* the open dropdown list
+ * (e.g. "99th percentile"). The user is browsing options here so verbose is
+ * fine and helps disambiguate.
+ */
+@Composable
+private fun statDisplayLabel(stat: DashboardStat): String = when (stat) {
+    DashboardStat.NONE -> stringResource(R.string.dashboard_stat_none)
+    DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
+    DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
+    DashboardStat.MAX -> stringResource(R.string.dashboard_stat_max)
+    DashboardStat.SUSTAINED_PEAK -> stringResource(R.string.dashboard_stat_sustained_peak)
+    DashboardStat.AVG -> stringResource(R.string.dashboard_stat_avg)
+    DashboardStat.MEDIAN -> stringResource(R.string.dashboard_stat_median)
+    DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75)
+    DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95)
+    DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99)
+}
+
+/**
+ * Compact label shown inside the dropdown field once an option is selected
+ * (e.g. "P99"). Stats whose long label is already short re-use it; percentiles
+ * collapse to their short form so the field doesn't wrap to two lines.
+ */
+@Composable
+private fun statSelectedLabel(stat: DashboardStat): String = when (stat) {
+    DashboardStat.NONE -> stringResource(R.string.dashboard_stat_none)
+    DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
+    DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
+    // MAX's long label is "Max / Peak"; in the closed dropdown field we use
+    // the bare "Max" to keep the row compact.
+    DashboardStat.MAX -> "Max"
+    DashboardStat.SUSTAINED_PEAK -> stringResource(R.string.dashboard_stat_sustained_peak_short)
+    DashboardStat.AVG -> stringResource(R.string.dashboard_stat_avg)
+    DashboardStat.MEDIAN -> stringResource(R.string.dashboard_stat_median_short)
+    DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75_short)
+    DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95_short)
+    DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99_short)
+}
+
+@Composable
+private fun SlotSheetActionPreview(key: String) {
+    val icon = dashboardActionIcon(key)
+    val label = actionChipLabel(key)
+    // Center a button-proportioned preview tile. Height matches the
+    // metric preview (140dp) for visual consistency between metric and
+    // action sheets; width preserves the live ActionTile aspect ratio
+    // (~120:86) so the rider still recognises this as a button rather
+    // than a metric card. Icon + label scale up proportionally.
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .height(140.dp)
+                .aspectRatio(120f / 86f)
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.outlineVariant,
+                    RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (icon != null) {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(42.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+                Text(
+                    label,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+// ---- Catalog look-up helpers (shared with the live dashboard) ----------
+//
+// All of these are `internal` so the eventual `com.eried.eucplanet.ui.dashboard`
+// renderer can call them directly — keeps a single source of truth for chip
+// labels, accent palette, action icons, etc. between the editor preview and
+// the live dashboard. Adding a new metric / action means updating one of
+// these tables, not two.
+
+/**
+ * Display label for a metric key. Reads from [com.eried.eucplanet.data.model.MetricCatalog]
+ * so adding a new metric is one entry in `MetricCatalog.all` — this
+ * function never needs to grow another branch. The composite-empty
+ * sentinel and unknown keys fall back to bespoke strings.
+ */
+@Composable
+internal fun metricChipLabel(key: String): String {
+    if (key == COMPOSITE_CELL_EMPTY) return stringResource(R.string.dashboard_composite_empty_label)
+    val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key) ?: return key
+    return stringResource(spec.labelRes)
+}
+
+/**
+ * 1-2 sentence explanation surfaced in the slot-sheet info box for
+ * metrics whose meaning isn't obvious from the chip label. Pulls
+ * [com.eried.eucplanet.data.model.MetricSpec.descriptionRes] from the
+ * catalog — null when the metric has no description.
+ */
+@Composable
+internal fun metricDescription(key: String): String? {
+    val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key) ?: return null
+    val resId = spec.descriptionRes ?: return null
+    return stringResource(resId)
+}
+
+/**
+ * Display label for an action key. Reads from [ActionCatalog] so adding
+ * a new action only needs a catalog entry — this function never needs to
+ * grow another branch.
+ */
+@Composable
+internal fun actionChipLabel(key: String): String {
+    val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key)
+    return if (spec != null) stringResource(spec.labelRes) else key
+}
+
+/**
+ * True when min/max/avg/percentile stats are meaningful for this metric.
+ * Monotonic counters (`TRIP`, `ODOMETER`, accumulating trip-time/energy) and
+ * circular values (`GPS_HEADING`) return false — for those the pool pill
+ * shows no sparkline background at all, since "stats off" isn't a state the
+ * rider can toggle out of.
+ */
+/**
+ * True when min/max/avg/percentile stats are meaningful for this metric.
+ * Monotonic counters and circular values (GPS_HEADING) return false.
+ * Reads from [com.eried.eucplanet.data.model.MetricCatalog].
+ */
+internal fun metricSupportsStats(key: String): Boolean =
+    com.eried.eucplanet.data.model.MetricCatalog.byKey(key)?.supportsStats ?: true
+
+/**
+ * Accent palette for a metric — drives the value text + sparkline tint.
+ * Reads from [com.eried.eucplanet.data.model.MetricCatalog]; unknown keys
+ * (including the COMPOSITE_CELL_EMPTY sentinel) fall through to AccentBlue.
+ */
+internal fun metricAccentColor(key: String): androidx.compose.ui.graphics.Color =
+    com.eried.eucplanet.data.model.MetricCatalog.byKey(key)?.accent ?: AccentBlue
+
+/**
+ * Vector icon for an action key. Reads from [ActionCatalog] so adding a
+ * new action only needs a catalog entry. Returns null for unknown keys.
+ */
+internal fun dashboardActionIcon(key: String): ImageVector? =
+    com.eried.eucplanet.data.model.ActionCatalog.byKey(key)?.icon
+
+// Drag decoration shared by every draggable tile + pool pill in the dashboard
+// editor: a translucent rounded card the size of the source with an accent-
+// colored border, and the metric/action's own label + value (or icon + label
+// for actions) rendered on top so the rider can clearly see what's in their
+// hand mid-drag.
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDashboardTileDecoration(
+    fill: androidx.compose.ui.graphics.Color,
+    accent: androidx.compose.ui.graphics.Color,
+    labelText: String,
+    valueText: String,
+    labelStyle: TextStyle,
+    valueStyle: TextStyle,
+    measurer: androidx.compose.ui.text.TextMeasurer
+) {
+    val cr = CornerRadius(10.dp.toPx())
+    drawRoundRect(color = fill.copy(alpha = 0.92f), cornerRadius = cr)
+    drawRoundRect(
+        color = accent,
+        cornerRadius = cr,
+        style = Stroke(width = 3.dp.toPx())
+    )
+
+    val labelResult = measurer.measure(labelText, labelStyle)
+    val gap = 2.dp.toPx()
+    if (valueText.isNotEmpty()) {
+        val valueResult = measurer.measure(valueText, valueStyle)
+        val totalH = labelResult.size.height + gap + valueResult.size.height
+        val startY = (size.height - totalH) / 2f
+        drawText(
+            labelResult,
+            topLeft = androidx.compose.ui.geometry.Offset(
+                x = (size.width - labelResult.size.width) / 2f,
+                y = startY
+            )
+        )
+        drawText(
+            valueResult,
+            topLeft = androidx.compose.ui.geometry.Offset(
+                x = (size.width - valueResult.size.width) / 2f,
+                y = startY + labelResult.size.height + gap
+            )
+        )
+    } else {
+        drawText(
+            labelResult,
+            topLeft = androidx.compose.ui.geometry.Offset(
+                x = (size.width - labelResult.size.width) / 2f,
+                y = (size.height - labelResult.size.height) / 2f
+            )
+        )
+    }
+}
+
+// Stylized "histogram" wave drawn behind the tile when the rider has the
+// trend background toggled on. Rendered as 30 horizontal step segments at
+// quantised sine heights so it reads as a stepped sparkline rather than a
+// smooth curve — matches the rhythm of real 1Hz dashboard samples connected
+// by straight segments. When [animated] is true the wave's phase shifts over
+// time so the staircase visibly scrolls; used in the bottom-sheet preview to
+// hint that this is a *live* trend feature, while the small grid tiles stay
+// static so the grid itself doesn't feel restless.
+@Composable
+private fun WavePatternBackground(
+    accent: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier,
+    animated: Boolean = false,
+    steps: Int = 30,
+    /**
+     * When `true`, renders the wave at a much fainter alpha so it reads as
+     * "stats are available but disabled — tap to re-enable" instead of an
+     * active sparkline. Used by the pool pills to distinguish disabled
+     * metrics from those that don't support stats at all (the latter omit
+     * the background entirely).
+     */
+    dimmed: Boolean = false
+) {
+    val phase: Float = if (animated) {
+        val transition = rememberInfiniteTransition(label = "wave")
+        val v by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = (2.0 * kotlin.math.PI).toFloat(),
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 4500, easing = LinearEasing)
+            ),
+            label = "wave-phase"
+        )
+        v
+    } else {
+        0f
+    }
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val cycles = 2.0
+        val amplitude = size.height * 0.22f
+        val centerY = size.height / 2f
+        val stepW = size.width / steps.toFloat()
+        val path = Path()
+        // Build the staircase: each step is a horizontal segment whose Y is
+        // sampled from a sine at the step's midpoint. Connecting segments are
+        // straight vertical drops so the line reads as discrete columns.
+        for (i in 0 until steps) {
+            val midT = (i.toFloat() + 0.5f) / steps
+            val sineArg = midT * cycles * 2.0 * kotlin.math.PI - phase
+            val sineVal = kotlin.math.sin(sineArg).toFloat()
+            val y = centerY - sineVal * amplitude
+            val x0 = i * stepW
+            val x1 = (i + 1) * stepW
+            if (i == 0) path.moveTo(x0, y) else path.lineTo(x0, y)
+            path.lineTo(x1, y)
+        }
+        // Soft filled area under the staircase for the StatCard-style gradient.
+        val fillPath = Path()
+        fillPath.addPath(path)
+        fillPath.lineTo(size.width, size.height)
+        fillPath.lineTo(0f, size.height)
+        fillPath.close()
+        // Kept deliberately faint so the readings stay the focus — the wave
+        // is a hint, not a chart. The dimmed variant fades further so a
+        // "disabled but available" wave reads as a ghost behind the pill.
+        val fillAlpha = if (dimmed) 0.015f else 0.04f
+        val strokeAlpha = if (dimmed) 0.06f else 0.18f
+        drawPath(fillPath, color = accent.copy(alpha = fillAlpha))
+        drawPath(path, color = accent.copy(alpha = strokeAlpha), style = Stroke(width = 1.5.dp.toPx()))
+    }
+}
+
+// Deterministic per-metric sparkline silhouette so the preview tiles aren't
+// empty rectangles. Each metric gets a stable shape derived from its key.
+private fun syntheticSpark(key: String): List<Float> {
+    val seed = key.hashCode().toLong()
+    val rng = java.util.Random(seed)
+    return List(24) { rng.nextFloat() }
+}
+
+/** Swaps `draggedKey` with whatever currently sits at `targetSlotIndex` so the
+ *  grid can render a mid-drag tentative order. Real persistence happens on
+ *  drop via the ViewModel — this is purely visual. */
+private fun previewSwap(order: List<String>, draggedKey: String, targetSlotIndex: Int): List<String> {
+    val items = order.toMutableList()
+    val from = items.indexOf(draggedKey)
+    if (from < 0 || targetSlotIndex !in items.indices || from == targetSlotIndex) return order
+    val a = items[from]
+    items[from] = items[targetSlotIndex]
+    items[targetSlotIndex] = a
+    return items
+}
+
+/**
+ * Placeholder reading for a not-yet-connected metric in the editor preview.
+ * Always uses zero as the value but appends the correct unit so the rider
+ * sees how the tile will read on a live ride. Respects the rider's selected
+ * speed / distance / temperature units from [AppSettings].
+ */
+private fun metricPlaceholderValue(
+    key: String,
+    s: com.eried.eucplanet.data.model.AppSettings
+): String = when (key) {
+    "BATTERY", "BATTERY_1", "BATTERY_2", "LOAD" -> "0%"
+    "TEMPERATURE" -> if (s.unitTemp == "F") "0°F" else "0°C"
+    "VOLTAGE" -> "0 V"
+    "CURRENT", "DYN_CURRENT_LIMIT" -> "0 A"
+    "POWER", "MOTOR_POWER", "BATTERY_POWER" -> "0 W"
+    "TRIP", "ODOMETER" -> when (s.unitDistance) {
+        "mi" -> "0 mi"
+        "mil" -> "0 mil"
+        else -> "0 km"
+    }
+    "SPEED", "DYN_SPEED_LIMIT" -> when (s.unitSpeed) {
+        "mph" -> "0 mph"
+        "kn" -> "0 kn"
+        else -> "0 km/h"
+    }
+    "PITCH", "ROLL" -> "0°"
+    "G_FORCE", "LATERAL_G", "FORWARD_G" -> "0.0 g"
+    "TORQUE" -> "0 Nm"
+    "MOTOR_TEMP", "CONTROLLER_TEMP", "BATTERY_TEMP" ->
+        if (s.unitTemp == "F") "0°F" else "0°C"
+    "HEADROOM", "TRIP_MAX_SPEED", "AVG_TRIP_SPEED", "GPS_SPEED" -> when (s.unitSpeed) {
+        "mph" -> "0 mph"
+        "kn" -> "0 kn"
+        else -> "0 km/h"
+    }
+    "TRIP_TIME" -> "0:00"
+    "WH_CONSUMED" -> "0 Wh"
+    "RANGE_ESTIMATE" -> when (s.unitDistance) {
+        "mi" -> "0 mi"
+        "mil" -> "0 mil"
+        else -> "0 km"
+    }
+    "WH_PER_KM" -> when (s.unitDistance) {
+        "mi" -> "0 Wh/mi"
+        "mil" -> "0 Wh/mil"
+        else -> "0 Wh/km"
+    }
+    "PHONE_BATTERY" -> "0%"
+    "GPS_ALTITUDE" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "GPS_HEADING" -> "0°"
+    "GPS_ACCURACY" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "SLOPE" -> "0 %"
+    "ASCENT", "DESCENT" -> if (s.unitDistance == "mi") "0 ft" else "0 m"
+    "MOTOR_RPM" -> "0 rpm"
+    "REGEN_WH" -> "0 Wh"
+    "BT_RSSI" -> "0 dBm"
+    // EMPTY cell renders no value — the cell composable already shows the
+    // "(empty)" placeholder text via the chip-label path instead.
+    COMPOSITE_CELL_EMPTY -> ""
+    else -> "--"
 }
 
 // --- Display Tab ---
@@ -1697,8 +5459,20 @@ private fun WatchActionPicker(
     currentKey: String,
     onSelect: (String) -> Unit
 ) {
-    val options = com.eried.eucplanet.data.model.FlicAction.entries.map { action ->
-        action.name to stringResource(action.labelRes)
+    // Watch can bind eyes-free actions only. A synthetic "None" first
+    // option lets the rider clear the binding.
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val keys = remember {
+        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+            com.eried.eucplanet.data.model.ActionSurface.WATCH
+        )
+    }
+    val options = buildList {
+        add("NONE" to noneLabel)
+        keys.forEach { key ->
+            val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return@forEach
+            add(key to stringResource(spec.labelRes))
+        }
     }
     SimpleDropdown(
         label = label,
@@ -2982,10 +6756,16 @@ private fun ActionDropdown(
     onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentAction = try {
-        FlicAction.valueOf(currentValue)
-    } catch (_: Exception) {
-        FlicAction.NONE
+    val volumeKeys = remember {
+        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+            com.eried.eucplanet.data.model.ActionSurface.VOLUME_KEY
+        )
+    }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val currentLabel = when {
+        currentValue.isEmpty() || currentValue == "NONE" -> noneLabel
+        else -> com.eried.eucplanet.data.model.ActionCatalog.byKey(currentValue)
+            ?.labelRes?.let { stringResource(it) } ?: noneLabel
     }
 
     ExposedDropdownMenuBox(
@@ -2993,7 +6773,7 @@ private fun ActionDropdown(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = stringResource(currentAction.labelRes),
+            value = currentLabel,
             onValueChange = {},
             readOnly = true,
             label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
@@ -3006,11 +6786,19 @@ private fun ActionDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            FlicAction.entries.forEach { action ->
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = {
+                    onValueChange("NONE")
+                    expanded = false
+                }
+            )
+            volumeKeys.forEach { key ->
+                val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return@forEach
                 DropdownMenuItem(
-                    text = { Text(stringResource(action.labelRes)) },
+                    text = { Text(stringResource(spec.labelRes)) },
                     onClick = {
-                        onValueChange(action.name)
+                        onValueChange(key)
                         expanded = false
                     }
                 )

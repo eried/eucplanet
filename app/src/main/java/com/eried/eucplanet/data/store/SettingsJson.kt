@@ -192,6 +192,15 @@ object SettingsJson {
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
         put("studioReplayForceOpaque", s.studioReplayForceOpaque)
+        put("dashboardMetricsColumns", s.dashboardMetricsColumns)
+        put("dashboardActionsColumns", s.dashboardActionsColumns)
+        put("dashboardMetricOrder", s.dashboardMetricOrder)
+        put("dashboardActionOrder", s.dashboardActionOrder)
+        put("dashboardRollingWindowSeconds", s.dashboardRollingWindowSeconds)
+        put("dashboardMetricStats", s.dashboardMetricStats)
+        put("dashboardCompositeMetrics", s.dashboardCompositeMetrics)
+        put("dashboardActionGroups", s.dashboardActionGroups)
+        put("dashboardCustomTiles", s.dashboardCustomTiles)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -357,7 +366,21 @@ object SettingsJson {
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),
-        studioReplayForceOpaque = j.optBoolean("studioReplayForceOpaque", base.studioReplayForceOpaque)
+        studioReplayForceOpaque = j.optBoolean("studioReplayForceOpaque", base.studioReplayForceOpaque),
+        dashboardMetricsColumns = j.optInt("dashboardMetricsColumns", base.dashboardMetricsColumns),
+        dashboardActionsColumns = j.optInt("dashboardActionsColumns", base.dashboardActionsColumns),
+        dashboardMetricOrder = j.optString("dashboardMetricOrder", base.dashboardMetricOrder),
+        dashboardActionOrder = j.optString("dashboardActionOrder", base.dashboardActionOrder),
+        dashboardRollingWindowSeconds = j.optInt(
+            "dashboardRollingWindowSeconds",
+            // Migrate older builds that stored the window in minutes.
+            j.optInt("dashboardRollingWindowMinutes", -1)
+                .let { if (it > 0) it * 60 else base.dashboardRollingWindowSeconds }
+        ),
+        dashboardMetricStats = j.optString("dashboardMetricStats", base.dashboardMetricStats),
+        dashboardCompositeMetrics = j.optString("dashboardCompositeMetrics", base.dashboardCompositeMetrics),
+        dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
+        dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot
