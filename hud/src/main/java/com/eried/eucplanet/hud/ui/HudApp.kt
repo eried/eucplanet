@@ -189,8 +189,19 @@ private fun DisconnectedDialog(localIp: String?) {
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
+            // IP and PORT on separate lines so each label-value pair stays
+            // visually grouped -- the rider scans the labels first to find
+            // the IP, then types it into the matching field on the phone.
             Text(
-                text = "$ipText:$port",
+                text = ctx.getString(R.string.hud_disconnected_ip_line, ipText),
+                color = Color.White,
+                fontSize = ipSize,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = FontFamily.Monospace,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = ctx.getString(R.string.hud_disconnected_port_line, port),
                 color = Color.White,
                 fontSize = ipSize,
                 fontWeight = FontWeight.SemiBold,

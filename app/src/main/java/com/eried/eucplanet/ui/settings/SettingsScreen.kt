@@ -3506,42 +3506,42 @@ private fun HudIntegrationSection(
     ) {
         SectionHeader(stringResource(R.string.section_hud_companion))
 
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.hud_server_enabled),
-            description = stringResource(R.string.hud_server_enabled_desc),
-            checked = settings.hudServerEnabled,
-            onCheckedChange = { viewModel.updateHudServerEnabled(it) }
-        )
+        // Hotspot hint sits ABOVE the link controls -- it's the usual
+        // setup step. Optional: some riders put the HUD on their home
+        // wifi or a separate router, in which case the hotspot doesn't
+        // matter. The hint copy makes that explicit so a rider whose
+        // hotspot is intentionally off doesn't think anything is wrong.
+        HudHotspotHint()
 
-        // Link-enabled subsection: only render the IP/port fields once the
-        // rider has opted in. The HUD's own banner shows its IP so the
-        // rider can read it off the helmet and type it here.
-        if (settings.hudServerEnabled) {
-            HudHotspotHint()
-
-            var ipText by remember(settings.hudIp) {
-                mutableStateOf(settings.hudIp)
-            }
+        // IP + port live side by side as one logical input: the rider
+        // reads the IP off the HUD's screen, port is almost always the
+        // default. They're disabled while the link is active so an
+        // accidental keystroke can't drop a live connection.
+        val fieldsEnabled = !settings.hudServerEnabled
+        var ipText by remember(settings.hudIp) {
+            mutableStateOf(settings.hudIp)
+        }
+        var portText by remember(settings.hudServerPort) {
+            mutableStateOf(settings.hudServerPort.toString())
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             OutlinedTextField(
                 value = ipText,
                 onValueChange = { new ->
-                    // Restrict to dotted-quad characters; full validation
-                    // happens at dial time so we don't fight the rider mid-edit.
                     if (new.length <= 15 && new.all { it.isDigit() || it == '.' }) {
                         ipText = new
                         viewModel.updateHudIp(new)
                     }
                 },
                 label = { Text(stringResource(R.string.hud_ip_label)) },
-                supportingText = { Text(stringResource(R.string.hud_ip_desc)) },
                 placeholder = { Text("192.168.43.1") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                enabled = fieldsEnabled,
+                modifier = Modifier.weight(2f)
             )
-
-            var portText by remember(settings.hudServerPort) {
-                mutableStateOf(settings.hudServerPort.toString())
-            }
             OutlinedTextField(
                 value = portText,
                 onValueChange = { new ->
@@ -3551,10 +3551,26 @@ private fun HudIntegrationSection(
                     }
                 },
                 label = { Text(stringResource(R.string.hud_server_port)) },
-                supportingText = { Text(stringResource(R.string.hud_server_port_desc)) },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                enabled = fieldsEnabled,
+                modifier = Modifier.weight(1f)
             )
         }
+        Text(
+            text = stringResource(R.string.hud_ip_port_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        // Toggle goes UNDER the IP/port -- the rider configures the
+        // address first and then flips the switch to dial out. Flipping
+        // it also locks the fields above so the live connection can't
+        // be edited out from under itself.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.hud_server_enabled),
+            description = stringResource(R.string.hud_server_enabled_desc),
+            checked = settings.hudServerEnabled,
+            onCheckedChange = { viewModel.updateHudServerEnabled(it) }
+        )
     }
 }

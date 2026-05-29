@@ -106,11 +106,12 @@
     <string name="section_hud_companion">Motoeye HUD</string>
     <string name="hud_server_enabled">Connect to HUD</string>
     <string name="hud_server_enabled_desc">Mirror dashboard, map and navigation to the HUD.</string>
-    <string name="hud_ip_label">HUD IP address</string>
+    <string name="hud_ip_label">HUD IP</string>
     <string name="hud_ip_desc">Type the IP the HUD shows on its on-screen banner.</string>
-    <string name="hud_server_port">HUD port</string>
+    <string name="hud_server_port">Port</string>
     <string name="hud_server_port_desc">Default 28080. Change only if the HUD is listening on a different port.</string>
-    <string name="hud_hotspot_off_hint">Phone hotspot is off. Turn it on in Android Settings so the HUD can join the phone\'s WiFi.</string>
+    <string name="hud_ip_port_desc">The IP is shown on the HUD screen when it boots; port 28080 is the default and rarely needs changing.</string>
+    <string name="hud_hotspot_off_hint">Optional: turn on the phone\'s WiFi hotspot if the HUD has no other way to reach this phone. Skip if both are already on the same WiFi.</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
     <!-- Wear OS companion settings -->

@@ -13,6 +13,8 @@
     <string name="hud_status_ready_at">HUD ready at %1$s:%2$d</string>
     <string name="hud_status_ip_unknown">no wifi</string>
     <string name="hud_disconnected_title">Phone disconnected</string>
+    <string name="hud_disconnected_ip_line">IP: %1$s</string>
+    <string name="hud_disconnected_port_line">PORT: %1$d</string>
     <string name="hud_disconnected_instructions">Type this into EUC Planet → Settings / Integration / Motoeye HUD</string>
     <string name="hud_dash_battery">Battery</string>
     <string name="hud_dash_voltage">Volts</string>
