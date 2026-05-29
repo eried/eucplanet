@@ -24,6 +24,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.diagnostics.DiagnosticsLogger
+import com.eried.eucplanet.diagnostics.ServiceModeOverlay
+import com.eried.eucplanet.diagnostics.ServiceOverlaySnapshot
+import com.eried.eucplanet.diagnostics.ServiceOverlayState
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.WheelService
 import com.eried.eucplanet.ui.navigation.NavGraph
@@ -42,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
+    @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
     @Inject lateinit var incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository
 
@@ -286,6 +291,29 @@ class MainActivity : AppCompatActivity() {
                             },
                             suppressOnPhone = onMapScreen
                         )
+                        // Service-mode debug overlay — opens on volume key
+                        // when DiagnosticsLogger is enabled. Sits at the
+                        // top of the activity composition so it floats
+                        // above every screen (dashboard, settings, etc).
+                        val serviceOpen by ServiceOverlayState.open.collectAsState()
+                        val serviceSnapshot by ServiceOverlayState.snapshot.collectAsState()
+                        val activeSnapshot = serviceSnapshot
+                        if (serviceOpen && activeSnapshot != null) {
+                            ServiceModeOverlay(
+                                snapshot = activeSnapshot,
+                                onFireAction = { key ->
+                                    flicManager.dispatchActionByName(key)
+                                    // Re-snapshot so the action-status
+                                    // readout reflects any toggle that
+                                    // just flipped. Tiny delay would be
+                                    // nicer but the dispatch path itself
+                                    // is async — for now the rider can
+                                    // press Fire again to re-read.
+                                    ServiceOverlayState.refresh(buildServiceOverlaySnapshot())
+                                },
+                                onDismiss = { ServiceOverlayState.dismiss() }
+                            )
+                        }
                     }
                 }
             }
@@ -293,6 +321,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // Service-mode override: while diagnostics is enabled, volume keys
+        // open the debug overlay instead of firing their bound action.
+        // The overlay snapshots wheel state + history so the rider can
+        // inspect raw values and fire any catalog action without needing
+        // a Flic button. Service mode is a developer-only state behind
+        // the "Enter" confirmation in the Service Mode dialog.
+        if (DiagnosticsLogger.enabled.value &&
+            (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) &&
+            event?.repeatCount == 0
+        ) {
+            ServiceOverlayState.show(buildServiceOverlaySnapshot())
+            return true
+        }
         val s = _settings.value
         if (s != null && s.volumeKeysEnabled &&
             (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
@@ -323,6 +364,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // Service mode swallows the up event too, otherwise opening the
+        // overlay on KeyDown would still fire the bound click-action on
+        // KeyUp and the rider would get both the dialog and a HORN beep.
+        if (DiagnosticsLogger.enabled.value &&
+            (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+        ) {
+            return true
+        }
         val s = _settings.value
         if (s != null && s.volumeKeysEnabled &&
             (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
@@ -336,6 +385,21 @@ class MainActivity : AppCompatActivity() {
             return true
         }
         return super.onKeyUp(keyCode, event)
+    }
+
+    /** Builds a fresh snapshot for the service-mode debug overlay. Called when the overlay opens and after every Fire so the action-status readout updates. */
+    private fun buildServiceOverlaySnapshot(): ServiceOverlaySnapshot {
+        val s = _settings.value
+        return ServiceOverlaySnapshot(
+            wheel = wheelRepository.wheelData.value,
+            history = wheelRepository.fullHistory.value,
+            tripRecording = tripRepository.recording.value,
+            imperialUnits = s?.imperialUnits ?: false,
+            safetyActive = wheelRepository.safetySpeedActive.value,
+            // alarmsMuted not yet surfaced upstream; default false so the
+            // catalog reader returns a defined value rather than throwing.
+            alarmsMuted = false
+        )
     }
 
     private fun requestMissingPermissions() {
