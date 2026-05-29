@@ -215,16 +215,18 @@ private fun DisconnectedDialog(localIp: String?) {
                 fontSize = captionSize,
                 textAlign = TextAlign.Center
             )
-            // Two cells, one per phone-side input field. Cells size to their
-            // own text content via wrapContentSize so a panel half the width
-            // of the dev emulator still renders both numbers without
-            // clipping -- no hardcoded widths anywhere in the cell.
-            IpPortMatrix(
-                ipText = ipText,
-                port = port,
-                accent = frameColor,
-                side = side
-            )
+            // 2×2 grid: column 1 = labels, column 2 = cells. Both columns
+            // share fixed widths so corners line up cleanly. The inner pad
+            // (side * 0.05f) gives the block visual margin against the
+            // dialog edge so it doesn't feel crammed against the border.
+            Box(modifier = Modifier.padding(horizontal = (side * 0.05f).dp)) {
+                IpPortMatrix(
+                    ipText = ipText,
+                    port = port,
+                    accent = frameColor,
+                    side = side
+                )
+            }
         }
     }
 }
@@ -263,7 +265,12 @@ private fun IpPortMatrix(
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
     val innerHPad = (side * 0.035f).dp
-    val labelMinW = (side * 0.13f).dp
+    // Fixed (not min) label column width so "IP" and "PORT" both occupy
+    // exactly the same horizontal slot and the cells that follow start at
+    // the same x. Width sized to fit "PORT" at labelFont (0.075×side)
+    // with a comfortable margin -- previously 0.18×side wrapped the T to
+    // a second line on the dev emulator.
+    val labelColW = (side * 0.24f).dp
     // Common cell width sized for the longest possible IPv4 + a comfortable
     // margin. PORT inherits the same width so both right edges align and
     // the two cells form a clean column.
@@ -273,7 +280,7 @@ private fun IpPortMatrix(
         AddressRow(
             label = "IP",
             value = ipText,
-            labelMinW = labelMinW,
+            labelColW = labelColW,
             labelGap = labelGap,
             cellW = cellW,
             cellHMin = cellHMin,
@@ -287,7 +294,7 @@ private fun IpPortMatrix(
         AddressRow(
             label = "PORT",
             value = port.toString(),
-            labelMinW = labelMinW,
+            labelColW = labelColW,
             labelGap = labelGap,
             cellW = cellW,
             cellHMin = cellHMin,
@@ -308,7 +315,7 @@ private fun IpPortMatrix(
 private fun AddressRow(
     label: String,
     value: String,
-    labelMinW: androidx.compose.ui.unit.Dp,
+    labelColW: androidx.compose.ui.unit.Dp,
     labelGap: androidx.compose.ui.unit.Dp,
     cellW: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
@@ -325,7 +332,9 @@ private fun AddressRow(
             color = Color(0xFFB0B0B0),
             fontSize = labelFont,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.widthIn(min = labelMinW)
+            maxLines = 1,
+            softWrap = false,
+            modifier = Modifier.width(labelColW)
         )
         Spacer(Modifier.width(labelGap))
         Box(
@@ -333,10 +342,15 @@ private fun AddressRow(
                 .width(cellW)
                 .heightIn(min = cellHMin)
                 .clip(RoundedCornerShape(cornerR))
-                .background(Color(0xFF0F0F0F))
+                // Visible dark grey so the cell pops off the dialog
+                // background instead of blending into it -- the earlier
+                // #0F0F0F was almost the same as the dialog tile.
+                .background(Color(0xFF2F2F2F))
                 .border(borderW, border.copy(alpha = 0.55f), RoundedCornerShape(cornerR))
                 .padding(horizontal = innerHPad),
-            contentAlignment = Alignment.Center
+            // Left-align the value so the IP and PORT digit columns line
+            // up vertically when read top-to-bottom.
+            contentAlignment = Alignment.CenterStart
         ) {
             Text(
                 text = value,
