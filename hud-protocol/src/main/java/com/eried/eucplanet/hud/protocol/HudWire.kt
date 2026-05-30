@@ -10,10 +10,13 @@ import kotlinx.serialization.Serializable
  * passive renderer: every field here is something the HUD knows how to draw
  * on one of its four screens. Anything the HUD cannot use stays on the phone.
  *
- * Versioning: [protocolVersion] is bumped only when a field is removed or its
- * semantics change. Additions are always backwards-compatible — the HUD-side
- * `Json { ignoreUnknownKeys = true }` decoder silently drops fields it does
- * not know about, so a newer phone can still feed an older HUD APK.
+ * Versioning: see [PROTOCOL_MAJOR] / [PROTOCOL_MINOR] below. Additions are
+ * always backwards-compatible because the JSON decoder runs with
+ * `ignoreUnknownKeys = true`; the major version only bumps when a field is
+ * REMOVED, RENAMED, or its semantics change (units, sentinel values).
+ *
+ * The legacy [protocolVersion] is kept as an alias for the major version so
+ * old HUD APKs that only know that field still get a sensible value.
  *
  * Units: all telemetry numbers are kept in the canonical metric form the phone
  * already uses internally (speed km/h, temperature °C, distance km). The HUD
@@ -22,7 +25,19 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class HudState(
-    val protocolVersion: Int = PROTOCOL_VERSION,
+    /** Legacy single-int version, equal to [PROTOCOL_MAJOR]. Kept on the
+     *  wire so HUD APKs built before MAJOR/MINOR was split still see a
+     *  recognisable version field. New code should read
+     *  [protocolMajor] / [protocolMinor] instead. */
+    val protocolVersion: Int = PROTOCOL_MAJOR,
+    /** Breaking-change version. The HUD rejects frames whose major
+     *  exceeds the one it speaks; the phone shows an "update HUD" hint
+     *  when the HUD pair-back reports a lower major. */
+    val protocolMajor: Int = PROTOCOL_MAJOR,
+    /** Additive-change version. New fields bump this; old HUDs ignore
+     *  the fields silently (they still read the frame). Phone shows a
+     *  soft "update available" hint when HUD reports a lower minor. */
+    val protocolMinor: Int = PROTOCOL_MINOR,
 
     /** True when the phone has a live BLE link to the wheel. */
     val connected: Boolean = false,
@@ -114,7 +129,84 @@ data class HudState(
     val timestampMs: Long = 0L
 ) {
     companion object {
-        const val PROTOCOL_VERSION: Int = 1
+        /**
+         * Breaking-change version. Bump WHEN:
+         *  - a field is removed or renamed
+         *  - a field changes units (km/h -> m/s) or sentinels (0 -> NaN)
+         *  - a HudCommand variant changes meaning
+         * Old HUDs receiving a higher [protocolMajor] than they speak MUST
+         * stop rendering live data and tell the rider to update.
+         */
+        const val PROTOCOL_MAJOR: Int = 1
+
+        /**
+         * Additive-change version. Bump WHEN:
+         *  - a new field is added to [HudState] or to a [HudCommand] variant
+         *  - a new [HudCommand] variant is added
+         *  - a new field is added to the embedded [customOverlayJson] payload
+         * Old HUDs ignore the new field but the link keeps working. Phone
+         * surfaces a soft "update available" hint when the HUD's reported
+         * minor is below ours.
+         */
+        const val PROTOCOL_MINOR: Int = 0
+
+        /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
+        @Deprecated(
+            "Split into PROTOCOL_MAJOR / PROTOCOL_MINOR",
+            ReplaceWith("PROTOCOL_MAJOR")
+        )
+        const val PROTOCOL_VERSION: Int = PROTOCOL_MAJOR
+    }
+}
+
+/**
+ * Outcome of comparing the protocol version on the OTHER side of the link
+ * against ours. Both the phone and the HUD compute this independently from
+ * the version fields each side carries in its messages.
+ */
+enum class VersionCompat {
+    /** Both sides on the same major + minor. No UI surface needed. */
+    EXACT,
+
+    /** Same major, our minor is HIGHER than the remote: we ship features
+     *  the remote doesn't render, but the wire decoder is fine. Surface
+     *  a soft "update available" hint. */
+    REMOTE_BEHIND_MINOR,
+
+    /** Same major, our minor is LOWER than the remote: the remote ships
+     *  features we don't render. Frames still decode (extra fields are
+     *  ignored). Soft hint pointing at OUR update channel. */
+    REMOTE_AHEAD_MINOR,
+
+    /** Remote major is LOWER than ours. Wire frames probably still parse
+     *  but key fields may be missing or semantically wrong. Surface a
+     *  blocking banner: rider must update the REMOTE side. */
+    REMOTE_BEHIND_MAJOR,
+
+    /** Remote major is HIGHER than ours. We may not understand fields
+     *  the remote is sending; safer to stop showing live data. Surface
+     *  a blocking banner: rider must update OUR side. */
+    REMOTE_AHEAD_MAJOR;
+
+    /** True for the two cases where the rider should be hard-blocked
+     *  from trusting the readout. */
+    val isBlocking: Boolean
+        get() = this == REMOTE_BEHIND_MAJOR || this == REMOTE_AHEAD_MAJOR
+
+    /** True when the rider should see a hint but the link still works. */
+    val isHint: Boolean
+        get() = this == REMOTE_BEHIND_MINOR || this == REMOTE_AHEAD_MINOR
+
+    companion object {
+        /** Compare a [remote] (major, minor) against the local
+         *  [PROTOCOL_MAJOR] / [PROTOCOL_MINOR] from this side's POV. */
+        fun classify(remoteMajor: Int, remoteMinor: Int): VersionCompat = when {
+            remoteMajor < HudState.PROTOCOL_MAJOR -> REMOTE_BEHIND_MAJOR
+            remoteMajor > HudState.PROTOCOL_MAJOR -> REMOTE_AHEAD_MAJOR
+            remoteMinor < HudState.PROTOCOL_MINOR -> REMOTE_BEHIND_MINOR
+            remoteMinor > HudState.PROTOCOL_MINOR -> REMOTE_AHEAD_MINOR
+            else -> EXACT
+        }
     }
 }
 
@@ -125,9 +217,21 @@ data class HudState(
 @Serializable
 sealed class HudCommand {
     /** Sent on initial pairing. Phone uses [hudId] to remember "this HUD" in
-     *  diagnostics; it does NOT gate anything (the HUD has read-only state). */
+     *  diagnostics; it does NOT gate anything (the HUD has read-only state).
+     *
+     *  [hudProtocolMajor] / [hudProtocolMinor] are the HUD's own protocol
+     *  version. The phone classifies them via [VersionCompat.classify] and
+     *  decides whether to show an "update HUD" hint, a blocking banner, or
+     *  nothing. Defaults of 0 / 0 cover older HUD APKs that pair without
+     *  these fields -- the phone treats absence as "major 1, minor 0"
+     *  (pre-split baseline). */
     @Serializable
-    data class Pair(val hudId: String, val hudVersion: String) : HudCommand()
+    data class Pair(
+        val hudId: String,
+        val hudVersion: String,
+        val hudProtocolMajor: Int = 0,
+        val hudProtocolMinor: Int = 0
+    ) : HudCommand()
 
     /** Toggle the wheel's headlight if it has one. */
     @Serializable

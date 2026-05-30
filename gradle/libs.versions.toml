@@ -22,6 +22,7 @@ ktor = "2.3.13"
 okhttp = "4.12.0"
 kotlinxSerialization = "1.7.3"
 jmdns = "3.5.9"
+junit = "4.13.2"
 
 [libraries]
 # Compose
@@ -121,6 +122,10 @@ wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-fou
 wear-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "wearCompose" }
 wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+
+# JUnit 4 for the protocol module's wire-format pin + version-compat
+# matrix tests. Pure JVM, no Android dependencies needed.
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

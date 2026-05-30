@@ -468,31 +468,78 @@ sub-canvas rotation and render the coords raw.
 
 ## 8. Versioning
 
-`HudState.PROTOCOL_VERSION` is currently `1`. The contract is:
+Two integers carried in every frame: `PROTOCOL_MAJOR` and `PROTOCOL_MINOR`.
+Current is `1.0`. The legacy single-int `protocolVersion` is also on the
+wire as an alias for `PROTOCOL_MAJOR` so HUD APKs built before the split
+still see a recognisable version field.
 
-- **Additions are backwards-compatible.** Both decoders use
-  `ignoreUnknownKeys = true`, so a newer phone with extra fields can
-  feed an older HUD without errors. The HUD just won't render the new
-  data.
-- **Removals or semantic changes bump the major version.** Examples
-  that would require bumping:
-  - Switching `gpsAltitudeM` from "meters" to "feet".
-  - Changing `wheelRollDeg/wheelPitchDeg` to use NaN as the "no data"
-    sentinel.
-  - Renaming a JSON field.
-- **HUD refuses an mDNS pairing where TXT `v` > its own version**, so a
-  too-new HUD will fail to be auto-discovered by an older phone. There
-  is currently no check the OTHER way (a too-new phone connecting to
-  an older HUD silently sends extra fields it ignores).
+### 8.1 Bump rules
 
-The HUD also gates incoming frames by version on the wire:
-```kotlin
-if (s.protocolVersion in 1..HudState.PROTOCOL_VERSION) {
-    _state.value = s
-}
-```
-Frames with `protocolVersion = 0` (encoder dropped the field) or a
-version newer than the HUD knows are dropped silently.
+**Bump MINOR when (additive change):**
+- Adding a new field to `HudState`.
+- Adding a new field to an existing `HudCommand` variant (with a default).
+- Adding a brand-new `HudCommand` variant.
+- Adding a new field to the embedded `customOverlayJson` payload.
+
+Old HUDs ignore the new field — both decoders run with
+`ignoreUnknownKeys = true`. The link keeps working; older HUDs just don't
+render the new feature.
+
+**Bump MAJOR when (breaking change):**
+- Removing or renaming a field.
+- Changing units (km/h → m/s, °C → °F, etc.).
+- Changing sentinels (e.g. switching `wheelRollDeg` from "0 means absent"
+  to "NaN means absent").
+- Changing the meaning of an existing `HudCommand` variant.
+- Any change that breaks `WireFormatTest.frozen_v1_0_baseline_still_decodes`
+  (or its successor pinned-snapshot test).
+
+When MAJOR bumps, also reset MINOR to 0 and update both:
+- `hud-protocol/src/test/.../WireFormatTest.kt` — pin the new baseline
+  JSON snapshot.
+- `docs/hud/index.html` — note the breaking change in the keeping-in-
+  sync section.
+
+### 8.2 Compatibility matrix
+
+Both sides classify the OTHER side's reported `(major, minor)` via
+`VersionCompat.classify(remoteMajor, remoteMinor)` from `:hud-protocol`.
+Same code runs on both ends, so they always agree on which side is ahead
+and which is behind.
+
+| Classification          | What it means                                | UI surface       |
+| ----------------------- | -------------------------------------------- | ---------------- |
+| `EXACT`                 | Same major + minor.                          | Nothing.         |
+| `REMOTE_BEHIND_MINOR`   | Same major; we ship features remote doesn't. | Soft hint.       |
+| `REMOTE_AHEAD_MINOR`    | Same major; remote ships features we don't.  | Soft hint.       |
+| `REMOTE_BEHIND_MAJOR`   | Remote major < ours. Probably broken.        | Blocking banner. |
+| `REMOTE_AHEAD_MAJOR`    | Remote major > ours. We can't trust frames.  | Blocking banner. |
+
+The hard-block cases (`REMOTE_*_MAJOR`) stop showing live data. Soft hints
+point the rider at `eucplanet.ried.no/hud` for the current release.
+
+### 8.3 Version exchange on the wire
+
+- **Phone → HUD:** every `HudState` frame carries `protocolMajor` /
+  `protocolMinor`. The HUD classifies on every accepted frame, so the
+  hint updates within 200 ms of the phone changing version (typically
+  only at reconnect after an update).
+- **HUD → Phone:** the HUD sends a `HudCommand.Pair` with
+  `hudProtocolMajor` / `hudProtocolMinor` as the first message on every
+  fresh WebSocket open. The phone classifies on receipt and stores the
+  outcome in `HudCommandSink.hudVersionCompat`. The Settings UI
+  observes that flow.
+
+A pre-split HUD APK (preview-2 or earlier) sends `Pair` without the
+protocol fields; they decode to `0` / `0`. The phone treats `0` as the
+pre-split baseline `1.0` (see `HudCommandSink`).
+
+### 8.4 Version history
+
+| Version | Tag                  | Wire changes                                                                                  |
+| ------- | -------------------- | ----------------------------------------------------------------------------------------------- |
+| 1.0     | `motoeye-preview-3+` | Added `protocolMajor` / `protocolMinor` fields + `VersionCompat`; added `hudProtocolMajor` /  `hudProtocolMinor` to `HudCommand.Pair`. Wire-compatible with preview-2 (decoders ignore unknown fields). |
+| (legacy 1) | `motoeye-preview-1` / `2` | Single `protocolVersion = 1`. Treated as `1.0` after the split.                                  |
 
 
 ## 9. Settings the phone exposes to the rider

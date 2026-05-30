@@ -343,12 +343,14 @@ class HudServer @Inject constructor(
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 sendJob?.cancel()
                 ws = null
+                commandSink.onHudDisconnected()
                 done.complete(true)
             }
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 Log.w(TAG, "HUD link failure: ${t.message} (${response?.code})")
                 sendJob?.cancel()
                 ws = null
+                commandSink.onHudDisconnected()
                 done.complete(false)
             }
         }

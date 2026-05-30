@@ -1,0 +1,120 @@
+name: Release Motoeye preview
+
+# On every push of a `motoeye-preview-*` tag (e.g. motoeye-preview-3), build
+# both the phone APK and the HUD APK and attach them to the matching GitHub
+# release. Naming convention matches what we ship by hand today:
+#
+#   EUC-Planet-phone-motoeye-preview-N.apk   (phone, debug-signed)
+#   EUC-Planet-hud-motoeye-preview-N.apk     (HUD,   release-signed)
+#
+# Versions are baked into the binary by the Gradle build; the workflow only
+# renames the output files to put the tag in the filename so a tester can
+# tell from the download alone whether they grabbed the right one.
+#
+# Phone APK uses the DEBUG variant (this matches what we shipped in preview-2
+# and earlier — installing a release phone APK on top of a debug install
+# requires uninstall first because signatures differ).
+#
+# HUD APK uses the RELEASE variant with R8 minification on. R8 dead-strips
+# the Compose runtime hot paths so the Custom and Telemetry screens stay out
+# of ANR territory; a debug-signed HUD APK would re-introduce the input-
+# dispatch stalls we fixed in preview-2. The release variant falls back to
+# the debug keystore when no release signing config is configured, which is
+# the case here -- the HUD APK is sideloaded onto a non-Play device so
+# signature provenance doesn't matter for distribution.
+
+on:
+  push:
+    tags:
+      - "motoeye-preview-*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing motoeye-preview-N tag to (re)attach APKs to"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-attach:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve target tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+          fi
+          # Pull the numeric suffix (e.g. "3" from "motoeye-preview-3") for
+          # the filename. Falls back to the full tag if it doesn't match the
+          # expected pattern, so a one-off custom tag still ships SOMETHING.
+          tag_full="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          suffix="${tag_full#motoeye-preview-}"
+          if [ "$suffix" = "$tag_full" ]; then
+            suffix="$tag_full"
+          fi
+          echo "suffix=${suffix}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.ref }}
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run hud-protocol tests
+        # Wire-format pinning + VersionCompat matrix. If these fail, the
+        # build is wrong before we even start producing APKs -- shipping
+        # a broken protocol module would push every existing tester into
+        # the "must update both apps" hard-block path.
+        run: ./gradlew :hud-protocol:test --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Build phone APK (debug variant)
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Build HUD APK (release variant, R8 on)
+        run: ./gradlew :hud:assembleRelease --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+
+      - name: Stage APKs with versioned filenames
+        id: stage
+        run: |
+          suffix="${{ steps.tag.outputs.suffix }}"
+          phone_out="EUC-Planet-phone-motoeye-preview-${suffix}.apk"
+          hud_out="EUC-Planet-hud-motoeye-preview-${suffix}.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "/tmp/${phone_out}"
+          cp hud/build/outputs/apk/release/hud-release.apk "/tmp/${hud_out}"
+          ls -la "/tmp/${phone_out}" "/tmp/${hud_out}"
+          echo "phone=${phone_out}" >> "$GITHUB_OUTPUT"
+          echo "hud=${hud_out}" >> "$GITHUB_OUTPUT"
+
+      - name: Attach APKs to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.tag.outputs.ref }}"
+          # --clobber lets re-runs replace previously uploaded assets so
+          # a workflow_dispatch retry doesn't fail with "asset exists".
+          gh release upload "$tag" \
+            "/tmp/${{ steps.stage.outputs.phone }}" \
+            "/tmp/${{ steps.stage.outputs.hud }}" \
+            --clobber

@@ -87,6 +87,13 @@ class HudServer(private val context: Context) {
     private val _status = MutableStateFlow(Status.LISTENING)
     val status: StateFlow<Status> = _status.asStateFlow()
 
+    /** Classification of the phone's reported protocol version against
+     *  ours. Recomputed on every accepted frame. Surfaces on the
+     *  disconnect splash / Map screen so the rider sees whether the
+     *  HUD APK is the one to update or whether the phone app is. */
+    private val _versionCompat = MutableStateFlow(com.eried.eucplanet.hud.protocol.VersionCompat.EXACT)
+    val versionCompat: StateFlow<com.eried.eucplanet.hud.protocol.VersionCompat> = _versionCompat.asStateFlow()
+
     /** Local IPv4 we're bound to, displayed on the HUD banner so the rider
      *  knows what to type into the phone app. Null until we resolve it. */
     private val _localIp = MutableStateFlow<String?>(null)
@@ -141,6 +148,24 @@ class HudServer(private val context: Context) {
                     _peer.value = remote
                     _status.value = Status.CONNECTED
 
+                    // Greet the phone with our version. The phone uses
+                    // this to decide whether to show "update HUD" or
+                    // "update Phone" hints. Older HUD APKs sent a Pair
+                    // without protocol fields; default 0/0 there means
+                    // "treat as the pre-split baseline 1.0".
+                    try {
+                        send(json.encodeToString<HudCommand>(
+                            HudCommand.Pair(
+                                hudId = "motoeye-hud",
+                                hudVersion = com.eried.eucplanet.hud.BuildConfig.VERSION_NAME,
+                                hudProtocolMajor = HudState.PROTOCOL_MAJOR,
+                                hudProtocolMinor = HudState.PROTOCOL_MINOR
+                            )
+                        ))
+                    } catch (t: Throwable) {
+                        Log.w(TAG, "pair greeting failed: ${t.message}")
+                    }
+
                     // Pump outbound commands. Launched in this socket's
                     // scope so the loop ends when the socket dies, no need
                     // to track and cancel manually.
@@ -162,7 +187,16 @@ class HudServer(private val context: Context) {
                             if (frame is Frame.Text) {
                                 try {
                                     val s = json.decodeFromString<HudState>(frame.readText())
-                                    if (s.protocolVersion in 1..HudState.PROTOCOL_VERSION) {
+                                    // Major MUST be <= ours: a higher
+                                    // major may include fields we can't
+                                    // parse safely, so drop the frame
+                                    // and let the UI surface the
+                                    // "update HUD" banner instead of
+                                    // showing stale values.
+                                    val compat = com.eried.eucplanet.hud.protocol.VersionCompat
+                                        .classify(s.protocolMajor, s.protocolMinor)
+                                    _versionCompat.value = compat
+                                    if (!compat.isBlocking) {
                                         _state.value = s
                                     }
                                 } catch (t: Throwable) {
