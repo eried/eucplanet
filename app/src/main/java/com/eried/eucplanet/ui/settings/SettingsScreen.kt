@@ -2175,23 +2175,10 @@ private fun CustomTileView(
             )
     ) {
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            // CustomTileBody already swaps its main icon to the action's
+            // glyph (link / qr) for OPEN_URL / SHOW_QR tiles, so no second
+            // corner badge is needed.
             CustomTileBody(tile = tile)
-            // Action badge — small icon hugging the bottom-right corner.
-            // Tells the rider at a glance whether tapping the tile will
-            // launch a browser or show a QR code popup.
-            val badge = actionBadgeIcon(tile.action)
-            if (badge != null) {
-                Icon(
-                    badge,
-                    contentDescription = null,
-                    tint = accent.copy(alpha = 0.85f),
-                    modifier = Modifier
-                        .size(14.dp)
-                        .padding(0.dp)
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 4.dp, bottom = 3.dp)
-                )
-            }
         }
     }
 }
@@ -2212,6 +2199,11 @@ fun CustomTileBody(tile: CustomTile) {
         androidx.compose.ui.text.font.FontStyle.Italic
         else androidx.compose.ui.text.font.FontStyle.Normal
     val displayText = labelOrFallback.ifBlank { stringResource(R.string.dashboard_composite_empty_label) }
+    // For OPEN_URL and SHOW_QR tiles, replace the rider's chosen group
+    // icon with the action's own glyph (link / qr) so the tile itself
+    // tells you what tapping it will do. NONE-action tiles keep the
+    // configured icon (display-only text tile).
+    val mainIcon = actionBadgeIcon(tile.action) ?: groupIconFor(tile.icon)
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2220,7 +2212,7 @@ fun CustomTileBody(tile: CustomTile) {
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            groupIconFor(tile.icon),
+            mainIcon,
             contentDescription = null,
             modifier = Modifier.size(22.dp),
             tint = MaterialTheme.colorScheme.primary
@@ -2340,18 +2332,8 @@ private fun CustomTilePoolPill(
             )
     ) {
         Box(modifier = Modifier.fillMaxSize().alpha(if (isBeingDragged) 0f else 1f)) {
+            // Action glyph already lives in CustomTileBody's centre icon.
             CustomTileBody(tile = tile)
-            actionBadgeIcon(tile.action)?.let { badge ->
-                Icon(
-                    badge,
-                    contentDescription = null,
-                    tint = accent.copy(alpha = 0.85f),
-                    modifier = Modifier
-                        .size(12.dp)
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 4.dp, bottom = 3.dp)
-                )
-            }
         }
     }
 }

@@ -273,6 +273,9 @@ fun DashboardScreen(
     // tap opens.
     var showAboutDialog by remember { mutableStateOf(false) }
     var showDiagnosticsDialog by remember { mutableStateOf(false) }
+    // Holds the CustomTile whose SHOW_QR action was just tapped on the
+    // live dashboard. Null when the QR popup is dismissed.
+    var showQrForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
     var showDiagnosticsConfirm by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
     var showStudioMenu by remember { mutableStateOf(false) }
@@ -1391,13 +1394,35 @@ fun DashboardScreen(
                                 // Custom tile — rider's icon + text label.
                                 key.startsWith("C:") -> {
                                     val tile = customTileFor(key)
+                                    val ctxLocal = LocalContext.current
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(61.dp)
                                             .clip(RoundedCornerShape(10.dp))
                                             .background(MaterialTheme.colorScheme.surfaceVariant)
-                                            .clickable { onNavigateToMetric(key) }
+                                            .clickable {
+                                                when (tile?.action) {
+                                                    com.eried.eucplanet.ui.settings.CustomTileAction.OPEN_URL -> {
+                                                        val raw = tile.url.trim()
+                                                        if (raw.isNotEmpty()) {
+                                                            val withScheme = if (raw.contains("://")) raw else "https://$raw"
+                                                            runCatching {
+                                                                ctxLocal.startActivity(
+                                                                    android.content.Intent(
+                                                                        android.content.Intent.ACTION_VIEW,
+                                                                        android.net.Uri.parse(withScheme)
+                                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                    com.eried.eucplanet.ui.settings.CustomTileAction.SHOW_QR -> {
+                                                        showQrForTile = tile
+                                                    }
+                                                    else -> onNavigateToMetric(key)
+                                                }
+                                            }
                                     ) {
                                         if (tile != null) {
                                             com.eried.eucplanet.ui.settings.CustomTileBody(tile)
@@ -1784,6 +1809,29 @@ fun DashboardScreen(
             if (showDiagnosticsDialog) {
                 com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
                     onDismiss = { showDiagnosticsDialog = false }
+                )
+            }
+
+            // Custom-tile SHOW_QR action: render the URL as a centred QR
+            // code in an AlertDialog so the rider can quickly hand the
+            // phone to a friend or scan it themselves with a separate
+            // device. Dismiss-on-outside-tap keeps it lightweight.
+            showQrForTile?.let { qrTile ->
+                val raw = qrTile.url.trim()
+                val display = if (raw.contains("://")) raw else "https://$raw"
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { showQrForTile = null },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(
+                            onClick = { showQrForTile = null }
+                        ) { Text(stringResource(R.string.dashboard_close)) }
+                    },
+                    title = {
+                        Text(qrTile.text.ifBlank { display })
+                    },
+                    text = {
+                        QrCodeImage(content = display, sizeDp = 240)
+                    }
                 )
             }
 
