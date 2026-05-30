@@ -1,8 +1,6 @@
 package com.eried.eucplanet.hud.ui.screens
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,64 +8,49 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.eried.eucplanet.hud.overlay.OverlayElementRenderer
+import com.eried.eucplanet.hud.overlay.StudioElementData
 import com.eried.eucplanet.hud.protocol.HudState
-import com.eried.eucplanet.hud.ui.HudUnits
-import com.eried.eucplanet.hud.ui.parseHexColor
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import org.json.JSONArray
 import org.json.JSONObject
-import kotlin.math.cos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sin
-import kotlin.math.PI
 
 /**
- * The HUD's "Custom" screen: renders an Overlay Studio preset the rider
- * picked on the phone, ignoring viewport backgrounds (the HUD panel is
- * transparent like a video output's lower-third).
+ * Renders the rider's selected Overlay Studio preset on the HUD's Custom
+ * screen, optionally with the rear-camera preview as the background.
+ * Uses the SAME element-by-element renderer the phone studio does
+ * (see com.eried.eucplanet.hud.overlay.OverlayElementRenderer), so a
+ * preset reads pixel-identical between phone and HUD.
  *
- * Element types supported on the HUD: DATA_VALUE, DATA_DIAL, DATA_BAR,
- * DATA_GRAPH, TEXT, G_FORCE, WHEEL_NAME. Others (IMAGE, MAP, CLOCK,
- * FLOATING_CAMERA, APP_BADGE) are dropped silently -- the HUD has its
- * own Map/Camera/Nav screens and the rider can put live data there. This
- * keeps the renderer compact.
+ * Per-element rotation is intentionally NOT applied: the bundled
+ * "landscape" presets pre-rotate their elements 90° expecting the
+ * studio canvas to also rotate. The Motoeye panel is already landscape;
+ * doubling the rotation flips text sideways.
  */
 @Composable
 fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
-    val elements = remember(hud.customOverlayJson) {
-        parseElements(hud.customOverlayJson)
-    }
+    val preset = remember(hud.customOverlayJson) { parsePreset(hud.customOverlayJson) }
+    val data = remember(hud) { StudioElementData.from(hud) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Optional camera background: the same preset elements render
-        // on top, so the rider gets the same data overlay with the
-        // road visible behind it.
         if (withCamera) {
-            com.eried.eucplanet.hud.ui.screens.RearCameraPreview(
-                Modifier.fillMaxSize()
-            )
+            RearCameraPreview(Modifier.fillMaxSize())
         }
-
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            if (elements.isEmpty()) {
+            if (preset == null || preset.elements.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Pick a preset in EUC Planet → Settings / Integration",
@@ -77,410 +60,88 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 }
                 return@BoxWithConstraints
             }
-
             val w = maxWidth.value
             val h = maxHeight.value
-            elements.forEach { el ->
+            preset.elements.forEach { el ->
                 val xDp = (el.x * w).dp
                 val yDp = (el.y * h).dp
                 val widthDp = (el.width * w).dp
                 val heightDp = (if (el.height > 0f) el.height else el.width * 0.5f) * h
-                // Apply preset-level visual properties uniformly:
-                //  - .alpha for opacity
-                //  - .rotate for rotationDeg
-                //  - .background for the fill colour (skipped only when
-                //    the element type draws its own canvas backdrop, but
-                //    most types want it)
-                val bgColor = parseArgbLong(el.background)
-                // Per-element rotation is intentionally NOT applied on the
-                // HUD: the bundled "landscape" presets store elements
-                // pre-rotated 90° so they read correctly when the Studio
-                // rotates its own canvas. The Motoeye panel is already
-                // landscape; re-applying the preset's rotation flips text
-                // sideways. For now portrait presets work straight; a
-                // smarter landscape-preset handler is a TODO.
                 Box(
                     modifier = Modifier
                         .offset(x = xDp, y = yDp)
                         .size(widthDp, heightDp.dp)
                         .alpha(el.opacity)
-                        .background(bgColor)
                 ) {
-                    RenderElement(el, hud)
+                    OverlayElementRenderer(el, data)
                 }
             }
         }
     }
 }
 
-@Composable
-private fun RenderElement(el: SimpleElement, hud: HudState) {
-    when (el.type) {
-        "TEXT" -> RenderText(el, hud)
-        "WHEEL_NAME" -> RenderWheelName(el, hud)
-        "DATA_VALUE" -> RenderDataValue(el, hud)
-        "DATA_DIAL" -> RenderDial(el, hud)
-        "DATA_BAR" -> RenderBar(el, hud)
-        "DATA_GRAPH" -> RenderGraph(el, hud)
-        "G_FORCE" -> RenderGForce(el, hud)
-        "APP_BADGE" -> RenderAppBadge(el)
-        "CLOCK" -> RenderClock(el)
-        // IMAGE / MAP / FLOATING_CAMERA stay unsupported on the HUD --
-        // those need base64 decoding / map tiles / camera preview that
-        // we don't replicate here (the HUD has dedicated Map and Camera
-        // screens already). Silently dropped.
-        else -> Unit
-    }
-}
-
-@Composable
-private fun RenderAppBadge(el: SimpleElement) {
-    // Minimal "EUC Planet" wordmark + nothing else. The phone has the
-    // app icon, the HUD doesn't, so we render the brand name only --
-    // close enough for testers to recognise the badge slot in their
-    // preset.
-    val fg = parseArgbLong(el.foreground)
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = "EUC Planet",
-            color = fg,
-            fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-@Composable
-private fun RenderClock(el: SimpleElement) {
-    val fg = parseArgbLong(el.foreground)
-    // We don't tick a clock state here -- recomposing on every state
-    // frame (5 Hz) is plenty for digital clock text.
-    val now = remember { java.util.Calendar.getInstance() }
-    LaunchedEffect(Unit) {
-        while (true) {
-            kotlinx.coroutines.delay(1_000L)
-            now.timeInMillis = System.currentTimeMillis()
-        }
-    }
-    val text = "%02d:%02d".format(
-        now.get(java.util.Calendar.HOUR_OF_DAY),
-        now.get(java.util.Calendar.MINUTE)
-    )
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = text,
-            color = fg,
-            fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(12f).sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Monospace
-        )
-    }
-}
-
-/** Convert an ARGB long (as stored in OverlayElement.foreground /
- *  background) to a Compose Color, preserving the alpha byte. */
-private fun parseArgbLong(argb: Long): Color {
-    val a = ((argb ushr 24) and 0xFF).toInt()
-    val r = ((argb ushr 16) and 0xFF).toInt()
-    val g = ((argb ushr 8) and 0xFF).toInt()
-    val b = (argb and 0xFF).toInt()
-    return Color(red = r, green = g, blue = b, alpha = a)
-}
-
-@Composable
-private fun RenderText(el: SimpleElement, hud: HudState) {
-    val resolved = remember(el.text, hud.timestampMs) {
-        // {speed} / {battery} / etc. substitution. Keep the set narrow;
-        // unknown tokens stay as the literal "{name}" so the rider sees
-        // their typo.
-        el.text
-            .replace("{speed}", "%.0f".format(hud.speedKmh))
-            .replace("{battery}", "%d".format(hud.batteryPercent))
-            .replace("{voltage}", "%.1f".format(hud.voltage))
-            .replace("{current}", "%.1f".format(hud.current))
-            .replace("{pwm}", "%.0f".format(hud.pwm))
-            .replace("{temp}", "%.0f".format(hud.temperatureC))
-            .replace("{trip}", "%.1f".format(hud.tripKm))
-            .replace("{wheel_name}", hud.wheelName)
-    }
-    val fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp
-    Text(
-        text = resolved,
-        color = parseArgbLong(el.foreground),
-        fontSize = fontSize,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.fillMaxSize()
-            .alignBy(el.textAlign)
-    )
-}
-
-@Composable
-private fun RenderWheelName(el: SimpleElement, hud: HudState) {
-    Text(
-        text = hud.wheelName.ifBlank { "—" },
-        color = parseArgbLong(el.foreground),
-        fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.fillMaxSize()
-    )
-}
-
-@Composable
-private fun RenderDataValue(el: SimpleElement, hud: HudState) {
-    val (value, unit) = metricValueAndUnit(el.metric, hud)
-    val combined = if (el.showLabel) "$value $unit" else value
-    Text(
-        text = combined,
-        color = parseArgbLong(el.foreground),
-        fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.fillMaxSize()
-    )
-}
-
-@Composable
-private fun RenderDial(el: SimpleElement, hud: HudState) {
-    val frac = remember(hud.timestampMs) {
-        val (v, _) = metricNumericAndUnit(el.metric, hud)
-        (v / el.gaugeMax).coerceIn(0f, 1f)
-    }
-    val (label, _) = metricNumericAndUnit(el.metric, hud)
-    Canvas(Modifier.fillMaxSize()) {
-        val stroke = min(size.width, size.height) * 0.10f
-        val diameter = min(size.width, size.height) - stroke
-        val topLeft = Offset(
-            (size.width - diameter) / 2f,
-            (size.height - diameter) / 2f
-        )
-        val arcSize = Size(diameter, diameter)
-        val startAngle = 135f
-        val sweepFull = 270f
-        // Track
-        drawArc(
-            color = Color.White.copy(alpha = 0.15f),
-            startAngle = startAngle,
-            sweepAngle = sweepFull,
-            useCenter = false,
-            style = Stroke(width = stroke),
-            topLeft = topLeft, size = arcSize
-        )
-        // Value
-        drawArc(
-            color = parseArgbLong(el.foreground),
-            startAngle = startAngle,
-            sweepAngle = sweepFull * frac,
-            useCenter = false,
-            style = Stroke(width = stroke),
-            topLeft = topLeft, size = arcSize
-        )
-    }
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = "%.0f".format(label),
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun RenderBar(el: SimpleElement, hud: HudState) {
-    val (numeric, unit) = metricNumericAndUnit(el.metric, hud)
-    val frac = (numeric / el.gaugeMax).coerceIn(0f, 1f)
-    Canvas(Modifier.fillMaxSize()) {
-        val barH = size.height * 0.4f
-        val cy = size.height / 2f
-        drawRect(
-            color = Color.White.copy(alpha = 0.15f),
-            topLeft = Offset(0f, cy - barH / 2f),
-            size = Size(size.width, barH)
-        )
-        drawRect(
-            color = parseArgbLong(el.foreground),
-            topLeft = Offset(0f, cy - barH / 2f),
-            size = Size(size.width * frac, barH)
-        )
-    }
-    if (el.barShowValue) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
-            Text(
-                text = "%.0f %s".format(numeric, unit),
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-@Composable
-private fun RenderGraph(el: SimpleElement, hud: HudState) {
-    // Per-element history buffer keyed off the element id (which the
-    // preset already supplies).
-    val buf = remember(el.id) { java.util.ArrayDeque<Float>() }
-    val (numeric, _) = metricNumericAndUnit(el.metric, hud)
-    LaunchedEffect(hud.timestampMs) {
-        buf.addLast(numeric)
-        val cap = (el.graphWindowSec * 5).coerceAtLeast(20) // 5 Hz feed
-        while (buf.size > cap) buf.removeFirst()
-    }
-    Canvas(Modifier.fillMaxSize()) {
-        if (buf.size < 2) return@Canvas
-        val sMin = buf.min()
-        val sMax = buf.max()
-        val range = (sMax - sMin).coerceAtLeast(0.0001f)
-        val step = size.width / (buf.size - 1)
-        val path = Path()
-        buf.forEachIndexed { i, v ->
-            val x = i * step
-            val norm = ((v - sMin) / range).coerceIn(0f, 1f)
-            val y = size.height * (1f - norm)
-            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
-        }
-        drawPath(
-            path = path,
-            color = parseArgbLong(el.foreground),
-            style = Stroke(width = 2.dp.toPx())
-        )
-    }
-}
-
-@Composable
-private fun RenderGForce(el: SimpleElement, hud: HudState) {
-    val gx = remember(hud.timestampMs) { lateralG(hud.wheelRollDeg) }
-    val gy = 0f
-    Canvas(Modifier.fillMaxSize()) {
-        val cx = size.width / 2f
-        val cy = size.height / 2f
-        val r = min(size.width, size.height) / 2f - 2f
-        drawCircle(
-            color = Color.White.copy(alpha = 0.2f),
-            radius = r,
-            center = Offset(cx, cy),
-            style = Stroke(width = 1.dp.toPx())
-        )
-        val tip = Offset(
-            cx + (gx / el.gForceScale).coerceIn(-1f, 1f) * r,
-            cy + (gy / el.gForceScale).coerceIn(-1f, 1f) * r
-        )
-        drawCircle(
-            color = parseArgbLong(el.foreground),
-            radius = 3.dp.toPx(),
-            center = tip
-        )
-    }
-}
-
-/** Read a metric value formatted for display + unit suffix. */
-private fun metricValueAndUnit(metric: String, hud: HudState): Pair<String, String> {
-    return when (metric) {
-        "SPEED" -> {
-            val v = HudUnits.speed(hud.speedKmh, hud.unitSpeed)
-            "%.0f".format(v) to HudUnits.speedSuffix(hud.unitSpeed)
-        }
-        "BATTERY" -> "%d".format(hud.batteryPercent) to "%"
-        "VOLTAGE" -> "%.1f".format(hud.voltage) to "V"
-        "CURRENT" -> "%.1f".format(hud.current) to "A"
-        "PWM" -> "%.0f".format(hud.pwm) to "%"
-        "TEMP", "TEMP_C" -> {
-            val v = HudUnits.temperature(hud.temperatureC, hud.unitTemp)
-            "%.0f".format(v) to HudUnits.temperatureSuffix(hud.unitTemp)
-        }
-        "TRIP", "TRIP_DIST" -> {
-            val v = HudUnits.distance(hud.tripKm, hud.unitDistance)
-            "%.1f".format(v) to HudUnits.distanceSuffix(hud.unitDistance)
-        }
-        else -> "—" to ""
-    }
-}
-
-/** Same metrics but as a raw Float for gauge/graph rendering. */
-private fun metricNumericAndUnit(metric: String, hud: HudState): Pair<Float, String> {
-    return when (metric) {
-        "SPEED" -> HudUnits.speed(hud.speedKmh, hud.unitSpeed) to HudUnits.speedSuffix(hud.unitSpeed)
-        "BATTERY" -> hud.batteryPercent.toFloat() to "%"
-        "VOLTAGE" -> hud.voltage to "V"
-        "CURRENT" -> hud.current to "A"
-        "PWM" -> hud.pwm to "%"
-        "TEMP", "TEMP_C" ->
-            HudUnits.temperature(hud.temperatureC, hud.unitTemp) to HudUnits.temperatureSuffix(hud.unitTemp)
-        "TRIP", "TRIP_DIST" ->
-            HudUnits.distance(hud.tripKm, hud.unitDistance) to HudUnits.distanceSuffix(hud.unitDistance)
-        else -> 0f to ""
-    }
-}
-
-private fun lateralG(rollDeg: Float): Float {
-    if (rollDeg == 0f) return 0f
-    val rad = rollDeg * PI.toFloat() / 180f
-    return kotlin.math.tan(rad).coerceIn(-1.5f, 1.5f)
-}
-
-private fun Modifier.alignBy(textAlign: String): Modifier = this
-
-private fun SimpleElement.heightFraction(default: Float): Float =
-    if (this.height > 0f) this.height else default
-
-/**
- * Minimal element model parsed straight off the wire. Only the fields
- * the HUD renderer uses are captured; everything else is dropped.
- */
-private data class SimpleElement(
-    val id: String,
-    val type: String,
-    val x: Float,
-    val y: Float,
-    val width: Float,
-    val height: Float,
-    val rotationDeg: Float,
-    val opacity: Float,
-    val text: String,
-    val textAlign: String,
-    val metric: String,
-    val showLabel: Boolean,
-    val gaugeMax: Float,
-    val foreground: Long,
-    val background: Long,
-    val graphWindowSec: Int,
-    val barShowValue: Boolean,
-    val gForceScale: Float
-)
-
-private fun parseElements(json: String): List<SimpleElement> {
-    if (json.isBlank()) return emptyList()
+/** Parse the wire-format preset JSON into an OverlayPreset using the
+ *  shared model. Returns null on any failure so the rider sees the
+ *  empty-state hint rather than a crash. */
+private fun parsePreset(json: String): OverlayPreset? {
+    if (json.isBlank()) return null
     return try {
         val root = JSONObject(json)
-        val arr: JSONArray = root.optJSONArray("elements") ?: return emptyList()
-        (0 until arr.length()).mapNotNull { i ->
-            arr.optJSONObject(i)?.let { parseElement(it) }
+        val elementsArr = root.optJSONArray("elements") ?: JSONArray()
+        val elements = (0 until elementsArr.length()).mapNotNull { i ->
+            elementsArr.optJSONObject(i)?.let(::parseElement)
         }
+        // We don't need viewports / dividers on the HUD (no panes); pass
+        // defaults so the OverlayPreset constructor is happy.
+        OverlayPreset(
+            name = root.optString("name", ""),
+            elements = elements
+        )
     } catch (_: Throwable) {
-        emptyList()
+        null
     }
 }
 
-private fun parseElement(o: JSONObject): SimpleElement? {
-    val type = o.optString("type", "") ?: return null
-    if (type.isBlank()) return null
-    return SimpleElement(
-        id = o.optString("id", java.util.UUID.randomUUID().toString()),
+private fun parseElement(o: JSONObject): OverlayElement? {
+    val typeStr = o.optString("type", "")
+    val type = runCatching { OverlayElementType.valueOf(typeStr) }.getOrNull() ?: return null
+    val d = OverlayElement(type = type)
+    return OverlayElement(
+        id = o.optString("id", d.id),
         type = type,
-        x = o.optDouble("x", 0.0).toFloat(),
-        y = o.optDouble("y", 0.0).toFloat(),
-        width = o.optDouble("width", 0.3).toFloat(),
-        height = o.optDouble("height", 0.0).toFloat(),
-        rotationDeg = o.optDouble("rotationDeg", 0.0).toFloat(),
-        opacity = o.optDouble("opacity", 1.0).toFloat(),
-        text = o.optString("text", ""),
-        textAlign = o.optString("textAlign", "START"),
-        metric = o.optString("metric", "SPEED"),
-        showLabel = o.optBoolean("showLabel", true),
-        gaugeMax = o.optDouble("gaugeMax", 100.0).toFloat(),
-        foreground = o.optLong("foreground", 0xFFFFFFFFL),
-        background = o.optLong("background", 0x66000000L),
-        graphWindowSec = o.optInt("graphWindowSec", 10),
-        barShowValue = o.optBoolean("barShowValue", true),
-        gForceScale = o.optDouble("gForceScale", 1.0).toFloat()
+        x = o.optDouble("x", d.x.toDouble()).toFloat(),
+        y = o.optDouble("y", d.y.toDouble()).toFloat(),
+        width = o.optDouble("width", d.width.toDouble()).toFloat(),
+        height = o.optDouble("height", d.height.toDouble()).toFloat(),
+        rotationDeg = o.optDouble("rotationDeg", d.rotationDeg.toDouble()).toFloat(),
+        opacity = o.optDouble("opacity", d.opacity.toDouble()).toFloat(),
+        shadow = o.optBoolean("shadow", d.shadow),
+        shadowColor = o.optLong("shadowColor", d.shadowColor),
+        shadowStrength = o.optDouble("shadowStrength", d.shadowStrength.toDouble()).toFloat(),
+        shadowDistance = o.optDouble("shadowDistance", d.shadowDistance.toDouble()).toFloat(),
+        shadowAngle = o.optDouble("shadowAngle", d.shadowAngle.toDouble()).toFloat(),
+        metric = o.optString("metric", d.metric),
+        showLabel = o.optBoolean("showLabel", d.showLabel),
+        text = o.optString("text", d.text),
+        textAlign = o.optString("textAlign", d.textAlign),
+        badgeStacked = o.optBoolean("badgeStacked", d.badgeStacked),
+        badgeShowVersion = o.optBoolean("badgeShowVersion", d.badgeShowVersion),
+        graphWindowSec = o.optInt("graphWindowSec", d.graphWindowSec),
+        gaugeMax = o.optDouble("gaugeMax", d.gaugeMax.toDouble()).toFloat(),
+        foreground = o.optLong("foreground", d.foreground),
+        background = o.optLong("background", d.background),
+        cameraKey = o.optString("cameraKey", d.cameraKey),
+        clockStyle = o.optString("clockStyle", d.clockStyle),
+        clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
+        mapStyle = o.optString("mapStyle", d.mapStyle),
+        mapZoom = o.optInt("mapZoom", d.mapZoom),
+        mapRotateWithHeading = o.optBoolean("mapRotateWithHeading", d.mapRotateWithHeading),
+        mapTrace = o.optBoolean("mapTrace", d.mapTrace),
+        mapBorderWidth = o.optDouble("mapBorderWidth", d.mapBorderWidth.toDouble()).toFloat(),
+        gForceScale = o.optDouble("gForceScale", d.gForceScale.toDouble()).toFloat(),
+        gForceSmoothing = o.optDouble("gForceSmoothing", d.gForceSmoothing.toDouble()).toFloat(),
+        barShowValue = o.optBoolean("barShowValue", d.barShowValue),
+        dialStyle = o.optString("dialStyle", d.dialStyle),
+        unitPosition = o.optString("unitPosition", d.unitPosition)
     )
 }
