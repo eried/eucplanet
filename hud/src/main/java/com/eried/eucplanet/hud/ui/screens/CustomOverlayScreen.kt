@@ -188,17 +188,27 @@ private fun BoxScope.LandscapeRotatedCanvas(
     // frame and invalidates the layer. At 5 Hz across 8 layers (canvas +
     // 7 elements) the lambda form was the dominant per-frame cost and
     // pushed the Custom screen into ANR territory.
-    // requiredSize, not size: the canvas wants to be portraitW x
-    // portraitH (368 x 800 on a 800x480 HUD) so portrait-coord offsets
-    // resolve against the right reference. Plain .size() gets clipped
-    // by the parent fillMaxSize constraints (max 480 tall on HUD), so
-    // any element with y_p > 0.6 was placed outside the constrained
-    // box and rendered at the wrong rotated position. requiredSize
-    // tells Compose "ignore the parent constraints, take this size."
+    // Fill-up scaling is baked into the canvas DIMENSIONS rather than
+    // a graphicsLayer scaleX/scaleY. graphicsLayer-based scaling under
+    // rotation forces Skia to re-rasterise the layer at the new scale
+    // every frame, which under the 5 Hz wire stream + debug-build
+    // unoptimised Compose runtime tipped the Custom screen straight
+    // into ANR. Scaling the LAYOUT (resizing the requiredSize box)
+    // instead lets Compose lay everything out once at the larger size;
+    // the graphicsLayer only rotates, no extra rasterisation pass.
+    //
+    // Scale factor chosen so the rotated canvas's short side equals
+    // HUD height (fills vertically). The long side overflows the HUD
+    // horizontally by ~30 percent, but the rider's elements sit in
+    // the inner portion of the canvas so the overflow is empty
+    // padding -- nothing visible is clipped.
+    val fillScale = hudH.value / portraitW.value
+    val scaledW = portraitW * fillScale
+    val scaledH = portraitH * fillScale
     Box(
         modifier = Modifier
             .align(Alignment.Center)
-            .requiredSize(width = portraitW, height = portraitH)
+            .requiredSize(width = scaledW, height = scaledH)
             .graphicsLayer(
                 rotationZ = canvasRot,
                 transformOrigin = TransformOrigin.Center
@@ -210,13 +220,18 @@ private fun BoxScope.LandscapeRotatedCanvas(
             // dominantRot). For elements that match the dominant
             // rotation that's 0 (upright); off-axis elements stay at
             // their intended off-axis angle.
+            //
+            // Offsets/constraints reference scaledW/scaledH so element
+            // sizes scale with the canvas. el.width = 0.32 of canvas
+            // becomes 0.32 * scaledW, which on an 800x480 HUD is the
+            // intended fill-the-panel sizing.
             Box(
                 modifier = Modifier
-                    .offset(x = portraitW * el.x, y = portraitH * el.y)
-                    .widthIn(max = portraitW * el.width)
+                    .offset(x = scaledW * el.x, y = scaledH * el.y)
+                    .widthIn(max = scaledW * el.width)
                     .then(
                         if (el.height > 0f)
-                            Modifier.heightIn(max = portraitH * el.height)
+                            Modifier.heightIn(max = scaledH * el.height)
                         else Modifier
                     )
                     .graphicsLayer(
