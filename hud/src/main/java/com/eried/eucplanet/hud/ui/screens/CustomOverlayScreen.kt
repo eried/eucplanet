@@ -2,12 +2,12 @@ package com.eried.eucplanet.hud.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,10 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.min
 import com.eried.eucplanet.hud.overlay.OverlayElementRenderer
 import com.eried.eucplanet.hud.overlay.StudioElementData
 import com.eried.eucplanet.hud.protocol.HudState
@@ -35,25 +36,33 @@ import org.json.JSONObject
 /**
  * Renders the rider's selected Overlay Studio preset on the HUD's Custom
  * screen, optionally with the rear-camera preview as the background.
- * Uses the SAME element-by-element renderer the phone studio does
- * (see com.eried.eucplanet.hud.overlay.OverlayElementRenderer), so a
- * preset reads pixel-identical between phone and HUD.
  *
- * Canvas frame: the studio canvas is ALWAYS portrait-fixed (see comment
- * in OverlayStudioScreen.kt:802 -- "the layout itself never rotates").
- * The rider's 0..1 coords are normalized to that portrait box. To
- * preserve the layout exactly as authored we render inside a centred
- * portrait viewport on the HUD's landscape panel: black letterbox bars
- * on the sides, the preset rendered inside the central portrait region.
- * No coord rotation, no horizontal stretching -- the preset reads the
- * same shape it does in the studio editor.
+ * Two layout modes, picked from the dominant element rotationDeg in the
+ * preset (see OverlayStudioScreen.kt:1539: rotationDeg = (360 - deviceRotation)
+ * % 360 -- the studio stamps each new element with this on placement):
  *
- * Per-element rotation IS applied here (matches the studio's
- * graphicsLayer { rotationZ = element.rotationDeg } at the equivalent
- * site in StudioOverlayElements.kt:324). That way a landscape-authored
- * preset (rider held phone sideways, element.rotationDeg = 90 or 270)
- * draws on the HUD exactly the same way the studio drew it: rotated
- * inside the portrait canvas, ready for the rider to compare 1:1.
+ *   - Portrait preset (rotationDeg = 0): coords are in the rider's view
+ *     frame already (they were holding the phone portrait). We render
+ *     directly on the HUD's full landscape panel at raw coords. The
+ *     layout will read wider than the studio shows it (HUD landscape is
+ *     wider than phone portrait) but element positions are 1:1 with the
+ *     preset JSON.
+ *
+ *   - Landscape preset (rotationDeg = 90 or 270): coords are in the
+ *     studio's portrait-fixed canvas, with each element pre-rotated so
+ *     it reads upright when the rider tilts the phone to landscape. We
+ *     render onto a portrait sub-canvas using the EXACT same widthIn /
+ *     heightIn / per-element graphicsLayer rules the studio uses, then
+ *     rotate the whole sub-canvas (-rotationDeg) to fit the HUD's
+ *     landscape panel. The element rotation cancels with the canvas
+ *     rotation -- content ends up upright and the layout reads the same
+ *     way the rider sees it on their landscape phone in the studio.
+ *
+ * Sizing inside the rotated landscape mode tracks the studio: the
+ * portrait sub-canvas is sized so its post-rotation width fills the HUD
+ * width, with a 9:19.5 aspect (modern-phone default -- we don't store
+ * the rider's actual screen aspect in the preset). Vertical letterbox
+ * appears top/bottom on the HUD if the panel is taller than 9:19.5.
  */
 @Composable
 fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
@@ -75,37 +84,139 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 }
                 return@BoxWithConstraints
             }
-            // Portrait viewport sized to fit the HUD's height, with the
-            // typical modern-phone aspect (9:19.5). We don't know the
-            // rider's actual screen aspect because OverlayPreset doesn't
-            // store it -- 9:19.5 is the most common, and being slightly
-            // off here just changes how much side letterbox the rider
-            // sees, not where elements land.
-            val portraitAspect = 9f / 19.5f
-            val containerH = maxHeight
-            val containerW = min(maxWidth.value, (maxHeight.value * portraitAspect)).dp
+            val dominantRot = dominantRotation(preset)
+            if (dominantRot == 90 || dominantRot == 270) {
+                LandscapeRotatedCanvas(
+                    preset = preset,
+                    data = data,
+                    // Compose rotationZ is CW-visual when positive, so
+                    // rotating the canvas by +dominantRot lands portrait
+                    // coords at the same place the rider sees them on
+                    // their landscape phone in the studio. The per-element
+                    // rotation (inside the canvas) is then negated below
+                    // so element content + canvas rotation cancel to 0
+                    // and read upright.
+                    canvasRot = dominantRot.toFloat(),
+                    hudW = maxWidth,
+                    hudH = maxHeight
+                )
+            } else {
+                PortraitRawCanvas(
+                    preset = preset,
+                    data = data,
+                    containerW = maxWidth,
+                    containerH = maxHeight
+                )
+            }
+        }
+    }
+}
+
+/** Most common rotationDeg across the preset's elements, snapped to one
+ *  of 0 / 90 / 180 / 270. Returns 0 if the preset has no elements. */
+private fun dominantRotation(preset: OverlayPreset): Int {
+    val buckets = preset.elements
+        .groupingBy { ((it.rotationDeg.toInt() % 360) + 360) % 360 }
+        .eachCount()
+    return buckets.maxByOrNull { it.value }?.key ?: 0
+}
+
+/** Render the preset at raw portrait coords directly on the HUD's
+ *  landscape panel. Used for rotationDeg=0 presets where the coords
+ *  are already in the rider's view frame. */
+@Composable
+private fun PortraitRawCanvas(
+    preset: OverlayPreset,
+    data: StudioElementData,
+    containerW: Dp,
+    containerH: Dp
+) {
+    preset.elements.forEach { el ->
+        Box(
+            modifier = Modifier
+                .offset(x = containerW * el.x, y = containerH * el.y)
+                .widthIn(max = containerW * el.width)
+                .then(
+                    if (el.height > 0f)
+                        Modifier.heightIn(max = containerH * el.height)
+                    else Modifier
+                )
+                .alpha(el.opacity)
+        ) {
+            OverlayElementRenderer(el, data)
+        }
+    }
+}
+
+/** Render the preset on a portrait sub-canvas, then rotate the canvas
+ *  to fit the HUD's landscape panel. Used for landscape presets
+ *  (dominant rotationDeg = 90 or 270) where the rider authored on a
+ *  portrait-fixed canvas while holding the phone sideways. The
+ *  rotation cancels each element's rotationDeg, leaving content upright
+ *  and the layout matching the rider's landscape phone view 1:1. */
+@Composable
+private fun BoxScope.LandscapeRotatedCanvas(
+    preset: OverlayPreset,
+    data: StudioElementData,
+    canvasRot: Float,
+    hudW: Dp,
+    hudH: Dp
+) {
+    // 9:19.5 is the typical modern-phone portrait aspect. The preset
+    // doesn't store the rider's exact screen aspect; this is the
+    // best default. A slightly off aspect just shifts elements a few
+    // percent, not enough to change relative layout.
+    val portraitAspect = 9f / 19.5f
+    // Size the portrait canvas so its post-rotation width fills the
+    // HUD width (= portrait HEIGHT after a 90 degree rotation), then
+    // derive portrait width from the aspect. If that would make the
+    // post-rotation height exceed HUD height, scale down to fit.
+    val targetPostRotW = hudW
+    val targetPortraitH = targetPostRotW
+    val targetPortraitW = targetPortraitH * portraitAspect
+    val postRotH = targetPortraitW
+    val (portraitW, portraitH) =
+        if (postRotH.value <= hudH.value) targetPortraitW to targetPortraitH
+        else {
+            // Scale down so post-rotation height = HUD height.
+            val scaledPortraitW = hudH
+            val scaledPortraitH = scaledPortraitW / portraitAspect
+            scaledPortraitW to scaledPortraitH
+        }
+
+    Box(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .size(width = portraitW, height = portraitH)
+            .graphicsLayer {
+                rotationZ = canvasRot
+                transformOrigin = TransformOrigin.Center
+            }
+    ) {
+        preset.elements.forEach { el ->
             Box(
                 modifier = Modifier
-                    .align(Alignment.Center)
-                    .width(containerW)
-                    .fillMaxHeight()
+                    .offset(x = portraitW * el.x, y = portraitH * el.y)
+                    .widthIn(max = portraitW * el.width)
+                    .then(
+                        if (el.height > 0f)
+                            Modifier.heightIn(max = portraitH * el.height)
+                        else Modifier
+                    )
+                    // Negated so element-content rotation + canvas
+                    // rotation cancel: studio drew content at +rotationDeg
+                    // assuming the rider would tilt the phone, which on
+                    // the HUD we simulate by rotating the whole canvas
+                    // at +dominantRot. The content rotates with the canvas,
+                    // so we pre-rotate the element by -rotationDeg here
+                    // to leave a net rotation of (dominantRot - rotationDeg).
+                    // For elements that match the dominant rotation, that
+                    // is 0 (upright); off-axis elements stay at their
+                    // intended off-axis angle.
+                    .graphicsLayer { rotationZ = -el.rotationDeg }
+                    .alpha(el.opacity)
             ) {
-                preset.elements.forEach { el ->
-                    Box(
-                        modifier = Modifier
-                            .offset(x = containerW * el.x, y = containerH * el.y)
-                            .widthIn(max = containerW * el.width)
-                            .then(
-                                if (el.height > 0f)
-                                    Modifier.heightIn(max = containerH * el.height)
-                                else Modifier
-                            )
-                            .graphicsLayer { rotationZ = el.rotationDeg }
-                            .alpha(el.opacity)
-                    ) {
-                        OverlayElementRenderer(el, data)
-                    }
-                }
+                OverlayElementRenderer(el, data)
             }
         }
     }
