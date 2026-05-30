@@ -669,8 +669,17 @@ fun SettingsScreen(
                 )
             )
         },
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = {
+            // imePadding lifts the snackbar above the soft keyboard so cheat
+            // results / unit-toggle confirms / etc don't appear behind it
+            // when triggered from the Settings search field.
+            SnackbarHost(snackbar, modifier = Modifier.imePadding())
+        }
     ) { padding ->
+      androidx.compose.runtime.CompositionLocalProvider(
+        com.eried.eucplanet.ui.common.LocalSnackbar provides snackbar,
+        com.eried.eucplanet.ui.common.LocalSnackbarScope provides snackbarScope
+      ) {
         val settingsFocusManager = androidx.compose.ui.platform.LocalFocusManager.current
         Column(
             modifier = Modifier
@@ -740,6 +749,7 @@ fun SettingsScreen(
                 }
             }
         }
+      }
     }
 }
 
@@ -990,13 +1000,14 @@ private fun DashboardLayoutTab(
     // Throttled to one toast per 5 taps so it doesn't spam the rider while
     // they explore — the same counter governs +STACK / +TEXT / +group
     // template taps too.
-    val poolTapContext = LocalContext.current
     val poolTapMessage = stringResource(R.string.dashboard_pool_tap_toast)
     var poolTapCount by remember { mutableStateOf(0) }
+    val poolSnackbar = com.eried.eucplanet.ui.common.LocalSnackbar.current
+    val poolSnackbarScope = com.eried.eucplanet.ui.common.LocalSnackbarScope.current
     val showPoolTapToast: () -> Unit = {
         poolTapCount += 1
         if (poolTapCount % 5 == 1) {
-            Toast.makeText(poolTapContext, poolTapMessage, Toast.LENGTH_SHORT).show()
+            com.eried.eucplanet.ui.common.showSnackbar(poolSnackbar, poolSnackbarScope, poolTapMessage)
         }
     }
 

@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -158,18 +159,14 @@ import kotlin.math.sin
  * saves into Movies/EUC Planet and Pictures/EUC Planet; Android has no reliable
  * "open exactly this folder" intent, so this filters the gallery by media type.
  */
-private fun openMediaGallery(context: Context, video: Boolean) {
+private fun openMediaGallery(context: Context, video: Boolean, onNoGalleryApp: () -> Unit) {
     val collection = if (video) MediaStore.Video.Media.EXTERNAL_CONTENT_URI
     else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
     val intent = Intent(Intent.ACTION_VIEW).apply {
         setDataAndType(collection, if (video) "video/*" else "image/*")
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    runCatching { context.startActivity(intent) }.onFailure {
-        Toast.makeText(
-            context, context.getString(R.string.dash_no_gallery_app), Toast.LENGTH_SHORT
-        ).show()
-    }
+    runCatching { context.startActivity(intent) }.onFailure { onNoGalleryApp() }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -410,8 +407,12 @@ fun DashboardScreen(
     val showWelcomeTour = !welcomeTutorialSeen && !tourDismissed
 
     Box(modifier = Modifier.fillMaxSize()) {
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.eried.eucplanet.ui.common.LocalSnackbar provides snackbar,
+        com.eried.eucplanet.ui.common.LocalSnackbarScope provides snackbarScope
+    ) {
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbar) },
+        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) },
         topBar = {
             TopAppBar(
                 title = {
@@ -745,14 +746,22 @@ fun DashboardScreen(
                             text = { Text(stringResource(R.string.dash_view_video_gallery)) },
                             onClick = {
                                 showStudioMenu = false
-                                openMediaGallery(toastContext, video = true)
+                                openMediaGallery(toastContext, video = true) {
+                                    snackbarScope.launch {
+                                        snackbar.showSnackbar(toastContext.getString(R.string.dash_no_gallery_app))
+                                    }
+                                }
                             }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.dash_view_photo_gallery)) },
                             onClick = {
                                 showStudioMenu = false
-                                openMediaGallery(toastContext, video = false)
+                                openMediaGallery(toastContext, video = false) {
+                                    snackbarScope.launch {
+                                        snackbar.showSnackbar(toastContext.getString(R.string.dash_no_gallery_app))
+                                    }
+                                }
                             }
                         )
                     }
@@ -2230,6 +2239,7 @@ fun DashboardScreen(
                 tourDismissed = true
             }
         }
+        }  // close CompositionLocalProvider
     }
 }
 

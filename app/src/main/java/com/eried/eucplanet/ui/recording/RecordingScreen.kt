@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.recording
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,7 +49,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.foundation.layout.imePadding
+import com.eried.eucplanet.ui.common.LocalSnackbar
+import com.eried.eucplanet.ui.common.LocalSnackbarScope
+import com.eried.eucplanet.ui.common.showSnackbar as showSnackbarLocal
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -109,6 +116,18 @@ fun RecordingScreen(
     var tripToDelete by remember { mutableStateOf<TripRecord?>(null) }
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val listState = rememberLazyListState()
+
+    // Shared snackbar host so status icons / ViewModel auto-stop toasts use
+    // the same surface as the rest of the app instead of the native Android
+    // Toast (which clips behind the keyboard and breaks our Snackbar
+    // convention, see ui/common/SnackbarLocals.kt).
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+    LaunchedEffect(viewModel) {
+        viewModel.toasts.collect { msg ->
+            snackbarScope.launch { snackbar.showSnackbar(msg) }
+        }
+    }
 
     // Block back navigation while importing
     BackHandler(enabled = importing) { /* swallow */ }
@@ -177,7 +196,12 @@ fun RecordingScreen(
         )
     }
 
+    CompositionLocalProvider(
+        LocalSnackbar provides snackbar,
+        LocalSnackbarScope provides snackbarScope
+    ) {
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.recording_title)) },
@@ -408,6 +432,7 @@ fun RecordingScreen(
             }
         }
     }
+    }
 }
 
 @Composable
@@ -536,9 +561,10 @@ private fun TripCard(
 
 @Composable
 private fun PendingStatusIcon() {
-    val context = LocalContext.current
     val msg = stringResource(R.string.discard_trip_pending_label)
-    IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
+    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
         Icon(Icons.Default.Pending, contentDescription = msg, tint = AccentOrange,
             modifier = Modifier.size(20.dp))
     }
@@ -546,7 +572,6 @@ private fun PendingStatusIcon() {
 
 @Composable
 private fun UploadStatusIcon(trip: TripRecord) {
-    val context = LocalContext.current
     val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
 
     val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
@@ -554,7 +579,9 @@ private fun UploadStatusIcon(trip: TripRecord) {
         stringResource(R.string.cloud_uploaded_on, it)
     } ?: stringResource(R.string.cloud_not_uploaded)
 
-    IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
+    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
         Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = AccentGreen,
             modifier = Modifier.size(20.dp))
     }
