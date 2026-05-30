@@ -278,4 +278,212 @@ object InMotionV2Commands {
             Command.CONTROL,
             byteArrayOf(ControlSubCmd.SET_VOLUME, volume.coerceIn(0, 100).toByte())
         )
+
+    // ============================================================
+    // WheelLog-documented V2 setters, NOT yet wired to UI.
+    //
+    // Sourced byte-for-byte from WheelLog InmotionAdapterV2.java.
+    // Each is `internal fun` so the protocol knowledge is preserved
+    // in code (and unit-testable) without growing the public
+    // WheelAdapter surface or risking a misfire on other families.
+    //
+    // Byte-order note: WheelLog uses big-endian for V2 multi-byte
+    // values (writes `value[1] value[0]` where getBytes() returned
+    // little-endian). The P6-specific builders above use LE because
+    // that's what the labelled P6 capture proved; the V11/V12/V13/V14
+    // path below follows WheelLog's BE convention.
+    // ============================================================
+
+    private fun be16(value: Int): Pair<Byte, Byte> =
+        ((value ushr 8) and 0xFF).toByte() to (value and 0xFF).toByte()
+
+    /** V14 combined max-speed + alarm-speed write (`60 21` + 2 × u16 BE × 100). */
+    internal fun v2SetMaxSpeedV14BE(maxKmh: Int, alarmKmh: Int): ByteArray {
+        val (mHi, mLo) = be16(maxKmh.coerceIn(1, 99) * 100)
+        val (aHi, aLo) = be16(alarmKmh.coerceIn(1, 99) * 100)
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x21, mHi, mLo, aHi, aLo)
+        )
+    }
+
+    /** Legacy single-value max-speed (`60 21` + u16 BE × 100). */
+    internal fun v2SetMaxSpeed(kmh: Int): ByteArray {
+        val (hi, lo) = be16(kmh.coerceIn(1, 99) * 100)
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x21, hi, lo)
+        )
+    }
+
+    /** Pedal mounting/horizon tilt in tenths of a degree (`60 22` + i16 BE × 10). */
+    internal fun v2SetPedalTilt(degTenths: Int): ByteArray {
+        val (hi, lo) = be16(degTenths)
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x22, hi, lo)
+        )
+    }
+
+    /** Ride mode toggle Comfort (off) vs Classic (on) (`60 23` + bool). */
+    internal fun v2SetClassicMode(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x23, if (on) 0x01 else 0x00)
+        )
+
+    /** "Fancier" ride mode (`60 24` + bool). */
+    internal fun v2SetFancierMode(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x24, if (on) 0x01 else 0x00)
+        )
+
+    /** Pedal sensitivity (`60 25` + value × 2). Same value twice per WheelLog. */
+    internal fun v2SetPedalSensitivity(sensitivity: Int): ByteArray {
+        val v = (sensitivity and 0xFF).toByte()
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x25, v, v)
+        )
+    }
+
+    /** Auto-shutdown delay in MINUTES (`60 28` + u16 BE seconds, encoded × 60). */
+    internal fun v2SetStandbyDelay(minutes: Int): ByteArray {
+        val (hi, lo) = be16(minutes * 60)
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x28, hi, lo)
+        )
+    }
+
+    /** Headlight brightness 0..255 (`60 2B` + u8). V12 lo/hi variant below. */
+    internal fun v2SetLightBrightness(brightness: Int): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x2B, (brightness and 0xFF).toByte())
+        )
+
+    /** V12-family low / high beam brightness in one packet (`60 2B` + 2 × u8). */
+    internal fun v2SetLightBrightnessV12(low: Int, high: Int): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x2B, (low and 0xFF).toByte(), (high and 0xFF).toByte())
+        )
+
+    /** Mute toggle. NOTE: inverted on the wire (`60 2C` + 0=on, 1=off). */
+    internal fun v2SetMute(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x2C, if (on) 0x00 else 0x01)
+        )
+
+    /** Handle-button lock. Inverted on the wire (`60 2E` + 0=enabled, 1=disabled). */
+    internal fun v2SetHandleButton(enabled: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x2E, if (enabled) 0x00 else 0x01)
+        )
+
+    /** Auto-headlight (`60 2F` + bool). */
+    internal fun v2SetAutoLight(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x2F, if (on) 0x01 else 0x00)
+        )
+
+    /** Transport mode — sub-50W limp limit for moving the wheel (`60 32` + bool). */
+    internal fun v2SetTransportMode(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x32, if (on) 0x01 else 0x00)
+        )
+
+    /** Go-home / low-battery limp mode (`60 37` + bool). */
+    internal fun v2SetGoHome(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x37, if (on) 0x01 else 0x00)
+        )
+
+    /** Quiet fan mode (`60 38` + bool). V14g/V14s only. */
+    internal fun v2SetQuietMode(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x38, if (on) 0x01 else 0x00)
+        )
+
+    /** Sound-wave decorative mode (`60 39` + bool). */
+    internal fun v2SetSoundWave(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x39, if (on) 0x01 else 0x00)
+        )
+
+    /** Two warning speeds in one packet for V11/V12 (`60 3E` + 2 × u16 BE × 100). */
+    internal fun v2SetAlarmSpeedV12(lowKmh: Int, highKmh: Int): ByteArray {
+        val (lHi, lLo) = be16(lowKmh.coerceIn(1, 99) * 100)
+        val (hHi, hLo) = be16(highKmh.coerceIn(1, 99) * 100)
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x3E, lHi, lLo, hHi, hLo)
+        )
+    }
+
+    /** Split-mode toggle (`60 3E` on V11/V13/V14, `60 42` on V12HS/HT/PRO). */
+    internal fun v2SetSplitMode(on: Boolean, v12Family: Boolean): ByteArray {
+        val cmd: Byte = if (v12Family) 0x42 else 0x3E
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(cmd, if (on) 0x01 else 0x00)
+        )
+    }
+
+    /** Split-mode accel + brake sens (`60 3F` on V11/V13/V14, `60 40` on V12HS/HT/PRO). */
+    internal fun v2SetSplitAccelBreak(accel: Int, brake: Int, v12Family: Boolean): ByteArray {
+        val cmd: Byte = if (v12Family) 0x40 else 0x3F
+        return InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(cmd, (accel and 0xFF).toByte(), (brake and 0xFF).toByte())
+        )
+    }
+
+    /** Cooling fan (`60 43` + bool). */
+    internal fun v2SetFan(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x43, if (on) 0x01 else 0x00)
+        )
+
+    /** Berm-angle / lean-assist (`60 45` + bool). */
+    internal fun v2SetBermAngleMode(on: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x45, if (on) 0x01 else 0x00)
+        )
+
+    /** V12-family low / high beam toggles in one packet (`60 50` + 2 × bool). */
+    internal fun v2SetLightV12(lowBeam: Boolean, highBeam: Boolean): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x50, if (lowBeam) 0x01 else 0x00, if (highBeam) 0x01 else 0x00)
+        )
+
+    /** Built-in beep bank (`60 51` + index + 0x64). V13/V14 family. */
+    internal fun v2PlayBeep(soundIndex: Int): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x51, (soundIndex and 0xFF).toByte(), 0x64)
+        )
+
+    /** Built-in sound bank (`60 51` + index + 0x01). Different gain byte from beep. */
+    internal fun v2PlaySound(soundIndex: Int): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL,
+            byteArrayOf(0x51, (soundIndex and 0xFF).toByte(), 0x01)
+        )
+
+    /** Yaw / turn calibration (`60 52 01 00 01`). */
+    internal fun v2WheelCalibrationTurn(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x52, 0x01, 0x00, 0x01)
+        )
+
+    /** Pedal-zero / balance calibration (`60 52 01 01 00`). */
+    internal fun v2WheelCalibrationBalance(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.CONTROL, byteArrayOf(0x52, 0x01, 0x01, 0x00)
+        )
+
+    /**
+     * Two-stage power off: this is stage 1, sent as a Diagnostic command rather
+     * than a Control sub-cmd. Stage 2 (an explicit confirm) is undocumented in
+     * the WheelLog source; the V14's own UI likely sends a second packet after
+     * a short pause but we don't have its bytes captured.
+     */
+    internal fun v2WheelOffFirstStage(): ByteArray =
+        InMotionV2Protocol.buildExtendedPacket(
+            Command.DIAGNOSTIC, byteArrayOf(0x81.toByte(), 0x00)
+        )
 }

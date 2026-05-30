@@ -22,7 +22,9 @@ object KingsongCommands {
     object Type {
         const val POWER_OFF: Byte = 0x40
         const val STANDBY: Byte = 0x3F
+        const val STROBE: Byte = 0x53.toByte()        // Side LED strobe pattern (WheelLog setStrobeMode)
         const val SERIAL_REQ: Byte = 0x63
+        const val LED_MODE: Byte = 0x6C.toByte()      // Side LED pattern 0..9 (WheelLog setLedMode)
         const val LIGHT: Byte = 0x73.toByte()
         const val MAX_SPEED_AND_ALARMS: Byte = 0x85.toByte()
         const val PEDAL_MODE: Byte = 0x87.toByte()
@@ -164,6 +166,26 @@ object KingsongCommands {
         val v = ByteUtils.putUint16LE(raw)
         f[4] = v[0]
         f[5] = v[1]
+    }
+
+    // ============================================================
+    // WheelLog-documented KingSong setters, NOT yet wired to UI.
+    // Byte sequences from WheelLog KingsongAdapter.java.
+    // ============================================================
+
+    /**
+     * Side LED pattern selector (0..9). WheelLog: `data[2]=mode, data[16]=0x6C`.
+     */
+    internal fun setLedMode(mode: Int): ByteArray = frame(Type.LED_MODE) { f ->
+        f[2] = mode.coerceIn(0, 9).toByte()
+    }
+
+    /**
+     * Side LED strobe pattern. WheelLog: `data[2]=mode, data[16]=0x53`.
+     * Mode range is open per WheelLog source; treat as a u8.
+     */
+    internal fun setStrobeMode(mode: Int): ByteArray = frame(Type.STROBE) { f ->
+        f[2] = (mode and 0xFF).toByte()
     }
 
     /**

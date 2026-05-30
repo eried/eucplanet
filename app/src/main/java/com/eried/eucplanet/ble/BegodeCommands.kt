@@ -119,4 +119,82 @@ object BegodeCommands {
 
     /** Request model-name ASCII reply (`NAME ...`). Spec 6.1. */
     fun queryModelName(): ByteArray = byteArrayOf('N'.code.toByte())
+
+    // ============================================================
+    // WheelLog-documented Begode/Gotway setters, NOT yet wired to UI.
+    // Byte sequences from WheelLog GotwayAdapter.java.
+    // ============================================================
+
+    /**
+     * Alarm preset switcher on stock firmware. Single ASCII byte:
+     * `o` = two-alarm preset, `u` = one-alarm preset, `i` = alarms off,
+     * `I` = "custom-firmware" preset (Alexovik-aware wheels only).
+     */
+    internal fun setAlarmMode(mode: Int): ByteArray = byteArrayOf(
+        when (mode.coerceIn(0, 3)) {
+            0 -> 'o'.code.toByte()
+            1 -> 'u'.code.toByte()
+            2 -> 'i'.code.toByte()
+            else -> 'I'.code.toByte()
+        }
+    )
+
+    // -- Alexovik custom-firmware tuning (no-op on stock Begode wheels) --
+    //
+    // All of these follow the same 3-byte `[char1, char2, value]` pattern
+    // exposed by Alexovik's modified Gotway firmware. They're silently
+    // ignored on stock firmware because the parser there doesn't recognise
+    // the two-char prefix, so adding them is safe for all Begode users.
+
+    private fun alexovikKv(a: Char, b: Char, v: Int): ByteArray = byteArrayOf(
+        a.code.toByte(), b.code.toByte(), (v and 0xFF).toByte()
+    )
+
+    /** "EM" — Extreme mode on/off. */
+    internal fun setExtremeMode(on: Boolean): ByteArray = alexovikKv('E', 'M', if (on) 1 else 0)
+
+    /** "BA" — Brake current, raw u8. */
+    internal fun setBrakingCurrent(value: Int): ByteArray = alexovikKv('B', 'A', value)
+
+    /** "RC" — Rotation control on/off. */
+    internal fun setRotationControl(on: Boolean): ByteArray = alexovikKv('R', 'C', if (on) 1 else 0)
+
+    /** "rs" — Roll/lean angle offset. WheelLog encodes as `(value - 260)`. */
+    internal fun setRotationAngle(value: Int): ByteArray = alexovikKv('r', 's', value - 260)
+
+    /** "as" — Enable advanced PIDs. */
+    internal fun setAdvancedSettings(on: Boolean): ByteArray = alexovikKv('a', 's', if (on) 1 else 0)
+
+    /** "hp" — Balance loop proportional gain. */
+    internal fun setBalanceP(value: Int): ByteArray = alexovikKv('h', 'p', value)
+
+    /** "hi" — Balance loop integral gain. */
+    internal fun setBalanceI(value: Int): ByteArray = alexovikKv('h', 'i', value)
+
+    /** "hd" — Balance loop derivative gain. */
+    internal fun setBalanceD(value: Int): ByteArray = alexovikKv('h', 'd', value)
+
+    /** "hc" — Dynamic compensation. */
+    internal fun setDynamicCompensation(value: Int): ByteArray = alexovikKv('h', 'c', value)
+
+    /** "hf" — Dynamic compensation filter. */
+    internal fun setDynamicCompensationFilter(value: Int): ByteArray = alexovikKv('h', 'f', value)
+
+    /** "ac" — Acceleration compensation. */
+    internal fun setAccelerationCompensation(value: Int): ByteArray = alexovikKv('a', 'c', value)
+
+    /** "cp" — Motor current loop proportional gain (Q-axis). */
+    internal fun setPCurrentQ(value: Int): ByteArray = alexovikKv('c', 'p', value)
+
+    /** "ci" — Motor current loop integral gain (Q-axis). */
+    internal fun setICurrentQ(value: Int): ByteArray = alexovikKv('c', 'i', value)
+
+    /** "dp" — Motor current loop proportional gain (D-axis). */
+    internal fun setPCurrentD(value: Int): ByteArray = alexovikKv('d', 'p', value)
+
+    /** "di" — Motor current loop integral gain (D-axis). */
+    internal fun setICurrentD(value: Int): ByteArray = alexovikKv('d', 'i', value)
+
+    /** "tt" — Trick mode parameter. */
+    internal fun setTrick(value: Int): ByteArray = alexovikKv('t', 't', value)
 }
