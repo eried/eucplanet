@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -88,14 +88,17 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 LandscapeRotatedCanvas(
                     preset = preset,
                     data = data,
-                    // Compose rotationZ is CW-visual when positive, so
-                    // rotating the canvas by +dominantRot lands portrait
-                    // coords at the same place the rider sees them on
-                    // their landscape phone in the studio. The per-element
-                    // rotation (inside the canvas) is then negated below
-                    // so element content + canvas rotation cancel to 0
-                    // and read upright.
-                    canvasRot = dominantRot.toFloat(),
+                    // Studio's formula: rotationDeg = (360 - deviceRotation)
+                    // % 360. OrientationEventListener's deviceRotation
+                    // increases CW from natural portrait, so deviceRotation
+                    // = 270 (left-landscape, phone's top edge to rider's
+                    // LEFT) maps to stored rotationDeg = 90. Mapping that
+                    // back to the rider's view: portrait (x_p, y_p) lands
+                    // at landscape (y_p, 1 - x_p), which is what canvas
+                    // rotation -dominantRot produces. (+dominantRot would
+                    // land at (1-y_p, x_p) -- the OTHER landscape
+                    // orientation, opposite of what the rider authored.)
+                    canvasRot = -dominantRot.toFloat(),
                     hudW = maxWidth,
                     hudH = maxHeight
                 )
@@ -185,19 +188,28 @@ private fun BoxScope.LandscapeRotatedCanvas(
     // frame and invalidates the layer. At 5 Hz across 8 layers (canvas +
     // 7 elements) the lambda form was the dominant per-frame cost and
     // pushed the Custom screen into ANR territory.
+    // requiredSize, not size: the canvas wants to be portraitW x
+    // portraitH (368 x 800 on a 800x480 HUD) so portrait-coord offsets
+    // resolve against the right reference. Plain .size() gets clipped
+    // by the parent fillMaxSize constraints (max 480 tall on HUD), so
+    // any element with y_p > 0.6 was placed outside the constrained
+    // box and rendered at the wrong rotated position. requiredSize
+    // tells Compose "ignore the parent constraints, take this size."
     Box(
         modifier = Modifier
             .align(Alignment.Center)
-            .size(width = portraitW, height = portraitH)
+            .requiredSize(width = portraitW, height = portraitH)
             .graphicsLayer(
                 rotationZ = canvasRot,
                 transformOrigin = TransformOrigin.Center
             )
     ) {
         preset.elements.forEach { el ->
-            // Negated so element-content rotation + canvas rotation
-            // cancel for elements that match the dominant rotation
-            // (net 0 = upright). See LandscapeRotatedCanvas header.
+            // Per-element rotation matches the stored rotationDeg, so
+            // element + canvas (= -dominantRot) net to (rotationDeg -
+            // dominantRot). For elements that match the dominant
+            // rotation that's 0 (upright); off-axis elements stay at
+            // their intended off-axis angle.
             Box(
                 modifier = Modifier
                     .offset(x = portraitW * el.x, y = portraitH * el.y)
@@ -208,7 +220,7 @@ private fun BoxScope.LandscapeRotatedCanvas(
                         else Modifier
                     )
                     .graphicsLayer(
-                        rotationZ = -el.rotationDeg,
+                        rotationZ = el.rotationDeg,
                         alpha = el.opacity
                     )
             ) {
