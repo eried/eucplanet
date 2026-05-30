@@ -3,9 +3,11 @@ package com.eried.eucplanet.hud.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,10 +15,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.min
 import com.eried.eucplanet.hud.overlay.OverlayElementRenderer
 import com.eried.eucplanet.hud.overlay.StudioElementData
 import com.eried.eucplanet.hud.protocol.HudState
@@ -36,10 +39,21 @@ import org.json.JSONObject
  * (see com.eried.eucplanet.hud.overlay.OverlayElementRenderer), so a
  * preset reads pixel-identical between phone and HUD.
  *
- * Per-element rotation is intentionally NOT applied: the bundled
- * "landscape" presets pre-rotate their elements 90° expecting the
- * studio canvas to also rotate. The Motoeye panel is already landscape;
- * doubling the rotation flips text sideways.
+ * Canvas frame: the studio canvas is ALWAYS portrait-fixed (see comment
+ * in OverlayStudioScreen.kt:802 -- "the layout itself never rotates").
+ * The rider's 0..1 coords are normalized to that portrait box. To
+ * preserve the layout exactly as authored we render inside a centred
+ * portrait viewport on the HUD's landscape panel: black letterbox bars
+ * on the sides, the preset rendered inside the central portrait region.
+ * No coord rotation, no horizontal stretching -- the preset reads the
+ * same shape it does in the studio editor.
+ *
+ * Per-element rotation IS applied here (matches the studio's
+ * graphicsLayer { rotationZ = element.rotationDeg } at the equivalent
+ * site in StudioOverlayElements.kt:324). That way a landscape-authored
+ * preset (rider held phone sideways, element.rotationDeg = 90 or 270)
+ * draws on the HUD exactly the same way the studio drew it: rotated
+ * inside the portrait canvas, ready for the rider to compare 1:1.
  */
 @Composable
 fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
@@ -61,33 +75,36 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 }
                 return@BoxWithConstraints
             }
-            val containerW = maxWidth
+            // Portrait viewport sized to fit the HUD's height, with the
+            // typical modern-phone aspect (9:19.5). We don't know the
+            // rider's actual screen aspect because OverlayPreset doesn't
+            // store it -- 9:19.5 is the most common, and being slightly
+            // off here just changes how much side letterbox the rider
+            // sees, not where elements land.
+            val portraitAspect = 9f / 19.5f
             val containerH = maxHeight
-            // Render at raw (x, y, width, height) in the canvas frame
-            // -- the same frame the rider edited in. We deliberately do
-            // NOT counter-rotate landscape presets: a previous attempt
-            // assumed those coords were portrait-stored, but they're
-            // already landscape; rotating again just flipped the layout
-            // and the rider correctly called it out as mirrored.
-            //
-            // Sizing rule mirrors the studio: width is widthIn(max=...)
-            // so content can be narrower than its slot, and height is
-            // only constrained when the rider explicitly set it
-            // (el.height > 0). Otherwise the element takes its natural
-            // aspect ratio (square dial, 2.2:1 graph, pill-shaped value).
-            preset.elements.forEach { el ->
-                Box(
-                    modifier = Modifier
-                        .offset(x = containerW * el.x, y = containerH * el.y)
-                        .widthIn(max = containerW * el.width)
-                        .then(
-                            if (el.height > 0f)
-                                Modifier.heightIn(max = containerH * el.height)
-                            else Modifier
-                        )
-                        .alpha(el.opacity)
-                ) {
-                    OverlayElementRenderer(el, data)
+            val containerW = min(maxWidth.value, (maxHeight.value * portraitAspect)).dp
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .width(containerW)
+                    .fillMaxHeight()
+            ) {
+                preset.elements.forEach { el ->
+                    Box(
+                        modifier = Modifier
+                            .offset(x = containerW * el.x, y = containerH * el.y)
+                            .widthIn(max = containerW * el.width)
+                            .then(
+                                if (el.height > 0f)
+                                    Modifier.heightIn(max = containerH * el.height)
+                                else Modifier
+                            )
+                            .graphicsLayer { rotationZ = el.rotationDeg }
+                            .alpha(el.opacity)
+                    ) {
+                        OverlayElementRenderer(el, data)
+                    }
                 }
             }
         }
