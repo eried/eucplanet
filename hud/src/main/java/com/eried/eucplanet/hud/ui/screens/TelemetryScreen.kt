@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +44,12 @@ import kotlin.math.sin
 import kotlin.math.tan
 import kotlin.math.PI
 
+// Top-level constants so the draw lambdas don't rebuild these lists on
+// every frame -- at 5 Hz the allocation churn was material (see
+// SideEffect comment in TelemetryScreen above).
+private val PITCH_LADDER_TICKS = intArrayOf(-30, -20, -10, 10, 20, 30)
+private val G_RING_FRACTIONS = floatArrayOf(0.33f, 0.66f, 1.0f)
+
 /**
  * Riding-data overlay screen. Four panels:
  *  - Top-left: artificial horizon driven by wheel pitch + roll.
@@ -68,9 +74,13 @@ fun TelemetryScreen(hud: HudState) {
     var lastSpeedTimeMs by remember { mutableStateOf(System.currentTimeMillis()) }
     var longitudinalG by remember { mutableStateOf(0f) }
 
-    LaunchedEffect(hud.timestampMs) {
-        // Pump current values into the buffers each frame. Cap at 360
-        // samples (~72 s at 5 Hz) so the deque stays bounded.
+    // SideEffect runs synchronously after each successful composition,
+    // no coroutine launch/cancel cycle. Previously this was a
+    // LaunchedEffect keyed on hud.timestampMs, which cancelled and
+    // relaunched the coroutine on every 200 ms wire frame -- 5/s of
+    // pure churn that drove the GC pressure that eventually ANR'd
+    // the panel under sustained recomposition.
+    SideEffect {
         if (!hud.pwm.isNaN()) {
             pwmBuf.addLast(hud.pwm)
             while (pwmBuf.size > 360) pwmBuf.removeFirst()
@@ -117,7 +127,10 @@ fun TelemetryScreen(hud: HudState) {
                         samples = pwmBuf,
                         min = 0f,
                         max = 100f,
-                        currentLabel = "%.0f%%".format(hud.pwm),
+                        // Integer concat is allocation-free for small
+                        // values; "%.0f%%".format() was firing a fresh
+                        // Formatter + StringBuilder every 200 ms.
+                        currentLabel = "${hud.pwm.toInt()}%",
                         lineColor = pwmColor(hud.pwm, hud.gaugeOrangeThresholdPct, hud.gaugeRedThresholdPct, accent),
                         accent = accent
                     )
@@ -217,15 +230,18 @@ private fun ArtificialHorizon(rollDeg: Float, pitchDeg: Float, accent: Color) {
                     end = Offset(size.width * 2f, cy + pitchOffset),
                     strokeWidth = 2.dp.toPx()
                 )
-                // Pitch ladder ticks (±10°, ±20°, ±30°)
-                listOf(-30, -20, -10, 10, 20, 30).forEach { deg ->
+                // Pitch ladder ticks (±10°, ±20°, ±30°). Top-level
+                // [PITCH_LADDER_TICKS] avoids a per-frame listOf alloc.
+                val tickW = size.width * 0.15f
+                val tickStroke = 1.dp.toPx()
+                val tickAlpha = Color.White.copy(alpha = 0.6f)
+                for (deg in PITCH_LADDER_TICKS) {
                     val y = cy + pitchOffset - (deg / 45f) * (size.height / 2f)
-                    val tickW = size.width * 0.15f
                     drawLine(
-                        color = Color.White.copy(alpha = 0.6f),
+                        color = tickAlpha,
                         start = Offset(cx - tickW, y),
                         end = Offset(cx + tickW, y),
-                        strokeWidth = 1.dp.toPx()
+                        strokeWidth = tickStroke
                     )
                 }
             }
@@ -239,7 +255,10 @@ private fun ArtificialHorizon(rollDeg: Float, pitchDeg: Float, accent: Color) {
             )
         }
         Text(
-            text = "%+.0f°".format(rollDeg),
+            // Int concat instead of "%+.0f°".format() -- the format
+            // call was firing 5x/s and the whole-degree precision is
+            // enough for an attitude readout.
+            text = "${if (rollDeg >= 0f) "+" else ""}${rollDeg.toInt()}°",
             color = Color.White,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
@@ -258,6 +277,10 @@ private fun Sparkline(
     lineColor: Color,
     accent: Color
 ) {
+    // Reuse one Path across frames. Allocating a new Path per draw at
+    // 5 Hz with two sparklines on screen was the second-biggest GC
+    // contributor after LaunchedEffect re-keying.
+    val path = remember { Path() }
     Box(Modifier.fillMaxSize()) {
         Canvas(Modifier.fillMaxSize()) {
             if (samples.size < 2) return@Canvas
@@ -266,12 +289,17 @@ private fun Sparkline(
             val h = size.height - pad * 2f
             val range = (max - min).coerceAtLeast(0.0001f)
             val step = w / (samples.size - 1).coerceAtLeast(1)
-            val path = Path()
-            samples.forEachIndexed { i, v ->
+            path.reset()
+            // Manual iterator-free traversal via the deque's iterator
+            // protocol: ArrayDeque exposes a fast iterator that doesn't
+            // box the element values, which is what we want here.
+            var i = 0
+            for (v in samples) {
                 val x = pad + i * step
                 val norm = ((v - min) / range).coerceIn(0f, 1f)
                 val y = pad + h * (1f - norm)
                 if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                i++
             }
             drawPath(path = path, color = lineColor, style = Stroke(width = 2.dp.toPx()))
         }
@@ -304,13 +332,18 @@ private fun GAndPowerPanel(
                 val cx = size.width / 2f
                 val cy = size.height / 2f
                 val r = min(size.width, size.height) / 2f - 4f
-                // Background rings
-                listOf(0.33f, 0.66f, 1.0f).forEach { f ->
+                // Background rings. Top-level [G_RING_FRACTIONS] avoids
+                // a per-frame listOf alloc; Stroke + Color also hoisted
+                // out so they don't allocate inside the loop.
+                val ringColor = Color.White.copy(alpha = 0.15f)
+                val ringStroke = Stroke(width = 1.dp.toPx())
+                val ringCenter = Offset(cx, cy)
+                for (f in G_RING_FRACTIONS) {
                     drawCircle(
-                        color = Color.White.copy(alpha = 0.15f),
+                        color = ringColor,
                         radius = r * f,
-                        center = Offset(cx, cy),
-                        style = Stroke(width = 1.dp.toPx())
+                        center = ringCenter,
+                        style = ringStroke
                     )
                 }
                 // Crosshair
@@ -406,6 +439,10 @@ private fun AltitudePanel(
         if (samples.size < 2) 0f
         else (samples.last() - samples.first()) / (samples.size / 5f) // 5 Hz
     }
+    // Same Path-reuse pattern as the PWM sparkline. Also computes
+    // min/max in a single pass instead of two iterator walks
+    // (samples.min() + samples.max() each touched all 360 entries).
+    val path = remember { Path() }
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             Canvas(Modifier.fillMaxSize()) {
@@ -413,16 +450,22 @@ private fun AltitudePanel(
                 val pad = 4f
                 val w = size.width - pad * 2f
                 val h = size.height - pad * 2f
-                val sMin = samples.min()
-                val sMax = samples.max()
+                var sMin = Float.POSITIVE_INFINITY
+                var sMax = Float.NEGATIVE_INFINITY
+                for (v in samples) {
+                    if (v < sMin) sMin = v
+                    if (v > sMax) sMax = v
+                }
                 val range = (sMax - sMin).coerceAtLeast(0.5f)
                 val step = w / (samples.size - 1).coerceAtLeast(1)
-                val path = Path()
-                samples.forEachIndexed { i, v ->
+                path.reset()
+                var i = 0
+                for (v in samples) {
                     val x = pad + i * step
                     val norm = ((v - sMin) / range).coerceIn(0f, 1f)
                     val y = pad + h * (1f - norm)
                     if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    i++
                 }
                 drawPath(path = path, color = accent, style = Stroke(width = 2.dp.toPx()))
             }
