@@ -386,6 +386,10 @@ class HudServer @Inject constructor(
             gpsHasFix = location != null,
             gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
                 else Float.NaN,
+            gpsAltitudeM = if (location?.hasAltitude() == true) location.altitude.toFloat()
+                else Float.NaN,
+            wheelRollDeg = wd.rollAngle,
+            wheelPitchDeg = wd.pitchAngle,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

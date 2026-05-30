@@ -58,6 +58,7 @@ import com.eried.eucplanet.hud.ui.screens.CameraScreen
 import com.eried.eucplanet.hud.ui.screens.DashboardScreen
 import com.eried.eucplanet.hud.ui.screens.MapScreen
 import com.eried.eucplanet.hud.ui.screens.NavScreen
+import com.eried.eucplanet.hud.ui.screens.TelemetryScreen
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.min
 
@@ -108,6 +109,8 @@ fun HudApp(
                             DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
                         HudUiController.Screen.Camera ->
                             CameraScreen(hud = hud)
+                        HudUiController.Screen.Telemetry ->
+                            TelemetryScreen(hud = hud)
                         HudUiController.Screen.Map ->
                             MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr)
                         HudUiController.Screen.Nav ->

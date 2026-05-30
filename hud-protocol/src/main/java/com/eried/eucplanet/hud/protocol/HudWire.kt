@@ -72,6 +72,20 @@ data class HudState(
      *  hasn't reported a bearing yet. The HUD uses this to rotate the map
      *  so the rider's direction of travel always points up. */
     val gpsHeadingDeg: Float = Float.NaN,
+    /** GPS altitude in metres. NaN when the fix doesn't include altitude
+     *  (some devices report 0 instead -- we still pass it through). The
+     *  HUD keeps its own short rolling buffer to draw a sparkline; the
+     *  phone only sends the current value. */
+    val gpsAltitudeM: Float = Float.NaN,
+
+    /** Wheel roll (lean) in degrees, +right. From wheel BLE telemetry
+     *  (InMotion / Begode / KingSong all report it). 0 when the wheel
+     *  isn't reporting it -- the HUD treats 0-degenerate as "no data" by
+     *  not drawing the horizon. */
+    val wheelRollDeg: Float = 0f,
+    /** Wheel pitch (lean forward/back) in degrees, +forward. Same caveat
+     *  as roll re availability. */
+    val wheelPitchDeg: Float = 0f,
 
     // --- Navigation popup mirror ---
     /** Whether to render the turn-by-turn overlay/screen. */
