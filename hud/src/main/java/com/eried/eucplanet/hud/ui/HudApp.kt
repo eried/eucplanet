@@ -269,7 +269,10 @@ private fun IpPortMatrix(
     // the panel aspect and the cell ran out of room.
     val cellFont = (side * 0.075f).sp
     val labelFont = (side * 0.075f).sp
-    val rowGap = (side * 0.006f).dp
+    // Visible gap between IP and PORT so they read as two distinct fields
+    // instead of one stacked block. Earlier 0.006×side made them visually
+    // touch on the real HUD panel; ~0.03 gives a clean breathing space.
+    val rowGap = (side * 0.03f).dp
     val labelGap = (side * 0.025f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
