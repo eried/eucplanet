@@ -60,6 +60,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Dashboard
@@ -1563,7 +1564,7 @@ private fun EmptyMetricSlot(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            androidx.compose.material.icons.Icons.Default.Block,
+            Icons.Default.Block,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
             modifier = Modifier.size(22.dp)
@@ -2572,7 +2573,7 @@ private fun EmptyActionSlot(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            androidx.compose.material.icons.Icons.Default.Block,
+            Icons.Default.Block,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
             modifier = Modifier.size(22.dp)
