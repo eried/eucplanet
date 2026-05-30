@@ -204,13 +204,21 @@ fun HudApp(
 }
 
 /**
- * Two-tier protocol-mismatch UI:
- *  - minor mismatch  → small pill in the top-center: "Update available · <URL>"
- *  - major mismatch  → full-screen dim with "Update phone app" / "Update HUD
- *    app" + URL. The HUD already drops the wire frames in this case so the
- *    rider isn't looking at stale telemetry behind the overlay.
+ * Two-tier protocol-mismatch UI, both styled like [DisconnectedBadge]
+ * (8.dp rounded, 0xE6111111 fill, gray stroke) so they read as part of
+ * the same family of corner / ambient overlays:
  *
- * EXACT renders nothing.
+ *   - minor mismatch → small pill in the TOP-CENTER, yellow stroke,
+ *     "Update available · <URL>". One-line non-blocking hint.
+ *   - major mismatch → larger badge in the BOTTOM-END (lower-right),
+ *     red stroke, two-line "Update HUD/phone app · <URL>". Same
+ *     bottom corner the wall clock uses on the OPPOSITE side, so it
+ *     doesn't fight the disconnect badge (top-right) for space.
+ *
+ * EXACT renders nothing. The HUD-side server still DROPS major-
+ * mismatched frames at the wire level so the rider's dashboard
+ * freezes on the last good frame -- not stale data being "trusted",
+ * just the visual cue that things are paused.
  */
 @Composable
 private fun BoxScope.VersionMismatchSurface(
@@ -263,35 +271,36 @@ private fun BoxScope.VersionMismatchSurface(
                 else ->
                     R.string.hud_version_block_phone_behind_title
             }
-            BoxWithConstraints(
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xE6111111)),
-                contentAlignment = Alignment.Center
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xE6111111))
+                    .border(1.dp, Color(0xFFE53935), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                val side = min(maxWidth.value, maxHeight.value)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy((side * 0.02f).dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PhonelinkOff,
-                        contentDescription = null,
-                        tint = Color(0xFFE53935),
-                        modifier = Modifier.size((side * 0.18f).dp)
-                    )
+                Icon(
+                    imageVector = Icons.Filled.PhonelinkOff,
+                    contentDescription = null,
+                    tint = Color(0xFFE53935),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(
                         text = ctx.getString(titleRes),
                         color = Color.White,
-                        fontSize = (side * 0.07f).sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1
                     )
                     Text(
-                        text = ctx.getString(R.string.hud_version_block_subtitle, url),
+                        text = url,
                         color = Color(0xFFB0B0B0),
-                        fontSize = (side * 0.04f).sp,
-                        textAlign = TextAlign.Center
+                        fontSize = 11.sp,
+                        maxLines = 1
                     )
                 }
             }
@@ -376,10 +385,14 @@ private fun ScreenChangeToast(
 }
 
 private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
-/** Boot-time grace before the disconnect chrome can appear. Long enough
- *  that a phone dialling in within a few seconds of HUD start never
- *  triggers the modal. Resets only on process restart. */
-private const val DISCONNECT_BOOT_GRACE_MS: Long = 5_000L
+/** Boot-time grace before the disconnect chrome can appear. Covers the
+ *  worst case of HUD boot + phone hotspot DHCP + phone-app cold start +
+ *  WS handshake + at least one reconnect backoff (1 s) without ever
+ *  flashing the dialog at the rider. After the grace elapses or after
+ *  we've been connected at least once, disconnects show immediately --
+ *  those are real events, not boot noise. Resets only on process
+ *  restart. */
+private const val DISCONNECT_BOOT_GRACE_MS: Long = 15_000L
 
 /**
  * Center modal shown while no phone is connected. Carries the HUD's local
