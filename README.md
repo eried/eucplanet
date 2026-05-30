@@ -4,29 +4,34 @@
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](http://paypal.me/erwinried)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
-An open-source Android companion app for **electric unicycles**. Live telemetry, turn-by-turn navigator, on-screen telemetry overlay for video recording, and a Wear OS dial.
+Open-source Android app for electric unicycles: live telemetry, turn-by-turn
+navigation, an on-screen overlay for video recording, and many other integrations.
+I don't want to pay to just enjoy a wheel I already own. No ads, no tracking, no
+subscriptions, no upselling, no features behind a paywall, no telemetry phoned home.
 
-Built because every other EUC app either asks for a monthly subscription, ships a crummy UI, loses connection, or locks useful features behind paywalls. This one is free, open source, no ads, no tracking, no upselling, no subscriptions, no telemetry phoned home, no nonsense.
+## What wheels work?
 
-> **Wheel support tiers:**
->
-> | Tier | Wheels | What it means |
-> |---|---|---|
-> | **Verified** | InMotion V14 50GB / 50S, P6 | Author's daily wheel + telemetry/controls confirmed against labelled real-hardware captures |
-> | **Preliminary** | InMotion V12 HS / HT / Pro | Parser exists, not yet author-tested |
-> | **Preview** | KingSong S22 / S20 / S19 / S18 / S16 / KS-14/16/18 / F18P / F22P | Telemetry + commands implemented from the public protocol; needs a real-hardware tester |
-> | **Preview** | Begode/Gotway Master / Master Pro / T3 / T4 / RS / RS-HT / EX / EX.N / EX2 / MSP / MSX / Hero / XWay / Mten4 / Mten5 / MCM5 | same; high-voltage tiltback (>100 km/h) handled since v0.6.2 |
-> | **Preview** | Veteran Sherman / Sherman S / Sherman Max / Patton / Lynx / Abrams | same |
-> | **Preview** | InMotion V1 family: V5 / V8 / V8F / V8S / V10 / V10F / V10S / V10T / V10FT / L6 / Lively / Glide 3 | same |
-> | **Preview** | Ninebot Z6 / Z10, plus legacy One E / E+ / S2 / Mini (read-only) | same; Ninebot Z uses the documented XOR keystream encryption |
-> | **Experimental** | InMotion V11, V13, V9 | In the model registry; please file a wheel report if you try them |
-> | Not yet | Onewheel and other non-EUC vehicles | Different protocol family, out of scope |
->
-> Preview wheels are implemented from the spec docs in [`docs/protocols/`](docs/protocols/) (KingSong, Begode, Veteran, InMotion V1, InMotion V2 / V14 / V12 / P6, Ninebot) but have not yet been tested against the actual hardware. If your wheel is in this tier and you can ride it, please connect through the app and file a wheel report via the orange in-app banner, telemetry verification is the fastest path to upgrading the tier.
->
-> Want to help add a wheel that's not on the list? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md), record one labelled riding session and we can usually map it in a single pass.
+I only own and ride a V14. Everything else gets done through collaboration with
+riders who have the wheel.
+
+| Status | Wheels |
+|---|---|
+| **Verified** | InMotion V14 (50GB / 50S) |
+| **Verified** | InMotion P6 |
+| **In test** | Begode/Gotway Master, Master Pro, T3, T4, RS, RS-HT, EX, EX.N, EX2, MSP, MSX, Hero, XWay, Mten4, Mten5, MCM5 |
+| **In test** | Veteran Sherman, Sherman S, Sherman Max, Patton, Lynx, Abrams |
+| **In test** | KingSong S22, S20, S19, S18, S16, KS-14/16/18, F18P, F22P |
+| **Waiting to be tested** | InMotion V12 HS / HT / Pro |
+| **Waiting to be tested** | InMotion V1 family: V5, V8, V8F, V8S, V10, V10F, V10S, V10T, V10FT, L6, Lively, Glide 3 |
+| **Waiting to be tested** | Ninebot Z6, Z10, plus legacy One E / E+ / S2 / Mini (read-only) |
+| **Experimental** | InMotion V9, V11, V13 |
+
+More on the tiers and the protocol docs: [WHEELS.md](WHEELS.md).
+
+Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 
 ---
 
@@ -36,95 +41,115 @@ Built because every other EUC app either asks for a monthly subscription, ships 
 
 <img src="docs/screenshots/trips.png" width="22%" alt="Trip list" /> <img src="docs/screenshots/studio-export.png" width="22%" alt="Studio transparent export" /> <img src="docs/screenshots/navigator-sat.png" width="22%" alt="Navigator over satellite" /> <img src="docs/screenshots/settings.png" width="22%" alt="Settings" />
 
-<img src="docs/screenshots/wear-dash.png" width="16%" alt="Wear OS dial" /> <img src="docs/screenshots/wear-details.png" width="16%" alt="Wear OS telemetry detail" /> <img src="docs/screenshots/wear-navigation.png" width="16%" alt="Wear OS turn arrow" /> <img src="docs/screenshots/wear-goal.png" width="16%" alt="Wear OS arrival flag" />
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/wear-dash.png" width="120" alt="Wear OS dial" /><br><sub>Speed dial</sub></td>
+<td align="center"><img src="docs/screenshots/wear-details.png" width="120" alt="Wear OS telemetry detail" /><br><sub>Telemetry</sub></td>
+<td align="center"><img src="docs/screenshots/wear-navigation.png" width="120" alt="Wear OS turn arrow" /><br><sub>Navigation</sub></td>
+<td align="center"><img src="docs/screenshots/wear-goal.png" width="120" alt="Wear OS arrival flag" /><br><sub>Arrival flag</sub></td>
+</tr>
+</table>
 
 ---
 
 ## Features
 
-### Dashboard
-- Live speed, battery %, voltage, amps, temperature, PWM load, trip distance.
-- Tap any tile to jump to a historical graph.
-- Imperial or metric units.
+**Dashboard.** Live speed, battery, voltage, amps, temperature, PWM load and
+distance. Rearrange the tiles, build composite tiles and action groups, add a live
+runtime clock. Tap any tile for its history graph. Metric or imperial.
 
-### Turn-by-turn navigator
-- Multi-stop route builder on a map (walk / bike / car / straight-line modes).
-- Live guidance with voice cues, off-route reroute, sticky GPS, and a Treasure Hunt proximity mode for unmarked destinations.
-- Optional Wear OS popup mirror so the next-turn arrow shows up on your wrist.
+**Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
+straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
+proximity mode for unmarked spots. The next-turn arrow can mirror to your watch.
 
-### Overlay Studio
-- Records video and stills with a customisable on-screen telemetry overlay: dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras.
-- Save layouts as JSON presets. Export plain MP4 for the final clip, or transparent overlay for compositing on top of footage from another camera.
+**Overlay Studio.** Record video and stills with a customisable telemetry overlay:
+dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
+layouts as JSON. Export a finished MP4, or a transparent overlay to composite over
+footage from another camera.
 
-### Wheel Control
-- Horn, light toggle, wheel lock, legal-mode speed cap, voice announcements, all one tap away.
-- **Legal Mode**: configurable speed cap that reprograms the wheel's tiltback + alarm speeds temporarily, then restores your normals when you turn it off.
+**Wheel control.** Horn, lights, lock, voice announcements, all one tap away. Legal
+Mode temporarily reprograms the wheel's tiltback and alarm speeds to a cap you set,
+then restores your normal settings when you switch it off.
 
-### Custom Alarms
-- Define your own threshold-based alarms on speed, battery, temperature, PWM, voltage, current.
-- Each alarm can independently fire a beep (custom tone + pitch), a TTS voice message (template-based, e.g. `"Battery at {value}%"`), and/or vibration.
-- Cooldown and repeat-while-active settings so alarms don't spam.
+**Custom alarms.** Your own thresholds on speed, battery, temperature, PWM, voltage
+or current. Each can beep (custom tone and pitch), speak (`"Battery at {value}%"`),
+and/or vibrate, with cooldowns so they don't nag.
 
-### Voice Announcements
-- Periodic reports at a configurable interval.
-- Configurable TTS speech rate and locale (multilingual TTS supported).
-- Special event announcements: lock/unlock, lights on/off, GPS fix, connection, legal mode, recording start/stop.
+**Voice announcements.** Periodic reports at your interval, configurable rate and
+locale, plus event callouts: lock/unlock, lights, GPS fix, connection, legal mode,
+recording.
 
-### Trip Recording
-- GPS + telemetry logged to **DarknessBot-compatible CSV**.
-- Auto-record.
-- Live map preview of the recorded track.
-- Trip list with quick export and share.
+**Trip recording.** GPS and telemetry to DarknessBot-compatible CSV, auto-record,
+live track preview, and a trip list with quick export and share. View them later in
+the [web Trip Viewer](https://github.com/eried/eucviewer).
 
-### Automations
-- **Auto Lights**: turn lights on before sunset and off after sunrise, based on live GPS location. Handles midnight sun and polar night (I live in the arctic circle 🧐).
-- **Auto Volume**: phone volume changes based on speed.
+**Automations.** Auto Lights on before sunset, off after sunrise, from live GPS.
+Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
+scales phone volume with speed.
 
-### Integrations
-- **Flic 2 buttons**: pair up to two buttons.
-- **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
-- **External GPS**: pair a RaceBox (or any compatible BLE GPS) for centimetre-class speed and altitude without burning the phone radio. Falls back to phone GPS automatically.
-- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
+**Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
+external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
+without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
+companion (speed dial, three batteries, horn/light remotes, navigation mirror;
+tested on Galaxy Watch Ultra, works on any Wear OS 5+ watch).
+
+**14 languages.** Full UI localisation, at parity across all of them.
 
 ---
 
-## Requirements
+## Where do I get it?
 
-- Android 10 (API 29) or newer.
-- A supported wheel (see the support-tier table at the top of this README). The V14 and P6 are the most thoroughly tested today; KingSong / Begode / Veteran / InMotion V1 / Ninebot wheels work in preview and need community testing to graduate to "verified".
-- Bluetooth + location permissions (location is required by Android for BLE scanning).
-- Camera + microphone permission (optional): only requested the first time you open Overlay Studio.
-- Wear OS companion (optional): Wear OS 5 or newer, paired through the Wear OS by Google app.
+[Google Play](https://play.google.com/store/apps/details?id=com.eried.eucplanet) has
+a small symbolic price, treat it as a tip if you'd like to support the project and
+get automatic updates. Or grab the latest APK from [releases](../../releases) for
+free and sideload it. Same app either way.
 
-## Install
-
-Grab the latest APK from the [releases](../../releases) page and sideload it, or build from source:
+Build from source:
 
 ```bash
 ./gradlew assembleDebug
 adb install app/build/outputs/apk/debug/app-debug.apk
 ```
+
+Needs Android 10 (API 29) or newer, a supported wheel, and Bluetooth + location
+permissions (Android requires location for BLE scanning). Camera and mic are
+optional and only asked for the first time you open Overlay Studio.
+
 ---
 
 ## Why does this exist?
 
 I got tired of:
-- paying a monthly sub to talk to a wheel I already own,
+
 - apps that look like they were built in 2014,
-- waiting forever for fixes or functionalities,
-- paying for basic stuff,
-- apps with annoying alarms, not flexible enough or just badly designed,
-- apps that silently lose BLE and you only notice when the wheel hits its internal tiltback at an unexpected speed,
-- apps that treat your GPS trace as the vendor's property.
+- waiting forever for fixes or improvements,
+- inflexible developers over just bad designs,
+- apps that call home and spy on you.
 
 ## Contributing
 
-The BLE protocol layer is separate from the UI: each brand family has its own `WheelAdapter` in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/), and `CompositeWheelAdapter` routes by the BLE-advertised name at connect time. Spec docs live under [`docs/protocols/`](docs/protocols/).
+The BLE layer is separate from the UI. Each brand family has its own `WheelAdapter`
+in [`app/src/main/java/com/eried/eucplanet/ble/`](app/src/main/java/com/eried/eucplanet/ble/),
+and `CompositeWheelAdapter` routes by the advertised BLE name at connect time. Specs
+live in [`docs/protocols/`](docs/protocols/).
 
-To add a new wheel: write a parser + commands + adapter that implement `WheelAdapter`, register it in `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The fastest path is the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md); one labelled riding session is usually enough.
+To add a wheel: implement `WheelAdapter` (parser plus commands), register it in
+`CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The
+[BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) is the fast path; one labelled ride is
+usually enough.
 
-PRs welcome. Bug reports → [GitHub Issues](../../issues). Feature ideas and votes → [ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+PRs welcome. Bugs go to [Issues](../../issues). Live discussion is on
+[Telegram](https://t.me/EUCPlanetApp), and more serious ideas and votes go to
+[ideas.ried.no/euc-planet](https://ideas.ried.no/euc-planet).
+
+## Support
+
+EUC Planet is free and stays free. If it saved you a subscription, or for any other
+reason you want to chip in: [paypal.me/erwinried](http://paypal.me/erwinried).
+Entirely optional, very appreciated.
 
 ## License
 
-MIT. The Flic 2 SDK and any third-party dependencies retain their own licenses.
+Released under the [MIT License](LICENSE), use it, fork it, build on it, just keep
+the copyright notice. The Flic 2 SDK and other third-party dependencies keep their
+own licenses.
