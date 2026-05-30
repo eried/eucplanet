@@ -112,11 +112,15 @@
     <string name="hud_server_port_desc">Default 28080.</string>
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
+    <string name="hud_overlay_subsection">HUD overlay</string>
+    <string name="hud_overlay_subsection_desc">Mirror an Overlay Studio preset on the HUD\'s Custom screen, without backgrounds — the rider sees your composition on top of the prism.</string>
+    <string name="hud_overlay_select_preset">Select preset</string>
+    <string name="hud_overlay_current_preset">Current: %1$s</string>
     <string name="hud_custom_overlay_label">Custom HUD overlay</string>
     <string name="hud_custom_overlay_placeholder">Pick an Overlay Studio preset</string>
     <string name="hud_custom_overlay_no_folder">Backup folder not configured</string>
     <string name="hud_custom_overlay_bundled_only">Pick a starter (Backup folder not set)</string>
-    <string name="hud_custom_overlay_none">None</string>
+    <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
     <!-- Wear OS companion settings -->

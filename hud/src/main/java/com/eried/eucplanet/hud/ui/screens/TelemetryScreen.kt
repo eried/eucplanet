@@ -155,10 +155,17 @@ private fun Panel(
     title: String,
     content: @Composable () -> Unit
 ) {
+    // Panel background is pure black on purpose: on the Motoeye prism
+    // panel, black pixels project no light and are effectively transparent
+    // (Sony's OLED HUD tech literally calls true-black "100% image
+    // transparency"). A dark grey background would render as a faint
+    // translucent rectangle floating in the rider's view, which is the
+    // wrong cue -- the rider should see THROUGH the panel and only see
+    // the content + border drawn on top.
     BoxWithConstraints(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFF101010))
+            .background(Color.Black)
     ) {
         val outerH = maxHeight.value
         val titleSize = (outerH * 0.10f).coerceAtMost(14f).sp

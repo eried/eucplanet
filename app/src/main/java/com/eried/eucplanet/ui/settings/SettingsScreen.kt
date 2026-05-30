@@ -3631,73 +3631,92 @@ private fun HudIntegrationSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HudOverlayPicker(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    var folderAvailable by remember { mutableStateOf<Boolean?>(null) }
-    var choices by remember { mutableStateOf<List<String>>(emptyList()) }
-    var menuOpen by remember { mutableStateOf(false) }
-    LaunchedEffect(settings.syncFolderUri) {
-        val (hasFolder, list) = viewModel.listHudOverlayChoices()
-        folderAvailable = hasFolder
-        choices = list
+    var lists by remember {
+        mutableStateOf<SettingsViewModel.HudOverlayLists?>(null)
     }
-    // Enabled whenever there's at least one choice to pick from -- the
-    // bundled starters live in assets and are always there, so a rider
-    // without a backup folder still has a working preset picker for the
-    // built-in starters. The placeholder copy distinguishes "no folder"
-    // (saved presets unavailable) from "folder set" (saved presets also
-    // available).
-    val enabled = choices.isNotEmpty()
-    val labelText = stringResource(R.string.hud_custom_overlay_label)
-    val placeholder = when {
-        choices.isEmpty() -> stringResource(R.string.hud_custom_overlay_no_folder)
-        folderAvailable == true -> stringResource(R.string.hud_custom_overlay_placeholder)
-        else -> stringResource(R.string.hud_custom_overlay_bundled_only)
+    var sheetOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(settings.syncFolderUri, settings.hudCustomOverlayName) {
+        lists = viewModel.loadHudOverlayLists()
     }
-    val currentText = settings.hudCustomOverlayName.ifBlank { placeholder }
 
-    ExposedDropdownMenuBox(
-        expanded = menuOpen && enabled,
-        onExpandedChange = { if (enabled) menuOpen = it },
-        modifier = Modifier.fillMaxWidth()
+    // Section block: small SUBSECTION label + 2-line description + a
+    // button that opens the existing Studio LoadPresetSheet. Matches the
+    // style of other settings sub-blocks: label uppercase primary,
+    // bodySmall onSurfaceVariant body text, button is filled tonal.
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        OutlinedTextField(
-            value = currentText,
-            onValueChange = {},
-            readOnly = true,
-            enabled = enabled,
-            label = { Text(labelText) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuOpen && enabled)
-            },
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
-                .fillMaxWidth()
+        Text(
+            text = stringResource(R.string.hud_overlay_subsection).uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
         )
-        ExposedDropdownMenu(
-            expanded = menuOpen && enabled,
-            onDismissRequest = { menuOpen = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.hud_custom_overlay_none)) },
-                onClick = {
-                    viewModel.pickHudOverlay("")
-                    menuOpen = false
-                }
+        Text(
+            text = stringResource(R.string.hud_overlay_subsection_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (settings.hudCustomOverlayName.isNotBlank()) {
+            Text(
+                text = stringResource(
+                    R.string.hud_overlay_current_preset,
+                    settings.hudCustomOverlayName
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
-            choices.forEach { name ->
-                DropdownMenuItem(
-                    text = { Text(name) },
-                    onClick = {
-                        viewModel.pickHudOverlay(name)
-                        menuOpen = false
-                    }
-                )
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            androidx.compose.material3.FilledTonalButton(
+                onClick = { sheetOpen = true }
+            ) {
+                Text(stringResource(R.string.hud_overlay_select_preset))
             }
+            if (settings.hudCustomOverlayName.isNotBlank()) {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.pickHudOverlay("") }
+                ) {
+                    Text(stringResource(R.string.hud_custom_overlay_none))
+                }
+            }
+        }
+    }
+
+    if (sheetOpen) {
+        val l = lists
+        // Reuse the Studio's LoadPresetSheet -- same dialog the rider
+        // already knows from the Overlay Studio's Load button.
+        if (l != null) {
+            com.eried.eucplanet.ui.studio.LoadPresetSheet(
+                folderAvailable = l.folderAvailable,
+                presets = l.savedPresets,
+                bundledPresets = l.bundledPortrait,
+                bundledLandscapePresets = l.bundledLandscape,
+                onLoad = { name ->
+                    viewModel.pickHudOverlay(name)
+                    sheetOpen = false
+                },
+                onLoadBundled = { name ->
+                    viewModel.pickHudOverlay(name)
+                    sheetOpen = false
+                },
+                onDelete = { /* delete handled in the Studio, not here */ },
+                onOpenFolderSettings = {
+                    sheetOpen = false
+                    // Settings backup tab is reached the same way the
+                    // rider got here; we just dismiss and trust them.
+                },
+                onDismiss = { sheetOpen = false }
+            )
         }
     }
 }

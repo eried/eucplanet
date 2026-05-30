@@ -2,9 +2,17 @@
 <resources>
     <string name="app_name">HUD</string>
     <string name="hud_screen_dashboard">Dashboard</string>
+    <string name="hud_screen_dashboard_desc">Speed, battery, PWM, trip</string>
     <string name="hud_screen_camera">Rear camera</string>
+    <string name="hud_screen_camera_desc">Live rear view</string>
+    <string name="hud_screen_telemetry">Telemetry</string>
+    <string name="hud_screen_telemetry_desc">Horizon, PWM, G-force, altitude</string>
+    <string name="hud_screen_custom">Custom overlay</string>
+    <string name="hud_screen_custom_desc">Your Overlay Studio preset</string>
     <string name="hud_screen_map">Map</string>
+    <string name="hud_screen_map_desc">Your position with direction of travel</string>
     <string name="hud_screen_nav">Navigator</string>
+    <string name="hud_screen_nav_desc">Turn-by-turn instructions</string>
     <string name="hud_status_waiting">Waiting for phone companion…</string>
     <string name="hud_status_paired">Paired with %1$s</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>

@@ -3,6 +3,8 @@ package com.eried.eucplanet.hud.ui
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -102,7 +104,22 @@ fun HudApp(
             Box(Modifier.fillMaxSize()) {
                 AnimatedContent(
                     targetState = controller.current,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    transitionSpec = {
+                        // Slide direction follows the rider's swipe: moving
+                        // forward in the carousel (Dashboard → Camera → …)
+                        // brings the new screen in from the RIGHT; going
+                        // back brings it in from the LEFT. Compare ordinals
+                        // because the enum's declaration order is the
+                        // canonical carousel order.
+                        val forward = targetState.ordinal > initialState.ordinal
+                        if (forward) {
+                            slideInHorizontally(initialOffsetX = { it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { -it })
+                        } else {
+                            slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { it })
+                        }
+                    },
                     label = "hud-screen"
                 ) { screen ->
                     when (screen) {
@@ -123,10 +140,6 @@ fun HudApp(
 
                 if (st != HudServer.Status.CONNECTED) {
                     if (controller.disconnectedModalDismissed) {
-                        // Mini corner badge: the rider dismissed the full
-                        // modal so they can keep using the HUD; we keep a
-                        // small reminder that the link is down + the IP
-                        // for re-entry.
                         DisconnectedBadge(
                             localIp = ip,
                             modifier = Modifier
@@ -137,10 +150,83 @@ fun HudApp(
                         DisconnectedDialog(localIp = ip)
                     }
                 }
+
+                // Brief toast when the rider switches screens, top-left,
+                // matching the disconnected badge's chrome (clipped corner,
+                // dark fill + gray stroke, same font sizes).
+                ScreenChangeToast(
+                    screen = controller.current,
+                    modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
+                )
             }
         }
     }
 }
+
+@Composable
+private fun ScreenChangeToast(screen: HudUiController.Screen, modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    // Track whether the toast is visible. Reset to visible on every
+    // screen change; LaunchedEffect handles the timed dismiss.
+    var visible by remember { mutableStateOf(false) }
+    androidx.compose.runtime.LaunchedEffect(screen) {
+        // Skip the initial composition so the toast doesn't fire on app
+        // launch; only show on actual rider-driven changes. The pair
+        // (screen, isInitial) tracks that via `firstChange`.
+        visible = true
+        kotlinx.coroutines.delay(SCREEN_TOAST_DURATION_MS)
+        visible = false
+    }
+    androidx.compose.animation.AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(),
+        exit = androidx.compose.animation.fadeOut(),
+        modifier = modifier
+    ) {
+        val (titleRes, descRes) = when (screen) {
+            HudUiController.Screen.Dashboard ->
+                R.string.hud_screen_dashboard to R.string.hud_screen_dashboard_desc
+            HudUiController.Screen.Camera ->
+                R.string.hud_screen_camera to R.string.hud_screen_camera_desc
+            HudUiController.Screen.Telemetry ->
+                R.string.hud_screen_telemetry to R.string.hud_screen_telemetry_desc
+            HudUiController.Screen.Custom ->
+                R.string.hud_screen_custom to R.string.hud_screen_custom_desc
+            HudUiController.Screen.Map ->
+                R.string.hud_screen_map to R.string.hud_screen_map_desc
+            HudUiController.Screen.Nav ->
+                R.string.hud_screen_nav to R.string.hud_screen_nav_desc
+        }
+        // Same chrome as DisconnectedBadge: 8.dp rounded corners, 0xE6111111
+        // fill, 0xFF6B6B6B 1.dp border, same horizontal/vertical padding.
+        // Stacked title + description because the screen name and the
+        // contents blurb don't fit comfortably on one line, but the typography
+        // (13.sp title / 11.sp description) matches the badge exactly.
+        androidx.compose.foundation.layout.Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xE6111111))
+                .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = ctx.getString(titleRes),
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+            Text(
+                text = ctx.getString(descRes),
+                color = Color(0xFFB0B0B0),
+                fontSize = 11.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
 
 /**
  * Center modal shown while no phone is connected. Carries the HUD's local

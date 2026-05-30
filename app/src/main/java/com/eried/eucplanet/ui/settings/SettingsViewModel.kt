@@ -42,15 +42,40 @@ class SettingsViewModel @Inject constructor(
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore
 ) : ViewModel() {
 
-    /** Names of overlay presets the rider can mirror on the HUD's Custom
-     *  screen. List = bundled starters + user-saved presets from the
-     *  backup folder (when configured). Recomputed on demand by the UI. */
-    suspend fun listHudOverlayChoices(): Pair<Boolean, List<String>> {
-        val bundled = overlayPresetStore.listBundledPresets()
+    /**
+     * Full preset-list snapshot for the HUD overlay picker dialog:
+     *   - folderAvailable: rider has configured a sync folder
+     *   - savedPresets: rider-saved presets in the folder
+     *   - bundledPortrait: starter presets whose elements are mostly upright
+     *   - bundledLandscape: starter presets whose elements are pre-rotated
+     *
+     * The portrait / landscape split uses the same rule as the Studio: more
+     * than half of the elements rotated => landscape.
+     */
+    suspend fun loadHudOverlayLists(): HudOverlayLists {
         val hasFolder = overlayPresetStore.presetFolderAvailable()
         val saved = if (hasFolder) overlayPresetStore.listPresets() else emptyList()
-        return hasFolder to (bundled + saved).distinct()
+        val portrait = mutableListOf<String>()
+        val landscape = mutableListOf<String>()
+        overlayPresetStore.listBundledPresets().forEach { name ->
+            val els = overlayPresetStore.loadBundledPreset(name)?.elements
+            if (els != null && els.isNotEmpty() &&
+                els.count { it.rotationDeg != 0f } * 2 > els.size
+            ) {
+                landscape.add(name)
+            } else {
+                portrait.add(name)
+            }
+        }
+        return HudOverlayLists(hasFolder, saved, portrait, landscape)
     }
+
+    data class HudOverlayLists(
+        val folderAvailable: Boolean,
+        val savedPresets: List<String>,
+        val bundledPortrait: List<String>,
+        val bundledLandscape: List<String>
+    )
 
     /** Resolve a preset name -> JSON via OverlayPresetStore, then persist
      *  it on the settings. The HUD link reads the json and ships it to
