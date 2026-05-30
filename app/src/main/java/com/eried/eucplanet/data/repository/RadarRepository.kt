@@ -61,6 +61,23 @@ class RadarRepository @Inject constructor(
 
         /** Below this approach speed (km/h) a target is treated as static, NONE. */
         private const val STATIC_TARGET_KMH = 3
+
+        /**
+         * Closing-rate threshold (m/s) for the fallback APPROACHING tag when
+         * the vendor's reported approach_speed looks unreliable. 10 m/s ~=
+         * 36 km/h closing, which is the same effective threshold the old
+         * frame-count code used at the nominal 1 Hz notify rate, but now
+         * holds at 2 Hz too if Garmin firmware ever bumps the rate.
+         */
+        private const val FALLBACK_CLOSING_MPS = 10.0
+
+        /**
+         * Lower bound on elapsed time between two frames for the closing-rate
+         * calculation. Caps the divisor so a same-millisecond pair (battery
+         * notify arriving in the same tick) can't divide by zero or produce
+         * an unrealistic 1000 m/s rate.
+         */
+        private const val MIN_ELAPSED_MS_FOR_RATE = 100L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -203,10 +220,18 @@ class RadarRepository @Inject constructor(
 
         // Closing-rate fallback: if the vendor's approach_speed looks weird
         // (some firmware ticks it to 0 between samples), but our own delta
-        // says the target is gaining > ~10 m/frame, flag APPROACHING anyway.
+        // says the target is closing at >= FALLBACK_CLOSING_MPS, flag
+        // APPROACHING anyway. Use elapsed wall-clock between samples rather
+        // than a per-frame delta so the threshold stays correct if the
+        // notify rate drifts from the nominal ~1 Hz (BLE drops can stretch
+        // a frame to 2 s; pycycling/Garmin never published a guaranteed
+        // rate, and the ANT+ Bike Radar profile is faster than the BLE
+        // mirror).
         if (prev != null) {
-            val closingMeters = prev.distanceM - d.distanceM
-            if (closingMeters >= 10) return ThreatLevel.APPROACHING
+            val closingMeters = (prev.distanceM - d.distanceM).toDouble()
+            val elapsedMs = (now - prev.lastSeenMs).coerceAtLeast(MIN_ELAPSED_MS_FOR_RATE)
+            val closingMps = closingMeters * 1000.0 / elapsedMs
+            if (closingMps >= FALLBACK_CLOSING_MPS) return ThreatLevel.APPROACHING
         }
 
         return if (d.approachSpeedKmh >= STATIC_TARGET_KMH) ThreatLevel.APPROACHING else ThreatLevel.NONE
