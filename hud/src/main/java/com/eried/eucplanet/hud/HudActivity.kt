@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.hud.net.HudServer
+import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.launch
@@ -31,6 +32,13 @@ class HudActivity : ComponentActivity() {
 
     private lateinit var server: HudServer
     private lateinit var controller: HudUiController
+    // One shared tile cache for the lifetime of the activity. Both the
+    // Map screen and the Custom overlay's MAP element read from this, so
+    // tiles fetched on either side stay warm when the rider navigates
+    // away and back. Without this lift, each screen used to allocate a
+    // fresh empty HudTileCache on entry -- the rider saw the checker-
+    // board placeholder every time they returned to a map view.
+    private val tileCache = HudTileCache()
 
     /**
      * One-shot launcher for the CAMERA runtime permission. Triggered on
@@ -85,6 +93,7 @@ class HudActivity : ComponentActivity() {
                 peer = server.peer,
                 localIp = server.localIp,
                 controller = controller,
+                tileCache = tileCache,
                 onCommand = server::sendCommand
             )
         }

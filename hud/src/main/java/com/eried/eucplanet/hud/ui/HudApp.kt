@@ -83,6 +83,7 @@ fun HudApp(
     peer: StateFlow<String?>,
     localIp: StateFlow<String?>,
     controller: HudUiController,
+    tileCache: com.eried.eucplanet.hud.net.HudTileCache,
     onCommand: (HudCommand) -> Unit
 ) {
     val hud by state.collectAsStateWithLifecycle()
@@ -135,7 +136,7 @@ fun HudApp(
                         HudUiController.Screen.CustomCam ->
                             CustomOverlayScreen(hud = hud, withCamera = true)
                         HudUiController.Screen.Map ->
-                            MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr)
+                            MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
                         HudUiController.Screen.Nav ->
                             NavScreen(hud = hud)
                     }

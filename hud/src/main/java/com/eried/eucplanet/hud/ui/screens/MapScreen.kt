@@ -56,13 +56,14 @@ import kotlin.math.tan
  * map. A 4×3 grid does that.
  */
 @Composable
-fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
+fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
     val ctx = LocalContext.current
     val accent = parseHexColor(hud.accentArgb)
-    // Cache is independent of the phone peer now: the HUD hits the public
-    // CDN directly. `peer` is still threaded in for the offline-fallback
-    // text below (no peer = phone not connected = probably no telemetry).
-    val cache = remember { HudTileCache() }
+    // Cache is owned by HudActivity and passed in: previously the cache
+    // was remember { } inside this composable, which threw away every
+    // tile when the rider switched away from the Map screen and forced
+    // a re-fetch on every return. Lifting it keeps tiles warm across
+    // screen navigation.
 
     Box(Modifier.fillMaxSize().background(Color(0xFF101010))) {
         if (!hud.gpsHasFix) {
