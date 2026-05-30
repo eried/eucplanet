@@ -642,6 +642,10 @@ fun SettingsScreen(
                                                 )
                                             } catch (_: Throwable) { /* no browser installed */ }
                                         }
+                                        is com.eried.eucplanet.cheats.CheatState.Result.ResetTutorial -> {
+                                            viewModel.resetWelcomeTutorial()
+                                            snackbarScope.launch { snackbar.showSnackbar(result.toast) }
+                                        }
                                         is com.eried.eucplanet.cheats.CheatState.Result.Toast -> {
                                             snackbarScope.launch { snackbar.showSnackbar(result.toast) }
                                         }

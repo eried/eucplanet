@@ -78,6 +78,12 @@ class CheatState @Inject constructor() {
             _silence.value = !_silence.value
             return Result.Toast(if (_silence.value) "silence on" else "silence off")
         }
+        if (cmd == "tutorial" || cmd == "welcome") {
+            // Unlike the other (session-only) cheats this one asks the caller to
+            // persist welcomeTutorialSeen = false, so the dashboard welcome tour
+            // replays the next time the dashboard becomes visible.
+            return Result.ResetTutorial
+        }
         if (cmd == "bug") {
             return Result.OpenUrl("https://github.com/eried/eucplanet/issues/new/choose")
         }
@@ -94,6 +100,7 @@ class CheatState @Inject constructor() {
                     Row("godmode", "Mute all alarms", State.Bool(_godmode.value)),
                     Row("silence", "Mute all voice", State.Bool(_silence.value)),
                     Row("letmelock", "Lock wheel at any speed", State.Bool(_lockAtAnySpeed.value)),
+                    Row("tutorial", "Replay the welcome tour on the dashboard", State.Action),
                     Row("bug", "Open the GitHub issues page", State.Action),
                     Row("erwin", "Open ried.no", State.Action)
                 )
@@ -115,6 +122,11 @@ class CheatState @Inject constructor() {
         data class Toast(override val toast: String) : Result
         data class OpenUrl(val url: String) : Result {
             override val toast: String = "opening $url"
+        }
+        /** Asks the caller to persist welcomeTutorialSeen = false so the
+         *  dashboard welcome tour shows again next time the dashboard is shown. */
+        object ResetTutorial : Result {
+            override val toast: String = "welcome tour will replay when you return to the dashboard"
         }
         data class ShowSheet(val title: String, val rows: List<Row>) : Result {
             override val toast: String = title

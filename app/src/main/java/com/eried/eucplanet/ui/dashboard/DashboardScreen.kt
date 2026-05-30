@@ -400,6 +400,16 @@ fun DashboardScreen(
         )
     }
 
+    // First-launch welcome tour. Targets register their bounds via
+    // Modifier.coachmarkTarget below; the overlay (after the Scaffold, inside
+    // this Box so it can dim the top bar too) spotlights each in turn. Shown
+    // only while the persisted flag is still false; Skip / Done set it.
+    val coachmark = rememberCoachmarkState()
+    val welcomeTutorialSeen by viewModel.welcomeTutorialSeen.collectAsState()
+    var tourDismissed by remember { mutableStateOf(false) }
+    val showWelcomeTour = !welcomeTutorialSeen && !tourDismissed
+
+    Box(modifier = Modifier.fillMaxSize()) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
@@ -441,13 +451,16 @@ fun DashboardScreen(
                         flashAt = flicFlashAt,
                         onClick = onNavigateToFlic
                     )
-                    IconButton(onClick = {
-                        if (connectionState == ConnectionState.CONNECTED) {
-                            showDisconnectDialog = true
-                        } else {
-                            onNavigateToScan()
-                        }
-                    }) {
+                    IconButton(
+                        onClick = {
+                            if (connectionState == ConnectionState.CONNECTED) {
+                                showDisconnectDialog = true
+                            } else {
+                                onNavigateToScan()
+                            }
+                        },
+                        modifier = Modifier.coachmarkTarget(coachmark, TutorialTarget.BLUETOOTH)
+                    ) {
                         Icon(
                             if (connectionState == ConnectionState.DISCONNECTED)
                                 Icons.AutoMirrored.Filled.BluetoothSearching
@@ -589,6 +602,7 @@ fun DashboardScreen(
                         .width(dialW)
                         .aspectRatio(ratio)
                         .align(Alignment.Center)
+                        .coachmarkTarget(coachmark, TutorialTarget.SPEED_DIAL)
                 )
                 // Unit label ("mph" / "km/h") aligned to the same bottom line
                 // as the Map / Camera glyphs below, so when the experimental
@@ -625,6 +639,7 @@ fun DashboardScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopStart)
+                        .coachmarkTarget(coachmark, TutorialTarget.PARK_DRIVE)
                         // The P / D cluster is one tap target, it opens the
                         // wheel speed settings.
                         .clickable { onNavigateToSettings(2) }
@@ -659,6 +674,7 @@ fun DashboardScreen(
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
+                        .coachmarkTarget(coachmark, TutorialTarget.GPS_BUTTON)
                         .offset(x = 4.dp)
                         .padding(top = 8.dp)
                         .combinedClickable(
@@ -703,7 +719,11 @@ fun DashboardScreen(
                 // Overlay Studio, same indicator styling as the GPS / P-D
                 // glyphs (no chrome, accent colour), mirroring the GPS column
                 // in the dial's bottom-right corner.
-                Box(Modifier.align(Alignment.BottomEnd)) {
+                Box(
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .coachmarkTarget(coachmark, TutorialTarget.CAMERA_BUTTON)
+                ) {
                     DashIndicatorIcon(
                         icon = Icons.Default.PhotoCamera,
                         active = true,
@@ -748,7 +768,11 @@ fun DashboardScreen(
                     if (navActive) navState.arrowAngleDeg() else 0f,
                     label = "navBtnArrow"
                 )
-                Box(Modifier.align(Alignment.BottomStart)) {
+                Box(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .coachmarkTarget(coachmark, TutorialTarget.MAP_BUTTON)
+                ) {
                     Icon(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
@@ -991,7 +1015,11 @@ fun DashboardScreen(
 
             for (rowIdx in 0 until metricRows) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // Spotlight the WHOLE metrics grid: each row unions into
+                        // one rect for the welcome tour.
+                        .coachmarkTargetUnion(coachmark, TutorialTarget.METRICS),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     for (colIdx in 0 until metricColumns) {
@@ -1281,7 +1309,11 @@ fun DashboardScreen(
             // and phones both render 3 columns; only the height changes.
             for (rowIdx in 0 until 2) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // Spotlight ALL action buttons: each row unions into one
+                        // rect for the welcome tour.
+                        .coachmarkTargetUnion(coachmark, TutorialTarget.ACTIONS),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     for (colIdx in 0 until 3) {
@@ -1596,7 +1628,9 @@ fun DashboardScreen(
                 onVersionClick = {
                     if (diagEnabled) showDiagnosticsDialog = true
                     else showAboutDialog = true
-                }
+                },
+                // Spotlight only the version (right side), not the whole ODO row.
+                versionModifier = Modifier.coachmarkTarget(coachmark, TutorialTarget.VERSION)
             )
 
             if (showDiagnosticsDialog) {
@@ -2186,6 +2220,16 @@ fun DashboardScreen(
             }  // close inner Column (dashboard content)
         }
     }
+
+        // Welcome tour overlay -- drawn last so it sits above the dashboard
+        // (and the top bar) and can spotlight any element by its bounds.
+        if (showWelcomeTour) {
+            WelcomeTutorialOverlay(coachmark) {
+                viewModel.markWelcomeTutorialSeen()
+                tourDismissed = true
+            }
+        }
+    }
 }
 
 // --- Speed gauge: thick arc dial, no needle, centered speed ---
@@ -2539,7 +2583,8 @@ private fun WheelInfoBox(
     firmwareVersion: String?,
     versionName: String,
     diagnosticsActive: Boolean,
-    onVersionClick: () -> Unit
+    onVersionClick: () -> Unit,
+    versionModifier: Modifier = Modifier
 ) {
     Box(
         modifier = Modifier
@@ -2596,6 +2641,7 @@ private fun WheelInfoBox(
             color = versionColor,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
+                .then(versionModifier)
                 .clickable(onClick = onVersionClick)
         )
     }

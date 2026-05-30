@@ -267,6 +267,22 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Whether the first-launch dashboard welcome tour still needs showing. */
+    val welcomeTutorialSeen: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.welcomeTutorialSeen }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    /** Records that the rider finished or skipped the welcome tour, so it
+     *  never auto-shows again. */
+    fun markWelcomeTutorialSeen() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            if (!current.welcomeTutorialSeen) {
+                settingsRepository.update(current.copy(welcomeTutorialSeen = true))
+            }
+        }
+    }
+
     fun startRecording() {
         viewModelScope.launch { tripRepository.startRecording() }
     }
