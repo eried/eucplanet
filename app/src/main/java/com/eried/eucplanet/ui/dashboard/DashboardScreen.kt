@@ -957,9 +957,15 @@ fun DashboardScreen(
             // Compute a corner-stat value for a metric key from its 5-min
             // sparkline history. Returns a pre-formatted string like "82%" /
             // "27°" / "84.1V" so the tile can drop it straight into a corner
-            // chip without re-deriving units. Null = stat is NONE / CURRENT
-            // (CURRENT goes through the main value path) or the history
-            // buffer is empty (no rolling sample to compute over).
+            // chip without re-deriving units.
+            //
+            // Returns null ONLY when the stat itself is NONE or CURRENT (those
+            // paths don't render a corner chip / don't override the centre).
+            // When the rider has picked a real stat but the history buffer is
+            // empty (cold boot, no wheel connected yet), returns the
+            // placeholder dash — that way the rider sees confirmation the
+            // setting took effect on the tile, with the value filling in
+            // once samples start flowing.
             fun cornerStatValueFor(
                 key: String,
                 stat: com.eried.eucplanet.ui.settings.DashboardStat
@@ -973,15 +979,15 @@ fun DashboardScreen(
                     "CURRENT" -> history.current
                     "LOAD" -> history.load
                     "SPEED" -> history.speed
-                    else -> return null
+                    else -> return placeholder
                 }
-                if (buf.isEmpty()) return null
+                if (buf.isEmpty()) return placeholder
                 val samples = buf.mapIndexed { idx, v ->
                     com.eried.eucplanet.data.repository.MetricSample(idx.toLong(), v)
                 }
                 val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
                     stat, samples, fallbackCurrent = buf.last()
-                ) ?: return null
+                ) ?: return placeholder
                 return when (key) {
                     "BATTERY", "LOAD" -> "${raw.toInt()}%"
                     "TEMPERATURE" -> "${raw.toInt()}°"
@@ -1143,6 +1149,7 @@ fun DashboardScreen(
                         // and route through their per-cell stat list below.
                         val slotStats = slotStatsFor(key)
                         val centerOverride = cornerStatValueFor(key, slotStats.center)
+                        val centerStatLabel = shortStatLabel(slotStats.center).takeIf { it.isNotEmpty() }
                         val cornerLeftLabel = shortStatLabel(slotStats.left).takeIf { it.isNotEmpty() }
                         val cornerLeftValue = cornerStatValueFor(key, slotStats.left)
                         val cornerRightLabel = shortStatLabel(slotStats.right).takeIf { it.isNotEmpty() }
@@ -1169,6 +1176,7 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("BATTERY") }
                             )
@@ -1186,6 +1194,7 @@ fun DashboardScreen(
                                     cornerLeftValue = cornerLeftValue,
                                     cornerRightLabel = cornerRightLabel,
                                     cornerRightValue = cornerRightValue,
+                                    centerStatLabel = centerStatLabel,
                                     modifier = Modifier.weight(1f),
                                     onClick = { onNavigateToMetric("TEMPERATURE") }
                                 )
@@ -1202,6 +1211,7 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("VOLTAGE") }
                             )
@@ -1218,6 +1228,7 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("CURRENT") },
                                 onLongClick = { viewModel.toggleCurrentDisplayMode() }
@@ -1233,6 +1244,7 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("LOAD") }
                             )

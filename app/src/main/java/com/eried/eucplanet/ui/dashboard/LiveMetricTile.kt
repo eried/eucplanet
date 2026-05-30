@@ -53,12 +53,15 @@ fun LiveMetricTile(
     bipolarBaseline: Float = 0f,
     /** Negative-lobe colour for [SparklineStyle.AREA_BIPOLAR]; defaults to a darker [accent]. */
     bipolarNegativeAccent: Color? = null,
-    /** Bottom-left corner readout (e.g. label "MIN", value "78%"). Null hides the corner. */
+    /** Top-left side readout — label "MIN" / "MAX" / "AVG" / "P75", etc. */
     cornerLeftLabel: String? = null,
     cornerLeftValue: String? = null,
-    /** Bottom-right corner readout (e.g. label "MAX", value "94%"). */
+    /** Top-right side readout, mirror of the left one. */
     cornerRightLabel: String? = null,
     cornerRightValue: String? = null,
+    /** Centre stat tag — rendered inline with [label] when the rider made the
+     *  big number show a non-default aggregation (e.g. "MAX BATTERY  82%"). */
+    centerStatLabel: String? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null
 ) {
@@ -217,86 +220,112 @@ fun LiveMetricTile(
             }
         }
 
-        // Text content centered. Padding gives the sparkline room to
-        // breathe behind the value text without overlapping it visually.
-        Column(
+        // Three-zone layout mirrors the Settings slot preview
+        // (SettingsScreen.kt: ThreeZoneRow). Left badge sits flush at the
+        // tile's top-left edge, right badge at the top-right, the centred
+        // label + value column sits between them. When no corner stats are
+        // picked the side columns are empty and the centre column reads
+        // exactly like the old centred Column.
+        val hasSideReadings = (cornerLeftLabel != null && cornerLeftValue != null) ||
+                (cornerRightLabel != null && cornerRightValue != null)
+        val centerBigSp = if (hasSideReadings) 18 else 20
+        androidx.compose.foundation.layout.Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 10.dp, horizontal = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.Top
         ) {
-            Text(
-                // Uppercase so labels read consistently regardless of
-                // whether the source is a stat_* string (already caps)
-                // or a metric_chip_* string (proper case in the editor).
-                // .uppercase() is idempotent on already-uppercase strings.
-                label.uppercase(),
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp
-            )
-            Spacer(Modifier.height(2.dp))
-            Text(
-                value,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = accent,
-                maxLines = 1
-            )
-        }
-
-        // Corner readouts. Two small chips at the bottom-left / bottom-right
-        // showing rolling-window stats picked in the slot editor (MIN / MAX
-        // / AVG / Median / Pxx). Rendered as inline "LABEL value" so a
-        // rider scanning the tile reads "MAX 94" without an explainer.
-        // Each is opt-in: nil corners draw nothing, preserving the
-        // default-tile look for riders who didn't customize.
-        if (cornerLeftLabel != null && cornerLeftValue != null) {
-            CornerReadout(
-                stat = cornerLeftLabel,
-                value = cornerLeftValue,
-                accent = accent,
-                modifier = Modifier.align(Alignment.BottomStart).padding(start = 6.dp, bottom = 4.dp)
-            )
-        }
-        if (cornerRightLabel != null && cornerRightValue != null) {
-            CornerReadout(
-                stat = cornerRightLabel,
-                value = cornerRightValue,
-                accent = accent,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 6.dp, bottom = 4.dp)
-            )
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.TopStart
+            ) {
+                if (cornerLeftLabel != null && cornerLeftValue != null) {
+                    SideBadge(cornerLeftLabel, cornerLeftValue, accent, Alignment.Start)
+                }
+            }
+            Box(
+                modifier = Modifier.weight(1.2f),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
+            }
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                if (cornerRightLabel != null && cornerRightValue != null) {
+                    SideBadge(cornerRightLabel, cornerRightValue, accent, Alignment.End)
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun CornerReadout(
-    stat: String,
+private fun SideBadge(
+    statLabel: String,
     value: String,
     accent: Color,
-    modifier: Modifier = Modifier
+    align: Alignment.Horizontal
 ) {
-    androidx.compose.foundation.layout.Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.Bottom
-    ) {
+    Column(horizontalAlignment = align) {
         Text(
-            stat,
-            fontSize = 7.sp,
-            color = accent.copy(alpha = 0.85f),
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 0.5.sp,
-            maxLines = 1
+            statLabel,
+            fontSize = 9.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium,
+            letterSpacing = 0.5.sp
         )
-        Spacer(Modifier.height(0.dp))
-        androidx.compose.foundation.layout.Spacer(Modifier.padding(horizontal = 2.dp))
         Text(
             value,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = accent.copy(alpha = 0.9f),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = accent,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun CenterColumn(
+    metricLabel: String,
+    value: String,
+    centerStatLabel: String?,
+    accent: Color,
+    bigSp: Int
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Stat name + metric label on the same row so the header reads as
+        // "MAX BATTERY" instead of stacked labels. Stat name hidden when
+        // the centre is the default (CURRENT live value) since it'd be
+        // redundant alongside the big value.
+        androidx.compose.foundation.layout.Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
+        ) {
+            if (centerStatLabel != null) {
+                Text(
+                    centerStatLabel,
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.5.sp
+                )
+            }
+            Text(
+                metricLabel.uppercase(),
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            value,
+            fontSize = bigSp.sp,
+            fontWeight = FontWeight.Bold,
+            color = accent,
             maxLines = 1
         )
     }
