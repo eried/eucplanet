@@ -162,27 +162,23 @@ private fun BoxScope.LandscapeRotatedCanvas(
     hudW: Dp,
     hudH: Dp
 ) {
-    // 9:19.5 is the typical modern-phone portrait aspect. The preset
-    // doesn't store the rider's exact screen aspect; this is the
-    // best default. A slightly off aspect just shifts elements a few
-    // percent, not enough to change relative layout.
-    val portraitAspect = 9f / 19.5f
-    // Size the portrait canvas so its post-rotation width fills the
-    // HUD width (= portrait HEIGHT after a 90 degree rotation), then
-    // derive portrait width from the aspect. If that would make the
-    // post-rotation height exceed HUD height, scale down to fit.
-    val targetPostRotW = hudW
-    val targetPortraitH = targetPostRotW
-    val targetPortraitW = targetPortraitH * portraitAspect
-    val postRotH = targetPortraitW
-    val (portraitW, portraitH) =
-        if (postRotH.value <= hudH.value) targetPortraitW to targetPortraitH
-        else {
-            // Scale down so post-rotation height = HUD height.
-            val scaledPortraitW = hudH
-            val scaledPortraitH = scaledPortraitW / portraitAspect
-            scaledPortraitW to scaledPortraitH
-        }
+    // Size the portrait sub-canvas so its post-rotation dimensions
+    // match the HUD panel exactly: zero letterbox, the preset fills
+    // the whole screen.
+    //
+    // A 90 degree rotation swaps width and height, so to get a
+    // post-rotation rectangle of (hudW, hudH) we need a pre-rotation
+    // rectangle of (hudH, hudW) -- portraitW = hudH, portraitH = hudW.
+    //
+    // We deliberately don't constrain to the rider's actual phone
+    // aspect (which the preset doesn't store): using HUD-native gives
+    // the rider a bigger, more legible overlay at the cost of slight
+    // relative-position drift if their phone wasn't ~16:9-ish in
+    // landscape. The studio canvas is 0..1 fractions anyway -- elements
+    // stay at the same relative positions, just spread across the HUD's
+    // actual aspect instead of a guessed 9:19.5.
+    val portraitW = hudH
+    val portraitH = hudW
 
     Box(
         modifier = Modifier
