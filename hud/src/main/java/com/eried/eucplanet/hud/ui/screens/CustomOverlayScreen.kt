@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -141,7 +140,7 @@ private fun PortraitRawCanvas(
                         Modifier.heightIn(max = containerH * el.height)
                     else Modifier
                 )
-                .alpha(el.opacity)
+                .graphicsLayer(alpha = el.opacity)
         ) {
             OverlayElementRenderer(el, data)
         }
@@ -180,16 +179,25 @@ private fun BoxScope.LandscapeRotatedCanvas(
     val portraitH = hudW
     val portraitW = portraitH * portraitAspect
 
+    // Parameter-overload graphicsLayer instead of the lambda form: with
+    // stable Float properties Compose can reuse the same RenderNode
+    // across recompositions, where the lambda form re-evaluates each
+    // frame and invalidates the layer. At 5 Hz across 8 layers (canvas +
+    // 7 elements) the lambda form was the dominant per-frame cost and
+    // pushed the Custom screen into ANR territory.
     Box(
         modifier = Modifier
             .align(Alignment.Center)
             .size(width = portraitW, height = portraitH)
-            .graphicsLayer {
-                rotationZ = canvasRot
+            .graphicsLayer(
+                rotationZ = canvasRot,
                 transformOrigin = TransformOrigin.Center
-            }
+            )
     ) {
         preset.elements.forEach { el ->
+            // Negated so element-content rotation + canvas rotation
+            // cancel for elements that match the dominant rotation
+            // (net 0 = upright). See LandscapeRotatedCanvas header.
             Box(
                 modifier = Modifier
                     .offset(x = portraitW * el.x, y = portraitH * el.y)
@@ -199,18 +207,10 @@ private fun BoxScope.LandscapeRotatedCanvas(
                             Modifier.heightIn(max = portraitH * el.height)
                         else Modifier
                     )
-                    // Negated so element-content rotation + canvas
-                    // rotation cancel: studio drew content at +rotationDeg
-                    // assuming the rider would tilt the phone, which on
-                    // the HUD we simulate by rotating the whole canvas
-                    // at +dominantRot. The content rotates with the canvas,
-                    // so we pre-rotate the element by -rotationDeg here
-                    // to leave a net rotation of (dominantRot - rotationDeg).
-                    // For elements that match the dominant rotation, that
-                    // is 0 (upright); off-axis elements stay at their
-                    // intended off-axis angle.
-                    .graphicsLayer { rotationZ = -el.rotationDeg }
-                    .alpha(el.opacity)
+                    .graphicsLayer(
+                        rotationZ = -el.rotationDeg,
+                        alpha = el.opacity
+                    )
             ) {
                 OverlayElementRenderer(el, data)
             }
