@@ -28,8 +28,13 @@ import java.util.concurrent.TimeUnit
 class HudTileCache {
 
     companion object {
+        // dark_matter has higher contrast between background and road
+        // lines than dark_all -- testers reported dark_all faded out
+        // under auto-brightness at night, especially the road network.
+        // dark_matter has black background + cyan-ish roads that stay
+        // visible when the HUD panel dims.
         private const val URL_TEMPLATE =
-            "https://%s.basemaps.cartocdn.com/dark_all/%d/%d/%d.png"
+            "https://%s.basemaps.cartocdn.com/dark_matter/%d/%d/%d.png"
         private val SHARDS = arrayOf("a", "b", "c", "d")
         private const val USER_AGENT = "eucplanet-hud/1"
     }

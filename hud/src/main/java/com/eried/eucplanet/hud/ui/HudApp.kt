@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -262,40 +263,32 @@ private fun IpPortMatrix(
     side: Float
 ) {
     val cellHMin = (side * 0.18f).dp
-    // Font sized so 15 monospace chars ("255.255.255.255") fit comfortably
-    // inside the common cell width below. Tuned by inspecting renders at
-    // 800×480; the previous 0.10×side was too aggressive and clipped
-    // "10.0.2.15" because monospace char width at that size landed close
-    // to cellW/9.
-    val cellFont = (side * 0.085f).sp
-    // Labels bumped up so they read as equal partners with the values
-    // rather than tiny captions. The rider scans the label first.
+    // Slightly smaller font so a long IP like "192.168.43.142" fits with
+    // headroom on real-device panels. Earlier 0.085×side clipped the last
+    // digit on a tester's Motoeye E6 -- the dialog width is constrained by
+    // the panel aspect and the cell ran out of room.
+    val cellFont = (side * 0.075f).sp
     val labelFont = (side * 0.075f).sp
-    // Tight vertical gap so IP and PORT read as a single block of
-    // information instead of two unrelated lines.
     val rowGap = (side * 0.006f).dp
     val labelGap = (side * 0.025f).dp
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
     val innerHPad = (side * 0.035f).dp
-    // Fixed (not min) label column width so "IP" and "PORT" both occupy
-    // exactly the same horizontal slot and the cells that follow start at
-    // the same x. Width sized to fit "PORT" at labelFont (0.075×side)
-    // with a comfortable margin -- previously 0.18×side wrapped the T to
-    // a second line on the dev emulator.
     val labelColW = (side * 0.24f).dp
-    // Common cell width sized for the longest possible IPv4 + a comfortable
-    // margin. PORT inherits the same width so both right edges align and
-    // the two cells form a clean column.
-    val cellW = (side * 0.70f).dp
 
-    Column(verticalArrangement = Arrangement.spacedBy(rowGap)) {
+    // Column fills the available dialog width so each row can use
+    // Modifier.weight(1f) on the cell -- the cell grows to take whatever
+    // space remains after the label, instead of being capped at a fixed
+    // 0.70×side that ran out of room for longer addresses.
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(rowGap)
+    ) {
         AddressRow(
             label = "IP",
             value = ipText,
             labelColW = labelColW,
             labelGap = labelGap,
-            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -309,7 +302,6 @@ private fun IpPortMatrix(
             value = port.toString(),
             labelColW = labelColW,
             labelGap = labelGap,
-            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -330,7 +322,6 @@ private fun AddressRow(
     value: String,
     labelColW: androidx.compose.ui.unit.Dp,
     labelGap: androidx.compose.ui.unit.Dp,
-    cellW: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
     innerHPad: androidx.compose.ui.unit.Dp,
     valueFont: androidx.compose.ui.unit.TextUnit,
@@ -339,7 +330,10 @@ private fun AddressRow(
     borderW: androidx.compose.ui.unit.Dp,
     border: Color
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = label,
             color = Color(0xFFB0B0B0),
@@ -352,17 +346,15 @@ private fun AddressRow(
         Spacer(Modifier.width(labelGap))
         Box(
             modifier = Modifier
-                .width(cellW)
+                // Cell takes whatever width is left in the row. Both rows
+                // are fillMaxWidth + share labelColW, so the IP and PORT
+                // cells end up the same width and line up on both edges.
+                .weight(1f)
                 .heightIn(min = cellHMin)
                 .clip(RoundedCornerShape(cornerR))
-                // Visible dark grey so the cell pops off the dialog
-                // background instead of blending into it -- the earlier
-                // #0F0F0F was almost the same as the dialog tile.
                 .background(Color(0xFF2F2F2F))
                 .border(borderW, border.copy(alpha = 0.55f), RoundedCornerShape(cornerR))
                 .padding(horizontal = innerHPad),
-            // Left-align the value so the IP and PORT digit columns line
-            // up vertically when read top-to-bottom.
             contentAlignment = Alignment.CenterStart
         ) {
             Text(

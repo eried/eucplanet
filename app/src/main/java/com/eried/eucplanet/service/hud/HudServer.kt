@@ -384,6 +384,8 @@ class HudServer @Inject constructor(
             gpsSpeedKmh = gpsSpeedPair?.first ?: Float.NaN,
             gpsSource = gpsSpeedPair?.second ?: "",
             gpsHasFix = location != null,
+            gpsHeadingDeg = if (location?.hasBearing() == true) location.bearing
+                else Float.NaN,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

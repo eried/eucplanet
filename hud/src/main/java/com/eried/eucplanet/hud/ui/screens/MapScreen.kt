@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -117,35 +118,44 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
                     centerPx.y - ((cy - originY) * 256f)
                 )
 
-                for (dy in 0 until rows) for (dx in 0 until cols) {
-                    val tx = originX + dx
-                    val ty = originY + dy
-                    if (tx < 0 || ty < 0) continue
-                    val bm = cache.peek(z, tx, ty)
-                    val topLeft = Offset(originTilePx.x + dx * 256f, originTilePx.y + dy * 256f)
-                    if (bm != null) {
-                        drawImage(
-                            image = bm.asImageBitmap(),
-                            topLeft = topLeft
-                        )
-                    } else {
-                        drawRect(
-                            color = Color(0xFF1A1A1A),
-                            topLeft = topLeft,
-                            size = Size(256f, 256f)
-                        )
+                // Rotate the map so the rider's direction of travel always
+                // points up. Counter-rotate so the canvas coordinate frame
+                // turns with the heading. NaN heading (no GPS bearing yet)
+                // falls back to a north-up view.
+                val headingDeg = if (hud.gpsHeadingDeg.isNaN()) 0f
+                    else -hud.gpsHeadingDeg
+                rotate(degrees = headingDeg, pivot = centerPx) {
+                    for (dy in 0 until rows) for (dx in 0 until cols) {
+                        val tx = originX + dx
+                        val ty = originY + dy
+                        if (tx < 0 || ty < 0) continue
+                        val bm = cache.peek(z, tx, ty)
+                        val topLeft = Offset(originTilePx.x + dx * 256f, originTilePx.y + dy * 256f)
+                        if (bm != null) {
+                            drawImage(
+                                image = bm.asImageBitmap(),
+                                topLeft = topLeft
+                            )
+                        } else {
+                            drawRect(
+                                color = Color(0xFF1A1A1A),
+                                topLeft = topLeft,
+                                size = Size(256f, 256f)
+                            )
+                        }
                     }
                 }
 
                 // Rider marker: filled accent dot with a white ring so it
-                // reads against any map colour. Kept dead-centre because
-                // the map auto-pans to the rider's GPS each frame.
+                // reads against any map colour. Drawn OUTSIDE the rotate
+                // block so it stays straight (it's a fixed compass-rose
+                // marker, not part of the rotating world).
                 drawCircle(color = Color.White, radius = 12.dp.toPx(), center = centerPx)
                 drawCircle(color = accent, radius = 9.dp.toPx(), center = centerPx)
             }
         )
 
-        // Zoom indicator overlay.
+        // Zoom indicator (bottom-left).
         Box(
             Modifier
                 .align(Alignment.BottomStart)
@@ -154,6 +164,33 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             Text("Z $z", color = Color.White, fontSize = 14.sp)
+        }
+
+        // Speed overlay (bottom-right). Uses the rider's preferred unit
+        // for consistency with the Dashboard + Camera screens.
+        val displaySpeed = com.eried.eucplanet.hud.ui.HudUnits.speed(hud.speedKmh, hud.unitSpeed)
+        Box(
+            Modifier
+                .align(Alignment.BottomEnd)
+                .padding(12.dp)
+                .background(Color(0xAA000000))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            androidx.compose.foundation.layout.Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "%.0f".format(displaySpeed),
+                    color = accent,
+                    fontSize = 22.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                Text(
+                    text = " ${com.eried.eucplanet.hud.ui.HudUnits.speedSuffix(hud.unitSpeed)}",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }

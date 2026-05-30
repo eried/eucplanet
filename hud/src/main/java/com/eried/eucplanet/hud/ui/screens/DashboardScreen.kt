@@ -163,12 +163,19 @@ private fun Tile(
     BoxWithConstraints(modifier = modifier) {
         val density = androidx.compose.ui.platform.LocalDensity.current
         val h = maxHeight.value
-        val labelSize = with(density) { (h * 0.16f).dp.toSp() }
-        val valueSize = with(density) { (h * 0.36f).dp.toSp() }
-        val subSize = with(density) { (h * 0.16f).dp.toSp() }
+        // Tighter budget after a tester reported the subtitle line clipped
+        // on a real Motoeye E6 panel. New share: label 13 % / value 30 % /
+        // subtitle 13 % = 56 % for glyphs. Setting lineHeight = font size
+        // strips Compose's default ~1.2× line padding, so the visible row
+        // height tracks the font size 1:1. Padding shrunk to 4 %/side. Net
+        // total ≈ 70 % of tile height -- 30 % headroom for line-height
+        // quirks on heavier fonts.
+        val labelSize = with(density) { (h * 0.13f).dp.toSp() }
+        val valueSize = with(density) { (h * 0.30f).dp.toSp() }
+        val subSize = with(density) { (h * 0.13f).dp.toSp() }
         val cornerR = (h * 0.13f).coerceAtMost(16f).dp
         val padH = (maxWidth.value * 0.05f).dp
-        val padV = (h * 0.06f).dp
+        val padV = (h * 0.04f).dp
         val strokeW = (h * 0.012f).coerceAtLeast(1f).dp
 
         Canvas(Modifier.fillMaxSize()) {
@@ -186,26 +193,32 @@ private fun Tile(
         }
         Column(
             Modifier.fillMaxSize().padding(horizontal = padH, vertical = padV),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = label,
                 color = Color.White.copy(alpha = 0.6f),
                 fontSize = labelSize,
-                maxLines = 1
+                lineHeight = labelSize,
+                maxLines = 1,
+                softWrap = false
             )
             Text(
                 text = value,
                 color = Color.White,
                 fontSize = valueSize,
+                lineHeight = valueSize,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1
+                maxLines = 1,
+                softWrap = false
             )
             Text(
                 text = subtitle,
                 color = accent,
                 fontSize = subSize,
-                maxLines = 1
+                lineHeight = subSize,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }

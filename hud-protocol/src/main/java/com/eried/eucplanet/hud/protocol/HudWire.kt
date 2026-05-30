@@ -68,6 +68,10 @@ data class HudState(
     val gpsSource: String = "",
     /** True when the phone has any fresh GPS fix at all (any source). */
     val gpsHasFix: Boolean = false,
+    /** Current heading in degrees, 0 = north, +clockwise. NaN when the GPS
+     *  hasn't reported a bearing yet. The HUD uses this to rotate the map
+     *  so the rider's direction of travel always points up. */
+    val gpsHeadingDeg: Float = Float.NaN,
 
     // --- Navigation popup mirror ---
     /** Whether to render the turn-by-turn overlay/screen. */

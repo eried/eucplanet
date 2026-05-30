@@ -74,13 +74,38 @@ fun CameraScreen(hud: HudState) {
                                 val preview = Preview.Builder().build().also {
                                     it.surfaceProvider = view.surfaceProvider
                                 }
+                                // Try DEFAULT_BACK_CAMERA first, then any
+                                // available camera as a fallback. The
+                                // Motoeye E6's rear camera doesn't always
+                                // report LENS_FACING_BACK -- tester saw
+                                // "not available" on a unit whose rear cam
+                                // worked elsewhere. The fallback loops
+                                // through whatever the HAL exposes and
+                                // picks the first one that binds.
                                 provider.unbindAll()
-                                provider.bindToLifecycle(
-                                    lifecycleOwner,
-                                    CameraSelector.DEFAULT_BACK_CAMERA,
-                                    preview
-                                )
-                                cameraReady = true
+                                val selectors = buildList {
+                                    add(CameraSelector.DEFAULT_BACK_CAMERA)
+                                    add(CameraSelector.DEFAULT_FRONT_CAMERA)
+                                    provider.availableCameraInfos.forEach { info ->
+                                        add(CameraSelector.Builder()
+                                            .addCameraFilter { _ -> listOf(info) }
+                                            .build())
+                                    }
+                                }
+                                var bound = false
+                                for (sel in selectors) {
+                                    try {
+                                        provider.bindToLifecycle(
+                                            lifecycleOwner, sel, preview
+                                        )
+                                        bound = true
+                                        break
+                                    } catch (_: Throwable) {
+                                        // try next
+                                    }
+                                }
+                                if (bound) cameraReady = true
+                                else cameraFailed = true
                             } catch (_: Throwable) {
                                 cameraFailed = true
                             }
