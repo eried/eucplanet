@@ -598,9 +598,12 @@ class SettingsViewModel @Inject constructor(
         known: List<String>,
         dynamic: Set<String> = emptySet()
     ): List<String> {
+        // EMPTY_SLOT_KEY entries are kept verbatim so "intentionally blank"
+        // grid slots from a move-and-empty drop survive a round-trip through
+        // settings persistence. Renderers map the sentinel to a blank Box.
         val s = saved.split(",")
             .map { it.trim() }
-            .filter { it.isNotEmpty() && (it in known || it in dynamic) }
+            .filter { it.isNotEmpty() && (it == EMPTY_SLOT_KEY || it in known || it in dynamic) }
         // Append known keys that aren't already in the saved order so the pool
         // surfaces new defaults after an app upgrade. Dynamic IDs are NOT
         // auto-added — they only exist while the rider has them on the grid
@@ -1075,42 +1078,64 @@ class SettingsViewModel @Inject constructor(
             val fromIndex = items.indexOf(key)
             if (fromIndex < 0 || toIndex !in items.indices) return@launch
             if (fromIndex == toIndex) return@launch
-            // Swap so the slot the user dragged onto receives the new metric and
-            // its previous occupant takes the dragged item's old position.
-            val a = items[fromIndex]
-            items[fromIndex] = items[toIndex]
-            items[toIndex] = a
 
-            // Composites and custom tiles are rider-personal artifacts that
-            // only make sense on the active grid. If a swap pushed one into
-            // the pool, delete it (definition + order entry) rather than
-            // leaving it cluttering Available metrics. Within the active
-            // grid the rider can still reorder them freely — only the trip
-            // into the pool is destructive.
+            // Move semantics (per rider feedback): drop = put `key` at toIndex
+            // and leave fromIndex EMPTY. The previously-occupant of toIndex
+            // is discarded entirely — composite / custom-tile definitions
+            // for the displaced tile are deleted alongside its order entry
+            // since they only live on the active grid (the pool catalog is
+            // the source of truth for static metrics, so they re-appear in
+            // the pool via sanitize()).
             val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val displaced = items[toIndex]
+            items[toIndex] = key
+            // Only top-level grid slots get an EMPTY sentinel — pool-area
+            // sources are catalog entries that sanitize() re-adds anyway.
+            if (fromIndex < activeCount) {
+                items[fromIndex] = EMPTY_SLOT_KEY
+            } else {
+                items.removeAt(fromIndex)
+            }
+
+            // Drop the displaced dynamic instance from any remaining order
+            // slot (it was just overwritten at toIndex but may still appear
+            // elsewhere in the list as a duplicate) AND from its definitions.
+            val displacedIsComposite = isCompositeMetricKey(displaced)
+            val displacedIsCustomTile = isCustomTileKey(displaced)
+            if (displacedIsComposite || displacedIsCustomTile) {
+                items.removeAll { it == displaced }
+            }
+
+            // Same orphan cleanup as before: dynamic instances that ended up
+            // past the active region are deleted (no orphan composites in
+            // Available metrics).
             val orphanedComposites = items.withIndex()
                 .filter { (idx, k) -> idx >= activeCount && isCompositeMetricKey(k) }
                 .map { it.value }
             val orphanedCustomTiles = items.withIndex()
                 .filter { (idx, k) -> idx >= activeCount && isCustomTileKey(k) }
                 .map { it.value }
-            if (orphanedComposites.isEmpty() && orphanedCustomTiles.isEmpty()) {
-                settingsRepository.update(current.copy(dashboardMetricOrder = items.joinToString(",")))
-            } else {
-                val compositesRoot = parseSlotStatsRoot(current.dashboardCompositeMetrics)
-                orphanedComposites.forEach { compositesRoot.remove(it) }
-                val tilesRoot = parseSlotStatsRoot(current.dashboardCustomTiles)
-                orphanedCustomTiles.forEach { tilesRoot.remove(it) }
-                val toRemove = (orphanedComposites + orphanedCustomTiles).toSet()
-                val cleaned = items.filter { it !in toRemove }
-                settingsRepository.update(
-                    current.copy(
-                        dashboardMetricOrder = cleaned.joinToString(","),
-                        dashboardCompositeMetrics = compositesRoot.toString(),
-                        dashboardCustomTiles = tilesRoot.toString()
-                    )
+            val toDelete = (orphanedComposites + orphanedCustomTiles +
+                (if (displacedIsComposite || displacedIsCustomTile) listOf(displaced) else emptyList())
+            ).toSet()
+            val cleanedItems = items.filter { it !in (toDelete - setOf(EMPTY_SLOT_KEY)) }
+
+            val compositesRoot = parseSlotStatsRoot(current.dashboardCompositeMetrics)
+            (orphanedComposites + if (displacedIsComposite) listOf(displaced) else emptyList())
+                .toSet()
+                .forEach { compositesRoot.remove(it) }
+            val tilesRoot = parseSlotStatsRoot(current.dashboardCustomTiles)
+            (orphanedCustomTiles + if (displacedIsCustomTile) listOf(displaced) else emptyList())
+                .toSet()
+                .forEach { tilesRoot.remove(it) }
+
+            settingsRepository.update(
+                current.copy(
+                    dashboardMetricOrder = cleanedItems.joinToString(","),
+                    dashboardCompositeMetrics = compositesRoot.toString(),
+                    dashboardCustomTiles = tilesRoot.toString()
                 )
-            }
+            )
         }
     }
 
@@ -1125,24 +1150,36 @@ class SettingsViewModel @Inject constructor(
             val fromIndex = items.indexOf(key)
             if (fromIndex < 0 || toIndex !in items.indices) return@launch
             if (fromIndex == toIndex) return@launch
-            val a = items[fromIndex]
-            items[fromIndex] = items[toIndex]
-            items[toIndex] = a
 
-            // Symmetric to the metric grid: an action group only makes sense
-            // on the active grid. If a swap pushed one into the pool, delete
-            // its definition + order entry — no orphan groups in Available
-            // actions.
+            // Move semantics matching the metric grid: drop = put `key` at
+            // toIndex and leave fromIndex EMPTY. Displaced action group
+            // instance is deleted entirely.
             val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            val displaced = items[toIndex]
+            items[toIndex] = key
+            if (fromIndex < activeCount) {
+                items[fromIndex] = EMPTY_SLOT_KEY
+            } else {
+                items.removeAt(fromIndex)
+            }
+            val displacedIsGroup = isActionGroupKey(displaced)
+            if (displacedIsGroup) {
+                items.removeAll { it == displaced }
+            }
+
             val orphanedGroups = items.withIndex()
                 .filter { (idx, k) -> idx >= activeCount && isActionGroupKey(k) }
                 .map { it.value }
-            if (orphanedGroups.isEmpty()) {
-                settingsRepository.update(current.copy(dashboardActionOrder = items.joinToString(",")))
+            val toDelete = (orphanedGroups +
+                (if (displacedIsGroup) listOf(displaced) else emptyList())
+            ).toSet()
+            val cleaned = items.filter { it !in (toDelete - setOf(EMPTY_SLOT_KEY)) }
+
+            if (toDelete.isEmpty()) {
+                settingsRepository.update(current.copy(dashboardActionOrder = cleaned.joinToString(",")))
             } else {
                 val groupsRoot = parseSlotStatsRoot(current.dashboardActionGroups)
-                orphanedGroups.forEach { groupsRoot.remove(it) }
-                val cleaned = items.filter { it !in orphanedGroups }
+                toDelete.forEach { groupsRoot.remove(it) }
                 settingsRepository.update(
                     current.copy(
                         dashboardActionOrder = cleaned.joinToString(","),
@@ -1565,6 +1602,16 @@ const val COMPOSITE_TEXT_PREFIX = "TEXT:"
  *  equivalent to the legacy "EMPTY" sentinel from earlier in-development
  *  builds. */
 const val COMPOSITE_CELL_EMPTY = COMPOSITE_TEXT_PREFIX
+
+/**
+ * Sentinel key for an intentionally-blank top-level grid slot. Different from
+ * COMPOSITE_CELL_EMPTY (which is the sub-cell placeholder inside a MULTI tile)
+ * — this one occupies a row in dashboardMetricOrder / dashboardActionOrder
+ * so positions are preserved when the rider drags a tile out of a slot with
+ * "move + leave source empty" semantics. Renderers map this key to a blank
+ * Box; the pool catalog is the source-of-truth for re-adding the metric.
+ */
+const val EMPTY_SLOT_KEY = "__EMPTY__"
 
 /** Prefix on order-list entries that identifies a custom tile (rider-typed
  *  text + icon + optional tap action like launching a URL or showing a QR

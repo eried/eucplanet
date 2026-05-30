@@ -1469,6 +1469,14 @@ private fun MetricMiniGrid(
                                         boundsTransform = dashboardTileBoundsTransform
                                     )
                                 when {
+                                    key == EMPTY_SLOT_KEY -> {
+                                        EmptyMetricSlot(
+                                            slotIndex = slotIndex,
+                                            modifier = tileModifier,
+                                            onSwapInto = onSwapInto,
+                                            controller = controller
+                                        )
+                                    }
                                     isCompositeMetricKey(key) -> {
                                         val composite = compositeOf(key) ?: MetricComposite()
                                         CompositeMetricTile(
@@ -1516,6 +1524,41 @@ private fun MetricMiniGrid(
             }
         }
     }
+}
+
+/**
+ * Visual placeholder for an EMPTY_SLOT_KEY slot. Renders a dashed-outline
+ * box with no content and registers as a normal drop target so the rider
+ * can drag a tile back into the empty slot to fill it. No drag-source
+ * modifier — there's nothing to pick up.
+ */
+@Composable
+private fun EmptyMetricSlot(
+    slotIndex: Int,
+    modifier: Modifier = Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val outline = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    val isDropTarget = controller.isDragging &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.METRIC
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) MaterialTheme.colorScheme.primary else outline,
+        label = "empty-slot-border"
+    )
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .dashboardDropTarget(
+                key = "metric-slot-$slotIndex",
+                kind = DropKind.METRIC_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    )
 }
 
 /**
@@ -2446,26 +2489,37 @@ private fun ActionMiniGrid(
                                         lookaheadScope = lookahead,
                                         boundsTransform = dashboardTileBoundsTransform
                                     )
-                                if (isActionGroupKey(key)) {
-                                    val group = groupOf(key) ?: ActionGroup()
-                                    ActionGroupTile(
-                                        id = key,
-                                        group = group,
-                                        slotIndex = slotIndex,
-                                        modifier = tileMod,
-                                        onSwapInto = onSwapInto,
-                                        onTap = { onTapTile(key, slotIndex) },
-                                        controller = controller
-                                    )
-                                } else {
-                                    ActionTile(
-                                        key = key,
-                                        slotIndex = slotIndex,
-                                        modifier = tileMod,
-                                        onSwapInto = onSwapInto,
-                                        onTap = { onTapTile(key, slotIndex) },
-                                        controller = controller
-                                    )
+                                when {
+                                    key == EMPTY_SLOT_KEY -> {
+                                        EmptyActionSlot(
+                                            slotIndex = slotIndex,
+                                            modifier = tileMod,
+                                            onSwapInto = onSwapInto,
+                                            controller = controller
+                                        )
+                                    }
+                                    isActionGroupKey(key) -> {
+                                        val group = groupOf(key) ?: ActionGroup()
+                                        ActionGroupTile(
+                                            id = key,
+                                            group = group,
+                                            slotIndex = slotIndex,
+                                            modifier = tileMod,
+                                            onSwapInto = onSwapInto,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            controller = controller
+                                        )
+                                    }
+                                    else -> {
+                                        ActionTile(
+                                            key = key,
+                                            slotIndex = slotIndex,
+                                            modifier = tileMod,
+                                            onSwapInto = onSwapInto,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            controller = controller
+                                        )
+                                    }
                                 }
                             }
                         } else {
@@ -2476,6 +2530,36 @@ private fun ActionMiniGrid(
             }
         }
     }
+}
+
+/** Action-grid mirror of [EmptyMetricSlot]. */
+@Composable
+private fun EmptyActionSlot(
+    slotIndex: Int,
+    modifier: Modifier = Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    controller: DashboardDragController
+) {
+    val outline = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+    val isDropTarget = controller.isDragging &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.ACTION
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) MaterialTheme.colorScheme.primary else outline,
+        label = "empty-action-slot-border"
+    )
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .dashboardDropTarget(
+                key = "action-slot-$slotIndex",
+                kind = DropKind.ACTION_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    )
 }
 
 @Composable

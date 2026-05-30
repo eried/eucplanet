@@ -1138,7 +1138,12 @@ fun DashboardScreen(
                 ) {
                     for (colIdx in 0 until metricColumns) {
                         val slotIdx = rowIdx * metricColumns + colIdx
-                        val key = activeMetricKeys.getOrNull(slotIdx)
+                        val rawKey = activeMetricKeys.getOrNull(slotIdx)
+                        // EMPTY_SLOT_KEY = intentional blank from a move-and-
+                        // empty drop in the editor. Render the same blank
+                        // weight-1 spacer the missing-key path renders so the
+                        // grid columns stay aligned.
+                        val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null else rawKey
                         if (key == null) {
                             Box(modifier = Modifier.weight(1f))
                             continue
@@ -1499,7 +1504,9 @@ fun DashboardScreen(
                 ) {
                     for (colIdx in 0 until 3) {
                         val slotIdx = rowIdx * 3 + colIdx
-                        val key = activeActionKeys.getOrNull(slotIdx)
+                        val rawKey = activeActionKeys.getOrNull(slotIdx)
+                        // Same EMPTY_SLOT_KEY handling as the metric grid.
+                        val key = if (rawKey == com.eried.eucplanet.ui.settings.EMPTY_SLOT_KEY) null else rawKey
                         if (key == null) {
                             Box(modifier = Modifier.weight(1f))
                             continue
