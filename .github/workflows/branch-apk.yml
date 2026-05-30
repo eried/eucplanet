@@ -64,8 +64,12 @@ jobs:
           BRANCH="${GITHUB_REF##*/}"
           SHORT_SHA="$(git rev-parse --short HEAD)"
           TAG="branch-${BRANCH}"
-          APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-phone.apk"
-          WEAR_APK_NAME="EUC-Planet-${BRANCH}-${SHORT_SHA}-wear_os.apk"
+          # Device-first naming so a quick visual scan (or a script glob)
+          # reads as "phone vs wearos" before anything else. The Gradle
+          # build outputs phone-debug.apk and wearos-debug.apk; we layer
+          # branch + short SHA on top here for the published pre-release.
+          APK_NAME="phone-${BRANCH}-${SHORT_SHA}.apk"
+          WEAR_APK_NAME="wearos-${BRANCH}-${SHORT_SHA}.apk"
 
           # Pull the per-branch description if BRANCH.md exists, otherwise
           # fall back to a generic notice. This becomes the release body header.
@@ -108,27 +112,30 @@ jobs:
       - name: Rename APKs for release
         if: github.event_name != 'pull_request'
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk \
+          # Source filenames come from each module's Gradle
+          # applicationVariants block (app/ -> phone-debug.apk,
+          # wear/ -> wearos-debug.apk).
+          cp app/build/outputs/apk/debug/phone-debug.apk \
              "/tmp/${{ steps.meta.outputs.apk_name }}"
           # Wear APK only exists on branches that have a wear/ module.
-          if [ -f wear/build/outputs/apk/debug/wear-debug.apk ]; then
-            cp wear/build/outputs/apk/debug/wear-debug.apk \
+          if [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
+            cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/${{ steps.meta.outputs.wear_apk_name }}"
           fi
 
       - name: Upload phone APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-${{ github.run_id }}
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: phone-debug-${{ github.run_id }}
+          path: app/build/outputs/apk/debug/phone-debug.apk
           retention-days: 90
 
       - name: Upload wear APK as workflow artifact
-        if: hashFiles('wear/build/outputs/apk/debug/wear-debug.apk') != ''
+        if: hashFiles('wear/build/outputs/apk/debug/wearos-debug.apk') != ''
         uses: actions/upload-artifact@v4
         with:
-          name: wear-debug-${{ github.run_id }}
-          path: wear/build/outputs/apk/debug/wear-debug.apk
+          name: wearos-debug-${{ github.run_id }}
+          path: wear/build/outputs/apk/debug/wearos-debug.apk
           retention-days: 90
 
       - name: Strip prior APKs from rolling release
@@ -165,4 +172,8 @@ jobs:
           # always find the latest at the same URL. The glob picks up both
           # the phone APK and (if the branch has wear/) the watch APK.
           make_latest: "false"
-          files: /tmp/EUC-Planet-${{ steps.meta.outputs.branch }}-${{ steps.meta.outputs.short_sha }}*.apk
+          # Two globs cover both modules; brace-expansion isn't supported
+          # by action-gh-release's file resolver so list explicitly.
+          files: |
+            /tmp/phone-${{ steps.meta.outputs.branch }}-${{ steps.meta.outputs.short_sha }}.apk
+            /tmp/wearos-${{ steps.meta.outputs.branch }}-${{ steps.meta.outputs.short_sha }}.apk

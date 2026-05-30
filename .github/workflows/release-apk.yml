@@ -152,8 +152,14 @@ jobs:
         run: |
           tag="${{ steps.tag.outputs.ref }}"
           stripped="${tag#v}"
-          out="EUC-Planet-${stripped}-phone-slim.apk"
-          cp app/build/outputs/apk/release/app-release.apk "/tmp/${out}"
+          # Device-first naming: matches the branch-apk workflow's phone-*
+          # / wearos-* convention and the local Gradle output. The "-slim"
+          # suffix marks this as the wear-stripped Play-Store-style build
+          # (-PembedWear=false). Source filename comes from app/'s
+          # applicationVariants block which renames app-release.apk to
+          # phone-release.apk.
+          out="phone-${stripped}-slim.apk"
+          cp app/build/outputs/apk/release/phone-release.apk "/tmp/${out}"
           ls -la "/tmp/${out}"
           echo "name=${out}" >> "$GITHUB_OUTPUT"
 
@@ -164,7 +170,7 @@ jobs:
           tag="${{ steps.tag.outputs.ref }}"
           # If a previous run uploaded the same slim filename, drop it first
           # so the upload below doesn't 422. Tolerate the asset not existing.
-          existing="EUC-Planet-${tag#v}-phone-slim.apk"
+          existing="phone-${tag#v}-slim.apk"
           gh release delete-asset "$tag" "$existing" --yes 2>/dev/null || true
           gh release upload "$tag" "/tmp/${{ steps.stage.outputs.name }}" --clobber
 

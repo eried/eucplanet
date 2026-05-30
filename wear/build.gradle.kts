@@ -66,6 +66,16 @@ android {
         compose = true
         buildConfig = true
     }
+
+    // Output APKs as wearos-<buildtype>.apk to mirror app/'s phone-* prefix.
+    // The wear-prefix lets adb / scripts / CI globs identify which artifact
+    // came from which module without inspecting paths.
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName = "wearos-${buildType.name}.apk"
+        }
+    }
 }
 
 dependencies {

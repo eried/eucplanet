@@ -85,6 +85,19 @@ android {
         compose = true
         buildConfig = true
     }
+
+    // Output APKs as phone-<buildtype>.apk (phone-debug.apk / phone-release.apk)
+    // instead of the default app-<buildtype>.apk. Matches the wear module's
+    // wearos-<buildtype>.apk naming so adb commands / CI artifact globs read
+    // the same device prefix regardless of which side they came from. The
+    // CI workflow (.github/workflows/branch-apk.yml) layers the branch +
+    // short SHA on top so the pre-release filenames stay self-describing.
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName = "phone-${buildType.name}.apk"
+        }
+    }
 }
 
 // Wear companion embedding: scoped to the release variant of the Play-Store
