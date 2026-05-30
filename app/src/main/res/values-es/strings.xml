@@ -213,6 +213,8 @@
     <string name="report_recording">Grabación</string>
 
     <string name="section_flic_buttons">Botones Flic 2</string>
+    <string name="flic_show_on_dashboard">Mostrar en el panel</string>
+    <string name="flic_show_on_dashboard_desc">Mostrar el indicador Flic en la barra superior del panel</string>
     <string name="flic_scan_hint">Mantén pulsado tu botón Flic 2 durante 6 segundos para ponerlo en emparejamiento, luego pulsa Buscar</string>
     <string name="flic_stop_scan">Detener búsqueda</string>
     <string name="flic_start_scan">Iniciar búsqueda</string>

@@ -5155,6 +5155,16 @@ private fun FlicTab(
     ) {
         SectionHeader(stringResource(R.string.section_flic_buttons))
 
+        // Top-bar visibility switch. Some riders never use Flic and find the
+        // small indicator visually noisy. Default true preserves the previous
+        // always-on rendering.
+        SwitchSettingWithDesc(
+            label = stringResource(R.string.flic_show_on_dashboard),
+            description = stringResource(R.string.flic_show_on_dashboard_desc),
+            checked = settings.flicShowOnDashboard,
+            onCheckedChange = { viewModel.updateFlicShowOnDashboard(it) }
+        )
+
         settings.flic1Address?.let { addr ->
             ButtonConfig(
                 title = settings.flic1Name, address = addr,

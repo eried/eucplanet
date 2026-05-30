@@ -225,6 +225,12 @@ class DashboardViewModel @Inject constructor(
             initialSettings.flic1Address != null || initialSettings.flic2Address != null ||
                 initialSettings.flic3Address != null || initialSettings.flic4Address != null)
 
+    /** Whether the dashboard top-bar Flic indicator renders at all.
+     *  Controlled by Settings -> Integration -> Flic -> "Show on dashboard". */
+    val flicShowOnDashboard: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.flicShowOnDashboard }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flicShowOnDashboard)
+
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.voicePeriodicEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)

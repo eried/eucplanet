@@ -114,6 +114,7 @@ object SettingsJson {
         put("flic4Click", s.flic4Click)
         put("flic4DoubleClick", s.flic4DoubleClick)
         put("flic4Hold", s.flic4Hold)
+        put("flicShowOnDashboard", s.flicShowOnDashboard)
         put("autoLightsEnabled", s.autoLightsEnabled)
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
@@ -285,6 +286,7 @@ object SettingsJson {
         flic4Click = j.optString("flic4Click", base.flic4Click),
         flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
         flic4Hold = j.optString("flic4Hold", base.flic4Hold),
+        flicShowOnDashboard = j.optBoolean("flicShowOnDashboard", base.flicShowOnDashboard),
         autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),

@@ -148,6 +148,12 @@ data class AppSettings(
     val flic4DoubleClick: String = "NONE",
     val flic4Hold: String = "NONE",
 
+    // Whether the Flic indicator in the dashboard top bar is rendered at all.
+    // True (default) preserves the previous always-on behaviour; riders who
+    // never use Flic and don't want the icon turn it off in
+    // Settings -> Integration -> Flic.
+    val flicShowOnDashboard: Boolean = true,
+
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
     val autoLightsEnabled: Boolean = false,
     val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON

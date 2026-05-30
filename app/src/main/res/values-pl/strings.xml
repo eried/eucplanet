@@ -287,6 +287,8 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
+    <string name="flic_show_on_dashboard">Pokaż na panelu</string>
+    <string name="flic_show_on_dashboard_desc">Pokaż wskaźnik Flic na górnym pasku</string>
     <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby przejść w tryb parowania, potem stuknij Skanuj</string>
     <string name="flic_stop_scan">Zatrzymaj skan</string>
     <string name="flic_start_scan">Rozpocznij skan</string>

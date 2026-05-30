@@ -213,6 +213,8 @@
     <string name="report_recording">Запись</string>
 
     <string name="section_flic_buttons">Кнопки Flic 2</string>
+    <string name="flic_show_on_dashboard">Показывать на панели</string>
+    <string name="flic_show_on_dashboard_desc">Показывать индикатор Flic в верхней панели</string>
     <string name="flic_scan_hint">Зажмите кнопку Flic 2 на 6 секунд, чтобы перевести её в режим сопряжения, затем начните поиск</string>
     <string name="flic_stop_scan">Остановить поиск</string>
     <string name="flic_start_scan">Начать поиск</string>

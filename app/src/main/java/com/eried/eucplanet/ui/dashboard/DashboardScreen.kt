@@ -252,6 +252,7 @@ fun DashboardScreen(
     val phoneBatteryPct by viewModel.phoneBatteryPercent.collectAsState()
     val gpsLocation by viewModel.currentLocation.collectAsState()
     val hasFlic by viewModel.hasFlicConfigured.collectAsState()
+    val flicShowOnDashboard by viewModel.flicShowOnDashboard.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
@@ -447,11 +448,13 @@ fun DashboardScreen(
                     }
                 },
                 actions = {
-                    FlicIndicator(
-                        hasFlic = hasFlic,
-                        flashAt = flicFlashAt,
-                        onClick = onNavigateToFlic
-                    )
+                    if (flicShowOnDashboard) {
+                        FlicIndicator(
+                            hasFlic = hasFlic,
+                            flashAt = flicFlashAt,
+                            onClick = onNavigateToFlic
+                        )
+                    }
                     IconButton(
                         onClick = {
                             if (connectionState == ConnectionState.CONNECTED) {
