@@ -135,12 +135,29 @@ class HudServer @Inject constructor(
             demo.start()
         }
 
+        // Capture an initial snapshot synchronously so the first frame
+        // sent after the WebSocket opens has live wheel data, not the
+        // HudState() defaults. Without this, the rider sees zeros until
+        // publishJob completes its first iteration -- and on a cold
+        // process where DataStore still has to warm up, that first
+        // suspend can take long enough that the WS dial+open completes
+        // first and ships a zeros frame.
+        try {
+            latest = snapshot()
+        } catch (t: Throwable) {
+            Log.w(TAG, "initial snapshot failed", t)
+        }
+
         publishJob = scope.launch {
             while (true) {
                 try {
                     latest = snapshot()
                 } catch (t: Throwable) {
-                    Log.w(TAG, "snapshot failed: ${t.message}")
+                    // Log the stack trace, not just the message --
+                    // a silent NPE here was previously masked, leaving
+                    // the rider with zeros on the HUD and no signal as
+                    // to why.
+                    Log.w(TAG, "snapshot failed", t)
                 }
                 delay(PUBLISH_INTERVAL_MS)
             }
@@ -296,7 +313,15 @@ class HudServer @Inject constructor(
                                 break
                             }
                         } catch (t: Throwable) {
-                            Log.w(TAG, "send failed: ${t.message}")
+                            // Without an explicit close here the dial
+                            // loop blocks on done.await() until the
+                            // 15s OkHttp ping eventually trips onFailure
+                            // -- and during those 15s the rider sees a
+                            // "connected but frozen" HUD with no auto
+                            // recovery. Force the close so we reconnect
+                            // on the next dial-loop iteration.
+                            Log.w(TAG, "send failed, closing for reconnect", t)
+                            try { webSocket.close(1011, "send-failed") } catch (_: Throwable) {}
                             break
                         }
                         delay(PUBLISH_INTERVAL_MS)
