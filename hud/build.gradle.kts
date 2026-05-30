@@ -55,13 +55,27 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 minification on. Without it, Compose's hot-path
+            // methods (SnapshotStateList, GraphicsLayerModifier, etc)
+            // fail ART's lock verification and fall back to the
+            // bytecode interpreter, which on the Custom and Telemetry
+            // screens was tipping per-frame cost over the input-
+            // dispatch budget and ANR'ing the HUD. R8 dead-strips the
+            // unused Compose runtime, inlines the hot accessors, and
+            // lets the verifier accept the result -- the screens then
+            // run cleanly on the JIT.
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             if (keystoreProps.isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Default to the debug keystore so sideloading the
+                // release APK doesn't require a real signing config
+                // to be set up on every workstation.
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }

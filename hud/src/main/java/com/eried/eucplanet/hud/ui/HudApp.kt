@@ -104,42 +104,31 @@ fun HudApp(
     MaterialTheme(colorScheme = colors) {
         Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
             Box(Modifier.fillMaxSize()) {
-                AnimatedContent(
-                    targetState = controller.current,
-                    transitionSpec = {
-                        // Slide direction follows the rider's swipe: moving
-                        // forward in the carousel (Dashboard → Camera → …)
-                        // brings the new screen in from the RIGHT; going
-                        // back brings it in from the LEFT. Compare ordinals
-                        // because the enum's declaration order is the
-                        // canonical carousel order.
-                        val forward = targetState.ordinal > initialState.ordinal
-                        if (forward) {
-                            slideInHorizontally(initialOffsetX = { it }) togetherWith
-                                slideOutHorizontally(targetOffsetX = { -it })
-                        } else {
-                            slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                                slideOutHorizontally(targetOffsetX = { it })
-                        }
-                    },
-                    label = "hud-screen"
-                ) { screen ->
-                    when (screen) {
-                        HudUiController.Screen.Dashboard ->
-                            DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
-                        HudUiController.Screen.Camera ->
-                            CameraScreen(hud = hud)
-                        HudUiController.Screen.Telemetry ->
-                            TelemetryScreen(hud = hud)
-                        HudUiController.Screen.Custom ->
-                            CustomOverlayScreen(hud = hud, withCamera = false)
-                        HudUiController.Screen.CustomCam ->
-                            CustomOverlayScreen(hud = hud, withCamera = true)
-                        HudUiController.Screen.Map ->
-                            MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
-                        HudUiController.Screen.Nav ->
-                            NavScreen(hud = hud)
-                    }
+                // Immediate screen swap, no slide/fade animation. The
+                // AnimatedContent slide we previously had pre-composed
+                // BOTH the outgoing and incoming screens at 60Hz for the
+                // duration of the transition -- for the Custom and
+                // Telemetry screens that's two heavyweight Compose trees
+                // running simultaneously during their COLDEST first-
+                // composition window, which was tripping the 5-second
+                // input-dispatch ANR threshold instantly on every
+                // navigation. A direct swap keeps cold-compose cost on
+                // the single incoming screen, which fits within budget.
+                when (controller.current) {
+                    HudUiController.Screen.Dashboard ->
+                        DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
+                    HudUiController.Screen.Camera ->
+                        CameraScreen(hud = hud)
+                    HudUiController.Screen.Telemetry ->
+                        TelemetryScreen(hud = hud)
+                    HudUiController.Screen.Custom ->
+                        CustomOverlayScreen(hud = hud, withCamera = false)
+                    HudUiController.Screen.CustomCam ->
+                        CustomOverlayScreen(hud = hud, withCamera = true)
+                    HudUiController.Screen.Map ->
+                        MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
+                    HudUiController.Screen.Nav ->
+                        NavScreen(hud = hud)
                 }
 
                 // Brief toast when the rider switches screens, top-left,

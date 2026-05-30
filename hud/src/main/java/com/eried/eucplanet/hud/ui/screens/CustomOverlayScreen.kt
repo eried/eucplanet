@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -215,31 +216,37 @@ private fun BoxScope.LandscapeRotatedCanvas(
             )
     ) {
         preset.elements.forEach { el ->
-            // Per-element rotation matches the stored rotationDeg, so
-            // element + canvas (= -dominantRot) net to (rotationDeg -
-            // dominantRot). For elements that match the dominant
-            // rotation that's 0 (upright); off-axis elements stay at
-            // their intended off-axis angle.
-            //
-            // Offsets/constraints reference scaledW/scaledH so element
-            // sizes scale with the canvas. el.width = 0.32 of canvas
-            // becomes 0.32 * scaledW, which on an 800x480 HUD is the
-            // intended fill-the-panel sizing.
-            Box(
-                modifier = Modifier
-                    .offset(x = scaledW * el.x, y = scaledH * el.y)
-                    .widthIn(max = scaledW * el.width)
-                    .then(
-                        if (el.height > 0f)
-                            Modifier.heightIn(max = scaledH * el.height)
-                        else Modifier
-                    )
-                    .graphicsLayer(
-                        rotationZ = el.rotationDeg,
-                        alpha = el.opacity
-                    )
-            ) {
-                OverlayElementRenderer(el, data)
+            // key(el.id) preserves element identity across the 5 Hz
+            // wire-frame recompositions: without it, Compose treats
+            // each forEach iteration as a fresh slot and re-runs the
+            // entire element renderer + layout from scratch instead
+            // of skipping when the layout-affecting params are stable
+            // (only the metric value inside changes per frame).
+            key(el.id) {
+                // Per-element rotation matches the stored rotationDeg,
+                // so element + canvas (= -dominantRot) net to
+                // (rotationDeg - dominantRot). For elements matching
+                // the dominant rotation that's 0 (upright); off-axis
+                // elements stay at their intended off-axis angle.
+                //
+                // Offsets/constraints reference scaledW/scaledH so
+                // element sizes scale with the canvas.
+                Box(
+                    modifier = Modifier
+                        .offset(x = scaledW * el.x, y = scaledH * el.y)
+                        .widthIn(max = scaledW * el.width)
+                        .then(
+                            if (el.height > 0f)
+                                Modifier.heightIn(max = scaledH * el.height)
+                            else Modifier
+                        )
+                        .graphicsLayer(
+                            rotationZ = el.rotationDeg,
+                            alpha = el.opacity
+                        )
+                ) {
+                    OverlayElementRenderer(el, data)
+                }
             }
         }
     }

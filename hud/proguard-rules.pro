@@ -18,3 +18,9 @@
 # JmDNS uses java.beans.PropertyChangeSupport which Android doesn't bundle.
 -dontwarn java.beans.**
 -dontwarn javax.jmdns.**
+
+# Ktor's IntellijIdeaDebugDetector touches the JVM management API that
+# Android doesn't ship. The class is dead-code on device so silence the
+# missing-class warnings rather than carrying a JVM-only shim.
+-dontwarn java.lang.management.**
+-dontwarn io.ktor.util.debug.**
