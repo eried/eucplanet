@@ -166,6 +166,16 @@ interface WheelAdapter {
     fun setDRL(on: Boolean): ByteArray?
     fun setLock(locked: Boolean): ByteArray?
 
+    /**
+     * Resets the wheel's onboard trip meter (the field reported as
+     * [com.eried.eucplanet.data.model.WheelData.tripDistance]) by sending the
+     * family-specific reset command. Returns null on wheels where the
+     * protocol has no documented reset command; the dashboard's RESET_TRIP
+     * action surfaces a "not supported on this wheel" snackbar in that case.
+     * Veteran is the only family with a public command today (CLEARMETER).
+     */
+    fun resetTripMeter(): ByteArray? = null
+
     // --- V14-style password auth. Adapters without auth return null. ---
     fun requestAuthKey(): ByteArray?
     fun verifyAuth(encryptedKey: ByteArray): ByteArray?

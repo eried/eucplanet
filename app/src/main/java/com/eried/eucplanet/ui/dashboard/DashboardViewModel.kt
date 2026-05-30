@@ -325,6 +325,45 @@ class DashboardViewModel @Inject constructor(
     /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
     fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
 
+    /**
+     * Flip the three per-unit fields between metric and imperial in one
+     * write. Metric is the reference state, so anything that isn't already
+     * a clean imperial trio flips to imperial; a clean imperial trio flips
+     * back to metric. Custom mixes (e.g. knots + Norwegian mile from the
+     * Settings preset) snap to metric on first tap.
+     */
+    fun toggleUnits() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val isImperial = current.unitSpeed == "mph" &&
+                    current.unitDistance == "mi" && current.unitTemp == "F"
+            val next = if (isImperial) {
+                current.copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+            } else {
+                current.copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+            }
+            settingsRepository.update(next)
+        }
+    }
+
+    /** Flip the persisted alarm mute. AlarmEngine reads this on every
+     *  evaluate() so the change takes effect on the next telemetry frame. */
+    fun toggleAlarmsMuted() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(alarmsMuted = !current.alarmsMuted))
+        }
+    }
+
+    /**
+     * Send the family-specific "reset onboard trip meter" command to the
+     * wheel. Returns true on Veteran (CLEARMETER); false on every other
+     * family until a documented reset command is added. Callers should
+     * snackbar the result so riders know whether the tap took effect.
+     */
+    suspend fun resetWheelTrip(): Boolean =
+        kotlinx.coroutines.withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
+
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
     // Sparklines: last 60 samples from full history

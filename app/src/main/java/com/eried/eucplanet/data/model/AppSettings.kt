@@ -156,6 +156,12 @@ data class AppSettings(
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
 
+    // Session-level alarm mute. Set true to make AlarmEngine skip evaluation
+    // entirely; the dashboard's MUTE_ALARMS action toggles it. Persists across
+    // app restarts so a rider who muted on the trail finds it still muted on
+    // the next session.
+    val alarmsMuted: Boolean = false,
+
     // Display units
     // imperialUnits is legacy: kept only as the migration fallback for the three
     // per-unit fields below. Never read directly outside the Units.kt resolvers.

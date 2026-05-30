@@ -109,6 +109,7 @@ class CompositeWheelAdapter @Inject constructor(
     override fun setVolume(percent: Int): ByteArray? = active.setVolume(percent)
     override fun setDRL(on: Boolean): ByteArray? = active.setDRL(on)
     override fun setLock(locked: Boolean): ByteArray? = active.setLock(locked)
+    override fun resetTripMeter(): ByteArray? = active.resetTripMeter()
 
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)

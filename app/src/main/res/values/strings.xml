@@ -104,15 +104,12 @@
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard layout</string>
-    <string name="dashboard_section_gauge">Speed gauge</string>
-    <string name="dashboard_section_gauge_caption">The gauge always shows speed and stays at the top of the dashboard.</string>
     <string name="dashboard_section_metrics">Metrics</string>
     <string name="dashboard_section_actions">Action buttons</string>
     <string name="dashboard_columns">Columns</string>
     <string name="dashboard_grid_hint">Long-press to drag. Tap to edit.</string>
     <string name="dashboard_pool_metrics">Available metrics</string>
     <string name="dashboard_pool_actions">Available actions</string>
-    <string name="dashboard_pool_hint">Drag onto the grid to use.</string>
     <string name="dashboard_pool_tap_toast">Long-press and drag onto a slot above to use.</string>
     <string name="dashboard_rolling_window">Rolling stats window</string>
     <string name="dashboard_stats_length">Stats length</string>
@@ -121,21 +118,18 @@
     <string name="dashboard_view_wide">Wide</string>
     <string name="dashboard_composite_template_label">MULTI</string>
     <string name="dashboard_group_template_label">GROUP</string>
-    <string name="dashboard_composite_layout_label">Layout</string>
     <string name="dashboard_composite_layout_row2">2 rows</string>
-    <string name="dashboard_composite_layout_col2">2 cols</string>
-    <string name="dashboard_composite_layout_col3">3 cols</string>
+    <string name="dashboard_composite_layout_col2">2 columns</string>
+    <string name="dashboard_composite_layout_col3">3 columns</string>
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
     <string name="dashboard_composite_empty_label">(empty)</string>
     <string name="dashboard_group_default_name">My actions</string>
     <string name="dashboard_group_name_label">Group name</string>
-    <string name="dashboard_group_icon_label">Icon</string>
     <string name="dashboard_group_action_slot">Action %1$d</string>
     <string name="dashboard_group_action_none">(none)</string>
     <string name="dashboard_custom_tile_template_label">TEXT</string>
     <string name="dashboard_custom_tile_text_label">Text</string>
     <string name="dashboard_custom_tile_text_placeholder">e.g. My Instagram</string>
-    <string name="dashboard_custom_tile_action_label">Tap action</string>
     <string name="dashboard_custom_tile_action_none">Text</string>
     <string name="dashboard_custom_tile_action_url">Open URL</string>
     <string name="dashboard_custom_tile_action_qr">Show QR</string>
@@ -149,27 +143,18 @@
     <string name="dashboard_rolling_window_15m">15 min</string>
     <string name="dashboard_rolling_window_30m">30 min</string>
     <string name="dashboard_rolling_window_1h">1 hour</string>
-    <string name="dashboard_wide_hint">Tablets and foldables get +1 column.</string>
-    <string name="dashboard_wide_preview">Showing the %1$d-column tablet layout for the current %2$d-column setting.</string>
-    <string name="dashboard_slot_reset">Reset this metric to default position</string>
-    <string name="dashboard_slot_reset_action">Reset this action to default position</string>
-    <string name="dashboard_reset_short">Reset</string>
     <string name="dashboard_restore_slot">Restore slot</string>
     <string name="metric_detail_reset">Reset</string>
     <string name="metric_detail_reset_all">Reset all</string>
     <string name="metric_detail_reset_all_confirm_title">Reset all history?</string>
     <string name="metric_detail_reset_all_confirm_body">Clears the rolling history buffer for every metric. Settings and trip records are not affected.</string>
     <string name="metric_detail_show_label">Value</string>
-    <string name="metric_detail_long_press_hint">Long-press for Reset all</string>
     <string name="dashboard_close">Close</string>
-    <string name="dashboard_slot_corners_label">Side readings</string>
     <string name="dashboard_corner_left">Left</string>
     <string name="dashboard_corner_center">Center</string>
     <string name="dashboard_corner_right">Right</string>
     <string name="dashboard_slot_sparkline">Live trend background</string>
     <string name="dashboard_slot_sparkline_chip">Stats</string>
-    <string name="dashboard_slot_reset_hint">Removes the side readings and moves this metric back to its starting position in the grid.</string>
-    <string name="dashboard_slot_reset_hint_action">Moves this action back to its starting position in the grid.</string>
     <string name="dashboard_stat_none">—</string>
     <string name="dashboard_stat_current">Now</string>
     <string name="dashboard_stat_min">Min</string>
@@ -268,6 +253,7 @@
     <string name="action_chip_mute_alarms">Mute alarms</string>
     <string name="action_chip_reset_trip">Reset trip</string>
     <string name="action_chip_toggle_units">Toggle units</string>
+    <string name="action_unsupported_on_wheel">Not supported on this wheel</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
@@ -1139,7 +1125,6 @@
     <string name="nav_customize_marker_short">Customize</string>
     <string name="nav_remove_marker_photo">Reset my marker</string>
     <string name="nav_remove_marker_photo_short">Reset</string>
-    <string name="nav_crop_hint">Drag to position, pinch to zoom</string>
     <string name="nav_save_work">Save as Work</string>
     <string name="nav_self_title">Your location</string>
     <string name="nav_self_add_stop">Add as a stop</string>

@@ -71,6 +71,10 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun setDRL(on: Boolean): ByteArray? = null
     override fun setLock(locked: Boolean): ByteArray? = null
 
+    // CLEARMETER zeroes offset 8..11 (trip) on the next frame; see
+    // VeteranCommands.resetTrip and spec section 6.
+    override fun resetTripMeter(): ByteArray = VeteranCommands.resetTrip()
+
     override fun requestAuthKey(): ByteArray? = null
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
 

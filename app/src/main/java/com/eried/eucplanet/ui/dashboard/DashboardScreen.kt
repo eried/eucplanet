@@ -1513,25 +1513,50 @@ fun DashboardScreen(
                                     }
                                 }
                                 else -> {
-                                    // Catalog-driven generic action.
-                                    // OPEN_* actions need explicit UI
-                                    // navigation (FlicManager has no
-                                    // navController); everything else
-                                    // routes through the shared dispatch.
+                                    // Catalog-driven generic action. OPEN_*,
+                                    // unit toggle, alarms-mute and reset-trip
+                                    // need handles the FlicManager service
+                                    // doesn't have (navController, snackbar,
+                                    // settings writer), so they dispatch
+                                    // locally; everything else routes through
+                                    // the shared physical-surface dispatch.
                                     val actionSpec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key)
                                     val labelText = actionSpec?.let { stringResource(it.labelRes) } ?: key
                                     val tap: () -> Unit = when (key) {
                                         "OPEN_ABOUT" -> ({ showAboutDialog = true })
                                         "OPEN_NAVIGATION" -> onNavigateToNavigator
                                         "OPEN_STUDIO" -> onNavigateToStudio
-                                        "OPEN_SERVICE" -> ({ onNavigateToSettings(7) })
+                                        "OPEN_SERVICE" -> ({ showDiagnosticsDialog = true })
                                         "OPEN_TRIPS" -> onNavigateToRecording
+                                        "TOGGLE_UNITS" -> ({
+                                            viewModel.toggleUnits()
+                                            snackbarScope.launch {
+                                                snackbar.showSnackbar(
+                                                    toastContext.getString(R.string.action_chip_toggle_units)
+                                                )
+                                            }
+                                        })
+                                        "MUTE_ALARMS" -> ({ viewModel.toggleAlarmsMuted() })
+                                        "RESET_TRIP" -> ({
+                                            snackbarScope.launch {
+                                                val ok = viewModel.resetWheelTrip()
+                                                snackbar.showSnackbar(
+                                                    toastContext.getString(
+                                                        if (ok) R.string.action_chip_reset_trip
+                                                        else R.string.action_unsupported_on_wheel
+                                                    )
+                                                )
+                                            }
+                                        })
                                         else -> ({ viewModel.dispatchActionByName(key) })
                                     }
+                                    val offlineSafe = key.startsWith("OPEN_") ||
+                                            key == "TOGGLE_UNITS" || key == "MUTE_ALARMS" ||
+                                            key.startsWith("MEDIA_")
                                     ActionButton(
                                         icon = actionSpec?.icon ?: Icons.Default.Campaign,
                                         label = labelText,
-                                        enabled = connectionState == ConnectionState.CONNECTED || key.startsWith("OPEN_"),
+                                        enabled = connectionState == ConnectionState.CONNECTED || offlineSafe,
                                         onClick = tap,
                                         modifier = Modifier.weight(1f),
                                         aspectRatio = actionAspect, heightDp = actionHeight

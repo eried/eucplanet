@@ -61,6 +61,9 @@ class AlarmEngine @Inject constructor(
         if (cheatState.godmode.value) return
         scope.launch {
             evalMutex.withLock {
+            // Persisted session mute, set by the dashboard's MUTE_ALARMS action.
+            // Read inside the launch so we always see the latest store value.
+            if (settingsRepository.get().alarmsMuted) return@withLock
             val rules = alarmDao.getEnabled()
             val firedMetrics = mutableSetOf<String>()
 

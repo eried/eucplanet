@@ -119,6 +119,7 @@ object SettingsJson {
         put("autoVolumeEnabled", s.autoVolumeEnabled)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
+        put("alarmsMuted", s.alarmsMuted)
         put("imperialUnits", s.imperialUnits)
         put("unitSpeed", s.unitSpeed)
         put("unitDistance", s.unitDistance)
@@ -287,6 +288,7 @@ object SettingsJson {
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
+        alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),
         imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
         unitSpeed = j.optString("unitSpeed", base.unitSpeed),
         unitDistance = j.optString("unitDistance", base.unitDistance),

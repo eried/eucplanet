@@ -445,6 +445,19 @@ class WheelRepository @Inject constructor(
         wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
     }
 
+    /**
+     * Send the family-specific "reset trip meter" command. Returns true when
+     * the active adapter has a documented command (the wheel takes a frame or
+     * two to zero offset 8..11 in its realtime stream); false when the
+     * adapter doesn't support a trip reset, so the caller can surface
+     * "not supported on this wheel" feedback.
+     */
+    fun resetTripMeter(): Boolean {
+        val cmd = wheelAdapter.resetTripMeter() ?: return false
+        bleManager.writeCommand(cmd)
+        return true
+    }
+
     fun toggleLight() {
         if (_lightBusy.value) return  // cooldown active, ignore the spam tap
         val current = _wheelData.value.lightOn

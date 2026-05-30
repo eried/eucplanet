@@ -396,9 +396,7 @@ class MainActivity : AppCompatActivity() {
             tripRecording = tripRepository.recording.value,
             imperialUnits = s?.imperialUnits ?: false,
             safetyActive = wheelRepository.safetySpeedActive.value,
-            // alarmsMuted not yet surfaced upstream; default false so the
-            // catalog reader returns a defined value rather than throwing.
-            alarmsMuted = false
+            alarmsMuted = s?.alarmsMuted ?: false
         )
     }
 
