@@ -1,6 +1,8 @@
 package com.eried.eucplanet.hud.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -81,10 +85,26 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 val yDp = (el.y * h).dp
                 val widthDp = (el.width * w).dp
                 val heightDp = (if (el.height > 0f) el.height else el.width * 0.5f) * h
+                // Apply preset-level visual properties uniformly:
+                //  - .alpha for opacity
+                //  - .rotate for rotationDeg
+                //  - .background for the fill colour (skipped only when
+                //    the element type draws its own canvas backdrop, but
+                //    most types want it)
+                val bgColor = parseArgbLong(el.background)
+                // Per-element rotation is intentionally NOT applied on the
+                // HUD: the bundled "landscape" presets store elements
+                // pre-rotated 90° so they read correctly when the Studio
+                // rotates its own canvas. The Motoeye panel is already
+                // landscape; re-applying the preset's rotation flips text
+                // sideways. For now portrait presets work straight; a
+                // smarter landscape-preset handler is a TODO.
                 Box(
                     modifier = Modifier
                         .offset(x = xDp, y = yDp)
                         .size(widthDp, heightDp.dp)
+                        .alpha(el.opacity)
+                        .background(bgColor)
                 ) {
                     RenderElement(el, hud)
                 }
@@ -103,8 +123,68 @@ private fun RenderElement(el: SimpleElement, hud: HudState) {
         "DATA_BAR" -> RenderBar(el, hud)
         "DATA_GRAPH" -> RenderGraph(el, hud)
         "G_FORCE" -> RenderGForce(el, hud)
+        "APP_BADGE" -> RenderAppBadge(el)
+        "CLOCK" -> RenderClock(el)
+        // IMAGE / MAP / FLOATING_CAMERA stay unsupported on the HUD --
+        // those need base64 decoding / map tiles / camera preview that
+        // we don't replicate here (the HUD has dedicated Map and Camera
+        // screens already). Silently dropped.
         else -> Unit
     }
+}
+
+@Composable
+private fun RenderAppBadge(el: SimpleElement) {
+    // Minimal "EUC Planet" wordmark + nothing else. The phone has the
+    // app icon, the HUD doesn't, so we render the brand name only --
+    // close enough for testers to recognise the badge slot in their
+    // preset.
+    val fg = parseArgbLong(el.foreground)
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = "EUC Planet",
+            color = fg,
+            fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+private fun RenderClock(el: SimpleElement) {
+    val fg = parseArgbLong(el.foreground)
+    // We don't tick a clock state here -- recomposing on every state
+    // frame (5 Hz) is plenty for digital clock text.
+    val now = remember { java.util.Calendar.getInstance() }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1_000L)
+            now.timeInMillis = System.currentTimeMillis()
+        }
+    }
+    val text = "%02d:%02d".format(
+        now.get(java.util.Calendar.HOUR_OF_DAY),
+        now.get(java.util.Calendar.MINUTE)
+    )
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = text,
+            color = fg,
+            fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(12f).sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+    }
+}
+
+/** Convert an ARGB long (as stored in OverlayElement.foreground /
+ *  background) to a Compose Color, preserving the alpha byte. */
+private fun parseArgbLong(argb: Long): Color {
+    val a = ((argb ushr 24) and 0xFF).toInt()
+    val r = ((argb ushr 16) and 0xFF).toInt()
+    val g = ((argb ushr 8) and 0xFF).toInt()
+    val b = (argb and 0xFF).toInt()
+    return Color(red = r, green = g, blue = b, alpha = a)
 }
 
 @Composable
@@ -126,7 +206,7 @@ private fun RenderText(el: SimpleElement, hud: HudState) {
     val fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp
     Text(
         text = resolved,
-        color = Color(el.foreground.toInt()),
+        color = parseArgbLong(el.foreground),
         fontSize = fontSize,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.fillMaxSize()
@@ -138,7 +218,7 @@ private fun RenderText(el: SimpleElement, hud: HudState) {
 private fun RenderWheelName(el: SimpleElement, hud: HudState) {
     Text(
         text = hud.wheelName.ifBlank { "—" },
-        color = Color(el.foreground.toInt()),
+        color = parseArgbLong(el.foreground),
         fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.fillMaxSize()
@@ -151,7 +231,7 @@ private fun RenderDataValue(el: SimpleElement, hud: HudState) {
     val combined = if (el.showLabel) "$value $unit" else value
     Text(
         text = combined,
-        color = Color(el.foreground.toInt()),
+        color = parseArgbLong(el.foreground),
         fontSize = (el.heightFraction(0.5f) * 60f).coerceAtLeast(10f).sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.fillMaxSize()
@@ -186,7 +266,7 @@ private fun RenderDial(el: SimpleElement, hud: HudState) {
         )
         // Value
         drawArc(
-            color = Color(el.foreground.toInt()),
+            color = parseArgbLong(el.foreground),
             startAngle = startAngle,
             sweepAngle = sweepFull * frac,
             useCenter = false,
@@ -217,7 +297,7 @@ private fun RenderBar(el: SimpleElement, hud: HudState) {
             size = Size(size.width, barH)
         )
         drawRect(
-            color = Color(el.foreground.toInt()),
+            color = parseArgbLong(el.foreground),
             topLeft = Offset(0f, cy - barH / 2f),
             size = Size(size.width * frac, barH)
         )
@@ -260,7 +340,7 @@ private fun RenderGraph(el: SimpleElement, hud: HudState) {
         }
         drawPath(
             path = path,
-            color = Color(el.foreground.toInt()),
+            color = parseArgbLong(el.foreground),
             style = Stroke(width = 2.dp.toPx())
         )
     }
@@ -285,7 +365,7 @@ private fun RenderGForce(el: SimpleElement, hud: HudState) {
             cy + (gy / el.gForceScale).coerceIn(-1f, 1f) * r
         )
         drawCircle(
-            color = Color(el.foreground.toInt()),
+            color = parseArgbLong(el.foreground),
             radius = 3.dp.toPx(),
             center = tip
         )
@@ -353,6 +433,8 @@ private data class SimpleElement(
     val y: Float,
     val width: Float,
     val height: Float,
+    val rotationDeg: Float,
+    val opacity: Float,
     val text: String,
     val textAlign: String,
     val metric: String,
@@ -388,6 +470,8 @@ private fun parseElement(o: JSONObject): SimpleElement? {
         y = o.optDouble("y", 0.0).toFloat(),
         width = o.optDouble("width", 0.3).toFloat(),
         height = o.optDouble("height", 0.0).toFloat(),
+        rotationDeg = o.optDouble("rotationDeg", 0.0).toFloat(),
+        opacity = o.optDouble("opacity", 1.0).toFloat(),
         text = o.optString("text", ""),
         textAlign = o.optString("textAlign", "START"),
         metric = o.optString("metric", "SPEED"),
