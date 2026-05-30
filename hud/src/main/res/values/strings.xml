@@ -33,6 +33,12 @@
     <string name="hud_camera_unavailable">Rear camera not available on this HUD</string>
     <string name="hud_camera_permission_denied">Camera permission denied. Grant it in device Settings to enable rear-view.</string>
     <string name="hud_camera_loading">Starting camera…</string>
+    <string name="hud_version_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_block_hud_behind_title">Update HUD app</string>
+    <string name="hud_version_block_phone_behind_title">Update phone app</string>
+    <string name="hud_version_block_subtitle">Get the matching version at %1$s</string>
+    <string name="hud_version_minor_hud_behind">Update available · %1$s</string>
+    <string name="hud_version_minor_phone_behind">Phone update available · %1$s</string>
     <string name="hud_map_offline">Map tiles not reachable (phone has no internet?)</string>
     <string name="hud_nav_idle">No active route</string>
     <string name="hud_nav_arrived">You have arrived</string>

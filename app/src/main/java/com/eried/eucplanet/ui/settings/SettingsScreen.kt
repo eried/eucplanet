@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeDown
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
@@ -3421,6 +3422,93 @@ private fun RestorePickerDialog(
  * Refreshes every 5 s -- enabling a hotspot usually involves leaving the
  * Settings screen, so we don't need a faster poll.
  */
+/**
+ * Top banner inside the HUD Integration card. Picks between four states:
+ *  - EXACT (or nothing paired): an always-on "Get the HUD app at
+ *    eucplanet.ried.no/hud" install hint (info-styled).
+ *  - REMOTE_BEHIND/AHEAD_MINOR: soft "update available" hint (info-styled).
+ *  - REMOTE_BEHIND/AHEAD_MAJOR: red error-styled banner that names which
+ *    side needs the update.
+ *
+ * Same chrome (surface + outlined icon) as [HudHotspotHint] so the two
+ * banners read as a visual pair.
+ */
+@Composable
+private fun HudVersionBanner(compat: com.eried.eucplanet.hud.protocol.VersionCompat) {
+    val isMajor = compat.isBlocking
+    val msgRes = when (compat) {
+        com.eried.eucplanet.hud.protocol.VersionCompat.EXACT ->
+            R.string.hud_install_hint
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MINOR ->
+            R.string.hud_version_hint_hud_behind
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR ->
+            R.string.hud_version_hint_phone_behind
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MAJOR ->
+            R.string.hud_version_block_hud_behind
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR ->
+            R.string.hud_version_block_phone_behind
+    }
+    val bg = if (isMajor) MaterialTheme.colorScheme.errorContainer
+        else MaterialTheme.colorScheme.surfaceVariant
+    val fg = if (isMajor) MaterialTheme.colorScheme.onErrorContainer
+        else MaterialTheme.colorScheme.onSurfaceVariant
+    val icon = if (isMajor) Icons.Outlined.Warning else Icons.Outlined.Info
+    androidx.compose.material3.Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = bg,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = fg,
+                modifier = Modifier.size(18.dp)
+            )
+            // <b> tags inside the strings render as bold via HtmlCompat;
+            // matches how the rest of the integration card styles the URL
+            // emphasis without pulling in a markdown renderer.
+            val raw = stringResource(msgRes)
+            val styled = remember(raw) {
+                androidx.core.text.HtmlCompat.fromHtml(
+                    raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+                ).toString()
+            }
+            // We re-parse for the bold spans rather than the trimmed
+            // string so the URL substring keeps its emphasis in the UI.
+            val annotated = remember(raw) {
+                val s = androidx.core.text.HtmlCompat.fromHtml(
+                    raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+                )
+                androidx.compose.ui.text.buildAnnotatedString {
+                    append(s.toString())
+                    s.getSpans(0, s.length, android.text.style.StyleSpan::class.java).forEach { sp ->
+                        if (sp.style == android.graphics.Typeface.BOLD) {
+                            addStyle(
+                                androidx.compose.ui.text.SpanStyle(
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                                ),
+                                s.getSpanStart(sp),
+                                s.getSpanEnd(sp)
+                            )
+                        }
+                    }
+                }
+            }
+            @Suppress("UNUSED_VARIABLE") val _unused = styled
+            Text(
+                text = annotated,
+                style = MaterialTheme.typography.bodySmall,
+                color = fg
+            )
+        }
+    }
+}
+
 @Composable
 private fun HudHotspotHint() {
     val ctx = LocalContext.current
@@ -3519,6 +3607,12 @@ private fun HudIntegrationSection(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         SectionHeader(stringResource(R.string.section_hud_companion))
+
+        // Always-on install hint (cheap, helps first-timers find the
+        // HUD APK) -- replaced by a stronger version-mismatch banner
+        // when the paired HUD reports an incompatible protocol.
+        val compat by viewModel.hudVersionCompat.collectAsState()
+        HudVersionBanner(compat)
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home

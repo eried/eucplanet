@@ -92,6 +92,7 @@ class HudActivity : ComponentActivity() {
                 status = server.status,
                 peer = server.peer,
                 localIp = server.localIp,
+                versionCompat = server.versionCompat,
                 controller = controller,
                 tileCache = tileCache,
                 onCommand = server::sendCommand

@@ -123,6 +123,14 @@
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
+    <!-- HUD companion install hint + protocol version mismatch -->
+    <string name="hud_install_hint">Need the HUD app? Get it at <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">The HUD is on an older protocol. Newer phone features won\'t show until the HUD app is updated from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">The HUD is on a newer protocol. Some HUD features won\'t show until the phone app is updated from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">HUD app is too old for this phone app. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+    <string name="hud_version_block_phone_behind">Phone app is too old for this HUD app. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>

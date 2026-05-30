@@ -391,7 +391,23 @@ class HudServer @Inject constructor(
 
         val d = if (demo.active) demo.frame else null
 
+        // Debug-only protocol-version overrides so a tester can drive
+        // the version-mismatch UI on a single APK pair without rebuilding.
+        // Set via:
+        //   adb shell setprop debug.eucplanet.proto.major 2
+        //   adb shell setprop debug.eucplanet.proto.minor 5
+        //   adb shell am force-stop com.eried.eucplanet
+        // Wiped on reboot. Defaults preserve the real PROTOCOL_MAJOR /
+        // PROTOCOL_MINOR so production riders never see this.
+        val overrideMajor = HudDebug.read("debug.eucplanet.proto.major")
+            ?.toIntOrNull() ?: HudState.PROTOCOL_MAJOR
+        val overrideMinor = HudDebug.read("debug.eucplanet.proto.minor")
+            ?.toIntOrNull() ?: HudState.PROTOCOL_MINOR
+
         return HudState(
+            protocolVersion = overrideMajor,
+            protocolMajor = overrideMajor,
+            protocolMinor = overrideMinor,
             connected = d != null || state == ConnectionState.CONNECTED,
             wheelName = if (d != null) "Demo Wheel" else (wheelRepository.modelName.value ?: ""),
             speedKmh = d?.speedKmh ?: wd.speed,

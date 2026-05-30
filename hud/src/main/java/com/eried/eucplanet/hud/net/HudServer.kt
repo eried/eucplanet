@@ -153,13 +153,21 @@ class HudServer(private val context: Context) {
                     // "update Phone" hints. Older HUD APKs sent a Pair
                     // without protocol fields; default 0/0 there means
                     // "treat as the pre-split baseline 1.0".
+                    //
+                    // Debug-only overrides let a tester drive the
+                    // version-mismatch UI without rebuilding a
+                    // deliberately mismatched APK. See HudDebug.
+                    val sendMajor = HudDebug.read("debug.eucplanet.proto.major")
+                        ?.toIntOrNull() ?: HudState.PROTOCOL_MAJOR
+                    val sendMinor = HudDebug.read("debug.eucplanet.proto.minor")
+                        ?.toIntOrNull() ?: HudState.PROTOCOL_MINOR
                     try {
                         send(json.encodeToString<HudCommand>(
                             HudCommand.Pair(
                                 hudId = "motoeye-hud",
                                 hudVersion = com.eried.eucplanet.hud.BuildConfig.VERSION_NAME,
-                                hudProtocolMajor = HudState.PROTOCOL_MAJOR,
-                                hudProtocolMinor = HudState.PROTOCOL_MINOR
+                                hudProtocolMajor = sendMajor,
+                                hudProtocolMinor = sendMinor
                             )
                         ))
                     } catch (t: Throwable) {

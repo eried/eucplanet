@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -82,6 +83,7 @@ fun HudApp(
     status: StateFlow<HudServer.Status>,
     peer: StateFlow<String?>,
     localIp: StateFlow<String?>,
+    versionCompat: StateFlow<com.eried.eucplanet.hud.protocol.VersionCompat>,
     controller: HudUiController,
     tileCache: com.eried.eucplanet.hud.net.HudTileCache,
     onCommand: (HudCommand) -> Unit
@@ -90,6 +92,7 @@ fun HudApp(
     val st by status.collectAsStateWithLifecycle()
     val pr by peer.collectAsStateWithLifecycle()
     val ip by localIp.collectAsStateWithLifecycle()
+    val compat by versionCompat.collectAsStateWithLifecycle()
 
     val accent = remember(hud.accentArgb) { parseHexColor(hud.accentArgb) }
 
@@ -186,6 +189,110 @@ fun HudApp(
                     } else {
                         DisconnectedDialog(localIp = ip)
                     }
+                }
+
+                // Protocol-version surface: a small "update available"
+                // pill for minor mismatches, a full-screen blocking
+                // overlay for major. Drawn AFTER the disconnect block
+                // so the major banner wins even if the link is also
+                // down (a rider who sees both should see "update HUD"
+                // first because that's the actionable problem).
+                VersionMismatchSurface(compat = compat)
+            }
+        }
+    }
+}
+
+/**
+ * Two-tier protocol-mismatch UI:
+ *  - minor mismatch  → small pill in the top-center: "Update available · <URL>"
+ *  - major mismatch  → full-screen dim with "Update phone app" / "Update HUD
+ *    app" + URL. The HUD already drops the wire frames in this case so the
+ *    rider isn't looking at stale telemetry behind the overlay.
+ *
+ * EXACT renders nothing.
+ */
+@Composable
+private fun BoxScope.VersionMismatchSurface(
+    compat: com.eried.eucplanet.hud.protocol.VersionCompat
+) {
+    val ctx = LocalContext.current
+    val url = ctx.getString(R.string.hud_version_update_url)
+    when (compat) {
+        com.eried.eucplanet.hud.protocol.VersionCompat.EXACT -> Unit
+
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MINOR,
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR -> {
+            // From the HUD's POV:
+            //   REMOTE_BEHIND_MINOR = phone is older (rare; surfaces as
+            //     "phone update available")
+            //   REMOTE_AHEAD_MINOR  = phone is newer (HUD is the one to
+            //     update -- typical when the rider has updated the phone
+            //     app but not the HUD APK).
+            val textRes = when (compat) {
+                com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR ->
+                    R.string.hud_version_minor_hud_behind
+                else ->
+                    R.string.hud_version_minor_phone_behind
+            }
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xE6111111))
+                    .border(1.dp, Color(0xFFD0A23A), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = ctx.getString(textRes, url),
+                    color = Color(0xFFFFD080),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+            }
+        }
+
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MAJOR,
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR -> {
+            val titleRes = when (compat) {
+                com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR ->
+                    R.string.hud_version_block_hud_behind_title
+                else ->
+                    R.string.hud_version_block_phone_behind_title
+            }
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xE6111111)),
+                contentAlignment = Alignment.Center
+            ) {
+                val side = min(maxWidth.value, maxHeight.value)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy((side * 0.02f).dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PhonelinkOff,
+                        contentDescription = null,
+                        tint = Color(0xFFE53935),
+                        modifier = Modifier.size((side * 0.18f).dp)
+                    )
+                    Text(
+                        text = ctx.getString(titleRes),
+                        color = Color.White,
+                        fontSize = (side * 0.07f).sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = ctx.getString(R.string.hud_version_block_subtitle, url),
+                        color = Color(0xFFB0B0B0),
+                        fontSize = (side * 0.04f).sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }

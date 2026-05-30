@@ -39,8 +39,17 @@ class SettingsViewModel @Inject constructor(
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
-    private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore
+    private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
+    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink
 ) : ViewModel() {
+
+    /** Live HUD protocol compatibility for the Settings/Integration card.
+     *  Surfaces the "update HUD" / "update phone" hints. EXACT means nothing
+     *  to show. */
+    val hudVersionCompat = hudCommandSink.hudVersionCompat
+    /** APK version string the HUD reported on pairing, e.g. "0.1.6". Null
+     *  when no HUD is currently paired. */
+    val hudVersion = hudCommandSink.hudVersion
 
     /**
      * Full preset-list snapshot for the HUD overlay picker dialog:
