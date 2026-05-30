@@ -218,7 +218,7 @@
 
     <string name="section_flic_buttons">Boutons Flic 2</string>
     <string name="flic_show_on_dashboard">Afficher sur le tableau de bord</string>
-    <string name="flic_show_on_dashboard_desc">Afficher l'indicateur Flic dans la barre supérieure</string>
+    <string name="flic_show_on_dashboard_desc">Afficher l\'indicateur Flic dans la barre supérieure</string>
     <string name="flic_scan_hint">Maintenez votre bouton Flic 2 pendant 6 secondes pour l\'appairer, puis appuyez sur Rechercher</string>
     <string name="flic_stop_scan">Arrêter scan</string>
     <string name="flic_start_scan">Lancer scan</string>

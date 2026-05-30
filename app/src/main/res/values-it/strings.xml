@@ -288,7 +288,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Pulsanti Flic 2</string>
     <string name="flic_show_on_dashboard">Mostra sulla dashboard</string>
-    <string name="flic_show_on_dashboard_desc">Mostra l'indicatore Flic nella barra superiore</string>
+    <string name="flic_show_on_dashboard_desc">Mostra l\'indicatore Flic nella barra superiore</string>
     <string name="flic_scan_hint">Tieni premuto il pulsante Flic 2 per 6 secondi per metterlo in modalità accoppiamento, poi tocca Cerca</string>
     <string name="flic_stop_scan">Ferma ricerca</string>
     <string name="flic_start_scan">Avvia ricerca</string>
