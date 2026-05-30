@@ -81,7 +81,13 @@ fun LiveMetricTile(
     val effectiveSparkData = sparkData
     Box(
         modifier = modifier
-            .heightIn(min = 61.dp)
+            // Fixed height matches the composite-tile renderer in
+            // DashboardScreen so a row that mixes a MULTI tile with a
+            // standard tile reads as a single horizontal band, not a
+            // staircase. Long metric labels ellipsise rather than push
+            // the tile taller; the label Text below sets maxLines = 1
+            // for the same reason.
+            .height(61.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .then(clickModifier),
@@ -317,7 +323,12 @@ private fun CenterColumn(
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
+                // Lock to a single line so long names like "Battery power"
+                // ellipsise instead of wrapping and forcing the tile taller
+                // than its row neighbours.
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
         Spacer(Modifier.height(2.dp))

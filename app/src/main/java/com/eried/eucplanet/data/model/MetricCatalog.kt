@@ -144,13 +144,12 @@ object MetricCatalog {
             accent = AccentGreen,
             sparkline = SparklineStyle.SMOOTH_LINE
         ),
-        MetricSpec(
-            key = "POWER",
-            labelRes = R.string.metric_chip_power,
-            accent = AccentOrange,
-            sparkline = SparklineStyle.AREA_BIPOLAR,
-            bipolarNegativeAccent = AccentGreen
-        ),
+        // POWER was a duplicate of BATTERY_POWER (both read
+        // wheelData.batteryPower in displayValueFor). Removed from the
+        // catalog so the editor only surfaces one "power" tile that
+        // names what it actually measures. Existing dashboards that
+        // still reference "POWER" fall through to placeholder until the
+        // rider re-adds BATTERY_POWER from the pool.
         MetricSpec(
             key = "ODOMETER",
             labelRes = R.string.metric_chip_odometer,

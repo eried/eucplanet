@@ -1051,7 +1051,7 @@ fun DashboardScreen(
                     "LOAD" -> "%.0f%%".format(pwm)
                     "TRIP" -> "%.1f %s".format(tripValue, distUnit)
                     "SPEED" -> "%.0f".format(wheelData.speed)
-                    "POWER", "BATTERY_POWER" -> "${wheelData.batteryPower}W"
+                    "BATTERY_POWER" -> "${wheelData.batteryPower}W"
                     "MOTOR_POWER" -> "${wheelData.motorPower}W"
                     "ODOMETER" -> "%.1f %s".format(
                         com.eried.eucplanet.util.Units.distance(wheelData.totalDistance, distanceUnit),
