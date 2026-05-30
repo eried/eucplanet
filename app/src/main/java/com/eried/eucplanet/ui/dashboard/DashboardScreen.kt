@@ -1474,8 +1474,20 @@ fun DashboardScreen(
                                     // else cornerStatValueFor returns the
                                     // placeholder dash so the chip still
                                     // confirms the picked stat visually.
+                                    val tileCtx = LocalContext.current
+                                    val tileLabelOverrideId = remember(key) {
+                                        tileCtx.resources.getIdentifier(
+                                            "metric_chip_${key.lowercase()}_tile",
+                                            "string",
+                                            tileCtx.packageName
+                                        )
+                                    }
                                     LiveMetricTile(
-                                        label = spec?.let { stringResource(it.labelRes) } ?: key,
+                                        label = when {
+                                            tileLabelOverrideId != 0 -> stringResource(tileLabelOverrideId)
+                                            spec != null -> stringResource(spec.labelRes)
+                                            else -> key
+                                        },
                                         value = centerOverride ?: displayValueFor(key),
                                         accent = spec?.accent ?: primary,
                                         sparkData = emptyList(),
