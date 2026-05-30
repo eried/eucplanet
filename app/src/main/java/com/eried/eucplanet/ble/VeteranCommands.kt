@@ -91,23 +91,94 @@ object VeteranCommands {
     fun setAlarmSpeed(kmh: Int): ByteArray =
         buildLeaperKimSpeedFrame(magic = LKAP, subOp = SUBOP_ALARM, kmh = kmh)
 
-    // 17-byte builder shared by tiltback (LdAp) and alarm (LkAp) writes.
+    // ---- Other decoded LeaperKim settings (no UI binding yet) ----
+    //
+    // These three are byte-perfectly decoded from the same captured session as
+    // setTiltbackSpeed / setAlarmSpeed, with each wire byte matched against the
+    // slider value displayed in a screen-recording frame at the exact same
+    // wall-clock moment (e.g. wire `0xDC` → on-screen "-3.6°"). They are not
+    // wired to any UI today because EUC Planet doesn't surface those knobs,
+    // but the builders live here so the protocol knowledge survives in code
+    // for whoever adds the Settings screen. See docs/protocols/veteran.md
+    // section 6.2 for the full frame format.
+    //
+    // `internal` (not private) so they're discoverable from elsewhere in the
+    // ble package when we wire UI; kept off the public WheelAdapter surface
+    // so they don't accidentally fire on other wheel families.
+
+    /**
+     * Set the "angle adjustment" (pedal-zero tilt offset) in tenths of a
+     * degree. Signed i8: `0xDC` = -36 = -3.6° (confirmed against the slider).
+     * Range observed in the LeaperKim app: roughly -10° to +10°.
+     */
+    internal fun setAngleAdjustmentDeci(tenthsOfDegree: Int): ByteArray {
+        val clamped = tenthsOfDegree.coerceIn(-128, 127)
+        return buildVendorFrame(
+            magic = LKAP, totalLen = 16,
+            payloadHead = byteArrayOf(0x01, 0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte()),
+            valueByte = clamped.toByte()
+        )
+    }
+
+    /** Ride-mode scalar 0..100 (LeaperKim app slider labels match raw value). */
+    internal fun setRideMode(scalar: Int): ByteArray {
+        val clamped = scalar.coerceIn(0, 100)
+        return buildVendorFrame(
+            magic = LDAP, totalLen = 15,
+            payloadHead = byteArrayOf(0x01, 0x02, 0x80.toByte(), 0x80.toByte(), 0x80.toByte()),
+            valueByte = clamped.toByte()
+        )
+    }
+
+    /** PWM percentage (observed range covers 50..70 in the captured session). */
+    internal fun setPwmPercent(percent: Int): ByteArray {
+        val clamped = percent.coerceIn(0, 100)
+        return buildVendorFrame(
+            magic = LDAP, totalLen = 18,
+            payloadHead = byteArrayOf(
+                0x01, 0x02,
+                0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte()
+            ),
+            valueByte = clamped.toByte()
+        )
+    }
+
+    // 17-byte builder shared by tiltback (LdAp) and alarm (LkAp) speed writes.
     // Both differ only in (a) the magic prefix and (b) byte 1 of the payload;
     // bytes 2..6 are always 0x80 padding and byte 7 is the km/h value.
     private fun buildLeaperKimSpeedFrame(magic: ByteArray, subOp: Byte, kmh: Int): ByteArray {
         val clamped = kmh.coerceIn(1, 99)
-        val out = ByteArray(17)
-        magic.copyInto(out, 0)            // 0..3 : magic
-        out[4] = 0x11                      // 4    : length = 17
-        out[5] = 0x01                      // 5    : payload byte 0 = command class
-        out[6] = subOp                     // 6    : payload byte 1 = sub-op (0x02 tilt, 0x80 alarm)
-        for (i in 7..11) out[i] = 0x80.toByte()  // padding
-        out[12] = clamped.toByte()        // 12   : km/h value
-        val crc = java.util.zip.CRC32().apply { update(out, 0, 13) }.value.toInt()
-        out[13] = ((crc ushr 24) and 0xFF).toByte()
-        out[14] = ((crc ushr 16) and 0xFF).toByte()
-        out[15] = ((crc ushr 8) and 0xFF).toByte()
-        out[16] = (crc and 0xFF).toByte()
+        return buildVendorFrame(
+            magic = magic, totalLen = 17,
+            payloadHead = byteArrayOf(
+                0x01, subOp,
+                0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte(), 0x80.toByte()
+            ),
+            valueByte = clamped.toByte()
+        )
+    }
+
+    // Shared frame assembler for every LkAp / LdAp settings write. Layout:
+    //   [magic 4] [length 1] [payloadHead N] [valueByte 1] [CRC32-BE 4]
+    // totalLen MUST equal 4 + 1 + payloadHead.size + 1 + 4 = payloadHead.size + 10.
+    // CRC32 covers magic + length + payload (everything before the trailer).
+    private fun buildVendorFrame(
+        magic: ByteArray,
+        totalLen: Int,
+        payloadHead: ByteArray,
+        valueByte: Byte
+    ): ByteArray {
+        val out = ByteArray(totalLen)
+        magic.copyInto(out, 0)
+        out[4] = totalLen.toByte()
+        payloadHead.copyInto(out, 5)
+        out[5 + payloadHead.size] = valueByte
+        val crcEnd = totalLen - 4
+        val crc = java.util.zip.CRC32().apply { update(out, 0, crcEnd) }.value.toInt()
+        out[crcEnd]     = ((crc ushr 24) and 0xFF).toByte()
+        out[crcEnd + 1] = ((crc ushr 16) and 0xFF).toByte()
+        out[crcEnd + 2] = ((crc ushr 8) and 0xFF).toByte()
+        out[crcEnd + 3] = (crc and 0xFF).toByte()
         return out
     }
 

@@ -172,10 +172,11 @@ Cell counts per model:
 Commands are ASCII strings written to the notify/write characteristic, except for
 the v3+ horn which is a 14-byte binary blob. Bytes go out as one BLE write each.
 
+### 6.1 ASCII commands
+
 | Command          | Bytes (hex)                                                  | ASCII / Note |
 |------------------|--------------------------------------------------------------|--------------|
 | Beep (firmware model < 3) | `62`                                              | `b` |
-| Beep (firmware model >= 3) | `4C 6B 41 70 0E 00 80 80 80 01 CA 87 E6 6F`       | binary, opaque magic. Sherman S and newer. |
 | Light on         | `53 65 74 4C 69 67 68 74 4F 4E`                              | `SetLightON` (10 bytes) |
 | Light off        | `53 65 74 4C 69 67 68 74 4F 46 46`                           | `SetLightOFF` (11 bytes) |
 | Pedals hard      | `53 45 54 68`                                                | `SETh` |
@@ -185,14 +186,68 @@ the v3+ horn which is a 14-byte binary blob. Bytes go out as one BLE write each.
 
 Notes:
 
-- There are no documented commands for setting max speed, alarm speed, lock, or
-  volume. The wheel's settings app on iOS / Android writes those, but their wire
-  format has not been publicly reverse-engineered. Treat these as read-only fields.
 - Pedals mode write echoes back at offset 30 of the next telemetry frame, so use
   that as a confirmation read.
 - Light state has no readback. Track it locally after each write.
 - `b` (single ASCII byte) is also used by Begode. It is safe to send to a Veteran
-  with `model < 3` but ignored on Sherman S and newer; use the binary blob there.
+  with `model < 3` but ignored on Sherman S and newer; use the binary blob below.
+
+### 6.2 LeaperKim binary command frame
+
+Sherman S and newer firmwares use a binary frame format for vendor settings
+(everything the LeaperKim app exposes that isn't covered by the ASCII commands
+above). The format was reverse-engineered from a captured Android BTSnoop session
+against a Lynx S (`mVer 9`, May 2026) cross-referenced against a screen recording
+of the LeaperKim app: every wire byte we send matched the slider value displayed
+in the same frame of the video (e.g. tilt-back slider reading `21 km/h` ↔ wire
+byte `0x15`; angle slider reading `-3.6°` ↔ wire byte `0xDC` as signed i8 ÷ 10).
+
+```
+| magic 4 | len 1 | payload (len - 9) | crc32 BE 4 |
+  off 0..3   4      5 .. len-5          len-4..len-1
+```
+
+| Field    | Size | Notes |
+|----------|------|-------|
+| Magic    | 4    | Either `4C 64 41 70` (`LdAp`) or `4C 6B 41 70` (`LkAp`). Distinguishes setting class together with the payload sub-op byte. |
+| Len      | u8   | Total frame bytes including magic, length byte itself, payload, and CRC trailer. Always 1 + 4 (magic) + payload + 4 (CRC). |
+| Payload  | varies | Starts with command-class byte `01` (settings) or `00` (one-shot like horn), then a sub-op byte, then `0x80` padding, then the value byte(s). |
+| CRC32    | u32 BE | Standard zlib CRC32 polynomial over `buff[0..len-5]` (magic + length + payload). |
+
+Known sub-frames, all observed in a single captured session:
+
+| Setting          | Magic | Total len | Payload                                  | Value encoding |
+|------------------|-------|----------:|------------------------------------------|----------------|
+| Tilt-back speed  | LdAp  | 17        | `01 02 80 80 80 80 80 <kmh>`             | u8 km/h (1..99) |
+| Alarm speed      | LkAp  | 17        | `01 80 80 80 80 80 80 <kmh>`             | u8 km/h (1..99) |
+| Angle adjustment | LkAp  | 16        | `01 80 80 80 80 80 <i8>`                 | i8 in tenths of a degree (e.g. `0xDC` = -36 → -3.6°) |
+| Ride mode        | LdAp  | 15        | `01 02 80 80 80 <u8>`                    | u8 ride-mode scalar (observed range 30..100, slider labels match raw value) |
+| PWM%             | LdAp  | 18        | `01 02 80 80 80 80 80 80 <u8>`           | u8 PWM percent (observed 53, 64) |
+| Beep / horn      | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger |
+| Toggle (unknown) | LkAp  | 13        | `01 80 80 <0\|1>`                        | u8 boolean — purpose not yet identified (seen during a transition between connection states) |
+
+Notes:
+
+- `LkAp` and `LdAp` aren't independent; they pair with the sub-op byte to disambiguate
+  which setting is being addressed. The two 17-byte speed frames differ ONLY by magic
+  prefix and payload byte 1 (`0x02` vs `0x80`).
+- Every captured frame validated against `CRC32(magic + length + payload)` big-endian.
+  The Java `zlib.CRC32` is byte-identical to what the LeaperKim app emits.
+- A typical write is followed immediately by an `LdAp` echo / ack frame from the app
+  with the same length and a similar payload; we have not yet confirmed whether the
+  echo is a separate write or a fragmented continuation of the same GATT operation.
+  Sending only the first frame appears sufficient — the wheel applies the setting
+  on the next realtime frame's offsets 24/26.
+- We currently surface only tilt-back and alarm in `VeteranCommands`; the other
+  decoded frames live there as private builders so the protocol knowledge is
+  preserved when we add UI for them.
+- The combined Vehicle Control screen in the LeaperKim app exposes more settings
+  than the seven sub-frames listed here (lateral cut-off angle, button volume,
+  max charging voltage, acceleration/deceleration assist, accelerometer reduction,
+  transportation / low-battery / high-speed mode toggles, voltage correction,
+  backlight, calibration). Their wire formats are not yet captured; the same
+  `LkAp` / `LdAp` magic almost certainly carries them with different lengths or
+  sub-op bytes.
 
 ## 7. Per-model differences
 
