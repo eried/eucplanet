@@ -73,6 +73,22 @@
     <string name="tab_integration">Integración</string>
     <string name="tab_cloud">Respaldo de ajustes y viajes</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Activar enlace de datos</string>
+    <string name="hud_ip_label">IP del dispositivo</string>
+    <string name="hud_ip_label_autodetect">IP del dispositivo (automático)</string>
+    <string name="hud_ip_desc">Escribe la IP que muestra el HUD en su pantalla.</string>
+    <string name="hud_server_port">Puerto</string>
+    <string name="hud_server_port_desc">Predeterminado 28080.</string>
+    <string name="hud_hotspot_off_hint">El punto de acceso del teléfono está desactivado. Asegúrate de que el HUD y el teléfono estén en la misma red WiFi.</string>
+    <string name="hud_hotspot_on_hint">El punto de acceso del teléfono está activo. Conecta el HUD a la WiFi de este teléfono para habilitar el enlace.</string>
+    <string name="hud_custom_overlay_label">Superposición HUD personalizada</string>
+    <string name="hud_custom_overlay_placeholder">Elige un preajuste de Overlay Studio</string>
+    <string name="hud_custom_overlay_no_folder">Carpeta de respaldo no configurada</string>
+    <string name="hud_custom_overlay_bundled_only">Elige un preajuste (carpeta de respaldo no configurada)</string>
+    <string name="hud_custom_overlay_none">Ninguno</string>
+
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
     <string name="cloud_caption">Carpeta donde se guardan los CSV de viajes y el respaldo de ajustes</string>

@@ -73,6 +73,22 @@
     <string name="tab_integration">Intégration</string>
     <string name="tab_cloud">Sauvegarde des réglages et trajets</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Activer la liaison de données</string>
+    <string name="hud_ip_label">IP de l\'appareil</string>
+    <string name="hud_ip_label_autodetect">IP de l\'appareil (automatique)</string>
+    <string name="hud_ip_desc">Saisissez l\'IP que le HUD affiche à l\'écran.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Par défaut 28080.</string>
+    <string name="hud_hotspot_off_hint">Le partage de connexion du téléphone est désactivé. Assurez-vous que le HUD et le téléphone sont sur le même réseau WiFi.</string>
+    <string name="hud_hotspot_on_hint">Le partage de connexion du téléphone est actif. Connectez le HUD au WiFi de ce téléphone pour activer la liaison.</string>
+    <string name="hud_custom_overlay_label">Superposition HUD personnalisée</string>
+    <string name="hud_custom_overlay_placeholder">Choisissez un préréglage Overlay Studio</string>
+    <string name="hud_custom_overlay_no_folder">Dossier de sauvegarde non configuré</string>
+    <string name="hud_custom_overlay_bundled_only">Choisissez un modèle (dossier de sauvegarde non défini)</string>
+    <string name="hud_custom_overlay_none">Aucun</string>
+
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
     <string name="cloud_caption">Dossier où atterrissent les CSV de trajets et la sauvegarde des paramètres</string>
     <string name="cloud_help_title">Sauvegarde vers OneDrive, Drive ou Dropbox</string>

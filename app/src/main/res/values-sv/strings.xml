@@ -73,6 +73,22 @@
     <string name="tab_integration">Integration</string>
     <string name="tab_cloud">Backup av inställningar och turer</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Aktivera datalänk</string>
+    <string name="hud_ip_label">Enhets-IP</string>
+    <string name="hud_ip_label_autodetect">Enhets-IP (automatisk)</string>
+    <string name="hud_ip_desc">Ange IP-adressen som HUD:en visar på skärmen.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Standard 28080.</string>
+    <string name="hud_hotspot_off_hint">Telefonens hotspot är av. Se till att HUD:en och telefonen är på samma WiFi-nätverk.</string>
+    <string name="hud_hotspot_on_hint">Telefonens hotspot sänder. Anslut HUD:en till denna telefons WiFi för att aktivera länken.</string>
+    <string name="hud_custom_overlay_label">Anpassat HUD-överlägg</string>
+    <string name="hud_custom_overlay_placeholder">Välj en Overlay Studio-förinställning</string>
+    <string name="hud_custom_overlay_no_folder">Säkerhetskopieringsmapp inte konfigurerad</string>
+    <string name="hud_custom_overlay_bundled_only">Välj en mall (säkerhetskopieringsmapp inte inställd)</string>
+    <string name="hud_custom_overlay_none">Ingen</string>
+
     <string name="section_cloud_folder">Säkerhetskopieringsmapp</string>
     <string name="cloud_caption">Mapp för tur-CSV:er och inställnings-backup</string>
     <string name="cloud_help_title">Säkerhetskopiera till OneDrive, Drive eller Dropbox</string>
