@@ -1921,6 +1921,7 @@ fun DashboardScreen(
                                                     "Gio (Wheel In Motion)" to "Promotion, suggestions and P6 testing. Stitched scalp, intact enthusiasm.",
                                                     "FlyboyEUC (Adam)" to "Mten3, E20 and EX30 testing.",
                                                     "Soolek" to "KS-16X testing.",
+                                                    "Jonathan Wiesner" to "Lynx S testing. The BTSnoop he captured is what let us decode the LeaperKim set-tiltback and set-alarm writes.",
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
