@@ -217,8 +217,7 @@
     <string name="report_recording">Inspelning</string>
 
     <string name="section_flic_buttons">Flic 2-knappar</string>
-    <string name="flic_show_on_dashboard">Visa på instrumentpanelen</string>
-    <string name="flic_show_on_dashboard_desc">Visa Flic-indikator i övre fältet</string>
+    <string name="flic_show_on_dashboard">Snabbåtkomst i instrumentpanelen</string>
     <string name="flic_scan_hint">Håll in din Flic 2-knapp i 6 sekunder för att sätta den i parläge och tryck sedan på Sök</string>
     <string name="flic_stop_scan">Stoppa sökning</string>
     <string name="flic_start_scan">Starta sökning</string>

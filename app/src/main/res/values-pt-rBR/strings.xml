@@ -287,8 +287,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Botões Flic 2</string>
-    <string name="flic_show_on_dashboard">Mostrar no painel</string>
-    <string name="flic_show_on_dashboard_desc">Mostrar o indicador Flic na barra superior</string>
+    <string name="flic_show_on_dashboard">Acesso rápido no painel</string>
     <string name="flic_scan_hint">Segure o botão Flic 2 por 6 segundos para colocá-lo em modo de pareamento e toque em Procurar</string>
     <string name="flic_stop_scan">Parar busca</string>
     <string name="flic_start_scan">Iniciar busca</string>

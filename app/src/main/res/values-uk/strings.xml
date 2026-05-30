@@ -287,8 +287,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
-    <string name="flic_show_on_dashboard">Показувати на панелі</string>
-    <string name="flic_show_on_dashboard_desc">Показувати індикатор Flic у верхній панелі</string>
+    <string name="flic_show_on_dashboard">Швидкий доступ на панелі</string>
     <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати</string>
     <string name="flic_stop_scan">Зупинити пошук</string>
     <string name="flic_start_scan">Почати пошук</string>

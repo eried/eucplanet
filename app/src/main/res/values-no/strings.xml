@@ -213,8 +213,7 @@
     <string name="report_recording">Opptak</string>
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
-    <string name="flic_show_on_dashboard">Vis på dashbord</string>
-    <string name="flic_show_on_dashboard_desc">Vis Flic-indikatoren i øverste linje</string>
+    <string name="flic_show_on_dashboard">Hurtigtilgang i dashbord</string>
     <string name="flic_scan_hint">Hold Flic 2-knappen inne i 6 sekunder for paringsmodus, og trykk Skann</string>
     <string name="flic_stop_scan">Stopp skann</string>
     <string name="flic_start_scan">Start skann</string>

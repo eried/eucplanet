@@ -213,8 +213,7 @@
     <string name="report_recording">Aufnahme</string>
 
     <string name="section_flic_buttons">Flic 2-Tasten</string>
-    <string name="flic_show_on_dashboard">Auf Dashboard anzeigen</string>
-    <string name="flic_show_on_dashboard_desc">Flic-Anzeige in der Dashboard-Leiste einblenden</string>
+    <string name="flic_show_on_dashboard">Schnellzugriff im Dashboard</string>
     <string name="flic_scan_hint">Halte die Flic 2-Taste 6 Sekunden lang gedrückt, um sie in den Kopplungsmodus zu versetzen, und tippe dann auf Suchen</string>
     <string name="flic_stop_scan">Scan stoppen</string>
     <string name="flic_start_scan">Scan starten</string>

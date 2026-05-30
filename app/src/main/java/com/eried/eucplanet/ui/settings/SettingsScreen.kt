@@ -5158,9 +5158,8 @@ private fun FlicTab(
         // Top-bar visibility switch. Some riders never use Flic and find the
         // small indicator visually noisy. Default true preserves the previous
         // always-on rendering.
-        SwitchSettingWithDesc(
+        SwitchSetting(
             label = stringResource(R.string.flic_show_on_dashboard),
-            description = stringResource(R.string.flic_show_on_dashboard_desc),
             checked = settings.flicShowOnDashboard,
             onCheckedChange = { viewModel.updateFlicShowOnDashboard(it) }
         )

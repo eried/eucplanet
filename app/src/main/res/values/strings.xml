@@ -553,8 +553,7 @@
 
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 buttons</string>
-    <string name="flic_show_on_dashboard">Show on dashboard</string>
-    <string name="flic_show_on_dashboard_desc">Display the Flic indicator in the dashboard top bar</string>
+    <string name="flic_show_on_dashboard">Quick access icon in dashboard</string>
     <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
     <string name="flic_stop_scan">Stop scan</string>
     <string name="flic_start_scan">Start scan</string>
