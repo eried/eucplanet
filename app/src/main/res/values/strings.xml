@@ -109,10 +109,10 @@
     <string name="dashboard_section_metrics">Metrics</string>
     <string name="dashboard_section_actions">Action buttons</string>
     <string name="dashboard_columns">Columns</string>
-    <string name="dashboard_grid_hint">Long-press to drag. Tap to edit.</string>
+    <string name="dashboard_grid_hint">Long-press to drag, tap to edit</string>
     <string name="dashboard_pool_metrics">Available metrics</string>
     <string name="dashboard_pool_actions">Available actions</string>
-    <string name="dashboard_pool_tap_toast">Long-press and drag onto a slot above to use.</string>
+    <string name="dashboard_pool_tap_toast">Long-press and drag onto a slot above to use</string>
     <string name="dashboard_rolling_window">Rolling stats window</string>
     <string name="dashboard_stats_length">Stats length</string>
     <string name="dashboard_view">View</string>
@@ -195,11 +195,11 @@
     <string name="metric_chip_lateral_g">Lateral g</string>
     <string name="metric_chip_forward_g">Forward g</string>
     <string name="metric_chip_torque">Torque</string>
-    <string name="metric_chip_dyn_speed_limit">Dyn. speed lim.</string>
-    <string name="metric_chip_dyn_current_limit">Dyn. current lim.</string>
-    <string name="metric_chip_motor_temp">Motor temp</string>
-    <string name="metric_chip_controller_temp">Controller</string>
-    <string name="metric_chip_battery_temp">Battery temp</string>
+    <string name="metric_chip_dyn_speed_limit">Dynamic speed limit</string>
+    <string name="metric_chip_dyn_current_limit">Dynamic current limit</string>
+    <string name="metric_chip_motor_temp">Motor temperature</string>
+    <string name="metric_chip_controller_temp">Controller temperature</string>
+    <string name="metric_chip_battery_temp">Battery temperature</string>
     <string name="metric_chip_headroom">Headroom</string>
     <string name="metric_chip_trip_time">Trip time</string>
     <string name="metric_chip_trip_max_speed">Trip max</string>
@@ -207,11 +207,11 @@
     <string name="metric_chip_wh_consumed">Energy</string>
     <string name="metric_chip_range_estimate">Range</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
-    <string name="metric_chip_phone_battery">Phone bat.</string>
+    <string name="metric_chip_phone_battery">Phone battery</string>
     <string name="metric_chip_gps_altitude">Altitude</string>
     <string name="metric_chip_gps_speed">GPS speed</string>
     <string name="metric_chip_gps_heading">Heading</string>
-    <string name="metric_chip_gps_accuracy">GPS acc.</string>
+    <string name="metric_chip_gps_accuracy">GPS accuracy</string>
     <string name="metric_chip_slope">Slope</string>
     <string name="metric_chip_ascent">Ascent</string>
     <string name="metric_chip_descent">Descent</string>
@@ -344,7 +344,7 @@
     <string name="cloud_last_backup_never">Not backed up yet</string>
     <string name="cloud_backup_success">Settings backed up</string>
 <string name="cloud_backup_named_success">Backed up as %1$s</string>
-    <string name="cloud_backup_failed">Backup failed. Check folder access.</string>
+    <string name="cloud_backup_failed">Backup failed — check folder access</string>
     <string name="cloud_restore_success">Settings restored</string>
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
@@ -433,9 +433,9 @@
     <string name="section_speed_limits">Speed limits</string>
     <string name="section_speed_calibration">Speed calibration</string>
     <string name="speed_calibration_label">Speed offset</string>
-    <string name="speed_calibration_caption">Applies a percentage to the speed coming from the wheel. Alarms, voice and the trip log all use the calibrated value</string>
+    <string name="speed_calibration_caption">Adjusts wheel-reported speed; affects alarms, voice and the trip log</string>
     <string name="section_legal_mode_speed">Legal mode speed</string>
-    <string name="legal_mode_caption">Applied when Legal Mode is ON. Must be lower than normal tiltback</string>
+    <string name="legal_mode_caption">Used when Legal Mode is on; must be lower than normal tiltback</string>
     <string name="speed_limits_disconnected">Connect your wheel to edit speed limits</string>
     <string name="speed_tiltback">Tiltback Speed</string>
     <string name="speed_alarm">Alarm Speed</string>
@@ -506,7 +506,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
-    <string name="engine_sound_enabled_hint">Drives engine RPM in real time from your wheel\'s speed and motor load</string>
+    <string name="engine_sound_enabled_hint">Drives engine RPM live from wheel speed and motor load</string>
     <string name="engine_type_label">Engine</string>
     <string name="engine_source_sampled">Sampled</string>
     <string name="engine_source_synth">Synth</string>
@@ -586,7 +586,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2 buttons</string>
     <string name="flic_show_on_dashboard">Quick access icon in dashboard</string>
-    <string name="flic_scan_hint">Hold your Flic 2 button for 6 seconds to put it in pairing mode, then tap Scan</string>
+    <string name="flic_scan_hint">Hold the Flic 2 button 6 seconds for pairing mode, then tap Scan</string>
     <string name="flic_stop_scan">Stop scan</string>
     <string name="flic_start_scan">Start scan</string>
     <string name="flic_forget">Forget</string>
@@ -1222,7 +1222,7 @@
     <string name="nav_empty_hint">Tap the map, search, or load a GPX file</string>
     <string name="nav_need_two">Add at least two stops to navigate.</string>
     <string name="nav_routing">Finding the route…</string>
-    <string name="nav_route_failed">Routing service unavailable,using straight lines</string>
+    <string name="nav_route_failed">Routing service unavailable, using straight lines</string>
     <string name="nav_cant_add_while_running">Can\'t add a stop while navigation is running</string>
     <string name="nav_search_no_results">No results for that address</string>
     <string name="nav_save_failed">Could not save the route</string>
@@ -1310,7 +1310,7 @@
     <string name="nav_setting_full_path">Always solve the full path</string>
     <string name="nav_setting_full_path_desc">Off solves only the next stop and shows the rest as a dashed preview</string>
     <string name="nav_setting_endpoints">Routing services</string>
-    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server</string>
+    <string name="nav_setting_endpoints_hint">Free public OpenStreetMap by default; change to use your own server</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>
     <string name="nav_setting_router_url">Routing URL</string>
     <string name="watch_show_navigation">Show navigation</string>
@@ -1334,14 +1334,14 @@
     <string name="studio_rendering_keep_open">Keep your phone on and this screen open while the render finishes</string>
     <string name="studio_cfg_g_scale">Scale</string>
     <string name="studio_cfg_g_smoothing">Smoothing</string>
-    <string name="studio_export_force_opaque_hint">Formats without transparency use the chroma key colour, which can look off on partly transparent elements</string>
+    <string name="studio_export_force_opaque_hint">Non-transparent formats use the chroma key colour; may look off on semi-transparent layers</string>
     <string name="studio_cfg_filter_vivid">Vivid</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matte</string>
     <string name="dash_external_gps_settings">External GPS settings</string>
-    <string name="external_gps_caption">Power on your RaceBox and tap Pair to scan. Once paired, its speed and G-Force feed the app live and are saved to each trip CSV</string>
-    <string name="gps_prioritize_external_desc">When a device is connected, use it for speed, position and G-Force instead of the phone</string>
+    <string name="external_gps_caption">Power on the device and tap Pair to feed its speed and G-Force live, also saved to each trip CSV</string>
+    <string name="gps_prioritize_external_desc">Prefer the connected device over the phone for speed, position and G-Force</string>
     <string name="studio_cfg_show_value">Show value</string>
     <string name="studio_cfg_unit_position">Unit</string>
     <string name="studio_cfg_unit_left">Before value</string>

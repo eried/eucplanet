@@ -151,7 +151,7 @@
     <string name="cloud_last_backup_never">Brak kopii zapasowej</string>
     <string name="cloud_backup_success">Ustawienia zapisane w kopii</string>
 <string name="cloud_backup_named_success">Zapisano jako %1$s</string>
-    <string name="cloud_backup_failed">Tworzenie kopii nie powiodło się. Sprawdź dostęp do folderu.</string>
+    <string name="cloud_backup_failed">Kopia nie powiodła się — sprawdź dostęp do folderu</string>
     <string name="cloud_restore_success">Ustawienia przywrócone</string>
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
@@ -239,7 +239,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Limity prędkości</string>
     <string name="section_legal_mode_speed">Prędkość trybu legalnego</string>
-    <string name="legal_mode_caption">Stosowana, gdy tryb legalny jest WŁ. Musi być niższa niż normalny tiltback</string>
+    <string name="legal_mode_caption">Używane przy Trybie Legal; musi być niższe niż normalny tiltback</string>
     <string name="speed_limits_disconnected">Połącz koło, aby edytować limity prędkości</string>
     <string name="speed_tiltback">Prędkość tiltbacka</string>
     <string name="speed_alarm">Prędkość alarmu</string>
@@ -290,7 +290,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Przyciski Flic 2</string>
     <string name="flic_show_on_dashboard">Szybki dostęp na panelu</string>
-    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby przejść w tryb parowania, potem stuknij Skanuj</string>
+    <string name="flic_scan_hint">Przytrzymaj przycisk Flic 2 przez 6 sekund, aby sparować, potem dotknij Skanuj</string>
     <string name="flic_stop_scan">Zatrzymaj skan</string>
     <string name="flic_start_scan">Rozpocznij skan</string>
     <string name="external_gps_pair_button">Rozpocznij skan</string>
@@ -573,7 +573,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Dźwięk silnika</string>
     <string name="engine_sound_enabled">Dźwięk silnika</string>
-    <string name="engine_sound_enabled_hint">Obroty silnika podążają w czasie rzeczywistym za prędkością i obciążeniem koła</string>
+    <string name="engine_sound_enabled_hint">Steruje obrotami silnika na żywo z prędkości i obciążenia</string>
     <string name="engine_type_label">Silnik</string>
     <string name="engine_source_sampled">Próbka</string>
     <string name="engine_source_synth">Synth</string>
@@ -644,7 +644,7 @@
     <string name="section_external_gps">GPS i czujniki</string>
     <string name="external_gps_device_title">Zewnętrzny GPS</string>
     <string name="section_speed_calibration">Kalibracja prędkości</string>
-    <string name="speed_calibration_caption">Stosuje wartość procentową do prędkości pochodzącej z koła. Alarmy, głos i dziennik tras korzystają ze skalibrowanej wartości</string>
+    <string name="speed_calibration_caption">Koryguje prędkość zgłaszaną przez koło; wpływa na alarmy, głos i log</string>
     <string name="speed_calibration_label">Korekta prędkości</string>
     <string name="sources_other_metrics">Inne metryki</string>
 
@@ -718,7 +718,7 @@
     <string name="nav_role_destination">Cel</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Długość trasy: %1$s</string>
-    <string name="nav_route_failed">Usługa wyznaczania trasy niedostępna,używam linii prostych</string>
+    <string name="nav_route_failed">Usługa tras niedostępna, używam linii prostych</string>
     <string name="nav_routing">Wyznaczanie trasy…</string>
     <string name="nav_save_failed">Nie udało się zapisać trasy</string>
     <string name="nav_route_saved">Trasa zapisana</string>
@@ -732,7 +732,7 @@
     <string name="nav_setting_arrival_radius_desc">Jak blisko liczy się jako dotarcie do stopu</string>
     <string name="nav_setting_default_mode">Domyślny tryb podróży</string>
     <string name="nav_setting_endpoints">Usługi wyznaczania trasy</string>
-    <string name="nav_setting_endpoints_hint">Darmowe publiczne usługi OpenStreetMap, bez konta. Zmieniaj tylko, aby wskazać własny serwer</string>
+    <string name="nav_setting_endpoints_hint">Domyślnie publiczny OpenStreetMap; zmień, aby użyć własnego serwera</string>
     <string name="nav_setting_geocoder_url">Adres URL wyszukiwania adresów</string>
     <string name="nav_setting_offroute">Tolerancja zejścia z trasy</string>
     <string name="nav_setting_offroute_desc">Jak daleko od trasy zanim wywoła się alert o zboczeniu z trasy</string>
@@ -1024,14 +1024,14 @@
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_g_smoothing">Wygładzanie</string>
     <string name="studio_cfg_geometry">Geometria</string>
-    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru klucza chroma, co może źle wyglądać na częściowo przezroczystych elementach</string>
+    <string name="studio_export_force_opaque_hint">Formaty bez przezroczystości używają koloru chroma key; może źle wyglądać na półprzezroczystych warstwach</string>
     <string name="studio_cfg_filter_vivid">Żywy</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Matowy</string>
     <string name="dash_external_gps_settings">Ustawienia zewnętrznego GPS</string>
-    <string name="external_gps_caption">Włącz RaceBox i dotknij Paruj, aby skanować. Po sparowaniu prędkość i przeciążenie zasilają aplikację na żywo i są zapisywane w pliku CSV każdej trasy</string>
-    <string name="gps_prioritize_external_desc">Gdy urządzenie jest podłączone, używaj go do prędkości, pozycji i przeciążenia zamiast telefonu</string>
+    <string name="external_gps_caption">Włącz urządzenie i dotknij Paruj; prędkość i siła G zasilają aplikację na żywo i są zapisywane w CSV trasy</string>
+    <string name="gps_prioritize_external_desc">Preferuj podłączone urządzenie zamiast telefonu dla prędkości, pozycji i siły G</string>
     <string name="studio_cfg_show_value">Pokaż wartość</string>
     <string name="studio_cfg_unit_position">Jednostka</string>
     <string name="studio_cfg_unit_left">Przed</string>
@@ -1087,7 +1087,7 @@
     <string name="dashboard_custom_tile_text_label">Tekst</string>
     <string name="dashboard_custom_tile_text_placeholder">np. Mój Instagram</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Przytrzymaj, aby przeciągnąć. Dotknij, aby edytować.</string>
+    <string name="dashboard_grid_hint">Przytrzymaj, aby przeciągnąć; dotknij, aby edytować</string>
     <string name="dashboard_group_action_none">(brak)</string>
     <string name="dashboard_group_action_slot">Akcja %1$d</string>
     <string name="dashboard_group_default_name">Moje akcje</string>
@@ -1095,7 +1095,7 @@
     <string name="dashboard_group_template_label">GRUPA</string>
     <string name="dashboard_pool_actions">Dostępne akcje</string>
     <string name="dashboard_pool_metrics">Dostępne metryki</string>
-    <string name="dashboard_pool_tap_toast">Przytrzymaj i przeciągnij na slot powyżej.</string>
+    <string name="dashboard_pool_tap_toast">Przytrzymaj i przeciągnij do gniazda powyżej, aby użyć</string>
     <string name="dashboard_restore_slot">Przywróć slot</string>
     <string name="dashboard_rolling_window">Okno statystyk kroczących</string>
     <string name="dashboard_rolling_window_10m">10 min</string>
@@ -1146,16 +1146,16 @@
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Moc baterii</string>
-    <string name="metric_chip_battery_temp">Temp. baterii</string>
+    <string name="metric_chip_battery_temp">Temperatura baterii</string>
     <string name="metric_chip_bt_rssi">Sygnał BT</string>
-    <string name="metric_chip_controller_temp">Sterownik</string>
+    <string name="metric_chip_controller_temp">Temperatura sterownika</string>
     <string name="metric_chip_current">Prąd</string>
     <string name="metric_chip_descent">Zjazd</string>
-    <string name="metric_chip_dyn_current_limit">Dyn. lim. prądu</string>
-    <string name="metric_chip_dyn_speed_limit">Dyn. lim. pręd.</string>
+    <string name="metric_chip_dyn_current_limit">Dynamiczny limit prądu</string>
+    <string name="metric_chip_dyn_speed_limit">Dynamiczny limit prędkości</string>
     <string name="metric_chip_forward_g">Wzdł. g</string>
     <string name="metric_chip_g_force">Siła g</string>
-    <string name="metric_chip_gps_accuracy">Dokł. GPS</string>
+    <string name="metric_chip_gps_accuracy">Dokładność GPS</string>
     <string name="metric_chip_gps_altitude">Wysokość</string>
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_speed">Pręd. GPS</string>
@@ -1164,9 +1164,9 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Moc silnika</string>
     <string name="metric_chip_motor_rpm">obr/min</string>
-    <string name="metric_chip_motor_temp">Temp. silnika</string>
+    <string name="metric_chip_motor_temp">Temperatura silnika</string>
     <string name="metric_chip_odometer">Licznik km</string>
-    <string name="metric_chip_phone_battery">Bat. telefonu</string>
+    <string name="metric_chip_phone_battery">Bateria telefonu</string>
     <string name="metric_chip_pitch">Pochylenie</string>
     <string name="metric_chip_power">Moc</string>
     <string name="metric_chip_range_estimate">Zasięg</string>

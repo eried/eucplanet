@@ -91,7 +91,7 @@
     <string name="cloud_last_backup_never">Endnu ikke taget backup</string>
     <string name="cloud_backup_success">Indstillinger sikkerhedskopieret</string>
 <string name="cloud_backup_named_success">Gemt som %1$s</string>
-    <string name="cloud_backup_failed">Backup mislykkedes. Tjek adgangen til mappen.</string>
+    <string name="cloud_backup_failed">Sikkerhedskopi mislykkedes — tjek mappeadgang</string>
     <string name="cloud_restore_success">Indstillinger gendannet</string>
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
@@ -179,7 +179,7 @@
 
     <string name="section_speed_limits">Hastighedsgrænser</string>
     <string name="section_legal_mode_speed">Hastighed i lovlig tilstand</string>
-    <string name="legal_mode_caption">Bruges, når lovlig tilstand er slået til. Skal være lavere end normal tiltback</string>
+    <string name="legal_mode_caption">Bruges med Legal-tilstand til; skal være lavere end normal tiltback</string>
     <string name="speed_limits_disconnected">Forbind hjulet for at ændre hastighedsgrænser</string>
     <string name="speed_tiltback">Tiltback-hastighed</string>
     <string name="speed_alarm">Alarmhastighed</string>
@@ -222,7 +222,7 @@
 
     <string name="section_flic_buttons">Flic 2-knapper</string>
     <string name="flic_show_on_dashboard">Hurtig adgang i dashboard</string>
-    <string name="flic_scan_hint">Hold din Flic 2-knap nede i 6 sekunder for at sætte den i parringstilstand, og tryk så Scan</string>
+    <string name="flic_scan_hint">Hold Flic 2-knappen i 6 sekunder for parring, tryk Søg</string>
     <string name="flic_stop_scan">Stop scanning</string>
     <string name="flic_start_scan">Start scanning</string>
     <string name="external_gps_pair_button">Start scanning</string>
@@ -537,7 +537,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
-    <string name="engine_sound_enabled_hint">Motoromdrejningerne følger i realtid hjulets hastighed og motorbelastning</string>
+    <string name="engine_sound_enabled_hint">Styrer motoromdrejninger live fra fart og motorbelastning</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synt</string>
@@ -608,7 +608,7 @@
     <string name="section_external_gps">GPS og sensorer</string>
     <string name="external_gps_device_title">Ekstern GPS</string>
     <string name="section_speed_calibration">Hastighedskalibrering</string>
-    <string name="speed_calibration_caption">Anvender en procentdel på hastigheden fra hjulet. Alarmer, stemme og turloggen bruger alle den kalibrerede værdi</string>
+    <string name="speed_calibration_caption">Justerer hjulets rapporterede hastighed; påvirker alarmer, tale og log</string>
     <string name="speed_calibration_label">Hastighedsjustering</string>
     <string name="sources_other_metrics">Andre målinger</string>
 
@@ -682,7 +682,7 @@
     <string name="nav_role_destination">Destination</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Rutens længde: %1$s</string>
-    <string name="nav_route_failed">Rutetjenesten er ikke tilgængelig,bruger lige linjer</string>
+    <string name="nav_route_failed">Rutetjeneste utilgængelig, bruger lige linjer</string>
     <string name="nav_routing">Finder ruten…</string>
     <string name="nav_save_failed">Kunne ikke gemme ruten</string>
     <string name="nav_route_saved">Rute gemt</string>
@@ -696,7 +696,7 @@
     <string name="nav_setting_arrival_radius_desc">Hvor tæt på der tæller som at have nået et stop</string>
     <string name="nav_setting_default_mode">Standard rejsemåde</string>
     <string name="nav_setting_endpoints">Rutetjenester</string>
-    <string name="nav_setting_endpoints_hint">Gratis offentlige OpenStreetMap-tjenester, ingen konto nødvendig. Ret kun, hvis du vil pege på din egen server</string>
+    <string name="nav_setting_endpoints_hint">Offentligt OpenStreetMap som standard; skift for egen server</string>
     <string name="nav_setting_geocoder_url">URL til adressesøgning</string>
     <string name="nav_setting_offroute">Tolerance uden for ruten</string>
     <string name="nav_setting_offroute_desc">Hvor langt fra ruten før advarsel om afvigelse udløses</string>
@@ -989,14 +989,14 @@
     <string name="studio_cfg_g_scale">Skala</string>
     <string name="studio_cfg_g_smoothing">Udjævning</string>
     <string name="studio_cfg_geometry">Geometri</string>
-    <string name="studio_export_force_opaque_hint">Formater uden gennemsigtighed bruger chroma key-farven, hvilket kan se forkert ud på delvist gennemsigtige elementer</string>
+    <string name="studio_export_force_opaque_hint">Formater uden gennemsigtighed bruger chroma key-farven; kan se mærkeligt ud på halv-gennemsigtige lag</string>
     <string name="studio_cfg_filter_vivid">Livlig</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Indstillinger for ekstern GPS</string>
-    <string name="external_gps_caption">Tænd din RaceBox og tryk på Par for at søge. Når den er parret, fører fart og G-kraft appen live og gemmes i CSV-en for hver tur</string>
-    <string name="gps_prioritize_external_desc">Når en enhed er tilsluttet, brug den til fart, position og G-kraft i stedet for telefonen</string>
+    <string name="external_gps_caption">Tænd enheden og tryk Par; hastighed og G-kraft fødes ind live og gemmes i tur-CSV</string>
+    <string name="gps_prioritize_external_desc">Foretræk tilsluttet enhed frem for telefonen til fart, position og G-kraft</string>
     <string name="studio_cfg_show_value">Vis værdi</string>
     <string name="studio_cfg_unit_position">Enhed</string>
     <string name="studio_cfg_unit_left">Før</string>
@@ -1052,7 +1052,7 @@
     <string name="dashboard_custom_tile_text_label">Tekst</string>
     <string name="dashboard_custom_tile_text_placeholder">f.eks. Min Instagram</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Tryk længe for at trække. Tryk for at redigere.</string>
+    <string name="dashboard_grid_hint">Hold for at trække, tryk for at redigere</string>
     <string name="dashboard_group_action_none">(ingen)</string>
     <string name="dashboard_group_action_slot">Handling %1$d</string>
     <string name="dashboard_group_default_name">Mine handlinger</string>
@@ -1060,7 +1060,7 @@
     <string name="dashboard_group_template_label">GRUPPE</string>
     <string name="dashboard_pool_actions">Tilgængelige handlinger</string>
     <string name="dashboard_pool_metrics">Tilgængelige målinger</string>
-    <string name="dashboard_pool_tap_toast">Tryk længe og træk til en plads ovenfor.</string>
+    <string name="dashboard_pool_tap_toast">Hold og træk til en plads ovenfor for at bruge</string>
     <string name="dashboard_restore_slot">Gendan plads</string>
     <string name="dashboard_rolling_window">Rullende statistikvindue</string>
     <string name="dashboard_rolling_window_10m">10 min</string>
@@ -1111,16 +1111,16 @@
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Batteri-effekt</string>
-    <string name="metric_chip_battery_temp">Batteritemp.</string>
+    <string name="metric_chip_battery_temp">Batteritemperatur</string>
     <string name="metric_chip_bt_rssi">BT-signal</string>
-    <string name="metric_chip_controller_temp">Styring</string>
+    <string name="metric_chip_controller_temp">Styringstemperatur</string>
     <string name="metric_chip_current">Strøm</string>
     <string name="metric_chip_descent">Fald</string>
-    <string name="metric_chip_dyn_current_limit">Dyn. strømgr.</string>
-    <string name="metric_chip_dyn_speed_limit">Dyn. fartgr.</string>
+    <string name="metric_chip_dyn_current_limit">Dynamisk strømgrænse</string>
+    <string name="metric_chip_dyn_speed_limit">Dynamisk fartgrænse</string>
     <string name="metric_chip_forward_g">Frem-g</string>
     <string name="metric_chip_g_force">G-kraft</string>
-    <string name="metric_chip_gps_accuracy">GPS-præc.</string>
+    <string name="metric_chip_gps_accuracy">GPS-præcision</string>
     <string name="metric_chip_gps_altitude">Højde</string>
     <string name="metric_chip_gps_heading">Retning</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
@@ -1129,7 +1129,7 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_motor_rpm">o/min</string>
-    <string name="metric_chip_motor_temp">Motortemp.</string>
+    <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_odometer">Kilometertæller</string>
     <string name="metric_chip_phone_battery">Telefonbatteri</string>
     <string name="metric_chip_pitch">Hældning</string>

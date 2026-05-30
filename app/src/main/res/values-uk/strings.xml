@@ -151,7 +151,7 @@
     <string name="cloud_last_backup_never">Копій ще немає</string>
     <string name="cloud_backup_success">Налаштування збережено</string>
 <string name="cloud_backup_named_success">Збережено як %1$s</string>
-    <string name="cloud_backup_failed">Резервна копія не вдалася. Перевір доступ до папки.</string>
+    <string name="cloud_backup_failed">Не вдалося створити резервну копію — перевірте доступ до теки</string>
     <string name="cloud_restore_success">Налаштування відновлено</string>
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
@@ -239,7 +239,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Обмеження швидкості</string>
     <string name="section_legal_mode_speed">Швидкість у легальному режимі</string>
-    <string name="legal_mode_caption">Застосовується, коли увімкнено легальний режим. Має бути нижчою за звичайний tiltback</string>
+    <string name="legal_mode_caption">Застосовується в режимі Legal; має бути нижчим за звичайний tiltback</string>
     <string name="speed_limits_disconnected">Підключи моноколесо, щоб змінити обмеження швидкості</string>
     <string name="speed_tiltback">Швидкість tiltback</string>
     <string name="speed_alarm">Швидкість тривоги</string>
@@ -290,7 +290,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Кнопки Flic 2</string>
     <string name="flic_show_on_dashboard">Швидкий доступ на панелі</string>
-    <string name="flic_scan_hint">Утримуй кнопку Flic 2 6 секунд, щоб перевести її в режим сполучення, потім натисни Сканувати</string>
+    <string name="flic_scan_hint">Утримуйте кнопку Flic 2 6 секунд для з\'єднання, потім торкніться «Сканувати»</string>
     <string name="flic_stop_scan">Зупинити пошук</string>
     <string name="flic_start_scan">Почати пошук</string>
     <string name="external_gps_pair_button">Почати пошук</string>
@@ -573,7 +573,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>
     <string name="engine_sound_enabled">Звук двигуна</string>
-    <string name="engine_sound_enabled_hint">Оберти двигуна реагують у реальному часі на швидкість і навантаження колеса</string>
+    <string name="engine_sound_enabled_hint">Керує обертами в реальному часі за швидкістю і навантаженням</string>
     <string name="engine_type_label">Двигун</string>
     <string name="engine_source_sampled">Семпл</string>
     <string name="engine_source_synth">Синтез</string>
@@ -644,7 +644,7 @@
     <string name="section_external_gps">GPS і датчики</string>
     <string name="external_gps_device_title">Зовнішній GPS</string>
     <string name="section_speed_calibration">Калібрування швидкості</string>
-    <string name="speed_calibration_caption">Застосовує відсоток до швидкості, що надходить з колеса. Тривоги, голос і журнал поїздок використовують відкалібороване значення</string>
+    <string name="speed_calibration_caption">Коригує швидкість від колеса; впливає на сигнали, голос і журнал</string>
     <string name="speed_calibration_label">Поправка швидкості</string>
     <string name="sources_other_metrics">Інші показники</string>
 
@@ -718,7 +718,7 @@
     <string name="nav_role_destination">Пункт призначення</string>
     <string name="nav_role_start">Початок</string>
     <string name="nav_route_distance">Довжина маршруту: %1$s</string>
-    <string name="nav_route_failed">Сервіс маршрутизації недоступний,використовуємо прямі лінії</string>
+    <string name="nav_route_failed">Сервіс маршрутів недоступний, використовуються прямі лінії</string>
     <string name="nav_routing">Прокладаємо маршрут…</string>
     <string name="nav_save_failed">Не вдалося зберегти маршрут</string>
     <string name="nav_route_saved">Маршрут збережено</string>
@@ -732,7 +732,7 @@
     <string name="nav_setting_arrival_radius_desc">Наскільки близько вважається досягненням зупинки</string>
     <string name="nav_setting_default_mode">Типовий спосіб пересування</string>
     <string name="nav_setting_endpoints">Сервіси маршрутизації</string>
-    <string name="nav_setting_endpoints_hint">Безкоштовні публічні сервіси OpenStreetMap, обліковий запис не потрібен. Змінюйте, лише щоб вказати власний сервер</string>
+    <string name="nav_setting_endpoints_hint">За замовчуванням публічний OpenStreetMap; змініть для свого сервера</string>
     <string name="nav_setting_geocoder_url">URL пошуку адрес</string>
     <string name="nav_setting_offroute">Допуск відхилення від маршруту</string>
     <string name="nav_setting_offroute_desc">Як далеко від маршруту, перш ніж сповіщення про відхилення спрацює</string>
@@ -1024,14 +1024,14 @@
     <string name="studio_cfg_g_scale">Масштаб</string>
     <string name="studio_cfg_g_smoothing">Згладжування</string>
     <string name="studio_cfg_geometry">Геометрія</string>
-    <string name="studio_export_force_opaque_hint">Формати без прозорості використовують колір хромакею, що може виглядати погано на частково прозорих елементах</string>
+    <string name="studio_export_force_opaque_hint">Формати без прозорості використовують колір хромакея; може виглядати дивно на напівпрозорих шарах</string>
     <string name="studio_cfg_filter_vivid">Яскравий</string>
     <string name="studio_cfg_filter_noir">Нуар</string>
     <string name="studio_cfg_filter_vintage">Вінтаж</string>
     <string name="studio_cfg_filter_matte">Матовий</string>
     <string name="dash_external_gps_settings">Налаштування зовнішнього GPS</string>
-    <string name="external_gps_caption">Увімкніть RaceBox і торкніться «Парувати» для пошуку. Після парування швидкість і перевантаження передаються в застосунок наживо та зберігаються в CSV кожної поїздки</string>
-    <string name="gps_prioritize_external_desc">Коли пристрій підключено, використовувати його для швидкості, позиції та G-сили замість телефона</string>
+    <string name="external_gps_caption">Увімкніть пристрій і торкніться «З\'єднати»; швидкість і G передаються наживо та зберігаються в CSV поїздки</string>
+    <string name="gps_prioritize_external_desc">Використовувати під\'єднаний пристрій замість телефону для швидкості, позиції та G</string>
     <string name="studio_cfg_show_value">Показувати значення</string>
     <string name="studio_cfg_unit_position">Одиниця</string>
     <string name="studio_cfg_unit_left">До</string>
@@ -1087,7 +1087,7 @@
     <string name="dashboard_custom_tile_text_label">Текст</string>
     <string name="dashboard_custom_tile_text_placeholder">напр. Мій Instagram</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Утримуйте, щоб перетягнути. Торкніться, щоб редагувати.</string>
+    <string name="dashboard_grid_hint">Утримуйте, щоб перетягнути; торкніться, щоб змінити</string>
     <string name="dashboard_group_action_none">(немає)</string>
     <string name="dashboard_group_action_slot">Дія %1$d</string>
     <string name="dashboard_group_default_name">Мої дії</string>
@@ -1095,7 +1095,7 @@
     <string name="dashboard_group_template_label">ГРУПА</string>
     <string name="dashboard_pool_actions">Доступні дії</string>
     <string name="dashboard_pool_metrics">Доступні метрики</string>
-    <string name="dashboard_pool_tap_toast">Утримуйте і перетягніть на слот вище.</string>
+    <string name="dashboard_pool_tap_toast">Утримуйте та перетягніть у слот вище, щоб використати</string>
     <string name="dashboard_restore_slot">Відновити слот</string>
     <string name="dashboard_rolling_window">Вікно ковзної статистики</string>
     <string name="dashboard_rolling_window_10m">10 хв</string>
@@ -1146,16 +1146,16 @@
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Потуж. бат.</string>
-    <string name="metric_chip_battery_temp">Темп. бат.</string>
+    <string name="metric_chip_battery_temp">Температура батареї</string>
     <string name="metric_chip_bt_rssi">Сигнал BT</string>
-    <string name="metric_chip_controller_temp">Контролер</string>
+    <string name="metric_chip_controller_temp">Температура контролера</string>
     <string name="metric_chip_current">Струм</string>
     <string name="metric_chip_descent">Спуск</string>
-    <string name="metric_chip_dyn_current_limit">Дин. ліміт стр.</string>
-    <string name="metric_chip_dyn_speed_limit">Дин. ліміт шв.</string>
+    <string name="metric_chip_dyn_current_limit">Динамічний ліміт струму</string>
+    <string name="metric_chip_dyn_speed_limit">Динамічний ліміт швидкості</string>
     <string name="metric_chip_forward_g">g вперед</string>
     <string name="metric_chip_g_force">Сила g</string>
-    <string name="metric_chip_gps_accuracy">Точн. GPS</string>
+    <string name="metric_chip_gps_accuracy">Точність GPS</string>
     <string name="metric_chip_gps_altitude">Висота</string>
     <string name="metric_chip_gps_heading">Курс</string>
     <string name="metric_chip_gps_speed">Шв. GPS</string>
@@ -1164,9 +1164,9 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Потуж. мотора</string>
     <string name="metric_chip_motor_rpm">об/хв</string>
-    <string name="metric_chip_motor_temp">Темп. мотора</string>
+    <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_odometer">Одометр</string>
-    <string name="metric_chip_phone_battery">Бат. телефону</string>
+    <string name="metric_chip_phone_battery">Батарея телефону</string>
     <string name="metric_chip_pitch">Нахил</string>
     <string name="metric_chip_power">Потужність</string>
     <string name="metric_chip_range_estimate">Запас ходу</string>

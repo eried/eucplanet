@@ -151,7 +151,7 @@
     <string name="cloud_last_backup_never">Nog geen back-up</string>
     <string name="cloud_backup_success">Instellingen geback-upt</string>
 <string name="cloud_backup_named_success">Opgeslagen als %1$s</string>
-    <string name="cloud_backup_failed">Back-up mislukt. Controleer maptoegang.</string>
+    <string name="cloud_backup_failed">Back-up mislukt — controleer maptoegang</string>
     <string name="cloud_restore_success">Instellingen teruggezet</string>
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
@@ -239,7 +239,7 @@
     <!-- Settings: Speed -->
     <string name="section_speed_limits">Snelheidslimieten</string>
     <string name="section_legal_mode_speed">Snelheid voor Legal Mode</string>
-    <string name="legal_mode_caption">Wordt toegepast als Legal Mode AAN staat. Moet lager zijn dan de normale tiltback</string>
+    <string name="legal_mode_caption">Gebruikt in Legal Mode; moet lager zijn dan de normale tiltback</string>
     <string name="speed_limits_disconnected">Verbind je wiel om snelheidslimieten te bewerken</string>
     <string name="speed_tiltback">Tiltback-snelheid</string>
     <string name="speed_alarm">Alarmsnelheid</string>
@@ -290,7 +290,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Flic 2-knoppen</string>
     <string name="flic_show_on_dashboard">Snelle toegang op dashboard</string>
-    <string name="flic_scan_hint">Houd je Flic 2-knop 6 seconden ingedrukt om hem in koppelmodus te zetten, tik dan op Scannen</string>
+    <string name="flic_scan_hint">Houd de Flic 2-knop 6 seconden vast om te koppelen, tik dan op Zoeken</string>
     <string name="flic_stop_scan">Scannen stoppen</string>
     <string name="flic_start_scan">Scannen starten</string>
     <string name="external_gps_pair_button">Scannen starten</string>
@@ -573,7 +573,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
-    <string name="engine_sound_enabled_hint">Het motortoerental volgt in realtime de snelheid en motorlast van je wiel</string>
+    <string name="engine_sound_enabled_hint">Stuurt het motortoerental live op snelheid en motorbelasting</string>
     <string name="engine_type_label">Motor</string>
     <string name="engine_source_sampled">Sample</string>
     <string name="engine_source_synth">Synth</string>
@@ -644,7 +644,7 @@
     <string name="section_external_gps">GPS en sensoren</string>
     <string name="external_gps_device_title">Externe gps</string>
     <string name="section_speed_calibration">Snelheidskalibratie</string>
-    <string name="speed_calibration_caption">Past een percentage toe op de snelheid die van het wiel komt. Alarmen, stem en het ritlogboek gebruiken allemaal de gekalibreerde waarde</string>
+    <string name="speed_calibration_caption">Past door het wiel gerapporteerde snelheid aan; beïnvloedt alarmen, spraak en log</string>
     <string name="speed_calibration_label">Snelheidsafwijking</string>
     <string name="sources_other_metrics">Andere gegevens</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -717,7 +717,7 @@
     <string name="nav_role_destination">Bestemming</string>
     <string name="nav_role_start">Start</string>
     <string name="nav_route_distance">Routeafstand: %1$s</string>
-    <string name="nav_route_failed">Routeringsservice niet beschikbaar,rechte lijnen worden gebruikt</string>
+    <string name="nav_route_failed">Routeservice niet beschikbaar, rechte lijnen gebruikt</string>
     <string name="nav_routing">De route zoeken…</string>
     <string name="nav_save_failed">De route kon niet opgeslagen worden</string>
     <string name="nav_route_saved">Route opgeslagen</string>
@@ -731,7 +731,7 @@
     <string name="nav_setting_arrival_radius_desc">Hoe dichtbij telt als het bereiken van een stop</string>
     <string name="nav_setting_default_mode">Standaard reismodus</string>
     <string name="nav_setting_endpoints">Routeringsservices</string>
-    <string name="nav_setting_endpoints_hint">Gratis publieke OpenStreetMap-services, geen account nodig. Wijzig alleen om naar je eigen server te verwijzen</string>
+    <string name="nav_setting_endpoints_hint">Standaard openbaar OpenStreetMap; wijzig voor eigen server</string>
     <string name="nav_setting_geocoder_url">URL voor adreszoeken</string>
     <string name="nav_setting_offroute">Tolerantie buiten route</string>
     <string name="nav_setting_offroute_desc">Hoe ver van de route voordat de "uit route"-melding wordt geactiveerd</string>
@@ -1023,14 +1023,14 @@
     <string name="studio_cfg_g_scale">Schaal</string>
     <string name="studio_cfg_g_smoothing">Demping</string>
     <string name="studio_cfg_geometry">Geometrie</string>
-    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakleur, wat er bij deels transparante elementen onverzorgd uit kan zien</string>
+    <string name="studio_export_force_opaque_hint">Formaten zonder transparantie gebruiken de chromakey-kleur; kan storend zijn op semi-transparante lagen</string>
     <string name="studio_cfg_filter_vivid">Levendig</string>
     <string name="studio_cfg_filter_noir">Noir</string>
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mat</string>
     <string name="dash_external_gps_settings">Instellingen externe gps</string>
-    <string name="external_gps_caption">Zet je RaceBox aan en tik op Koppelen om te scannen. Eenmaal gekoppeld voeden snelheid en G-kracht de app live en worden ze opgeslagen in de CSV van elke rit</string>
-    <string name="gps_prioritize_external_desc">Als een apparaat verbonden is, gebruik het voor snelheid, positie en G-kracht in plaats van de telefoon</string>
+    <string name="external_gps_caption">Schakel het apparaat in en tik op Koppelen; snelheid en G-kracht voeden de app live en worden in de trip-CSV opgeslagen</string>
+    <string name="gps_prioritize_external_desc">Geef voorrang aan het verbonden apparaat boven de telefoon voor snelheid, positie en G-kracht</string>
     <string name="studio_cfg_show_value">Waarde tonen</string>
     <string name="studio_cfg_unit_position">Eenheid</string>
     <string name="studio_cfg_unit_left">Voor</string>
@@ -1086,7 +1086,7 @@
     <string name="dashboard_custom_tile_text_label">Tekst</string>
     <string name="dashboard_custom_tile_text_placeholder">bijv. Mijn Instagram</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Lang drukken om te slepen. Tik om te bewerken.</string>
+    <string name="dashboard_grid_hint">Lang indrukken om te slepen, tikken om te bewerken</string>
     <string name="dashboard_group_action_none">(geen)</string>
     <string name="dashboard_group_action_slot">Actie %1$d</string>
     <string name="dashboard_group_default_name">Mijn acties</string>
@@ -1094,7 +1094,7 @@
     <string name="dashboard_group_template_label">GROEP</string>
     <string name="dashboard_pool_actions">Beschikbare acties</string>
     <string name="dashboard_pool_metrics">Beschikbare metrieken</string>
-    <string name="dashboard_pool_tap_toast">Lang drukken en op een vak hierboven slepen.</string>
+    <string name="dashboard_pool_tap_toast">Lang indrukken en naar een slot hierboven slepen</string>
     <string name="dashboard_restore_slot">Vak herstellen</string>
     <string name="dashboard_rolling_window">Rolling-statvenster</string>
     <string name="dashboard_rolling_window_10m">10 min</string>
@@ -1145,16 +1145,16 @@
     <string name="metric_chip_battery_1">Pack 1</string>
     <string name="metric_chip_battery_2">Pack 2</string>
     <string name="metric_chip_battery_power">Accu-vermogen</string>
-    <string name="metric_chip_battery_temp">Accu-temp.</string>
+    <string name="metric_chip_battery_temp">Accutemperatuur</string>
     <string name="metric_chip_bt_rssi">BT-signaal</string>
-    <string name="metric_chip_controller_temp">Controller</string>
+    <string name="metric_chip_controller_temp">Controller-temperatuur</string>
     <string name="metric_chip_current">Stroom</string>
     <string name="metric_chip_descent">Daling</string>
-    <string name="metric_chip_dyn_current_limit">Dyn. stroomlim.</string>
-    <string name="metric_chip_dyn_speed_limit">Dyn. snelheidlim.</string>
+    <string name="metric_chip_dyn_current_limit">Dynamische stroomlimiet</string>
+    <string name="metric_chip_dyn_speed_limit">Dynamische snelheidslimiet</string>
     <string name="metric_chip_forward_g">Voorwaarts g</string>
     <string name="metric_chip_g_force">G-kracht</string>
-    <string name="metric_chip_gps_accuracy">GPS-prec.</string>
+    <string name="metric_chip_gps_accuracy">GPS-precisie</string>
     <string name="metric_chip_gps_altitude">Hoogte</string>
     <string name="metric_chip_gps_heading">Koers</string>
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
@@ -1163,7 +1163,7 @@
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_motor_rpm">tpm</string>
-    <string name="metric_chip_motor_temp">Motor-temp.</string>
+    <string name="metric_chip_motor_temp">Motortemperatuur</string>
     <string name="metric_chip_odometer">Kilometerteller</string>
     <string name="metric_chip_phone_battery">Telefoonaccu</string>
     <string name="metric_chip_pitch">Pitch</string>

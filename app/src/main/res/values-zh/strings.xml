@@ -91,7 +91,7 @@
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>
-    <string name="cloud_backup_failed">备份失败,请检查文件夹访问权限。</string>
+    <string name="cloud_backup_failed">备份失败 — 请检查文件夹访问权限</string>
     <string name="cloud_restore_success">设置已恢复</string>
     <string name="cloud_restore_failed">文件夹中未找到备份</string>
     <string name="section_cloud_trips">行程备份</string>
@@ -177,7 +177,7 @@
 
     <string name="section_speed_limits">速度限制</string>
     <string name="section_legal_mode_speed">合规模式速度</string>
-    <string name="legal_mode_caption">合规模式开启时生效,必须低于普通回倾速度。</string>
+    <string name="legal_mode_caption">在 Legal Mode 开启时使用；必须低于普通 tiltback</string>
     <string name="speed_limits_disconnected">连接车轮后才能修改速度限制</string>
     <string name="speed_tiltback">回倾速度</string>
     <string name="speed_alarm">报警速度</string>
@@ -220,7 +220,7 @@
 
     <string name="section_flic_buttons">Flic 2 按钮</string>
     <string name="flic_show_on_dashboard">仪表盘快捷图标</string>
-    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式,然后点击搜索。</string>
+    <string name="flic_scan_hint">长按 Flic 2 按钮 6 秒进入配对模式，然后点按扫描</string>
     <string name="flic_stop_scan">停止扫描</string>
     <string name="flic_start_scan">开始扫描</string>
     <string name="external_gps_pair_button">开始扫描</string>
@@ -537,7 +537,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
-    <string name="engine_sound_enabled_hint">引擎转速实时跟随轮子的速度与电机负载。</string>
+    <string name="engine_sound_enabled_hint">根据车轮速度和电机负载实时驱动发动机转速</string>
     <string name="engine_type_label">引擎</string>
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
@@ -608,7 +608,7 @@
     <string name="section_external_gps">GPS 与传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
-    <string name="speed_calibration_caption">对来自车轮的速度应用一个百分比。报警、语音和行程记录都使用校准后的数值。</string>
+    <string name="speed_calibration_caption">调整车轮报告的速度；影响警报、语音和行程日志</string>
     <string name="speed_calibration_label">速度偏移</string>
     <string name="sources_other_metrics">其他指标</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -681,7 +681,7 @@
     <string name="nav_role_destination">目的地</string>
     <string name="nav_role_start">起点</string>
     <string name="nav_route_distance">路线距离:%1$s</string>
-    <string name="nav_route_failed">路线规划服务不可用,改用直线连接</string>
+    <string name="nav_route_failed">路线服务不可用，使用直线</string>
     <string name="nav_routing">正在规划路线…</string>
     <string name="nav_save_failed">无法保存路线</string>
     <string name="nav_route_saved">路线已保存</string>
@@ -695,7 +695,7 @@
     <string name="nav_setting_arrival_radius_desc">距离多近算作抵达某个途经点</string>
     <string name="nav_setting_default_mode">默认出行方式</string>
     <string name="nav_setting_endpoints">路线规划服务</string>
-    <string name="nav_setting_endpoints_hint">免费的公共 OpenStreetMap 服务,无需账号。仅在需要指向你自己的服务器时才更改。</string>
+    <string name="nav_setting_endpoints_hint">默认使用公开的 OpenStreetMap；可改为自己的服务器</string>
     <string name="nav_setting_geocoder_url">地址搜索 URL</string>
     <string name="nav_setting_offroute">偏航容差</string>
     <string name="nav_setting_offroute_desc">偏离路线多远后触发偏航提醒</string>
@@ -987,14 +987,14 @@
     <string name="studio_cfg_g_scale">量程</string>
     <string name="studio_cfg_g_smoothing">平滑</string>
     <string name="studio_cfg_geometry">几何</string>
-    <string name="studio_export_force_opaque_hint">不支持透明度的格式会使用色键颜色，半透明元素可能因此显得不自然。</string>
+    <string name="studio_export_force_opaque_hint">不支持透明的格式使用色度键颜色；半透明层可能显示异常</string>
     <string name="studio_cfg_filter_vivid">鲜艳</string>
     <string name="studio_cfg_filter_noir">黑色</string>
     <string name="studio_cfg_filter_vintage">复古</string>
     <string name="studio_cfg_filter_matte">哑光</string>
     <string name="dash_external_gps_settings">外部 GPS 设置</string>
-    <string name="external_gps_caption">打开你的 RaceBox 并点按「配对」扫描。配对后，速度和 G 力会实时传入应用，并保存到每次行程的 CSV。</string>
-    <string name="gps_prioritize_external_desc">连接设备后，用它代替手机提供速度、位置和 G 力。</string>
+    <string name="external_gps_caption">打开设备并点按配对；其速度和 G 力实时输入并保存到行程 CSV</string>
+    <string name="gps_prioritize_external_desc">优先使用已连接设备而非手机的速度、位置和 G 力</string>
     <string name="studio_cfg_show_value">显示数值</string>
     <string name="studio_cfg_unit_position">单位</string>
     <string name="studio_cfg_unit_left">前</string>
@@ -1050,7 +1050,7 @@
     <string name="dashboard_custom_tile_text_label">文本</string>
     <string name="dashboard_custom_tile_text_placeholder">例如：我的 Instagram</string>
     <string name="dashboard_custom_tile_url_label">网址</string>
-    <string name="dashboard_grid_hint">长按拖动。点击编辑。</string>
+    <string name="dashboard_grid_hint">长按拖动，点按编辑</string>
     <string name="dashboard_group_action_none">（无）</string>
     <string name="dashboard_group_action_slot">动作 %1$d</string>
     <string name="dashboard_group_default_name">我的动作</string>
@@ -1058,7 +1058,7 @@
     <string name="dashboard_group_template_label">分组</string>
     <string name="dashboard_pool_actions">可用动作</string>
     <string name="dashboard_pool_metrics">可用指标</string>
-    <string name="dashboard_pool_tap_toast">长按并拖到上方的卡槽。</string>
+    <string name="dashboard_pool_tap_toast">长按并拖到上方的槽位以使用</string>
     <string name="dashboard_restore_slot">恢复卡槽</string>
     <string name="dashboard_rolling_window">滚动统计窗口</string>
     <string name="dashboard_rolling_window_10m">10 分</string>
@@ -1111,11 +1111,11 @@
     <string name="metric_chip_battery_power">电池功率</string>
     <string name="metric_chip_battery_temp">电池温度</string>
     <string name="metric_chip_bt_rssi">BT 信号</string>
-    <string name="metric_chip_controller_temp">控制器</string>
+    <string name="metric_chip_controller_temp">控制器温度</string>
     <string name="metric_chip_current">电流</string>
     <string name="metric_chip_descent">下降</string>
-    <string name="metric_chip_dyn_current_limit">动态电流限</string>
-    <string name="metric_chip_dyn_speed_limit">动态速度限</string>
+    <string name="metric_chip_dyn_current_limit">动态电流限制</string>
+    <string name="metric_chip_dyn_speed_limit">动态速度限制</string>
     <string name="metric_chip_forward_g">前向 g</string>
     <string name="metric_chip_g_force">G 力</string>
     <string name="metric_chip_gps_accuracy">GPS 精度</string>
