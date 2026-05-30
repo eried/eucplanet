@@ -162,23 +162,23 @@ private fun BoxScope.LandscapeRotatedCanvas(
     hudW: Dp,
     hudH: Dp
 ) {
-    // Size the portrait sub-canvas so its post-rotation dimensions
-    // match the HUD panel exactly: zero letterbox, the preset fills
-    // the whole screen.
+    // Portrait sub-canvas at the 9:19.5 modern-phone aspect. This is
+    // the aspect element coords are normalized against. Sized so the
+    // post-rotation width fills the HUD width; post-rotation height
+    // ends up being hudW * 9/19.5 = ~46% of hudW. On a 16:9-ish HUD
+    // that leaves a vertical letterbox above and below the overlay.
     //
-    // A 90 degree rotation swaps width and height, so to get a
-    // post-rotation rectangle of (hudW, hudH) we need a pre-rotation
-    // rectangle of (hudH, hudW) -- portraitW = hudH, portraitH = hudW.
-    //
-    // We deliberately don't constrain to the rider's actual phone
-    // aspect (which the preset doesn't store): using HUD-native gives
-    // the rider a bigger, more legible overlay at the cost of slight
-    // relative-position drift if their phone wasn't ~16:9-ish in
-    // landscape. The studio canvas is 0..1 fractions anyway -- elements
-    // stay at the same relative positions, just spread across the HUD's
-    // actual aspect instead of a guessed 9:19.5.
-    val portraitW = hudH
+    // The letterbox is the price of preserving the rider's layout
+    // exactly. A previous attempt at HUD-native canvas dimensions
+    // (480x800) eliminated the letterbox but reinterpreted every
+    // y-coord on a 19% shorter vertical axis -- the layout drifted
+    // and the rider called it out. A second attempt scaled the
+    // rotated canvas to fill the HUD vertically -- that worked
+    // arithmetically but the canvas became wider than the HUD and
+    // edge-positioned elements got clipped off the sides.
+    val portraitAspect = 9f / 19.5f
     val portraitH = hudW
+    val portraitW = portraitH * portraitAspect
 
     Box(
         modifier = Modifier
