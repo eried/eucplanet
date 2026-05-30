@@ -21,10 +21,11 @@ import com.eried.eucplanet.hud.protocol.HudCommand
 class HudUiController {
 
     /** Stable identity of the screens, in display order. */
-    enum class Screen { Dashboard, Camera, Telemetry, Map, Nav }
+    enum class Screen { Dashboard, Camera, Telemetry, Custom, Map, Nav }
 
     private val screens: List<Screen> = listOf(
-        Screen.Dashboard, Screen.Camera, Screen.Telemetry, Screen.Map, Screen.Nav
+        Screen.Dashboard, Screen.Camera, Screen.Telemetry,
+        Screen.Custom, Screen.Map, Screen.Nav
     )
 
     var current: Screen by mutableStateOf(Screen.Dashboard)

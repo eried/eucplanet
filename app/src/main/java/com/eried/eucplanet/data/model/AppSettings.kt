@@ -362,6 +362,22 @@ data class AppSettings(
      * many phones.
      */
     val hudIp: String = "",
+    /**
+     * Name of the Overlay Studio preset the rider chose to mirror on the
+     * HUD as a "Custom" screen. Empty = no custom overlay configured.
+     * Resolved against bundled assets + the rider's backup folder by the
+     * OverlayPresetStore; the resolved JSON travels over the wire via
+     * [hudCustomOverlayJson] so the HUD doesn't need filesystem access.
+     */
+    val hudCustomOverlayName: String = "",
+    /**
+     * Cached JSON of the resolved custom overlay preset. Updated whenever
+     * [hudCustomOverlayName] changes; the HUD reads this directly and
+     * renders the elements (no viewport backgrounds -- this is meant to
+     * overlay on the HUD's transparent panel like a video stream's
+     * lower-third).
+     */
+    val hudCustomOverlayJson: String = "",
 
     // --- Motor Sound generator ---
     //

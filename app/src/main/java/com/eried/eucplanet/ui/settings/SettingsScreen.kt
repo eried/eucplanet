@@ -3623,5 +3623,81 @@ private fun HudIntegrationSection(
             checked = settings.hudServerEnabled,
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
+
+        // Custom HUD overlay picker. Disabled until the rider configures
+        // a backup folder (named presets live there); bundled starters
+        // also need the folder per spec.
+        HudOverlayPicker(settings = settings, viewModel = viewModel)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HudOverlayPicker(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var folderAvailable by remember { mutableStateOf<Boolean?>(null) }
+    var choices by remember { mutableStateOf<List<String>>(emptyList()) }
+    var menuOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(settings.syncFolderUri) {
+        val (hasFolder, list) = viewModel.listHudOverlayChoices()
+        folderAvailable = hasFolder
+        choices = list
+    }
+    // Enabled whenever there's at least one choice to pick from -- the
+    // bundled starters live in assets and are always there, so a rider
+    // without a backup folder still has a working preset picker for the
+    // built-in starters. The placeholder copy distinguishes "no folder"
+    // (saved presets unavailable) from "folder set" (saved presets also
+    // available).
+    val enabled = choices.isNotEmpty()
+    val labelText = stringResource(R.string.hud_custom_overlay_label)
+    val placeholder = when {
+        choices.isEmpty() -> stringResource(R.string.hud_custom_overlay_no_folder)
+        folderAvailable == true -> stringResource(R.string.hud_custom_overlay_placeholder)
+        else -> stringResource(R.string.hud_custom_overlay_bundled_only)
+    }
+    val currentText = settings.hudCustomOverlayName.ifBlank { placeholder }
+
+    ExposedDropdownMenuBox(
+        expanded = menuOpen && enabled,
+        onExpandedChange = { if (enabled) menuOpen = it },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = currentText,
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled,
+            label = { Text(labelText) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuOpen && enabled)
+            },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = menuOpen && enabled,
+            onDismissRequest = { menuOpen = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.hud_custom_overlay_none)) },
+                onClick = {
+                    viewModel.pickHudOverlay("")
+                    menuOpen = false
+                }
+            )
+            choices.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = {
+                        viewModel.pickHudOverlay(name)
+                        menuOpen = false
+                    }
+                )
+            }
+        }
     }
 }

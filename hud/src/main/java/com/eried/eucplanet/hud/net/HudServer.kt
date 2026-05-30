@@ -70,6 +70,9 @@ class HudServer(private val context: Context) {
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        // Match the phone's encoder: HudState carries Float.NaN for "no
+        // GPS fix" / "no bearing"; decoder needs to tolerate that.
+        allowSpecialFloatingPointValues = true
     }
 
     private val scope = CoroutineScope(

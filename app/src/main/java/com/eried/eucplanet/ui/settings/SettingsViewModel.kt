@@ -38,8 +38,38 @@ class SettingsViewModel @Inject constructor(
     private val automationManager: AutomationManager,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
-    val cheatState: com.eried.eucplanet.cheats.CheatState
+    val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore
 ) : ViewModel() {
+
+    /** Names of overlay presets the rider can mirror on the HUD's Custom
+     *  screen. List = bundled starters + user-saved presets from the
+     *  backup folder (when configured). Recomputed on demand by the UI. */
+    suspend fun listHudOverlayChoices(): Pair<Boolean, List<String>> {
+        val bundled = overlayPresetStore.listBundledPresets()
+        val hasFolder = overlayPresetStore.presetFolderAvailable()
+        val saved = if (hasFolder) overlayPresetStore.listPresets() else emptyList()
+        return hasFolder to (bundled + saved).distinct()
+    }
+
+    /** Resolve a preset name -> JSON via OverlayPresetStore, then persist
+     *  it on the settings. The HUD link reads the json and ships it to
+     *  the HUD on the next state frame. */
+    fun pickHudOverlay(name: String) {
+        viewModelScope.launch {
+            if (name.isBlank()) {
+                updateHudCustomOverlay("", "")
+                return@launch
+            }
+            // Bundled first (works without backup folder); saved second.
+            val preset = overlayPresetStore.loadBundledPreset(name)
+                ?: overlayPresetStore.loadPreset(name)
+                ?: return@launch
+            val json = com.eried.eucplanet.data.store.OverlayPresetJson
+                .toJson(preset).toString()
+            updateHudCustomOverlay(name, json)
+        }
+    }
 
     /** Manual "wake the watch app" trigger, fires the same /euc/wake
      *  message that MainActivity.onResume() sends. Lets the user verify
@@ -294,6 +324,14 @@ class SettingsViewModel @Inject constructor(
         copy(hudServerPort = v.coerceIn(1024, 65535))
     }
     fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
+    /**
+     * Set the HUD's "Custom" screen to mirror an Overlay Studio preset.
+     * Caller supplies the resolved JSON so the ViewModel doesn't need to
+     * know about asset/IO paths. Empty name clears the choice.
+     */
+    fun updateHudCustomOverlay(name: String, json: String) = update {
+        copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
+    }
 
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }

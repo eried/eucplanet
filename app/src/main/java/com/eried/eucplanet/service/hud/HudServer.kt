@@ -90,6 +90,11 @@ class HudServer @Inject constructor(
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        // Several HudState fields legitimately carry Float.NaN (no GPS
+        // fix yet, no bearing, no altitude). Without this flag every
+        // outbound frame fails serialization and the link silently
+        // never delivers anything.
+        allowSpecialFloatingPointValues = true
     }
 
     private val scope = CoroutineScope(
@@ -390,6 +395,7 @@ class HudServer @Inject constructor(
                 else Float.NaN,
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
+            customOverlayJson = s.hudCustomOverlayJson,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

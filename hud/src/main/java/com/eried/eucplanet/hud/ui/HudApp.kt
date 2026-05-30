@@ -55,6 +55,7 @@ import com.eried.eucplanet.hud.protocol.HudCommand
 import com.eried.eucplanet.hud.protocol.HudDiscovery
 import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.screens.CameraScreen
+import com.eried.eucplanet.hud.ui.screens.CustomOverlayScreen
 import com.eried.eucplanet.hud.ui.screens.DashboardScreen
 import com.eried.eucplanet.hud.ui.screens.MapScreen
 import com.eried.eucplanet.hud.ui.screens.NavScreen
@@ -111,6 +112,8 @@ fun HudApp(
                             CameraScreen(hud = hud)
                         HudUiController.Screen.Telemetry ->
                             TelemetryScreen(hud = hud)
+                        HudUiController.Screen.Custom ->
+                            CustomOverlayScreen(hud = hud)
                         HudUiController.Screen.Map ->
                             MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr)
                         HudUiController.Screen.Nav ->

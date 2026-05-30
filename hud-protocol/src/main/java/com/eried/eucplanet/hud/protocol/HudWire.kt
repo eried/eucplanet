@@ -87,6 +87,12 @@ data class HudState(
      *  as roll re availability. */
     val wheelPitchDeg: Float = 0f,
 
+    /** JSON of the Overlay Studio preset the rider picked to render as
+     *  the HUD's "Custom" screen. Empty = no custom overlay. The HUD
+     *  parses this lazily and only draws element types it supports;
+     *  unknown types are silently dropped. */
+    val customOverlayJson: String = "",
+
     // --- Navigation popup mirror ---
     /** Whether to render the turn-by-turn overlay/screen. */
     val navActive: Boolean = false,
