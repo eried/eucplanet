@@ -22,3 +22,6 @@ verification is the fastest path to upgrading the tier.
 
 Want a wheel that's not listed? See the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
 One labelled riding session and it can usually be mapped in a single pass.
+
+Listed already but a reading looks wrong? See the
+[in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
