@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](http://paypal.me/erwinried)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
 
 Open-source Android app for electric unicycles: live telemetry, turn-by-turn
@@ -145,7 +145,7 @@ PRs welcome. Bugs go to [Issues](../../issues). Live discussion is on
 ## Support
 
 EUC Planet is free and stays free. If it saved you a subscription, or for any other
-reason you want to chip in: [paypal.me/erwinried](http://paypal.me/erwinried).
+reason you want to chip in: [donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG).
 Entirely optional, very appreciated.
 
 ## License
