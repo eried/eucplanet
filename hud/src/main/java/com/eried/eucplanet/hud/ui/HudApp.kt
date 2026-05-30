@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhonelinkOff
@@ -140,19 +141,6 @@ fun HudApp(
                     }
                 }
 
-                if (st != HudServer.Status.CONNECTED) {
-                    if (controller.disconnectedModalDismissed) {
-                        DisconnectedBadge(
-                            localIp = ip,
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(12.dp)
-                        )
-                    } else {
-                        DisconnectedDialog(localIp = ip)
-                    }
-                }
-
                 // Brief toast when the rider switches screens, top-left,
                 // matching the disconnected badge's chrome (clipped corner,
                 // dark fill + gray stroke, same font sizes).
@@ -176,6 +164,38 @@ fun HudApp(
                             .align(Alignment.BottomStart)
                             .padding(12.dp)
                     )
+                }
+
+                // Disconnect chrome renders LAST so it sits in front of
+                // the wall clock and screen toast -- the rider's
+                // "your phone isn't talking to me" signal needs to win
+                // over the ambient overlays.
+                //
+                // 5-second grace at boot so the dialog doesn't flash up
+                // during the normal "HUD started, phone hasn't dialled
+                // in yet" gap. Once we've been connected at least once,
+                // subsequent disconnects show immediately -- those are
+                // real events, not boot-time noise.
+                var everConnected by remember { mutableStateOf(false) }
+                if (st == HudServer.Status.CONNECTED) everConnected = true
+                var bootGraceElapsed by remember { mutableStateOf(false) }
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(DISCONNECT_BOOT_GRACE_MS)
+                    bootGraceElapsed = true
+                }
+                val showDisconnect = st != HudServer.Status.CONNECTED &&
+                    (everConnected || bootGraceElapsed)
+                if (showDisconnect) {
+                    if (controller.disconnectedModalDismissed) {
+                        DisconnectedBadge(
+                            localIp = ip,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(12.dp)
+                        )
+                    } else {
+                        DisconnectedDialog(localIp = ip)
+                    }
                 }
             }
         }
@@ -259,6 +279,10 @@ private fun ScreenChangeToast(
 }
 
 private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
+/** Boot-time grace before the disconnect chrome can appear. Long enough
+ *  that a phone dialling in within a few seconds of HUD start never
+ *  triggers the modal. Resets only on process restart. */
+private const val DISCONNECT_BOOT_GRACE_MS: Long = 5_000L
 
 /**
  * Center modal shown while no phone is connected. Carries the HUD's local
@@ -314,11 +338,12 @@ private fun DisconnectedDialog(localIp: String?) {
 
         Column(
             modifier = Modifier
-                // wrapContentSize lets the dialog grow to fit IP/PORT cells
-                // on small panels where they otherwise would push past a
-                // fixed 70%-of-width box. Capped by widthIn so it never
-                // takes the whole screen on a wide dev emulator.
-                .widthIn(min = (maxWidth.value * 0.5f).dp, max = (maxWidth.value * 0.92f).dp)
+                // wrapContentSize sizes to the inner content (icon, title,
+                // instruction, IP/PORT block). Capped at 70% of the panel
+                // so a wide dev emulator doesn't sprawl the dialog edge-to-
+                // edge -- the cells now wrap to a content-driven width,
+                // so the dialog is naturally a lot tighter than before.
+                .widthIn(max = (maxWidth.value * 0.7f).dp)
                 .wrapContentSize()
                 .clip(RoundedCornerShape((side * 0.025f).dp))
                 .background(Color(0xE6111111))
@@ -401,14 +426,20 @@ private fun IpPortMatrix(
     val cornerR = (side * 0.014f).dp
     val borderW = (side * 0.0045f).coerceAtLeast(1f).dp
     val innerHPad = (side * 0.035f).dp
-    val labelColW = (side * 0.24f).dp
+    val labelColW = (side * 0.18f).dp
+    // Cells sized for a typical IPv4 address ("192.168.111.111", 15 chars
+    // monospace + horizontal padding) -- prior weight(1f) made each cell
+    // expand to consume all remaining row width, padding the dialog with
+    // ~150 dp of empty space on each side. Fixed cell width keeps both
+    // rows perfectly aligned AND lets the wrapping dialog shrink to a
+    // tight bounding box.
+    val cellW = (side * 0.55f).dp
 
-    // Column fills the available dialog width so each row can use
-    // Modifier.weight(1f) on the cell -- the cell grows to take whatever
-    // space remains after the label, instead of being capped at a fixed
-    // 0.70×side that ran out of room for longer addresses.
+    // wrapContentWidth so the column sizes to its widest row instead of
+    // stretching to fill the parent. The parent dialog Column is itself
+    // wrapContentSize, so reducing this layer reduces the whole dialog.
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.wrapContentWidth(),
         verticalArrangement = Arrangement.spacedBy(rowGap)
     ) {
         AddressRow(
@@ -416,6 +447,7 @@ private fun IpPortMatrix(
             value = ipText,
             labelColW = labelColW,
             labelGap = labelGap,
+            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -429,6 +461,7 @@ private fun IpPortMatrix(
             value = port.toString(),
             labelColW = labelColW,
             labelGap = labelGap,
+            cellW = cellW,
             cellHMin = cellHMin,
             innerHPad = innerHPad,
             valueFont = cellFont,
@@ -449,6 +482,7 @@ private fun AddressRow(
     value: String,
     labelColW: androidx.compose.ui.unit.Dp,
     labelGap: androidx.compose.ui.unit.Dp,
+    cellW: androidx.compose.ui.unit.Dp,
     cellHMin: androidx.compose.ui.unit.Dp,
     innerHPad: androidx.compose.ui.unit.Dp,
     valueFont: androidx.compose.ui.unit.TextUnit,
@@ -458,7 +492,10 @@ private fun AddressRow(
     border: Color
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        // wrapContentWidth so the row sizes to (label + gap + cell) only.
+        // Previously fillMaxWidth + weight(1f) on the cell padded the
+        // dialog with ~150 dp of empty space either side.
+        modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -473,10 +510,12 @@ private fun AddressRow(
         Spacer(Modifier.width(labelGap))
         Box(
             modifier = Modifier
-                // Cell takes whatever width is left in the row. Both rows
-                // are fillMaxWidth + share labelColW, so the IP and PORT
-                // cells end up the same width and line up on both edges.
-                .weight(1f)
+                // Fixed cell width sized for a typical IPv4 address. Both
+                // IP and PORT cells share this width so they line up on
+                // both edges; the PORT cell has empty space inside, which
+                // is the same alignment the original weight(1f) layout
+                // had -- just inside a much tighter dialog.
+                .width(cellW)
                 .heightIn(min = cellHMin)
                 .clip(RoundedCornerShape(cornerR))
                 .background(Color(0xFF2F2F2F))
