@@ -190,6 +190,13 @@ class VeteranParser {
             val rawTotal = ByteUtils.getWordSwappedUint32(frame, 12)
             val rawCurrent = ByteUtils.getInt16BE(frame, 16)
             val rawTempC = ByteUtils.getInt16BE(frame, 18)
+            // Wheel-enforced speed-alert and tilt-back thresholds, both u16 BE
+            // in 0.1 km/h. These are set by the vendor (LeaperKim) app on the
+            // wheel firmware itself; our adapter has no write command for them
+            // (spec section 8) so we surface them read-only so Settings reflects
+            // reality. WheelLog reference at VeteranAdapter.java:46-47.
+            val rawAlertKmh = if (frame.size >= 26) ByteUtils.getUint16BE(frame, 24) / 10f else -1f
+            val rawTiltbackKmh = if (frame.size >= 28) ByteUtils.getUint16BE(frame, 26) / 10f else -1f
 
             // mVer from offset 28 (u16 BE / 1000 per WheelLog convention).
             // When non-zero this is the authoritative source for model id,
@@ -234,6 +241,8 @@ class VeteranParser {
                 tripDistance = tripKm,
                 totalDistance = totalKm,
                 pitchAngle = pitch,
+                wheelMaxSpeedKmh = rawTiltbackKmh,
+                wheelAlarmSpeedKmh = rawAlertKmh,
                 timestamp = System.currentTimeMillis()
             )
         }

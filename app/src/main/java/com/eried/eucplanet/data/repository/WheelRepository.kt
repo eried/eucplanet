@@ -357,6 +357,11 @@ class WheelRepository @Inject constructor(
                         pendingAuthKeyDeferred = null
                         pendingAuthConfirmDeferred = null
                         lastSentTiltbackKmh = null
+                        // Drop the per-connection mirror so the next wheel
+                        // (a different one, possibly) gets a fresh sync from
+                        // its own firmware-reported limits.
+                        lastSyncedWheelMaxKmh = -1f
+                        lastSyncedWheelAlarmKmh = -1f
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
@@ -437,6 +442,39 @@ class WheelRepository @Inject constructor(
     fun disconnect() {
         pollingActive = false
         bleManager.disconnect()
+    }
+
+    // Last wheel-reported limits we synced into AppSettings, in km/h. Cached
+    // here so we don't issue a DataStore write on every telemetry frame; the
+    // wheel firmware re-emits the same values continuously.
+    @Volatile private var lastSyncedWheelMaxKmh: Float = -1f
+    @Volatile private var lastSyncedWheelAlarmKmh: Float = -1f
+
+    private fun syncWheelEnforcedLimits(maxKmh: Float, alarmKmh: Float) {
+        // -1f from the parser means "this adapter doesn't surface the limit"
+        // (every family except Veteran today). Don't touch settings in that
+        // case so wheels we can write to keep their app-side value.
+        val haveMax = maxKmh > 0f
+        val haveAlarm = alarmKmh > 0f
+        if (!haveMax && !haveAlarm) return
+        val maxChanged = haveMax && kotlin.math.abs(maxKmh - lastSyncedWheelMaxKmh) > 0.05f
+        val alarmChanged = haveAlarm && kotlin.math.abs(alarmKmh - lastSyncedWheelAlarmKmh) > 0.05f
+        if (!maxChanged && !alarmChanged) return
+        if (haveMax) lastSyncedWheelMaxKmh = maxKmh
+        if (haveAlarm) lastSyncedWheelAlarmKmh = alarmKmh
+        scope.launch {
+            val current = settingsRepository.get()
+            val newMax = if (haveMax) maxKmh else current.tiltbackSpeedKmh
+            val newAlarm = if (haveAlarm) alarmKmh else current.alarmSpeedKmh
+            if (newMax != current.tiltbackSpeedKmh || newAlarm != current.alarmSpeedKmh) {
+                settingsRepository.update(
+                    current.copy(
+                        tiltbackSpeedKmh = newMax,
+                        alarmSpeedKmh = newAlarm.coerceAtMost(newMax)
+                    )
+                )
+            }
+        }
     }
 
     // --- Control commands ---
@@ -837,6 +875,16 @@ class WheelRepository @Inject constructor(
                     speed = kotlin.math.abs(result.data.speed * cal),
                     totalDistance = totalKm,
                     lightOn = if (isP6) previous.lightOn else result.data.lightOn
+                )
+                // Mirror wheel-reported tilt-back / alarm thresholds into the
+                // app's settings store on adapters that surface them (Veteran),
+                // so the Settings UI shows what the wheel firmware is actually
+                // enforcing (set via the vendor app) instead of our local
+                // default. Cached lastSyncedWheel*Kmh prevents a write on
+                // every frame; we only write when the wheel's value changes.
+                syncWheelEnforcedLimits(
+                    result.data.wheelMaxSpeedKmh,
+                    result.data.wheelAlarmSpeedKmh
                 )
                 // Sample history at 1 Hz
                 val now = System.currentTimeMillis()
