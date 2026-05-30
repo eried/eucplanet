@@ -130,7 +130,9 @@ fun HudApp(
                         HudUiController.Screen.Telemetry ->
                             TelemetryScreen(hud = hud)
                         HudUiController.Screen.Custom ->
-                            CustomOverlayScreen(hud = hud)
+                            CustomOverlayScreen(hud = hud, withCamera = false)
+                        HudUiController.Screen.CustomCam ->
+                            CustomOverlayScreen(hud = hud, withCamera = true)
                         HudUiController.Screen.Map ->
                             MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr)
                         HudUiController.Screen.Nav ->
@@ -194,6 +196,8 @@ private fun ScreenChangeToast(
                 R.string.hud_screen_telemetry to R.string.hud_screen_telemetry_desc
             HudUiController.Screen.Custom ->
                 R.string.hud_screen_custom to R.string.hud_screen_custom_desc
+            HudUiController.Screen.CustomCam ->
+                R.string.hud_screen_custom_cam to R.string.hud_screen_custom_cam_desc
             HudUiController.Screen.Map ->
                 R.string.hud_screen_map to R.string.hud_screen_map_desc
             HudUiController.Screen.Nav ->

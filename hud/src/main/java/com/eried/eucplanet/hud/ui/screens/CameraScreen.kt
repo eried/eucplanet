@@ -57,74 +57,7 @@ fun CameraScreen(hud: HudState) {
     val accent = parseHexColor(hud.accentArgb)
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (hasPermission && !cameraFailed) {
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { c ->
-                    PreviewView(c).also { view ->
-                        view.scaleType = PreviewView.ScaleType.FILL_CENTER
-                    }
-                },
-                update = { view ->
-                    if (!cameraReady) {
-                        val providerFuture = ProcessCameraProvider.getInstance(view.context)
-                        providerFuture.addListener({
-                            try {
-                                val provider = providerFuture.get()
-                                val preview = Preview.Builder().build().also {
-                                    it.surfaceProvider = view.surfaceProvider
-                                }
-                                // Try DEFAULT_BACK_CAMERA first, then any
-                                // available camera as a fallback. The
-                                // Motoeye E6's rear camera doesn't always
-                                // report LENS_FACING_BACK -- tester saw
-                                // "not available" on a unit whose rear cam
-                                // worked elsewhere. The fallback loops
-                                // through whatever the HAL exposes and
-                                // picks the first one that binds.
-                                provider.unbindAll()
-                                val selectors = buildList {
-                                    add(CameraSelector.DEFAULT_BACK_CAMERA)
-                                    add(CameraSelector.DEFAULT_FRONT_CAMERA)
-                                    provider.availableCameraInfos.forEach { info ->
-                                        add(CameraSelector.Builder()
-                                            .addCameraFilter { _ -> listOf(info) }
-                                            .build())
-                                    }
-                                }
-                                var bound = false
-                                for (sel in selectors) {
-                                    try {
-                                        provider.bindToLifecycle(
-                                            lifecycleOwner, sel, preview
-                                        )
-                                        bound = true
-                                        break
-                                    } catch (_: Throwable) {
-                                        // try next
-                                    }
-                                }
-                                if (bound) cameraReady = true
-                                else cameraFailed = true
-                            } catch (_: Throwable) {
-                                cameraFailed = true
-                            }
-                        }, ContextCompat.getMainExecutor(view.context))
-                    }
-                }
-            )
-        } else {
-            // Distinguish the two failure modes so the rider knows whether
-            // to grant the permission (recoverable) or treat their device
-            // as cameraless (not).
-            val msg = when {
-                !hasPermission -> ctx.getString(R.string.hud_camera_permission_denied)
-                else -> ctx.getString(R.string.hud_camera_unavailable)
-            }
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = msg, color = Color.White.copy(alpha = 0.7f))
-            }
-        }
+        RearCameraPreview(Modifier.fillMaxSize())
 
         // Speed overlay (bottom-right). Same unit code as the dashboard.
         val displaySpeed = HudUnits.speed(hud.speedKmh, hud.unitSpeed)
@@ -149,5 +82,80 @@ fun CameraScreen(hud: HudState) {
         // LaunchedEffect just makes hasPermission a key the composer tracks
         // when the rider grants the permission mid-session (rare on HUDs
         // since they sideload, but harmless to handle.)
+    }
+}
+
+/**
+ * Just the rear-camera Preview surface, no overlays. Shared by both the
+ * standalone [CameraScreen] and the camera-backed Custom overlay screen
+ * (see HudApp). Falls back to a centered text placeholder if the camera
+ * permission was denied or no camera is available.
+ */
+@Composable
+fun RearCameraPreview(modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val hasPermission = ContextCompat.checkSelfPermission(
+        ctx, Manifest.permission.CAMERA
+    ) == PackageManager.PERMISSION_GRANTED
+    var cameraReady by remember { mutableStateOf(false) }
+    var cameraFailed by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        if (hasPermission && !cameraFailed) {
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { c ->
+                    PreviewView(c).also { view ->
+                        view.scaleType = PreviewView.ScaleType.FILL_CENTER
+                    }
+                },
+                update = { view ->
+                    if (!cameraReady) {
+                        val providerFuture = ProcessCameraProvider.getInstance(view.context)
+                        providerFuture.addListener({
+                            try {
+                                val provider = providerFuture.get()
+                                val preview = Preview.Builder().build().also {
+                                    it.surfaceProvider = view.surfaceProvider
+                                }
+                                provider.unbindAll()
+                                val selectors = buildList {
+                                    add(CameraSelector.DEFAULT_BACK_CAMERA)
+                                    add(CameraSelector.DEFAULT_FRONT_CAMERA)
+                                    provider.availableCameraInfos.forEach { info ->
+                                        add(CameraSelector.Builder()
+                                            .addCameraFilter { _ -> listOf(info) }
+                                            .build())
+                                    }
+                                }
+                                var bound = false
+                                for (sel in selectors) {
+                                    try {
+                                        provider.bindToLifecycle(lifecycleOwner, sel, preview)
+                                        bound = true
+                                        break
+                                    } catch (_: Throwable) {
+                                        // try next
+                                    }
+                                }
+                                if (bound) cameraReady = true
+                                else cameraFailed = true
+                            } catch (_: Throwable) {
+                                cameraFailed = true
+                            }
+                        }, ContextCompat.getMainExecutor(view.context))
+                    }
+                }
+            )
+        } else {
+            val msg = when {
+                !hasPermission -> ctx.getString(R.string.hud_camera_permission_denied)
+                else -> ctx.getString(R.string.hud_camera_unavailable)
+            }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = msg, color = Color.White.copy(alpha = 0.7f))
+            }
+        }
     }
 }

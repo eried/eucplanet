@@ -47,36 +47,47 @@ import kotlin.math.PI
  * keeps the renderer compact.
  */
 @Composable
-fun CustomOverlayScreen(hud: HudState) {
+fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
     val elements = remember(hud.customOverlayJson) {
         parseElements(hud.customOverlayJson)
     }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        if (elements.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "Pick a preset in EUC Planet → Settings / Integration",
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontSize = 14.sp
-                )
-            }
-            return@BoxWithConstraints
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Optional camera background: the same preset elements render
+        // on top, so the rider gets the same data overlay with the
+        // road visible behind it.
+        if (withCamera) {
+            com.eried.eucplanet.hud.ui.screens.RearCameraPreview(
+                Modifier.fillMaxSize()
+            )
         }
 
-        val w = maxWidth.value
-        val h = maxHeight.value
-        elements.forEach { el ->
-            val xDp = (el.x * w).dp
-            val yDp = (el.y * h).dp
-            val widthDp = (el.width * w).dp
-            val heightDp = (if (el.height > 0f) el.height else el.width * 0.5f) * h
-            Box(
-                modifier = Modifier
-                    .offset(x = xDp, y = yDp)
-                    .size(widthDp, heightDp.dp)
-            ) {
-                RenderElement(el, hud)
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            if (elements.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Pick a preset in EUC Planet → Settings / Integration",
+                        color = Color.White.copy(alpha = 0.6f),
+                        fontSize = 14.sp
+                    )
+                }
+                return@BoxWithConstraints
+            }
+
+            val w = maxWidth.value
+            val h = maxHeight.value
+            elements.forEach { el ->
+                val xDp = (el.x * w).dp
+                val yDp = (el.y * h).dp
+                val widthDp = (el.width * w).dp
+                val heightDp = (if (el.height > 0f) el.height else el.width * 0.5f) * h
+                Box(
+                    modifier = Modifier
+                        .offset(x = xDp, y = yDp)
+                        .size(widthDp, heightDp.dp)
+                ) {
+                    RenderElement(el, hud)
+                }
             }
         }
     }
