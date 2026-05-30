@@ -1055,4 +1055,26 @@
     <string name="studio_overwrite_body">Пресет «%1$s» уже существует.</string>
     <string name="studio_overwrite_confirm">Перезаписать</string>
 
+    <!-- Радар заднего вида (сегодня Garmin Varia) -->
+    <string name="section_radar">Радар заднего вида</string>
+    <string name="radar_caption">Удерживайте кнопку Varia 2 секунды, пока она не начнёт мигать фиолетовым, затем запустите поиск.</string>
+    <string name="radar_pair_button">Начать поиск</string>
+    <string name="radar_pair_action">Сопрячь</string>
+    <string name="radar_stop_scan">Остановить поиск</string>
+    <string name="radar_state_connected">Подключено</string>
+    <string name="radar_state_connecting">Подключение…</string>
+    <string name="radar_state_disconnected">Отключено</string>
+    <string name="radar_reconnect">Подключить снова</string>
+    <string name="radar_disconnect">Отключить</string>
+    <string name="radar_unpair">Забыть устройство</string>
+    <string name="radar_battery_fmt">Батарея %1$d %%</string>
+    <string name="radar_clear">Полоса свободна</string>
+    <string name="radar_threats_count">Отслеживается машин: %1$d</string>
+    <string name="radar_show_overlay">Показать оверлей угроз</string>
+    <string name="radar_show_overlay_desc">Плавающая полоса с точкой для каждой обнаруженной машины. Видна на всех экранах, пока сзади есть автомобиль.</string>
+    <string name="radar_overlay_left">Левый край</string>
+    <string name="radar_overlay_right">Правый край</string>
+    <string name="alarm_metric_radar_distance">Расстояние до машины</string>
+    <string name="alarm_metric_radar_approach">Машина приближается</string>
+
 </resources>

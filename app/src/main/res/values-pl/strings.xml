@@ -1040,4 +1040,26 @@
     <string name="studio_overwrite_body">Preset o nazwie \"%1$s\" już istnieje.</string>
     <string name="studio_overwrite_confirm">Nadpisz</string>
 
+    <!-- Radar tylny (obecnie Garmin Varia) -->
+    <string name="section_radar">Radar tylny</string>
+    <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
+    <string name="radar_pair_button">Rozpocznij skanowanie</string>
+    <string name="radar_pair_action">Sparuj</string>
+    <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
+    <string name="radar_state_connected">Połączono</string>
+    <string name="radar_state_connecting">Łączenie…</string>
+    <string name="radar_state_disconnected">Rozłączono</string>
+    <string name="radar_reconnect">Połącz ponownie</string>
+    <string name="radar_disconnect">Rozłącz</string>
+    <string name="radar_unpair">Zapomnij urządzenie</string>
+    <string name="radar_battery_fmt">Bateria %1$d %%</string>
+    <string name="radar_clear">Pas wolny</string>
+    <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
+    <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
+    <string name="radar_show_overlay_desc">Pływający pasek z punktem dla każdego wykrytego pojazdu. Pozostaje widoczny na wszystkich ekranach, gdy za tobą jedzie samochód.</string>
+    <string name="radar_overlay_left">Lewa krawędź</string>
+    <string name="radar_overlay_right">Prawa krawędź</string>
+    <string name="alarm_metric_radar_distance">Odległość samochodu</string>
+    <string name="alarm_metric_radar_approach">Zbliżający się samochód</string>
+
 </resources>

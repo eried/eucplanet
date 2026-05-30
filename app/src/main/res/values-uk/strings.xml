@@ -1040,4 +1040,26 @@
     <string name="studio_overwrite_body">Пресет «%1$s» вже існує.</string>
     <string name="studio_overwrite_confirm">Перезаписати</string>
 
+    <!-- Радар заднього огляду (сьогодні Garmin Varia) -->
+    <string name="section_radar">Радар заднього огляду</string>
+    <string name="radar_caption">Утримуйте кнопку Varia протягом 2 секунд, доки вона не почне блимати фіолетовим, а потім запустіть пошук.</string>
+    <string name="radar_pair_button">Почати пошук</string>
+    <string name="radar_pair_action">З\'єднати</string>
+    <string name="radar_stop_scan">Зупинити пошук</string>
+    <string name="radar_state_connected">З\'єднано</string>
+    <string name="radar_state_connecting">З\'єднання…</string>
+    <string name="radar_state_disconnected">Від\'єднано</string>
+    <string name="radar_reconnect">З\'єднати знову</string>
+    <string name="radar_disconnect">Від\'єднати</string>
+    <string name="radar_unpair">Забути пристрій</string>
+    <string name="radar_battery_fmt">Батарея %1$d %%</string>
+    <string name="radar_clear">Смуга вільна</string>
+    <string name="radar_threats_count">Відстежується автомобілів: %1$d</string>
+    <string name="radar_show_overlay">Показати оверлей загроз</string>
+    <string name="radar_show_overlay_desc">Плаваюча смуга з крапкою для кожного виявленого автомобіля. Видима на всіх екранах, доки позаду є машина.</string>
+    <string name="radar_overlay_left">Лівий край</string>
+    <string name="radar_overlay_right">Правий край</string>
+    <string name="alarm_metric_radar_distance">Відстань до авто</string>
+    <string name="alarm_metric_radar_approach">Авто наближається</string>
+
 </resources>

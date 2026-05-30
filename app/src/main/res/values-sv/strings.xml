@@ -1003,4 +1003,26 @@
     <string name="studio_overwrite_body">En förinställning med namnet \"%1$s\" finns redan.</string>
     <string name="studio_overwrite_confirm">Skriv över</string>
 
+    <!-- Bakåtriktad radar (Garmin Varia idag) -->
+    <string name="section_radar">Bakåtriktad radar</string>
+    <string name="radar_caption">Håll Varia-knappen intryckt i 2 sekunder tills den blinkar lila, och starta sedan en skanning.</string>
+    <string name="radar_pair_button">Starta skanning</string>
+    <string name="radar_pair_action">Anslut</string>
+    <string name="radar_stop_scan">Stoppa skanning</string>
+    <string name="radar_state_connected">Ansluten</string>
+    <string name="radar_state_connecting">Ansluter…</string>
+    <string name="radar_state_disconnected">Frånkopplad</string>
+    <string name="radar_reconnect">Anslut igen</string>
+    <string name="radar_disconnect">Koppla från</string>
+    <string name="radar_unpair">Glöm enhet</string>
+    <string name="radar_battery_fmt">Batteri %1$d %%</string>
+    <string name="radar_clear">Vägen är fri</string>
+    <string name="radar_threats_count">Spårar %1$d fordon:</string>
+    <string name="radar_show_overlay">Visa hotöverlägg</string>
+    <string name="radar_show_overlay_desc">Flytande filfält med en punkt per upptäckt fordon. Visas på alla skärmar medan en bil är bakom dig.</string>
+    <string name="radar_overlay_left">Vänster kant</string>
+    <string name="radar_overlay_right">Höger kant</string>
+    <string name="alarm_metric_radar_distance">Bilavstånd</string>
+    <string name="alarm_metric_radar_approach">Bil närmar sig</string>
+
 </resources>

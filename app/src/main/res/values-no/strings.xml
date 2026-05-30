@@ -1020,4 +1020,26 @@
     <string name="studio_overwrite_body">En forhåndsinnstilling kalt \"%1$s\" finnes allerede.</string>
     <string name="studio_overwrite_confirm">Overskriv</string>
 
+    <!-- Bakovervendt radar (Garmin Varia i dag) -->
+    <string name="section_radar">Bakovervendt radar</string>
+    <string name="radar_caption">Hold Varia-knappen inne i 2 sekunder til den blinker lilla, og start deretter skanning.</string>
+    <string name="radar_pair_button">Start skanning</string>
+    <string name="radar_pair_action">Koble til</string>
+    <string name="radar_stop_scan">Stopp skanning</string>
+    <string name="radar_state_connected">Tilkoblet</string>
+    <string name="radar_state_connecting">Kobler til…</string>
+    <string name="radar_state_disconnected">Frakoblet</string>
+    <string name="radar_reconnect">Koble til på nytt</string>
+    <string name="radar_disconnect">Koble fra</string>
+    <string name="radar_unpair">Glem enhet</string>
+    <string name="radar_battery_fmt">Batteri %1$d %%</string>
+    <string name="radar_clear">Veien er klar</string>
+    <string name="radar_threats_count">Sporer %1$d kjøretøy:</string>
+    <string name="radar_show_overlay">Vis trusseloverlegg</string>
+    <string name="radar_show_overlay_desc">Flytende feltindikator med ett punkt per oppdaget kjøretøy. Vises over alle skjermer mens en bil er bak deg.</string>
+    <string name="radar_overlay_left">Venstre kant</string>
+    <string name="radar_overlay_right">Høyre kant</string>
+    <string name="alarm_metric_radar_distance">Bilavstand</string>
+    <string name="alarm_metric_radar_approach">Bil nærmer seg</string>
+
 </resources>

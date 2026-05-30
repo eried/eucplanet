@@ -1020,4 +1020,26 @@
     <string name="studio_overwrite_body">Ein Preset namens \"%1$s\" existiert bereits.</string>
     <string name="studio_overwrite_confirm">Überschreiben</string>
 
+    <!-- Rückblick-Radar (Garmin Varia heute) -->
+    <string name="section_radar">Rückblick-Radar</string>
+    <string name="radar_caption">Halten Sie die Varia-Taste 2 Sekunden lang gedrückt, bis sie violett blinkt, und starten Sie dann den Scan.</string>
+    <string name="radar_pair_button">Scan starten</string>
+    <string name="radar_pair_action">Koppeln</string>
+    <string name="radar_stop_scan">Scan stoppen</string>
+    <string name="radar_state_connected">Verbunden</string>
+    <string name="radar_state_connecting">Verbinde…</string>
+    <string name="radar_state_disconnected">Getrennt</string>
+    <string name="radar_reconnect">Erneut verbinden</string>
+    <string name="radar_disconnect">Trennen</string>
+    <string name="radar_unpair">Gerät vergessen</string>
+    <string name="radar_battery_fmt">Akku %1$d %%</string>
+    <string name="radar_clear">Spur ist frei</string>
+    <string name="radar_threats_count">%1$d Fahrzeug(e) erfasst:</string>
+    <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
+    <string name="radar_show_overlay_desc">Schwebende Spurleiste mit einem Punkt pro erkanntem Fahrzeug. Bleibt auf jedem Bildschirm sichtbar, solange ein Auto hinter Ihnen ist.</string>
+    <string name="radar_overlay_left">Linker Rand</string>
+    <string name="radar_overlay_right">Rechter Rand</string>
+    <string name="alarm_metric_radar_distance">Fahrzeugabstand</string>
+    <string name="alarm_metric_radar_approach">Fahrzeug nähert sich</string>
+
 </resources>
