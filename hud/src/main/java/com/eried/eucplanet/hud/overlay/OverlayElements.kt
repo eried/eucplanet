@@ -494,13 +494,6 @@ private fun WheelNameElement(element: OverlayElement, data: StudioElementData) {
 
 @Composable
 private fun AppBadgeElement(element: OverlayElement) {
-    val context = LocalContext.current
-    val icon = remember {
-        runCatching {
-            val drw = context.packageManager.getApplicationIcon(context.packageName)
-            drw.toBitmap(192, 192).asImageBitmap()
-        }.getOrNull()
-    }
     BoxWithConstraints(
         Modifier
             .background(Color(element.background), RoundedCornerShape(10.dp))
@@ -520,7 +513,12 @@ private fun AppBadgeElement(element: OverlayElement) {
             ) {
                 if (element.showLabel) {
                     Text(
-                        text = "HUD",
+                        // The APP_BADGE represents the data SOURCE app
+                        // (the phone running EUC Planet), not the HUD
+                        // device. Show the phone-app brand here so a
+                        // rider's preset reads the same on phone and
+                        // HUD.
+                        text = "EUC Planet",
                         color = Color(element.foreground),
                         fontWeight = FontWeight.Bold,
                         fontSize = nameSize,
@@ -540,23 +538,25 @@ private fun AppBadgeElement(element: OverlayElement) {
 
         if (stacked) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (icon != null) {
-                    Image(
-                        bitmap = icon, contentDescription = null,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(
+                        id = com.eried.eucplanet.hud.R.drawable.ic_eucplanet_logo
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize)
+                )
                 Texts(center = true)
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (icon != null) {
-                    Image(
-                        bitmap = icon, contentDescription = null,
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-                Box(Modifier.padding(start = if (icon != null) 8.dp else 0.dp)) {
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(
+                        id = com.eried.eucplanet.hud.R.drawable.ic_eucplanet_logo
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(iconSize)
+                )
+                Box(Modifier.padding(start = 8.dp)) {
                     Texts(center = false)
                 }
             }
