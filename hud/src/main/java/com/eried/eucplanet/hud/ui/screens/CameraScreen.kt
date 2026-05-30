@@ -7,9 +7,14 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -157,6 +163,19 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                     }
                 }
             )
+            // Loading state: the PreviewView mounts black and stays
+            // black until the camera surface delivers its first frame.
+            // [cameraReady] flips only once bindToLifecycle returns
+            // successfully -- there's still a perceptible gap between
+            // that and the first preview frame, but tracking the bind
+            // result is the closest signal we have without subscribing
+            // to CameraInfo.cameraState. Without an indicator the rider
+            // sees a black void on the Camera screen and a black-bleed
+            // through on the Custom + camera screen, both of which
+            // read as "broken" rather than "starting up."
+            if (!cameraReady) {
+                CameraLoadingBadge(modifier = Modifier.align(Alignment.Center))
+            }
         } else {
             val msg = when {
                 !hasPermission -> ctx.getString(R.string.hud_camera_permission_denied)
@@ -166,5 +185,34 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                 Text(text = msg, color = Color.White.copy(alpha = 0.7f))
             }
         }
+    }
+}
+
+/** Chrome-matched "starting camera" indicator shown over an empty
+ *  PreviewView until the first frame arrives. Same fill, border, and
+ *  type as the disconnect badge in HudApp so the HUD feels consistent
+ *  across status surfaces. */
+@Composable
+private fun CameraLoadingBadge(modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xE6111111))
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(16.dp),
+            color = Color.White.copy(alpha = 0.85f),
+            strokeWidth = 2.dp
+        )
+        Text(
+            text = ctx.getString(R.string.hud_camera_loading),
+            color = Color.White.copy(alpha = 0.85f),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
