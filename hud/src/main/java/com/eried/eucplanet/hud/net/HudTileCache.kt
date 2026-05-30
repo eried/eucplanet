@@ -28,13 +28,13 @@ import java.util.concurrent.TimeUnit
 class HudTileCache {
 
     companion object {
-        // dark_matter has higher contrast between background and road
-        // lines than dark_all -- testers reported dark_all faded out
-        // under auto-brightness at night, especially the road network.
-        // dark_matter has black background + cyan-ish roads that stay
-        // visible when the HUD panel dims.
+        // positron is CartoCDN's "clear" light-style basemap: white
+        // background, grey buildings, blue roads. Rider asked for the
+        // standard non-dark map so the road network reads as a normal
+        // OSM-style chart, not the dark_matter chrome from the previous
+        // build.
         private const val URL_TEMPLATE =
-            "https://%s.basemaps.cartocdn.com/dark_matter/%d/%d/%d.png"
+            "https://%s.basemaps.cartocdn.com/light_all/%d/%d/%d.png"
         private val SHARDS = arrayOf("a", "b", "c", "d")
         private const val USER_AGENT = "eucplanet-hud/1"
     }

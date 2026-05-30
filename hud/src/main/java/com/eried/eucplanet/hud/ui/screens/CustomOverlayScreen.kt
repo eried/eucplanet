@@ -63,50 +63,26 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
             }
             val containerW = maxWidth
             val containerH = maxHeight
-            // The studio's "landscape" bundled presets were composed in
-            // its portrait canvas with each element pre-rotated 90° so
-            // they read upright when the studio rotates the canvas for
-            // landscape video output. Our HUD panel is already landscape
-            // and we don't apply per-element rotation, so a landscape
-            // preset's (x, y) coordinates -- still stored in
-            // portrait-canvas frame -- need to be counter-rotated 90°
-            // clockwise to land in the right place on our display.
-            val isLandscapePreset =
-                preset.elements.count { it.rotationDeg != 0f } * 2 > preset.elements.size
+            // Render at raw (x, y, width, height) in the canvas frame
+            // -- the same frame the rider edited in. We deliberately do
+            // NOT counter-rotate landscape presets: a previous attempt
+            // assumed those coords were portrait-stored, but they're
+            // already landscape; rotating again just flipped the layout
+            // and the rider correctly called it out as mirrored.
+            //
+            // Sizing rule mirrors the studio: width is widthIn(max=...)
+            // so content can be narrower than its slot, and height is
+            // only constrained when the rider explicitly set it
+            // (el.height > 0). Otherwise the element takes its natural
+            // aspect ratio (square dial, 2.2:1 graph, pill-shaped value).
             preset.elements.forEach { el ->
-                // Effective (x, y, width, height) in the HUD's landscape
-                // frame. For a landscape preset, swap width<->height and
-                // rotate the corner: (px, py) -> (1 - py - phEff, px).
-                val effW: Float
-                val effH: Float
-                val effX: Float
-                val effY: Float
-                if (isLandscapePreset) {
-                    // For an element that didn't have a rider-set height,
-                    // pick a sensible default in the portrait frame
-                    // first (width * 0.5), then swap.
-                    val phEff = if (el.height > 0f) el.height else el.width * 0.5f
-                    val pwEff = el.width
-                    effW = phEff
-                    effH = pwEff
-                    effX = (1f - el.y - phEff).coerceIn(0f, 1f)
-                    effY = el.x.coerceIn(0f, 1f)
-                } else {
-                    effW = el.width
-                    effH = el.height
-                    effX = el.x
-                    effY = el.y
-                }
-                // Mirror the studio's sizing rule: widthIn(max = ...) +
-                // heightIn only when explicitly set. Lets each element
-                // take its natural aspect ratio if height was left auto.
                 Box(
                     modifier = Modifier
-                        .offset(x = containerW * effX, y = containerH * effY)
-                        .widthIn(max = containerW * effW)
+                        .offset(x = containerW * el.x, y = containerH * el.y)
+                        .widthIn(max = containerW * el.width)
                         .then(
-                            if (effH > 0f)
-                                Modifier.heightIn(max = containerH * effH)
+                            if (el.height > 0f)
+                                Modifier.heightIn(max = containerH * el.height)
                             else Modifier
                         )
                         .alpha(el.opacity)
