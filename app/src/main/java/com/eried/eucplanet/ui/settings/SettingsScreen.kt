@@ -3693,30 +3693,37 @@ private fun HudOverlayPicker(
 
     if (sheetOpen) {
         val l = lists
-        // Reuse the Studio's LoadPresetSheet -- same dialog the rider
-        // already knows from the Overlay Studio's Load button.
+        // The Studio's LoadPresetSheet internally uses a verticalScroll
+        // inside a side panel; that scroll needs a bounded height to
+        // measure. Calling it inline inside the settings Column (itself
+        // verticalScroll) gives it an infinite-height parent and
+        // crashes. Wrap in a Dialog so it lives in its own window with
+        // proper constraints.
         if (l != null) {
-            com.eried.eucplanet.ui.studio.LoadPresetSheet(
-                folderAvailable = l.folderAvailable,
-                presets = l.savedPresets,
-                bundledPresets = l.bundledPortrait,
-                bundledLandscapePresets = l.bundledLandscape,
-                onLoad = { name ->
-                    viewModel.pickHudOverlay(name)
-                    sheetOpen = false
-                },
-                onLoadBundled = { name ->
-                    viewModel.pickHudOverlay(name)
-                    sheetOpen = false
-                },
-                onDelete = { /* delete handled in the Studio, not here */ },
-                onOpenFolderSettings = {
-                    sheetOpen = false
-                    // Settings backup tab is reached the same way the
-                    // rider got here; we just dismiss and trust them.
-                },
-                onDismiss = { sheetOpen = false }
-            )
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { sheetOpen = false },
+                properties = androidx.compose.ui.window.DialogProperties(
+                    usePlatformDefaultWidth = false
+                )
+            ) {
+                com.eried.eucplanet.ui.studio.LoadPresetSheet(
+                    folderAvailable = l.folderAvailable,
+                    presets = l.savedPresets,
+                    bundledPresets = l.bundledPortrait,
+                    bundledLandscapePresets = l.bundledLandscape,
+                    onLoad = { name ->
+                        viewModel.pickHudOverlay(name)
+                        sheetOpen = false
+                    },
+                    onLoadBundled = { name ->
+                        viewModel.pickHudOverlay(name)
+                        sheetOpen = false
+                    },
+                    onDelete = { /* delete handled in the Studio, not here */ },
+                    onOpenFolderSettings = { sheetOpen = false },
+                    onDismiss = { sheetOpen = false }
+                )
+            }
         }
     }
 }

@@ -72,14 +72,21 @@ class HudUiController {
     }
 
     fun nextScreen() {
+        // Clamp at the end -- no wrap-around. The N/M counter on the
+        // screen toast lets the rider see they've hit the boundary.
         val idx = screens.indexOf(current)
-        current = screens[(idx + 1) % screens.size]
+        if (idx in 0 until screens.size - 1) current = screens[idx + 1]
     }
 
     fun previousScreen() {
         val idx = screens.indexOf(current)
-        current = screens[(idx - 1 + screens.size) % screens.size]
+        if (idx > 0) current = screens[idx - 1]
     }
+
+    /** 1-based screen index, useful for "3/6" overlays. */
+    fun currentIndex1Based(): Int = screens.indexOf(current) + 1
+    /** Total screen count. */
+    fun totalScreens(): Int = screens.size
 
     fun upAction() {
         when (current) {

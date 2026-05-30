@@ -156,6 +156,8 @@ fun HudApp(
                 // dark fill + gray stroke, same font sizes).
                 ScreenChangeToast(
                     screen = controller.current,
+                    index1Based = controller.currentIndex1Based(),
+                    total = controller.totalScreens(),
                     modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                 )
             }
@@ -164,15 +166,15 @@ fun HudApp(
 }
 
 @Composable
-private fun ScreenChangeToast(screen: HudUiController.Screen, modifier: Modifier = Modifier) {
+private fun ScreenChangeToast(
+    screen: HudUiController.Screen,
+    index1Based: Int,
+    total: Int,
+    modifier: Modifier = Modifier
+) {
     val ctx = LocalContext.current
-    // Track whether the toast is visible. Reset to visible on every
-    // screen change; LaunchedEffect handles the timed dismiss.
     var visible by remember { mutableStateOf(false) }
     androidx.compose.runtime.LaunchedEffect(screen) {
-        // Skip the initial composition so the toast doesn't fire on app
-        // launch; only show on actual rider-driven changes. The pair
-        // (screen, isInitial) tracks that via `firstChange`.
         visible = true
         kotlinx.coroutines.delay(SCREEN_TOAST_DURATION_MS)
         visible = false
@@ -209,13 +211,24 @@ private fun ScreenChangeToast(screen: HudUiController.Screen, modifier: Modifier
                 .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
-            Text(
-                text = ctx.getString(titleRes),
-                color = Color.White,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1
-            )
+            // Title row: "<screen name>  <index>/<total>"
+            androidx.compose.foundation.layout.Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = ctx.getString(titleRes),
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+                Text(
+                    text = "  $index1Based/$total",
+                    color = Color(0xFF808080),
+                    fontSize = 11.sp,
+                    maxLines = 1
+                )
+            }
             Text(
                 text = ctx.getString(descRes),
                 color = Color(0xFFB0B0B0),
