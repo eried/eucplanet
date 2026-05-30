@@ -1528,9 +1528,11 @@ private fun MetricMiniGrid(
 
 /**
  * Visual placeholder for an EMPTY_SLOT_KEY slot. Renders a dashed-outline
- * box with no content and registers as a normal drop target so the rider
- * can drag a tile back into the empty slot to fill it. No drag-source
- * modifier — there's nothing to pick up.
+ * box with a centred "no" glyph (a circle with a diagonal slash) so the
+ * rider clearly reads "this slot is intentionally empty". Registers as a
+ * drop target so dragging a tile into it fills the slot; no click handler
+ * — tapping an empty slot does nothing (and never routes to a phantom
+ * metric history).
  */
 @Composable
 private fun EmptyMetricSlot(
@@ -1557,8 +1559,16 @@ private fun EmptyMetricSlot(
                 slotIndex = slotIndex,
                 controller = controller,
                 onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
-            )
-    )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            androidx.compose.material.icons.Icons.Default.Block,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            modifier = Modifier.size(22.dp)
+        )
+    }
 }
 
 /**
@@ -2558,8 +2568,16 @@ private fun EmptyActionSlot(
                 slotIndex = slotIndex,
                 controller = controller,
                 onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
-            )
-    )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            androidx.compose.material.icons.Icons.Default.Block,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+            modifier = Modifier.size(22.dp)
+        )
+    }
 }
 
 @Composable

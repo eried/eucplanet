@@ -1839,7 +1839,7 @@ fun DashboardScreen(
                     confirmButton = {
                         androidx.compose.material3.TextButton(
                             onClick = { showQrForTile = null }
-                        ) { Text(stringResource(R.string.dashboard_close)) }
+                        ) { Text(stringResource(R.string.action_ok)) }
                     },
                     // Title only renders when the rider gave the tile a label;
                     // we never leak the raw URL into the dialog header so the
