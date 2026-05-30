@@ -109,7 +109,7 @@ Build from source:
 
 ```bash
 ./gradlew assembleDebug
-adb install app/build/outputs/apk/debug/app-debug.apk
+adb install app/build/outputs/apk/debug/phone-debug.apk
 ```
 
 Needs Android 10 (API 29) or newer, a supported wheel, and Bluetooth + location
