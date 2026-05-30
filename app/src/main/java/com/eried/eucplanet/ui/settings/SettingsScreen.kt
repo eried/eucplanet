@@ -3434,8 +3434,20 @@ private fun RestorePickerDialog(
  * banners read as a visual pair.
  */
 @Composable
-private fun HudVersionBanner(compat: com.eried.eucplanet.hud.protocol.VersionCompat) {
+private fun HudVersionBanner(
+    compat: com.eried.eucplanet.hud.protocol.VersionCompat,
+    pairedHudVersion: String?
+) {
+    // Hide the install hint entirely once a HUD has paired (we know
+    // the rider has the app). Mismatch banners still render -- those
+    // are actionable regardless of pairing state.
+    if (compat == com.eried.eucplanet.hud.protocol.VersionCompat.EXACT &&
+        pairedHudVersion != null
+    ) return
+
     val isMajor = compat.isBlocking
+    val isInstallHint =
+        compat == com.eried.eucplanet.hud.protocol.VersionCompat.EXACT
     val msgRes = when (compat) {
         com.eried.eucplanet.hud.protocol.VersionCompat.EXACT ->
             R.string.hud_install_hint
@@ -3453,6 +3465,45 @@ private fun HudVersionBanner(compat: com.eried.eucplanet.hud.protocol.VersionCom
     val fg = if (isMajor) MaterialTheme.colorScheme.onErrorContainer
         else MaterialTheme.colorScheme.onSurfaceVariant
     val icon = if (isMajor) Icons.Outlined.Warning else Icons.Outlined.Info
+    val updateUrl = stringResource(R.string.hud_update_url)
+    val raw = stringResource(msgRes)
+    // Convert the <b>URL</b> substrings into an AnnotatedString. For
+    // the install-hint case we additionally wrap the URL run in a
+    // LinkAnnotation so a tap opens the browser; mismatch banners
+    // are intentionally text-only so the rider stops to read what
+    // happened before doing anything.
+    val annotated = remember(raw, isInstallHint, updateUrl) {
+        val parsed = androidx.core.text.HtmlCompat.fromHtml(
+            raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+        androidx.compose.ui.text.buildAnnotatedString {
+            append(parsed.toString())
+            parsed.getSpans(
+                0, parsed.length, android.text.style.StyleSpan::class.java
+            ).forEach { sp ->
+                if (sp.style == android.graphics.Typeface.BOLD) {
+                    val start = parsed.getSpanStart(sp)
+                    val end = parsed.getSpanEnd(sp)
+                    addStyle(
+                        androidx.compose.ui.text.SpanStyle(
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                        ),
+                        start, end
+                    )
+                    if (isInstallHint) {
+                        // Tap on the URL run opens the browser.
+                        addLink(
+                            url = androidx.compose.ui.text.LinkAnnotation.Url(
+                                "https://$updateUrl"
+                            ),
+                            start = start,
+                            end = end
+                        )
+                    }
+                }
+            }
+        }
+    }
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         color = bg,
@@ -3469,37 +3520,6 @@ private fun HudVersionBanner(compat: com.eried.eucplanet.hud.protocol.VersionCom
                 tint = fg,
                 modifier = Modifier.size(18.dp)
             )
-            // <b> tags inside the strings render as bold via HtmlCompat;
-            // matches how the rest of the integration card styles the URL
-            // emphasis without pulling in a markdown renderer.
-            val raw = stringResource(msgRes)
-            val styled = remember(raw) {
-                androidx.core.text.HtmlCompat.fromHtml(
-                    raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
-                ).toString()
-            }
-            // We re-parse for the bold spans rather than the trimmed
-            // string so the URL substring keeps its emphasis in the UI.
-            val annotated = remember(raw) {
-                val s = androidx.core.text.HtmlCompat.fromHtml(
-                    raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
-                )
-                androidx.compose.ui.text.buildAnnotatedString {
-                    append(s.toString())
-                    s.getSpans(0, s.length, android.text.style.StyleSpan::class.java).forEach { sp ->
-                        if (sp.style == android.graphics.Typeface.BOLD) {
-                            addStyle(
-                                androidx.compose.ui.text.SpanStyle(
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                                ),
-                                s.getSpanStart(sp),
-                                s.getSpanEnd(sp)
-                            )
-                        }
-                    }
-                }
-            }
-            @Suppress("UNUSED_VARIABLE") val _unused = styled
             Text(
                 text = annotated,
                 style = MaterialTheme.typography.bodySmall,
@@ -3608,11 +3628,14 @@ private fun HudIntegrationSection(
     ) {
         SectionHeader(stringResource(R.string.section_hud_companion))
 
-        // Always-on install hint (cheap, helps first-timers find the
-        // HUD APK) -- replaced by a stronger version-mismatch banner
-        // when the paired HUD reports an incompatible protocol.
+        // Install hint surfaces ONLY when no HUD has paired yet (i.e.
+        // hudVersion is null). Once a HUD pairs we know the rider
+        // has the app, so the hint becomes noise. Mismatch banners
+        // override regardless of pairing state -- those are
+        // actionable signals.
         val compat by viewModel.hudVersionCompat.collectAsState()
-        HudVersionBanner(compat)
+        val pairedHudVersion by viewModel.hudVersion.collectAsState()
+        HudVersionBanner(compat = compat, pairedHudVersion = pairedHudVersion)
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home

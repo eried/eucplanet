@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhonelinkOff
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -164,20 +165,36 @@ fun HudApp(
                 // "your phone isn't talking to me" signal needs to win
                 // over the ambient overlays.
                 //
-                // 5-second grace at boot so the dialog doesn't flash up
-                // during the normal "HUD started, phone hasn't dialled
-                // in yet" gap. Once we've been connected at least once,
-                // subsequent disconnects show immediately -- those are
-                // real events, not boot-time noise.
+                // Two graces, both gated on the same showDisconnect bit:
+                //   - boot grace: at first launch, wait DISCONNECT_BOOT_
+                //     GRACE_MS before alarming, covers HUD boot + phone
+                //     hotspot DHCP + first WS dial.
+                //   - reconnect grace: AFTER we've been connected at
+                //     least once, a mid-session drop waits DISCONNECT_
+                //     RECONNECT_GRACE_MS before showing the dialog so a
+                //     transient blip (rider walks behind a wall, phone
+                //     OS suspends the WS for a second) doesn't flash
+                //     the panel red.
+                //
+                // The grace runs inside a LaunchedEffect keyed on the
+                // status: when status flips back to CONNECTED, the
+                // effect is cancelled and showDisconnect stays false.
+                // If the grace elapses without a reconnect, we flip it
+                // true and the chrome appears.
                 var everConnected by remember { mutableStateOf(false) }
                 if (st == HudServer.Status.CONNECTED) everConnected = true
-                var bootGraceElapsed by remember { mutableStateOf(false) }
-                androidx.compose.runtime.LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(DISCONNECT_BOOT_GRACE_MS)
-                    bootGraceElapsed = true
+                var showDisconnect by remember { mutableStateOf(false) }
+                androidx.compose.runtime.LaunchedEffect(st) {
+                    if (st == HudServer.Status.CONNECTED) {
+                        showDisconnect = false
+                    } else {
+                        val grace = if (everConnected)
+                            DISCONNECT_RECONNECT_GRACE_MS
+                            else DISCONNECT_BOOT_GRACE_MS
+                        kotlinx.coroutines.delay(grace)
+                        showDisconnect = true
+                    }
                 }
-                val showDisconnect = st != HudServer.Status.CONNECTED &&
-                    (everConnected || bootGraceElapsed)
                 if (showDisconnect) {
                     if (controller.disconnectedModalDismissed) {
                         DisconnectedBadge(
@@ -204,21 +221,20 @@ fun HudApp(
 }
 
 /**
- * Two-tier protocol-mismatch UI, both styled like [DisconnectedBadge]
- * (8.dp rounded, 0xE6111111 fill, gray stroke) so they read as part of
- * the same family of corner / ambient overlays:
+ * Protocol-mismatch corner badge, BOTTOM-END only. Same chrome family
+ * as [DisconnectedBadge] and [WallClockBadge] (8.dp rounded, 0xE6111111
+ * fill, colored stroke). The stroke + icon switches between a yellow
+ * "info" tone for minor mismatches and a red "warning" tone for major
+ * mismatches; copy always names WHICH side needs the update so the
+ * rider doesn't need to interpret an abstract "update available."
  *
- *   - minor mismatch → small pill in the TOP-CENTER, yellow stroke,
- *     "Update available · <URL>". One-line non-blocking hint.
- *   - major mismatch → larger badge in the BOTTOM-END (lower-right),
- *     red stroke, two-line "Update HUD/phone app · <URL>". Same
- *     bottom corner the wall clock uses on the OPPOSITE side, so it
- *     doesn't fight the disconnect badge (top-right) for space.
+ *   minor → yellow stroke, [Icons.Outlined.Info] icon, dashboard live
+ *   major → red stroke,    [Icons.Filled.PhonelinkOff] icon, HUD-side
+ *                          server is dropping wire frames so the
+ *                          dashboard visibly freezes on the last good
+ *                          frame, NOT a silent "stale data we trust."
  *
- * EXACT renders nothing. The HUD-side server still DROPS major-
- * mismatched frames at the wire level so the rider's dashboard
- * freezes on the last good frame -- not stale data being "trusted",
- * just the visual cue that things are paused.
+ * EXACT renders nothing.
  */
 @Composable
 private fun BoxScope.VersionMismatchSurface(
@@ -226,84 +242,59 @@ private fun BoxScope.VersionMismatchSurface(
 ) {
     val ctx = LocalContext.current
     val url = ctx.getString(R.string.hud_version_update_url)
-    when (compat) {
-        com.eried.eucplanet.hud.protocol.VersionCompat.EXACT -> Unit
+    val isMajor = compat.isBlocking
+    val isMinor = compat.isHint
+    if (!isMajor && !isMinor) return
 
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MINOR,
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR -> {
-            // From the HUD's POV:
-            //   REMOTE_BEHIND_MINOR = phone is older (rare; surfaces as
-            //     "phone update available")
-            //   REMOTE_AHEAD_MINOR  = phone is newer (HUD is the one to
-            //     update -- typical when the rider has updated the phone
-            //     app but not the HUD APK).
-            val textRes = when (compat) {
-                com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR ->
-                    R.string.hud_version_minor_hud_behind
-                else ->
-                    R.string.hud_version_minor_phone_behind
-            }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xE6111111))
-                    .border(1.dp, Color(0xFFD0A23A), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = ctx.getString(textRes, url),
-                    color = Color(0xFFFFD080),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1
-                )
-            }
-        }
+    // Pick the title from BOTH the side-direction (BEHIND vs AHEAD) and
+    // the severity (minor vs major). All four variants name which side
+    // the rider needs to update on, no ambiguous "Update available."
+    val titleRes = when (compat) {
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR ->
+            R.string.hud_version_block_hud_behind_title
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MAJOR ->
+            R.string.hud_version_block_phone_behind_title
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR ->
+            R.string.hud_version_minor_hud_behind
+        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MINOR ->
+            R.string.hud_version_minor_phone_behind
+        else -> return
+    }
+    val strokeColor = if (isMajor) Color(0xFFE53935) else Color(0xFFD0A23A)
+    val icon = if (isMajor) Icons.Filled.PhonelinkOff
+        else Icons.Outlined.Info
 
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MAJOR,
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR -> {
-            val titleRes = when (compat) {
-                com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR ->
-                    R.string.hud_version_block_hud_behind_title
-                else ->
-                    R.string.hud_version_block_phone_behind_title
-            }
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(12.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xE6111111))
-                    .border(1.dp, Color(0xFFE53935), RoundedCornerShape(8.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PhonelinkOff,
-                    contentDescription = null,
-                    tint = Color(0xFFE53935),
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Text(
-                        text = ctx.getString(titleRes),
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = url,
-                        color = Color(0xFFB0B0B0),
-                        fontSize = 11.sp,
-                        maxLines = 1
-                    )
-                }
-            }
+    Row(
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(12.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xE6111111))
+            .border(1.dp, strokeColor, RoundedCornerShape(8.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = strokeColor,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text(
+                text = ctx.getString(titleRes),
+                color = Color.White,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+            Text(
+                text = url,
+                color = Color(0xFFB0B0B0),
+                fontSize = 11.sp,
+                maxLines = 1
+            )
         }
     }
 }
@@ -393,6 +384,11 @@ private const val SCREEN_TOAST_DURATION_MS: Long = 3_000L
  *  those are real events, not boot noise. Resets only on process
  *  restart. */
 private const val DISCONNECT_BOOT_GRACE_MS: Long = 15_000L
+/** Grace before the disconnect chrome appears AFTER we've been connected
+ *  at least once. The phone-side dial loop backs off 1s -> 2s -> 4s ->
+ *  5s on a transient WS drop, so 10s comfortably covers a normal
+ *  reconnect without alarming the rider over momentary blips. */
+private const val DISCONNECT_RECONNECT_GRACE_MS: Long = 10_000L
 
 /**
  * Center modal shown while no phone is connected. Carries the HUD's local
