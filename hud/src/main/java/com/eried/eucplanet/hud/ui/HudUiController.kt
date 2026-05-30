@@ -36,8 +36,11 @@ class HudUiController {
     var dashboardGpsView: Boolean by mutableStateOf(false)
         private set
 
-    /** Map zoom level, clamped to [MAP_ZOOM_MIN]..[MAP_ZOOM_MAX]. */
-    var mapZoom: Float by mutableStateOf(15f)
+    /** Map zoom level, clamped to [MAP_ZOOM_MIN]..[MAP_ZOOM_MAX]. Default
+     *  17 reads as "neighborhood block" detail -- the rider can see the
+     *  next two or three intersections at a glance, which is what a HUD
+     *  map is for. UP/DOWN on the remote steps in/out from there. */
+    var mapZoom: Float by mutableStateOf(17f)
         private set
 
     /** Most recent HUD connection status, surfaced as a banner. */

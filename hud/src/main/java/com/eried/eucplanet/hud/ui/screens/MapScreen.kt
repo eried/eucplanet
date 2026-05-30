@@ -19,11 +19,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import com.eried.eucplanet.hud.R
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.protocol.HudState
@@ -125,22 +128,37 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?) {
                 val headingDeg = if (hud.gpsHeadingDeg.isNaN()) 0f
                     else -hud.gpsHeadingDeg
                 rotate(degrees = headingDeg, pivot = centerPx) {
+                    // Draw each 256-px tile into a 258×258 destination
+                    // box so adjacent tiles overlap by ~1 px on every
+                    // edge. The drawImage(topLeft = ...) overload with a
+                    // floating-point Offset produces visible seam lines
+                    // under rotation because sub-pixel sampling at the
+                    // shared edge falls into a half-pixel gap (the
+                    // bilinear filter samples background pixels on both
+                    // sides). The integer-offset + oversized-dst overload
+                    // lets the neighbour cover the seam at the cost of
+                    // <1 px of repeated edge content, which is invisible.
                     for (dy in 0 until rows) for (dx in 0 until cols) {
                         val tx = originX + dx
                         val ty = originY + dy
                         if (tx < 0 || ty < 0) continue
                         val bm = cache.peek(z, tx, ty)
-                        val topLeft = Offset(originTilePx.x + dx * 256f, originTilePx.y + dy * 256f)
+                        val tlx = (originTilePx.x + dx * 256f).roundToInt()
+                        val tly = (originTilePx.y + dy * 256f).roundToInt()
                         if (bm != null) {
                             drawImage(
                                 image = bm.asImageBitmap(),
-                                topLeft = topLeft
+                                srcOffset = IntOffset.Zero,
+                                srcSize = IntSize(256, 256),
+                                dstOffset = IntOffset(tlx, tly),
+                                dstSize = IntSize(258, 258),
+                                filterQuality = FilterQuality.Low
                             )
                         } else {
                             drawRect(
                                 color = Color(0xFF1A1A1A),
-                                topLeft = topLeft,
-                                size = Size(256f, 256f)
+                                topLeft = Offset(tlx.toFloat(), tly.toFloat()),
+                                size = Size(258f, 258f)
                             )
                         }
                     }
