@@ -32,6 +32,7 @@ riders who have the wheel.
 More on the tiers and the protocol docs: [WHEELS.md](WHEELS.md).
 
 Help with your wheel, check the [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md).
+Already connects but a reading looks wrong? See the [in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md).
 
 ---
 
@@ -136,7 +137,9 @@ live in [`docs/protocols/`](docs/protocols/).
 To add a wheel: implement `WheelAdapter` (parser plus commands), register it in
 `CompositeWheelAdapter`, add the BLE-name pattern to `BleScanner`. The
 [BLE capture guide](docs/BLE_CAPTURE_GUIDE.md) is the fast path; one labelled ride is
-usually enough.
+usually enough. If a supported wheel misbehaves instead, the
+[in-app diagnostics guide](docs/DIAGNOSTICS_GUIDE.md) walks owners through sending a
+Service Mode recording.
 
 PRs welcome. Bugs go to [Issues](../../issues). Live discussion is on
 [Telegram](https://t.me/EUCPlanetApp), and more serious ideas and votes go to
