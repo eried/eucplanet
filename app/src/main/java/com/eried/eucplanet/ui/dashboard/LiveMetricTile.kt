@@ -226,14 +226,16 @@ fun LiveMetricTile(
             }
         }
 
-        // Three-zone layout mirrors the Settings slot preview
-        // (SettingsScreen.kt: ThreeZoneRow). Left badge sits flush at the
-        // tile's top-left edge, right badge at the top-right, the centred
-        // label + value column sits between them. When no corner stats are
-        // picked the side columns are empty and the centre column reads
-        // exactly like the old centred Column.
-        val hasSideReadings = (cornerLeftLabel != null && cornerLeftValue != null) ||
-                (cornerRightLabel != null && cornerRightValue != null)
+        // Variable-zone layout. When the rider picked only one side
+        // reading, the empty side zone is omitted entirely so the
+        // remaining badge + centre share the tile width evenly (a 2-
+        // column read), instead of leaving an asymmetric gap where
+        // the missing badge would have sat. With both sides present
+        // it's a 3-column layout; with no sides the centre fills the
+        // tile like the original default.
+        val hasLeft = cornerLeftLabel != null && cornerLeftValue != null
+        val hasRight = cornerRightLabel != null && cornerRightValue != null
+        val hasSideReadings = hasLeft || hasRight
         val centerBigSp = if (hasSideReadings) 18 else 20
         androidx.compose.foundation.layout.Row(
             modifier = Modifier
@@ -241,12 +243,12 @@ fun LiveMetricTile(
                 .padding(vertical = 10.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.Top
         ) {
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.TopStart
-            ) {
-                if (cornerLeftLabel != null && cornerLeftValue != null) {
-                    SideBadge(cornerLeftLabel, cornerLeftValue, accent, Alignment.Start)
+            if (hasLeft) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
                 }
             }
             Box(
@@ -255,12 +257,12 @@ fun LiveMetricTile(
             ) {
                 CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
             }
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                if (cornerRightLabel != null && cornerRightValue != null) {
-                    SideBadge(cornerRightLabel, cornerRightValue, accent, Alignment.End)
+            if (hasRight) {
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
                 }
             }
         }
