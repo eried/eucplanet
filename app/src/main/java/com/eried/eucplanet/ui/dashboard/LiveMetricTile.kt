@@ -53,6 +53,12 @@ fun LiveMetricTile(
     bipolarBaseline: Float = 0f,
     /** Negative-lobe colour for [SparklineStyle.AREA_BIPOLAR]; defaults to a darker [accent]. */
     bipolarNegativeAccent: Color? = null,
+    /** Bottom-left corner readout (e.g. label "MIN", value "78%"). Null hides the corner. */
+    cornerLeftLabel: String? = null,
+    cornerLeftValue: String? = null,
+    /** Bottom-right corner readout (e.g. label "MAX", value "94%"). */
+    cornerRightLabel: String? = null,
+    cornerRightValue: String? = null,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null
 ) {
@@ -239,5 +245,59 @@ fun LiveMetricTile(
                 maxLines = 1
             )
         }
+
+        // Corner readouts. Two small chips at the bottom-left / bottom-right
+        // showing rolling-window stats picked in the slot editor (MIN / MAX
+        // / AVG / Median / Pxx). Rendered as inline "LABEL value" so a
+        // rider scanning the tile reads "MAX 94" without an explainer.
+        // Each is opt-in: nil corners draw nothing, preserving the
+        // default-tile look for riders who didn't customize.
+        if (cornerLeftLabel != null && cornerLeftValue != null) {
+            CornerReadout(
+                stat = cornerLeftLabel,
+                value = cornerLeftValue,
+                accent = accent,
+                modifier = Modifier.align(Alignment.BottomStart).padding(start = 6.dp, bottom = 4.dp)
+            )
+        }
+        if (cornerRightLabel != null && cornerRightValue != null) {
+            CornerReadout(
+                stat = cornerRightLabel,
+                value = cornerRightValue,
+                accent = accent,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 6.dp, bottom = 4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CornerReadout(
+    stat: String,
+    value: String,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    androidx.compose.foundation.layout.Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(
+            stat,
+            fontSize = 7.sp,
+            color = accent.copy(alpha = 0.85f),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.5.sp,
+            maxLines = 1
+        )
+        Spacer(Modifier.height(0.dp))
+        androidx.compose.foundation.layout.Spacer(Modifier.padding(horizontal = 2.dp))
+        Text(
+            value,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = accent.copy(alpha = 0.9f),
+            maxLines = 1
+        )
     }
 }

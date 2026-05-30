@@ -913,6 +913,99 @@ fun DashboardScreen(
                 root.optJSONObject(key)?.optBoolean("spark", true) ?: true
             } catch (_: Exception) { true }
 
+            // Per-slot corner-stat parser. Same JSON shape as SettingsViewModel's
+            // parseSlotStats: { "<KEY>": { "spark": Bool, "l": Stat, "c": Stat, "r": Stat } }
+            // Returns a triple of (left, center, right) stats; unconfigured slots
+            // get NONE for the corners (no readout) and CURRENT for the center
+            // (live value, today's default).
+            data class SlotStatsTriple(
+                val left: com.eried.eucplanet.ui.settings.DashboardStat,
+                val center: com.eried.eucplanet.ui.settings.DashboardStat,
+                val right: com.eried.eucplanet.ui.settings.DashboardStat
+            )
+            fun slotStatsFor(key: String): SlotStatsTriple {
+                return try {
+                    val root = org.json.JSONObject(dashboardMetricStatsJson.ifBlank { "{}" })
+                    val node = root.optJSONObject(key) ?: return SlotStatsTriple(
+                        com.eried.eucplanet.ui.settings.DashboardStat.NONE,
+                        com.eried.eucplanet.ui.settings.DashboardStat.CURRENT,
+                        com.eried.eucplanet.ui.settings.DashboardStat.NONE
+                    )
+                    fun parseStat(jsonKey: String, default: com.eried.eucplanet.ui.settings.DashboardStat) =
+                        runCatching {
+                            com.eried.eucplanet.ui.settings.DashboardStat.valueOf(
+                                node.optString(jsonKey, default.name)
+                            )
+                        }.getOrDefault(default)
+                    SlotStatsTriple(
+                        left = parseStat("l", com.eried.eucplanet.ui.settings.DashboardStat.NONE),
+                        center = parseStat("c", com.eried.eucplanet.ui.settings.DashboardStat.CURRENT),
+                        right = parseStat("r", com.eried.eucplanet.ui.settings.DashboardStat.NONE)
+                    )
+                } catch (_: Exception) {
+                    SlotStatsTriple(
+                        com.eried.eucplanet.ui.settings.DashboardStat.NONE,
+                        com.eried.eucplanet.ui.settings.DashboardStat.CURRENT,
+                        com.eried.eucplanet.ui.settings.DashboardStat.NONE
+                    )
+                }
+            }
+
+            // Compute a corner-stat value for a metric key from its 5-min
+            // sparkline history. Returns a pre-formatted string like "82%" /
+            // "27°" / "84.1V" so the tile can drop it straight into a corner
+            // chip without re-deriving units. Null = stat is NONE / CURRENT
+            // (CURRENT goes through the main value path) or the history
+            // buffer is empty (no rolling sample to compute over).
+            fun cornerStatValueFor(
+                key: String,
+                stat: com.eried.eucplanet.ui.settings.DashboardStat
+            ): String? {
+                if (stat == com.eried.eucplanet.ui.settings.DashboardStat.NONE ||
+                    stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT) return null
+                val buf = when (key) {
+                    "BATTERY" -> history.battery
+                    "TEMPERATURE" -> history.temperature
+                    "VOLTAGE" -> history.voltage
+                    "CURRENT" -> history.current
+                    "LOAD" -> history.load
+                    "SPEED" -> history.speed
+                    else -> return null
+                }
+                if (buf.isEmpty()) return null
+                val samples = buf.mapIndexed { idx, v ->
+                    com.eried.eucplanet.data.repository.MetricSample(idx.toLong(), v)
+                }
+                val raw = com.eried.eucplanet.ui.settings.computeDashboardStatValue(
+                    stat, samples, fallbackCurrent = buf.last()
+                ) ?: return null
+                return when (key) {
+                    "BATTERY", "LOAD" -> "${raw.toInt()}%"
+                    "TEMPERATURE" -> "${raw.toInt()}°"
+                    "VOLTAGE" -> "%.1fV".format(raw)
+                    "CURRENT" -> "%.1fA".format(raw)
+                    "SPEED" -> "%.0f".format(raw)
+                    else -> "%.1f".format(raw)
+                }
+            }
+
+            // Short stat label for the corner chip — "MAX", "MIN", "AVG",
+            // "P50", etc. Mirrors statShortLabel in SettingsScreen so the
+            // tile reads the same as the editor preview.
+            fun shortStatLabel(stat: com.eried.eucplanet.ui.settings.DashboardStat): String =
+                when (stat) {
+                    com.eried.eucplanet.ui.settings.DashboardStat.NONE -> ""
+                    com.eried.eucplanet.ui.settings.DashboardStat.CURRENT -> ""
+                    com.eried.eucplanet.ui.settings.DashboardStat.MIN -> "MIN"
+                    com.eried.eucplanet.ui.settings.DashboardStat.MAX -> "MAX"
+                    com.eried.eucplanet.ui.settings.DashboardStat.AVG -> "AVG"
+                    com.eried.eucplanet.ui.settings.DashboardStat.SUSTAINED_PEAK -> "PEAK"
+                    com.eried.eucplanet.ui.settings.DashboardStat.MEDIAN -> "P50"
+                    com.eried.eucplanet.ui.settings.DashboardStat.P75 -> "P75"
+                    com.eried.eucplanet.ui.settings.DashboardStat.P95 -> "P95"
+                    com.eried.eucplanet.ui.settings.DashboardStat.P99 -> "P99"
+                }
+
             // Per-slot value resolver — turns any metric key into its
             // current displayable value. Reused by composite tiles to
             // populate each of their 2-3 cells. Static metric formatting
@@ -1040,6 +1133,17 @@ fun DashboardScreen(
                         }
                         val spec = MetricCatalog.byKey(key)
                         val sparklineEnabled = sparkEnabledFor(key)
+                        // Per-slot corner-stat config. Standalone tiles honor
+                        // these (centre overrides the big number; left/right
+                        // render small "MAX 94" / "MIN 78" chips at the bottom
+                        // corners). Composite (MULTI) tiles ignore this layer
+                        // and route through their per-cell stat list below.
+                        val slotStats = slotStatsFor(key)
+                        val centerOverride = cornerStatValueFor(key, slotStats.center)
+                        val cornerLeftLabel = shortStatLabel(slotStats.left).takeIf { it.isNotEmpty() }
+                        val cornerLeftValue = cornerStatValueFor(key, slotStats.left)
+                        val cornerRightLabel = shortStatLabel(slotStats.right).takeIf { it.isNotEmpty() }
+                        val cornerRightValue = cornerStatValueFor(key, slotStats.right)
                         // Per-key value / colour / click ingredients.
                         // The default 6 keys preserve every quirk of the
                         // old StatCard era — long-press on CURRENT toggles
@@ -1050,7 +1154,7 @@ fun DashboardScreen(
                         when (key) {
                             "BATTERY" -> LiveMetricTile(
                                 label = stringResource(R.string.stat_battery),
-                                value = if (live && wheelData.batteryPercent > 0)
+                                value = centerOverride ?: if (live && wheelData.batteryPercent > 0)
                                     "${wheelData.batteryPercent}%" else placeholder,
                                 accent = battColor,
                                 sparkData = history.battery,
@@ -1058,6 +1162,10 @@ fun DashboardScreen(
                                 sparklineEnabled = sparklineEnabled,
                                 bipolarBaseline = spec?.bipolarBaseline ?: 0f,
                                 bipolarNegativeAccent = spec?.bipolarNegativeAccent,
+                                cornerLeftLabel = cornerLeftLabel,
+                                cornerLeftValue = cornerLeftValue,
+                                cornerRightLabel = cornerRightLabel,
+                                cornerRightValue = cornerRightValue,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("BATTERY") }
                             )
@@ -1065,47 +1173,63 @@ fun DashboardScreen(
                                 val tempUnknown = wheelData.maxTemperature <= 0f
                                 LiveMetricTile(
                                     label = stringResource(R.string.stat_temp),
-                                    value = if (live && !tempUnknown)
+                                    value = centerOverride ?: if (live && !tempUnknown)
                                         "%.0f%s".format(tempValue, tempUnitLabel) else placeholder,
                                     accent = tempColor,
                                     sparkData = history.temperature,
                                     sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
                                     sparklineEnabled = sparklineEnabled,
+                                    cornerLeftLabel = cornerLeftLabel,
+                                    cornerLeftValue = cornerLeftValue,
+                                    cornerRightLabel = cornerRightLabel,
+                                    cornerRightValue = cornerRightValue,
                                     modifier = Modifier.weight(1f),
                                     onClick = { onNavigateToMetric("TEMPERATURE") }
                                 )
                             }
                             "VOLTAGE" -> LiveMetricTile(
                                 label = stringResource(R.string.stat_voltage),
-                                value = if (live && wheelData.voltage > 0f)
+                                value = centerOverride ?: if (live && wheelData.voltage > 0f)
                                     "%.1fV".format(wheelData.voltage) else placeholder,
                                 accent = primary,
                                 sparkData = history.voltage,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.LINE,
                                 sparklineEnabled = sparklineEnabled,
+                                cornerLeftLabel = cornerLeftLabel,
+                                cornerLeftValue = cornerLeftValue,
+                                cornerRightLabel = cornerRightLabel,
+                                cornerRightValue = cornerRightValue,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("VOLTAGE") }
                             )
                             "CURRENT" -> LiveMetricTile(
                                 label = if (showWatts) wattsLabel else ampsLabel,
-                                value = currentText,
+                                value = centerOverride ?: currentText,
                                 accent = if (live && wheelData.current > 20) AccentOrange else primary,
                                 sparkData = history.current,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
                                 sparklineEnabled = sparklineEnabled,
                                 bipolarBaseline = spec?.bipolarBaseline ?: 0f,
                                 bipolarNegativeAccent = spec?.bipolarNegativeAccent ?: AccentGreen,
+                                cornerLeftLabel = cornerLeftLabel,
+                                cornerLeftValue = cornerLeftValue,
+                                cornerRightLabel = cornerRightLabel,
+                                cornerRightValue = cornerRightValue,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("CURRENT") },
                                 onLongClick = { viewModel.toggleCurrentDisplayMode() }
                             )
                             "LOAD" -> LiveMetricTile(
                                 label = stringResource(R.string.stat_load),
-                                value = if (live) "%.0f%%".format(pwm) else placeholder,
+                                value = centerOverride ?: if (live) "%.0f%%".format(pwm) else placeholder,
                                 accent = loadColor,
                                 sparkData = history.load,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA,
                                 sparklineEnabled = sparklineEnabled,
+                                cornerLeftLabel = cornerLeftLabel,
+                                cornerLeftValue = cornerLeftValue,
+                                cornerRightLabel = cornerRightLabel,
+                                cornerRightValue = cornerRightValue,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("LOAD") }
                             )
