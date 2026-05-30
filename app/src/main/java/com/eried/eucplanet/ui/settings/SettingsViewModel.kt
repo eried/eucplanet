@@ -296,6 +296,10 @@ class SettingsViewModel @Inject constructor(
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }
     fun updateNavOffRouteTolerance(v: Int) = update { copy(navOffRouteToleranceM = v.coerceIn(15, 150)) }
+    fun updateNavSolveFullPath(v: Boolean) = update { copy(navSolveFullPath = v) }
+
+    /** Cheat: clears the welcome-tour-seen flag so it replays next time the dashboard shows. */
+    fun resetWelcomeTutorial() = update { copy(welcomeTutorialSeen = false) }
     fun updateNavDefaultTravelMode(v: String) = update { copy(navDefaultTravelMode = v) }
     fun updateNavGeocoderUrl(v: String) = update { copy(navGeocoderUrl = v) }
     fun updateNavRouterUrl(v: String) = update { copy(navRouterUrl = v) }

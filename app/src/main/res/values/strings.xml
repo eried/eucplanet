@@ -429,6 +429,36 @@
     <string name="announce_gps">GPS signal lost / regained</string>
     <string name="announce_legal_mode">Legal mode on / off</string>
     <string name="announce_welcome">Welcome message on app launch</string>
+    <!-- First-launch dashboard welcome tour. The %1$s / %2$s placeholders are
+         filled with the real Settings label strings so the copy matches the UI
+         and translates with them. -->
+    <string name="welcome_tut_skip">Skip</string>
+    <string name="welcome_tut_next">Next</string>
+    <string name="welcome_tut_prev">Back</string>
+    <string name="welcome_tut_done">Done</string>
+    <string name="welcome_tut_step">%1$d / %2$d</string>
+    <string name="welcome_tut_skip_title">Skip the welcome tour?</string>
+    <string name="welcome_tut_skip_body">It will not be shown again</string>
+    <string name="welcome_tut_skip_yes">Skip anyway</string>
+    <string name="welcome_tut_welcome">Welcome to EUC Planet, a no-nonsense, open-source app for electric unicycles</string>
+    <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
+    <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
+    <string name="welcome_tut_buttons">Many buttons have extra actions, try long-pressing them. Play around!</string>
+    <string name="welcome_tut_final">That is the whole tour. Ride safe, explore everything, and have fun!</string>
+    <string name="welcome_tut_outro_title">That is the tour!</string>
+    <string name="welcome_tut_outro_backup">Save your trips: pick a %1$s in Settings → %2$s, then view them at eucviewer.ried.no</string>
+    <string name="welcome_tut_outro_buttons">Many buttons have extra actions, try long-pressing them</string>
+    <string name="welcome_tut_outro_alarms">Explore the powerful custom alarm editor in Settings → %1$s</string>
+    <string name="welcome_tut_outro_integrations">Explore the integrations, like Flic buttons and your watch</string>
+    <string name="welcome_tut_outro_end">Keep the eyes on the road and away from this app while unicycling!</string>
+    <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
+    <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
+    <string name="welcome_tut_actions">Quick controls. Customize them in Settings → %1$s → %2$s</string>
+    <string name="welcome_tut_map">Open the navigator to plan routes and get turn-by-turn guidance</string>
+    <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
+    <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
+    <string name="welcome_tut_pd">Shows Park or Drive. Tap it to set your %1$s</string>
+    <string name="welcome_tut_backup">Pick a %1$s in Settings → %2$s to save your trips, then view them at eucviewer.ried.no</string>
     <string name="voice_selector_label">Voice</string>
     <string name="voice_speech_speed">Speech Speed</string>
     <string name="unit_x">x</string>
@@ -1243,7 +1273,9 @@
     <string name="nav_setting_offroute_desc">How far off the route before the off-route alert triggers</string>
     <string name="nav_setting_default_mode">Default travel mode</string>
     <string name="nav_setting_open_builder">Open route builder</string>
-    <string name="nav_setting_params">Navigation parameters</string>
+    <string name="nav_setting_params">Navigation settings</string>
+    <string name="nav_setting_full_path">Always solve the full path</string>
+    <string name="nav_setting_full_path_desc">Off solves only the next stop and shows the rest as a dashed preview</string>
     <string name="nav_setting_endpoints">Routing services</string>
     <string name="nav_setting_endpoints_hint">Free public OpenStreetMap services, no account needed. Change only to point at your own server</string>
     <string name="nav_setting_geocoder_url">Address search URL</string>

@@ -178,6 +178,13 @@ class NavigationEngine @Inject constructor(
     // --- turn-by-turn announce tracking ---
     private var preparedManeuver = -1
     private var executedManeuver = -1
+    // Highest intermediate-stop count we have already announced on a full
+    // multi-stop route (Full path mode). Lets us speak "stop reached" exactly
+    // once as the rider crosses each intermediate waypoint while continuing on
+    // the same solved polyline. Stays 0 for single-leg (Next segment) routes,
+    // which can never satisfy reached < waypoints.size-1, so the leg-by-leg
+    // path is unaffected.
+    private var lastIntermediateAnnounced = 0
     private var offRouteSinceMs = 0L
     private var backOnRouteSinceMs = 0L
     private var lastOffRouteVoiceMs = 0L
@@ -385,6 +392,7 @@ class NavigationEngine @Inject constructor(
         heading = null
         preparedManeuver = -1
         executedManeuver = -1
+        lastIntermediateAnnounced = 0
         offRouteSinceMs = 0L
         backOnRouteSinceMs = 0L
         lastOffRouteVoiceMs = 0L
@@ -595,6 +603,20 @@ class NavigationEngine @Inject constructor(
         val reached = waypointAlongM.drop(1).count { it <= hit.alongM + arrivalRadiusM }
         syncBuilderRoute(reached)
 
+        // Full path: the engine is following one solved polyline through every
+        // stop, so intermediate stops never trigger handleArrival (only the
+        // final waypoint does). Announce each intermediate stop once as the
+        // rider crosses it. Gated to multi-stop routes: a single-leg (Next
+        // segment) route has waypoints.size == 2, so reached < 1 is never true
+        // and this stays silent -- the leg-by-leg arrival flow is untouched.
+        if (reached > lastIntermediateAnnounced && reached < route.waypoints.size - 1) {
+            lastIntermediateAnnounced = reached
+            Log.i(TAG, "INTERMEDIATE-STOP reached=$reached of ${route.waypoints.size - 1}")
+            if (voiceEnabled) {
+                voiceService.announceEvent(context.getString(R.string.voice_nav_goal_reached))
+            }
+        }
+
         _navState.value = _navState.value.copy(
             waiting = false,
             arrived = false,
@@ -701,6 +723,11 @@ class NavigationEngine @Inject constructor(
                         }
                         preparedManeuver = -1
                         executedManeuver = -1
+                        // The fresh route restarts at the rider's position and
+                        // only carries the stops still ahead, so its reached
+                        // count begins at 0 again -- re-arm intermediate-stop
+                        // announcements against the new, shorter waypoint list.
+                        lastIntermediateAnnounced = 0
                         offRouteSinceMs = 0L
                         backOnRouteSinceMs = 0L
                         Log.i(TAG, "Re-routed from current position")

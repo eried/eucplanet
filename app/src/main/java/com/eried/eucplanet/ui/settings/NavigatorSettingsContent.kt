@@ -53,6 +53,23 @@ fun NavigatorSettingsContent(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // --- Full path vs Next segment ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.nav_setting_full_path),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Switch(
+                checked = settings.navSolveFullPath,
+                onCheckedChange = { viewModel.updateNavSolveFullPath(it) }
+            )
+        }
+        HintText(stringResource(R.string.nav_setting_full_path_desc), small = true)
+
         // --- Arrival radius ---
         SliderRow(
             label = stringResource(R.string.nav_setting_arrival_radius),

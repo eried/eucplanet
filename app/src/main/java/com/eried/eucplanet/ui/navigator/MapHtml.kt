@@ -660,9 +660,40 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   // STRAIGHT routes also get arrow decorations because the line itself is
   // featureless (no junctions / road geometry to imply direction).
   var travelMode = 'DRIVING';
+  // Full path (true, default) vs Next segment (false). In Full path the
+  // solved geometry already spans every stop, so the dashed straight-line
+  // preview is suppressed and the rider sees one solid line. In Next
+  // segment only the first leg is solid and the rest is the dashed preview.
+  // Pushed from native via nativeSetFullPath().
+  var solveFullPath = true;
   // Arrow decorations are now split into routeArrowLayer + previewArrow-
   // Layer (see further below) so the rider->next-goal chevrons and the
   // orange preview chevrons can coexist. Keep this comment as a marker.
+
+  // Distance in SCREEN PIXELS from a container point to a segment a->b.
+  function ptSegDistPx(p, a, b){
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var len2 = dx * dx + dy * dy;
+    var t = len2 > 0 ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2 : 0;
+    t = Math.max(0, Math.min(1, t));
+    var cx = a.x + t * dx, cy = a.y + t * dy;
+    var ex = p.x - cx, ey = p.y - cy;
+    return Math.sqrt(ex * ex + ey * ey);
+  }
+  // Distance in SCREEN PIXELS from a container point to a polyline given as
+  // Leaflet LatLngs. Used to decide whether a map tap landed ON a drawn line
+  // (route or preview) so we can insert a detour stop there. Infinity for < 2.
+  function pxDistToPolyline(pt, latlngs){
+    if (!latlngs || latlngs.length < 2) return Infinity;
+    var best = Infinity;
+    var prev = map.latLngToContainerPoint(latlngs[0]);
+    for (var i = 1; i < latlngs.length; i++){
+      var cur = map.latLngToContainerPoint(latlngs[i]);
+      best = Math.min(best, ptSegDistPx(pt, prev, cur));
+      prev = cur;
+    }
+    return best;
+  }
 
   map.on('click', function(e){
     if (!window.AndroidNav) return;
@@ -685,6 +716,20 @@ private const val ROUTE_BUILDER_HTML_1: String = """
       var mp = map.latLngToContainerPoint(markers[i].getLatLng());
       var mdx = pt.x - mp.x, mdy = pt.y - mp.y;
       if (Math.sqrt(mdx * mdx + mdy * mdy) < 38) return;
+    }
+    // A tap ON a drawn line (solid routeLine or dashed previewLine), clear of
+    // any marker, inserts a new stop between the two stops that segment joins
+    // -- a one-tap detour. Measured in screen pixels so it works at any zoom.
+    if (markers.length >= 1 && AndroidNav.onRouteLineClick){
+      var lineDist = Infinity;
+      if (routeLine) lineDist = Math.min(lineDist, pxDistToPolyline(pt, routeLine.getLatLngs()));
+      if (previewLine) lineDist = Math.min(lineDist, pxDistToPolyline(pt, previewLine.getLatLngs()));
+      // ~34 px (about 11 dp at this density) -- a finger-friendly target on a
+      // thin line, while still well clear of the 38 px marker hit radius above.
+      if (lineDist <= 34){
+        AndroidNav.onRouteLineClick(e.latlng.lat, e.latlng.lng);
+        return;
+      }
     }
     AndroidNav.onMapClick(e.latlng.lat, e.latlng.lng);
   });
@@ -759,7 +804,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
 
   // Dashed line straight through the current marker positions. Shown while a
   // pin is being dragged and while routing is still being solved.
-  function drawConnector(){
+  function drawConnector(color){
+    // Default to the travel-mode colour (used while dragging a pin); the
+    // route-fetch preview passes the gold preview colour instead.
+    var c = color || routeColorFor(travelMode);
     var pts = markerPts();
     // Start the dashed preview at the rider's position when a fix is known.
     if (userMarker){
@@ -769,9 +817,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (pts.length < 2){ clearConnector(); return; }
     if (connector){
       connector.setLatLngs(pts);
+      connector.setStyle({color: c});
     } else {
       connector = L.polyline(pts, {
-        color: routeColorFor(travelMode),
+        color: c,
         weight: 5, opacity: 0.80, dashArray: '8,12', lineCap: 'round'
       }).addTo(map);
     }
@@ -779,10 +828,27 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // where the new segments go. Reuse the chevron arrows so the direction
     // is unambiguous in every mode (Drive / Bike / Walk / Straight). Arrows
     // are auto-cleared by clearConnector() when the solved route arrives.
-    drawArrows(pts, routeColorFor(travelMode));
+    drawArrows(pts, c);
   }
   function clearConnector(){
     if (connector){ map.removeLayer(connector); connector = null; }
+  }
+
+  // Gold dashed "what's about to change" edge, drawn OVER the existing solid
+  // route while a routed path is being fetched after an edit (add / insert /
+  // move a stop). Just the affected segment(s) -- the rest of the planned
+  // route stays solid -- and it is cleared the moment the new route lands.
+  var pendingLine = null;
+  function clearPendingLine(){
+    if (pendingLine){ map.removeLayer(pendingLine); pendingLine = null; }
+  }
+  function drawPendingLine(pts){
+    clearPendingLine();
+    if (!pts || pts.length < 2) return;
+    pendingLine = L.polyline(pts, {
+      color: '#FFCA28', weight: 5, opacity: 0.85,
+      dashArray: '8,12', lineCap: 'round'
+    }).addTo(map);
   }
 
   // During navigation the solid `routeLine` only spans the active leg
@@ -984,14 +1050,18 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     if (previewLine) previewLine.setLatLngs(previewLine.getLatLngs());
   });
 
-  window.nativeRender = function(wpJson, geomJson, fit){
+  window.nativeRender = function(wpJson, geomJson, fit, pendingJson){
     var wps = JSON.parse(wpJson);
     var geom = JSON.parse(geomJson);
+    // The gold dashed "what's changing" edge to overlay while a routed path is
+    // being fetched (empty otherwise). [[lat,lng],...].
+    var pending = pendingJson ? JSON.parse(pendingJson) : [];
     // Cache the latest payload so refreshRouteVisibility() (called when
     // the user marker crosses a passed flag's radius boundary) can
     // re-render without waiting for a native nativeRender call.
     lastWps = wps;
     lastGeom = geom;
+    lastPending = pending;
     userInsidePassedFlag = riderInsideAnyPassedFlag();
 
     markers.forEach(function(m){ if (m) map.removeLayer(m); });
@@ -1104,6 +1174,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       clearArrows();
       clearConnector();
       clearPreview();
+      clearPendingLine();
     } else if (geom.length >= 2){
       // A solved route, solid line, drop the dashed preview. Colour depends
       // on the travel mode (DRIVE/BIKE/WALK/STRAIGHT). Slightly thicker and
@@ -1126,31 +1197,42 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       if (travelMode === 'STRAIGHT' || geom.length === 2) {
         drawArrows(geom, routeColor);
       }
-      // During navigation the solid leg only spans origin -> next stop.
-      // Continue the visual line through the remaining stops with a
-      // dashed straight-line preview so the rider knows the order
-      // before reaching the next stop.
-      drawPreview(wps);
+      if (pending.length >= 2){
+        // An edit is being re-solved: KEEP this (the previous) solid route and
+        // overlay the gold dashed preview of just the affected edge. Don't draw
+        // the next-segment dashed chain meanwhile -- the pending edge is the
+        // only thing changing.
+        clearPreview();
+        drawPendingLine(pending);
+      } else {
+        clearPendingLine();
+        // Next segment only: the solid leg spans origin -> next stop, so
+        // continue the visual line through the remaining stops with a dashed
+        // straight-line preview. In Full path the solid geometry already
+        // covers every stop, so no preview is drawn (one solid line).
+        if (!solveFullPath) drawPreview(wps);
+      }
     } else if (markers.length >= 1){
-      // No geometry yet (routing in progress).
-      //
-      // The dashed preview-connector is reserved for the rider actively
-      // DRAGGING a stop -- the marker drag handlers (m.on('drag', ...)
-      // below) call drawConnector themselves. Everywhere ELSE -- mid-
-      // recompute, mid-navigation re-solve, even just-after-add-stop --
-      // we leave the previous solid routeLine in place and DON'T draw
-      // dashes, because the flicker between solid and dashed was
-      // distracting. The router request usually returns within a second
-      // and the solid line refreshes; if it fails the rider's existing
-      // line is still a reasonable approximation.
-      // Intentionally NOT calling drawConnector or clearing routeLine
-      // here -- routeLine + arrows + (no-op) connector stay as they
-      // were.
+      // No solid route yet (e.g. the very first stop just dropped). If an edit
+      // is being re-solved, show the gold dashed preview of the affected edge;
+      // otherwise leave the map clean. Builder only -- during locked navigation
+      // the engine owns the line, so leave it untouched there.
+      if (!navLocked){
+        if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
+        clearPreview();
+        if (pending.length >= 2){
+          drawPendingLine(pending);
+        } else {
+          clearPendingLine();
+          clearConnector();
+        }
+      }
     } else {
       if (routeLine){ map.removeLayer(routeLine); routeLine = null; }
       clearArrows();
       clearConnector();
       clearPreview();
+      clearPendingLine();
     }
 
     // Fit on the native fit=true OR the first render that has data.
@@ -1319,6 +1401,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   var userInsidePassedFlag = false;
   var lastWps = [];
   var lastGeom = [];
+  var lastPending = [];
   function riderInsideAnyPassedFlag(){
     if (!userMarker) return false;
     var u = userMarker.getLatLng();
@@ -1332,7 +1415,8 @@ private const val ROUTE_BUILDER_HTML_2: String = """
   function refreshRouteVisibility(){
     // No-op if no waypoint snapshot yet (very early init).
     if (!lastWps.length) return;
-    window.nativeRender(JSON.stringify(lastWps), JSON.stringify(lastGeom), false);
+    window.nativeRender(JSON.stringify(lastWps), JSON.stringify(lastGeom), false,
+      JSON.stringify(lastPending));
   }
 
   // Push the rider's heading in degrees. Only called when the rider is
@@ -1425,6 +1509,16 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // accent no longer re-tints the route. Kept callable so existing
     // composables that push the accent don't crash.
     accentColor = hex;
+  };
+
+  // Full path vs Next segment. Re-render so the dashed preview appears /
+  // disappears immediately for the geometry currently on the map; the
+  // native side also fires a recompute that lands a fresh solved line.
+  window.nativeSetFullPath = function(b){
+    var v = !!b;
+    if (v === solveFullPath) return;
+    solveFullPath = v;
+    refreshRouteVisibility();
   };
 
   window.nativeSetTravelMode = function(mode){

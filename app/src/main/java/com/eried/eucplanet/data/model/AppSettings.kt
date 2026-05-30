@@ -106,6 +106,12 @@ data class AppSettings(
     val announceGps: Boolean = true,
     val announceSafetyMode: Boolean = true,
     val announceWelcome: Boolean = true,
+    /**
+     * Whether the first-launch dashboard welcome tour has been shown. Starts
+     * false; set true once the rider finishes or skips the tour, so it only
+     * ever appears once.
+     */
+    val welcomeTutorialSeen: Boolean = false,
 
     // Recording
     val autoRecord: Boolean = true,
@@ -272,6 +278,17 @@ data class AppSettings(
      * size order as a saved nav route.
      */
     val navUserMarkerPhotoDataUrl: String? = null,
+    /**
+     * When true (the default) the route builder solves the WHOLE multi-stop
+     * tour in one routing request -- a single solid line, a whole-tour distance
+     * readout, and the complete route handed to live navigation. When false
+     * ("Next segment") only the next leg (origin -> first non-passed stop) is
+     * routed and the remaining stops are drawn as a dashed straight-line
+     * preview, which is lighter on the router and on a flaky connection.
+     * Has no routing effect in STRAIGHT/Direct mode (which never calls the
+     * router); there it only flips the remaining legs between solid and dashed.
+     */
+    val navSolveFullPath: Boolean = true,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,

@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -85,8 +86,44 @@ class RouteBuilderViewModel @Inject constructor(
     private val _route = MutableStateFlow<NavRoute?>(null)
     val route: StateFlow<NavRoute?> = _route.asStateFlow()
 
+    /**
+     * A short gold dashed preview of just the edge an edit is about to change
+     * ([neighbor, newStop] for an append, [left, newStop, right] for an insert
+     * or move). Shown OVER the existing solid route while a routed path is
+     * being fetched, then cleared when the new route lands -- so adding a stop
+     * no longer blanks the whole planned route. Empty outside that window.
+     */
+    private val _pendingPreview = MutableStateFlow<List<GeoPoint>>(emptyList())
+    val pendingPreview: StateFlow<List<GeoPoint>> = _pendingPreview.asStateFlow()
+
     private val _travelMode = MutableStateFlow(TravelMode.CYCLING)
     val travelMode: StateFlow<TravelMode> = _travelMode.asStateFlow()
+
+    /**
+     * Full path (true, the default) vs Next segment (false). Full path solves
+     * the whole multi-stop tour in one routing request and draws it as one
+     * solid line; Next segment solves only the next leg and draws the rest as
+     * a dashed straight-line preview. Persisted via [AppSettings.navSolveFullPath].
+     */
+    private val _solveFullPath = MutableStateFlow(true)
+    val solveFullPath: StateFlow<Boolean> = _solveFullPath.asStateFlow()
+
+    /**
+     * Distance to show in the builder header: the WHOLE remaining tour, not
+     * just the first leg. In Full path the solved route already spans every
+     * stop, so its [NavRoute.totalDistanceM] is the answer. In Next segment
+     * the solved route is only the first leg, so we add the straight-line
+     * length through the remaining non-passed stops. Null when nothing to show.
+     */
+    val tourDistanceM: StateFlow<Double?> =
+        combine(_route, _waypoints, _solveFullPath) { route, wps, full ->
+            val routed = route?.totalDistanceM ?: 0.0
+            if (route == null || routed <= 0.0) return@combine null
+            if (full) return@combine routed
+            val nonPassed = wps.filter { !it.passed }
+            if (nonPassed.size <= 1) return@combine routed
+            routed + GeoMath.polylineLengthM(nonPassed.map { it.point() })
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val _searchResults = MutableStateFlow<List<GeoResult>>(emptyList())
     val searchResults: StateFlow<List<GeoResult>> = _searchResults.asStateFlow()
@@ -223,6 +260,7 @@ class RouteBuilderViewModel @Inject constructor(
             _travelMode.value = TravelMode.fromName(s.navDefaultTravelMode)
             _mapType.value = s.navMapType.ifBlank { "LIGHT" }
             defaultRadiusM = s.navArrivalRadiusM
+            _solveFullPath.value = s.navSolveFullPath
             _home.value = placeFromJson(s.navHomeJson)
             _work.value = placeFromJson(s.navWorkJson)
             _userMarkerPhoto.value = s.navUserMarkerPhotoDataUrl
@@ -422,6 +460,18 @@ class RouteBuilderViewModel @Inject constructor(
                 if (moved) scheduleRecompute(fit = false)
             }
         }
+        // Full path / Next segment lives in Navigation settings (a setting)
+        // now, so observe it live: when the rider flips it there and comes back
+        // to the builder, update the cached flag and re-solve the preview. The
+        // `!=` guard makes this a no-op on unrelated settings emissions.
+        viewModelScope.launch {
+            settingsRepository.settings.collect { s ->
+                if (_solveFullPath.value != s.navSolveFullPath) {
+                    _solveFullPath.value = s.navSolveFullPath
+                    if (!navigationEngine.isActive) scheduleRecompute(fit = false)
+                }
+            }
+        }
     }
 
     // --- Waypoint editing --------------------------------------------------------
@@ -476,24 +526,91 @@ class RouteBuilderViewModel @Inject constructor(
             _messages.tryEmit(R.string.nav_max_stops)
             return
         }
-        _waypoints.value = _waypoints.value + Waypoint(lat, lng, name)
+        // The new stop connects to whatever was the last non-passed stop (or
+        // the rider, if none yet) -- that single edge is what's "about to
+        // change", so preview just it in gold while the route re-solves.
+        val before = _waypoints.value
+        val neighbor = before.lastOrNull { !it.passed }?.point()
+            ?: currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+        _waypoints.value = before + Waypoint(lat, lng, name)
         // A plain stop was just added; clear the "last preset" memory so the
         // Home / Work search suggestions both come back. addPreset() re-sets it.
         _lastAddedPresetKind.value = null
         persistDraft()
-        scheduleRecompute(fit = fit)
+        val edge = if (neighbor != null) listOf(neighbor, GeoPoint(lat, lng)) else emptyList()
+        scheduleRecompute(fit = fit, previewEdge = edge)
+    }
+
+    /**
+     * The rider tapped the drawn route/preview line between two stops. Insert a
+     * new draggable stop AT the tapped point, ordered between the two stops the
+     * tapped segment connects, so a detour is a single tap. The insertion index
+     * is found from the straight chain [origin, stop0, stop1, ...]: whichever
+     * segment of that chain the tap is closest to decides which two stops the
+     * new one falls between. This stays correct for both the solid routed line
+     * and the dashed straight preview -- the JS side already confirmed the tap
+     * landed on a drawn line before calling here.
+     */
+    fun insertWaypointOnRoute(lat: Double, lng: Double) {
+        if (navigationEngine.isActive) return
+        val dests = _waypoints.value
+        if (dests.size >= MAX_WAYPOINTS) {
+            _messages.tryEmit(R.string.nav_max_stops)
+            return
+        }
+        if (dests.isEmpty()) {
+            addWaypoint(lat, lng)
+            return
+        }
+        val tap = GeoPoint(lat, lng)
+        val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+        // The chain the rider sees, in order. Origin (the rider) is prepended
+        // when known so a tap on the very first leg lands before stop 0.
+        val chain = buildList {
+            if (origin != null) add(origin)
+            dests.forEach { add(it.point()) }
+        }
+        val originOffset = if (origin != null) 1 else 0
+        var bestSeg = 0
+        var bestDist = Double.MAX_VALUE
+        for (i in 0 until chain.size - 1) {
+            val d = GeoMath.nearestOnPolyline(tap, listOf(chain[i], chain[i + 1]))
+                ?.distanceM ?: Double.MAX_VALUE
+            if (d < bestDist) { bestDist = d; bestSeg = i }
+        }
+        // Segment bestSeg connects chain[bestSeg] and chain[bestSeg+1]; the new
+        // stop sits just before chain[bestSeg+1]. Drop the origin offset to get
+        // the destination-list index.
+        val insertIndex = (bestSeg + 1 - originOffset).coerceIn(0, dests.size)
+        // The two edges the detour introduces: left-neighbour -> new -> right-
+        // neighbour. Preview just those in gold while the route re-solves.
+        val left = if (insertIndex == 0) origin else dests[insertIndex - 1].point()
+        val right = dests.getOrNull(insertIndex)?.point()
+        val list = dests.toMutableList()
+        list.add(insertIndex, Waypoint(lat, lng))
+        _waypoints.value = list
+        _lastAddedPresetKind.value = null
+        persistDraft()
+        val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
+        scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
 
     /** Called when the user drags a pin on the map. */
     fun moveWaypoint(index: Int, lat: Double, lng: Double) {
         val list = _waypoints.value.toMutableList()
         if (index !in list.indices) return
+        // The moved pin's two edges (to its previous and next neighbours, or
+        // the rider for index 0) are what change -- preview just those in gold.
+        val origin = currentLocation.value?.let { GeoPoint(it.latitude, it.longitude) }
+        val left = if (index == 0) origin else list[index - 1].point()
+        val right = list.getOrNull(index + 1)?.point()
         // A moved pin's address is now stale; clear it so the list shows just
         // the role until the next route solves and re-resolves the address.
         list[index] = list[index].copy(lat = lat, lng = lng, name = "")
         _waypoints.value = list
         persistDraft()
-        scheduleRecompute(fit = false)
+        val edge = listOfNotNull(left, GeoPoint(lat, lng), right)
+        scheduleRecompute(fit = false, previewEdge = if (edge.size >= 2) edge else emptyList())
     }
 
     fun removeWaypoint(index: Int) {
@@ -660,7 +777,7 @@ class RouteBuilderViewModel @Inject constructor(
         }
     }
 
-    private fun scheduleRecompute(fit: Boolean) {
+    private fun scheduleRecompute(fit: Boolean, previewEdge: List<GeoPoint> = emptyList()) {
         if (_userDragging.value) {
             // The rider's finger is on a stop. Don't yank the preview now;
             // remember we owe one and fire it after dragend.
@@ -691,43 +808,60 @@ class RouteBuilderViewModel @Inject constructor(
             lastRouteOrigin = null
             _route.value = null
             _routing.value = false
+            _pendingPreview.value = emptyList()
             bumpRender(fit)
             return
         }
         lastRouteOrigin = GeoPoint(origin.latitude, origin.longitude)
-        // Always solve only the next leg (origin -> first non-passed
-        // stop), in both navigation and route-building. Passed stops
-        // are kept in the list but skipped here; subsequent stops are
-        // drawn as a straight-line dashed preview, never sent to the
-        // router.
-        val nextNonPassed = dests.firstOrNull { !it.passed }
-        if (nextNonPassed == null) {
+        // Full path solves the whole remaining tour (origin -> every
+        // non-passed stop) in a single request, so the builder draws one
+        // solid line and a whole-tour distance. Next segment solves only
+        // the next leg (origin -> first non-passed stop) and leaves the
+        // rest to the dashed straight-line preview, lighter on the router.
+        // Passed stops are kept in the list but skipped either way.
+        val nonPassed = dests.filter { !it.passed }
+        if (nonPassed.isEmpty()) {
             lastRouteOrigin = null
             _route.value = null
             _routing.value = false
+            _pendingPreview.value = emptyList()
             bumpRender(fit)
             return
         }
-        val routedTargets = listOf(nextNonPassed)
+        val routedTargets = if (_solveFullPath.value) nonPassed else listOf(nonPassed.first())
         val navWps = listOf(Waypoint(origin.latitude, origin.longitude)) + routedTargets
-        // Drop the stale solution; show the dashed preview + spinner meanwhile.
-        _route.value = null
+        val mode = _travelMode.value
+        if (mode == TravelMode.STRAIGHT) {
+            // Direct/line mode joins the stops with straight segments -- no
+            // router, no network, nothing to wait for. Compute it synchronously
+            // so the line appears the instant a pin is dropped or moved: no
+            // 300 ms debounce, no spinner, no preview.
+            _pendingPreview.value = emptyList()
+            _route.value = RoutingService.straightLineRoute(routeName, navWps)
+                .copy(waypoints = dests)
+            _routing.value = false
+            bumpRender(fit)
+            enrichWaypointNames()
+            return
+        }
+        // Routed modes (bike / walk / car) hit the network. KEEP the existing
+        // solid route on screen (don't blank it) and, for an edit, overlay a
+        // short gold dashed preview of just the affected edge ([previewEdge]) so
+        // the rider sees what's changing; the solid line is replaced only once
+        // the new route lands. Debounced so a burst of edits fires one request.
+        _pendingPreview.value = previewEdge
         _routing.value = true
         bumpRender(fit)
         routeJob = viewModelScope.launch {
             delay(300)
-            val mode = _travelMode.value
-            val computed = if (mode == TravelMode.STRAIGHT) {
+            val computed = routingService.route(routeName, navWps, mode, routerUrl) ?: run {
+                _messages.tryEmit(R.string.nav_route_failed)
                 RoutingService.straightLineRoute(routeName, navWps)
-            } else {
-                routingService.route(routeName, navWps, mode, routerUrl) ?: run {
-                    _messages.tryEmit(R.string.nav_route_failed)
-                    RoutingService.straightLineRoute(routeName, navWps)
-                }
             }
             // The rider stays out of the listed waypoints; only destinations
             // are listed; the origin lives in the route geometry.
             _route.value = computed.copy(waypoints = dests)
+            _pendingPreview.value = emptyList()
             _routing.value = false
             bumpRender(fit)
             enrichWaypointNames()
@@ -987,6 +1121,14 @@ class RouteBuilderViewModel @Inject constructor(
         return arr.toString()
     }
 
+    /** The gold dashed "what's changing" preview edge as [[lat,lng],...] for
+     *  the map; empty array outside a routed-fetch window. */
+    fun pendingPreviewJson(): String {
+        val arr = JSONArray()
+        _pendingPreview.value.forEach { p -> arr.put(JSONArray().put(p.lat).put(p.lng)) }
+        return arr.toString()
+    }
+
     // --- Starting navigation -----------------------------------------------------
 
     /**
@@ -1010,18 +1152,22 @@ class RouteBuilderViewModel @Inject constructor(
         // rider never sees the button flash to "Stop navigation".
         onStarted()
         viewModelScope.launch {
-            // Single-leg routing on Start, same as scheduleRecompute --
-            // the engine is handed [origin, first non-passed stop] only.
-            // Without this, the initial nav frame briefly showed the full
-            // multi-stop solid route before the first advanceLeg trimmed
-            // it. Subsequent stops still render as the dashed orange
-            // preview, fed off the full _waypoints list.
-            val nextNonPassed = dests.firstOrNull { !it.passed } ?: dests.first()
-            val legWps = listOf(
-                Waypoint(loc.latitude, loc.longitude),
-                nextNonPassed
-            )
             val tMode = _travelMode.value
+            // Full path hands the engine the WHOLE remaining tour (origin ->
+            // every non-passed stop) so it follows one solved polyline with
+            // turn-by-turn across all stops, announcing each intermediate stop
+            // as it is crossed. STRAIGHT stays leg-by-leg even in Full path: a
+            // straight route carries no maneuvers, so the engine's guideHoming
+            // would aim straight at the final stop and skip the intermediate
+            // ones -- the proven leg-by-leg flow advances stop by stop instead.
+            // Next segment is always leg-by-leg ([origin, first non-passed]).
+            val fullRoute = _solveFullPath.value && tMode != TravelMode.STRAIGHT
+            val targets = if (fullRoute) {
+                dests.filter { !it.passed }.ifEmpty { listOf(dests.first()) }
+            } else {
+                listOf(dests.firstOrNull { !it.passed } ?: dests.first())
+            }
+            val legWps = listOf(Waypoint(loc.latitude, loc.longitude)) + targets
             val navRoute = if (tMode == TravelMode.STRAIGHT) {
                 RoutingService.straightLineRoute(routeName, legWps)
             } else {

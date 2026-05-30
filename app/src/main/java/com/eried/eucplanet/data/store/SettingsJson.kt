@@ -94,6 +94,7 @@ object SettingsJson {
         put("announceGps", s.announceGps)
         put("announceSafetyMode", s.announceSafetyMode)
         put("announceWelcome", s.announceWelcome)
+        put("welcomeTutorialSeen", s.welcomeTutorialSeen)
         put("autoRecord", s.autoRecord)
         put("autoRecordStartInMotion", s.autoRecordStartInMotion)
         put("autoRecordStopIdleSeconds", s.autoRecordStopIdleSeconds)
@@ -189,6 +190,7 @@ object SettingsJson {
         put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
+        put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
@@ -260,6 +262,7 @@ object SettingsJson {
         announceGps = j.optBoolean("announceGps", base.announceGps),
         announceSafetyMode = j.optBoolean("announceSafetyMode", base.announceSafetyMode),
         announceWelcome = j.optBoolean("announceWelcome", base.announceWelcome),
+        welcomeTutorialSeen = j.optBoolean("welcomeTutorialSeen", base.welcomeTutorialSeen),
         autoRecord = j.optBoolean("autoRecord", base.autoRecord),
         autoRecordStartInMotion = j.optBoolean(
             "autoRecordStartInMotion",
@@ -366,6 +369,7 @@ object SettingsJson {
         navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
             j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
         else base.navUserMarkerPhotoDataUrl,
+        navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),

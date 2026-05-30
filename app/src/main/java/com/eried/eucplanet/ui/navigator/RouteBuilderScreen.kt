@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -128,6 +129,8 @@ fun RouteBuilderScreen(
     val waypoints by viewModel.waypoints.collectAsState()
     val route by viewModel.route.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
+    val solveFullPath by viewModel.solveFullPath.collectAsState()
+    val tourDistanceM by viewModel.tourDistanceM.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     val searching by viewModel.searching.collectAsState()
     val routing by viewModel.routing.collectAsState()
@@ -253,7 +256,8 @@ fun RouteBuilderScreen(
             val fit = mr.fit && viewModel.savedView.value == null
             wv.evaluateJavascript(
                 "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                    "${jsString(viewModel.geometryJson())},$fit);"
+                    "${jsString(viewModel.geometryJson())},$fit," +
+                    "${jsString(viewModel.pendingPreviewJson())});"
             ) {
                 if (!firstRenderApplied) firstRenderApplied = true
             }
@@ -392,7 +396,8 @@ fun RouteBuilderScreen(
         )
         wv.evaluateJavascript(
             "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                "${jsString(viewModel.geometryJson())},false);",
+                "${jsString(viewModel.geometryJson())},false," +
+                "${jsString(viewModel.pendingPreviewJson())});",
             null
         )
     }
@@ -404,6 +409,14 @@ fun RouteBuilderScreen(
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         wv.evaluateJavascript("nativeSetTravelMode('${travelMode.name}');", null)
+    }
+
+    // Push the Full path / Next segment choice so the map suppresses the dashed
+    // preview (Full path) or shows it through the remaining stops (Next segment).
+    LaunchedEffect(pageReady, solveFullPath) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetFullPath(${if (solveFullPath) "true" else "false"});", null)
     }
 
     val saveLauncher = rememberLauncherForActivityResult(
@@ -692,6 +705,11 @@ fun RouteBuilderScreen(
                                         viewModel.addWaypoint(lat, lng)
                                     }
                                 },
+                                routeLineClick = { lat, lng ->
+                                    if (!viewModel.navRunning.value) {
+                                        viewModel.insertWaypointOnRoute(lat, lng)
+                                    }
+                                },
                                 markerDragged = { i, lat, lng ->
                                     if (!viewModel.navRunning.value) {
                                         viewModel.moveWaypoint(i, lat, lng)
@@ -971,10 +989,11 @@ fun RouteBuilderScreen(
                     onToggle = { panelExpanded = !panelExpanded },
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
+                    solveFullPath = solveFullPath,
                     waypoints = waypoints,
                     home = homePlace,
                     work = workPlace,
-                    routeDistanceM = route?.totalDistanceM,
+                    routeDistanceM = tourDistanceM,
                     routing = routing,
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
@@ -1261,6 +1280,7 @@ private fun BottomPanel(
     onToggle: () -> Unit,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
+    solveFullPath: Boolean,
     waypoints: List<com.eried.eucplanet.data.model.Waypoint>,
     home: com.eried.eucplanet.data.model.Waypoint?,
     work: com.eried.eucplanet.data.model.Waypoint?,
@@ -1318,12 +1338,12 @@ private fun BottomPanel(
                 if (routing) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else if (!allPassed && routeDistanceM != null && routeDistanceM > 0) {
-                    // Hidden when the trip is over (allPassed) -- there is no
-                    // 'next' distance to show; the rider should hit New route.
+                    // Hidden when the trip is over (allPassed). This is the
+                    // whole-tour distance (every remaining stop summed), not
+                    // just the next leg, so it's shown as a plain total.
                     val distText = NavFormat.distance(context, routeDistanceM, imperial)
                     Text(
-                        if (navRunning) stringResource(R.string.nav_next_distance, distText)
-                        else distText,
+                        distText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
@@ -1481,12 +1501,42 @@ private fun BottomPanel(
                                 shape = SegmentedButtonDefaults.itemShape(index, modes.size),
                                 icon = {}
                             ) {
-                                Icon(
-                                    icon,
-                                    contentDescription = stringResource(labelRes),
-                                    tint = modeColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                if (!solveFullPath && mode != TravelMode.STRAIGHT) {
+                                    // Next segment + routed mode: icon with a
+                                    // short segmented dashed underline in the
+                                    // mode's own colour, echoing the dashed
+                                    // remaining legs on the map. ONLY this case
+                                    // adds the underline (and the slight upward
+                                    // nudge it causes). Direct and Full path keep
+                                    // the plain centred icon, unchanged in
+                                    // position.
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            icon,
+                                            contentDescription = stringResource(labelRes),
+                                            tint = modeColor,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.height(3.dp))
+                                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                            repeat(3) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .width(4.dp)
+                                                        .height(2.dp)
+                                                        .background(modeColor, RoundedCornerShape(1.dp))
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Icon(
+                                        icon,
+                                        contentDescription = stringResource(labelRes),
+                                        tint = modeColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -1734,6 +1784,7 @@ private fun BottomPanel(
  */
 private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
+    private val routeLineClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
     private val markerDragStart: () -> Unit,
     private val markerDragEnd: () -> Unit,
@@ -1747,6 +1798,11 @@ private class NavJsBridge(
     @JavascriptInterface
     fun onMapClick(lat: Double, lng: Double) {
         main.post { mapClick(lat, lng) }
+    }
+
+    @JavascriptInterface
+    fun onRouteLineClick(lat: Double, lng: Double) {
+        main.post { routeLineClick(lat, lng) }
     }
 
     @JavascriptInterface
