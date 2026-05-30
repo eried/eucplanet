@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Senk farten for å låse hjulet</string>
     <string name="action_recorder">Opptaker</string>
     <string name="action_recorder_trips">Opptak\n(%1$d turer)</string>
+    <string name="action_recorder_trips_one">Opptak
+(%1$d tur)</string>
 
     <string name="search_settings">Søk i innstillinger</string>
     <string name="tab_general">Generelt</string>

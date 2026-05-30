@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Debug-only broadcast receiver used by the UI-survey harness
+        (DELETE_LATER_SURVEY_UI runner). Lets a host script (Python +
+        adb shell am broadcast) randomise the dashboard configuration
+        and connect a virtual wheel without driving the editor by
+        touch events. Exported so the harness can reach it. This
+        manifest is only merged into debug builds, never release.
+    -->
+    <application>
+        <receiver
+            android:name="com.eried.eucplanet.survey.SurveyControlReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="com.eried.eucplanet.SURVEY_APPLY" />
+                <action android:name="com.eried.eucplanet.SURVEY_CONNECT_VIRTUAL" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

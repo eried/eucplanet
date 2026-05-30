@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Sakta ner för att låsa hjulet</string>
     <string name="action_recorder">Inspelare</string>
     <string name="action_recorder_trips">Inspelare\n(%1$d resor)</string>
+    <string name="action_recorder_trips_one">Inspelare
+(%1$d resa)</string>
 
     <string name="search_settings">Sök inställningar</string>
     <string name="tab_general">Allmänt</string>

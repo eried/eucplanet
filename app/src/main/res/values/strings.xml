@@ -89,6 +89,8 @@
     <string name="lock_blocked_in_motion_toast">Slow down to lock the wheel</string>
     <string name="action_recorder">Recorder</string>
     <string name="action_recorder_trips">Recorder\n(%1$d trips)</string>
+    <string name="action_recorder_trips_one">Recorder
+(%1$d trip)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Search settings</string>

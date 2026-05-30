@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">请减速以锁定轮子</string>
     <string name="action_recorder">记录器</string>
     <string name="action_recorder_trips">记录器\n(%1$d 条行程)</string>
+    <string name="action_recorder_trips_one">记录器
+(%1$d 条行程)</string>
 
     <string name="search_settings">搜索设置</string>
     <string name="tab_general">通用</string>

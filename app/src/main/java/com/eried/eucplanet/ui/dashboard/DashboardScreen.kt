@@ -1460,20 +1460,34 @@ fun DashboardScreen(
                                     }
                                 }
                                 else -> {
-                                    // Catalog-driven generic rendering
-                                    // for any other static metric the
-                                    // rider drops into a slot. Value
-                                    // pipeline for these keys is wired in
-                                    // a follow-up.
+                                    // Catalog-driven generic rendering for any
+                                    // other static metric the rider drops into
+                                    // a slot (BATTERY_1/2, MOTOR_TEMP,
+                                    // CONTROLLER_TEMP, PHONE_BATTERY, DYN_*,
+                                    // GPS_*, etc.). These tiles honour the
+                                    // same per-slot corner stats as the
+                                    // hardcoded 5 above — without this the
+                                    // rider's Left/Right/Center pick from the
+                                    // slot editor would silently vanish.
+                                    // History buffers only exist for the six
+                                    // sparkline-backed metrics; for everything
+                                    // else cornerStatValueFor returns the
+                                    // placeholder dash so the chip still
+                                    // confirms the picked stat visually.
                                     LiveMetricTile(
                                         label = spec?.let { stringResource(it.labelRes) } ?: key,
-                                        value = displayValueFor(key),
+                                        value = centerOverride ?: displayValueFor(key),
                                         accent = spec?.accent ?: primary,
                                         sparkData = emptyList(),
                                         sparkStyle = spec?.sparkline ?: SparklineStyle.NONE,
                                         sparklineEnabled = sparklineEnabled,
                                         bipolarBaseline = spec?.bipolarBaseline ?: 0f,
                                         bipolarNegativeAccent = spec?.bipolarNegativeAccent,
+                                        cornerLeftLabel = cornerLeftLabel,
+                                        cornerLeftValue = cornerLeftValue,
+                                        cornerRightLabel = cornerRightLabel,
+                                        cornerRightValue = cornerRightValue,
+                                        centerStatLabel = centerStatLabel,
                                         modifier = Modifier.weight(1f),
                                         onClick = { onNavigateToMetric(key) }
                                     )
@@ -1626,9 +1640,11 @@ fun DashboardScreen(
                             "RECORD_TOGGLE" -> ActionTile(
                                 modifier = Modifier.weight(1f),
                                 icon = Icons.Default.FiberManualRecord,
-                                label = if (tripCount > 0)
-                                    stringResource(R.string.action_recorder_trips, tripCount)
-                                    else stringResource(R.string.action_recorder),
+                                label = when {
+                                    tripCount == 1 -> stringResource(R.string.action_recorder_trips_one, tripCount)
+                                    tripCount > 1 -> stringResource(R.string.action_recorder_trips, tripCount)
+                                    else -> stringResource(R.string.action_recorder)
+                                },
                                 active = recording,
                                 activeColor = if (useAccent) primary else AccentRed,
                                 onClick = { onNavigateToRecording() },

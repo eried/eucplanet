@@ -88,6 +88,8 @@
     <string name="lock_blocked_in_motion_toast">Rallenta per bloccare la ruota</string>
     <string name="action_recorder">Registratore</string>
     <string name="action_recorder_trips">Registratore\n(%1$d viaggi)</string>
+    <string name="action_recorder_trips_one">Registratore
+(%1$d viaggio)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Cerca nelle impostazioni</string>

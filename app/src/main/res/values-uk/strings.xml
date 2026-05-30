@@ -88,6 +88,8 @@
     <string name="lock_blocked_in_motion_toast">Знизьте швидкість, щоб заблокувати колесо</string>
     <string name="action_recorder">Запис</string>
     <string name="action_recorder_trips">Запис\n(%1$d поїздок)</string>
+    <string name="action_recorder_trips_one">Запис
+(%1$d поїздка)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Пошук налаштувань</string>

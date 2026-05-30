@@ -88,6 +88,8 @@
     <string name="lock_blocked_in_motion_toast">Zwolnij, aby zablokować koło</string>
     <string name="action_recorder">Rejestrator</string>
     <string name="action_recorder_trips">Rejestrator\n(%1$d tras)</string>
+    <string name="action_recorder_trips_one">Rejestrator
+(%1$d trasa)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Szukaj w ustawieniach</string>

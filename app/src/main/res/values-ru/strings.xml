@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Снизьте скорость, чтобы заблокировать колесо</string>
     <string name="action_recorder">Запись</string>
     <string name="action_recorder_trips">Поездки\n(%1$d)</string>
+    <string name="action_recorder_trips_one">Поездка
+(%1$d)</string>
 
     <string name="search_settings">Поиск настроек</string>
     <string name="tab_general">Общие</string>

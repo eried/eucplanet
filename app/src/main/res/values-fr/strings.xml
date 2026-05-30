@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Ralentissez pour verrouiller la roue</string>
     <string name="action_recorder">Enregistreur</string>
     <string name="action_recorder_trips">Enregistreur\n(%1$d trajets)</string>
+    <string name="action_recorder_trips_one">Enregistreur
+(%1$d trajet)</string>
 
     <string name="search_settings">Rechercher</string>
     <string name="tab_general">Général</string>

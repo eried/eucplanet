@@ -88,6 +88,8 @@
     <string name="lock_blocked_in_motion_toast">Reducí la velocidad para bloquear la rueda</string>
     <string name="action_recorder">Bitácora</string>
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
+    <string name="action_recorder_trips_one">Grabación
+(%1$d viaje)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Buscar en configuración</string>

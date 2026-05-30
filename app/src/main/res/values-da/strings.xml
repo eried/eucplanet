@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Sænk farten for at låse hjulet</string>
     <string name="action_recorder">Optager</string>
     <string name="action_recorder_trips">Optager\n(%1$d ture)</string>
+    <string name="action_recorder_trips_one">Optager
+(%1$d tur)</string>
 
     <string name="search_settings">Søg indstillinger</string>
     <string name="tab_general">Generelt</string>

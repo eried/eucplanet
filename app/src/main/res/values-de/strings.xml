@@ -62,6 +62,8 @@
     <string name="lock_blocked_in_motion_toast">Verlangsame, um das Rad zu sperren</string>
     <string name="action_recorder">Aufnahme</string>
     <string name="action_recorder_trips">Aufnahme\n(%1$d Fahrten)</string>
+    <string name="action_recorder_trips_one">Aufnahme
+(%1$d Fahrt)</string>
 
     <string name="search_settings">Einstellungen suchen</string>
     <string name="tab_general">Allgemein</string>

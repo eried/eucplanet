@@ -88,6 +88,8 @@
     <string name="lock_blocked_in_motion_toast">Reduza a velocidade para travar a roda</string>
     <string name="action_recorder">Gravador</string>
     <string name="action_recorder_trips">Gravador\n(%1$d viagens)</string>
+    <string name="action_recorder_trips_one">Gravador
+(%1$d viagem)</string>
 
     <!-- Settings tabs -->
     <string name="search_settings">Pesquisar configurações</string>
