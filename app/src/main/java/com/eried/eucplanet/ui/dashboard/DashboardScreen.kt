@@ -1404,17 +1404,25 @@ fun DashboardScreen(
                                             .clickable {
                                                 when (tile?.action) {
                                                     com.eried.eucplanet.ui.settings.CustomTileAction.OPEN_URL -> {
+                                                        // Pass whatever the rider typed straight to the
+                                                        // browser intent. Auto-prepend https:// only when
+                                                        // the input clearly looks like a host (no scheme,
+                                                        // not empty); a blank URL opens about:blank so a
+                                                        // mis-configured tile lands the rider in a browser
+                                                        // rather than silently navigating to history.
                                                         val raw = tile.url.trim()
-                                                        if (raw.isNotEmpty()) {
-                                                            val withScheme = if (raw.contains("://")) raw else "https://$raw"
-                                                            runCatching {
-                                                                ctxLocal.startActivity(
-                                                                    android.content.Intent(
-                                                                        android.content.Intent.ACTION_VIEW,
-                                                                        android.net.Uri.parse(withScheme)
-                                                                    ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                                )
-                                                            }
+                                                        val target = when {
+                                                            raw.isEmpty() -> "about:blank"
+                                                            raw.contains("://") -> raw
+                                                            else -> "https://$raw"
+                                                        }
+                                                        runCatching {
+                                                            ctxLocal.startActivity(
+                                                                android.content.Intent(
+                                                                    android.content.Intent.ACTION_VIEW,
+                                                                    android.net.Uri.parse(target)
+                                                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                            )
                                                         }
                                                     }
                                                     com.eried.eucplanet.ui.settings.CustomTileAction.SHOW_QR -> {
@@ -1826,9 +1834,12 @@ fun DashboardScreen(
                             onClick = { showQrForTile = null }
                         ) { Text(stringResource(R.string.dashboard_close)) }
                     },
-                    title = {
-                        Text(qrTile.text.ifBlank { display })
-                    },
+                    // Title only renders when the rider gave the tile a label;
+                    // we never leak the raw URL into the dialog header so the
+                    // QR is the only thing competing for attention.
+                    title = if (qrTile.text.isNotBlank()) {
+                        { Text(qrTile.text) }
+                    } else null,
                     text = {
                         QrCodeImage(content = display, sizeDp = 240)
                     }
