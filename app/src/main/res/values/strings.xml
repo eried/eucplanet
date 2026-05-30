@@ -113,7 +113,7 @@
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
     <string name="hud_overlay_subsection">HUD overlay</string>
-    <string name="hud_overlay_subsection_desc">Mirror an Overlay Studio preset on the HUD\'s Custom screen, without backgrounds — the rider sees your composition on top of the prism.</string>
+    <string name="hud_overlay_subsection_desc">Mirror any Overlay Studio preset on the HUD\'s Custom screen, without backgrounds, so the rider sees your composition on top of the prism</string>
     <string name="hud_overlay_select_preset">Select preset</string>
     <string name="hud_overlay_current_preset">Current: %1$s</string>
     <string name="hud_custom_overlay_label">Custom HUD overlay</string>
