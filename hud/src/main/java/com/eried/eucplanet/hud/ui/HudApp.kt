@@ -162,6 +162,21 @@ fun HudApp(
                     total = controller.totalScreens(),
                     modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                 )
+
+                // Ambient wall clock, bottom-left, same chrome as the
+                // disconnect / screen-change badges. Skipped on the two
+                // Custom-overlay screens because that's the rider's
+                // canvas; we shouldn't paint app chrome on top of their
+                // preset.
+                val showClock = controller.current != HudUiController.Screen.Custom &&
+                    controller.current != HudUiController.Screen.CustomCam
+                if (showClock) {
+                    WallClockBadge(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(12.dp)
+                    )
+                }
             }
         }
     }
@@ -520,6 +535,44 @@ private fun DisconnectedBadge(localIp: String?, modifier: Modifier = Modifier) {
         Spacer(Modifier.width(8.dp))
         Text(
             text = "$ipText:$port",
+            color = Color.White,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.Monospace,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
+    }
+}
+
+/** Ambient wall clock shown across screens. Matches the disconnect badge
+ *  chrome (8.dp rounded, 0xE6111111 fill, 0xFF6B6B6B 1.dp stroke) for
+ *  visual consistency with the other persistent overlays. Updates every
+ *  15 s -- the rider doesn't need second-precision out of the corner of
+ *  their eye. Uses the system's 24h / 12h preference. */
+@Composable
+private fun WallClockBadge(modifier: Modifier = Modifier) {
+    val ctx = LocalContext.current
+    val use24h = android.text.format.DateFormat.is24HourFormat(ctx)
+    val pattern = if (use24h) "HH:mm" else "h:mm a"
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            nowMs = System.currentTimeMillis()
+            kotlinx.coroutines.delay(15_000L)
+        }
+    }
+    val formatter = remember(pattern) {
+        java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
+    }
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color(0xE6111111))
+            .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = formatter.format(java.util.Date(nowMs)),
             color = Color.White,
             fontSize = 13.sp,
             fontFamily = FontFamily.Monospace,

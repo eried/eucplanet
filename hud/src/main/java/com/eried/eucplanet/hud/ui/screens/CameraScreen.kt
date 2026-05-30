@@ -100,6 +100,14 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     ) == PackageManager.PERMISSION_GRANTED
     var cameraReady by remember { mutableStateOf(false) }
     var cameraFailed by remember { mutableStateOf(false) }
+    // Latched once we've kicked off any bind attempt -- prevents the
+    // AndroidView update callback (which fires on every recomposition)
+    // from launching another bindToLifecycle in the same composable
+    // instance. Without this, the slide transition between screens
+    // re-runs the camera init dozens of times per second and produces a
+    // flood of CameraValidator: Camera LensFacing verification failed
+    // errors that pegs the main thread and triggers an ANR.
+    var bindStarted by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
@@ -111,7 +119,8 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                     }
                 },
                 update = { view ->
-                    if (!cameraReady) {
+                    if (!bindStarted) {
+                        bindStarted = true
                         val providerFuture = ProcessCameraProvider.getInstance(view.context)
                         providerFuture.addListener({
                             try {

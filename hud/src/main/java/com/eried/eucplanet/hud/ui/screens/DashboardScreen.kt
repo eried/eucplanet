@@ -62,16 +62,8 @@ fun DashboardScreen(hud: HudState, gpsView: Boolean) {
         // breathes on tiny panels but doesn't dominate on the wide dev one.
         val outerPad = (min(maxWidth.value, maxHeight.value) * 0.04f).dp
 
-        // Small wall clock in the bottom-left corner. Same look as the
-        // disconnect badge's monospaced font but smaller (10.sp). Reads as
-        // ambient info, not a primary readout. Uses the system locale's
-        // 24h preference so an Asian/EU rider sees 24h and a US rider sees
-        // AM/PM without any extra setting.
-        DashboardClock(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(8.dp)
-        )
+        // Clock now lives in HudApp so it overlays every screen, not just
+        // the dashboard. See [WallClockBadge].
         // Speed digit: ~28% of the available height. Matches the 800×480
         // dev sizing (134sp ≈ original 120sp) and shrinks proportionally
         // on the Motoeye where the panel is closer to 320×240.
@@ -336,35 +328,6 @@ private fun pwmAccent(pwm: Float, orange: Int, red: Int, accent: Color): Color =
     else -> accent
 }
 
-/** Bottom-left wall clock. Re-renders once a minute -- ticking faster would
- *  burn CPU for no rider value. Picks the system 24h/12h preference. */
-@Composable
-private fun DashboardClock(modifier: Modifier = Modifier) {
-    val ctx = androidx.compose.ui.platform.LocalContext.current
-    val use24h = android.text.format.DateFormat.is24HourFormat(ctx)
-    val pattern = if (use24h) "HH:mm" else "h:mm a"
-    val nowMsState = androidx.compose.runtime.remember {
-        androidx.compose.runtime.mutableStateOf(System.currentTimeMillis())
-    }
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        while (true) {
-            nowMsState.value = System.currentTimeMillis()
-            kotlinx.coroutines.delay(15_000L)
-        }
-    }
-    val nowMs = nowMsState.value
-    val formatter = androidx.compose.runtime.remember(pattern) {
-        java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
-    }
-    androidx.compose.material3.Text(
-        text = formatter.format(java.util.Date(nowMs)),
-        color = Color.White.copy(alpha = 0.55f),
-        fontSize = androidx.compose.ui.unit.TextUnit(11f, androidx.compose.ui.unit.TextUnitType.Sp),
-        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-        fontWeight = FontWeight.SemiBold,
-        modifier = modifier
-    )
-}
 
 @Suppress("unused")
 private val keepImports: Dp = 0.dp

@@ -4,8 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -60,17 +61,28 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
                 }
                 return@BoxWithConstraints
             }
-            val w = maxWidth.value
-            val h = maxHeight.value
+            val containerW = maxWidth
+            val containerH = maxHeight
             preset.elements.forEach { el ->
-                val xDp = (el.x * w).dp
-                val yDp = (el.y * h).dp
-                val widthDp = (el.width * w).dp
-                val heightDp = (if (el.height > 0f) el.height else el.width * 0.5f) * h
+                // Mirror the studio's sizing rule:
+                //  - width is widthIn(max = containerW * el.width); content
+                //    can be NARROWER if its natural width is smaller.
+                //  - height is only constrained when the rider explicitly
+                //    set it (el.height > 0). Otherwise the renderer keeps
+                //    its natural aspect ratio (square dial, 2.2:1 graph,
+                //    pill-shaped data value, etc.) and the bounding box
+                //    wraps to whatever that produces. Without this, every
+                //    Text/Box was getting forced into an arbitrary square
+                //    half-height and text spilled out the bottom.
                 Box(
                     modifier = Modifier
-                        .offset(x = xDp, y = yDp)
-                        .size(widthDp, heightDp.dp)
+                        .offset(x = containerW * el.x, y = containerH * el.y)
+                        .widthIn(max = containerW * el.width)
+                        .then(
+                            if (el.height > 0f)
+                                Modifier.heightIn(max = containerH * el.height)
+                            else Modifier
+                        )
                         .alpha(el.opacity)
                 ) {
                     OverlayElementRenderer(el, data)
