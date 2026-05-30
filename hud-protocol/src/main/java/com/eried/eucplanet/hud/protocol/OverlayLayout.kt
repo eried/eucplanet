@@ -1,4 +1,4 @@
-package com.eried.eucplanet.data.model
+package com.eried.eucplanet.hud.protocol
 
 import java.util.UUID
 

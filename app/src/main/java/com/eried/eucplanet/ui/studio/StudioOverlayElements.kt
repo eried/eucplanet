@@ -87,8 +87,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.WheelData
 import kotlinx.coroutines.launch
 

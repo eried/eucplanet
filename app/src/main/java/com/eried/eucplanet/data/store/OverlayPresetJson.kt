@@ -1,11 +1,11 @@
 package com.eried.eucplanet.data.store
 
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
-import com.eried.eucplanet.data.model.OverlayPreset
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import org.json.JSONArray
 import org.json.JSONObject
 

@@ -92,10 +92,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.TripRecord
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
 import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
