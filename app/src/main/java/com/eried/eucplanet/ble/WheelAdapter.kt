@@ -377,8 +377,8 @@ data class WheelCapabilities(
             hasHorn = true,
             hasLight = true,
             hasLock = false,
-            hasMaxSpeed = false,
-            hasAlarmSpeed = false,
+            hasMaxSpeed = true,    // LdAp 17-byte frame (decoded from a captured LeaperKim session)
+            hasAlarmSpeed = true,  // LkAp 17-byte frame (same source)
             hasVolume = false,
             hasDRL = false,
             needsAuthForLock = false

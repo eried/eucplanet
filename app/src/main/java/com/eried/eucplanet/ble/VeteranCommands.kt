@@ -67,4 +67,52 @@ object VeteranCommands {
      * the next telemetry frame; total distance at 12..15 is unaffected.
      */
     fun resetTrip(): ByteArray = "CLEARMETER".toByteArray(Charsets.US_ASCII)
+
+    /**
+     * Set the wheel's enforced tilt-back speed in km/h. Frame format
+     * decoded from a captured LeaperKim-app session against a Lynx S
+     * (mVer 9, May 2026): 17-byte `LdAp` frame with 8-byte payload
+     * `01 02 80 80 80 80 80 [VAL]` followed by a big-endian CRC32 over
+     * magic + length + payload. The value is an unsigned 8-bit km/h,
+     * matched 1:1 in the video (slider showed 21 km/h ↔ wire byte 0x15,
+     * 39 km/h ↔ 0x27). Clamped to 1..99 because the byte field can't
+     * carry 100+, the wheel rejects 0, and over-the-firmware-limit
+     * values risk an unsafe tilt-back gap with the alarm.
+     */
+    fun setTiltbackSpeed(kmh: Int): ByteArray =
+        buildLeaperKimSpeedFrame(magic = LDAP, subOp = SUBOP_TILTBACK, kmh = kmh)
+
+    /**
+     * Set the wheel's enforced alarm speed in km/h. Frame format
+     * decoded the same way as [setTiltbackSpeed]: 17-byte `LkAp` frame
+     * with 8-byte payload `01 80 80 80 80 80 80 [VAL]`. Verified by
+     * matching wire byte 0x14 to the Alarm-speed slider reading 20 km/h.
+     */
+    fun setAlarmSpeed(kmh: Int): ByteArray =
+        buildLeaperKimSpeedFrame(magic = LKAP, subOp = SUBOP_ALARM, kmh = kmh)
+
+    // 17-byte builder shared by tiltback (LdAp) and alarm (LkAp) writes.
+    // Both differ only in (a) the magic prefix and (b) byte 1 of the payload;
+    // bytes 2..6 are always 0x80 padding and byte 7 is the km/h value.
+    private fun buildLeaperKimSpeedFrame(magic: ByteArray, subOp: Byte, kmh: Int): ByteArray {
+        val clamped = kmh.coerceIn(1, 99)
+        val out = ByteArray(17)
+        magic.copyInto(out, 0)            // 0..3 : magic
+        out[4] = 0x11                      // 4    : length = 17
+        out[5] = 0x01                      // 5    : payload byte 0 = command class
+        out[6] = subOp                     // 6    : payload byte 1 = sub-op (0x02 tilt, 0x80 alarm)
+        for (i in 7..11) out[i] = 0x80.toByte()  // padding
+        out[12] = clamped.toByte()        // 12   : km/h value
+        val crc = java.util.zip.CRC32().apply { update(out, 0, 13) }.value.toInt()
+        out[13] = ((crc ushr 24) and 0xFF).toByte()
+        out[14] = ((crc ushr 16) and 0xFF).toByte()
+        out[15] = ((crc ushr 8) and 0xFF).toByte()
+        out[16] = (crc and 0xFF).toByte()
+        return out
+    }
+
+    private val LKAP = byteArrayOf(0x4C, 0x6B, 0x41, 0x70)  // "LkAp"
+    private val LDAP = byteArrayOf(0x4C, 0x64, 0x41, 0x70)  // "LdAp"
+    private const val SUBOP_TILTBACK: Byte = 0x02
+    private const val SUBOP_ALARM: Byte = 0x80.toByte()
 }

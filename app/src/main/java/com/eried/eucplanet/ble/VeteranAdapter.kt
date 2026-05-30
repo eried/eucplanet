@@ -57,14 +57,17 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun setLight(on: Boolean): ByteArray = VeteranCommands.setLight(on)
 
-    /**
-     * Veteran has no documented write command for absolute max speed. The
-     * `SETh/m/s` family sets pedal stiffness thresholds, not the absolute
-     * speed limit, so we return null here and let the UI gray the action
-     * out via [WheelCapabilities.hasMaxSpeed]. Threshold control will land
-     * on its own knob in a follow-up once the UI separates the two.
-     */
+    // Veteran writes tilt-back and alarm thresholds as two separate frames
+    // (different magic + sub-op per setting), so we leave the combined
+    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
+    // — the same flow P6 already uses for its two-packet flash-commit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
+
+    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
+        VeteranCommands.setTiltbackSpeed(tiltbackKmh.toInt())
+
+    override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
+        VeteranCommands.setAlarmSpeed(alarmKmh.toInt())
 
     // No volume, no DRL, no software lock per spec section 8.
     override fun setVolume(percent: Int): ByteArray? = null
