@@ -75,7 +75,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">VOLTAGE</string>
     <string name="stat_amps">AMPS</string>
-    <string name="stat_load">LOAD (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">TRIP</string>
     <string name="stat_odo">ODO </string>
 
@@ -178,7 +178,7 @@
     <string name="metric_chip_temperature">Temperature</string>
     <string name="metric_chip_voltage">Voltage</string>
     <string name="metric_chip_current">Amps</string>
-    <string name="metric_chip_load">Load (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_trip">Trip</string>
     <string name="metric_chip_speed">Speed</string>
     <string name="metric_chip_power">Power</string>

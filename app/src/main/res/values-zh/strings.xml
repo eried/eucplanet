@@ -48,7 +48,7 @@
     <string name="stat_temp">温度</string>
     <string name="stat_voltage">电压</string>
     <string name="stat_amps">电流</string>
-    <string name="stat_load">负载 (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">行程</string>
     <string name="stat_odo">里程 </string>
 
@@ -1122,7 +1122,7 @@
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_headroom">余量</string>
     <string name="metric_chip_lateral_g">横向 g</string>
-    <string name="metric_chip_load">负载 (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">电机功率</string>
     <string name="metric_chip_motor_rpm">转速</string>
     <string name="metric_chip_motor_temp">电机温度</string>

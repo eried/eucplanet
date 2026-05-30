@@ -74,7 +74,7 @@
     <string name="stat_temp">ТЕМП</string>
     <string name="stat_voltage">НАПРУГА</string>
     <string name="stat_amps">СТРУМ</string>
-    <string name="stat_load">НАВАНТ. (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">ПОЇЗДКА</string>
     <string name="stat_odo">ОДО </string>
 
@@ -1159,7 +1159,7 @@
     <string name="metric_chip_gps_speed">Шв. GPS</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_lateral_g">Боковий g</string>
-    <string name="metric_chip_load">Навант. (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Потуж. мотора</string>
     <string name="metric_chip_motor_rpm">об/хв</string>
     <string name="metric_chip_motor_temp">Темп. мотора</string>

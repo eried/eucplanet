@@ -74,7 +74,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">NAPIĘCIE</string>
     <string name="stat_amps">AMPERY</string>
-    <string name="stat_load">OBCIĄŻENIE (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">TRASA</string>
     <string name="stat_odo">PRZEBIEG </string>
 
@@ -1159,7 +1159,7 @@
     <string name="metric_chip_gps_speed">Pręd. GPS</string>
     <string name="metric_chip_headroom">Zapas</string>
     <string name="metric_chip_lateral_g">Boczne g</string>
-    <string name="metric_chip_load">Obciążenie (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Moc silnika</string>
     <string name="metric_chip_motor_rpm">obr/min</string>
     <string name="metric_chip_motor_temp">Temp. silnika</string>

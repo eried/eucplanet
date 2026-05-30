@@ -74,7 +74,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">TENSIONE</string>
     <string name="stat_amps">AMPERE</string>
-    <string name="stat_load">CARICO (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">VIAGGIO</string>
     <string name="stat_odo">ODO </string>
 
@@ -1158,7 +1158,7 @@
     <string name="metric_chip_gps_speed">Vel. GPS</string>
     <string name="metric_chip_headroom">Margine</string>
     <string name="metric_chip_lateral_g">G laterale</string>
-    <string name="metric_chip_load">Carico (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Pot. motore</string>
     <string name="metric_chip_motor_rpm">giri/min</string>
     <string name="metric_chip_motor_temp">Temp. motore</string>

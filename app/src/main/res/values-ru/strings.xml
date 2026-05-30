@@ -1174,7 +1174,7 @@
     <string name="metric_chip_gps_speed">Скор. GPS</string>
     <string name="metric_chip_headroom">Запас</string>
     <string name="metric_chip_lateral_g">Боковой g</string>
-    <string name="metric_chip_load">Нагрузка (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Мощн. мотора</string>
     <string name="metric_chip_motor_rpm">об/мин</string>
     <string name="metric_chip_motor_temp">Темп. мотора</string>

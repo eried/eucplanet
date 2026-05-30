@@ -48,7 +48,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">SPÄNNING</string>
     <string name="stat_amps">AMPERE</string>
-    <string name="stat_load">BELASTNING (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">RESA</string>
     <string name="stat_odo">ODO </string>
 
@@ -1122,7 +1122,7 @@
     <string name="metric_chip_gps_speed">GPS-fart</string>
     <string name="metric_chip_headroom">Marginal</string>
     <string name="metric_chip_lateral_g">Sido-g</string>
-    <string name="metric_chip_load">Belastning (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_motor_rpm">v/min</string>
     <string name="metric_chip_motor_temp">Motortemp.</string>

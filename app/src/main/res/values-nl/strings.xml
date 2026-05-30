@@ -74,7 +74,7 @@
     <string name="stat_temp">TEMP</string>
     <string name="stat_voltage">SPANNING</string>
     <string name="stat_amps">AMPÈRE</string>
-    <string name="stat_load">BELASTING (PWM)</string>
+    <string name="stat_load">PWM</string>
     <string name="stat_trip">RIT</string>
     <string name="stat_odo">TOTAAL </string>
 
@@ -1158,7 +1158,7 @@
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
     <string name="metric_chip_headroom">Marge</string>
     <string name="metric_chip_lateral_g">Zijwaartse g</string>
-    <string name="metric_chip_load">Belasting (PWM)</string>
+    <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_motor_rpm">tpm</string>
     <string name="metric_chip_motor_temp">Motor-temp.</string>
