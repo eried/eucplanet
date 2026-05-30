@@ -71,6 +71,14 @@ class DashboardViewModel @Inject constructor(
 
     val connectionState: StateFlow<ConnectionState> = wheelRepository.connectionState
 
+    /** Hardware top-speed cap from the detected wheel model (BegodeModel /
+     *  VeteranModel / InMotionV2Model / KingsongModel). Stays at the
+     *  WheelRepository DEFAULT_MAX_SPEED_KMH (90) when no wheel is connected
+     *  or the model isn't recognised — the dashboard treats that sentinel
+     *  as "don't cap" so unknown wheels keep the rider-tilt-back-driven
+     *  scale they have today. */
+    val wheelMaxSpeedCap: StateFlow<Float> = wheelRepository.maxSpeedCap
+
     val safetySpeedActive: StateFlow<Boolean> = wheelRepository.safetySpeedActive
 
     val locked: StateFlow<Boolean> = wheelRepository.locked

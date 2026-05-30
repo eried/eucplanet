@@ -253,6 +253,7 @@ fun DashboardScreen(
     val gpsLocation by viewModel.currentLocation.collectAsState()
     val hasFlic by viewModel.hasFlicConfigured.collectAsState()
     val flicShowOnDashboard by viewModel.flicShowOnDashboard.collectAsState()
+    val wheelMaxSpeedCap by viewModel.wheelMaxSpeedCap.collectAsState()
     // Navigation state, drives the dashboard's navigator button (the singleton
     // engine behind this VM is shared with the floating navigation overlay).
     val navOverlayVm: NavigationOverlayViewModel = hiltViewModel()
@@ -553,7 +554,23 @@ fun DashboardScreen(
             // a wheel doesn't report tiltback over BLE) still gives a usable
             // speedo. Without the floor we'd get ((0/10)+1)*10 = 10 km/h max,
             // which renders as ~6 mph and looks completely broken.
-            val gaugeMax = (((effectiveTiltback / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
+            //
+            // Cap the dial at the detected wheel's hardware max (+5 km/h
+            // breathing room) so a Mten3/Mten4 owner doesn't see a 110 km/h
+            // dial just because they bumped tilt-back high — the dial is
+            // useless if 80% of it is unreachable. The cap only applies
+            // when we actually KNOW the wheel's max (model detected and
+            // its enum sets maxSpeedKmh); for unrecognised wheels the cap
+            // sits at WheelRepository.DEFAULT_MAX_SPEED_KMH (90), which we
+            // treat as "unknown — don't constrain" so a high-end wheel we
+            // failed to identify (or a rider on a new/protocol-unsupported
+            // model) keeps the rider-tilt-back-driven scale they had
+            // before.
+            val rawGaugeMax = (((effectiveTiltback / 10f).toInt() + 1) * 10f).coerceAtLeast(30f)
+            val knownModelCapped = wheelMaxSpeedCap < 90f
+            val gaugeMax = if (knownModelCapped) {
+                minOf(rawGaugeMax, wheelMaxSpeedCap + 5f)
+            } else rawGaugeMax
             val pwm = wheelData.pwm.absoluteValue
 
             // Foldables / tablets: cap the speedo and use a 3-column stat grid so
