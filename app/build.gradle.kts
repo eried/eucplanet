@@ -69,6 +69,16 @@ android {
             )
             if (keystoreProps.isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Fall back to the debug keystore so local release
+                // builds work without a real release signing config and
+                // sideload-update over an existing debug install without
+                // forcing testers to uninstall first (mismatched
+                // signatures otherwise). CI workflows that ship to Play
+                // or GitHub Releases inject RELEASE_KEYSTORE secrets at
+                // build time and pick the branch above instead, so
+                // production releases never see this fallback.
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
