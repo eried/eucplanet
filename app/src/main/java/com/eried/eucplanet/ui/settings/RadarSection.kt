@@ -136,6 +136,7 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
     if (s.radarShowOverlay) {
         val sideOptions = listOf(
             "LEFT" to stringResource(R.string.radar_overlay_left),
+            "BOTH" to stringResource(R.string.radar_overlay_both),
             "RIGHT" to stringResource(R.string.radar_overlay_right)
         )
         SingleChoiceSegmentedButtonRow(

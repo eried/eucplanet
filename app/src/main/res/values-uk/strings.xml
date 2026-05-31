@@ -1056,8 +1056,9 @@
     <string name="radar_clear">Смуга вільна</string>
     <string name="radar_threats_count">Відстежується автомобілів: %1$d</string>
     <string name="radar_show_overlay">Показати оверлей загроз</string>
-    <string name="radar_show_overlay_desc">Плаваюча смуга з крапкою для кожного виявленого автомобіля. Видима на всіх екранах, доки позаду є машина.</string>
+    <string name="radar_show_overlay_desc">Тонка смуга радара по краях приладової панелі. Одна кольорова крапка на авто. Видима лише на приладовій панелі.</string>
     <string name="radar_overlay_left">Лівий край</string>
+    <string name="radar_overlay_both">Обидва боки</string>
     <string name="radar_overlay_right">Правий край</string>
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>

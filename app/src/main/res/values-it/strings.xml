@@ -1055,8 +1055,9 @@
     <string name="radar_clear">Corsia libera</string>
     <string name="radar_threats_count">Tracciamento di %1$d veicolo/i:</string>
     <string name="radar_show_overlay">Mostra overlay minacce</string>
-    <string name="radar_show_overlay_desc">Barra di corsia fluttuante con un punto per ogni veicolo rilevato. Rimane su tutte le schermate finché c\'è un\'auto dietro di te.</string>
+    <string name="radar_show_overlay_desc">Sottile barra radar nei bordi del dashboard. Un punto colorato per veicolo rilevato. Visibile solo sul dashboard.</string>
     <string name="radar_overlay_left">Bordo sinistro</string>
+    <string name="radar_overlay_both">Entrambi i lati</string>
     <string name="radar_overlay_right">Bordo destro</string>
     <string name="alarm_metric_radar_distance">Distanza auto</string>
     <string name="alarm_metric_radar_approach">Auto in avvicinamento</string>

@@ -1019,8 +1019,9 @@
     <string name="radar_clear">Vägen är fri</string>
     <string name="radar_threats_count">Spårar %1$d fordon:</string>
     <string name="radar_show_overlay">Visa hotöverlägg</string>
-    <string name="radar_show_overlay_desc">Flytande filfält med en punkt per upptäckt fordon. Visas på alla skärmar medan en bil är bakom dig.</string>
+    <string name="radar_show_overlay_desc">Tunn radarlist i dashboardkanterna. En färgad punkt per upptäckt fordon. Visas endast på dashboarden.</string>
     <string name="radar_overlay_left">Vänster kant</string>
+    <string name="radar_overlay_both">Båda sidor</string>
     <string name="radar_overlay_right">Höger kant</string>
     <string name="alarm_metric_radar_distance">Bilavstånd</string>
     <string name="alarm_metric_radar_approach">Bil närmar sig</string>

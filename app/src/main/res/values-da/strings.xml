@@ -1021,8 +1021,9 @@
     <string name="radar_clear">Vejen er fri</string>
     <string name="radar_threats_count">Sporer %1$d køretøj(er):</string>
     <string name="radar_show_overlay">Vis trussel-overlay</string>
-    <string name="radar_show_overlay_desc">Flydende vognbanebjælke med en prik pr. registreret køretøj. Vises på alle skærme, mens en bil er bag dig.</string>
+    <string name="radar_show_overlay_desc">Tynd radarbjælke i dashboardkanterne. En farvet prik pr. registreret køretøj. Vises kun på dashboardet.</string>
     <string name="radar_overlay_left">Venstre kant</string>
+    <string name="radar_overlay_both">Begge sider</string>
     <string name="radar_overlay_right">Højre kant</string>
     <string name="alarm_metric_radar_distance">Bilafstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer sig</string>

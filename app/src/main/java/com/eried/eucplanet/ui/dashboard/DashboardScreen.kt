@@ -759,6 +759,19 @@ fun DashboardScreen(
                         )
                     }
                 }
+                // Radar mini lane. CenterStart sits in the gap between the
+                // P/D column (TopStart) and the Navigator glyph (BottomStart);
+                // CenterEnd sits between GPS (TopEnd) and Studio (BottomEnd).
+                // Both mounts are gated by the same view model ,  the LEFT /
+                // RIGHT / BOTH preference is read inside [DashboardRadarMiniForSide].
+                DashboardRadarMiniForSide(
+                    targetSide = "LEFT",
+                    modifier = Modifier.align(Alignment.CenterStart)
+                )
+                DashboardRadarMiniForSide(
+                    targetSide = "RIGHT",
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
 
             Spacer(Modifier.height(16.dp))

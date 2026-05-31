@@ -1056,8 +1056,9 @@
     <string name="radar_clear">Pas wolny</string>
     <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
     <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
-    <string name="radar_show_overlay_desc">Pływający pasek z punktem dla każdego wykrytego pojazdu. Pozostaje widoczny na wszystkich ekranach, gdy za tobą jedzie samochód.</string>
+    <string name="radar_show_overlay_desc">Wąski pasek radaru na krawędziach panelu. Jedna kolorowa kropka na pojazd. Widoczny tylko na panelu.</string>
     <string name="radar_overlay_left">Lewa krawędź</string>
+    <string name="radar_overlay_both">Obie krawędzie</string>
     <string name="radar_overlay_right">Prawa krawędź</string>
     <string name="alarm_metric_radar_distance">Odległość samochodu</string>
     <string name="alarm_metric_radar_approach">Zbliżający się samochód</string>

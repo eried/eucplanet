@@ -434,8 +434,9 @@
     <string name="radar_clear">Lane is clear</string>
     <string name="radar_threats_count">Tracking %1$d vehicle(s):</string>
     <string name="radar_show_overlay">Show threat overlay</string>
-    <string name="radar_show_overlay_desc">Floating lane bar with a dot per detected vehicle. Stays on every screen while a car is behind you.</string>
+    <string name="radar_show_overlay_desc">Thin radar lane in the dashboard gutters. One coloured dot per detected vehicle. Only visible on the dashboard.</string>
     <string name="radar_overlay_left">Left edge</string>
+    <string name="radar_overlay_both">Both edges</string>
     <string name="radar_overlay_right">Right edge</string>
 
     <!-- Voice (spoken) templates -->

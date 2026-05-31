@@ -1055,8 +1055,9 @@
     <string name="radar_clear">Via livre</string>
     <string name="radar_threats_count">Rastreando %1$d veículo(s):</string>
     <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
-    <string name="radar_show_overlay_desc">Barra de faixa flutuante com um ponto por veículo detectado. Aparece em todas as telas enquanto houver um carro atrás de você.</string>
+    <string name="radar_show_overlay_desc">Barra de radar fina nas bordas do painel. Um ponto colorido por veículo detectado. Visível apenas no painel.</string>
     <string name="radar_overlay_left">Borda esquerda</string>
+    <string name="radar_overlay_both">Ambos os lados</string>
     <string name="radar_overlay_right">Borda direita</string>
     <string name="alarm_metric_radar_distance">Distância do carro</string>
     <string name="alarm_metric_radar_approach">Carro se aproximando</string>

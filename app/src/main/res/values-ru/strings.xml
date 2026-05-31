@@ -1071,8 +1071,9 @@
     <string name="radar_clear">Полоса свободна</string>
     <string name="radar_threats_count">Отслеживается машин: %1$d</string>
     <string name="radar_show_overlay">Показать оверлей угроз</string>
-    <string name="radar_show_overlay_desc">Плавающая полоса с точкой для каждой обнаруженной машины. Видна на всех экранах, пока сзади есть автомобиль.</string>
+    <string name="radar_show_overlay_desc">Тонкая полоса радара по краям приборной панели. Одна цветная точка на машину. Видна только на приборной панели.</string>
     <string name="radar_overlay_left">Левый край</string>
+    <string name="radar_overlay_both">Обе стороны</string>
     <string name="radar_overlay_right">Правый край</string>
     <string name="alarm_metric_radar_distance">Расстояние до машины</string>
     <string name="alarm_metric_radar_approach">Машина приближается</string>

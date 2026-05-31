@@ -1055,8 +1055,9 @@
     <string name="radar_clear">Rijbaan is vrij</string>
     <string name="radar_threats_count">%1$d voertuig(en) gevolgd:</string>
     <string name="radar_show_overlay">Bedreigingsoverlay tonen</string>
-    <string name="radar_show_overlay_desc">Zwevende rijbaanbalk met een punt per gedetecteerd voertuig. Blijft op elk scherm zichtbaar zolang er een auto achter je is.</string>
+    <string name="radar_show_overlay_desc">Dunne radarbalk in de dashboardrand. Eén gekleurde stip per gedetecteerd voertuig. Alleen zichtbaar op het dashboard.</string>
     <string name="radar_overlay_left">Linkerrand</string>
+    <string name="radar_overlay_both">Beide kanten</string>
     <string name="radar_overlay_right">Rechterrand</string>
     <string name="alarm_metric_radar_distance">Afstand auto</string>
     <string name="alarm_metric_radar_approach">Auto nadert</string>

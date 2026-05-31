@@ -1036,8 +1036,9 @@
     <string name="radar_clear">Spur ist frei</string>
     <string name="radar_threats_count">%1$d Fahrzeug(e) erfasst:</string>
     <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
-    <string name="radar_show_overlay_desc">Schwebende Spurleiste mit einem Punkt pro erkanntem Fahrzeug. Bleibt auf jedem Bildschirm sichtbar, solange ein Auto hinter Ihnen ist.</string>
+    <string name="radar_show_overlay_desc">Schmale Radar-Spur am Rand des Dashboards. Ein farbiger Punkt pro erkanntem Fahrzeug. Nur auf dem Dashboard sichtbar.</string>
     <string name="radar_overlay_left">Linker Rand</string>
+    <string name="radar_overlay_both">Beide Seiten</string>
     <string name="radar_overlay_right">Rechter Rand</string>
     <string name="alarm_metric_radar_distance">Fahrzeugabstand</string>
     <string name="alarm_metric_radar_approach">Fahrzeug nähert sich</string>

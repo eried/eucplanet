@@ -1019,8 +1019,9 @@
     <string name="radar_clear">Voie dégagée</string>
     <string name="radar_threats_count">Suivi de %1$d véhicule(s) :</string>
     <string name="radar_show_overlay">Afficher la surcouche de menace</string>
-    <string name="radar_show_overlay_desc">Barre de voie flottante avec un point par véhicule détecté. Reste visible sur tous les écrans tant qu\'une voiture est derrière vous.</string>
+    <string name="radar_show_overlay_desc">Fine barre radar dans les bords du tableau de bord. Un point coloré par véhicule détecté. Visible uniquement sur le tableau de bord.</string>
     <string name="radar_overlay_left">Bord gauche</string>
+    <string name="radar_overlay_both">Les deux côtés</string>
     <string name="radar_overlay_right">Bord droit</string>
     <string name="alarm_metric_radar_distance">Distance voiture</string>
     <string name="alarm_metric_radar_approach">Voiture approche</string>

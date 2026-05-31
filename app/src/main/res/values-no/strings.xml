@@ -1036,8 +1036,9 @@
     <string name="radar_clear">Veien er klar</string>
     <string name="radar_threats_count">Sporer %1$d kjøretøy:</string>
     <string name="radar_show_overlay">Vis trusseloverlegg</string>
-    <string name="radar_show_overlay_desc">Flytende feltindikator med ett punkt per oppdaget kjøretøy. Vises over alle skjermer mens en bil er bak deg.</string>
+    <string name="radar_show_overlay_desc">Tynn radarstripe i dashbordkantene. Ett farget punkt per oppdaget kjøretøy. Vises kun på dashbordet.</string>
     <string name="radar_overlay_left">Venstre kant</string>
+    <string name="radar_overlay_both">Begge sider</string>
     <string name="radar_overlay_right">Høyre kant</string>
     <string name="alarm_metric_radar_distance">Bilavstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer seg</string>

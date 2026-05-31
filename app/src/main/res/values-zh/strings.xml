@@ -1019,8 +1019,9 @@
     <string name="radar_clear">车道畅通</string>
     <string name="radar_threats_count">正在追踪 %1$d 辆车:</string>
     <string name="radar_show_overlay">显示威胁覆盖</string>
-    <string name="radar_show_overlay_desc">浮动车道条,每辆检测到的车辆显示一个圆点。后方有车时在所有屏幕上保持显示。</string>
+    <string name="radar_show_overlay_desc">仪表板边缘的细雷达条。每辆检测到的车辆显示一个彩色圆点。仅在仪表板上显示。</string>
     <string name="radar_overlay_left">左侧</string>
+    <string name="radar_overlay_both">两侧</string>
     <string name="radar_overlay_right">右侧</string>
     <string name="alarm_metric_radar_distance">车辆距离</string>
     <string name="alarm_metric_radar_approach">车辆接近</string>

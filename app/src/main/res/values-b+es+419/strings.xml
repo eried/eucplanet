@@ -1055,8 +1055,9 @@
     <string name="radar_clear">Carril despejado</string>
     <string name="radar_threats_count">Siguiendo %1$d vehículo(s):</string>
     <string name="radar_show_overlay">Mostrar superposición de amenazas</string>
-    <string name="radar_show_overlay_desc">Barra de carril flotante con un punto por vehículo detectado. Se mantiene en todas las pantallas mientras haya un auto detrás tuyo.</string>
+    <string name="radar_show_overlay_desc">Barra de radar fina en los bordes del panel. Un punto de color por vehículo detectado. Solo visible en el panel.</string>
     <string name="radar_overlay_left">Borde izquierdo</string>
+    <string name="radar_overlay_both">Ambos lados</string>
     <string name="radar_overlay_right">Borde derecho</string>
     <string name="alarm_metric_radar_distance">Distancia al auto</string>
     <string name="alarm_metric_radar_approach">Auto acercándose</string>
