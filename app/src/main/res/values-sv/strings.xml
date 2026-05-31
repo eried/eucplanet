@@ -7,6 +7,7 @@
     <string name="action_back">Tillbaka</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Klart</string>
 <string name="crash_log_action_prompt">Du höll in %1$s. Radera bara den här loggen, eller alla. Tryck på Avbryt och sedan på filen för att dela den.</string>
     <string name="crash_log_delete_one">Ta bort denna logg</string>
     <string name="crash_log_delete_all">Radera alla</string>
@@ -96,7 +97,7 @@
     <string name="cloud_restore_failed">Ingen kopia hittades i mappen</string>
     <string name="section_cloud_trips">Säkerhetskopia av resor</string>
     <string name="cloud_trips_caption">Nya resor sparas automatiskt i din mapp</string>
-    <string name="cloud_retry_now">Synkronisera allt</string>
+    <string name="cloud_retry_now">Synka allt</string>
     <string name="cloud_retry_enqueued">Uppladdning schemalagd</string>
     <string name="cloud_uploaded_on">Säkerhetskopierad %1$s</string>
     <string name="cloud_not_uploaded">Inte säkerhetskopierad ännu</string>
@@ -534,7 +535,7 @@
     <string name="watch_haptic_on_action">Vibrera vid åtgärd</string>
     <string name="watch_haptic_on_action_desc">Kort vibration på klockan varje gång en knappåtgärd utlöses</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorljud</string>
     <string name="engine_sound_enabled">Motorljud</string>
     <string name="engine_sound_enabled_hint">Driver motorvarvtal live från hastighet och motorbelastning</string>
@@ -569,7 +570,7 @@
     <string name="engine_headphones_only">Endast med hörlurar</string>
     <string name="engine_headphones_only_hint">Hoppar över telefonens högtalare. Motorn hörs bara med trådbundet eller Bluetooth-ljud</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Tvåtakt</string>
     <string name="engine_preset_four_stroke_single">Fyrtakt encylindrig</string>
     <string name="engine_preset_quad_bike">Fyrhjuling</string>

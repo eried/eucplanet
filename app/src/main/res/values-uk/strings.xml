@@ -8,6 +8,7 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Скасувати</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Готово</string>
 <string name="crash_log_action_prompt">Ви утримували %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» й торкніться файлу.</string>
     <string name="crash_log_delete_one">Видалити цей лог</string>
     <string name="crash_log_delete_all">Видалити всі</string>
@@ -156,7 +157,7 @@
     <string name="cloud_restore_failed">У папці не знайдено резервної копії</string>
     <string name="section_cloud_trips">Резервні копії поїздок</string>
     <string name="cloud_trips_caption">Нові поїздки автоматично зберігаються до твоєї папки</string>
-    <string name="cloud_retry_now">Синхронізувати все</string>
+    <string name="cloud_retry_now">Синхр. усе</string>
     <string name="cloud_retry_enqueued">Вивантаження заплановано</string>
     <string name="sync_progress">Синхронізація %1$d з %2$d</string>
     <string name="sync_no_folder">Спочатку вибери папку для копій</string>
@@ -570,7 +571,7 @@
     <string name="watch_haptic_on_action">Вібрація при дії</string>
     <string name="watch_haptic_on_action_desc">Коротка вібрація годинника, коли спрацьовує дія кнопки</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Звук двигуна</string>
     <string name="engine_sound_enabled">Звук двигуна</string>
     <string name="engine_sound_enabled_hint">Керує обертами в реальному часі за швидкістю і навантаженням</string>
@@ -605,7 +606,7 @@
     <string name="engine_headphones_only">Лише з навушниками</string>
     <string name="engine_headphones_only_hint">Пропускає динамік телефона. Двигун звучить тільки з дротовим або Bluetooth-аудіо</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-тактний</string>
     <string name="engine_preset_four_stroke_single">4-тактний одноцил</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>

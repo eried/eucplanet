@@ -363,11 +363,13 @@ private fun AutoDetectDialog(
                 }
             }
         },
-        // confirmButton: Next during instruct screens, OK on the Done screen.
+        // confirmButton: Next during instruct screens, Done on the final screen
+        // (matches the finish-button word other wizards use; saying "OK" on a
+        // success-summary screen reads weaker than affirming the completion).
         confirmButton = {
             when {
                 isDone -> TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_ok))
+                    Text(stringResource(R.string.action_done))
                 }
                 showNext -> TextButton(onClick = onNext) {
                     Text(stringResource(R.string.external_gps_autodetect_next))

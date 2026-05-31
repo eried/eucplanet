@@ -8,6 +8,7 @@
     <string name="action_back">Wstecz</string>
     <string name="action_cancel">Anuluj</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Gotowe</string>
 <string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń tylko ten dziennik lub wszystkie. Aby udostępnić, dotknij Anuluj, a potem dotknij pliku.</string>
     <string name="crash_log_delete_one">Usuń ten log</string>
     <string name="crash_log_delete_all">Usuń wszystkie</string>
@@ -156,7 +157,7 @@
     <string name="cloud_restore_failed">Nie znaleziono kopii w folderze</string>
     <string name="section_cloud_trips">Kopia zapasowa tras</string>
     <string name="cloud_trips_caption">Nowe trasy są zapisywane w Twoim folderze automatycznie</string>
-    <string name="cloud_retry_now">Synchronizuj wszystko</string>
+    <string name="cloud_retry_now">Synchr. wsz.</string>
     <string name="cloud_retry_enqueued">Wysyłanie zaplanowane</string>
     <string name="sync_progress">Synchronizowanie %1$d z %2$d</string>
     <string name="sync_no_folder">Najpierw wybierz folder kopii</string>
@@ -570,7 +571,7 @@
     <string name="watch_haptic_on_action">Wibracja przy akcji</string>
     <string name="watch_haptic_on_action_desc">Krótka wibracja zegarka za każdym razem, gdy uruchomi się akcja przypisana do przycisku</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Dźwięk silnika</string>
     <string name="engine_sound_enabled">Dźwięk silnika</string>
     <string name="engine_sound_enabled_hint">Steruje obrotami silnika na żywo z prędkości i obciążenia</string>
@@ -605,7 +606,7 @@
     <string name="engine_headphones_only">Tylko ze słuchawkami</string>
     <string name="engine_headphones_only_hint">Pomija głośnik telefonu. Silnik gra wyłącznie przy audio przewodowym lub Bluetooth</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-suw</string>
     <string name="engine_preset_four_stroke_single">4-suw jednocyl</string>
     <string name="engine_preset_quad_bike">Quad</string>

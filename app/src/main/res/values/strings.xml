@@ -8,6 +8,7 @@
     <string name="action_back">Back</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Done</string>
 <string name="crash_log_action_prompt">You long-pressed %1$s. Delete just this log, or delete all. To share it instead, tap Cancel and then tap the file.</string>
     <string name="crash_log_delete_one">Delete this log</string>
     <string name="crash_log_delete_all">Delete all</string>
@@ -349,7 +350,7 @@
     <string name="cloud_restore_failed">No backup found in folder</string>
     <string name="section_cloud_trips">Trips backup</string>
     <string name="cloud_trips_caption">New trips are saved to your folder automatically</string>
-    <string name="cloud_retry_now">Synchronize all</string>
+    <string name="cloud_retry_now">Sync all</string>
     <string name="cloud_retry_enqueued">Upload scheduled</string>
     <string name="sync_progress">Synchronizing %1$d of %2$d</string>
     <string name="sync_no_folder">Pick a backup folder first</string>
@@ -503,7 +504,7 @@
     <string name="voice_output_channel_notification">Notification</string>
     <string name="voice_output_channel_alarm">Alarm</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motor sound</string>
     <string name="engine_sound_enabled">Engine sound</string>
     <string name="engine_sound_enabled_hint">Drives engine RPM live from wheel speed and motor load</string>

@@ -7,6 +7,7 @@
     <string name="action_back">Tilbage</string>
     <string name="action_cancel">Annuller</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Færdig</string>
 <string name="crash_log_action_prompt">Du holdt %1$s nede. Slet kun denne log, eller alle. Tryk på Annuller og derefter på filen for at dele den.</string>
     <string name="crash_log_delete_one">Slet denne log</string>
     <string name="crash_log_delete_all">Slet alle</string>
@@ -96,7 +97,7 @@
     <string name="cloud_restore_failed">Ingen backup fundet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
     <string name="cloud_trips_caption">Nye ture gemmes automatisk i din mappe</string>
-    <string name="cloud_retry_now">Synkronisér alle</string>
+    <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Upload planlagt</string>
     <string name="cloud_uploaded_on">Sikkerhedskopieret %1$s</string>
     <string name="cloud_not_uploaded">Endnu ikke sikkerhedskopieret</string>
@@ -534,7 +535,7 @@
     <string name="watch_haptic_on_action">Vibrér ved handling</string>
     <string name="watch_haptic_on_action_desc">Kort vibration på uret hver gang en knaphandling udløses</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
     <string name="engine_sound_enabled_hint">Styrer motoromdrejninger live fra fart og motorbelastning</string>
@@ -569,7 +570,7 @@
     <string name="engine_headphones_only">Kun med hovedtelefoner</string>
     <string name="engine_headphones_only_hint">Springer telefonens højttaler over. Motor spiller kun med kablet eller Bluetooth-lyd</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firtakt encylindret</string>
     <string name="engine_preset_quad_bike">Quad</string>

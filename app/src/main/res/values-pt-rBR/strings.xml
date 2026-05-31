@@ -8,6 +8,7 @@
     <string name="action_back">Voltar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Concluído</string>
 <string name="crash_log_action_prompt">Você tocou e segurou %1$s. Exclua só este registro, ou todos. Para compartilhar, toque em Cancelar e depois no arquivo.</string>
     <string name="crash_log_delete_one">Apagar este log</string>
     <string name="crash_log_delete_all">Excluir tudo</string>
@@ -156,7 +157,7 @@
     <string name="cloud_restore_failed">Nenhum backup encontrado na pasta</string>
     <string name="section_cloud_trips">Backup de viagens</string>
     <string name="cloud_trips_caption">Novas viagens são salvas automaticamente na sua pasta</string>
-    <string name="cloud_retry_now">Sincronizar tudo</string>
+    <string name="cloud_retry_now">Sincr. tudo</string>
     <string name="cloud_retry_enqueued">Envio agendado</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
     <string name="sync_no_folder">Escolha primeiro uma pasta de backup</string>
@@ -570,7 +571,7 @@
     <string name="watch_haptic_on_action">Vibrar ao acionar</string>
     <string name="watch_haptic_on_action_desc">Vibração breve do relógio sempre que uma ação de botão é disparada</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Som do motor</string>
     <string name="engine_sound_enabled">Som do motor</string>
     <string name="engine_sound_enabled_hint">Controla as RPM ao vivo pela velocidade e carga do motor</string>
@@ -605,7 +606,7 @@
     <string name="engine_headphones_only">Só com fones</string>
     <string name="engine_headphones_only_hint">Ignora o alto-falante do celular. O motor só toca com áudio com fio ou Bluetooth</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2 tempos</string>
     <string name="engine_preset_four_stroke_single">4 tempos monocilíndrico</string>
     <string name="engine_preset_quad_bike">Quadriciclo</string>

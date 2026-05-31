@@ -7,6 +7,7 @@
     <string name="action_back">Tilbake</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Ferdig</string>
 <string name="crash_log_action_prompt">Du holdt %1$s inne. Slett bare denne loggen, eller alle. Trykk Avbryt og deretter på filen for å dele den.</string>
     <string name="crash_log_delete_one">Slett denne loggen</string>
     <string name="crash_log_delete_all">Slett alle</string>
@@ -97,7 +98,7 @@
     <string name="cloud_restore_failed">Ingen backup funnet i mappen</string>
     <string name="section_cloud_trips">Tur-backup</string>
     <string name="cloud_trips_caption">Nye turer lagres automatisk i mappen din</string>
-    <string name="cloud_retry_now">Synkroniser alle</string>
+    <string name="cloud_retry_now">Synk alle</string>
     <string name="cloud_retry_enqueued">Opplasting planlagt</string>
     <string name="sync_progress">Synkroniserer %1$d av %2$d</string>
     <string name="sync_no_folder">Velg en backup-mappe først</string>
@@ -551,7 +552,7 @@
     <string name="watch_haptic_on_action">Vibrer ved handling</string>
     <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
     <string name="engine_sound_enabled">Motorlyd</string>
     <string name="engine_sound_enabled_hint">Styrer motorturtall live fra fart og motorbelastning</string>
@@ -586,7 +587,7 @@
     <string name="engine_headphones_only">Kun med hodetelefoner</string>
     <string name="engine_headphones_only_hint">Hopper over telefonens høyttaler. Motoren spiller bare med kablet eller Bluetooth-lyd</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Totakt</string>
     <string name="engine_preset_four_stroke_single">Firetakt enkeltsylindret</string>
     <string name="engine_preset_quad_bike">Firehjuling</string>

@@ -7,6 +7,7 @@
     <string name="action_back">Назад</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_ok">ОК</string>
+    <string name="action_done">Готово</string>
 <string name="crash_log_action_prompt">Вы удерживали %1$s. Удалите этот журнал или все сразу. Чтобы поделиться, нажмите «Отмена» и коснитесь файла.</string>
     <string name="crash_log_delete_one">Удалить этот лог</string>
     <string name="crash_log_delete_all">Удалить все</string>
@@ -97,7 +98,7 @@
     <string name="cloud_restore_failed">В папке не найдена резервная копия</string>
     <string name="section_cloud_trips">Резервная копия поездок</string>
     <string name="cloud_trips_caption">Новые поездки сохраняются в вашу папку автоматически</string>
-    <string name="cloud_retry_now">Синхронизировать всё</string>
+    <string name="cloud_retry_now">Синхр. всё</string>
     <string name="cloud_retry_enqueued">Загрузка запланирована</string>
     <string name="sync_progress">Синхронизация %1$d из %2$d</string>
     <string name="sync_no_folder">Сначала выберите папку для копий</string>
@@ -586,7 +587,7 @@
     <string name="watch_haptic_on_action">Вибрация при действии</string>
     <string name="watch_haptic_on_action_desc">Короткая вибрация часов при срабатывании действия кнопки</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Звук двигателя</string>
     <string name="engine_sound_enabled">Звук двигателя</string>
     <string name="engine_sound_enabled_hint">Меняет обороты в реальном времени по скорости и нагрузке</string>
@@ -621,7 +622,7 @@
     <string name="engine_headphones_only">Только с наушниками</string>
     <string name="engine_headphones_only_hint">Не используется динамик телефона. Двигатель звучит только при проводном или Bluetooth-аудио</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-тактный</string>
     <string name="engine_preset_four_stroke_single">4-тактный одноцил</string>
     <string name="engine_preset_quad_bike">Квадроцикл</string>

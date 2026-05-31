@@ -7,6 +7,7 @@
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
     <string name="action_ok">确定</string>
+    <string name="action_done">完成</string>
 <string name="crash_log_action_prompt">你长按了 %1$s。可删除此日志或全部删除。如需分享，请点按“取消”后再点按该文件。</string>
     <string name="crash_log_delete_one">删除此日志</string>
     <string name="crash_log_delete_all">全部删除</string>
@@ -534,7 +535,7 @@
     <string name="watch_haptic_on_action">动作时震动</string>
     <string name="watch_haptic_on_action_desc">每次触发按钮动作时，手表会有一次短促震动。</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
     <string name="engine_sound_enabled_hint">根据独轮车的速度和电机负载实时驱动发动机转速</string>
@@ -569,7 +570,7 @@
     <string name="engine_headphones_only">仅在耳机连接时</string>
     <string name="engine_headphones_only_hint">跳过手机扬声器。引擎仅在有线或蓝牙音频下播放。</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">二冲程</string>
     <string name="engine_preset_four_stroke_single">四冲程单缸</string>
     <string name="engine_preset_quad_bike">四轮越野车</string>

@@ -8,6 +8,7 @@
     <string name="action_back">Terug</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Klaar</string>
 <string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit logboek, of allemaal. Tik op Annuleren en dan op het bestand om het te delen.</string>
     <string name="crash_log_delete_one">Dit logbestand verwijderen</string>
     <string name="crash_log_delete_all">Alles verwijderen</string>
@@ -156,7 +157,7 @@
     <string name="cloud_restore_failed">Geen back-up gevonden in de map</string>
     <string name="section_cloud_trips">Back-up van ritten</string>
     <string name="cloud_trips_caption">Nieuwe ritten worden automatisch in je map opgeslagen</string>
-    <string name="cloud_retry_now">Alles synchroniseren</string>
+    <string name="cloud_retry_now">Alles synchr.</string>
     <string name="cloud_retry_enqueued">Upload ingepland</string>
     <string name="sync_progress">Synchroniseren %1$d van %2$d</string>
     <string name="sync_no_folder">Kies eerst een back-upmap</string>
@@ -570,7 +571,7 @@
     <string name="watch_haptic_on_action">Trillen bij actie</string>
     <string name="watch_haptic_on_action_desc">Korte trilling van het horloge wanneer een knop-actie wordt geactiveerd</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorgeluid</string>
     <string name="engine_sound_enabled">Motorgeluid</string>
     <string name="engine_sound_enabled_hint">Stuurt het motortoerental live op snelheid en motorbelasting</string>
@@ -605,7 +606,7 @@
     <string name="engine_headphones_only">Alleen met koptelefoon</string>
     <string name="engine_headphones_only_hint">Slaat de telefoonluidspreker over. Motor klinkt alleen met bekabelde of Bluetooth-audio</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">Tweetakt</string>
     <string name="engine_preset_four_stroke_single">Viertakt eencilinder</string>
     <string name="engine_preset_quad_bike">Quad</string>

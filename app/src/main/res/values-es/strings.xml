@@ -7,6 +7,7 @@
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">Aceptar</string>
+    <string name="action_done">Listo</string>
 <string name="crash_log_action_prompt">Mantuviste pulsado %1$s. Elimina solo este registro, o elimínalos todos. Para compartirlo, toca Cancelar y luego toca el archivo.</string>
     <string name="crash_log_delete_one">Borrar este registro</string>
     <string name="crash_log_delete_all">Eliminar todo</string>
@@ -97,7 +98,7 @@
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
     <string name="cloud_trips_caption">Los viajes nuevos se guardan en tu carpeta automáticamente</string>
-    <string name="cloud_retry_now">Sincronizar todo</string>
+    <string name="cloud_retry_now">Sincr. todo</string>
     <string name="cloud_retry_enqueued">Subida programada</string>
     <string name="sync_progress">Sincronizando %1$d de %2$d</string>
     <string name="sync_no_folder">Primero elige una carpeta de respaldo</string>
@@ -551,7 +552,7 @@
     <string name="watch_haptic_on_action">Vibrar al activar</string>
     <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Sonido de motor</string>
     <string name="engine_sound_enabled">Generar sonido de motor</string>
     <string name="engine_sound_enabled_hint">Controla las RPM en vivo según velocidad y carga del motor</string>
@@ -586,7 +587,7 @@
     <string name="engine_headphones_only">Solo con auriculares</string>
     <string name="engine_headphones_only_hint">Omite el altavoz del teléfono. El motor solo suena cuando hay audio por cable o Bluetooth</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2 tiempos</string>
     <string name="engine_preset_four_stroke_single">4 tiempos monocilíndrico</string>
     <string name="engine_preset_quad_bike">Quad</string>

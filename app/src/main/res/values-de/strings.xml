@@ -7,6 +7,7 @@
     <string name="action_back">Zurück</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_ok">OK</string>
+    <string name="action_done">Fertig</string>
 <string name="crash_log_action_prompt">Du hast %1$s lange gedrückt. Lösche nur dieses Protokoll oder alle. Zum Teilen tippe auf Abbrechen und dann auf die Datei.</string>
     <string name="crash_log_delete_one">Diesen Log löschen</string>
     <string name="crash_log_delete_all">Alle löschen</string>
@@ -97,7 +98,7 @@
     <string name="cloud_restore_failed">Kein Backup im Ordner gefunden</string>
     <string name="section_cloud_trips">Fahrten-Backup</string>
     <string name="cloud_trips_caption">Neue Fahrten werden automatisch in deinem Ordner gespeichert</string>
-    <string name="cloud_retry_now">Alle synchronisieren</string>
+    <string name="cloud_retry_now">Alle synchr.</string>
     <string name="cloud_retry_enqueued">Upload geplant</string>
     <string name="sync_progress">Synchronisiere %1$d von %2$d</string>
     <string name="sync_no_folder">Zuerst einen Backup-Ordner wählen</string>
@@ -550,7 +551,7 @@
     <string name="watch_haptic_on_action">Bei Aktion vibrieren</string>
     <string name="watch_haptic_on_action_desc">Kurze Vibration der Uhr, sobald eine Tasten-Aktion ausgelöst wird</string>
 
-    <!-- Motor sound generator -->
+    <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorklang</string>
     <string name="engine_sound_enabled">Motorklang</string>
     <string name="engine_sound_enabled_hint">Steuert Motor-Drehzahl live aus Radgeschwindigkeit und Motorlast</string>
@@ -585,7 +586,7 @@
     <string name="engine_headphones_only">Nur mit Kopfhörern</string>
     <string name="engine_headphones_only_hint">Spielt nicht über den Lautsprecher. Motorklang läuft nur mit kabelgebundenem oder Bluetooth-Audio</string>
 
-    <!-- Motor sound: generic preset names + parked hint -->
+    <!-- Engine sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2-Takt</string>
     <string name="engine_preset_four_stroke_single">4-Takt Einzylinder</string>
     <string name="engine_preset_quad_bike">Quad</string>
