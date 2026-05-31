@@ -107,7 +107,7 @@
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>
-    <string name="section_watch_customization">Персоналізація</string>
+    <string name="section_watch_advanced">Додатково</string>
     <string name="watch_keep_on">Не вимикати екран</string>
     <string name="watch_keep_on_desc">Тримати годинник у активному стані, поки додаток відкритий</string>
     <string name="watch_update_rate">Частота оновлення</string>

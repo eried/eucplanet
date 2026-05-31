@@ -492,7 +492,7 @@
     <string name="scan_simulate_subtitle">Förbigår BLE och matar färdiga svar. Bara i utvecklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuella hjul</string>
     <string name="section_watch_display">Skärm</string>
-    <string name="section_watch_customization">Anpassning</string>
+    <string name="section_watch_advanced">Avancerat</string>
     <string name="section_watch_general">Allmänt</string>
     <string name="show_gauge_color_band">Färgband på hastighetsmätaren</string>
     <string name="stat_watts">WATT</string>

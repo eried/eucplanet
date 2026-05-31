@@ -307,7 +307,7 @@
 
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
-    <string name="section_watch_customization">Customization</string>
+    <string name="section_watch_advanced">Advanced</string>
     <string name="watch_keep_on">Keep display on</string>
     <string name="watch_keep_on_desc">Keep the watch awake while the app is open</string>
     <string name="watch_update_rate">Update rate</string>

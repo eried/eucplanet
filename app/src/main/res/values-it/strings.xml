@@ -107,7 +107,7 @@
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Generali</string>
     <string name="section_watch_display">Schermo</string>
-    <string name="section_watch_customization">Personalizzazione</string>
+    <string name="section_watch_advanced">Avanzato</string>
     <string name="watch_keep_on">Mantieni schermo acceso</string>
     <string name="watch_keep_on_desc">Tieni l\'orologio sveglio mentre l\'app è aperta</string>
     <string name="watch_update_rate">Frequenza di aggiornamento</string>

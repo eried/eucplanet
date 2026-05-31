@@ -5529,7 +5529,7 @@ private fun WatchTab(
                 ) {
                     Text(
                         text = highlightMatches(
-                            stringResource(R.string.section_watch_customization),
+                            stringResource(R.string.section_watch_advanced),
                             LocalSettingsSearchQuery.current
                         ),
                         style = MaterialTheme.typography.titleSmall,

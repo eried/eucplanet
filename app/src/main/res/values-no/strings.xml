@@ -509,7 +509,7 @@
     <string name="scan_simulate_subtitle">Hopper over BLE og bruker ferdiglagde svar. Kun i utviklingsbuilds.</string>
     <string name="scan_simulate_title">Virtuelle hjul</string>
     <string name="section_watch_display">Skjerm</string>
-    <string name="section_watch_customization">Tilpasning</string>
+    <string name="section_watch_advanced">Avansert</string>
     <string name="section_watch_general">Generelt</string>
     <string name="show_gauge_color_band">Fargebånd på fartsmåler</string>
     <string name="stat_watts">WATT</string>
