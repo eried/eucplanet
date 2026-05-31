@@ -509,6 +509,7 @@
     <string name="scan_simulate_subtitle">Omite BLE y usa respuestas predefinidas. Solo en versiones de desarrollo.</string>
     <string name="scan_simulate_title">Ruedas virtuales</string>
     <string name="section_watch_display">Pantalla</string>
+    <string name="section_watch_customization">Personalización</string>
     <string name="section_watch_general">General</string>
     <string name="show_gauge_color_band">Banda de color del indicador de velocidad</string>
     <string name="stat_watts">VATIOS</string>

@@ -107,6 +107,7 @@
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
+    <string name="section_watch_customization">Personalización</string>
     <string name="watch_keep_on">Mantener pantalla encendida</string>
     <string name="watch_keep_on_desc">Mantén el reloj despierto mientras la app esté abierta</string>
     <string name="watch_update_rate">Frecuencia de actualización</string>

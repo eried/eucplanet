@@ -1279,7 +1279,7 @@ private fun MetricDragPreview(
         return
     }
     val accent = metricAccentColor(key)
-    val label = metricChipLabel(key)
+    val label = metricChipLabel(key, short = true)
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     val stats = viewModel.dashboardMetricSlotStats(settings, key)
@@ -1715,7 +1715,7 @@ private fun CompositeCell(
         }
         return
     }
-    val label = metricChipLabel(key).uppercase()
+    val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key)
     // Stat indicator on top — only shown when the rider picked a non-
     // default stat (Min / Max / Avg / Median / P75 / etc.). Tinted with
@@ -1789,7 +1789,7 @@ private fun CompositeCellRow(
         return
     }
     val accent = metricAccentColor(key)
-    val label = metricChipLabel(key).uppercase()
+    val label = metricChipLabel(key, short = true).uppercase()
     val value = valueOf(key)
     val showStat = stat != DashboardStat.CURRENT && stat != DashboardStat.NONE
     // Label gets the squeezable slot (weight 1f, fill = true) so it expands to
@@ -1845,7 +1845,7 @@ private fun MetricTile(
     controller: DashboardDragController
 ) {
     val accent = metricAccentColor(key)
-    val label = metricChipLabel(key)
+    val label = metricChipLabel(key, short = true)
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     val hasSideReadings = !stats.isDefault
@@ -1945,8 +1945,11 @@ private fun MetricPool(
 ) {
     // metricChipLabel is @Composable (reads string resources), so resolve
     // labels first then sort. Stable .uppercase() avoids locale-flips
-    // between "Speed" and "SPEED" when adding a metric.
-    val labeled = catalogKeys.map { it to metricChipLabel(it) }
+    // between "Speed" and "SPEED" when adding a metric. Sort by the same
+    // short variant the pool pills render so the order matches what the
+    // rider reads — alphabetising by the long label and showing the short
+    // one would scramble the apparent ordering.
+    val labeled = catalogKeys.map { it to metricChipLabel(it, short = true) }
     val sorted = labeled.sortedBy { it.second.uppercase() }.map { it.first }
     // Pool pill physical size in pixels — needs to live inside the composable
     // since LocalDensity is composition-scoped. Used as the "shrink-back" size
@@ -2401,7 +2404,7 @@ private fun MetricPoolPill(
     controller: DashboardDragController
 ) {
     val accent = metricAccentColor(key)
-    val label = metricChipLabel(key)
+    val label = metricChipLabel(key, short = true)
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     val isBeingDragged = controller.draggingKey == key
@@ -3071,6 +3074,20 @@ private fun DashboardSlotSheet(
             when (target) {
                 is DashboardEditTarget.Metric -> {
                     val stats = viewModel.dashboardMetricSlotStats(settings, target.key)
+                    // Sheet header — the FULL descriptive metric name with
+                    // plenty of width to breathe. The preview tile below
+                    // shows the SHORT tile label (matching the dashboard
+                    // face), so this header is the rider's single place to
+                    // read the unabbreviated name they just picked. Allowed
+                    // to wrap onto 2 lines so e.g. "Dynamic current limit"
+                    // or "Temperatura del controlador" never gets clipped.
+                    Text(
+                        text = metricChipLabel(target.key, short = false),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     SlotSheetMetricPreview(
                         key = target.key,
                         stats = stats,
@@ -3863,7 +3880,11 @@ private fun SlotSheetMetricPreview(
     onSparklineChange: (Boolean) -> Unit
 ) {
     val accent = metricAccentColor(key)
-    val label = metricChipLabel(key)
+    // Slot-sheet preview MUST mirror the dashboard tile face — same short
+    // label as actually appears on the dashboard, so the preview is an
+    // honest representation of what the rider will see. The FULL name is
+    // shown separately as the sheet header above this preview.
+    val label = metricChipLabel(key, short = true)
     val value = valueOf()
     Box(
         modifier = Modifier
@@ -4427,11 +4448,27 @@ private fun SlotSheetActionPreview(key: String) {
  * so adding a new metric is one entry in `MetricCatalog.all` — this
  * function never needs to grow another branch. The composite-empty
  * sentinel and unknown keys fall back to bespoke strings.
+ *
+ * When [short] is true, prefers the `metric_chip_<key>_tile` resource
+ * if it exists, falling back to the full label. Tile / pool / grid-
+ * preview render sites pass true so what the rider sees in the editor
+ * matches what they'll see on the actual dashboard tile face; picker
+ * dropdowns and the slot-edit sheet header keep `short = false` so
+ * the rider always sees the FULL descriptive name when choosing.
  */
 @Composable
-internal fun metricChipLabel(key: String): String {
+internal fun metricChipLabel(key: String, short: Boolean = false): String {
     if (key == COMPOSITE_CELL_EMPTY) return stringResource(R.string.dashboard_composite_empty_label)
     val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key) ?: return key
+    if (short) {
+        val ctx = LocalContext.current
+        val tileRes = remember(key) {
+            ctx.resources.getIdentifier(
+                "metric_chip_${key.lowercase()}_tile", "string", ctx.packageName
+            )
+        }
+        if (tileRes != 0) return stringResource(tileRes)
+    }
     return stringResource(spec.labelRes)
 }
 
@@ -5383,6 +5420,9 @@ private fun WatchTab(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // General: the two settings every rider touches first (auto-launch
+        // and auto-close). Keep-display-on used to live here but moved
+        // under Display since it's part of the visual on/off behaviour.
         SectionHeader(stringResource(R.string.section_watch_general))
 
         SwitchSettingWithDesc(
@@ -5398,110 +5438,21 @@ private fun WatchTab(
             checked = settings.watchCloseOnExit,
             onCheckedChange = { viewModel.updateWatchCloseOnExit(it) }
         )
+
+        // Display: when the watch screen is on / what it primarily shows.
+        // Pared down to the two switches that affect "do I see anything
+        // useful right now" — Keep-display-on (don't time out) and
+        // Show-navigation (mirror the turn arrow). Battery icons,
+        // PWM rendering, unit labels, dial rotation are all visual
+        // tweaks that live in Customization below.
+        SectionHeader(stringResource(R.string.section_watch_display))
+
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_keep_on),
             description = stringResource(R.string.watch_keep_on_desc),
             checked = settings.watchKeepScreenOn,
             onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
         )
-        Text(
-            stringResource(R.string.watch_update_rate),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val updateRateOptions = listOf(
-            "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
-            "NORMAL" to stringResource(R.string.watch_update_normal),
-            "FAST" to stringResource(R.string.watch_update_fast)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            updateRateOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.watchUpdateRate,
-                    onClick = { viewModel.updateWatchUpdateRate(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-        // Supporting text after the control, it describes a consequence of
-        // the choice (battery cost), so it reads as a footnote, not a header.
-        Text(
-            stringResource(R.string.watch_update_rate_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-
-        SectionHeader(stringResource(R.string.section_watch_display))
-
-        SwitchSetting(
-            stringResource(R.string.watch_show_wheel_battery),
-            settings.watchShowWheelBattery
-        ) { viewModel.updateWatchShowWheelBattery(it) }
-        SwitchSetting(
-            stringResource(R.string.watch_show_phone_battery),
-            settings.watchShowPhoneBattery
-        ) { viewModel.updateWatchShowPhoneBattery(it) }
-        SwitchSetting(
-            stringResource(R.string.watch_show_watch_battery),
-            settings.watchShowWatchBattery
-        ) { viewModel.updateWatchShowWatchBattery(it) }
-
-        Text(
-            stringResource(R.string.watch_pwm_display),
-            style = MaterialTheme.typography.bodyLarge
-        )
-        val loadOptions = listOf(
-            "BAR" to stringResource(R.string.watch_pwm_bar),
-            "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
-            "BOTH" to stringResource(R.string.watch_pwm_both)
-        )
-        SingleChoiceSegmentedButtonRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-        ) {
-            loadOptions.forEachIndexed { index, (key, label) ->
-                SegmentedButton(
-                    modifier = Modifier.fillMaxHeight(),
-                    selected = key == settings.watchPwmDisplay,
-                    onClick = { viewModel.updateWatchPwmDisplay(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
-                ) {
-                    Text(
-                        label,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_prioritize_pwm),
-            description = stringResource(R.string.watch_prioritize_pwm_desc),
-            checked = settings.watchPrioritizePwm,
-            onCheckedChange = { viewModel.updateWatchPrioritizePwm(it) }
-        )
-
-        SwitchSettingWithDesc(
-            label = stringResource(R.string.watch_show_speed_unit),
-            description = stringResource(R.string.watch_show_speed_unit_desc),
-            checked = settings.watchShowSpeedUnit,
-            onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
-        )
-
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_show_navigation),
             description = stringResource(R.string.watch_show_navigation_desc),
@@ -5509,23 +5460,147 @@ private fun WatchTab(
             onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
 
-        Text(
-            stringResource(R.string.watch_dial_rotation),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        SliderSetting(
-            label = "",
-            // Fixed -90 / 90 captions under the slider ends; the live angle is
-            // intentionally not shown, the thumb position is the feedback.
-            value = settings.watchDialRotationDeg.toFloat(),
-            range = -90f..90f,
-            unit = "°",
-            steps = 35,                         // 36 segments → -90,-85,…,+90
-            minLabel = "-90",
-            maxLabel = "90",
-            onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
-        )
+        // Customization (collapsed by default) — visual tweaks most riders
+        // configure once and forget. Hiding them keeps the Watch tab tight
+        // for first-time setup while still letting power users dial things
+        // in. Update-rate sits here because it's a battery-vs-smoothness
+        // tradeoff, not a "does my watch work?" gate.
+        var customizationExpanded by rememberSaveable { mutableStateOf(false) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { customizationExpanded = !customizationExpanded },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = highlightMatches(
+                    stringResource(R.string.section_watch_customization),
+                    LocalSettingsSearchQuery.current
+                ),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (customizationExpanded)
+                    androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp
+                else
+                    androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        if (customizationExpanded) {
+            Text(
+                stringResource(R.string.watch_update_rate),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val updateRateOptions = listOf(
+                "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
+                "NORMAL" to stringResource(R.string.watch_update_normal),
+                "FAST" to stringResource(R.string.watch_update_fast)
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max)
+            ) {
+                updateRateOptions.forEachIndexed { index, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == settings.watchUpdateRate,
+                        onClick = { viewModel.updateWatchUpdateRate(key) },
+                        shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
+                    ) {
+                        Text(
+                            label,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+            Text(
+                stringResource(R.string.watch_update_rate_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            SwitchSetting(
+                stringResource(R.string.watch_show_wheel_battery),
+                settings.watchShowWheelBattery
+            ) { viewModel.updateWatchShowWheelBattery(it) }
+            SwitchSetting(
+                stringResource(R.string.watch_show_phone_battery),
+                settings.watchShowPhoneBattery
+            ) { viewModel.updateWatchShowPhoneBattery(it) }
+            SwitchSetting(
+                stringResource(R.string.watch_show_watch_battery),
+                settings.watchShowWatchBattery
+            ) { viewModel.updateWatchShowWatchBattery(it) }
+
+            Text(
+                stringResource(R.string.watch_pwm_display),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            val loadOptions = listOf(
+                "BAR" to stringResource(R.string.watch_pwm_bar),
+                "NUMBERS" to stringResource(R.string.watch_pwm_numbers),
+                "BOTH" to stringResource(R.string.watch_pwm_both)
+            )
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max)
+            ) {
+                loadOptions.forEachIndexed { index, (key, label) ->
+                    SegmentedButton(
+                        modifier = Modifier.fillMaxHeight(),
+                        selected = key == settings.watchPwmDisplay,
+                        onClick = { viewModel.updateWatchPwmDisplay(key) },
+                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
+                    ) {
+                        Text(
+                            label,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_prioritize_pwm),
+                description = stringResource(R.string.watch_prioritize_pwm_desc),
+                checked = settings.watchPrioritizePwm,
+                onCheckedChange = { viewModel.updateWatchPrioritizePwm(it) }
+            )
+
+            SwitchSettingWithDesc(
+                label = stringResource(R.string.watch_show_speed_unit),
+                description = stringResource(R.string.watch_show_speed_unit_desc),
+                checked = settings.watchShowSpeedUnit,
+                onCheckedChange = { viewModel.updateWatchShowSpeedUnit(it) }
+            )
+
+            Text(
+                stringResource(R.string.watch_dial_rotation),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            SliderSetting(
+                label = "",
+                value = settings.watchDialRotationDeg.toFloat(),
+                range = -90f..90f,
+                unit = "°",
+                steps = 35,
+                minLabel = "-90",
+                maxLabel = "90",
+                onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
+            )
+        }
 
         // Hardware-button mappings hidden for now, Samsung Watch Ultra and
         // most Galaxy Wear OS devices don't deliver KEYCODE_STEM_* events to

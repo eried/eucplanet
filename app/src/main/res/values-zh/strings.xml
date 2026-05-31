@@ -492,6 +492,7 @@
     <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
     <string name="scan_simulate_title">虚拟独轮车</string>
     <string name="section_watch_display">显示</string>
+    <string name="section_watch_customization">个性化</string>
     <string name="section_watch_general">通用</string>
     <string name="show_gauge_color_band">速度表色带</string>
     <string name="stat_watts">瓦特</string>
