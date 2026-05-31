@@ -5478,33 +5478,49 @@ private fun WatchTab(
         // configure once and forget. Hiding them keeps the Watch tab tight
         // for first-time setup while still letting power users dial things
         // in. Update-rate sits here because it's a battery-vs-smoothness
-        // tradeoff, not a "does my watch work?" gate.
+        // tradeoff, not a "does my watch work?" gate. Uses the same compact
+        // card style as the OneDrive cloud_help collapsable so it reads as
+        // a secondary affordance rather than a peer Display/General/Buttons
+        // section — those big SectionHeader titles dominated the Watch tab.
         var customizationExpanded by rememberSaveable { mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { customizationExpanded = !customizationExpanded },
-            verticalAlignment = Alignment.CenterVertically
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         ) {
-            Text(
-                text = highlightMatches(
-                    stringResource(R.string.section_watch_customization),
-                    LocalSettingsSearchQuery.current
-                ),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (customizationExpanded)
-                    androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp
-                else
-                    androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
-        if (customizationExpanded) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { customizationExpanded = !customizationExpanded }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = highlightMatches(
+                            stringResource(R.string.section_watch_customization),
+                            LocalSettingsSearchQuery.current
+                        ),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = if (customizationExpanded)
+                            androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp
+                        else
+                            androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null
+                    )
+                }
+                if (customizationExpanded) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .padding(bottom = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
             Text(
                 stringResource(R.string.watch_update_rate),
                 style = MaterialTheme.typography.bodyLarge
@@ -5614,6 +5630,9 @@ private fun WatchTab(
                 maxLabel = "90",
                 onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
             )
+                    }
+                }
+            }
         }
 
         // Hardware-button mappings hidden for now, Samsung Watch Ultra and
