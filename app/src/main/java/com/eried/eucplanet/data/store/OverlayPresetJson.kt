@@ -159,6 +159,9 @@ object OverlayPresetJson {
         put("barShowValue", el.barShowValue)
         put("dialStyle", el.dialStyle)
         put("unitPosition", el.unitPosition)
+        put("dialShowColorBand", el.dialShowColorBand)
+        put("dialOrangeThresholdPct", el.dialOrangeThresholdPct)
+        put("dialRedThresholdPct", el.dialRedThresholdPct)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -219,7 +222,10 @@ object OverlayPresetJson {
             gForceSmoothing = o.optDouble("gForceSmoothing", d.gForceSmoothing.toDouble()).toFloat(),
             barShowValue = o.optBoolean("barShowValue", d.barShowValue),
             dialStyle = o.optString("dialStyle", d.dialStyle),
-            unitPosition = o.optString("unitPosition", d.unitPosition)
+            unitPosition = o.optString("unitPosition", d.unitPosition),
+            dialShowColorBand = o.optBoolean("dialShowColorBand", d.dialShowColorBand),
+            dialOrangeThresholdPct = o.optInt("dialOrangeThresholdPct", d.dialOrangeThresholdPct),
+            dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct)
         )
     }
 

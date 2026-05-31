@@ -2314,7 +2314,7 @@ private fun SwitchSetting(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GaugeThresholdSlider(
+internal fun GaugeThresholdSlider(
     orangePct: Int,
     redPct: Int,
     safeColor: androidx.compose.ui.graphics.Color,
@@ -3721,25 +3721,38 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Personalize card: collapsible block that holds the screen
-        // carousel customiser AND the Custom-overlay picker. Collapsed
-        // by default so the Integration card stays short on first
-        // visit; rider opens it when they want to trim or reorder the
-        // HUD's screens. The reorderable list inside ships its order
-        // to the HUD on every wire frame, so changes are live within
-        // ~200 ms -- no power cycle required.
-        HudPersonalizeCard(settings = settings, viewModel = viewModel)
+        // Two top-level collapsibles under the Integration card.
+        // HUD screens first because the reorder list inside is the
+        // primary repeat-visit destination; Map options second.
+        HudScreensCard(settings = settings, viewModel = viewModel)
+        HudMapOptionsCard(settings = settings, viewModel = viewModel)
     }
 }
 
+/** Generic collapsible card with the same auto-scroll-on-expand
+ *  behaviour the top-level section cards use (the BringIntoViewRequester
+ *  fires ~80 ms after expansion so the section header lands in the
+ *  viewport even on a long page). Wraps the Material Card the original
+ *  HudPersonalizeCard used so the chrome stays identical. */
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-private fun HudPersonalizeCard(
-    settings: com.eried.eucplanet.data.model.AppSettings,
-    viewModel: SettingsViewModel
+private fun HudCollapsibleCard(
+    title: String,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable () -> Unit
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(80)
+            runCatching { requester.bringIntoView() }
+        }
+    }
     androidx.compose.material3.Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(requester),
         colors = androidx.compose.material3.CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -3748,12 +3761,12 @@ private fun HudPersonalizeCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
+                    .clickable { onToggle() }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    stringResource(R.string.hud_personalize_title),
+                    title,
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.weight(1f)
                 )
@@ -3771,16 +3784,102 @@ private fun HudPersonalizeCard(
                         .padding(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    HudScreenList(settings = settings, viewModel = viewModel)
-                    // Custom overlay picker sits at the bottom of the
-                    // personalize block: it's another "customise what
-                    // shows up on the HUD" knob and belongs next to
-                    // the screen list rather than as a separate
-                    // section header.
-                    HudOverlayPicker(settings = settings, viewModel = viewModel)
+                    content()
                 }
             }
         }
+    }
+}
+
+/** Map appearance: tile style + contrast + brightness sliders. */
+@Composable
+private fun HudMapOptionsCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    HudCollapsibleCard(
+        title = stringResource(R.string.hud_map_options_title),
+        expanded = expanded,
+        onToggle = { expanded = !expanded }
+    ) {
+        HudMapStylePicker(settings = settings, viewModel = viewModel)
+        HudMapContrastSlider(settings = settings, viewModel = viewModel)
+        HudMapBrightnessSlider(settings = settings, viewModel = viewModel)
+    }
+}
+
+/** Carousel personalization: which screens appear + custom overlay choice. */
+@Composable
+private fun HudScreensCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    HudCollapsibleCard(
+        title = stringResource(R.string.hud_screens_title),
+        expanded = expanded,
+        onToggle = { expanded = !expanded }
+    ) {
+        HudScreenList(settings = settings, viewModel = viewModel)
+        HudOverlayPicker(settings = settings, viewModel = viewModel)
+    }
+}
+
+@Composable
+private fun HudMapContrastSlider(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.hud_map_contrast_label),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "${settings.hudMapContrastPct}%",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        androidx.compose.material3.Slider(
+            value = settings.hudMapContrastPct.toFloat(),
+            onValueChange = { viewModel.updateHudMapContrast(it.toInt()) },
+            valueRange = 50f..200f,
+            steps = 29 // 5% increments across the 150-wide range
+        )
+    }
+}
+
+@Composable
+private fun HudMapBrightnessSlider(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.hud_map_brightness_label),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            // Signed display so the rider sees +20 / -20 rather than just
+            // "20" -- it's a +/- offset, not a magnitude.
+            val v = settings.hudMapBrightnessPct
+            Text(
+                if (v > 0) "+$v" else v.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        androidx.compose.material3.Slider(
+            value = settings.hudMapBrightnessPct.toFloat(),
+            onValueChange = { viewModel.updateHudMapBrightness(it.toInt()) },
+            valueRange = -100f..100f,
+            steps = 39 // 5-unit increments across the 200-wide range
+        )
     }
 }
 
@@ -3894,6 +3993,75 @@ private fun hudScreenDisplayName(ctx: android.content.Context, id: String): Stri
     "Safety" -> ctx.getString(R.string.hud_screen_name_safety)
     "BigClock" -> ctx.getString(R.string.hud_screen_name_big_clock)
     else -> id
+}
+
+/**
+ * Map-tile style picker. The chosen code goes into AppSettings.hudMapStyle,
+ * ships over the wire on the next 5 Hz frame, and the HUD's HudTileCache
+ * swaps URL templates + clears its bitmap LRU so the change is visible
+ * within a few seconds.
+ *
+ * Five Carto raster styles cover the readability range riders care about:
+ * Voyager (default, neutral parchment), Dark + Dark-no-labels (night riding
+ * / OLED-style cockpits), Light (high contrast on bright prisms), and
+ * Positron (low-key low-saturation). All five are free with CDN attribution
+ * (handled in the HUD's MapScreen footer).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HudMapStylePicker(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    // Carto raster basemap slugs, all 10 publicly served styles. Labels
+    // are the raw slugs on purpose: the rider asked to see the internal
+    // names, not localised friendly text. Order: voyager family,
+    // positron (light_*) family, dark matter (dark_*) family.
+    val options = listOf(
+        "voyager",
+        "voyager_nolabels",
+        "voyager_labels_under",
+        "voyager_only_labels",
+        "light_all",
+        "light_nolabels",
+        "light_only_labels",
+        "dark_all",
+        "dark_nolabels",
+        "dark_only_labels",
+    )
+    val currentCode = settings.hudMapStyle.ifBlank { "voyager" }
+    val currentLabel = currentCode
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.hud_map_style_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { code ->
+                DropdownMenuItem(
+                    text = { Text(code) },
+                    onClick = {
+                        viewModel.updateHudMapStyle(code)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Composable

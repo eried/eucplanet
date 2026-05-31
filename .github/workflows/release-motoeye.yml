@@ -2,10 +2,12 @@ name: Release Motoeye preview
 
 # On every push of a `motoeye-preview-*` tag (e.g. motoeye-preview-3), build
 # both the phone APK and the HUD APK and attach them to the matching GitHub
-# release. Naming convention matches what we ship by hand today:
+# release. Device target ("phone" / "hud") goes FIRST in the filename so a
+# tester scrolling the asset list can tell at a glance which is which
+# without reading to the end of the name:
 #
-#   EUC-Planet-phone-motoeye-preview-N.apk   (phone, debug-signed)
-#   EUC-Planet-hud-motoeye-preview-N.apk     (HUD,   release-signed)
+#   phone-EUC-Planet-motoeye-preview-N.apk   (phone, debug-signed)
+#   hud-EUC-Planet-motoeye-preview-N.apk     (HUD,   release-signed)
 #
 # Versions are baked into the binary by the Gradle build; the workflow only
 # renames the output files to put the tag in the filename so a tester can
@@ -99,8 +101,8 @@ jobs:
         id: stage
         run: |
           suffix="${{ steps.tag.outputs.suffix }}"
-          phone_out="EUC-Planet-phone-motoeye-preview-${suffix}.apk"
-          hud_out="EUC-Planet-hud-motoeye-preview-${suffix}.apk"
+          phone_out="phone-EUC-Planet-motoeye-preview-${suffix}.apk"
+          hud_out="hud-EUC-Planet-motoeye-preview-${suffix}.apk"
           cp app/build/outputs/apk/debug/app-debug.apk "/tmp/${phone_out}"
           cp hud/build/outputs/apk/release/hud-release.apk "/tmp/${hud_out}"
           ls -la "/tmp/${phone_out}" "/tmp/${hud_out}"

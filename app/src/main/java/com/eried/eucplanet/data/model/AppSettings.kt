@@ -410,6 +410,29 @@ data class AppSettings(
      * carousel order matches the order the rider sees in Settings.
      */
     val hudScreensOrder: String = "",
+    /**
+     * Which CartoCDN raster style the HUD should use for its Map screen
+     * and the MAP element inside a Custom overlay. Empty = the HUD picks
+     * its compiled-in default (currently "voyager", neutral parchment
+     * background). Other supported codes: "dark_matter",
+     * "dark_matter_nolabels", "voyager", "light_all", "positron".
+     * Anything else falls back to the HUD's compiled default so the
+     * rider doesn't get a blank map if they pick something we removed.
+     */
+    val hudMapStyle: String = "",
+    /**
+     * Per-axis tile post-processing. Both run as a single ColorMatrix on
+     * the HUD; at the neutral values (contrast=100, brightness=0) the
+     * matrix is identity and we skip the ColorFilter entirely so there's
+     * no GPU cost for the common case.
+     *
+     * Contrast: 50..200 percent, 100 = neutral (no gain).
+     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
+     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
+     * 100 from each channel before clamping.
+     */
+    val hudMapContrastPct: Int = 100,
+    val hudMapBrightnessPct: Int = 0,
 
     // --- Motor Sound generator ---
     //

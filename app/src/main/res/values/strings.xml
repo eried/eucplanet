@@ -113,8 +113,8 @@
     <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
     <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
     <string name="hud_overlay_subsection">Custom overlay</string>
-    <string name="hud_overlay_subsection_desc">Mirror any Overlay Studio preset on the HUD\'s Custom screen, without backgrounds, so the rider sees your composition on top of the prism</string>
-    <string name="hud_overlay_select_preset">Select preset</string>
+    <string name="hud_overlay_subsection_desc">Import an Overlay Studio preset onto the HUD\'s Custom screen, without backgrounds. The preset is copied here, so later edits in the studio won\'t change the HUD until you import again</string>
+    <string name="hud_overlay_select_preset">Import preset</string>
     <string name="hud_overlay_current_preset">Current: %1$s</string>
     <string name="hud_custom_overlay_label">Custom HUD overlay</string>
     <string name="hud_custom_overlay_placeholder">Pick an Overlay Studio preset</string>
@@ -125,6 +125,8 @@
 
     <!-- HUD Personalize collapsible card -->
     <string name="hud_personalize_title">Personalize</string>
+    <string name="hud_screens_title">HUD screens</string>
+    <string name="hud_map_options_title">Map options</string>
     <string name="hud_personalize_desc">Pick which screens the HUD shows and the order they cycle through. At least one screen must stay enabled.</string>
     <string name="hud_screen_name_dashboard">Dashboard</string>
     <string name="hud_screen_name_camera">Rear camera</string>
@@ -138,6 +140,13 @@
     <string name="hud_screen_name_compass">Compass</string>
     <string name="hud_screen_name_safety">Safety</string>
     <string name="hud_screen_name_big_clock">Big clock</string>
+
+    <!-- Map tile style picker (HUD Map screen and Custom overlay MAP element).
+         The slug values themselves are shown to the rider as the dropdown
+         items, so only the field LABEL is localised here. -->
+    <string name="hud_map_style_label">Map style</string>
+    <string name="hud_map_contrast_label">Contrast</string>
+    <string name="hud_map_brightness_label">Brightness</string>
 
     <!--
         HUD companion install hint + protocol version mismatch.
@@ -1186,6 +1195,7 @@
     <string name="studio_cfg_dial_style">Dial</string>
     <string name="studio_cfg_dial_full">Circle</string>
     <string name="studio_cfg_dial_semi">Half</string>
+    <string name="studio_cfg_dial_color_band">Color band</string>
     <string name="studio_snap_to_grid">Snap to grid</string>
     <string name="studio_overwrite_title">Overwrite preset?</string>
     <string name="studio_overwrite_body">A preset named \"%1$s\" already exists.</string>

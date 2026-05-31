@@ -124,56 +124,67 @@ fun HudApp(
                 // input-dispatch ANR threshold instantly on every
                 // navigation. A direct swap keeps cold-compose cost on
                 // the single incoming screen, which fits within budget.
-                when (controller.current) {
-                    HudUiController.Screen.Dashboard ->
-                        DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
-                    HudUiController.Screen.Camera ->
-                        CameraScreen(hud = hud)
-                    HudUiController.Screen.Telemetry ->
-                        TelemetryScreen(hud = hud)
-                    HudUiController.Screen.Custom ->
-                        CustomOverlayScreen(hud = hud, withCamera = false)
-                    HudUiController.Screen.CustomCam ->
-                        CustomOverlayScreen(hud = hud, withCamera = true)
-                    HudUiController.Screen.Map ->
-                        MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
-                    HudUiController.Screen.Nav ->
-                        NavScreen(hud = hud)
-                    HudUiController.Screen.Power ->
-                        PowerScreen(hud = hud, session = sessionState)
-                    HudUiController.Screen.TripStats ->
-                        TripStatsScreen(hud = hud, session = sessionState)
-                    HudUiController.Screen.Compass ->
-                        CompassScreen(hud = hud)
-                    HudUiController.Screen.Safety ->
-                        SafetyScreen(hud = hud, session = sessionState)
-                    HudUiController.Screen.BigClock ->
-                        BigClockScreen(hud = hud)
-                }
+                if (!controller.hasReceivedCarousel) {
+                    // Cold-boot / pre-first-frame splash. We don't render
+                    // any carousel screen until the phone has shipped a
+                    // real enabledHudScreens list, so the rider never
+                    // briefly sees screens they may have disabled on the
+                    // phone. Disconnect chrome below still renders on top
+                    // so the rider can read the HUD's local IP if they
+                    // need to configure the phone manually.
+                    WaitingForPhoneSplash(modifier = Modifier.fillMaxSize())
+                } else {
+                    when (controller.current) {
+                        HudUiController.Screen.Dashboard ->
+                            DashboardScreen(hud = hud, gpsView = controller.dashboardGpsView)
+                        HudUiController.Screen.Camera ->
+                            CameraScreen(hud = hud)
+                        HudUiController.Screen.Telemetry ->
+                            TelemetryScreen(hud = hud)
+                        HudUiController.Screen.Custom ->
+                            CustomOverlayScreen(hud = hud, withCamera = false)
+                        HudUiController.Screen.CustomCam ->
+                            CustomOverlayScreen(hud = hud, withCamera = true)
+                        HudUiController.Screen.Map ->
+                            MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
+                        HudUiController.Screen.Nav ->
+                            NavScreen(hud = hud)
+                        HudUiController.Screen.Power ->
+                            PowerScreen(hud = hud, session = sessionState)
+                        HudUiController.Screen.TripStats ->
+                            TripStatsScreen(hud = hud, session = sessionState)
+                        HudUiController.Screen.Compass ->
+                            CompassScreen(hud = hud)
+                        HudUiController.Screen.Safety ->
+                            SafetyScreen(hud = hud, session = sessionState)
+                        HudUiController.Screen.BigClock ->
+                            BigClockScreen(hud = hud)
+                    }
 
-                // Brief toast when the rider switches screens, top-left,
-                // matching the disconnected badge's chrome (clipped corner,
-                // dark fill + gray stroke, same font sizes).
-                ScreenChangeToast(
-                    screen = controller.current,
-                    index1Based = controller.currentIndex1Based(),
-                    total = controller.totalScreens(),
-                    modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
-                )
-
-                // Ambient wall clock, bottom-left, same chrome as the
-                // disconnect / screen-change badges. Skipped on the two
-                // Custom-overlay screens because that's the rider's
-                // canvas; we shouldn't paint app chrome on top of their
-                // preset.
-                val showClock = controller.current != HudUiController.Screen.Custom &&
-                    controller.current != HudUiController.Screen.CustomCam
-                if (showClock) {
-                    WallClockBadge(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(12.dp)
+                    // Brief toast when the rider switches screens, top-left,
+                    // matching the disconnected badge's chrome (clipped corner,
+                    // dark fill + gray stroke, same font sizes).
+                    ScreenChangeToast(
+                        screen = controller.current,
+                        index1Based = controller.currentIndex1Based(),
+                        total = controller.totalScreens(),
+                        modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                     )
+
+                    // Ambient wall clock, bottom-left, same chrome as the
+                    // disconnect / screen-change badges. Skipped on the two
+                    // Custom-overlay screens because that's the rider's
+                    // canvas; we shouldn't paint app chrome on top of their
+                    // preset.
+                    val showClock = controller.current != HudUiController.Screen.Custom &&
+                        controller.current != HudUiController.Screen.CustomCam
+                    if (showClock) {
+                        WallClockBadge(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(12.dp)
+                        )
+                    }
                 }
 
                 // Disconnect chrome renders LAST so it sits in front of
@@ -750,6 +761,51 @@ private fun WallClockBadge(modifier: Modifier = Modifier) {
             fontWeight = FontWeight.SemiBold,
             maxLines = 1
         )
+    }
+}
+
+/**
+ * Cold-boot splash shown until the first wire frame from the phone
+ * arrives. Replaces the legacy behaviour where the HUD would briefly
+ * render the compiled default 7 screens on every restart -- riders who
+ * had customised the carousel on the phone would see disabled screens
+ * flash through for a beat. Now the HUD waits.
+ *
+ * Deliberately minimal: a single line + a pulsing dot. No app chrome
+ * (no clock badge, no screen toast) -- that all comes back once
+ * controller.hasReceivedCarousel flips true.
+ */
+@Composable
+private fun WaitingForPhoneSplash(modifier: Modifier = Modifier) {
+    // Simple two-state pulse: dim for 900 ms, then bright for 900 ms.
+    // No animation curve crossfade -- a discrete swap reads as deliberate
+    // and avoids pulling another animation artifact in.
+    var bright by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            bright = !bright
+            kotlinx.coroutines.delay(900)
+        }
+    }
+    val dotAlpha = if (bright) 1f else 0.25f
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = "Waiting for phone",
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(Modifier.width(10.dp))
+            Box(
+                Modifier
+                    .size(12.dp)
+                    .background(
+                        Color.White.copy(alpha = dotAlpha),
+                        RoundedCornerShape(50)
+                    )
+            )
+        }
     }
 }
 

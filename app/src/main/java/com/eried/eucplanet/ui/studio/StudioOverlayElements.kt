@@ -80,7 +80,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.core.graphics.drawable.toBitmap
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -1168,6 +1170,21 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val track = fill.copy(alpha = 0.2f)
     val bg = Color(element.background)
     val isSemi = element.dialStyle == "SEMICIRCLE"
+    // Pre-resolve color-band thresholds + colours so the per-platform
+    // arc draws below stay free of the conditional logic. The bands sit
+    // at alpha=0.55 so they read as a backing tint, not a competing
+    // foreground -- the fill arc on top is the rider's eye-target.
+    val showBand = element.dialShowColorBand
+    val orangeFrac = (element.dialOrangeThresholdPct / 100f).coerceIn(0f, 1f)
+    val redFrac = (element.dialRedThresholdPct / 100f).coerceIn(orangeFrac, 1f)
+    // Band colours at FULL alpha. We composite the band drawing (arcs +
+    // end caps) into an offscreen layer at 0.55 alpha so the overlap
+    // between the arc and the end-cap disc doesn't double-up alpha and
+    // bleed through as a half-circle dark spot when the element opacity
+    // is < 1. Inside the layer everything draws fully opaque.
+    val bandSafe = com.eried.eucplanet.ui.theme.AccentGreen
+    val bandWarn = com.eried.eucplanet.ui.theme.AccentOrange
+    val bandDanger = com.eried.eucplanet.ui.theme.AccentRed
     // Geometry:
     //   FULL -> 1:1, classic 270 deg arc.
     //   SEMICIRCLE -> dome (radius w/2) on top, a fixed-ish-dp rounded
@@ -1256,17 +1273,65 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 val progRect = androidx.compose.ui.geometry.Rect(
                     cx - progR, cy - progR, cx + progR, cy + progR
                 )
-                drawArc(
-                    color = track,
-                    startAngle = 180f, sweepAngle = 180f, useCenter = false,
-                    topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    // Draw the whole band (arcs + end caps) into an
+                    // offscreen layer at full alpha, then composite the
+                    // layer at 0.55. This avoids the alpha compound that
+                    // showed up as a darker half-circle where the end
+                    // cap disc overlaps the arc -- inside the layer
+                    // every pixel is fully opaque, so the composite is
+                    // uniform tint regardless of overlap.
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val stroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 180f,
+                        sweepAngle = 180f * orangeFrac, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 180f + 180f * orangeFrac,
+                        sweepAngle = 180f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 180f + 180f * redFrac,
+                        sweepAngle = 180f * (1f - redFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    val capR = strokeW / 2f
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(cx - progR, cy)
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(cx + progR, cy)
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 180f, sweepAngle = 180f, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                // When the colour band is drawn, narrow the fill stroke
+                // so a rim of the band stays visible on both sides of
+                // the needle arc -- otherwise the fill would fully cover
+                // it. Centred on the same path, so the geometry is
+                // preserved and the round cap still meets the band cleanly.
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 180f, sweepAngle = 180f * fraction, useCenter = false,
                     topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             } else {
                 // Square dial: circle inscribed, 270 deg arc starting at
@@ -1287,17 +1352,63 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                     size = Size(size.minDimension, size.minDimension)
                 )
                 val arcSize = Size(side, side)
-                drawArc(
-                    color = track,
-                    startAngle = 135f, sweepAngle = 270f, useCenter = false,
-                    topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val stroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 135f,
+                        sweepAngle = 270f * orangeFrac, useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 135f + 270f * orangeFrac,
+                        sweepAngle = 270f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 135f + 270f * redFrac,
+                        sweepAngle = 270f * (1f - redFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    val capR = strokeW / 2f
+                    val ac = Offset(topLeft.x + side / 2f, topLeft.y + side / 2f)
+                    val ar = side / 2f
+                    val rad135 = (135.0 * Math.PI / 180.0)
+                    val rad45 = (45.0 * Math.PI / 180.0)
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad135).toFloat(),
+                            ac.y + ar * sin(rad135).toFloat()
+                        )
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad45).toFloat(),
+                            ac.y + ar * sin(rad45).toFloat()
+                        )
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 135f, sweepAngle = 270f, useCenter = false,
+                        topLeft = topLeft, size = arcSize,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 135f, sweepAngle = 270f * fraction, useCenter = false,
                     topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             }
         }

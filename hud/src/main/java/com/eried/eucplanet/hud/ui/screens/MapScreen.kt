@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -82,13 +84,24 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
         // itself lives inside [cache].
         var tick by remember { mutableStateOf(0) }
 
+        // Build the per-tile colour filter from the rider's contrast +
+        // brightness settings on the phone. Cached by the (c, b) pair so
+        // the matrix is only rebuilt when the rider actually moves a
+        // slider, not on every 5 Hz wire frame.
+        val tileFilter = remember(hud.hudMapContrastPct, hud.hudMapBrightnessPct) {
+            buildTileFilter(hud.hudMapContrastPct, hud.hudMapBrightnessPct)
+        }
+
         val z = zoom.toInt().coerceIn(3, 19)
         val (cx, cy) = lonLatToTileFloat(hud.longitude, hud.latitude, z)
 
         // Kick off async fetches for the visible tile window whenever the
         // viewport center or zoom changes. The fetch coroutine bumps `tick`
         // so the Canvas recomposes once new bitmaps arrive.
-        LaunchedEffect(z, cx.toInt(), cy.toInt(), size) {
+        // Read cache.styleVersion here so a style swap (rider picked a
+        // different tile style on the phone) re-triggers a fresh batch
+        // of fetches even when the viewport hasn't moved.
+        LaunchedEffect(z, cx.toInt(), cy.toInt(), size, cache.styleVersion) {
             if (size.width == 0 || size.height == 0) return@LaunchedEffect
             val cols = (size.width / 256) + 2
             val rows = (size.height / 256) + 2
@@ -153,7 +166,8 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                                 srcSize = IntSize(256, 256),
                                 dstOffset = IntOffset(tlx, tly),
                                 dstSize = IntSize(258, 258),
-                                filterQuality = FilterQuality.Low
+                                filterQuality = FilterQuality.Low,
+                                colorFilter = tileFilter
                             )
                         } else {
                             drawRect(
@@ -217,6 +231,38 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
 /** WGS84 (lon, lat) -> fractional XYZ tile coordinates at zoom z. Returns
  *  (tileX, tileY) where the integer parts are the tile indices and the
  *  fractional parts give the pixel offset inside that tile. */
+/**
+ * Build a ColorMatrix-based filter from the wire-format contrast +
+ * brightness percentages. Returns null when both are at neutral so the
+ * draw call can skip the colorFilter entirely (zero GPU cost).
+ *
+ *   contrast: 50..200 percent, 100 = neutral (gain = 1.0)
+ *   brightness: -100..100, 0 = neutral
+ *
+ * Matrix layout (row-major, 4x5): R G B A T per row.
+ *   R' = c*R + T;  G' = c*G + T;  B' = c*B + T;  A' = A
+ *   T  = -127.5*(c-1) + brightness  (mid-grey-preserving contrast,
+ *                                     plus the brightness offset)
+ *
+ * Cached per (contrast, brightness) pair via the call-site `remember`
+ * in [MapScreen] so we don't rebuild the matrix per frame.
+ */
+internal fun buildTileFilter(contrastPct: Int, brightnessPct: Int): ColorFilter? {
+    if (contrastPct == 100 && brightnessPct == 0) return null
+    val c = contrastPct / 100f
+    val t = -127.5f * (c - 1f) + brightnessPct.toFloat()
+    return ColorFilter.colorMatrix(
+        ColorMatrix(
+            floatArrayOf(
+                c, 0f, 0f, 0f, t,
+                0f, c, 0f, 0f, t,
+                0f, 0f, c, 0f, t,
+                0f, 0f, 0f, 1f, 0f
+            )
+        )
+    )
+}
+
 private fun lonLatToTileFloat(lon: Double, lat: Double, z: Int): Pair<Float, Float> {
     val n = (1 shl z).toDouble()
     val x = (lon + 180.0) / 360.0 * n

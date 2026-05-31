@@ -114,6 +114,16 @@ class HudActivity : ComponentActivity() {
             server.state.collect { hud -> sessionState.ingest(hud) }
         }
 
+        // Pick up the rider's map-tile style choice. distinctUntilChanged
+        // so the cache only evicts when the style actually changes, not
+        // on every 5 Hz frame.
+        lifecycleScope.launch {
+            server.state
+                .map { it.hudMapStyle }
+                .distinctUntilChanged()
+                .collect { tileCache.applyStyle(it) }
+        }
+
         setContent {
             HudApp(
                 state = server.state,

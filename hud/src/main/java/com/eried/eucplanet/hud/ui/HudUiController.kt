@@ -40,15 +40,24 @@ class HudUiController {
     )
 
     /** Active carousel, kept observable so when [applyEnabledScreens] swaps
-     *  it from a wire frame the N/M counter on the toast updates too. */
-    var screens: List<Screen> by mutableStateOf(defaultScreens)
+     *  it from a wire frame the N/M counter on the toast updates too.
+     *  Starts EMPTY: until the phone ships a real list, the HUD renders a
+     *  "waiting for phone data" splash rather than the compiled default 7.
+     *  This keeps the rider from briefly seeing screens they may have
+     *  disabled on the phone every time the HUD reboots. */
+    var screens: List<Screen> by mutableStateOf(emptyList())
+        private set
+
+    /** True once we've applied at least one wire frame's enabled list.
+     *  Drives the "waiting for phone data" splash in HudApp. */
+    var hasReceivedCarousel: Boolean by mutableStateOf(false)
         private set
 
     /** Update the visible screen carousel from a list of stable string
-     *  ids (matching enum names). Empty list = revert to default seven.
-     *  Unknown ids are dropped. If the rider's current screen is no
-     *  longer in the new list, we snap to the first remaining one so
-     *  the HUD is never stuck on a screen that doesn't exist.
+     *  ids (matching enum names). The phone always ships a non-empty list
+     *  (the default 7 if the rider hasn't customised), so an empty list
+     *  here means "no wire frame yet" -- we keep [screens] empty and
+     *  [hasReceivedCarousel] false so the splash stays up.
      *
      *  Called by [HudActivity] from the state-flow collector so the
      *  carousel updates within ~200 ms of the rider toggling a checkbox
@@ -57,10 +66,11 @@ class HudUiController {
         val parsed = ids.mapNotNull { id ->
             runCatching { Screen.valueOf(id) }.getOrNull()
         }
-        val next = if (parsed.isEmpty()) defaultScreens else parsed
-        if (next == screens) return
-        screens = next
-        if (current !in next) current = next.first()
+        if (parsed.isEmpty()) return
+        hasReceivedCarousel = true
+        if (parsed == screens) return
+        screens = parsed
+        if (current !in parsed) current = parsed.first()
     }
 
     var current: Screen by mutableStateOf(Screen.Dashboard)

@@ -122,6 +122,23 @@ data class HudState(
      *  a "no such screen" state. */
     val enabledHudScreens: List<String> = emptyList(),
 
+    /** Map-tile style code the HUD should use for its Map screen and
+     *  for any MAP element inside a Custom overlay. Empty = HUD picks
+     *  its compiled-in default. Recognised codes mirror CartoCDN's
+     *  basemap raster styles: "voyager", "dark_matter",
+     *  "dark_matter_nolabels", "light_all", "positron". Any other value
+     *  is treated as empty so a rider can't get a blank map by typing
+     *  garbage into a future free-form picker. */
+    val hudMapStyle: String = "",
+    /** Per-axis tile post-processing applied as a ColorMatrix on the
+     *  drawn tile bitmaps. Both default to neutral; the HUD skips the
+     *  filter entirely when both are at the neutral values.
+     *  contrast: 50..200 percent, 100 = neutral.
+     *  brightness: -100..100, 0 = neutral.
+     *  Older HUDs (PROTOCOL_MINOR < 5) ignore these fields silently. */
+    val hudMapContrastPct: Int = 100,
+    val hudMapBrightnessPct: Int = 0,
+
     // --- Navigation popup mirror ---
     /** Whether to render the turn-by-turn overlay/screen. */
     val navActive: Boolean = false,
@@ -162,7 +179,7 @@ data class HudState(
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
          */
-        const val PROTOCOL_MINOR: Int = 2
+        const val PROTOCOL_MINOR: Int = 5
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

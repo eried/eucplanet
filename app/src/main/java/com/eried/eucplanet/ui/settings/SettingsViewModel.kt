@@ -367,6 +367,20 @@ class SettingsViewModel @Inject constructor(
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }
 
+    /** Update the HUD's map tile style. See AppSettings.hudMapStyle for
+     *  the recognised codes; empty = "use HUD's compiled default." */
+    fun updateHudMapStyle(code: String) = update { copy(hudMapStyle = code) }
+
+    /** Map tile contrast, 50..200 percent (100 = neutral). */
+    fun updateHudMapContrast(pct: Int) = update {
+        copy(hudMapContrastPct = pct.coerceIn(50, 200))
+    }
+
+    /** Map tile brightness offset, -100..100 (0 = neutral). */
+    fun updateHudMapBrightness(pct: Int) = update {
+        copy(hudMapBrightnessPct = pct.coerceIn(-100, 100))
+    }
+
     /** Screens that are ON by default on a fresh install. Order is the
      *  default carousel order. Anything in [knownHudScreens] but not in
      *  this list ships disabled -- the rider opts in via the Personalize

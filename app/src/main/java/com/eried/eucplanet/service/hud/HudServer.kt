@@ -85,6 +85,15 @@ class HudServer @Inject constructor(
         // "no IP / not autodetected" state within a reasonable wait.
         private const val MDNS_RESOLVE_TIMEOUT_MS = 5_000L
         private const val MULTICAST_LOCK_TAG = "eucplanet-hud-discovery"
+        // Default seven that the HUD shipped with before Personalize
+        // existed. Used as the snapshot's enabledHudScreens when the
+        // rider hasn't customised anything -- ensures the wire always
+        // carries a non-empty list, so the HUD can distinguish "no frame
+        // received" (empty) from "rider's choice" (non-empty).
+        private val DEFAULT_HUD_SCREENS = listOf(
+            "Dashboard", "Camera", "Telemetry",
+            "Custom", "CustomCam", "Map", "Nav"
+        )
     }
 
     private val json = Json {
@@ -451,18 +460,23 @@ class HudServer @Inject constructor(
                     .map { it.trim() }
                     .filter { it.isNotEmpty() }
                     .toSet()
+                // ALWAYS ship a non-empty list. The HUD treats an empty
+                // enabledHudScreens as "no wire frame received yet" and
+                // shows a waiting splash; if the rider hasn't customised
+                // we ship the default seven so the HUD has something to
+                // render the moment a real frame arrives.
                 if (order.isEmpty() && enabled.isEmpty()) {
-                    // Fresh install: don't ship anything, HUD uses its
-                    // default seven (matches pre-personalize behaviour).
-                    emptyList()
+                    DEFAULT_HUD_SCREENS
                 } else if (order.isEmpty()) {
-                    // Only enabled-set set (rider toggled but never
-                    // dragged). Use it in insertion order.
                     enabled.toList()
                 } else {
                     order.filter { it in enabled }
+                        .ifEmpty { DEFAULT_HUD_SCREENS }
                 }
             },
+            hudMapStyle = s.hudMapStyle,
+            hudMapContrastPct = s.hudMapContrastPct,
+            hudMapBrightnessPct = s.hudMapBrightnessPct,
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

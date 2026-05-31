@@ -1675,6 +1675,25 @@ fun ElementConfigSheet(
                         )
                     }
                 }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_dial_color_band),
+                    element.dialShowColorBand
+                ) { onChange(element.copy(dialShowColorBand = it)) }
+                if (element.dialShowColorBand) {
+                    com.eried.eucplanet.ui.settings.GaugeThresholdSlider(
+                        orangePct = element.dialOrangeThresholdPct,
+                        redPct = element.dialRedThresholdPct,
+                        safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
+                        onChange = { o, r ->
+                            onChange(
+                                element.copy(
+                                    dialOrangeThresholdPct = o,
+                                    dialRedThresholdPct = r
+                                )
+                            )
+                        }
+                    )
+                }
             }
 
             if (element.type == OverlayElementType.APP_BADGE) {

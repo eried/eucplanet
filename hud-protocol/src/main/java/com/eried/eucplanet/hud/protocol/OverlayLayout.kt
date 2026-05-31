@@ -233,7 +233,23 @@ data class OverlayElement(
      * the value ("42 km/h"); LEFT shows it before ("km/h 42") for layouts
      * that want the unit prefix-aligned with other left-justified labels.
      */
-    val unitPosition: String = "RIGHT"
+    val unitPosition: String = "RIGHT",
+
+    /**
+     * DATA_DIAL: render a 3-colour track (green/yellow/red) underneath the
+     * needle arc instead of the flat translucent ring. The thresholds are
+     * read as a percentage of [gaugeMax] so the same widget works whether
+     * it's wired to speed (0..100 km/h), temp (0..120 °C), or PWM (0..100%).
+     * Mirrors the cockpit speed-gauge "Colour band" feature for visual
+     * parity between the at-a-glance dashboard and the recorded overlay.
+     *
+     * Defaults: 80% transition to yellow, 90% transition to red, band off.
+     * (Sensible for the most common SPEED case at gaugeMax=100; the rider
+     * is expected to tweak per-metric.)
+     */
+    val dialShowColorBand: Boolean = false,
+    val dialOrangeThresholdPct: Int = 80,
+    val dialRedThresholdPct: Int = 90
 )
 
 /**

@@ -171,6 +171,22 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val track = fill.copy(alpha = 0.2f)
     val bg = Color(element.background)
     val isSemi = element.dialStyle == "SEMICIRCLE"
+    // Optional 3-colour band that replaces the flat track when the
+    // preset enables it. Hex values mirror the phone-side AccentGreen
+    // / AccentOrange / AccentRed in ui.theme.Color.kt so the dial reads
+    // the same on the prism as it does in the Studio preview on the
+    // phone. Alpha=0.55 so the band sits as a backing tint rather than
+    // competing with the foreground arc the rider is actually tracking.
+    val showBand = element.dialShowColorBand
+    val orangeFrac = (element.dialOrangeThresholdPct / 100f).coerceIn(0f, 1f)
+    val redFrac = (element.dialRedThresholdPct / 100f).coerceIn(orangeFrac, 1f)
+    // FULL alpha colours; the band + end caps are composited into an
+    // offscreen layer at 0.55 so overlap between the arc and end-cap
+    // disc doesn't compound into a darker half-circle when element
+    // opacity is < 1. Inside the layer every pixel is fully opaque.
+    val bandSafe = Color(0xFF66BB6A)
+    val bandWarn = Color(0xFFFFA726)
+    val bandDanger = Color(0xFFEF5350)
 
     BoxWithConstraints(
         Modifier
@@ -221,17 +237,55 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 val progR = r - pad - strokeW / 2f
                 val cy = domeBottom
                 val progRect = Rect(cx - progR, cy - progR, cx + progR, cy + progR)
-                drawArc(
-                    color = track,
-                    startAngle = 180f, sweepAngle = 180f, useCenter = false,
-                    topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val bandStroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 180f,
+                        sweepAngle = 180f * orangeFrac, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = bandStroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 180f + 180f * orangeFrac,
+                        sweepAngle = 180f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = bandStroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 180f + 180f * redFrac,
+                        sweepAngle = 180f * (1f - redFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = bandStroke
+                    )
+                    val capR = strokeW / 2f
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(cx - progR, cy)
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(cx + progR, cy)
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 180f, sweepAngle = 180f, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                // Fill stroke is narrower than the band stroke so a rim of
+                // colour stays visible on both sides of the needle arc.
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 180f, sweepAngle = 180f * fraction, useCenter = false,
                     topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             } else {
                 val strokeW = size.minDimension * 0.12f
@@ -250,17 +304,63 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                     size = Size(size.minDimension, size.minDimension)
                 )
                 val arcSize = Size(side, side)
-                drawArc(
-                    color = track,
-                    startAngle = 135f, sweepAngle = 270f, useCenter = false,
-                    topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val bandStroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 135f,
+                        sweepAngle = 270f * orangeFrac, useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = bandStroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 135f + 270f * orangeFrac,
+                        sweepAngle = 270f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = bandStroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 135f + 270f * redFrac,
+                        sweepAngle = 270f * (1f - redFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = bandStroke
+                    )
+                    val capR = strokeW / 2f
+                    val ac = Offset(topLeft.x + side / 2f, topLeft.y + side / 2f)
+                    val ar = side / 2f
+                    val rad135 = (135.0 * PI / 180.0)
+                    val rad45 = (45.0 * PI / 180.0)
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad135).toFloat(),
+                            ac.y + ar * sin(rad135).toFloat()
+                        )
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad45).toFloat(),
+                            ac.y + ar * sin(rad45).toFloat()
+                        )
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 135f, sweepAngle = 270f, useCenter = false,
+                        topLeft = topLeft, size = arcSize,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 135f, sweepAngle = 270f * fraction, useCenter = false,
                     topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             }
         }
@@ -720,8 +820,9 @@ private fun MapElement(element: OverlayElement, data: StudioElementData) {
             drawCircle(color = Color.White, radius = 9.dp.toPx(), center = centerPx)
             drawCircle(color = accent, radius = 7.dp.toPx(), center = centerPx)
         }
-        // Trigger tile fetches when the rider moves.
-        LaunchedEffect(z, cx.toInt(), cy.toInt()) {
+        // Trigger tile fetches when the rider moves or the rider swaps
+        // map styles on the phone (styleVersion bumps in that case).
+        LaunchedEffect(z, cx.toInt(), cy.toInt(), cache.styleVersion) {
             val cols = 4
             val rows = 4
             val originX = floor(cx).toInt() - cols / 2
