@@ -281,10 +281,18 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    /** Whether the first-launch dashboard welcome tour still needs showing. */
+    /** Whether the first-launch dashboard welcome tour still needs showing.
+     *
+     *  Seeded from initialSettings (synchronous DataStore read at the top of
+     *  this VM) instead of a hardcoded `true`. A `true` seed reads as "tour
+     *  already done, hide it" — so on a first-launch cold start the rider
+     *  saw an interactive dashboard for ~50-200ms before the upstream Flow
+     *  emitted the real `false` and the tour finally appeared. That window
+     *  was long enough to tap a destructive action (the "reset" report
+     *  from the rider). Now frame zero already has the correct value. */
     val welcomeTutorialSeen: StateFlow<Boolean> = settingsRepository.settings
         .map { it.welcomeTutorialSeen }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.welcomeTutorialSeen)
 
     /** Records that the rider finished or skipped the welcome tour, so it
      *  never auto-shows again. */
