@@ -1268,7 +1268,7 @@
     <string name="welcome_tut_camera">Записуйте відео з накладанням телеметрії в реальному часі. Створюйте власні стильні накладання та експортуйте їх, щоб робити свої відео з даними з минулих поїздок</string>
     <string name="welcome_tut_pd">Показує Стоянку або Рух. Торкнись, щоб задати %1$s</string>
     <string name="welcome_tut_outro_alarms">Дослідіть потужний редактор власних тривог у Налаштування → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Ознайомтеся з інтеграціями, як-от кнопки Flic та ваш годинник</string>
+    <string name="welcome_tut_outro_integrations">Дослідіть інтеграції: кнопки Flic, ваш годинник, HUD, Garmin Connect IQ і задній радар</string>
     <string name="welcome_tut_outro_end">Дивіться на дорогу, а не в цей застосунок під час їзди на моноколесі!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1352,4 +1352,40 @@
     <string name="warnings_perm_notifications_title">Сповіщення вимкнено</string>
     <string name="warnings_perm_notifications_body">Статус поїздки не з\'явиться в рядку стану, голосові сповіщення не з\'являться в шторці</string>
     <string name="hud_screen_name_map_nav">Карта + Навігація</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">Власний оверлей</string>
+    <string name="hud_overlay_subsection_desc">Імпортуй пресет Overlay Studio на екран Custom HUD без фону. Пресет копіюється сюди, тому подальші зміни в студії не змінять HUD, поки не імпортуєш знову</string>
+    <string name="hud_overlay_select_preset">Імпортувати пресет</string>
+    <string name="hud_overlay_current_preset">Поточний: %1$s</string>
+    <string name="hud_search_corpus">HUD проєкційний дисплей компаньйон сервер потік телеметрія точка доступу motoeye стрілка повороту</string>
+    <string name="hud_personalize_title">Персоналізація</string>
+    <string name="hud_screens_title">Екрани HUD</string>
+    <string name="hud_map_options_title">Параметри карти</string>
+    <string name="hud_personalize_desc">Обери, які екрани показує HUD і в якому порядку вони перемикаються. Принаймні один екран має лишатися активним.</string>
+    <string name="hud_screen_name_dashboard">Панель</string>
+    <string name="hud_screen_name_camera">Задня камера</string>
+    <string name="hud_screen_name_telemetry">Телеметрія</string>
+    <string name="hud_screen_name_custom">Власний оверлей + чорний</string>
+    <string name="hud_screen_name_custom_cam">Власний оверлей + камера</string>
+    <string name="hud_screen_name_map">Карта</string>
+    <string name="hud_screen_name_nav">Навігатор</string>
+    <string name="hud_screen_name_power">Вати та запас ходу</string>
+    <string name="hud_screen_name_trip_stats">Статистика поїздки</string>
+    <string name="hud_screen_name_compass">Компас</string>
+    <string name="hud_screen_name_safety">Безпека</string>
+    <string name="hud_screen_name_big_clock">Великий годинник</string>
+    <string name="hud_map_style_label">Стиль карти</string>
+    <string name="hud_map_contrast_label">Контраст</string>
+    <string name="hud_map_brightness_label">Яскравість</string>
+    <string name="hud_install_hint">Потрібен застосунок HUD? Завантаж його з <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">Доступне оновлення HUD. Нові функції телефона не з\'являться, поки не оновиш HUD з <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Доступне оновлення телефона. Деякі функції HUD не з\'являться, поки не оновиш цей застосунок з <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">Потрібне оновлення HUD. Застосунок HUD застарий для цього телефона. Онови його з <b>eucplanet.ried.no/hud</b>, щоб продовжити.</string>
+    <string name="hud_version_block_phone_behind">Потрібне оновлення телефона. Цей застосунок застарий для HUD. Онови його з <b>eucplanet.ried.no/hud</b>, щоб продовжити.</string>
+    <string name="nav_setting_full_path">Завжди прокладати весь маршрут</string>
+    <string name="nav_setting_full_path_desc">Вимкнено — прокладає лише наступну зупинку, решту показує пунктирним передпереглядом</string>
+    <string name="studio_cfg_clock_24h">24-годинний формат</string>
+    <string name="studio_cfg_dial_color_band">Кольорова смуга</string>
 </resources>

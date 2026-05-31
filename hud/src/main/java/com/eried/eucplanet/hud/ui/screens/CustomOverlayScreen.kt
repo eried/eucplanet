@@ -75,7 +75,15 @@ fun CustomOverlayScreen(hud: HudState, withCamera: Boolean = false) {
         }
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             if (preset == null || preset.elements.isEmpty()) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                // Drop the empty-state message to ~75% of the screen height so
+                // it sits below the visual centre — riders glancing up at the
+                // HUD instinctively scan the upper half for live data, so the
+                // unhelpful "no preset yet" line shouldn't squat in their
+                // primary attention zone.
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = androidx.compose.ui.BiasAlignment(0f, 0.5f)
+                ) {
                     Text(
                         text = "Pick a preset in EUC Planet → Settings / Integration",
                         color = Color.White.copy(alpha = 0.6f),

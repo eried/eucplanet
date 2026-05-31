@@ -1231,7 +1231,7 @@
     <string name="welcome_tut_camera">录制带有实时遥测叠加信息的视频。你还能制作炫酷的自定义叠加层并将其导出，用过往行程的数据打造属于自己的视频</string>
     <string name="welcome_tut_pd">显示驻车或行驶状态。点按即可设置你的 %1$s</string>
     <string name="welcome_tut_outro_alarms">在设置 → %1$s 中体验强大的自定义警报编辑器</string>
-    <string name="welcome_tut_outro_integrations">来体验各项集成功能，比如 Flic 按钮和你的手表</string>
+    <string name="welcome_tut_outro_integrations">探索集成：Flic 按钮、你的手表、HUD、Garmin Connect IQ 和后视雷达</string>
     <string name="welcome_tut_outro_end">骑独轮车时请专注路面，别盯着本应用看！</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1315,4 +1315,40 @@
     <string name="warnings_perm_notifications_title">通知已关闭</string>
     <string name="warnings_perm_notifications_body">状态栏将不显示骑行状态，通知栏也收不到语音提示</string>
     <string name="hud_screen_name_map_nav">地图 + 导航</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">自定义叠加</string>
+    <string name="hud_overlay_subsection_desc">将 Overlay Studio 预设导入 HUD 的 Custom 屏幕，不带背景。预设会复制到这里，之后在工作室里的修改不会影响 HUD，除非你再次导入</string>
+    <string name="hud_overlay_select_preset">导入预设</string>
+    <string name="hud_overlay_current_preset">当前：%1$s</string>
+    <string name="hud_search_corpus">HUD 抬头显示 伴侣 服务器 流 遥测 热点 motoeye 转向箭头</string>
+    <string name="hud_personalize_title">个性化</string>
+    <string name="hud_screens_title">HUD 屏幕</string>
+    <string name="hud_map_options_title">地图选项</string>
+    <string name="hud_personalize_desc">选择 HUD 显示哪些屏幕以及它们的轮播顺序。至少要保留一个屏幕开启。</string>
+    <string name="hud_screen_name_dashboard">仪表盘</string>
+    <string name="hud_screen_name_camera">后置摄像头</string>
+    <string name="hud_screen_name_telemetry">遥测</string>
+    <string name="hud_screen_name_custom">自定义叠加 + 黑色</string>
+    <string name="hud_screen_name_custom_cam">自定义叠加 + 摄像头</string>
+    <string name="hud_screen_name_map">地图</string>
+    <string name="hud_screen_name_nav">导航</string>
+    <string name="hud_screen_name_power">瓦特和续航</string>
+    <string name="hud_screen_name_trip_stats">行程统计</string>
+    <string name="hud_screen_name_compass">指南针</string>
+    <string name="hud_screen_name_safety">安全</string>
+    <string name="hud_screen_name_big_clock">大时钟</string>
+    <string name="hud_map_style_label">地图样式</string>
+    <string name="hud_map_contrast_label">对比度</string>
+    <string name="hud_map_brightness_label">亮度</string>
+    <string name="hud_install_hint">需要 HUD 应用？请前往 <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">HUD 有可用更新。手机上的新功能要等你从 <b>eucplanet.ried.no/hud</b> 更新 HUD 后才会显示</string>
+    <string name="hud_version_hint_phone_behind">手机有可用更新。HUD 的部分功能要等你从 <b>eucplanet.ried.no/hud</b> 更新这个手机应用后才会显示</string>
+    <string name="hud_version_block_hud_behind">必须更新 HUD。HUD 应用版本太旧，无法与此手机通信。请从 <b>eucplanet.ried.no/hud</b> 更新以继续。</string>
+    <string name="hud_version_block_phone_behind">必须更新手机应用。本手机应用版本太旧，无法与 HUD 通信。请从 <b>eucplanet.ried.no/hud</b> 更新以继续。</string>
+    <string name="nav_setting_full_path">始终解算完整路线</string>
+    <string name="nav_setting_full_path_desc">关闭时仅解算下一个站点，其余以虚线预览显示</string>
+    <string name="studio_cfg_clock_24h">24 小时制</string>
+    <string name="studio_cfg_dial_color_band">色带</string>
 </resources>

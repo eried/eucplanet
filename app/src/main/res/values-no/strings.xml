@@ -1248,7 +1248,7 @@
     <string name="welcome_tut_camera">Ta opp video med et telemetri-overlegg i sanntid. Lag egne stilige overlegg og eksporter dem for å lage dine egne videoer med data fra tidligere turer</string>
     <string name="welcome_tut_pd">Viser Park eller Kjør. Trykk for å stille inn %1$s</string>
     <string name="welcome_tut_outro_alarms">Utforsk den kraftige editoren for egendefinerte alarmer under Innstillinger → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Utforsk integrasjonene, som Flic-knapper og klokken din</string>
+    <string name="welcome_tut_outro_integrations">Utforsk integrasjonene: Flic-knapper, klokken din, HUD-en, Garmin Connect IQ og bakveisradaren</string>
     <string name="welcome_tut_outro_end">Hold blikket på veien og vekk fra denne appen mens du kjører!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1332,4 +1332,40 @@
     <string name="warnings_perm_notifications_title">Varsler av</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i varslingsfeltet</string>
     <string name="hud_screen_name_map_nav">Kart + Nav</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">Eget overlay</string>
+    <string name="hud_overlay_subsection_desc">Importer en Overlay Studio-mal til HUDens Custom-skjerm, uten bakgrunn. Malen kopieres hit, så senere endringer i studioet endrer ikke HUDen før du importerer på nytt</string>
+    <string name="hud_overlay_select_preset">Importer mal</string>
+    <string name="hud_overlay_current_preset">Nåværende: %1$s</string>
+    <string name="hud_search_corpus">HUD heads-up display kompanjong server stream telemetri hotspot motoeye svingpil</string>
+    <string name="hud_personalize_title">Tilpass</string>
+    <string name="hud_screens_title">HUD-skjermer</string>
+    <string name="hud_map_options_title">Kartvalg</string>
+    <string name="hud_personalize_desc">Velg hvilke skjermer HUDen viser og rekkefølgen de byttes i. Minst én skjerm må være aktiv.</string>
+    <string name="hud_screen_name_dashboard">Dashbord</string>
+    <string name="hud_screen_name_camera">Bakkamera</string>
+    <string name="hud_screen_name_telemetry">Telemetri</string>
+    <string name="hud_screen_name_custom">Eget overlay + svart</string>
+    <string name="hud_screen_name_custom_cam">Eget overlay + kamera</string>
+    <string name="hud_screen_name_map">Kart</string>
+    <string name="hud_screen_name_nav">Navigator</string>
+    <string name="hud_screen_name_power">Watt og rekkevidde</string>
+    <string name="hud_screen_name_trip_stats">Turstatistikk</string>
+    <string name="hud_screen_name_compass">Kompass</string>
+    <string name="hud_screen_name_safety">Sikkerhet</string>
+    <string name="hud_screen_name_big_clock">Stor klokke</string>
+    <string name="hud_map_style_label">Kartstil</string>
+    <string name="hud_map_contrast_label">Kontrast</string>
+    <string name="hud_map_brightness_label">Lysstyrke</string>
+    <string name="hud_install_hint">Trenger du HUD-appen? Hent den fra <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">HUD-oppdatering tilgjengelig. Nye telefonfunksjoner vises ikke før du oppdaterer HUDen fra <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Telefonoppdatering tilgjengelig. Noen HUD-funksjoner vises ikke før du oppdaterer denne telefon-appen fra <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">HUD-oppdatering kreves. HUD-appen er for gammel til å snakke med denne telefonen. Oppdater den fra <b>eucplanet.ried.no/hud</b> for å fortsette.</string>
+    <string name="hud_version_block_phone_behind">Telefonoppdatering kreves. Denne telefon-appen er for gammel til å snakke med HUDen. Oppdater den fra <b>eucplanet.ried.no/hud</b> for å fortsette.</string>
+    <string name="nav_setting_full_path">Beregn alltid hele ruten</string>
+    <string name="nav_setting_full_path_desc">Av beregner bare neste stopp og viser resten som stiplet forhåndsvisning</string>
+    <string name="studio_cfg_clock_24h">24-timers format</string>
+    <string name="studio_cfg_dial_color_band">Fargebånd</string>
 </resources>

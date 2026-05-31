@@ -1283,7 +1283,7 @@
     <string name="welcome_tut_camera">Записывайте видео с наложением телеметрии в реальном времени. Создавайте собственные эффектные оверлеи и экспортируйте их, чтобы делать свои видео с данными из прошлых поездок</string>
     <string name="welcome_tut_pd">Показывает «Парковка» или «Движение». Нажмите, чтобы задать %1$s</string>
     <string name="welcome_tut_outro_alarms">Откройте для себя мощный редактор пользовательских сигналов в Настройки → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Познакомьтесь с интеграциями, например с кнопками Flic и вашими часами</string>
+    <string name="welcome_tut_outro_integrations">Изучи интеграции: кнопки Flic, твои часы, HUD, Garmin Connect IQ и задний радар</string>
     <string name="welcome_tut_outro_end">Следите за дорогой, а не за этим приложением, пока едете на моноколесе!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1367,4 +1367,40 @@
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
     <string name="hud_screen_name_map_nav">Карта + Навигация</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">Свой оверлей</string>
+    <string name="hud_overlay_subsection_desc">Импортируй пресет Overlay Studio на экран Custom HUD без фона. Пресет копируется сюда, поэтому последующие правки в студии не изменят HUD, пока ты не импортируешь снова</string>
+    <string name="hud_overlay_select_preset">Импортировать пресет</string>
+    <string name="hud_overlay_current_preset">Текущий: %1$s</string>
+    <string name="hud_search_corpus">HUD проекционный дисплей компаньон сервер поток телеметрия точка доступа motoeye стрелка поворота</string>
+    <string name="hud_personalize_title">Персонализация</string>
+    <string name="hud_screens_title">Экраны HUD</string>
+    <string name="hud_map_options_title">Параметры карты</string>
+    <string name="hud_personalize_desc">Выбери, какие экраны показывает HUD и в каком порядке они переключаются. Хотя бы один экран должен оставаться активным.</string>
+    <string name="hud_screen_name_dashboard">Панель</string>
+    <string name="hud_screen_name_camera">Задняя камера</string>
+    <string name="hud_screen_name_telemetry">Телеметрия</string>
+    <string name="hud_screen_name_custom">Свой оверлей + чёрный</string>
+    <string name="hud_screen_name_custom_cam">Свой оверлей + камера</string>
+    <string name="hud_screen_name_map">Карта</string>
+    <string name="hud_screen_name_nav">Навигатор</string>
+    <string name="hud_screen_name_power">Ватты и запас хода</string>
+    <string name="hud_screen_name_trip_stats">Статистика поездки</string>
+    <string name="hud_screen_name_compass">Компас</string>
+    <string name="hud_screen_name_safety">Безопасность</string>
+    <string name="hud_screen_name_big_clock">Большие часы</string>
+    <string name="hud_map_style_label">Стиль карты</string>
+    <string name="hud_map_contrast_label">Контраст</string>
+    <string name="hud_map_brightness_label">Яркость</string>
+    <string name="hud_install_hint">Нужно приложение HUD? Скачай его на <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">Доступно обновление HUD. Новые функции телефона не появятся, пока не обновишь HUD с <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Доступно обновление телефона. Некоторые функции HUD не появятся, пока не обновишь это приложение с <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">Требуется обновление HUD. Приложение HUD слишком старое, чтобы работать с этим телефоном. Обнови его на <b>eucplanet.ried.no/hud</b>, чтобы продолжить.</string>
+    <string name="hud_version_block_phone_behind">Требуется обновление телефона. Это приложение слишком старое, чтобы работать с HUD. Обнови его на <b>eucplanet.ried.no/hud</b>, чтобы продолжить.</string>
+    <string name="nav_setting_full_path">Всегда строить полный маршрут</string>
+    <string name="nav_setting_full_path_desc">Выкл — строит только следующую остановку, остальное показывает пунктирным предпросмотром</string>
+    <string name="studio_cfg_clock_24h">24-часовой формат</string>
+    <string name="studio_cfg_dial_color_band">Цветовая полоса</string>
 </resources>

@@ -1231,7 +1231,7 @@
     <string name="welcome_tut_camera">Enregistre des vidéos avec une superposition de télémétrie en direct. Crée tes propres superpositions personnalisées et exporte-les pour réaliser tes vidéos avec les données de tes trajets passés</string>
     <string name="welcome_tut_pd">Affiche Park ou Drive. Touche pour définir ton %1$s</string>
     <string name="welcome_tut_outro_alarms">Découvre le puissant éditeur d\'alarmes personnalisées dans Paramètres → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Découvre les intégrations, comme les boutons Flic et ta montre</string>
+    <string name="welcome_tut_outro_integrations">Découvre les intégrations : boutons Flic, ta montre, le HUD, Garmin Connect IQ et le radar de recul</string>
     <string name="welcome_tut_outro_end">Garde les yeux sur la route et loin de cette appli quand tu roules !</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1315,4 +1315,40 @@
     <string name="warnings_perm_notifications_title">Notifications désactivées</string>
     <string name="warnings_perm_notifications_body">Tu ne verras pas le statut du trajet dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications</string>
     <string name="hud_screen_name_map_nav">Carte + Nav</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">Overlay personnalisé</string>
+    <string name="hud_overlay_subsection_desc">Importe un preset Overlay Studio sur l\'écran Custom du HUD, sans arrière-plan. Le preset est copié ici, donc tes modifications ultérieures dans le studio n\'affecteront le HUD qu\'après un nouvel import</string>
+    <string name="hud_overlay_select_preset">Importer un preset</string>
+    <string name="hud_overlay_current_preset">Actuel : %1$s</string>
+    <string name="hud_search_corpus">HUD affichage tête haute compagnon serveur stream télémétrie hotspot motoeye flèche de virage</string>
+    <string name="hud_personalize_title">Personnaliser</string>
+    <string name="hud_screens_title">Écrans du HUD</string>
+    <string name="hud_map_options_title">Options de la carte</string>
+    <string name="hud_personalize_desc">Choisis quels écrans le HUD affiche et l\'ordre dans lequel ils défilent. Au moins un écran doit rester activé.</string>
+    <string name="hud_screen_name_dashboard">Tableau de bord</string>
+    <string name="hud_screen_name_camera">Caméra arrière</string>
+    <string name="hud_screen_name_telemetry">Télémétrie</string>
+    <string name="hud_screen_name_custom">Overlay perso + noir</string>
+    <string name="hud_screen_name_custom_cam">Overlay perso + caméra</string>
+    <string name="hud_screen_name_map">Carte</string>
+    <string name="hud_screen_name_nav">Navigateur</string>
+    <string name="hud_screen_name_power">Watts et autonomie</string>
+    <string name="hud_screen_name_trip_stats">Stats du trajet</string>
+    <string name="hud_screen_name_compass">Boussole</string>
+    <string name="hud_screen_name_safety">Sécurité</string>
+    <string name="hud_screen_name_big_clock">Grande horloge</string>
+    <string name="hud_map_style_label">Style de carte</string>
+    <string name="hud_map_contrast_label">Contraste</string>
+    <string name="hud_map_brightness_label">Luminosité</string>
+    <string name="hud_install_hint">Besoin de l\'appli HUD ? Récupère-la sur <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">Mise à jour du HUD dispo. Les nouvelles fonctions du téléphone ne s\'afficheront qu\'après la mise à jour du HUD depuis <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Mise à jour du téléphone dispo. Certaines fonctions du HUD ne s\'afficheront qu\'après la mise à jour de cette appli depuis <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">Mise à jour du HUD requise. L\'appli HUD est trop ancienne pour communiquer avec ce téléphone. Mets-la à jour depuis <b>eucplanet.ried.no/hud</b> pour continuer.</string>
+    <string name="hud_version_block_phone_behind">Mise à jour du téléphone requise. Cette appli est trop ancienne pour communiquer avec le HUD. Mets-la à jour depuis <b>eucplanet.ried.no/hud</b> pour continuer.</string>
+    <string name="nav_setting_full_path">Toujours calculer l\'itinéraire complet</string>
+    <string name="nav_setting_full_path_desc">Désactivé : calcule seulement l\'arrêt suivant et affiche le reste en pointillés</string>
+    <string name="studio_cfg_clock_24h">Format 24 heures</string>
+    <string name="studio_cfg_dial_color_band">Bande colorée</string>
 </resources>

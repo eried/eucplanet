@@ -1267,7 +1267,7 @@
     <string name="welcome_tut_camera">Neem video op met een live telemetrie-overlay. Maak je eigen mooie overlays en exporteer ze om je eigen video\'s te maken met data van eerdere ritten</string>
     <string name="welcome_tut_pd">Toont Park of Drive. Tik erop om je %1$s in te stellen</string>
     <string name="welcome_tut_outro_alarms">Ontdek de krachtige editor voor aangepaste alarmen in Instellingen → %1$s</string>
-    <string name="welcome_tut_outro_integrations">Ontdek de integraties, zoals Flic-knoppen en je horloge</string>
+    <string name="welcome_tut_outro_integrations">Verken de integraties: Flic-knoppen, je horloge, de HUD, Garmin Connect IQ en de achteruitkijkradar</string>
     <string name="welcome_tut_outro_end">Houd je ogen op de weg en niet op deze app tijdens het rijden!</string>
 
     <!-- Short variants for the dashboard tile face. Same English abbreviations
@@ -1351,4 +1351,40 @@
     <string name="warnings_perm_notifications_title">Meldingen uit</string>
     <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel</string>
     <string name="hud_screen_name_map_nav">Kaart + Nav</string>
+
+    <!-- HUD Overlay / Personalize / Map / Versions (added) -->
+    <string name="hud_overlay_subsection">Eigen overlay</string>
+    <string name="hud_overlay_subsection_desc">Importeer een Overlay Studio-preset op het Custom-scherm van de HUD, zonder achtergrond. De preset wordt hier gekopieerd, dus latere wijzigingen in de studio veranderen de HUD pas als je opnieuw importeert</string>
+    <string name="hud_overlay_select_preset">Preset importeren</string>
+    <string name="hud_overlay_current_preset">Huidig: %1$s</string>
+    <string name="hud_search_corpus">HUD heads-up display companion server stream telemetrie hotspot motoeye afslagpijl</string>
+    <string name="hud_personalize_title">Personaliseren</string>
+    <string name="hud_screens_title">HUD-schermen</string>
+    <string name="hud_map_options_title">Kaartopties</string>
+    <string name="hud_personalize_desc">Kies welke schermen de HUD toont en in welke volgorde ze wisselen. Minstens één scherm moet aan blijven staan.</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
+    <string name="hud_screen_name_camera">Achtercamera</string>
+    <string name="hud_screen_name_telemetry">Telemetrie</string>
+    <string name="hud_screen_name_custom">Eigen overlay + zwart</string>
+    <string name="hud_screen_name_custom_cam">Eigen overlay + camera</string>
+    <string name="hud_screen_name_map">Kaart</string>
+    <string name="hud_screen_name_nav">Navigator</string>
+    <string name="hud_screen_name_power">Watt en bereik</string>
+    <string name="hud_screen_name_trip_stats">Ritstatistieken</string>
+    <string name="hud_screen_name_compass">Kompas</string>
+    <string name="hud_screen_name_safety">Veiligheid</string>
+    <string name="hud_screen_name_big_clock">Grote klok</string>
+    <string name="hud_map_style_label">Kaartstijl</string>
+    <string name="hud_map_contrast_label">Contrast</string>
+    <string name="hud_map_brightness_label">Helderheid</string>
+    <string name="hud_install_hint">HUD-app nodig? Haal hem op via <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">HUD-update beschikbaar. Nieuwe telefoonfuncties verschijnen pas zodra je de HUD bijwerkt vanaf <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Telefoon-update beschikbaar. Sommige HUD-functies verschijnen pas zodra je deze telefoon-app bijwerkt vanaf <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">HUD-update vereist. De HUD-app is te oud om met deze telefoon te praten. Werk hem bij vanaf <b>eucplanet.ried.no/hud</b> om door te gaan.</string>
+    <string name="hud_version_block_phone_behind">Telefoon-update vereist. Deze telefoon-app is te oud om met de HUD te praten. Werk hem bij vanaf <b>eucplanet.ried.no/hud</b> om door te gaan.</string>
+    <string name="nav_setting_full_path">Altijd de hele route berekenen</string>
+    <string name="nav_setting_full_path_desc">Uit berekent alleen de volgende stop en toont de rest als gestippelde preview</string>
+    <string name="studio_cfg_clock_24h">24-uursformaat</string>
+    <string name="studio_cfg_dial_color_band">Kleurband</string>
 </resources>
