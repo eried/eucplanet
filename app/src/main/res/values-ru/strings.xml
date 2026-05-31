@@ -530,6 +530,7 @@
     <!-- Watch sections -->
     <string name="section_watch_display">Экран</string>
     <string name="section_watch_advanced">Дополнительно</string>
+    <string name="section_voice_advanced">Дополнительно</string>
     <string name="section_watch_general">Общие</string>
 
     <!-- Service mode -->

@@ -108,6 +108,7 @@
     <string name="section_watch_general">Ogólne</string>
     <string name="section_watch_display">Ekran</string>
     <string name="section_watch_advanced">Zaawansowane</string>
+    <string name="section_voice_advanced">Zaawansowane</string>
     <string name="watch_keep_on">Nie wygaszaj ekranu</string>
     <string name="watch_keep_on_desc">Trzymaj zegarek wybudzony, gdy aplikacja jest otwarta</string>
     <string name="watch_update_rate">Częstotliwość odświeżania</string>

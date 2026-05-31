@@ -5029,25 +5029,34 @@ private fun VoiceTab(
             )
         }
 
-        SliderSetting(
-            label = stringResource(R.string.voice_speech_speed),
-            value = settings.voiceSpeechRate,
-            range = 0.5f..2.5f,
-            unit = stringResource(R.string.unit_x),
-            steps = 19,
-            format = "%.1f",
-            onValueChange = { viewModel.updateVoiceSpeechRate(it) }
-        )
+        // Speech speed, while-speaking audio focus, and output channel
+        // are tuning knobs most riders accept the defaults for. Tucked
+        // behind an Advanced collapsable so the Speech section stays
+        // focused on the rider's most-common task: picking the voice.
+        AdvancedCollapsable(
+            title = stringResource(R.string.section_voice_advanced),
+            stateKey = "voice-advanced"
+        ) {
+            SliderSetting(
+                label = stringResource(R.string.voice_speech_speed),
+                value = settings.voiceSpeechRate,
+                range = 0.5f..2.5f,
+                unit = stringResource(R.string.unit_x),
+                steps = 19,
+                format = "%.1f",
+                onValueChange = { viewModel.updateVoiceSpeechRate(it) }
+            )
 
-        AudioFocusSelector(
-            current = settings.voiceAudioFocus,
-            onChange = { viewModel.updateVoiceAudioFocus(it) }
-        )
+            AudioFocusSelector(
+                current = settings.voiceAudioFocus,
+                onChange = { viewModel.updateVoiceAudioFocus(it) }
+            )
 
-        OutputChannelSelector(
-            current = settings.voiceOutputChannel,
-            onChange = { viewModel.updateVoiceOutputChannel(it) }
-        )
+            OutputChannelSelector(
+                current = settings.voiceOutputChannel,
+                onChange = { viewModel.updateVoiceOutputChannel(it) }
+            )
+        }
 
         SectionHeader(stringResource(R.string.section_announcements))
 
@@ -5504,53 +5513,16 @@ private fun WatchTab(
             onCheckedChange = { viewModel.updateWatchShowNavigation(it) }
         )
 
-        // Customization (collapsed by default) — visual tweaks most riders
-        // configure once and forget. Hiding them keeps the Watch tab tight
-        // for first-time setup while still letting power users dial things
-        // in. Update-rate sits here because it's a battery-vs-smoothness
-        // tradeoff, not a "does my watch work?" gate. Uses the same compact
-        // card style as the OneDrive cloud_help collapsable so it reads as
-        // a secondary affordance rather than a peer Display/General/Buttons
-        // section — those big SectionHeader titles dominated the Watch tab.
-        var customizationExpanded by rememberSaveable { mutableStateOf(false) }
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+        // Advanced (collapsed by default) — visual tweaks most riders
+        // configure once and forget. Hiding them keeps the Watch tab
+        // tight for first-time setup while still letting power users
+        // dial things in. Update-rate sits here because it's a
+        // battery-vs-smoothness tradeoff, not a "does my watch work?"
+        // gate.
+        AdvancedCollapsable(
+            title = stringResource(R.string.section_watch_advanced),
+            stateKey = "watch-advanced"
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { customizationExpanded = !customizationExpanded }
-                        .padding(horizontal = 12.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = highlightMatches(
-                            stringResource(R.string.section_watch_advanced),
-                            LocalSettingsSearchQuery.current
-                        ),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Icon(
-                        imageVector = if (customizationExpanded)
-                            androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp
-                        else
-                            androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
-                        contentDescription = null
-                    )
-                }
-                if (customizationExpanded) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp)
-                            .padding(bottom = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
             // Update rate is Wear-OS-only: the Connect IQ Mobile SDK
             // enforces its own rate cap on the Garmin transport regardless
             // of what we set here, so the choice would be misleading on a
@@ -5673,9 +5645,6 @@ private fun WatchTab(
                 maxLabel = "90",
                 onValueChange = { viewModel.updateWatchDialRotationDeg(it.toInt()) }
             )
-            }
-                    }
-                }
             }
         }
 
@@ -7571,6 +7540,73 @@ private fun DeviceRegion(
  * expanded, leads with a MetricInfoBox carrying [info] above the
  * [content] (the actual pickers).
  */
+/**
+ * Generic "Advanced" collapsable card. Same compact CloudHelpCard pattern
+ * as [WatchButtonsCollapsable] but without a leading info box — used by
+ * tabs that group power-user controls behind a single tap (Watch, Voice,
+ * …). Collapsed by default; the [title] is the only thing visible until
+ * the rider expands. Includes smart-scroll-into-view on expand so the
+ * freshly-revealed controls aren't off-screen below the fold.
+ *
+ * [stateKey] separates rememberSaveable buckets when multiple Advanced
+ * cards live in the same tab.
+ */
+@Composable
+private fun AdvancedCollapsable(
+    title: String,
+    stateKey: String = title,
+    content: @Composable () -> Unit
+) {
+    var expanded by rememberSaveable(stateKey) { mutableStateOf(false) }
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(120)
+            runCatching { requester.bringIntoView() }
+        }
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(requester),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = highlightMatches(title, LocalSettingsSearchQuery.current),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    content()
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun WatchButtonsCollapsable(
     title: String,

@@ -509,6 +509,7 @@
     <string name="scan_simulate_title">Virtuelle Räder</string>
     <string name="section_watch_display">Anzeige</string>
     <string name="section_watch_advanced">Erweitert</string>
+    <string name="section_voice_advanced">Erweitert</string>
     <string name="section_watch_general">Allgemein</string>
     <string name="show_gauge_color_band">Farbband der Geschwindigkeitsanzeige</string>
     <string name="stat_watts">WATT</string>

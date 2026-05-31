@@ -493,6 +493,7 @@
     <string name="scan_simulate_title">虚拟独轮车</string>
     <string name="section_watch_display">显示</string>
     <string name="section_watch_advanced">高级</string>
+    <string name="section_voice_advanced">高级</string>
     <string name="section_watch_general">通用</string>
     <string name="show_gauge_color_band">速度表色带</string>
     <string name="stat_watts">瓦特</string>

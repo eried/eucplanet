@@ -108,6 +108,7 @@
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>
     <string name="section_watch_advanced">Geavanceerd</string>
+    <string name="section_voice_advanced">Geavanceerd</string>
     <string name="watch_keep_on">Scherm aan houden</string>
     <string name="watch_keep_on_desc">Houd het horloge wakker terwijl de app open is</string>
     <string name="watch_update_rate">Verversingssnelheid</string>

@@ -493,6 +493,7 @@
     <string name="scan_simulate_title">Roues virtuelles</string>
     <string name="section_watch_display">Affichage</string>
     <string name="section_watch_advanced">Avancé</string>
+    <string name="section_voice_advanced">Avancé</string>
     <string name="section_watch_general">Général</string>
     <string name="show_gauge_color_band">Bande de couleur du compteur de vitesse</string>
     <string name="stat_watts">WATTS</string>
