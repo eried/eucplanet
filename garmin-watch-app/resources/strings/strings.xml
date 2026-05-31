@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mirrors wear/src/main/res/values/strings.xml so the watch UI reads the same
+  copy on both Wear OS and Garmin. Locales other than English are tracked in
+  the wear/ module under values-{lang}; port into resources-{lang}/strings.xml
+  here when localising. Keep the keys in sync (AppName, WatchHorn, etc.) so a
+  copy fix flows to both surfaces by name.
+-->
+<strings>
+  <string id="AppName">EUC Planet</string>
+
+  <string id="WaitingPhone">Open EUC Planet\non your phone</string>
+  <string id="WaitingWheel">Connect a wheel\nin EUC Planet</string>
+  <string id="Disconnected">Disconnected</string>
+
+  <string id="Horn">Horn</string>
+  <string id="Light">Light</string>
+
+  <string id="SpeedUnitKmh">km/h</string>
+  <string id="SpeedUnitMph">mph</string>
+  <string id="SpeedUnitMs">m/s</string>
+  <string id="SpeedUnitKn">kn</string>
+
+  <string id="LabelBattery">Battery</string>
+  <string id="LabelVoltage">Voltage</string>
+  <string id="LabelCurrent">Current</string>
+  <string id="LabelPwm">PWM</string>
+  <string id="LabelPower">Power</string>
+  <string id="LabelTemp">Temp</string>
+  <string id="LabelTrip">Trip</string>
+  <string id="LabelTorque">Torque</string>
+  <string id="LabelGpsSpeed">GPS speed</string>
+
+  <string id="ActionFailed">Couldn't reach phone</string>
+
+  <string id="ActionHorn">Horn</string>
+  <string id="ActionLight">Light</string>
+  <string id="ActionLock">Lock wheel</string>
+  <string id="ActionSafety">Legal mode</string>
+  <string id="ActionSafetyOn">Legal mode on</string>
+  <string id="ActionSafetyOff">Legal mode off</string>
+  <string id="ActionVoice">Voice report</string>
+  <string id="ActionRecord">Recording</string>
+  <string id="ActionRecordStart">Recording started</string>
+  <string id="ActionRecordStop">Recording stopped</string>
+  <string id="ActionMediaPlay">Play / pause</string>
+  <string id="ActionMediaNext">Next track</string>
+  <string id="ActionMediaPrev">Previous track</string>
+</strings>

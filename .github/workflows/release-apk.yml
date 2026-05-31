@@ -1,26 +1,35 @@
-name: Release APK
+name: Release builds
 
-# On every push of a `v*` tag (e.g. v0.8.11), build a slim release-signed
-# phone APK (slim meaning WITHOUT the embedded wear companion APK), and
-# attach it to the matching GitHub release. The fat AAB that goes to Play
-# Console still gets built locally and uploaded by hand at release time.
+# On every push of a `v*` tag (e.g. v0.8.11), build all three platforms with
+# consistent filenames and attach them to the matching GitHub release:
+#
+#   phone-<version>-slim.apk          (slim release-signed phone APK)
+#   wearos-<version>.apk              (release-signed wear APK)
+#   garmin-<version>.iq               (multi-device Connect IQ bundle)
+#   garmin-<version>-<device>.prg     (one per popular device)
+#
+# `<version>` is the tag with the leading `v` stripped (v0.9.0 -> 0.9.0).
+# Naming matches the branch-builds workflow's `<device>-...` convention.
 #
 # Why slim? The Play AAB embeds the wear APK so Google Play auto-delivers
 # it to a paired Wear OS watch. Sideload users who download the APK from
 # GitHub don't need that path (many of them don't even own a watch), so
 # we save them ~40 MB by stripping the embedded wear from the GitHub copy.
-# The companion wear APK is uploaded to the same release as its own file
-# (`wear-release.apk`) for sideloaders who do want it.
+# The companion wear APK is uploaded as its own file for sideloaders.
 #
-# Required repository secrets (Settings → Secrets and variables → Actions):
+# Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
+# download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
+# Without that secret the garmin job exits as `skipped` cleanly.
+#
+# Required signing secrets (Settings -> Secrets and variables -> Actions):
 #   RELEASE_KEYSTORE   : base64-encoded contents of the release .jks file
 #                        (locally: `base64 -w0 path/to/release.jks > out.txt`)
 #   KEYSTORE_PASSWORD  : store password
 #   KEY_ALIAS          : signing key alias
 #   KEY_PASSWORD       : key password
 #
-# If any secret is missing the workflow short-circuits with a clear message
-# rather than producing an unsigned APK by accident.
+# If any signing secret is missing the workflow short-circuits with a clear
+# message rather than producing an unsigned APK by accident.
 
 on:
   push:
@@ -29,29 +38,39 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing release tag to attach the slim APK to (e.g. v0.8.11)"
+        description: "Existing release tag to attach the artifacts to (e.g. v0.8.11)"
         required: true
 
 permissions:
   contents: write
 
 jobs:
-  slim-apk:
+  meta:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.ref }}
+      version: ${{ steps.tag.outputs.version }}
     steps:
       - name: Resolve target tag
         id: tag
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "ref=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+            ref="${{ inputs.tag }}"
           else
-            echo "ref=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+            ref="${GITHUB_REF##*/}"
           fi
+          version="${ref#v}"
+          echo "ref=${ref}"                       >> "$GITHUB_OUTPUT"
+          echo "version=${version}"               >> "$GITHUB_OUTPUT"
 
+  android:
+    runs-on: ubuntu-latest
+    needs: meta
+    steps:
       - name: Checkout tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.tag.outputs.ref }}
+          ref: ${{ needs.meta.outputs.tag }}
           fetch-depth: 1
 
       - name: Verify signing secrets are configured
@@ -68,7 +87,7 @@ jobs:
           [ -z "$KEY_PASSWORD" ]      && missing+=(KEY_PASSWORD)
           if [ "${#missing[@]}" -gt 0 ]; then
             echo "::error::Release signing secrets missing: ${missing[*]}"
-            echo "::error::Add them in Settings → Secrets and variables → Actions, then re-run this workflow."
+            echo "::error::Add them in Settings -> Secrets and variables -> Actions, then re-run this workflow."
             exit 1
           fi
 
@@ -76,17 +95,7 @@ jobs:
         env:
           RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
         run: |
-          # Decode the keystore into a known path that keystore.properties
-          # below will point at via storeFile=release.jks (resolved relative
-          # to rootProject).
           echo "$RELEASE_KEYSTORE" | base64 -d > release.jks
-          # Sanity-check we got a real keystore. `file(1)` reports them as
-          # plain "data" on Ubuntu, so we match on the magic header
-          # directly. Accept all three formats Android signing produces:
-          #   FE ED FE ED ...   -> JKS (Java KeyStore, legacy)
-          #   CE CE CE CE ...   -> JCEKS
-          #   30 82 LL LL ...   -> PKCS#12 (DER ASN.1 SEQUENCE; modern default
-          #                       produced by Android Studio's signing wizard)
           test -s release.jks || {
             echo "::error::Decoded RELEASE_KEYSTORE is empty."; exit 1; }
           magic4=$(head -c4 release.jks | xxd -p)
@@ -141,43 +150,149 @@ jobs:
             exit 1
           fi
 
-      - name: Build slim release APK (no embedded wear)
+      - name: Build slim release phone APK + wear APK
         run: |
-          ./gradlew :app:assembleRelease -PembedWear=false --no-daemon --stacktrace
+          targets=":app:assembleRelease"
+          if [ -f wear/build.gradle.kts ]; then
+            targets="$targets :wear:assembleRelease"
+          fi
+          ./gradlew $targets -PembedWear=false --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
 
-      - name: Stage APK with versioned filename
-        id: stage
+      - name: Stage APKs with canonical filenames
         run: |
-          tag="${{ steps.tag.outputs.ref }}"
-          stripped="${tag#v}"
-          # Device-first naming: matches the branch-apk workflow's phone-*
-          # / wearos-* convention and the local Gradle output. The "-slim"
-          # suffix marks this as the wear-stripped Play-Store-style build
-          # (-PembedWear=false). Source filename comes from app/'s
-          # applicationVariants block which renames app-release.apk to
-          # phone-release.apk.
-          out="phone-${stripped}-slim.apk"
-          cp app/build/outputs/apk/release/phone-release.apk "/tmp/${out}"
-          ls -la "/tmp/${out}"
-          echo "name=${out}" >> "$GITHUB_OUTPUT"
+          mkdir -p /tmp/out
+          cp app/build/outputs/apk/release/phone-release.apk \
+             "/tmp/out/phone-${{ needs.meta.outputs.version }}-slim.apk"
+          # Wear release APK lives under wear/build/outputs/apk/release/. Some
+          # branches build only debug for wear; fall back to that.
+          if [ -f wear/build/outputs/apk/release/wearos-release.apk ]; then
+            cp wear/build/outputs/apk/release/wearos-release.apk \
+               "/tmp/out/wearos-${{ needs.meta.outputs.version }}.apk"
+          elif [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
+            cp wear/build/outputs/apk/debug/wearos-debug.apk \
+               "/tmp/out/wearos-${{ needs.meta.outputs.version }}.apk"
+          fi
+          ls -la /tmp/out
 
-      - name: Attach slim APK to the release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${{ steps.tag.outputs.ref }}"
-          # If a previous run uploaded the same slim filename, drop it first
-          # so the upload below doesn't 422. Tolerate the asset not existing.
-          existing="phone-${tag#v}-slim.apk"
-          gh release delete-asset "$tag" "$existing" --yes 2>/dev/null || true
-          gh release upload "$tag" "/tmp/${{ steps.stage.outputs.name }}" --clobber
+      - name: Stage for publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-android
+          path: /tmp/out/*
+          retention-days: 1
 
       - name: Wipe sensitive files
         if: always()
         run: |
-          # Don't leave the decoded keystore or its properties on the runner
-          # disk (defence in depth: the runner is single-use, but in case
-          # this workflow grows steps that upload the workspace later on).
           rm -f release.jks keystore.properties
+
+  garmin:
+    runs-on: ubuntu-latest
+    needs: meta
+    env:
+      GARMIN_SDK_BUNDLE_URL: ${{ secrets.GARMIN_SDK_BUNDLE_URL }}
+    steps:
+      - name: Skip if bundle URL not configured
+        id: precheck
+        run: |
+          if [ -z "$GARMIN_SDK_BUNDLE_URL" ]; then
+            echo "::notice::GARMIN_SDK_BUNDLE_URL secret not set; skipping Garmin build."
+            echo "::notice::See tools/bundle-ciq-sdk-for-ci.ps1 to enable."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout tag
+        if: steps.precheck.outputs.skip == 'false'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.tag }}
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        if: steps.precheck.outputs.skip == 'false'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download CIQ SDK bundle
+        if: steps.precheck.outputs.skip == 'false'
+        run: |
+          mkdir -p /tmp/ciq
+          curl -fL --retry 3 -o /tmp/ciq/bundle.zip "$GARMIN_SDK_BUNDLE_URL"
+          unzip -q /tmp/ciq/bundle.zip -d /tmp/ciq
+          test -x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc || chmod +x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc /tmp/ciq/ciq-bundle/sdk/bin/monkeydo
+
+      - name: Generate one-off developer key
+        if: steps.precheck.outputs.skip == 'false'
+        run: |
+          openssl genrsa -out /tmp/ciq/dev_key.pem 4096
+          openssl pkcs8 -topk8 -inform PEM -outform DER -in /tmp/ciq/dev_key.pem -out /tmp/ciq/dev_key.der -nocrypt
+
+      - name: Build .iq + per-device .prg files
+        if: steps.precheck.outputs.skip == 'false'
+        run: |
+          mkdir -p /tmp/out
+          export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
+          export CIQ_HOME=/tmp/ciq/ciq-bundle/sdk
+          export GARMIN_DEVICE_DIR=/tmp/ciq/ciq-bundle/devices
+
+          IQ_OUT="/tmp/out/garmin-${{ needs.meta.outputs.version }}.iq"
+          monkeyc \
+            -f garmin-watch-app/monkey.jungle \
+            -o "$IQ_OUT" \
+            -y /tmp/ciq/dev_key.der \
+            -e \
+            -w
+          ls -la "$IQ_OUT"
+
+          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
+            OUT="/tmp/out/garmin-${{ needs.meta.outputs.version }}-${d}.prg"
+            echo "--- building $d ---"
+            monkeyc \
+              -f garmin-watch-app/monkey.jungle \
+              -o "$OUT" \
+              -y /tmp/ciq/dev_key.der \
+              -d "$d" \
+              -w
+          done
+          ls -la /tmp/out
+
+      - name: Stage for publish
+        if: steps.precheck.outputs.skip == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-garmin
+          path: /tmp/out/*
+          retention-days: 1
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [meta, android, garmin]
+    # Run even if garmin was skipped, as long as android succeeded.
+    if: always() && needs.android.result == 'success'
+    steps:
+      - name: Download staged artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/stage
+          pattern: stage-*
+          merge-multiple: true
+
+      - name: Replace prior artifacts on the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ needs.meta.outputs.tag }}"
+          # Delete only the canonical-named assets we're about to re-upload,
+          # so manually-uploaded extras on the same release aren't touched.
+          for f in /tmp/stage/*; do
+            name=$(basename "$f")
+            gh release delete-asset "$tag" "$name" --yes 2>/dev/null || true
+          done
+          gh release upload "$tag" /tmp/stage/* --clobber
+          ls -la /tmp/stage

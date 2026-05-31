@@ -1260,4 +1260,24 @@
     <string name="metric_chip_forward_g_tile">Fwd g</string>
     <string name="metric_chip_lateral_g_tile">Side g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
+    <string name="section_watch_device">Geräte</string>
+    <string name="section_watch_paired">Gekoppelte Geräte</string>
+    <string name="watch_paired_none">Keine Uhren gekoppelt</string>
+    <string name="watch_paired_none_desc">Installiere die EUC Planet-Begleit-App auf einer Wear OS- oder Garmin-Uhr, um das Zifferblatt hier zu empfangen</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Live</string>
+    <string name="watch_paired_idle">Inaktiv</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Garmin-Einschränkungen</string>
+    <string name="watch_paired_garmin_limit_launch">Öffne die Uhren-App manuell zu Beginn jeder Fahrt. Garmin erlaubt es Telefon-Apps nicht, die Begleit-App automatisch zu starten.</string>
+    <string name="watch_paired_garmin_limit_rate">Die Telemetrie aktualisiert sich langsamer als bei Wear OS. Das Connect IQ Mobile SDK begrenzt die Aktualisierungsrate.</string>
+    <string name="watch_paired_garmin_limit_rotation">Drehung des Zifferblatts ist nicht verfügbar. Connect IQ hat keine native Transformationsmatrix für das gerenderte Zifferblatt.</string>
+    <string name="section_watch_hardware_buttons">Hardware-Tasten</string>
+    <string name="watch_hardware_button_1">Taste 1</string>
+    <string name="watch_hardware_button_2">Taste 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action-Taste</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Oben (lang drücken) · Galaxy Watch Ultra: untere Seitentaste</string>
+    <string name="section_watch_screen_buttons_desc">Tippflächen auf dem Zifferblatt der Uhr</string>
+    <string name="section_watch_hardware_buttons_desc">Seitentasten der Uhr</string>
 </resources>

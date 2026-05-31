@@ -1,0 +1,17 @@
+# Connect IQ build configuration.
+# `monkeyc -f garmin-watch-app/monkey.jungle -o build/EucPlanet.iq -y dev_key.der -d <device>`
+# is the canonical build invocation. See docs/GARMIN_SETUP.md for the full
+# command, including how to generate the developer key.
+
+project.manifest = manifest.xml
+
+# Default sources: everything under source/. Device-specific overrides live
+# below as `<deviceId>.sourcePath = ...` lines when a watch has a different
+# button layout than the Fenix-family default (e.g. Venu has no light key,
+# Edge has a lap key).
+base.sourcePath = source
+
+# Default resources: everything in resources/. Per-device resource directories
+# can be added later as `<deviceId>.resourcePath = resources;resources-<id>/`
+# if a target needs a different layout (round-large vs. round-small).
+base.resourcePath = resources

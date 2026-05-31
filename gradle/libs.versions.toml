@@ -19,6 +19,7 @@ playServicesWearable = "18.2.0"
 media3 = "1.4.1"
 camerax = "1.4.1"
 zxing = "3.5.3"
+garminCiq = "2.4.0"
 
 [libraries]
 # Compose
@@ -97,6 +98,9 @@ play-services-wearable = { group = "com.google.android.gms", name = "play-servic
 
 # QR code generation for custom dashboard tiles (Show QR action).
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+
+# Garmin Connect IQ Mobile SDK (paired Garmin watch / Edge companion)
+garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "garminCiq" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

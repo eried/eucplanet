@@ -1279,4 +1279,24 @@
     <string name="metric_chip_forward_g_tile">Fwd g</string>
     <string name="metric_chip_lateral_g_tile">Side g</string>
     <string name="metric_chip_bt_rssi_tile">BT</string>
+    <string name="section_watch_device">Dispositivos</string>
+    <string name="section_watch_paired">Dispositivos pareados</string>
+    <string name="watch_paired_none">Nenhum relógio pareado</string>
+    <string name="watch_paired_none_desc">Instale o aplicativo complementar EUC Planet em um relógio Wear OS ou Garmin para começar a receber o mostrador aqui</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Ao vivo</string>
+    <string name="watch_paired_idle">Inativo</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Limitações do Garmin</string>
+    <string name="watch_paired_garmin_limit_launch">Abra o aplicativo do relógio manualmente no início de cada viagem. O Garmin não permite que aplicativos do telefone iniciem automaticamente o aplicativo complementar.</string>
+    <string name="watch_paired_garmin_limit_rate">A telemetria atualiza mais devagar do que no Wear OS. O SDK Mobile do Connect IQ limita a taxa de atualização.</string>
+    <string name="watch_paired_garmin_limit_rotation">A rotação do mostrador não está disponível. O Connect IQ não tem uma matriz de transformação nativa para girar o mostrador renderizado.</string>
+    <string name="section_watch_hardware_buttons">Botões físicos</string>
+    <string name="watch_hardware_button_1">Botão 1</string>
+    <string name="watch_hardware_button_2">Botão 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: botão de Ação laranja</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Cima (pressionar longo) · Galaxy Watch Ultra: botão lateral inferior</string>
+    <string name="section_watch_screen_buttons_desc">Áreas de toque desenhadas no mostrador do relógio</string>
+    <string name="section_watch_hardware_buttons_desc">Botões laterais do relógio</string>
 </resources>

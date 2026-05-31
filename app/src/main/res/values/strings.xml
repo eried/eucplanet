@@ -290,7 +290,21 @@
     <string name="action_chip_toggle_units">Toggle units</string>
     <string name="action_unsupported_on_wheel">Not supported on this wheel</string>
 
-    <!-- Wear OS companion settings -->
+    <!-- Watch companion settings: shared across Wear OS + Garmin -->
+    <string name="section_watch_device">Devices</string>
+    <string name="section_watch_paired">Paired devices</string>
+    <string name="watch_paired_none">No watches paired</string>
+    <string name="watch_paired_none_desc">Install the EUC Planet companion app on a Wear OS or Garmin watch to start receiving the dial here</string>
+    <string name="watch_paired_kind_wear">Wear OS</string>
+    <string name="watch_paired_kind_garmin">Garmin Connect IQ</string>
+    <string name="watch_paired_active">Live</string>
+    <string name="watch_paired_idle">Idle</string>
+    <string name="watch_paired_rate_hz">%1$.1f Hz</string>
+    <string name="watch_paired_garmin_limits_title">Garmin limitations</string>
+    <string name="watch_paired_garmin_limit_launch">Open the watch app manually at the start of each ride. Garmin doesn\'t allow phone apps to auto-launch the companion.</string>
+    <string name="watch_paired_garmin_limit_rate">Telemetry refreshes slower than on Wear OS. The Connect IQ Mobile SDK caps the update rate.</string>
+    <string name="watch_paired_garmin_limit_rotation">Dial rotation isn\'t available. Connect IQ has no native transform matrix for rotating the rendered dial.</string>
+
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
     <string name="section_watch_customization">Customization</string>
@@ -321,11 +335,18 @@
     <!-- Watch hardware buttons -->
     <string name="watch_button_click_label">Click</string>
     <string name="watch_button_hold_label">Long press</string>
+    <string name="section_watch_hardware_buttons">Hardware buttons</string>
+    <string name="watch_hardware_button_1">Button 1</string>
+    <string name="watch_hardware_button_2">Button 2</string>
+    <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: orange Action button</string>
+    <string name="watch_hardware_button_2_subtitle">Garmin: Up (long press) · Galaxy Watch Ultra: lower side button</string>
 
     <!-- Watch on-screen buttons (shown on the dial), separate from the
          hardware stem buttons because most Galaxy Wear OS watches do not
          deliver KEYCODE_STEM_* to third-party apps. -->
-    <string name="section_watch_screen_buttons">Buttons</string>
+    <string name="section_watch_screen_buttons">Touch buttons</string>
+    <string name="section_watch_screen_buttons_desc">Tap targets drawn on the watch dial</string>
+    <string name="section_watch_hardware_buttons_desc">Side buttons on the watch</string>
     <string name="watch_screen_button_1">Button 1</string>
     <string name="watch_screen_button_2">Button 2</string>
     <string name="watch_haptic_on_action">Vibrate on action</string>

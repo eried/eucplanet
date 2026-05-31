@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var flicManager: FlicManager
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var tripRepository: com.eried.eucplanet.data.repository.TripRepository
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
     @Inject lateinit var incomingShareRepository:
@@ -117,6 +118,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         wearBridge.pingWatchToWake()
+        garminBridge.pingWatchToWake()
     }
 
     /**

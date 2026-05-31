@@ -90,9 +90,12 @@ scales phone volume with speed.
 
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
-without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
+without draining the phone radio; auto-falls back to phone GPS), a Wear OS
 companion (speed dial, three batteries, horn/light remotes, navigation mirror;
-tested on Galaxy Watch Ultra, works on any Wear OS 5+ watch).
+tested on Galaxy Watch Ultra, works on any Wear OS 5+ watch), and a Garmin
+Connect IQ companion (preview — same dial on Garmin watches and Edge bike
+computers, settings shared with Wear OS; see
+[`docs/GARMIN_SETUP.md`](docs/GARMIN_SETUP.md)).
 
 **14 languages.** Full UI localisation, at parity across all of them.
 
