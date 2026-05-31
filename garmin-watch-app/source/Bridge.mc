@@ -81,9 +81,20 @@ class PhoneBridge {
 
     //! Send a control intent to the phone. Best-effort, no ack. Matches the
     //! semantics of `WatchStateRepository.sendControl` on the Wear OS side.
+    //!
+    //! When the phone-side listener never acks (TETHERED simulator is half-
+    //! duplex, real BT can also stall), the SDK queues every transmit and
+    //! eventually throws "Communications transmit queue full" as an
+    //! uncaught System Error that takes down the dial. Catch and drop so a
+    //! stuck phone link doesn't kill the watch app.
     function transmitControl(intent as Lang.String) as Void {
         var payload = { Control.PAYLOAD_KEY => intent };
-        Communications.transmit(payload, null, new TransmitListener());
+        try {
+            Communications.transmit(payload, null, new TransmitListener());
+        } catch (e) {
+            // Likely a full queue from an ack-less peer; the next tick will
+            // try again once the SDK drains. No phone == no recovery action.
+        }
     }
 
     //! Tell the phone about the watch's identity on launch. Mirrors

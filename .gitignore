@@ -46,6 +46,7 @@ test-out/
 /garmin-watch-app/gen/
 /garmin-watch-app/external-mir/
 /garmin-watch-app/internal-mir/
+/garmin-watch-app/mir/
 /garmin-watch-app/*.prg
 /garmin-watch-app/*.prg.debug.xml
 /garmin-watch-app/*.iq
