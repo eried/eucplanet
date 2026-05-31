@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -117,47 +118,44 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
 
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
+            // Rotation goes through a Compose graphicsLayer wrapping the
+            // PreviewView, NOT through view.rotation. We swept the four
+            // techniques on a real MotoEye E6 (camera-rotation-debug
+            // branch) and PreviewView's internal transformation reapplies
+            // itself on every frame, overriding any view-level rotation
+            // we set inside the AndroidView. The compose layer sits
+            // OUTSIDE PreviewView's reach so the 270° fix actually holds.
+            //
+            // Settings the rider confirmed work:
+            //   technique = Compose graphicsLayer  (this Box's rotationZ)
+            //   angle     = 270°
+            //   scale     = PreviewView.ScaleType.FILL_CENTER
+            //   mirror    = none
+            //
+            // We still set ImplementationMode.COMPATIBLE because the
+            // default SurfaceView path composites via SurfaceFlinger and
+            // ignores graphicsLayer transforms entirely.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer { rotationZ = 270f }
+            ) {
             AndroidView(
-                // Two-step rotation that works on real HUDs AND on the
-                // emulator (preview-3 testers reported neither Compose
-                // Modifier.rotate nor view.rotation alone changed the
-                // displayed orientation):
-                //
-                //   1. PreviewView.ImplementationMode = COMPATIBLE.
-                //      The default PERFORMANCE mode uses a SurfaceView,
-                //      whose content is composited DIRECTLY to the
-                //      screen by SurfaceFlinger and bypasses the app's
-                //      view hierarchy -- nothing the app does in the
-                //      view tree can rotate it. COMPATIBLE switches to
-                //      a TextureView, which IS part of the view tree.
-                //   2. view.rotation = -90f on the TextureView. With
-                //      COMPATIBLE in place, this actually rotates the
-                //      texture sample, so the camera feed appears
-                //      a quarter turn CCW -- matching the Motoeye E6's
-                //      sensor mount offset.
-                //
-                // We also set Preview.targetRotation as a hint to
-                // CameraX so it picks the right resolution profile
-                // for the rotated viewport.
                 modifier = Modifier.fillMaxSize(),
                 factory = { c ->
                     PreviewView(c).also { view ->
                         view.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                         view.scaleType = PreviewView.ScaleType.FILL_CENTER
-                        view.rotation = -90f
                     }
                 },
                 update = { view ->
-                    if (view.rotation != -90f) view.rotation = -90f
                     if (!bindStarted) {
                         bindStarted = true
                         val providerFuture = ProcessCameraProvider.getInstance(view.context)
                         providerFuture.addListener({
                             try {
                                 val provider = providerFuture.get()
-                                val preview = Preview.Builder()
-                                    .setTargetRotation(android.view.Surface.ROTATION_270)
-                                    .build().also {
+                                val preview = Preview.Builder().build().also {
                                     it.surfaceProvider = view.surfaceProvider
                                 }
                                 provider.unbindAll()
@@ -189,6 +187,7 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
                     }
                 }
             )
+            }
             // Loading state: the PreviewView mounts black and stays
             // black until the camera surface delivers its first frame.
             // [cameraReady] flips only once bindToLifecycle returns
