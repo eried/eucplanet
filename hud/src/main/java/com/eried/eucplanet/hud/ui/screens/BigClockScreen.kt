@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -68,21 +69,39 @@ fun BigClockScreen(hud: HudState) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center
             ) {
-                Text(
-                    text = fmtTime,
-                    color = Color.White,
-                    fontSize = (h * 0.42f).sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace,
-                    maxLines = 1
-                )
-                if (fmtAmpm.isNotEmpty()) {
+                // Time + AM/PM share a Row, AM/PM baseline-aligned to the
+                // BOTTOM of the big time digits so it sits beside the time
+                // instead of stacked below. On 24h locales the AM/PM block
+                // collapses to nothing and the row degrades cleanly.
+                androidx.compose.foundation.layout.Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center
+                ) {
                     Text(
-                        text = fmtAmpm,
-                        color = Color(0xFFB0B0B0),
-                        fontSize = (h * 0.07f).sp,
-                        fontWeight = FontWeight.SemiBold
+                        text = fmtTime,
+                        color = Color.White,
+                        fontSize = (h * 0.42f).sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 1
                     )
+                    if (fmtAmpm.isNotEmpty()) {
+                        androidx.compose.foundation.layout.Spacer(
+                            modifier = Modifier.width((h * 0.02f).dp)
+                        )
+                        // bottom padding lifts the small AM/PM off the very
+                        // baseline so it visually sits at ~25 % from the
+                        // bottom of the big digits — reads as a subtitle
+                        // attached to the time rather than a floating
+                        // descender.
+                        Text(
+                            text = fmtAmpm,
+                            color = Color(0xFFB0B0B0),
+                            fontSize = (h * 0.07f).sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = (h * 0.06f).dp)
+                        )
+                    }
                 }
                 Text(
                     text = "%.0f %s".format(
