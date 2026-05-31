@@ -7,11 +7,12 @@ name: Branch builds
 # Testers always get the latest commit by visiting the same release URL.
 #
 # Output naming (device-first, matching the Gradle module outputs
-# phone-debug.apk / wearos-debug.apk):
+# phone-debug.apk / wearos-debug.apk, and consistent with release-apk.yml):
 #   phone-<branch>-<short_sha>.apk
 #   wearos-<branch>-<short_sha>.apk
-#   garmin-<branch>-<short_sha>.iq
-#   garmin-<branch>-<short_sha>-<device>.prg   (one per popular device)
+#   hud-<branch>-<short_sha>.apk
+#   garmin-<branch>-<short_sha>.iq         (multi-device Connect IQ bundle)
+#   garmin-<branch>-<short_sha>-prgs.zip   (per-device .prg files bundled)
 #
 # Garmin CI is opt-in: set the GARMIN_SDK_BUNDLE_URL repo secret to a stable
 # download URL for the bundle produced by tools/bundle-ciq-sdk-for-ci.ps1.
@@ -82,13 +83,16 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build debug APKs
-        # Build the phone APK on every branch. Build the wear APK too when
-        # the branch has a wear/ module, so testers can grab both halves
-        # from the same rolling release.
+        # Build the phone APK on every branch. Build the wear + HUD APKs
+        # too when the branch has their modules, so testers can grab the
+        # whole stack from the same rolling release.
         run: |
           targets=":app:assembleDebug"
           if [ -f wear/build.gradle.kts ]; then
             targets="$targets :wear:assembleDebug"
+          fi
+          if [ -f hud/build.gradle.kts ]; then
+            targets="$targets :hud:assembleDebug"
           fi
           ./gradlew $targets --no-daemon --stacktrace
         env:
@@ -102,6 +106,10 @@ jobs:
           if [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
             cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/out/wearos-${{ needs.meta.outputs.suffix }}.apk"
+          fi
+          if [ -f hud/build/outputs/apk/debug/hud-debug.apk ]; then
+            cp hud/build/outputs/apk/debug/hud-debug.apk \
+               "/tmp/out/hud-${{ needs.meta.outputs.suffix }}.apk"
           fi
           ls -la /tmp/out
 
@@ -199,8 +207,16 @@ jobs:
           export PATH="/tmp/ciq/ciq-bundle/sdk/bin:$PATH"
           export CIQ_HOME=/tmp/ciq/ciq-bundle/sdk
           export GARMIN_DEVICE_DIR=/tmp/ciq/ciq-bundle/devices
+          # Stage per-device .prgs in /tmp/prgs first, then zip the lot
+          # into one garmin-<suffix>-prgs.zip. The branch's rolling pre-
+          # release used to carry 135 individual .prg files alongside the
+          # .iq, which buried the .iq under a wall of asset rows. The .iq
+          # is the universal artifact (multi-device, Connect IQ Store
+          # format); .prgs are advanced-sideload-only — bundling them keeps
+          # the release page scannable.
+          mkdir -p /tmp/prgs
           for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
-            OUT="/tmp/out/garmin-${{ needs.meta.outputs.suffix }}-${d}.prg"
+            OUT="/tmp/prgs/garmin-${{ needs.meta.outputs.suffix }}-${d}.prg"
             echo "--- building $d ---"
             monkeyc \
               -f garmin-watch-app/monkey.jungle \
@@ -209,6 +225,7 @@ jobs:
               -d "$d" \
               -w
           done
+          (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.suffix }}-prgs.zip" *.prg)
           ls -la /tmp/out
 
       - name: Upload as workflow artifacts (always)
