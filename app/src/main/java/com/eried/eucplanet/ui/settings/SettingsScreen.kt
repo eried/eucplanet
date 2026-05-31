@@ -5679,69 +5679,65 @@ private fun WatchTab(
             }
         }
 
-        // Hardware-button bindings. Conditionally rendered for surfaces
-        // that actually deliver hardware key events to third-party apps:
-        //   - Every Garmin (Fenix, Epix, Forerunner, Venu, Edge, …) ships
-        //     ≥2 physical buttons; the CIQ Delegate maps Start → stem1
-        //     and Up-hold → stem2.
-        //   - Galaxy Watch Ultra is the only Wear OS device that exposes
-        //     KEYCODE_STEM_1 (orange Action) and KEYCODE_STEM_2 (bottom
-        //     side). Pixel Watch / non-Ultra Galaxy Watches are excluded
-        //     by [hasHardwareButtonCapableWatch] in the ViewModel.
-        if (hasHardwareButtons) {
-            SectionHeader(stringResource(R.string.section_watch_hardware_buttons))
-            Text(
-                stringResource(R.string.section_watch_hardware_buttons_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        // Buttons region — two collapsable sub-cards (CloudHelpCard style)
+        // grouping the on-screen tap targets and the side hardware keys.
+        // Touch is always available (every watch has a touchscreen) so its
+        // card always shows; Hardware only appears for surfaces that
+        // actually deliver key events (every Garmin, Galaxy Watch Ultra)
+        // — gated by [hasHardwareButtons]. Haptic-on-action lives after
+        // the two cards because it applies to both kinds of press.
+        SectionHeader(stringResource(R.string.section_watch_buttons))
+
+        WatchButtonsCollapsable(
+            title = stringResource(R.string.watch_buttons_touch_label),
+            info = stringResource(R.string.watch_buttons_touch_info)
+        ) {
+            WatchActionPicker(
+                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
+                currentKey = settings.watchScreen1Click,
+                onSelect = { viewModel.updateWatchScreen1Click(it) }
             )
-            HardwareButtonGroup(
-                title = stringResource(R.string.watch_hardware_button_1),
-                subtitle = stringResource(R.string.watch_hardware_button_1_subtitle),
-                clickKey = settings.watchStem1Click,
-                holdKey = settings.watchStem1Hold,
-                onClick = { viewModel.updateWatchStem1Click(it) },
-                onHold = { viewModel.updateWatchStem1Hold(it) }
+            WatchActionPicker(
+                label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
+                currentKey = settings.watchScreen1Hold,
+                onSelect = { viewModel.updateWatchScreen1Hold(it) }
             )
-            HardwareButtonGroup(
-                title = stringResource(R.string.watch_hardware_button_2),
-                subtitle = stringResource(R.string.watch_hardware_button_2_subtitle),
-                clickKey = settings.watchStem2Click,
-                holdKey = settings.watchStem2Hold,
-                onClick = { viewModel.updateWatchStem2Click(it) },
-                onHold = { viewModel.updateWatchStem2Hold(it) }
+            WatchActionPicker(
+                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
+                currentKey = settings.watchScreen2Click,
+                onSelect = { viewModel.updateWatchScreen2Click(it) }
+            )
+            WatchActionPicker(
+                label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
+                currentKey = settings.watchScreen2Hold,
+                onSelect = { viewModel.updateWatchScreen2Hold(it) }
             )
         }
 
-        // On-screen button bindings (replaces the hardcoded Horn / Light
-        // buttons that used to live on the watch dial). These DO work on
-        // every Wear OS watch since they're regular touch targets.
-        SectionHeader(stringResource(R.string.section_watch_screen_buttons))
-        Text(
-            stringResource(R.string.section_watch_screen_buttons_desc),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        WatchActionPicker(
-            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_click_label)}",
-            currentKey = settings.watchScreen1Click,
-            onSelect = { viewModel.updateWatchScreen1Click(it) }
-        )
-        WatchActionPicker(
-            label = "${stringResource(R.string.watch_screen_button_1)} – ${stringResource(R.string.watch_button_hold_label)}",
-            currentKey = settings.watchScreen1Hold,
-            onSelect = { viewModel.updateWatchScreen1Hold(it) }
-        )
-        WatchActionPicker(
-            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_click_label)}",
-            currentKey = settings.watchScreen2Click,
-            onSelect = { viewModel.updateWatchScreen2Click(it) }
-        )
-        WatchActionPicker(
-            label = "${stringResource(R.string.watch_screen_button_2)} – ${stringResource(R.string.watch_button_hold_label)}",
-            currentKey = settings.watchScreen2Hold,
-            onSelect = { viewModel.updateWatchScreen2Hold(it) }
-        )
+        if (hasHardwareButtons) {
+            WatchButtonsCollapsable(
+                title = stringResource(R.string.watch_buttons_hardware_label),
+                info = stringResource(R.string.watch_buttons_hardware_info)
+            ) {
+                HardwareButtonGroup(
+                    title = stringResource(R.string.watch_hardware_button_1),
+                    subtitle = stringResource(R.string.watch_hardware_button_1_subtitle),
+                    clickKey = settings.watchStem1Click,
+                    holdKey = settings.watchStem1Hold,
+                    onClick = { viewModel.updateWatchStem1Click(it) },
+                    onHold = { viewModel.updateWatchStem1Hold(it) }
+                )
+                HardwareButtonGroup(
+                    title = stringResource(R.string.watch_hardware_button_2),
+                    subtitle = stringResource(R.string.watch_hardware_button_2_subtitle),
+                    clickKey = settings.watchStem2Click,
+                    holdKey = settings.watchStem2Hold,
+                    onClick = { viewModel.updateWatchStem2Click(it) },
+                    onHold = { viewModel.updateWatchStem2Hold(it) }
+                )
+            }
+        }
+
         SwitchSettingWithDesc(
             label = stringResource(R.string.watch_haptic_on_action),
             description = stringResource(R.string.watch_haptic_on_action_desc),
@@ -7568,6 +7564,62 @@ private fun DeviceRegion(
 }
 
 /**
+ * Card wrapper for the Touch / Hardware sub-sections of the Watch Buttons
+ * region. Same compact CloudHelpCard pattern (surfaceVariant card +
+ * titleSmall + chevron) so the sub-cards read as siblings of the Garmin
+ * limits card and the Customization card elsewhere in the tab. When
+ * expanded, leads with a MetricInfoBox carrying [info] above the
+ * [content] (the actual pickers).
+ */
+@Composable
+private fun WatchButtonsCollapsable(
+    title: String,
+    info: String,
+    content: @Composable () -> Unit
+) {
+    var expanded by rememberSaveable(title) { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp
+                    else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    MetricInfoBox(info)
+                    content()
+                }
+            }
+        }
+    }
+}
+
+/**
  * Collapsible Garmin-limitations card, modelled on [CloudHelpCard]: title
  * + chevron, expands to show the two real limitations of the Connect IQ
  * companion (no auto-launch, slower telemetry). Collapsed by default so
@@ -7613,18 +7665,10 @@ private fun GarminLimitationsCard() {
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                         .padding(bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        stringResource(R.string.watch_paired_garmin_limit_launch),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        stringResource(R.string.watch_paired_garmin_limit_rate),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_launch))
+                    MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_rate))
                 }
             }
         }

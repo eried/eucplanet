@@ -1294,6 +1294,11 @@
     <string name="watch_paired_garmin_limit_rate">Телеметрія оновлюється повільніше, ніж на Wear OS. SDK Connect IQ Mobile обмежує частоту оновлення.</string>
     <string name="watch_paired_garmin_limit_rotation">Обертання циферблату недоступне. Connect IQ не має вбудованої матриці перетворення для обертання намальованого циферблату.</string>
     <string name="section_watch_hardware_buttons">Фізичні кнопки</string>
+    <string name="watch_buttons_hardware_info">Доступні дії залежать від твого годинника. Утримання у деяких виробників перехоплює система</string>
+    <string name="watch_buttons_touch_info">Доступні дії залежать від твого годинника</string>
+    <string name="watch_buttons_hardware_label">Апаратні</string>
+    <string name="watch_buttons_touch_label">Дотик</string>
+    <string name="section_watch_buttons">Кнопки</string>
     <string name="watch_hardware_button_1">Кнопка 1</string>
     <string name="watch_hardware_button_2">Кнопка 2</string>
     <string name="watch_hardware_button_1_subtitle">Garmin: Start · Galaxy Watch Ultra: помаранчева кнопка Action</string>
