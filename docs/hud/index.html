@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>EUC Planet HUD</title>
-<meta name="description" content="HUD companion app for Motoeye E6 and compatible Android-based head-up displays. Streams live EUC telemetry from the phone over WiFi.">
+<meta name="description" content="HUD companion app for Motoeye E6 and other Android-based head-up displays. Streams live EUC telemetry from the phone over local WiFi.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <style>
   body {
@@ -16,26 +16,19 @@
     min-height: 100vh;
     padding: 48px 24px;
   }
-  .container { max-width: 680px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 40px; }
-  h1 { font-size: 40px; margin: 0 0 12px; font-weight: 700; letter-spacing: -0.5px; }
+  .container { max-width: 640px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  .icon { width: 120px; height: 120px; display: block; margin: 0 auto 20px; }
+  h1 { font-size: 36px; margin: 0 0 8px; font-weight: 700; letter-spacing: -0.5px; }
   h1 a { color: inherit; text-decoration: none; }
   h1 a:hover { color: #58a6ff; }
-  .tagline { color: #8b949e; font-size: 18px; margin: 0 0 28px; }
-  .links {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-    align-items: center;
-  }
+  .tagline { color: #8b949e; font-size: 17px; margin: 0 0 24px; }
   a.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    min-width: 200px;
+    min-width: 220px;
     height: 44px;
     padding: 0 18px;
     background: #238636;
@@ -46,38 +39,25 @@
     font-size: 15px;
   }
   a.btn:hover { background: #2ea043; }
-  a.btn.secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
-  a.btn.secondary:hover { background: #30363d; }
-  a.btn svg { flex-shrink: 0; }
-  section { margin-top: 36px; }
-  h2 { font-size: 20px; margin: 0 0 12px; font-weight: 600; color: #e6edf3; }
+  section { margin-top: 28px; }
+  h2 { font-size: 18px; margin: 0 0 10px; font-weight: 600; }
   p, li { color: #c9d1d9; }
-  ul, ol { padding-left: 20px; margin: 0; }
-  li { margin-bottom: 6px; }
-  code, kbd {
+  ol { padding-left: 20px; margin: 0; }
+  li { margin-bottom: 4px; }
+  code {
     background: #161b22;
     border: 1px solid #30363d;
     border-radius: 4px;
-    padding: 2px 6px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    padding: 1px 6px;
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
     font-size: 13px;
-    color: #c9d1d9;
   }
-  .note {
-    background: #1c2128;
-    border-left: 3px solid #58a6ff;
-    padding: 12px 16px;
-    border-radius: 4px;
-    margin: 16px 0;
-    color: #c9d1d9;
-  }
-  .note strong { color: #e6edf3; }
   footer {
     text-align: center;
     color: #6e7681;
     font-size: 13px;
-    margin-top: 64px;
-    padding-top: 24px;
+    margin-top: 48px;
+    padding-top: 20px;
     border-top: 1px solid #21262d;
   }
   footer a { color: #58a6ff; text-decoration: none; }
@@ -89,81 +69,57 @@
 <div class="container">
 
 <header>
+  <!-- Inferno Ring — same red launcher icon the HUD app ships with -->
+  <svg class="icon" viewBox="0 0 108 108" aria-hidden="true">
+    <defs>
+      <radialGradient id="glow" cx="54" cy="54" r="46" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#FF1744" stop-opacity="0.5"/>
+        <stop offset="1" stop-color="#B71C1C"/>
+      </radialGradient>
+      <radialGradient id="ring" cx="54" cy="54" r="38" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#7F0000"/>
+        <stop offset="0.45" stop-color="#FF1744"/>
+        <stop offset="0.7" stop-color="#FF5252"/>
+        <stop offset="1" stop-color="#D32F2F"/>
+      </radialGradient>
+      <radialGradient id="core" cx="50" cy="48" r="22" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#FFEBEE"/>
+        <stop offset="0.3" stop-color="#FFCDD2"/>
+        <stop offset="0.6" stop-color="#FF1744"/>
+        <stop offset="1" stop-color="#7F0000"/>
+      </radialGradient>
+    </defs>
+    <path d="M54,12 A42,42 0,1,1 53.99,12 Z M54,20 A34,34 0,1,0 54.01,20 Z" fill="url(#glow)" fill-rule="evenodd"/>
+    <path d="M54,16 A38,38 0,1,1 53.99,16 Z M54,30 A24,24 0,1,0 54.01,30 Z" fill="url(#ring)" fill-rule="evenodd"/>
+    <circle cx="54" cy="54" r="20" fill="url(#core)"/>
+  </svg>
   <h1><a href="https://eucplanet.ried.no">EUC Planet HUD</a></h1>
-  <p class="tagline">Companion app for Motoeye E6 and compatible Android-based head-up displays.</p>
-  <div class="links">
-    <a class="btn" href="https://github.com/eried/eucplanet/releases">
-      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.4 3-.405 1.02.005 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-      All releases on GitHub
-    </a>
-  </div>
+  <p class="tagline">Helmet display for your EUC. Mirrors the phone app in real time over local WiFi.</p>
+  <a class="btn" href="https://github.com/eried/eucplanet/releases/latest">
+    Download latest HUD APK
+  </a>
 </header>
 
 <section>
-  <h2>Which file do I download?</h2>
-  <p>Each EUC Planet release ships two APKs side by side:</p>
-  <ul>
-    <li><code>EUC-Planet-phone-motoeye-preview-N.apk</code> — install on the rider's <strong>phone</strong>.</li>
-    <li><code>EUC-Planet-hud-motoeye-preview-N.apk</code> — install on the <strong>Motoeye HUD device</strong>.</li>
-  </ul>
-  <p>The numbers must match: a phone APK from preview-2 needs the HUD APK from preview-2 (or newer in the same major version line). The phone will tell you if the HUD is too old.</p>
-  <div class="note">
-    <strong>Always pick the latest release at the top of the page.</strong> Older releases are kept around for archaeology; install the most recent one unless you have a specific reason not to.
-  </div>
-</section>
-
-<section>
-  <h2>Install on the Motoeye E6</h2>
+  <h2>Install</h2>
   <ol>
-    <li>Plug the Motoeye into your computer with a USB-C cable. Power it on. After a moment it appears as a drive (sometimes labelled "Motoeye E6").</li>
-    <li>Copy <code>EUC-Planet-hud-motoeye-preview-N.apk</code> into the root of that drive.</li>
-    <li>Unplug. On the Motoeye, go to <em>Settings → Application Management → App Installer</em>, then select the APK file and confirm.</li>
-    <li>The EUC Planet icon will appear in the launcher.</li>
+    <li>Sideload <code>hud-&lt;version&gt;.apk</code> onto the HUD device (works on MotoEye E6, generic tablets, spare phones).</li>
+    <li>Install <code>phone-&lt;version&gt;-slim.apk</code> on your phone — or grab it from <a href="https://play.google.com/store/apps/details?id=com.eried.eucplanet" style="color:#58a6ff">Google Play</a>.</li>
   </ol>
 </section>
 
 <section>
-  <h2>Install on the phone</h2>
+  <h2>Pair</h2>
   <ol>
-    <li>Open <code>EUC-Planet-phone-motoeye-preview-N.apk</code> on the phone. Android may need permission to install from this source the first time — grant it.</li>
-    <li>If you have a previous EUC Planet install from a different source, you may need to uninstall it first when signatures don't match.</li>
-    <li>Open the app once after install so the foreground service initialises.</li>
+    <li>Phone hotspot on. Connect the HUD to it.</li>
+    <li>Launch the HUD app. It shows its IP on the splash screen.</li>
+    <li>On the phone: <em>Settings → HUD</em> → enter that IP → toggle the link on.</li>
   </ol>
-</section>
-
-<section>
-  <h2>Pair the two</h2>
-  <ol>
-    <li>Turn on the phone's WiFi hotspot.</li>
-    <li>Connect the Motoeye to that hotspot.</li>
-    <li>Launch EUC Planet on the HUD. The disconnect splash shows the HUD's IP (something like <code>192.168.43.x:28080</code>).</li>
-    <li>On the phone, open <em>EUC Planet → Settings → Integration → Motoeye HUD</em>. Type the HUD's IP into <em>Device IP</em>, leave the Port at <code>28080</code>.</li>
-    <li>Toggle <em>Enable data link</em> on. Telemetry starts flowing within a couple of seconds.</li>
-  </ol>
-</section>
-
-<section>
-  <h2>Keeping the apps in sync</h2>
-  <p>The phone app and the HUD app talk a versioned protocol. When the link is up, each side checks the other's version and decides:</p>
-  <ul>
-    <li><strong>Same version:</strong> link works, nothing to do.</li>
-    <li><strong>Different minor (e.g. phone 1.2 ↔ HUD 1.1):</strong> link still works, the older side just misses any new features. The app shows a soft "update available" hint.</li>
-    <li><strong>Different major (e.g. phone 2.x ↔ HUD 1.x):</strong> the older side blocks rendering live data and tells you to update. Pick the matching APKs from the latest release on GitHub.</li>
-  </ul>
-  <p>Easiest rule: when you update one APK, install the matching APK from the same release on the other side.</p>
-</section>
-
-<section>
-  <h2>Protocol reference</h2>
-  <p>If you want to build a third-party HUD or a phone client that speaks the same wire format, the reference lives in the source tree:</p>
-  <ul>
-    <li><a href="https://github.com/eried/eucplanet/blob/feat/motoeye-hud/docs/protocols/motoeye_hud.md">Protocol specification</a> — transport, frame format, command set, embedded overlay format, versioning rules.</li>
-    <li><a href="https://github.com/eried/eucplanet/tree/feat/motoeye-hud/hud-protocol">Shared <code>:hud-protocol</code> module</a> — Kotlin source for both sides of the link.</li>
-  </ul>
+  <p>Telemetry starts flowing within a second. Keep the phone and HUD APK versions matched — same release on both sides.</p>
 </section>
 
 <footer>
-  Source on <a href="https://github.com/eried/eucplanet">github.com/eried/eucplanet</a> · <a href="https://eucplanet.ried.no">eucplanet.ried.no</a>
+  Source: <a href="https://github.com/eried/eucplanet">github.com/eried/eucplanet</a> · <a href="https://github.com/eried/eucplanet/tree/main/hud-protocol">Protocol</a> · <a href="https://eucplanet.ried.no">eucplanet.ried.no</a>
 </footer>
 
 </div>
