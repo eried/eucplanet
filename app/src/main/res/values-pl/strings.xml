@@ -1306,4 +1306,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin: W górę (długie naciśnięcie) · Galaxy Watch Ultra: dolny przycisk boczny</string>
     <string name="section_watch_screen_buttons_desc">Obszary dotykowe narysowane na tarczy zegarka</string>
     <string name="section_watch_hardware_buttons_desc">Boczne przyciski zegarka</string>
+    <!-- Radar tylny (obecnie Garmin Varia) -->
+    <string name="section_radar">Radar tylny</string>
+    <string name="radar_caption">Przytrzymaj przycisk Varia przez 2 sekundy, aż zacznie pulsować na fioletowo, a następnie rozpocznij skanowanie.</string>
+    <string name="radar_pair_button">Rozpocznij skanowanie</string>
+    <string name="radar_pair_action">Sparuj</string>
+    <string name="radar_stop_scan">Zatrzymaj skanowanie</string>
+    <string name="radar_state_connected">Połączono</string>
+    <string name="radar_state_connecting">Łączenie…</string>
+    <string name="radar_state_disconnected">Rozłączono</string>
+    <string name="radar_reconnect">Połącz ponownie</string>
+    <string name="radar_disconnect">Rozłącz</string>
+    <string name="radar_unpair">Zapomnij urządzenie</string>
+    <string name="radar_battery_fmt">Bateria %1$d %%</string>
+    <string name="radar_clear">Pas wolny</string>
+    <string name="radar_threats_count">Śledzonych pojazdów: %1$d</string>
+    <string name="radar_show_overlay">Pokaż nakładkę zagrożeń</string>
+    <string name="radar_show_overlay_desc">Wąski pasek radaru na krawędziach panelu. Jedna kolorowa kropka na pojazd. Widoczny tylko na panelu.</string>
+    <string name="radar_overlay_left">Lewa krawędź</string>
+    <string name="radar_overlay_both">Obie krawędzie</string>
+    <string name="radar_overlay_right">Prawa krawędź</string>
+    <string name="alarm_metric_radar_distance">Odległość samochodu</string>
+    <string name="alarm_metric_radar_approach">Zbliżający się samochód</string>
+
 </resources>

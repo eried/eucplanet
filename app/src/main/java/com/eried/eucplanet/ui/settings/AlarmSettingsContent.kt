@@ -108,6 +108,7 @@ fun AlarmSettingsContent(
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
     val voiceLocale by viewModel.voiceLocale.collectAsState()
+    val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
@@ -171,6 +172,7 @@ fun AlarmSettingsContent(
             speedUnit = speedUnit,
             tempUnit = tempUnit,
             defaultVoiceText = defaultVoiceText,
+            showRadarMetrics = showRadarMetrics,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -234,6 +236,12 @@ private fun AlarmRuleCard(
             AlarmMetric.PWM -> AccentYellow
             AlarmMetric.VOLTAGE -> AccentBlue
             AlarmMetric.CURRENT -> AccentPurple
+            // Radar shares the red/orange palette with TEMPERATURE / SPEED
+            // since these are all "hazard" metrics that fire on a threshold
+            // breach. Same tint for both radar metrics so a rider's "car
+            // closing" rule group reads as one block in the list.
+            AlarmMetric.RADAR_DISTANCE -> AccentRed
+            AlarmMetric.RADAR_APPROACH_SPEED -> AccentRed
         }
     }
 
@@ -312,6 +320,7 @@ private fun AlarmRuleEditorDialog(
     speedUnit: String,
     tempUnit: String,
     defaultVoiceText: String,
+    showRadarMetrics: Boolean,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -362,6 +371,13 @@ private fun AlarmRuleEditorDialog(
         AlarmMetric.PWM -> 10f..100f
         AlarmMetric.VOLTAGE -> 20f..300f
         AlarmMetric.CURRENT -> 1f..50f
+        // Varia's range is ~140 m. Below 5 m the radar is effectively in
+        // the dead-zone behind the rider; below 10 m is "imminent" on an
+        // EUC at typical road speed.
+        AlarmMetric.RADAR_DISTANCE -> 5f..140f
+        // Approach speeds typically run 10-120 km/h depending on road
+        // type. 5..150 keeps the slider usable on both ends.
+        AlarmMetric.RADAR_APPROACH_SPEED -> 5f..150f
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
@@ -403,7 +419,18 @@ private fun AlarmRuleEditorDialog(
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
                 // so first-time users still understand what each option means.
-                val metricOptions = AlarmMetric.entries.map { it.name to stringResource(it.labelRes) }
+                // Radar metrics only appear in the dropdown when a radar is
+                // paired or an existing rule already uses one (see
+                // [AlarmViewModel.showRadarMetrics]). The currently-selected
+                // metric stays in the list either way, so editing a rule
+                // whose metric was just hidden never loses the selection.
+                val radarMetricNames = setOf(
+                    AlarmMetric.RADAR_DISTANCE.name,
+                    AlarmMetric.RADAR_APPROACH_SPEED.name
+                )
+                val metricOptions = AlarmMetric.entries
+                    .filter { showRadarMetrics || it.name !in radarMetricNames || it.name == metric }
+                    .map { it.name to stringResource(it.labelRes) }
                 val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)

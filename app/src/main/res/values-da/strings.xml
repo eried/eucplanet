@@ -1271,4 +1271,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin: Op (langt tryk) · Galaxy Watch Ultra: nederste sideknap</string>
     <string name="section_watch_screen_buttons_desc">Tryk-områder tegnet på urskiven</string>
     <string name="section_watch_hardware_buttons_desc">Sideknapper på uret</string>
+    <!-- Bagudvendt radar (Garmin Varia i dag) -->
+    <string name="section_radar">Bagudvendt radar</string>
+    <string name="radar_caption">Hold Varia-knappen inde i 2 sekunder, indtil den blinker lilla, og start derefter en scanning.</string>
+    <string name="radar_pair_button">Start scanning</string>
+    <string name="radar_pair_action">Tilslut</string>
+    <string name="radar_stop_scan">Stop scanning</string>
+    <string name="radar_state_connected">Tilsluttet</string>
+    <string name="radar_state_connecting">Tilslutter…</string>
+    <string name="radar_state_disconnected">Frakoblet</string>
+    <string name="radar_reconnect">Tilslut igen</string>
+    <string name="radar_disconnect">Frakobl</string>
+    <string name="radar_unpair">Glem enhed</string>
+    <string name="radar_battery_fmt">Batteri %1$d %%</string>
+    <string name="radar_clear">Vejen er fri</string>
+    <string name="radar_threats_count">Sporer %1$d køretøj(er):</string>
+    <string name="radar_show_overlay">Vis trussel-overlay</string>
+    <string name="radar_show_overlay_desc">Tynd radarbjælke i dashboardkanterne. En farvet prik pr. registreret køretøj. Vises kun på dashboardet.</string>
+    <string name="radar_overlay_left">Venstre kant</string>
+    <string name="radar_overlay_both">Begge sider</string>
+    <string name="radar_overlay_right">Højre kant</string>
+    <string name="alarm_metric_radar_distance">Bilafstand</string>
+    <string name="alarm_metric_radar_approach">Bil nærmer sig</string>
+
 </resources>

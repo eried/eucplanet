@@ -224,4 +224,7 @@ dependencies {
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+
+    // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
+    testImplementation(libs.junit)
 }

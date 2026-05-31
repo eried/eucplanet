@@ -537,7 +537,9 @@ fun SettingsScreen(
         titleIntegration,
         stringResource(R.string.section_flic_buttons),
         stringResource(R.string.section_volume_keys),
-        stringResource(R.string.volume_keys_enable)
+        stringResource(R.string.volume_keys_enable),
+        stringResource(R.string.section_radar),
+        stringResource(R.string.radar_caption)
     ).joinToString(" ")
 
     val corpusNavigator = listOf(
@@ -5439,6 +5441,9 @@ private fun FlicTab(
             }
         }
         }   // end volumeKeysEnabled BringIntoViewSection
+
+        SectionHeader(stringResource(R.string.section_radar))
+        RadarSection()
 
     }
 }

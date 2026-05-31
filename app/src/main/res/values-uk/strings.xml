@@ -1306,4 +1306,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin: Угору (довге натискання) · Galaxy Watch Ultra: нижня бічна кнопка</string>
     <string name="section_watch_screen_buttons_desc">Сенсорні зони, намальовані на циферблаті</string>
     <string name="section_watch_hardware_buttons_desc">Бічні кнопки годинника</string>
+    <!-- Радар заднього огляду (сьогодні Garmin Varia) -->
+    <string name="section_radar">Радар заднього огляду</string>
+    <string name="radar_caption">Утримуйте кнопку Varia протягом 2 секунд, доки вона не почне блимати фіолетовим, а потім запустіть пошук.</string>
+    <string name="radar_pair_button">Почати пошук</string>
+    <string name="radar_pair_action">З\'єднати</string>
+    <string name="radar_stop_scan">Зупинити пошук</string>
+    <string name="radar_state_connected">З\'єднано</string>
+    <string name="radar_state_connecting">З\'єднання…</string>
+    <string name="radar_state_disconnected">Від\'єднано</string>
+    <string name="radar_reconnect">З\'єднати знову</string>
+    <string name="radar_disconnect">Від\'єднати</string>
+    <string name="radar_unpair">Забути пристрій</string>
+    <string name="radar_battery_fmt">Батарея %1$d %%</string>
+    <string name="radar_clear">Смуга вільна</string>
+    <string name="radar_threats_count">Відстежується автомобілів: %1$d</string>
+    <string name="radar_show_overlay">Показати оверлей загроз</string>
+    <string name="radar_show_overlay_desc">Тонка смуга радара по краях приладової панелі. Одна кольорова крапка на авто. Видима лише на приладовій панелі.</string>
+    <string name="radar_overlay_left">Лівий край</string>
+    <string name="radar_overlay_both">Обидва боки</string>
+    <string name="radar_overlay_right">Правий край</string>
+    <string name="alarm_metric_radar_distance">Відстань до авто</string>
+    <string name="alarm_metric_radar_approach">Авто наближається</string>
+
 </resources>

@@ -20,6 +20,7 @@ media3 = "1.4.1"
 camerax = "1.4.1"
 zxing = "3.5.3"
 garminCiq = "2.4.0"
+junit = "4.13.2"
 
 [libraries]
 # Compose
@@ -89,6 +90,10 @@ media3-common = { group = "androidx.media3", name = "media3-common", version.ref
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+
+# Unit tests (JVM, no Android runtime). Used for pure-Kotlin parsers
+# like VariaAdapter that have no Android dependency.
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 # Wear OS (Compose for Wear, Data Layer)
 wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }

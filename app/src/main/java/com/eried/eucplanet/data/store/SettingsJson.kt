@@ -33,6 +33,9 @@ object SettingsJson {
         externalGpsAddress = null,
         externalGpsName = null,
         externalGpsSource = null,
+        radarAddress = null,
+        radarName = null,
+        radarVendor = null,
         syncFolderUri = null,
         lastSettingsBackupAt = null,
         lastSettingsBackupName = null
@@ -50,6 +53,11 @@ object SettingsJson {
         put("externalGpsAddress", s.externalGpsAddress)
         put("externalGpsName", s.externalGpsName)
         put("externalGpsSource", s.externalGpsSource)
+        put("radarAddress", s.radarAddress)
+        put("radarName", s.radarName)
+        put("radarVendor", s.radarVendor)
+        put("radarShowOverlay", s.radarShowOverlay)
+        put("radarOverlaySide", s.radarOverlaySide)
         put("syncFolderUri", s.syncFolderUri)
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
         put("lastSettingsBackupName", s.lastSettingsBackupName)
@@ -218,6 +226,11 @@ object SettingsJson {
         externalGpsAddress = j.optStringOrNull("externalGpsAddress", base.externalGpsAddress),
         externalGpsName = j.optStringOrNull("externalGpsName", base.externalGpsName),
         externalGpsSource = j.optStringOrNull("externalGpsSource", base.externalGpsSource),
+        radarAddress = j.optStringOrNull("radarAddress", base.radarAddress),
+        radarName = j.optStringOrNull("radarName", base.radarName),
+        radarVendor = j.optStringOrNull("radarVendor", base.radarVendor),
+        radarShowOverlay = j.optBoolean("radarShowOverlay", base.radarShowOverlay),
+        radarOverlaySide = j.optString("radarOverlaySide", base.radarOverlaySide),
         syncFolderUri = j.optStringOrNull("syncFolderUri", base.syncFolderUri),
         lastSettingsBackupAt = if (j.has("lastSettingsBackupAt") && !j.isNull("lastSettingsBackupAt"))
             j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)

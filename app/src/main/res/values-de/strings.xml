@@ -1286,4 +1286,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin: Oben (lang drücken) · Galaxy Watch Ultra: untere Seitentaste</string>
     <string name="section_watch_screen_buttons_desc">Tippflächen auf dem Zifferblatt der Uhr</string>
     <string name="section_watch_hardware_buttons_desc">Seitentasten der Uhr</string>
+    <!-- Rückblick-Radar (Garmin Varia heute) -->
+    <string name="section_radar">Rückblick-Radar</string>
+    <string name="radar_caption">Halten Sie die Varia-Taste 2 Sekunden lang gedrückt, bis sie violett blinkt, und starten Sie dann den Scan.</string>
+    <string name="radar_pair_button">Scan starten</string>
+    <string name="radar_pair_action">Koppeln</string>
+    <string name="radar_stop_scan">Scan stoppen</string>
+    <string name="radar_state_connected">Verbunden</string>
+    <string name="radar_state_connecting">Verbinde…</string>
+    <string name="radar_state_disconnected">Getrennt</string>
+    <string name="radar_reconnect">Erneut verbinden</string>
+    <string name="radar_disconnect">Trennen</string>
+    <string name="radar_unpair">Gerät vergessen</string>
+    <string name="radar_battery_fmt">Akku %1$d %%</string>
+    <string name="radar_clear">Spur ist frei</string>
+    <string name="radar_threats_count">%1$d Fahrzeug(e) erfasst:</string>
+    <string name="radar_show_overlay">Gefahren-Overlay anzeigen</string>
+    <string name="radar_show_overlay_desc">Schmale Radar-Spur am Rand des Dashboards. Ein farbiger Punkt pro erkanntem Fahrzeug. Nur auf dem Dashboard sichtbar.</string>
+    <string name="radar_overlay_left">Linker Rand</string>
+    <string name="radar_overlay_both">Beide Seiten</string>
+    <string name="radar_overlay_right">Rechter Rand</string>
+    <string name="alarm_metric_radar_distance">Fahrzeugabstand</string>
+    <string name="alarm_metric_radar_approach">Fahrzeug nähert sich</string>
+
 </resources>

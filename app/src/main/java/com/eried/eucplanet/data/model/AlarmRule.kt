@@ -55,7 +55,22 @@ enum class AlarmMetric(
     TEMPERATURE(R.string.alarm_metric_temperature, "°C"),
     PWM(R.string.alarm_metric_pwm, "%", R.string.alarm_metric_pwm_voice),
     VOLTAGE(R.string.alarm_metric_voltage, "V"),
-    CURRENT(R.string.alarm_metric_current, "A")
+    CURRENT(R.string.alarm_metric_current, "A"),
+
+    /**
+     * Distance in metres to the closest tracked vehicle from the rear-view
+     * radar. Pair with the LESS_THAN comparator: "trigger when the closest
+     * car is closer than 40 m". Only fires when at least one threat is
+     * present in the latest frame, an empty frame is treated as "no value"
+     * rather than "0 metres" so a clear lane doesn't keep tripping the rule.
+     */
+    RADAR_DISTANCE(R.string.alarm_metric_radar_distance, "m"),
+
+    /**
+     * Approach speed in km/h of the fastest closing vehicle. Pair with
+     * GREATER_EQUAL: "trigger when a car is closing at 60 km/h or more".
+     */
+    RADAR_APPROACH_SPEED(R.string.alarm_metric_radar_approach, "km/h")
 }
 
 enum class AlarmComparator(val labelRes: Int, val symbol: String) {

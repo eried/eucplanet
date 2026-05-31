@@ -1269,4 +1269,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin：上（长按）· Galaxy Watch Ultra：下方侧键</string>
     <string name="section_watch_screen_buttons_desc">绘制在手表表盘上的点击区域</string>
     <string name="section_watch_hardware_buttons_desc">手表侧面按键</string>
+    <!-- 后视雷达（目前为 Garmin Varia） -->
+    <string name="section_radar">后视雷达</string>
+    <string name="radar_caption">按住 Varia 按钮 2 秒,直至闪烁紫色,然后开始扫描。</string>
+    <string name="radar_pair_button">开始扫描</string>
+    <string name="radar_pair_action">配对</string>
+    <string name="radar_stop_scan">停止扫描</string>
+    <string name="radar_state_connected">已连接</string>
+    <string name="radar_state_connecting">连接中…</string>
+    <string name="radar_state_disconnected">已断开</string>
+    <string name="radar_reconnect">重新连接</string>
+    <string name="radar_disconnect">断开</string>
+    <string name="radar_unpair">忘记设备</string>
+    <string name="radar_battery_fmt">电量 %1$d %%</string>
+    <string name="radar_clear">车道畅通</string>
+    <string name="radar_threats_count">正在追踪 %1$d 辆车:</string>
+    <string name="radar_show_overlay">显示威胁覆盖</string>
+    <string name="radar_show_overlay_desc">仪表板边缘的细雷达条。每辆检测到的车辆显示一个彩色圆点。仅在仪表板上显示。</string>
+    <string name="radar_overlay_left">左侧</string>
+    <string name="radar_overlay_both">两侧</string>
+    <string name="radar_overlay_right">右侧</string>
+    <string name="alarm_metric_radar_distance">车辆距离</string>
+    <string name="alarm_metric_radar_approach">车辆接近</string>
+
 </resources>

@@ -242,6 +242,21 @@ data class AppSettings(
     /** Show the extra-GPS speed indicator on the dashboard speed dial. */
     val gpsShowOnDashboard: Boolean = false,
 
+    // --- Rear-view radar (Garmin Varia today) ---
+    // Same persistence shape as External GPS: BLE MAC, advertised name, vendor
+    // enum name as a string so we know which adapter to instantiate on connect.
+    val radarAddress: String? = null,
+    val radarName: String? = null,
+    val radarVendor: String? = null,
+    /**
+     * Show the radar threat overlay (lane bar with dots per detected vehicle)
+     * on top of every screen while a radar is paired and connected. The user
+     * can hide it without unpairing.
+     */
+    val radarShowOverlay: Boolean = true,
+    /** Which screen edge the overlay lives on: "LEFT" or "RIGHT". */
+    val radarOverlaySide: String = "RIGHT",
+
     // --- Navigator ---
     // In-app navigation: the route builder, live turn-by-turn guidance and the
     // Treasure Hunt proximity-hint mode.
