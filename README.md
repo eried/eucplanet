@@ -61,7 +61,9 @@ runtime clock. Tap any tile for its history graph. Metric or imperial.
 
 **Turn-by-turn navigator.** Multi-stop routes on a map (walk, bike, car,
 straight-line), voice cues, off-route reroute, sticky GPS, and a Treasure Hunt
-proximity mode for unmarked spots. The next-turn arrow can mirror to your watch.
+proximity mode for unmarked spots. Full Path mode lets you tap any point along
+the route to add a detour (skip sand, gravel, the wrong side of a one-way).
+The next-turn arrow can mirror to your watch, HUD, or Garmin Edge.
 
 **Overlay Studio.** Record video and stills with a customisable telemetry overlay:
 dials, gauges, rolling graphs, `{speed}`-style text, mini-map, layered cameras. Save
@@ -88,11 +90,33 @@ the [web Trip Viewer](https://github.com/eried/eucviewer).
 Handles midnight sun and polar night (I live in the arctic circle 🧐). Auto Volume
 scales phone volume with speed.
 
+**Helmet HUD.** Sideload the small HUD companion on a MotoEye E6 or any
+Android-based head-up display and the dashboard mirrors live to your visor
+over local WiFi. New Map + Nav combined screen in the HUD shows the route
+arrow on top of a moving map (Garmin Edge style). See
+[eucplanet.ried.no/hud](https://eucplanet.ried.no/hud/).
+
+**Garmin Edge / watches.** A Connect IQ data field shows live EUC speed,
+battery, PWM, current and motor temperature on your bar-mounted Edge or
+on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
+Garmin watches via the bundled `.iq` (135+ devices). See
+[docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
+
+**Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and get
+rear-vehicle warnings on the dashboard, the watch and the HUD. Same sensor
+cyclists already trust, now wired into your EUC.
+
 **Integrations.** Flic 2 buttons (up to two), physical volume-key shortcuts,
 external BLE GPS (RaceBox or compatible, for centimetre-class speed and altitude
 without draining the phone radio; auto-falls back to phone GPS), and a Wear OS
-companion (speed dial, three batteries, horn/light remotes, navigation mirror;
-tested on Galaxy Watch Ultra, works on any Wear OS 5+ watch).
+companion (speed dial, three batteries, horn/light remotes, navigation mirror,
+Touch / Physical buttons split; tested on Galaxy Watch Ultra, works on any
+Wear OS 5+ watch).
+
+**First-run tour & health.** A short Welcome tour walks new riders through the
+key features. A top-bar warning chip surfaces any permissions you've denied
+(BLE, location, notifications) with one-tap Fix actions, so a denial doesn't
+silently break a feature later in the ride.
 
 **14 languages.** Full UI localisation, at parity across all of them.
 
