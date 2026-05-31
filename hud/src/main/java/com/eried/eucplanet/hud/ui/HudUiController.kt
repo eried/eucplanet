@@ -140,7 +140,7 @@ class HudUiController {
     fun upAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = false
-            Screen.Map -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
+            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom + 1f).coerceAtMost(MAP_ZOOM_MAX)
             else -> Unit
         }
     }
@@ -148,7 +148,7 @@ class HudUiController {
     fun downAction() {
         when (current) {
             Screen.Dashboard -> dashboardGpsView = true
-            Screen.Map -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
+            Screen.Map, Screen.MapNav -> mapZoom = (mapZoom - 1f).coerceAtLeast(MAP_ZOOM_MIN)
             else -> Unit
         }
     }
