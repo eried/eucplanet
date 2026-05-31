@@ -8,7 +8,7 @@
     <string name="action_back">Atrás</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">OK</string>
-<string name="crash_log_action_prompt">Mantuviste pulsado %1$s. Elimina solo este registro, o elimínalos todos. Para compartirlo, toca Cancelar y luego toca el archivo.</string>
+<string name="crash_log_action_prompt">Mantuviste presionado %1$s. Elimina solo este registro, o elimínalos todos. Para compartirlo, toca Cancelar y luego toca el archivo.</string>
     <string name="crash_log_delete_one">Borrar este registro</string>
     <string name="crash_log_delete_all">Eliminar todo</string>
     <string name="crash_log_delete_all_warning">¿Eliminar todos los registros de fallos guardados? Esta acción no se puede deshacer.</string>
@@ -85,7 +85,7 @@
     <string name="action_legal_on">Legal ON</string>
     <string name="action_lock_wheel">Bloquear</string>
     <string name="action_locked">Bloqueada</string>
-    <string name="lock_blocked_in_motion_toast">Reducí la velocidad para bloquear la rueda</string>
+    <string name="lock_blocked_in_motion_toast">Reduce la velocidad para bloquear la rueda</string>
     <string name="action_recorder">Bitácora</string>
     <string name="action_recorder_trips">Grabación\n(%1$d viajes)</string>
     <string name="action_recorder_trips_one">Grabación
@@ -107,9 +107,9 @@
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Pantalla</string>
     <string name="watch_keep_on">Mantener pantalla encendida</string>
-    <string name="watch_keep_on_desc">Mantené el reloj despierto mientras la app esté abierta</string>
+    <string name="watch_keep_on_desc">Mantén el reloj despierto mientras la app esté abierta</string>
     <string name="watch_update_rate">Frecuencia de actualización</string>
-    <string name="watch_update_rate_desc">Las actualizaciones más lentas ahorran batería en el teléfono y el reloj</string>
+    <string name="watch_update_rate_desc">Las actualizaciones más lentas ahorran batería en el celular y el reloj</string>
     <string name="watch_update_conservative">Conservador</string>
     <string name="watch_update_normal">Normal</string>
     <string name="watch_update_fast">Rápido</string>
@@ -147,11 +147,11 @@
     <string name="cloud_backup_now">Respaldar</string>
     <string name="cloud_restore">Restaurar</string>
     <string name="cloud_last_backup">Último respaldo: %1$s</string>
-<string name="cloud_last_backup_named">Último respaldo: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Último respaldo: %1$s como \"%2$s\"</string>
     <string name="cloud_last_backup_never">Sin respaldo aún</string>
     <string name="cloud_backup_success">Configuración respaldada</string>
 <string name="cloud_backup_named_success">Respaldado como %1$s</string>
-    <string name="cloud_backup_failed">Copia fallida — verificá el acceso a la carpeta</string>
+    <string name="cloud_backup_failed">Copia fallida — verifica el acceso a la carpeta</string>
     <string name="cloud_restore_success">Configuración restaurada</string>
     <string name="cloud_restore_failed">No se encontró respaldo en la carpeta</string>
     <string name="section_cloud_trips">Respaldo de viajes</string>
@@ -174,7 +174,7 @@
     <string name="sync_checking">Revisando carpeta de respaldo…</string>
     <string name="action_restore">Restaurar</string>
     <string name="action_overwrite">Sobrescribir</string>
-    <string name="cloud_backup_long_press_hint">Mantené pulsado para más opciones</string>
+    <string name="cloud_backup_long_press_hint">Mantén presionado para más opciones</string>
     <string name="cloud_backup_name_label">Nombre del respaldo</string>
     <string name="cloud_backup_name_preview">Se guardará como %1$s</string>
     <string name="cloud_backup_overwrite_title">¿Sobrescribir "%1$s"?</string>
@@ -200,7 +200,7 @@
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="section_application">Aplicación</string>
     <string name="back_button_action">Al deslizar atrás</string>
-    <string name="back_button_action_desc">Elegí qué hace deslizar atrás desde el panel principal</string>
+    <string name="back_button_action_desc">Elige qué hace deslizar atrás desde el panel principal</string>
     <string name="back_button_action_ask">Preguntar</string>
     <string name="back_button_action_background">Segundo plano</string>
     <string name="back_button_action_stop">Detener todo</string>
@@ -290,7 +290,7 @@
     <!-- Settings: Integration -->
     <string name="section_flic_buttons">Botones Flic 2</string>
     <string name="flic_show_on_dashboard">Acceso rápido en el panel</string>
-    <string name="flic_scan_hint">Mantené el botón Flic 2 durante 6 segundos para emparejar, después tocá Buscar</string>
+    <string name="flic_scan_hint">Mantén el botón Flic 2 durante 6 segundos para emparejar, después toca Buscar</string>
     <string name="flic_stop_scan">Detener búsqueda</string>
     <string name="flic_start_scan">Iniciar búsqueda</string>
     <string name="external_gps_pair_button">Iniciar búsqueda</string>
@@ -304,16 +304,16 @@
     <string name="flic_double_click">Doble clic</string>
     <string name="flic_hold">Mantener</string>
     <string name="external_gps_axes_title">Orientación de ejes</string>
-    <string name="external_gps_axes_desc">Asigná cada eje de salida a un eje físico de la caja. Autodetectar lo hace automáticamente.</string>
+    <string name="external_gps_axes_desc">Asigna cada eje de salida a un eje físico de la caja. Autodetectar lo hace automáticamente.</string>
     <string name="external_gps_map_x">Salida X</string>
     <string name="external_gps_map_y">Salida Y</string>
     <string name="external_gps_map_z">Salida Z</string>
     <string name="external_gps_autodetect">Autodetectar</string>
     <string name="external_gps_autodetect_title">Autodetectar ejes</string>
-    <string name="external_gps_autodetect_prep">Preparate para mover el dispositivo</string>
-    <string name="external_gps_autodetect_forward">Mové el dispositivo adelante y atrás</string>
-    <string name="external_gps_autodetect_lateral">Mové el dispositivo a izquierda y derecha</string>
-    <string name="external_gps_autodetect_vertical">Mové el dispositivo arriba y abajo</string>
+    <string name="external_gps_autodetect_prep">Prepárate para mover el dispositivo</string>
+    <string name="external_gps_autodetect_forward">Mueve el dispositivo adelante y atrás</string>
+    <string name="external_gps_autodetect_lateral">Mueve el dispositivo a izquierda y derecha</string>
+    <string name="external_gps_autodetect_vertical">Mueve el dispositivo arriba y abajo</string>
     <string name="external_gps_autodetect_done">Ejes detectados y aplicados</string>
     <string name="external_gps_autodetect_abort">Cancelar</string>
     <string name="gps_prioritize_external">Priorizar GPS externo</string>
@@ -501,7 +501,7 @@
 
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">Fuentes de datos en vivo</string>
-    <string name="sources_phone">Teléfono</string>
+    <string name="sources_phone">Celular</string>
     <string name="sources_wheel">Rueda</string>
     <string name="sources_external">Externo</string>
     <string name="sources_compare">Comparar</string>
@@ -526,7 +526,7 @@
     <string name="sources_reset_avg">Reiniciar promedio</string>
     <string name="sources_apply_calibration">Calibrar rueda</string>
     <string name="sources_apply_calibration_title">Aplicar calibración de velocidad</string>
-    <string name="sources_apply_calibration_body_fmt">¿Establecer la calibración de velocidad de la rueda en %1$+.1f %%?\n\nPodés cambiarla después en Parámetros de la rueda.</string>
+    <string name="sources_apply_calibration_body_fmt">¿Establecer la calibración de velocidad de la rueda en %1$+.1f %%?\n\nPuedes cambiarla después en Parámetros de la rueda.</string>
     <string name="sources_apply">Aplicar</string>
     <string name="sources_cancel">Cancelar</string>
 
@@ -603,7 +603,7 @@
     <string name="engine_duck_pause">Pausar</string>
     <string name="engine_duck_mix">Mezclar</string>
     <string name="engine_headphones_only">Solo con auriculares</string>
-    <string name="engine_headphones_only_hint">Omite el altavoz del teléfono. El motor suena solo cuando hay audio por cable o Bluetooth</string>
+    <string name="engine_headphones_only_hint">Omite el parlante del celular. El motor suena solo cuando hay audio por cable o Bluetooth</string>
 
     <!-- Motor sound: generic preset names + parked hint -->
     <string name="engine_preset_two_stroke">2 tiempos</string>
@@ -746,7 +746,7 @@
     <string name="nav_stop_short">Detener navegación</string>
     <string name="nav_stops_left">Quedan %1$d paradas</string>
     <string name="nav_next_distance">Próxima: %1$s</string>
-    <string name="nav_tap_on_self">En la lista de Paradas, mantén pulsada una parada para ponerla en tu ubicación</string>
+    <string name="nav_tap_on_self">En la lista de Paradas, mantén presionada una parada para ponerla en tu ubicación</string>
     <string name="nav_title">Creador de rutas</string>
     <string name="nav_turn_left">Gira a la izquierda</string>
     <string name="nav_turn_right">Gira a la derecha</string>
@@ -761,7 +761,7 @@
     <string name="studio_grant">Conceder acceso</string>
     <string name="studio_image_failed">No se pudo cargar esa imagen</string>
     <string name="studio_no_folder">Primero elige una carpeta de respaldo para guardar presets</string>
-    <string name="studio_your_presets_empty">Aún no hay presets guardados. Guardá tu diseño actual para agregar uno.</string>
+    <string name="studio_your_presets_empty">Aún no hay presets guardados. Guarda tu diseño actual para agregar uno.</string>
     <string name="studio_not_connected">Sin conexión</string>
     <string name="studio_open">Abrir Overlay Studio</string>
     <string name="studio_photo_failed">No se pudo guardar la foto</string>
@@ -920,7 +920,7 @@
     <string name="studio_metric_temperature">Temperatura</string>
     <string name="studio_metric_trip_distance">Distancia del viaje</string>
     <string name="studio_metric_voltage">Voltaje</string>
-    <string name="studio_no_folder_body">Configurá una carpeta de respaldo para cargar y guardar presets</string>
+    <string name="studio_no_folder_body">Configura una carpeta de respaldo para cargar y guardar presets</string>
     <string name="studio_pane_camera_access_needed">Se necesita acceso a la cámara</string>
     <string name="studio_pane_camera_conflict">%1$s no puede funcionar junto a otra cámara en este dispositivo</string>
     <string name="studio_pane_camera_unavailable">Cámara no disponible</string>
@@ -1016,7 +1016,7 @@
     <string name="studio_cd_rotate">Girar</string>
     <string name="studio_cfg_border_colour">Color del borde</string>
     <string name="studio_cfg_border_width">Grosor del borde</string>
-    <string name="studio_rendering_keep_open">Mantén el teléfono encendido y esta pantalla abierta mientras termina la renderización</string>
+    <string name="studio_rendering_keep_open">Mantén el celular encendido y esta pantalla abierta mientras termina la renderización</string>
     <string name="studio_chroma_bright_green">Verde brillante</string>
     <string name="studio_chroma_cyan">Cian</string>
     <string name="studio_export_force_opaque">Forzar opacidad total</string>
@@ -1029,7 +1029,7 @@
     <string name="studio_cfg_filter_vintage">Vintage</string>
     <string name="studio_cfg_filter_matte">Mate</string>
     <string name="dash_external_gps_settings">Configuración del GPS externo</string>
-    <string name="external_gps_caption">Encendé el dispositivo y tocá Emparejar; su velocidad y fuerza G se usan en vivo y se guardan en el CSV del viaje</string>
+    <string name="external_gps_caption">Enciende el dispositivo y toca Emparejar; su velocidad y fuerza G se usan en vivo y se guardan en el CSV del viaje</string>
     <string name="gps_prioritize_external_desc">Prioriza el dispositivo conectado sobre el celular para velocidad, posición y fuerza G</string>
     <string name="studio_cfg_show_value">Mostrar valor</string>
     <string name="studio_cfg_unit_position">Unidad</string>
@@ -1086,7 +1086,7 @@
     <string name="dashboard_custom_tile_text_label">Texto</string>
     <string name="dashboard_custom_tile_text_placeholder">p. ej. Mi Instagram</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
-    <string name="dashboard_grid_hint">Mantené para arrastrar, tocá para editar</string>
+    <string name="dashboard_grid_hint">Mantén para arrastrar, toca para editar</string>
     <string name="dashboard_group_action_none">(ninguna)</string>
     <string name="dashboard_group_action_slot">Acción %1$d</string>
     <string name="dashboard_group_default_name">Mis acciones</string>
@@ -1094,7 +1094,7 @@
     <string name="dashboard_group_template_label">GRUPO</string>
     <string name="dashboard_pool_actions">Acciones disponibles</string>
     <string name="dashboard_pool_metrics">Métricas disponibles</string>
-    <string name="dashboard_pool_tap_toast">Mantené y arrastrá a una ranura de arriba para usarlo</string>
+    <string name="dashboard_pool_tap_toast">Mantén y arrastra a una ranura de arriba para usarlo</string>
     <string name="dashboard_restore_slot">Restaurar casillero</string>
     <string name="dashboard_rolling_window">Ventana de estadísticas</string>
     <string name="dashboard_rolling_window_10m">10 min</string>
@@ -1221,7 +1221,7 @@
     <string name="service_mode_recording">Mientras esté activo, la app registra cada byte BLE enviado y recibido de la rueda y cualquier comando de prueba que dispares. El log queda en memoria hasta que se cierre la app.</string>
     <string name="service_mode_title">Modo servicio</string>
     <string name="studio_cfg_map_use_custom_marker">Preferir marcador personalizado</string>
-    <string name="studio_cfg_map_use_custom_marker_hint">Configurá tu foto en Navegador → Personalizar mi marcador</string>
+    <string name="studio_cfg_map_use_custom_marker_hint">Configura tu foto en Navegador → Personalizar mi marcador</string>
     <string name="tab_dashboard">Diseño del tablero</string>
     <string name="welcome_tut_skip">Omitir</string>
     <string name="welcome_tut_next">Siguiente</string>
@@ -1243,7 +1243,7 @@
     <string name="welcome_tut_map">Abre el navegador para planear rutas y recibir indicaciones paso a paso</string>
     <string name="welcome_tut_gps">Toca aquí para ver los datos en vivo, incluso puedes calibrar la velocidad de tu rueda según la velocidad del GPS. Revisa la calibración más tarde en Ajustes → %1$s</string>
     <string name="welcome_tut_camera">Graba video con una superposición de telemetría en vivo. Crea superposiciones personalizadas con estilo y expórtalas para hacer tus propios videos con datos de viajes anteriores</string>
-    <string name="welcome_tut_pd">Muestra Estacionado o Conducción. Tócalo para configurar tu %1$s</string>
+    <string name="welcome_tut_pd">Muestra Estacionado o Manejando. Tócalo para configurar tu %1$s</string>
     <string name="welcome_tut_outro_alarms">Explora el potente editor de alarmas personalizadas en Ajustes → %1$s</string>
     <string name="welcome_tut_outro_integrations">Explora las integraciones, como los botones Flic y tu reloj</string>
     <string name="welcome_tut_outro_end">Mantén la vista en el camino y lejos de esta app mientras manejas tu monociclo</string>

@@ -87,7 +87,7 @@
     <string name="cloud_backup_now">Tag backup</string>
     <string name="cloud_restore">Gendan</string>
     <string name="cloud_last_backup">Seneste backup: %1$s</string>
-<string name="cloud_last_backup_named">Sidste backup: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Sidste backup: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Endnu ikke taget backup</string>
     <string name="cloud_backup_success">Indstillinger sikkerhedskopieret</string>
 <string name="cloud_backup_named_success">Gemt som %1$s</string>

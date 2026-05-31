@@ -147,7 +147,7 @@
     <string name="cloud_backup_now">Backup</string>
     <string name="cloud_restore">Ripristina</string>
     <string name="cloud_last_backup">Ultimo backup: %1$s</string>
-<string name="cloud_last_backup_named">Ultimo backup: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Ultimo backup: %1$s come \"%2$s\"</string>
     <string name="cloud_last_backup_never">Nessun backup ancora</string>
     <string name="cloud_backup_success">Impostazioni salvate</string>
 <string name="cloud_backup_named_success">Salvato come %1$s</string>

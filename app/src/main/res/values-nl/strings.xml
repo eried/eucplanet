@@ -147,7 +147,7 @@
     <string name="cloud_backup_now">Back-up</string>
     <string name="cloud_restore">Terugzetten</string>
     <string name="cloud_last_backup">Laatste back-up: %1$s</string>
-<string name="cloud_last_backup_named">Laatste back-up: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Laatste back-up: %1$s als \"%2$s\"</string>
     <string name="cloud_last_backup_never">Nog geen back-up</string>
     <string name="cloud_backup_success">Instellingen geback-upt</string>
 <string name="cloud_backup_named_success">Opgeslagen als %1$s</string>

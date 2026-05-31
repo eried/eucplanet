@@ -88,7 +88,7 @@
     <string name="cloud_backup_now">Respaldar</string>
     <string name="cloud_restore">Restaurar</string>
     <string name="cloud_last_backup">Último respaldo: %1$s</string>
-<string name="cloud_last_backup_named">Última copia: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Última copia: %1$s como \"%2$s\"</string>
     <string name="cloud_last_backup_never">Sin respaldo aún</string>
     <string name="cloud_backup_success">Ajustes respaldados</string>
 <string name="cloud_backup_named_success">Respaldado como %1$s</string>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EUC Planet</string>
-    <string name="notification_channel_name">车轮连接</string>
-    <string name="notification_channel_description">显示车轮的连接状态和实时数据</string>
+    <string name="notification_channel_name">独轮车连接</string>
+    <string name="notification_channel_description">显示独轮车的连接状态和实时数据</string>
 
     <string name="action_back">返回</string>
     <string name="action_cancel">取消</string>
@@ -24,7 +24,7 @@
     <string name="no_trips_action_recorder">行程记录器</string>
     <string name="voice_volume_low_toast">音量较低，可能听不到语音</string>
     <string name="scan_permission_needed">需要权限</string>
-    <string name="scan_permission_body">要找到你的车轮,应用需要蓝牙和位置权限</string>
+    <string name="scan_permission_body">要找到你的独轮车,应用需要蓝牙和位置权限</string>
     <string name="scan_permission_body_settings">权限被拒绝。请打开系统设置并允许蓝牙和位置权限</string>
     <string name="recording_location_permission_needed">需要位置权限</string>
     <string name="recording_location_permission_body">行程记录会保存 GPS 轨迹,让你在地图上查看路线。请授予位置权限以继续</string>
@@ -38,7 +38,7 @@
     <string name="settings">设置</string>
     <string name="disconnect">断开</string>
     <string name="disconnect_from">要断开与 %1$s 的连接吗?</string>
-    <string name="wheel_generic">车轮</string>
+    <string name="wheel_generic">独轮车</string>
     <string name="exit_title">退出 EUC Planet</string>
     <string name="exit_body">保留后台服务,还是全部停止?</string>
     <string name="exit_stop_all">全部停止</string>
@@ -59,7 +59,7 @@
     <string name="action_legal_on">合规 开</string>
     <string name="action_lock_wheel">锁车</string>
     <string name="action_locked">已锁定</string>
-    <string name="lock_blocked_in_motion_toast">请减速以锁定轮子</string>
+    <string name="lock_blocked_in_motion_toast">请先停车再锁车</string>
     <string name="action_recorder">记录器</string>
     <string name="action_recorder_trips">记录器\n(%1$d 条行程)</string>
     <string name="action_recorder_trips_one">记录器
@@ -67,7 +67,7 @@
 
     <string name="search_settings">搜索设置</string>
     <string name="tab_general">通用</string>
-    <string name="tab_speed">车轮速度限制</string>
+    <string name="tab_speed">独轮车参数</string>
     <string name="tab_display">显示与外观</string>
     <string name="tab_voice">语音与播报</string>
     <string name="tab_alarms">警报规则</string>
@@ -87,7 +87,7 @@
     <string name="cloud_backup_now">备份</string>
     <string name="cloud_restore">恢复</string>
     <string name="cloud_last_backup">上次备份:%1$s</string>
-<string name="cloud_last_backup_named">上次备份:%1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">上次备份:%1$s 为 \"%2$s\"</string>
     <string name="cloud_last_backup_never">尚未备份</string>
     <string name="cloud_backup_success">设置已备份</string>
 <string name="cloud_backup_named_success">已备份为 %1$s</string>
@@ -102,7 +102,7 @@
     <string name="cloud_not_uploaded">尚未备份</string>
     <string name="cloud_restore_confirm_title">恢复设置</string>
     <string name="cloud_restore_confirm_body_p1">您当前的设置将被备份中的设置替换。</string>
-    <string name="cloud_restore_confirm_body_p2">Flic 手势会恢复,但按键和轮子需要在这台手机上重新配对。它们的蓝牙配对保存在 Android 中,而不是在应用里。</string>
+    <string name="cloud_restore_confirm_body_p2">Flic 手势会恢复,但按钮和独轮车需要在这台手机上重新配对。它们的蓝牙配对保存在 Android 中,而不是在应用里。</string>
     <string name="sync_checking">正在检查备份文件夹…</string>
     <string name="sync_progress">同步中 %1$d / %2$d</string>
     <string name="sync_no_folder">请先选择备份文件夹</string>
@@ -126,13 +126,13 @@
     <string name="section_connection">连接</string>
     <string name="section_display">显示</string>
     <string name="auto_record_on_start">启动时自动记录</string>
-    <string name="auto_record_caption">连接独轮车时自动记录行程。</string>
+    <string name="auto_record_caption">连接独轮车后自动开始记录行程。</string>
     <string name="auto_record_start_in_motion">运动时开始录制</string>
     <string name="auto_record_start_in_motion_caption">运动时开始录制,闲置后停止,下次行驶时重新开始。</string>
     <string name="auto_record_stop_idle_seconds">空闲多久后停止</string>
     <string name="auto_connect_on_start">启动时自动连接</string>
-    <string name="auto_connect_caption">自动重连上次配对的车轮。</string>
-    <string name="wheel_name_display">轮子名称</string>
+    <string name="auto_connect_caption">自动重连上次配对的独轮车。</string>
+    <string name="wheel_name_display">独轮车名称</string>
     <string name="wheel_name_none">无</string>
     <string name="wheel_name_model">名称</string>
     <string name="wheel_name_brand">品牌</string>
@@ -177,8 +177,8 @@
 
     <string name="section_speed_limits">速度限制</string>
     <string name="section_legal_mode_speed">合规模式速度</string>
-    <string name="legal_mode_caption">在 Legal Mode 开启时使用；必须低于普通 tiltback</string>
-    <string name="speed_limits_disconnected">连接车轮后才能修改速度限制</string>
+    <string name="legal_mode_caption">合规模式开启时生效；必须低于普通回倾速度</string>
+    <string name="speed_limits_disconnected">连接独轮车后才能修改速度限制</string>
     <string name="speed_tiltback">回倾速度</string>
     <string name="speed_alarm">报警速度</string>
     <string name="speed_legal_tiltback">合规回倾</string>
@@ -192,13 +192,13 @@
     <string name="section_speech">语音</string>
     <string name="section_report_status">状态播报</string>
     <string name="voice_enabled">定时播报状态</string>
-    <string name="voice_only_when_connected">仅在车轮连接时播报</string>
+    <string name="voice_only_when_connected">仅在独轮车连接时播报</string>
     <string name="voice_interval">间隔</string>
     <string name="unit_sec">秒</string>
     <string name="announce_wheel_lock">锁车 / 解锁</string>
     <string name="announce_lights">大灯 开 / 关</string>
     <string name="announce_recording">行程记录</string>
-    <string name="announce_connection">车轮 连接 / 断开</string>
+    <string name="announce_connection">独轮车 连接 / 断开</string>
     <string name="announce_gps">GPS 信号 丢失 / 恢复</string>
     <string name="announce_legal_mode">合规模式 开 / 关</string>
     <string name="announce_welcome">启动时的欢迎语</string>
@@ -256,20 +256,20 @@
     <string name="voice_speed_fmt">速度 %1$s</string>
     <string name="voice_battery_fmt">电量 百分之 %1$d</string>
     <string name="voice_temp_fmt">温度 %1$s 度</string>
-    <string name="voice_load_fmt">负载 百分之 %1$s</string>
+    <string name="voice_load_fmt">PWM 百分之 %1$s</string>
     <string name="voice_trip_fmt">行程 %1$s 公里</string>
     <string name="voice_trip_miles_fmt">行程 %1$s 英里</string>
     <string name="voice_trip_meters_fmt">行程 %1$s 米</string>
     <string name="voice_recording_on">正在记录</string>
     <string name="voice_recording_off">未在记录</string>
-    <string name="voice_wheel_locked">车轮已锁定</string>
-    <string name="voice_wheel_unlocked">车轮已解锁</string>
+    <string name="voice_wheel_locked">独轮车已锁定</string>
+    <string name="voice_wheel_unlocked">独轮车已解锁</string>
     <string name="voice_lights_on">大灯已开</string>
     <string name="voice_lights_off">大灯已关</string>
     <string name="voice_recording_started">开始记录</string>
     <string name="voice_recording_finished">记录结束</string>
-    <string name="voice_wheel_connected">车轮已连接</string>
-    <string name="voice_wheel_disconnected">车轮已断开</string>
+    <string name="voice_wheel_connected">独轮车已连接</string>
+    <string name="voice_wheel_disconnected">独轮车已断开</string>
     <string name="voice_gps_acquired">已获取 GPS 信号</string>
     <string name="voice_gps_lost">GPS 信号丢失</string>
     <string name="voice_legal_on">合规模式 开</string>
@@ -394,7 +394,7 @@
     <string name="auto_midnight_sun_body">当前纬度今日无日落,大灯将保持关闭</string>
     <string name="auto_polar_night_title">极夜</string>
     <string name="auto_polar_night_body">当前纬度今日无日出,大灯将保持开启</string>
-    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接车轮或重启应用以恢复</string>
+    <string name="auto_lights_suspended">已暂停:本次会话中你手动切换过大灯。请重新连接独轮车或重启应用以恢复</string>
 
     <string name="alarm_help">同一项指标的规则按从上到下顺序匹配,首条命中的规则触发</string>
     <string name="alarm_empty">暂无报警规则</string>
@@ -408,7 +408,7 @@
     <!-- Live data sources bottom sheet -->
     <string name="sources_title">实时数据源</string>
     <string name="sources_phone">手机</string>
-    <string name="sources_wheel">车辆</string>
+    <string name="sources_wheel">独轮车</string>
     <string name="sources_external">外接设备</string>
     <string name="sources_compare">对比</string>
     <string name="sources_same_source">已选择相同来源</string>
@@ -430,9 +430,9 @@
     <string name="sources_sats_fmt">%1$d 颗卫星</string>
     <string name="sources_collecting">采集中…</string>
     <string name="sources_reset_avg">重置平均值</string>
-    <string name="sources_apply_calibration">校准轮</string>
+    <string name="sources_apply_calibration">校准独轮车</string>
     <string name="sources_apply_calibration_title">应用速度校准</string>
-    <string name="sources_apply_calibration_body_fmt">将轮速校准设置为 %1$+.1f %% 吗？\n\n稍后可在轮参数中更改。</string>
+    <string name="sources_apply_calibration_body_fmt">将独轮车的速度校准设置为 %1$+.1f %% 吗？\n\n稍后可在速度校准中更改。</string>
     <string name="sources_apply">应用</string>
     <string name="sources_cancel">取消</string>
 
@@ -486,16 +486,16 @@
     <string name="menu_voice_periodic_on">开启定时播报</string>
     <string name="report_time">时间</string>
     <string name="report_navigation">导航</string>
-    <string name="scan_show_all_subtitle">如果你的车轮没有出现,请打开此选项。</string>
+    <string name="scan_show_all_subtitle">如果你的独轮车没有出现,请打开此选项。</string>
     <string name="scan_show_all_title">显示全部设备</string>
     <string name="scan_simulate_subtitle">绕过 BLE,使用预设响应。仅在调试版本中。</string>
-    <string name="scan_simulate_title">虚拟车轮</string>
+    <string name="scan_simulate_title">虚拟独轮车</string>
     <string name="section_watch_display">显示</string>
     <string name="section_watch_general">通用</string>
     <string name="show_gauge_color_band">速度表色带</string>
     <string name="stat_watts">瓦特</string>
     <string name="tab_watch">手表</string>
-    <string name="toast_external_speed_change">速度已从车轮更新:回倾 %1$d km/h,报警 %2$d km/h</string>
+    <string name="toast_external_speed_change">速度已从独轮车更新:回倾 %1$d km/h,报警 %2$d km/h</string>
     <string name="voice_output_channel_alarm">报警</string>
     <string name="voice_output_channel_label">语音输出</string>
     <string name="voice_output_channel_media">媒体</string>
@@ -525,7 +525,7 @@
     <string name="watch_prioritize_pwm_desc">让 PWM 条形与数字比速度更显眼。</string>
     <string name="watch_dial_rotation">表盘旋转</string>
     <string name="watch_show_watch_battery">显示手表电量</string>
-    <string name="watch_show_wheel_battery">显示车轮电量</string>
+    <string name="watch_show_wheel_battery">显示独轮车电量</string>
     <string name="flic_action_record_start">开始行程记录</string>
     <string name="flic_action_record_stop">停止行程记录</string>
     <string name="section_watch_screen_buttons">按钮</string>
@@ -537,7 +537,7 @@
     <!-- Motor sound generator -->
     <string name="section_engine_sound">引擎声</string>
     <string name="engine_sound_enabled">引擎声</string>
-    <string name="engine_sound_enabled_hint">根据车轮速度和电机负载实时驱动发动机转速</string>
+    <string name="engine_sound_enabled_hint">根据独轮车的速度和电机负载实时驱动发动机转速</string>
     <string name="engine_type_label">引擎</string>
     <string name="engine_source_sampled">采样</string>
     <string name="engine_source_synth">合成</string>
@@ -608,7 +608,7 @@
     <string name="section_external_gps">GPS 与传感器</string>
     <string name="external_gps_device_title">外置 GPS</string>
     <string name="section_speed_calibration">速度校准</string>
-    <string name="speed_calibration_caption">调整车轮报告的速度；影响警报、语音和行程日志</string>
+    <string name="speed_calibration_caption">调整独轮车上报的速度；影响警报、语音和行程日志</string>
     <string name="speed_calibration_label">速度偏移</string>
     <string name="sources_other_metrics">其他指标</string>
     <!-- ==== Navigator / Studio / Voice (new) ==== -->
@@ -841,7 +841,7 @@
     <string name="studio_element_floating_camera">浮动相机</string>
     <string name="studio_element_image">图片 / 剪贴画</string>
     <string name="studio_element_text">自由文本</string>
-    <string name="studio_element_wheel_name">车轮名称</string>
+    <string name="studio_element_wheel_name">独轮车名称</string>
     <string name="studio_flyout_add">添加</string>
     <string name="studio_flyout_load">加载</string>
     <string name="studio_flyout_manage">管理</string>
@@ -860,7 +860,7 @@
     <string name="studio_hint_floating_camera">小型画中画相机</string>
     <string name="studio_hint_image">你自己的图片,嵌入到预设中</string>
     <string name="studio_hint_text">由你自己输入的自定义文本</string>
-    <string name="studio_hint_wheel_name">已连接车轮的名称</string>
+    <string name="studio_hint_wheel_name">已连接独轮车的名称</string>
     <string name="studio_layout_2_columns">2 列</string>
     <string name="studio_layout_2_rows">2 行</string>
     <string name="studio_layout_3_columns">3 列</string>
@@ -1025,9 +1025,9 @@
     <string name="action_chip_record_start">开始录制</string>
     <string name="action_chip_record_stop">停止录制</string>
     <string name="action_chip_reset_trip">重置行程</string>
-    <string name="action_chip_safety">合法模式</string>
-    <string name="action_chip_safety_off">合法 关</string>
-    <string name="action_chip_safety_on">合法 开</string>
+    <string name="action_chip_safety">合规模式</string>
+    <string name="action_chip_safety_off">合规 关</string>
+    <string name="action_chip_safety_on">合规 开</string>
     <string name="action_chip_toggle_units">切换单位</string>
     <string name="action_chip_voice">语音</string>
     <string name="action_unsupported_on_wheel">此独轮车不支持</string>
@@ -1151,7 +1151,7 @@
     <string name="metric_desc_headroom">回倾启动前剩余的速度余量。数字大 = 安全缓冲更多。</string>
     <string name="metric_desc_range_estimate">按当前消耗率剩余的距离。</string>
     <string name="metric_desc_regen_wh">本次行程刹车时回馈到电池的总瓦时。</string>
-    <string name="metric_desc_slope">由轮子俯仰角推算的路面坡度——正值为上坡。</string>
+    <string name="metric_desc_slope">由独轮车俯仰角推算的路面坡度——正值为上坡。</string>
     <string name="metric_desc_trip_max_speed">当前行程的最高速度（新行程重置）。</string>
     <string name="metric_desc_wh_consumed">本次行程从电池中提取的总瓦时。</string>
     <string name="metric_desc_wh_per_km">每公里消耗能量——越低越高效。</string>
@@ -1169,14 +1169,14 @@
     <string name="nav_remove_marker_photo_short">重置</string>
     <string name="nav_search_no_results">该地址没有结果</string>
     <string-array name="nav_stop_ordinals">
-        <item>第一停</item>
-        <item>第二停</item>
-        <item>第三停</item>
-        <item>第四停</item>
-        <item>第五停</item>
-        <item>第六停</item>
-        <item>第七停</item>
-        <item>第八停</item>
+        <item>第一站</item>
+        <item>第二站</item>
+        <item>第三站</item>
+        <item>第四站</item>
+        <item>第五站</item>
+        <item>第六站</item>
+        <item>第七站</item>
+        <item>第八站</item>
     </string-array>
     <string name="service_mode_caution">警告：服务模式使用不当可能导致独轮车功能丧失、严重伤害或死亡</string>
     <string name="service_mode_enter">进入</string>
@@ -1205,7 +1205,7 @@
     <string name="welcome_tut_metrics">实时显示电量、温度、电压等信息。可在设置 → %1$s 中重新排列</string>
     <string name="welcome_tut_actions">快捷控制。可在设置 → %1$s → %2$s 中自定义</string>
     <string name="welcome_tut_map">打开导航来规划路线并获取逐向导航指引</string>
-    <string name="welcome_tut_gps">点按这里查看实时数据，还能根据 GPS 速度校准车轮显示的速度。校准结果稍后可在设置 → %1$s 中查看</string>
+    <string name="welcome_tut_gps">点按这里查看实时数据，还能根据 GPS 速度校准独轮车上报的速度。校准结果稍后可在设置 → %1$s 中查看</string>
     <string name="welcome_tut_camera">录制带有实时遥测叠加信息的视频。你还能制作炫酷的自定义叠加层并将其导出，用过往行程的数据打造属于自己的视频</string>
     <string name="welcome_tut_pd">显示驻车或行驶状态。点按即可设置你的 %1$s</string>
     <string name="welcome_tut_outro_alarms">在设置 → %1$s 中体验强大的自定义警报编辑器</string>

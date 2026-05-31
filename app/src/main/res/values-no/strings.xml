@@ -88,7 +88,7 @@
     <string name="cloud_backup_now">Ta backup</string>
     <string name="cloud_restore">Gjenopprett</string>
     <string name="cloud_last_backup">Siste backup: %1$s</string>
-<string name="cloud_last_backup_named">Siste sikkerhetskopi: %1$s as \"%2$s\"</string>
+<string name="cloud_last_backup_named">Siste sikkerhetskopi: %1$s som \"%2$s\"</string>
     <string name="cloud_last_backup_never">Ikke tatt backup ennå</string>
     <string name="cloud_backup_success">Innstillinger sikkerhetskopiert</string>
 <string name="cloud_backup_named_success">Lagret som %1$s</string>
