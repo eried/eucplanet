@@ -1092,6 +1092,7 @@
     <string name="dashboard_group_action_none">(nenhuma)</string>
     <string name="dashboard_group_action_slot">Ação %1$d</string>
     <string name="dashboard_group_default_name">Minhas ações</string>
+    <string name="dashboard_group_empty_toast">Sem ações para mostrar</string>
     <string name="dashboard_group_name_label">Nome do grupo</string>
     <string name="dashboard_group_template_label">GRUPO</string>
     <string name="dashboard_pool_actions">Ações disponíveis</string>

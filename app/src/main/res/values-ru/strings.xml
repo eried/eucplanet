@@ -1108,6 +1108,7 @@
     <string name="dashboard_group_action_none">(нет)</string>
     <string name="dashboard_group_action_slot">Действие %1$d</string>
     <string name="dashboard_group_default_name">Мои действия</string>
+    <string name="dashboard_group_empty_toast">Нет действий для показа</string>
     <string name="dashboard_group_name_label">Имя группы</string>
     <string name="dashboard_group_template_label">ГРУППА</string>
     <string name="dashboard_pool_actions">Доступные действия</string>

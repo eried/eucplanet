@@ -1058,6 +1058,7 @@
     <string name="dashboard_group_action_none">(ingen)</string>
     <string name="dashboard_group_action_slot">Handling %1$d</string>
     <string name="dashboard_group_default_name">Mine handlinger</string>
+    <string name="dashboard_group_empty_toast">Ingen handlinger at vise</string>
     <string name="dashboard_group_name_label">Gruppenavn</string>
     <string name="dashboard_group_template_label">GRUPPE</string>
     <string name="dashboard_pool_actions">Tilgængelige handlinger</string>

@@ -1780,7 +1780,21 @@ fun DashboardScreen(
                                             label = groupName.ifBlank { defaultGroupLabel },
                                             enabled = true,
                                             onClick = {
-                                                if (groupActions.isNotEmpty()) popoverOpen = true
+                                                if (groupActions.isNotEmpty()) {
+                                                    popoverOpen = true
+                                                } else {
+                                                    // Empty group used to silently no-op, which
+                                                    // looked like a broken tile. Now an explicit
+                                                    // Snackbar confirms the tap landed and tells
+                                                    // the rider why nothing happened.
+                                                    snackbarScope.launch {
+                                                        snackbar.showSnackbar(
+                                                            toastContext.getString(
+                                                                R.string.dashboard_group_empty_toast
+                                                            )
+                                                        )
+                                                    }
+                                                }
                                             },
                                             modifier = Modifier.fillMaxWidth(),
                                             aspectRatio = actionAspect, heightDp = actionHeight

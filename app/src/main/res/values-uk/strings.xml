@@ -1093,6 +1093,7 @@
     <string name="dashboard_group_action_none">(немає)</string>
     <string name="dashboard_group_action_slot">Дія %1$d</string>
     <string name="dashboard_group_default_name">Мої дії</string>
+    <string name="dashboard_group_empty_toast">Немає дій для показу</string>
     <string name="dashboard_group_name_label">Назва групи</string>
     <string name="dashboard_group_template_label">ГРУПА</string>
     <string name="dashboard_pool_actions">Доступні дії</string>

@@ -127,6 +127,7 @@
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
     <string name="dashboard_composite_empty_label">(empty)</string>
     <string name="dashboard_group_default_name">My actions</string>
+    <string name="dashboard_group_empty_toast">No actions to show</string>
     <string name="dashboard_group_name_label">Group name</string>
     <string name="dashboard_group_action_slot">Action %1$d</string>
     <string name="dashboard_group_action_none">(none)</string>

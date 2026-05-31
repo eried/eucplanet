@@ -1093,6 +1093,7 @@
     <string name="dashboard_group_action_none">(brak)</string>
     <string name="dashboard_group_action_slot">Akcja %1$d</string>
     <string name="dashboard_group_default_name">Moje akcje</string>
+    <string name="dashboard_group_empty_toast">Brak akcji do pokazania</string>
     <string name="dashboard_group_name_label">Nazwa grupy</string>
     <string name="dashboard_group_template_label">GRUPA</string>
     <string name="dashboard_pool_actions">Dostępne akcje</string>

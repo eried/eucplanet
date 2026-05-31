@@ -1056,6 +1056,7 @@
     <string name="dashboard_group_action_none">(ingen)</string>
     <string name="dashboard_group_action_slot">Åtgärd %1$d</string>
     <string name="dashboard_group_default_name">Mina åtgärder</string>
+    <string name="dashboard_group_empty_toast">Inga åtgärder att visa</string>
     <string name="dashboard_group_name_label">Gruppnamn</string>
     <string name="dashboard_group_template_label">GRUPP</string>
     <string name="dashboard_pool_actions">Tillgängliga åtgärder</string>

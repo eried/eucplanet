@@ -1092,6 +1092,7 @@
     <string name="dashboard_group_action_none">(geen)</string>
     <string name="dashboard_group_action_slot">Actie %1$d</string>
     <string name="dashboard_group_default_name">Mijn acties</string>
+    <string name="dashboard_group_empty_toast">Geen acties om te tonen</string>
     <string name="dashboard_group_name_label">Groepsnaam</string>
     <string name="dashboard_group_template_label">GROEP</string>
     <string name="dashboard_pool_actions">Beschikbare acties</string>

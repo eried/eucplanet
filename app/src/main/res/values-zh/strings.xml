@@ -1056,6 +1056,7 @@
     <string name="dashboard_group_action_none">（无）</string>
     <string name="dashboard_group_action_slot">动作 %1$d</string>
     <string name="dashboard_group_default_name">我的动作</string>
+    <string name="dashboard_group_empty_toast">无可显示的操作</string>
     <string name="dashboard_group_name_label">分组名称</string>
     <string name="dashboard_group_template_label">分组</string>
     <string name="dashboard_pool_actions">可用动作</string>
