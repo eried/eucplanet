@@ -108,6 +108,20 @@ data class HudState(
      *  unknown types are silently dropped. */
     val customOverlayJson: String = "",
 
+    /** Ordered list of HUD screens the rider has enabled, by stable id
+     *  ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
+     *  "Map", "Nav"). Empty list = default (all seven in declaration
+     *  order). Non-empty = use EXACTLY this list in this order; any
+     *  screen not in the list is hidden from the carousel.
+     *
+     *  Lets the rider trim and reorder screens on the phone side
+     *  without having to power-cycle the HUD. HUD-side controller
+     *  applies the new list on every accepted frame; if the rider is
+     *  currently viewing a screen that just got removed, the HUD
+     *  snaps to the first enabled screen so they're never stuck on
+     *  a "no such screen" state. */
+    val enabledHudScreens: List<String> = emptyList(),
+
     // --- Navigation popup mirror ---
     /** Whether to render the turn-by-turn overlay/screen. */
     val navActive: Boolean = false,
@@ -148,7 +162,7 @@ data class HudState(
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
          */
-        const val PROTOCOL_MINOR: Int = 1
+        const val PROTOCOL_MINOR: Int = 2
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

@@ -193,6 +193,7 @@ object SettingsJson {
         put("hudIp", s.hudIp)
         put("hudCustomOverlayName", s.hudCustomOverlayName)
         put("hudCustomOverlayJson", s.hudCustomOverlayJson)
+        put("hudScreensEnabled", s.hudScreensEnabled)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -364,6 +365,7 @@ object SettingsJson {
         hudIp = j.optString("hudIp", base.hudIp),
         hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
         hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
+        hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),

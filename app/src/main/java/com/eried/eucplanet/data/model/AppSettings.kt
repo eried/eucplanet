@@ -378,6 +378,22 @@ data class AppSettings(
      * lower-third).
      */
     val hudCustomOverlayJson: String = "",
+    /**
+     * Ordered list of HUD screens the rider has enabled, by stable id
+     * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
+     * "Map", "Nav"). Stored as a comma-separated string so it slots
+     * cleanly into the existing key/value DataStore.
+     *
+     * Empty string = "use the default carousel" (= all seven screens in
+     * declaration order). Non-empty = each comma-separated id is one
+     * screen and the order is the carousel order.
+     *
+     * The phone-side UI enforces a minimum of one screen so the rider
+     * can't disable everything and lose access to the HUD; the HUD
+     * also falls back to the default seven on an empty-list wire frame
+     * as belt-and-suspenders.
+     */
+    val hudScreensEnabled: String = "",
 
     // --- Motor Sound generator ---
     //

@@ -20,13 +20,39 @@ import com.eried.eucplanet.hud.protocol.HudCommand
  */
 class HudUiController {
 
-    /** Stable identity of the screens, in display order. */
+    /** Stable identity of the screens, in default display order. */
     enum class Screen { Dashboard, Camera, Telemetry, Custom, CustomCam, Map, Nav }
 
-    private val screens: List<Screen> = listOf(
+    /** Default order, used when the rider hasn't customised the carousel
+     *  on the phone side. */
+    private val defaultScreens: List<Screen> = listOf(
         Screen.Dashboard, Screen.Camera, Screen.Telemetry,
         Screen.Custom, Screen.CustomCam, Screen.Map, Screen.Nav
     )
+
+    /** Active carousel, kept observable so when [applyEnabledScreens] swaps
+     *  it from a wire frame the N/M counter on the toast updates too. */
+    var screens: List<Screen> by mutableStateOf(defaultScreens)
+        private set
+
+    /** Update the visible screen carousel from a list of stable string
+     *  ids (matching enum names). Empty list = revert to default seven.
+     *  Unknown ids are dropped. If the rider's current screen is no
+     *  longer in the new list, we snap to the first remaining one so
+     *  the HUD is never stuck on a screen that doesn't exist.
+     *
+     *  Called by [HudActivity] from the state-flow collector so the
+     *  carousel updates within ~200 ms of the rider toggling a checkbox
+     *  on the phone -- no power cycle needed. */
+    fun applyEnabledScreens(ids: List<String>) {
+        val parsed = ids.mapNotNull { id ->
+            runCatching { Screen.valueOf(id) }.getOrNull()
+        }
+        val next = if (parsed.isEmpty()) defaultScreens else parsed
+        if (next == screens) return
+        screens = next
+        if (current !in next) current = next.first()
+    }
 
     var current: Screen by mutableStateOf(Screen.Dashboard)
         private set

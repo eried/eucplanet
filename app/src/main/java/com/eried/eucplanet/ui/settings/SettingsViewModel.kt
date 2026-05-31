@@ -367,6 +367,73 @@ class SettingsViewModel @Inject constructor(
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }
 
+    /** Stable identifiers for the HUD's seven screens, mirroring the
+     *  HudUiController.Screen enum on the HUD side. Order is the default
+     *  display order. */
+    val knownHudScreens: List<String> = listOf(
+        "Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "Map", "Nav"
+    )
+
+    /** Current resolved order of HUD screens including any saved
+     *  customisation. Empty saved value falls back to [knownHudScreens]. */
+    private fun resolvedHudScreens(): List<String> {
+        val raw = settings.value?.hudScreensEnabled.orEmpty()
+        if (raw.isBlank()) return knownHudScreens
+        return raw.split(",")
+            .map { it.trim() }
+            .filter { it in knownHudScreens }
+            .ifEmpty { knownHudScreens }
+    }
+
+    /** Toggle whether a HUD screen is enabled. Enforces a minimum of one
+     *  enabled screen so the rider can't disable the whole carousel and
+     *  end up with a HUD that has no content to show. */
+    fun setHudScreenEnabled(id: String, enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val savedRaw = current.hudScreensEnabled
+            val saved = savedRaw.split(",")
+                .map { it.trim() }
+                .filter { it in knownHudScreens }
+            // The "effective" list = saved order (with known-only filter)
+            // OR if empty, the default order. We re-materialise both as
+            // the full default order whenever the saved list is empty so
+            // the rider sees the default order in the UI even before
+            // they've reordered.
+            val effective = if (saved.isEmpty()) knownHudScreens else saved
+            val updated = if (enabled) {
+                if (id in effective) effective
+                else effective + id
+            } else {
+                if (effective.count { it != id } == 0) effective // keep at least one
+                else effective.filter { it != id }
+            }
+            settingsRepository.update(
+                current.copy(hudScreensEnabled = updated.joinToString(","))
+            )
+        }
+    }
+
+    /** Reorder HUD screens. Called by the reorderable list on drop. */
+    fun moveHudScreen(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val effective = current.hudScreensEnabled
+                .split(",")
+                .map { it.trim() }
+                .filter { it in knownHudScreens }
+                .ifEmpty { knownHudScreens }
+                .toMutableList()
+            if (fromIndex in effective.indices && toIndex in effective.indices) {
+                val item = effective.removeAt(fromIndex)
+                effective.add(toIndex, item)
+                settingsRepository.update(
+                    current.copy(hudScreensEnabled = effective.joinToString(","))
+                )
+            }
+        }
+    }
+
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }
     fun updateNavArrivalRadius(v: Int) = update { copy(navArrivalRadiusM = v.coerceIn(5, 100)) }

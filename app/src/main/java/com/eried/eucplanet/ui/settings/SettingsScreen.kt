@@ -3721,11 +3721,162 @@ private fun HudIntegrationSection(
             onCheckedChange = { viewModel.updateHudServerEnabled(it) }
         )
 
-        // Custom HUD overlay picker. Disabled until the rider configures
-        // a backup folder (named presets live there); bundled starters
-        // also need the folder per spec.
-        HudOverlayPicker(settings = settings, viewModel = viewModel)
+        // Personalize card: collapsible block that holds the screen
+        // carousel customiser AND the Custom-overlay picker. Collapsed
+        // by default so the Integration card stays short on first
+        // visit; rider opens it when they want to trim or reorder the
+        // HUD's screens. The reorderable list inside ships its order
+        // to the HUD on every wire frame, so changes are live within
+        // ~200 ms -- no power cycle required.
+        HudPersonalizeCard(settings = settings, viewModel = viewModel)
     }
+}
+
+@Composable
+private fun HudPersonalizeCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    androidx.compose.material3.Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.hud_personalize_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp
+                        else Icons.Default.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+            if (expanded) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        stringResource(R.string.hud_personalize_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    HudScreenList(settings = settings, viewModel = viewModel)
+                    // Custom overlay picker sits at the bottom of the
+                    // personalize block: it's another "customise what
+                    // shows up on the HUD" knob and belongs next to
+                    // the screen list rather than as a separate
+                    // section header.
+                    HudOverlayPicker(settings = settings, viewModel = viewModel)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HudScreenList(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val ctx = LocalContext.current
+    val known = viewModel.knownHudScreens
+    // Resolve the saved order into a UI list. Saved value is comma-
+    // separated stable ids; missing screens are appended at the end as
+    // DISABLED so the rider can see the full set and re-enable them.
+    val saved = settings.hudScreensEnabled.split(",")
+        .map { it.trim() }
+        .filter { it in known }
+    val enabledSet = saved.toSet()
+    val orderedAll = remember(saved) {
+        val effective = if (saved.isEmpty()) known else saved
+        effective + known.filter { it !in effective }
+    }
+    val haptic = LocalHapticFeedback.current
+    val isOnlyOneEnabled = enabledSet.size <= 1
+
+    sh.calvin.reorderable.ReorderableColumn(
+        list = orderedAll,
+        onSettle = { from, to -> viewModel.moveHudScreen(from, to) },
+        onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+        modifier = Modifier.fillMaxWidth()
+    ) { _, id, _ ->
+        key(id) {
+            val checked = id in enabledSet || saved.isEmpty()
+            // Prevent the rider from unchecking the LAST enabled
+            // screen -- they need at least one screen on the carousel
+            // or the HUD has no content to show.
+            val canUncheck = !(isOnlyOneEnabled && checked)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.action_reorder),
+                    modifier = Modifier
+                        .draggableHandle()
+                        .size(28.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = hudScreenDisplayName(ctx, id),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                androidx.compose.material3.Checkbox(
+                    checked = checked,
+                    onCheckedChange = { wantChecked ->
+                        if (wantChecked || canUncheck) {
+                            viewModel.setHudScreenEnabled(id, wantChecked)
+                        }
+                    },
+                    enabled = wantCheckedCanFlip(checked, canUncheck)
+                )
+            }
+        }
+    }
+}
+
+/** Disable the Checkbox visually when it's the last enabled screen AND
+ *  already checked -- prevents the rider from tapping the only screen
+ *  they have off, while letting them tick disabled screens back on. */
+private fun wantCheckedCanFlip(currentlyChecked: Boolean, canUncheck: Boolean): Boolean {
+    if (!currentlyChecked) return true
+    return canUncheck
+}
+
+/** Map stable HUD screen id to its localized display name. Falls back
+ *  to the id itself for unknown ids so a future-shipped HUD that
+ *  reports a brand-new screen still surfaces SOMETHING the rider can
+ *  see and reorder. */
+private fun hudScreenDisplayName(ctx: android.content.Context, id: String): String = when (id) {
+    "Dashboard" -> ctx.getString(R.string.hud_screen_name_dashboard)
+    "Camera" -> ctx.getString(R.string.hud_screen_name_camera)
+    "Telemetry" -> ctx.getString(R.string.hud_screen_name_telemetry)
+    "Custom" -> ctx.getString(R.string.hud_screen_name_custom)
+    "CustomCam" -> ctx.getString(R.string.hud_screen_name_custom_cam)
+    "Map" -> ctx.getString(R.string.hud_screen_name_map)
+    "Nav" -> ctx.getString(R.string.hud_screen_name_nav)
+    else -> id
 }
 
 @Composable

@@ -17,6 +17,8 @@ import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
 import com.eried.eucplanet.hud.ui.HudUiController
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -84,6 +86,16 @@ class HudActivity : ComponentActivity() {
         // Forward connection events into the UI status banner.
         lifecycleScope.launch {
             server.status.collect { controller.updateStatus(it) }
+        }
+
+        // Pick up the rider's customised screen carousel from each
+        // accepted wire frame. distinctUntilChanged so the controller
+        // doesn't churn on the 5 Hz pump when the list hasn't moved.
+        lifecycleScope.launch {
+            server.state
+                .map { it.enabledHudScreens }
+                .distinctUntilChanged()
+                .collect { controller.applyEnabledScreens(it) }
         }
 
         setContent {

@@ -439,6 +439,10 @@ class HudServer @Inject constructor(
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,
+            enabledHudScreens = s.hudScreensEnabled
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() },
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

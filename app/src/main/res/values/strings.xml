@@ -123,6 +123,17 @@
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
+    <!-- HUD Personalize collapsible card -->
+    <string name="hud_personalize_title">Personalize</string>
+    <string name="hud_personalize_desc">Pick which screens the HUD shows and the order they cycle through. At least one screen must stay enabled.</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
+    <string name="hud_screen_name_camera">Rear camera</string>
+    <string name="hud_screen_name_telemetry">Telemetry</string>
+    <string name="hud_screen_name_custom">Custom overlay</string>
+    <string name="hud_screen_name_custom_cam">Custom + camera</string>
+    <string name="hud_screen_name_map">Map</string>
+    <string name="hud_screen_name_nav">Navigator</string>
+
     <!--
         HUD companion install hint + protocol version mismatch.
         Severity carried in WORDS as well as colour:
