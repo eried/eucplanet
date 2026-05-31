@@ -246,6 +246,14 @@ jobs:
           curl -fL --retry 3 -o /tmp/ciq/bundle.zip "$GARMIN_SDK_BUNDLE_URL"
           unzip -q /tmp/ciq/bundle.zip -d /tmp/ciq
           test -x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc || chmod +x /tmp/ciq/ciq-bundle/sdk/bin/monkeyc /tmp/ciq/ciq-bundle/sdk/bin/monkeydo
+          # monkeyc hard-codes ~/.Garmin/ConnectIQ/Devices as the device-
+          # profile root — it doesn't honour GARMIN_DEVICE_DIR or any
+          # equivalent flag. Symlink the bundled devices into the expected
+          # location so monkeyc finds every manifest entry, otherwise it
+          # errors with "Device ids ... not recognized" for everything in
+          # garmin-watch-app/manifest.xml.
+          mkdir -p "$HOME/.Garmin/ConnectIQ"
+          ln -sfn /tmp/ciq/ciq-bundle/devices "$HOME/.Garmin/ConnectIQ/Devices"
 
       - name: Generate one-off developer key
         if: steps.precheck.outputs.skip == 'false'
