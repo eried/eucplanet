@@ -7,29 +7,35 @@
 <meta name="description" content="HUD companion app for Motoeye E6 and other Android-based head-up displays. Streams live EUC telemetry from the phone over local WiFi.">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <style>
+  html, body { margin: 0; padding: 0; }
   body {
-    margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #0d1117;
     color: #e6edf3;
-    line-height: 1.6;
-    min-height: 100vh;
-    padding: 48px 24px;
+    line-height: 1.55;
+    padding: 24px 20px 40px;
   }
-  .container { max-width: 640px; margin: 0 auto; }
-  header { text-align: center; margin-bottom: 32px; }
-  .icon { width: 120px; height: 120px; display: block; margin: 0 auto 20px; }
-  h1 { font-size: 36px; margin: 0 0 8px; font-weight: 700; letter-spacing: -0.5px; }
+  .container { max-width: 600px; margin: 0 auto; }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #58a6ff;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .back:hover { text-decoration: underline; }
+  header { text-align: center; margin-bottom: 24px; }
+  .icon { width: 96px; height: 96px; display: block; margin: 0 auto 16px; }
+  h1 { font-size: 32px; margin: 0 0 6px; font-weight: 700; letter-spacing: -0.5px; }
   h1 a { color: inherit; text-decoration: none; }
-  h1 a:hover { color: #58a6ff; }
-  .tagline { color: #8b949e; font-size: 17px; margin: 0 0 24px; }
+  .tagline { color: #8b949e; font-size: 16px; margin: 0 0 18px; }
   a.btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-width: 220px;
-    height: 44px;
+    height: 42px;
     padding: 0 18px;
     background: #238636;
     color: #fff;
@@ -39,8 +45,8 @@
     font-size: 15px;
   }
   a.btn:hover { background: #2ea043; }
-  section { margin-top: 28px; }
-  h2 { font-size: 18px; margin: 0 0 10px; font-weight: 600; }
+  section { margin-top: 22px; }
+  h2 { font-size: 17px; margin: 0 0 8px; font-weight: 600; }
   p, li { color: #c9d1d9; }
   ol { padding-left: 20px; margin: 0; }
   li { margin-bottom: 4px; }
@@ -56,8 +62,8 @@
     text-align: center;
     color: #6e7681;
     font-size: 13px;
-    margin-top: 48px;
-    padding-top: 20px;
+    margin-top: 32px;
+    padding-top: 16px;
     border-top: 1px solid #21262d;
   }
   footer a { color: #58a6ff; text-decoration: none; }
@@ -68,8 +74,9 @@
 
 <div class="container">
 
+<a class="back" href="../">← EUC Planet</a>
+
 <header>
-  <!-- Inferno Ring — same red launcher icon the HUD app ships with -->
   <svg class="icon" viewBox="0 0 108 108" aria-hidden="true">
     <defs>
       <radialGradient id="glow" cx="54" cy="54" r="46" gradientUnits="userSpaceOnUse">
@@ -94,32 +101,30 @@
     <circle cx="54" cy="54" r="20" fill="url(#core)"/>
   </svg>
   <h1><a href="https://eucplanet.ried.no">EUC Planet HUD</a></h1>
-  <p class="tagline">Helmet display for your EUC. Mirrors the phone app in real time over local WiFi.</p>
-  <a class="btn" href="https://github.com/eried/eucplanet/releases/latest">
-    Download latest HUD APK
-  </a>
+  <p class="tagline">A helmet display that mirrors your phone over WiFi.</p>
+  <a class="btn" href="https://github.com/eried/eucplanet/releases/latest">Download HUD APK</a>
 </header>
 
 <section>
   <h2>Install</h2>
   <ol>
-    <li>Sideload <code>hud-&lt;version&gt;.apk</code> onto the HUD device (works on MotoEye E6, generic tablets, spare phones).</li>
-    <li>Install <code>phone-&lt;version&gt;-slim.apk</code> on your phone — or grab it from <a href="https://play.google.com/store/apps/details?id=com.eried.eucplanet" style="color:#58a6ff">Google Play</a>.</li>
+    <li>Sideload <code>hud-&lt;version&gt;.apk</code> on the HUD device. Works on MotoEye E6, generic tablets, spare phones.</li>
+    <li>Install <code>phone-&lt;version&gt;-slim.apk</code> on your phone, or get it from <a href="https://play.google.com/store/apps/details?id=com.eried.eucplanet" style="color:#58a6ff">Google Play</a>.</li>
   </ol>
 </section>
 
 <section>
   <h2>Pair</h2>
   <ol>
-    <li>Phone hotspot on. Connect the HUD to it.</li>
-    <li>Launch the HUD app. It shows its IP on the splash screen.</li>
-    <li>On the phone: <em>Settings → HUD</em> → enter that IP → toggle the link on.</li>
+    <li>Turn on the phone's hotspot. Connect the HUD to it.</li>
+    <li>Launch the HUD app. It shows its IP on the splash.</li>
+    <li>On the phone, open <em>Settings → HUD</em>, enter that IP, toggle the link on.</li>
   </ol>
-  <p>Telemetry starts flowing within a second. Keep the phone and HUD APK versions matched — same release on both sides.</p>
+  <p>Telemetry starts within a second. Use matching versions on both sides.</p>
 </section>
 
 <footer>
-  Source: <a href="https://github.com/eried/eucplanet">github.com/eried/eucplanet</a> · <a href="https://github.com/eried/eucplanet/tree/main/hud-protocol">Protocol</a> · <a href="https://eucplanet.ried.no">eucplanet.ried.no</a>
+  <a href="https://github.com/eried/eucplanet">GitHub</a> · <a href="https://github.com/eried/eucplanet/tree/main/hud-protocol">Protocol</a> · <a href="../">eucplanet.ried.no</a>
 </footer>
 
 </div>
