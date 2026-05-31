@@ -123,13 +123,22 @@
     <string name="hud_custom_overlay_none">Clear</string>
     <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
 
-    <!-- HUD companion install hint + protocol version mismatch -->
+    <!--
+        HUD companion install hint + protocol version mismatch.
+        Severity carried in WORDS as well as colour:
+            "available" = soft hint (info-styled, surfaceVariant), link
+                          still works, rider can ignore for now.
+            "required"  = blocking (errorContainer, red), HUD has stopped
+                          accepting wire frames and the dashboard there
+                          is frozen until updated.
+        Each variant names which side the rider must update on.
+    -->
     <string name="hud_install_hint">Need the HUD app? Get it at <b>eucplanet.ried.no/hud</b></string>
     <string name="hud_update_url">eucplanet.ried.no/hud</string>
-    <string name="hud_version_hint_hud_behind">The HUD is on an older protocol. Newer phone features won\'t show until the HUD app is updated from <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_hint_phone_behind">The HUD is on a newer protocol. Some HUD features won\'t show until the phone app is updated from <b>eucplanet.ried.no/hud</b></string>
-    <string name="hud_version_block_hud_behind">HUD app is too old for this phone app. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
-    <string name="hud_version_block_phone_behind">Phone app is too old for this HUD app. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+    <string name="hud_version_hint_hud_behind">HUD update available. Newer phone features won\'t show until you update the HUD from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Phone update available. Some HUD features won\'t show until you update this phone app from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">HUD update required. The HUD app is too old to talk to this phone. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+    <string name="hud_version_block_phone_behind">Phone update required. This phone app is too old to talk to the HUD. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
 
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
