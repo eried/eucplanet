@@ -1292,4 +1292,9 @@
     <string name="alarm_metric_radar_distance">Distance voiture</string>
     <string name="alarm_metric_radar_approach">Voiture approche</string>
 
+    <string name="warnings_indicator_desc">Alertes de l\'app</string>
+    <string name="warnings_dialog_title">Action requise</string>
+    <string name="warnings_fix_button">Corriger</string>
+    <string name="warnings_perm_notifications_title">Notifications désactivées</string>
+    <string name="warnings_perm_notifications_body">Tu ne verras pas le statut du trajet dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications</string>
 </resources>

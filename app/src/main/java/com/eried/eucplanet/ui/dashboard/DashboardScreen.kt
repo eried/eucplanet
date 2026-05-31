@@ -64,6 +64,7 @@ import androidx.compose.material.icons.automirrored.filled.BluetoothSearching
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.FiberManualRecord
 import androidx.compose.material.icons.filled.FlashlightOn
 import androidx.compose.material.icons.filled.GpsFixed
@@ -287,6 +288,7 @@ fun DashboardScreen(
     var showStudioMenu by remember { mutableStateOf(false) }
     var showGpsMenu by remember { mutableStateOf(false) }
     var showRestoreConfirmDialog by remember { mutableStateOf(false) }
+    var showWarningsDialog by remember { mutableStateOf(false) }
     val hasSyncFolder by viewModel.hasSyncFolder.collectAsState()
     val activity = LocalContext.current as? Activity
     val toastContext = LocalContext.current
@@ -353,6 +355,58 @@ fun DashboardScreen(
                     onNavigateToRecording()
                 }) {
                     Text(stringResource(R.string.no_trips_action_recorder))
+                }
+            }
+        )
+    }
+
+    if (showWarningsDialog) {
+        val warnings by viewModel.warnings.collectAsState()
+        // Auto-dismiss when the rider has fixed every issue (e.g. they
+        // granted the missing permission via Settings and came back).
+        if (warnings.isEmpty()) {
+            LaunchedEffect(Unit) { showWarningsDialog = false }
+        }
+        AlertDialog(
+            onDismissRequest = { showWarningsDialog = false },
+            title = { Text(stringResource(R.string.warnings_dialog_title)) },
+            text = {
+                androidx.compose.foundation.layout.Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    warnings.forEach { w ->
+                        androidx.compose.material3.Card(
+                            colors = androidx.compose.material3.CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            androidx.compose.foundation.layout.Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    stringResource(w.titleRes),
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                Text(
+                                    stringResource(w.bodyRes),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                androidx.compose.material3.TextButton(
+                                    onClick = w.fix,
+                                    modifier = Modifier.align(Alignment.End)
+                                ) {
+                                    Text(stringResource(R.string.warnings_fix_button))
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showWarningsDialog = false }) {
+                    Text(stringResource(R.string.action_ok))
                 }
             }
         )
@@ -478,6 +532,29 @@ fun DashboardScreen(
                     }
                 },
                 actions = {
+                    val warnings by viewModel.warnings.collectAsState()
+                    if (warnings.isNotEmpty()) {
+                        IconButton(onClick = { showWarningsDialog = true }) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Filled.WarningAmber,
+                                    contentDescription = stringResource(R.string.warnings_indicator_desc),
+                                    tint = androidx.compose.ui.graphics.Color(0xFFFFB300)
+                                )
+                                if (warnings.size > 1) {
+                                    Text(
+                                        text = warnings.size.toString(),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .padding(top = 2.dp, end = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                     if (flicShowOnDashboard) {
                         FlicIndicator(
                             hasFlic = hasFlic,

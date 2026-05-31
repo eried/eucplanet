@@ -1329,4 +1329,9 @@
     <string name="alarm_metric_radar_distance">Odległość samochodu</string>
     <string name="alarm_metric_radar_approach">Zbliżający się samochód</string>
 
+    <string name="warnings_indicator_desc">Ostrzeżenia aplikacji</string>
+    <string name="warnings_dialog_title">Wymaga uwagi</string>
+    <string name="warnings_fix_button">Napraw</string>
+    <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
+    <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień</string>
 </resources>

@@ -1344,4 +1344,9 @@
     <string name="alarm_metric_radar_distance">Расстояние до машины</string>
     <string name="alarm_metric_radar_approach">Машина приближается</string>
 
+    <string name="warnings_indicator_desc">Предупреждения приложения</string>
+    <string name="warnings_dialog_title">Требует внимания</string>
+    <string name="warnings_fix_button">Исправить</string>
+    <string name="warnings_perm_notifications_title">Уведомления выключены</string>
+    <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
 </resources>

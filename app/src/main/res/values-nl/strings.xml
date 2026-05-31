@@ -1328,4 +1328,9 @@
     <string name="alarm_metric_radar_distance">Afstand auto</string>
     <string name="alarm_metric_radar_approach">Auto nadert</string>
 
+    <string name="warnings_indicator_desc">App-waarschuwingen</string>
+    <string name="warnings_dialog_title">Vereist aandacht</string>
+    <string name="warnings_fix_button">Oplossen</string>
+    <string name="warnings_perm_notifications_title">Meldingen uit</string>
+    <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel</string>
 </resources>

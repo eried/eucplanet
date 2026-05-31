@@ -1292,4 +1292,9 @@
     <string name="alarm_metric_radar_distance">车辆距离</string>
     <string name="alarm_metric_radar_approach">车辆接近</string>
 
+    <string name="warnings_indicator_desc">应用提示</string>
+    <string name="warnings_dialog_title">需要注意</string>
+    <string name="warnings_fix_button">修复</string>
+    <string name="warnings_perm_notifications_title">通知已关闭</string>
+    <string name="warnings_perm_notifications_body">状态栏将不显示骑行状态，通知栏也收不到语音提示</string>
 </resources>

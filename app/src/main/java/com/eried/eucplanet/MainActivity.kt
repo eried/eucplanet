@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var wheelRepository: com.eried.eucplanet.data.repository.WheelRepository
     @Inject lateinit var incomingShareRepository:
         com.eried.eucplanet.data.repository.IncomingShareRepository
+    @Inject lateinit var appHealthRepository:
+        com.eried.eucplanet.data.repository.AppHealthRepository
 
     private val settingsFlow: StateFlow<AppSettings?> get() = _settings.asStateFlow()
     private val _settings = MutableStateFlow<AppSettings?>(null)
@@ -87,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         if (s != null && s.voiceEnabled && !s.voiceOnlyWhenConnected && canStartWheelService()) {
             startForegroundService(Intent(this, WheelService::class.java))
         }
+        // Whatever the rider answered (yes or no), refresh the warning list so
+        // the dashboard top-bar indicator reflects the new permission state.
+        appHealthRepository.refreshPermissionWarnings()
     }
 
     /** True if either fine or coarse location is granted. */
@@ -119,6 +124,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         wearBridge.pingWatchToWake()
         garminBridge.pingWatchToWake()
+        // Catch permission flips done in Settings while the app was in the
+        // background — the warning indicator auto-clears when the rider
+        // returns having granted what was missing.
+        appHealthRepository.refreshPermissionWarnings()
     }
 
     /**

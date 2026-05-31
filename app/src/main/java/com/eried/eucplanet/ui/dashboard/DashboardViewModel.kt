@@ -56,8 +56,15 @@ class DashboardViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    /** Live list of user-actionable warnings (e.g. denied notification
+     *  permission). The dashboard top-bar shows a warning icon when this is
+     *  non-empty and the dialog renders each entry as a Fix-able card. */
+    val warnings: StateFlow<List<com.eried.eucplanet.data.repository.AppWarning>> =
+        appHealthRepository.warnings
 
     companion object {
         private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec

@@ -1407,4 +1407,9 @@
     <string name="studio_overwrite_title">Overwrite preset?</string>
     <string name="studio_overwrite_body">A preset named \"%1$s\" already exists.</string>
     <string name="studio_overwrite_confirm">Overwrite</string>
+    <string name="warnings_indicator_desc">App warnings</string>
+    <string name="warnings_dialog_title">Needs attention</string>
+    <string name="warnings_fix_button">Fix</string>
+    <string name="warnings_perm_notifications_title">Notifications off</string>
+    <string name="warnings_perm_notifications_body">You won\'t see ride status in the status bar or get voice alerts on the notification shade</string>
 </resources>

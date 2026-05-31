@@ -1329,4 +1329,9 @@
     <string name="alarm_metric_radar_distance">Відстань до авто</string>
     <string name="alarm_metric_radar_approach">Авто наближається</string>
 
+    <string name="warnings_indicator_desc">Попередження застосунку</string>
+    <string name="warnings_dialog_title">Потрібна увага</string>
+    <string name="warnings_fix_button">Виправити</string>
+    <string name="warnings_perm_notifications_title">Сповіщення вимкнено</string>
+    <string name="warnings_perm_notifications_body">Статус поїздки не з\'явиться в рядку стану, голосові сповіщення не з\'являться в шторці</string>
 </resources>

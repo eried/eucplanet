@@ -1292,4 +1292,9 @@
     <string name="alarm_metric_radar_distance">Bilavstånd</string>
     <string name="alarm_metric_radar_approach">Bil närmar sig</string>
 
+    <string name="warnings_indicator_desc">App-varningar</string>
+    <string name="warnings_dialog_title">Kräver uppmärksamhet</string>
+    <string name="warnings_fix_button">Åtgärda</string>
+    <string name="warnings_perm_notifications_title">Aviseringar av</string>
+    <string name="warnings_perm_notifications_body">Du ser inte resestatus i statusfältet och får inga talvarningar i aviseringspanelen</string>
 </resources>

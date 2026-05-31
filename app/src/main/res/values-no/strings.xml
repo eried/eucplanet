@@ -1309,4 +1309,9 @@
     <string name="alarm_metric_radar_distance">Bilavstand</string>
     <string name="alarm_metric_radar_approach">Bil nærmer seg</string>
 
+    <string name="warnings_indicator_desc">App-advarsler</string>
+    <string name="warnings_dialog_title">Krever oppmerksomhet</string>
+    <string name="warnings_fix_button">Fiks</string>
+    <string name="warnings_perm_notifications_title">Varsler av</string>
+    <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i varslingsfeltet</string>
 </resources>

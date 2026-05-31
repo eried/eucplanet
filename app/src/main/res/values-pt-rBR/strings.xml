@@ -1328,4 +1328,9 @@
     <string name="alarm_metric_radar_distance">Distância do carro</string>
     <string name="alarm_metric_radar_approach">Carro se aproximando</string>
 
+    <string name="warnings_indicator_desc">Avisos do app</string>
+    <string name="warnings_dialog_title">Precisa de atenção</string>
+    <string name="warnings_fix_button">Corrigir</string>
+    <string name="warnings_perm_notifications_title">Notificações desativadas</string>
+    <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá avisos por voz nas notificações</string>
 </resources>

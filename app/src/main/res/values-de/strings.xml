@@ -1309,4 +1309,9 @@
     <string name="alarm_metric_radar_distance">Fahrzeugabstand</string>
     <string name="alarm_metric_radar_approach">Fahrzeug nähert sich</string>
 
+    <string name="warnings_indicator_desc">App-Warnungen</string>
+    <string name="warnings_dialog_title">Aktion erforderlich</string>
+    <string name="warnings_fix_button">Beheben</string>
+    <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
+    <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf</string>
 </resources>
