@@ -7578,8 +7578,21 @@ private fun WatchButtonsCollapsable(
     content: @Composable () -> Unit
 ) {
     var expanded by rememberSaveable(title) { mutableStateOf(false) }
+    // Same smart-scroll behaviour as BringIntoViewSection / the top-level
+    // CollapsibleSection: when the rider opens the card, after a short
+    // settle delay scroll the card into view so the freshly-revealed
+    // controls aren't off-screen below the fold.
+    val requester = remember { BringIntoViewRequester() }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            kotlinx.coroutines.delay(120)
+            runCatching { requester.bringIntoView() }
+        }
+    }
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(requester),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -7620,58 +7633,20 @@ private fun WatchButtonsCollapsable(
 }
 
 /**
- * Collapsible Garmin-limitations card, modelled on [CloudHelpCard]: title
- * + chevron, expands to show the two real limitations of the Connect IQ
- * companion (no auto-launch, slower telemetry). Collapsed by default so
- * it doesn't dominate the Watch tab; the rider can pop it open when they
- * wonder why their Garmin behaves differently from their Wear OS.
+ * Flat Garmin-limitations panel — two MetricInfoBoxes shown directly when a
+ * Garmin is paired. Previously this was a collapsible card with a
+ * "Garmin limitations" title, but the limitations are short and important
+ * enough that hiding them behind a tap was unhelpful — riders now see
+ * them as soon as the Garmin appears in the device list.
  */
 @Composable
 private fun GarminLimitationsCard() {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Card(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
-                )
-                Text(
-                    stringResource(R.string.watch_paired_garmin_limits_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null
-                )
-            }
-            if (expanded) {
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .padding(bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_launch))
-                    MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_rate))
-                }
-            }
-        }
+        MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_launch))
+        MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_rate))
     }
 }
 

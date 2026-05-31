@@ -336,7 +336,7 @@
     <string name="watch_button_click_label">Click</string>
     <string name="watch_button_hold_label">Long press</string>
     <string name="section_watch_hardware_buttons">Hardware buttons</string>
-    <string name="watch_buttons_hardware_info">Available actions depend on what your watch can do. Some hold gestures get intercepted by the system on certain manufacturers</string>
+    <string name="watch_buttons_hardware_info">Holds may be intercepted by the system on some watches</string>
     <string name="watch_buttons_touch_info">Depends on what your watch supports</string>
     <string name="watch_buttons_hardware_label">Physical</string>
     <string name="watch_buttons_touch_label">Touch</string>
@@ -355,7 +355,7 @@
     <string name="watch_screen_button_1">Button 1</string>
     <string name="watch_screen_button_2">Button 2</string>
     <string name="watch_haptic_on_action">Vibrate on action</string>
-    <string name="watch_haptic_on_action_desc">Brief watch vibration whenever a button-bound action fires</string>
+    <string name="watch_haptic_on_action_desc">Brief watch vibration on each press, where supported</string>
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>

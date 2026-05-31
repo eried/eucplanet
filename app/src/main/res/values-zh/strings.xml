@@ -534,7 +534,7 @@
     <string name="watch_screen_button_1">按钮 1</string>
     <string name="watch_screen_button_2">按钮 2</string>
     <string name="watch_haptic_on_action">动作时震动</string>
-    <string name="watch_haptic_on_action_desc">每次触发按钮动作时，手表会有一次短促震动。</string>
+    <string name="watch_haptic_on_action_desc">每次按下时短促振动（若手表支持）</string>
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">引擎声</string>
@@ -1257,7 +1257,7 @@
     <string name="watch_paired_garmin_limit_rate">遥测数据的刷新速度比 Wear OS 慢。Connect IQ 移动 SDK 限制了更新速率。</string>
     <string name="watch_paired_garmin_limit_rotation">表盘旋转不可用。Connect IQ 没有用于旋转渲染表盘的原生变换矩阵。</string>
     <string name="section_watch_hardware_buttons">硬件按键</string>
-    <string name="watch_buttons_hardware_info">可用操作取决于你的手表。某些长按手势在某些厂商的设备上会被系统拦截</string>
+    <string name="watch_buttons_hardware_info">某些手表上的长按可能会被系统拦截</string>
     <string name="watch_buttons_touch_info">取决于你的手表</string>
     <string name="watch_buttons_hardware_label">实体</string>
     <string name="watch_buttons_touch_label">触摸</string>

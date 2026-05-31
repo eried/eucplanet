@@ -551,7 +551,7 @@
     <string name="watch_screen_button_1">Knapp 1</string>
     <string name="watch_screen_button_2">Knapp 2</string>
     <string name="watch_haptic_on_action">Vibrer ved handling</string>
-    <string name="watch_haptic_on_action_desc">Kort vibrasjon på klokken hver gang en knappe-handling utløses</string>
+    <string name="watch_haptic_on_action_desc">Kort vibrering ved hvert trykk, hvis støttet</string>
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Motorlyd</string>
@@ -1274,7 +1274,7 @@
     <string name="watch_paired_garmin_limit_rate">Telemetri oppdateres tregere enn på Wear OS. Connect IQ Mobile SDK begrenser oppdateringsraten.</string>
     <string name="watch_paired_garmin_limit_rotation">Rotasjon av urskiven er ikke tilgjengelig. Connect IQ har ingen innebygd transformasjonsmatrise for å rotere den tegnede urskiven.</string>
     <string name="section_watch_hardware_buttons">Fysiske knapper</string>
-    <string name="watch_buttons_hardware_info">Tilgjengelige handlinger avhenger av klokken din. Noen holde-bevegelser fanges av systemet hos enkelte produsenter</string>
+    <string name="watch_buttons_hardware_info">Holding kan fanges av systemet på enkelte klokker</string>
     <string name="watch_buttons_touch_info">Avhenger av klokken din</string>
     <string name="watch_buttons_hardware_label">Fysiske</string>
     <string name="watch_buttons_touch_label">Trykk</string>

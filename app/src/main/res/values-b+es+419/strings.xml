@@ -570,7 +570,7 @@
     <string name="watch_screen_button_1">Botón 1</string>
     <string name="watch_screen_button_2">Botón 2</string>
     <string name="watch_haptic_on_action">Vibrar al activar</string>
-    <string name="watch_haptic_on_action_desc">Vibración breve del reloj cada vez que se dispara una acción de los botones</string>
+    <string name="watch_haptic_on_action_desc">Vibración breve en cada pulsación, si tu reloj lo permite</string>
 
     <!-- Engine sound generator -->
     <string name="section_engine_sound">Sonido de motor</string>
@@ -1293,7 +1293,7 @@
     <string name="watch_paired_garmin_limit_rate">La telemetría se actualiza más lento que en Wear OS. El SDK móvil de Connect IQ limita la frecuencia de actualización.</string>
     <string name="watch_paired_garmin_limit_rotation">La rotación del dial no está disponible. Connect IQ no tiene una matriz de transformación nativa para rotar el dial renderizado.</string>
     <string name="section_watch_hardware_buttons">Botones físicos</string>
-    <string name="watch_buttons_hardware_info">Las acciones disponibles dependen de tu reloj. Algunos gestos de mantener presionado los intercepta el sistema en ciertos fabricantes</string>
+    <string name="watch_buttons_hardware_info">Los gestos de mantener presionado pueden ser interceptados por el sistema en algunos relojes</string>
     <string name="watch_buttons_touch_info">Depende de tu reloj</string>
     <string name="watch_buttons_hardware_label">Físicos</string>
     <string name="watch_buttons_touch_label">Toque</string>
