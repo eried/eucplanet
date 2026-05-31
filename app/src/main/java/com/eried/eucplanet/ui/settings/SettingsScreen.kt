@@ -3796,16 +3796,20 @@ private fun HudScreenList(
 ) {
     val ctx = LocalContext.current
     val known = viewModel.knownHudScreens
+    val defaultEnabled = viewModel.defaultEnabledHudScreens
     // Resolve the saved order into a UI list. Saved value is comma-
-    // separated stable ids; missing screens are appended at the end as
-    // DISABLED so the rider can see the full set and re-enable them.
+    // separated stable ids. When NOTHING is saved (fresh install) we
+    // show the DEFAULT 7 enabled at the top + 5 opt-in screens disabled
+    // below them. When the rider has saved something, we honour their
+    // exact order and append any not-in-list known ids as disabled
+    // below.
     val saved = settings.hudScreensEnabled.split(",")
         .map { it.trim() }
         .filter { it in known }
-    val enabledSet = saved.toSet()
-    val orderedAll = remember(saved) {
-        val effective = if (saved.isEmpty()) known else saved
-        effective + known.filter { it !in effective }
+    val effectiveEnabled = if (saved.isEmpty()) defaultEnabled else saved
+    val enabledSet = effectiveEnabled.toSet()
+    val orderedAll = remember(saved, defaultEnabled, known) {
+        effectiveEnabled + known.filter { it !in enabledSet }
     }
     val haptic = LocalHapticFeedback.current
     val isOnlyOneEnabled = enabledSet.size <= 1
@@ -3817,15 +3821,18 @@ private fun HudScreenList(
         modifier = Modifier.fillMaxWidth()
     ) { _, id, _ ->
         key(id) {
-            val checked = id in enabledSet || saved.isEmpty()
+            val checked = id in enabledSet
             // Prevent the rider from unchecking the LAST enabled
             // screen -- they need at least one screen on the carousel
             // or the HUD has no content to show.
             val canUncheck = !(isOnlyOneEnabled && checked)
+            // Matches the chrome of [ReportRow] used by the voice
+            // periodic-report list at the top of the Voice tab: drag
+            // handle on the left, label in weighted middle, Material3
+            // Switch on the right. No vertical padding -- the
+            // ReorderableColumn handles spacing between rows.
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -3837,12 +3844,16 @@ private fun HudScreenList(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.width(6.dp))
-                Text(
-                    text = hudScreenDisplayName(ctx, id),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                androidx.compose.material3.Checkbox(
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = hudScreenDisplayName(ctx, id),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Switch(
                     checked = checked,
                     onCheckedChange = { wantChecked ->
                         if (wantChecked || canUncheck) {
@@ -3876,6 +3887,11 @@ private fun hudScreenDisplayName(ctx: android.content.Context, id: String): Stri
     "CustomCam" -> ctx.getString(R.string.hud_screen_name_custom_cam)
     "Map" -> ctx.getString(R.string.hud_screen_name_map)
     "Nav" -> ctx.getString(R.string.hud_screen_name_nav)
+    "Power" -> ctx.getString(R.string.hud_screen_name_power)
+    "TripStats" -> ctx.getString(R.string.hud_screen_name_trip_stats)
+    "Compass" -> ctx.getString(R.string.hud_screen_name_compass)
+    "Safety" -> ctx.getString(R.string.hud_screen_name_safety)
+    "BigClock" -> ctx.getString(R.string.hud_screen_name_big_clock)
     else -> id
 }
 

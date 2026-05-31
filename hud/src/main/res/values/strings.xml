@@ -15,6 +15,16 @@
     <string name="hud_screen_map_desc">Your position with direction of travel</string>
     <string name="hud_screen_nav">Navigator</string>
     <string name="hud_screen_nav_desc">Turn-by-turn instructions</string>
+    <string name="hud_screen_power">Watts and range</string>
+    <string name="hud_screen_power_desc">Instant power, 60 s trace, range estimate</string>
+    <string name="hud_screen_trip_stats">Trip stats</string>
+    <string name="hud_screen_trip_stats_desc">Session distance, time, average, max</string>
+    <string name="hud_screen_compass">Compass</string>
+    <string name="hud_screen_compass_desc">Heading rose and GPS speed</string>
+    <string name="hud_screen_safety">Safety</string>
+    <string name="hud_screen_safety_desc">PWM, temperature, voltage sag</string>
+    <string name="hud_screen_big_clock">Big clock</string>
+    <string name="hud_screen_big_clock_desc">Watch face with current speed</string>
     <string name="hud_status_waiting">Waiting for phone companion…</string>
     <string name="hud_status_paired">Paired with %1$s</string>
     <string name="hud_status_press_center_to_pair">Press OK to pair</string>

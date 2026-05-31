@@ -367,27 +367,29 @@ class SettingsViewModel @Inject constructor(
         copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
     }
 
-    /** Stable identifiers for the HUD's seven screens, mirroring the
-     *  HudUiController.Screen enum on the HUD side. Order is the default
-     *  display order. */
-    val knownHudScreens: List<String> = listOf(
+    /** Screens that are ON by default on a fresh install. Order is the
+     *  default carousel order. Anything in [knownHudScreens] but not in
+     *  this list ships disabled -- the rider opts in via the Personalize
+     *  list in Settings. */
+    val defaultEnabledHudScreens: List<String> = listOf(
         "Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "Map", "Nav"
     )
 
-    /** Current resolved order of HUD screens including any saved
-     *  customisation. Empty saved value falls back to [knownHudScreens]. */
-    private fun resolvedHudScreens(): List<String> {
-        val raw = settings.value?.hudScreensEnabled.orEmpty()
-        if (raw.isBlank()) return knownHudScreens
-        return raw.split(",")
-            .map { it.trim() }
-            .filter { it in knownHudScreens }
-            .ifEmpty { knownHudScreens }
-    }
+    /** Stable identifiers for every HUD screen the app knows about,
+     *  mirroring the HudUiController.Screen enum on the HUD side. Order
+     *  determines where new screens appear in the Personalize list. The
+     *  newer "opt-in" screens (Power onward) ship disabled so the rider
+     *  doesn't get a fresh suite of unfamiliar screens dropped on the
+     *  carousel without asking. */
+    val knownHudScreens: List<String> = defaultEnabledHudScreens + listOf(
+        "Power", "TripStats", "Compass", "Safety", "BigClock"
+    )
 
     /** Toggle whether a HUD screen is enabled. Enforces a minimum of one
-     *  enabled screen so the rider can't disable the whole carousel and
-     *  end up with a HUD that has no content to show. */
+     *  enabled screen so the rider can't disable the whole carousel.
+     *  When no customisation has been saved yet, the baseline used to
+     *  add/remove from is the DEFAULT enabled set (not the full known
+     *  set), so opt-in screens stay off until the rider asks for them. */
     fun setHudScreenEnabled(id: String, enabled: Boolean) {
         viewModelScope.launch {
             val current = settingsRepository.get()
@@ -395,12 +397,7 @@ class SettingsViewModel @Inject constructor(
             val saved = savedRaw.split(",")
                 .map { it.trim() }
                 .filter { it in knownHudScreens }
-            // The "effective" list = saved order (with known-only filter)
-            // OR if empty, the default order. We re-materialise both as
-            // the full default order whenever the saved list is empty so
-            // the rider sees the default order in the UI even before
-            // they've reordered.
-            val effective = if (saved.isEmpty()) knownHudScreens else saved
+            val effective = if (saved.isEmpty()) defaultEnabledHudScreens else saved
             val updated = if (enabled) {
                 if (id in effective) effective
                 else effective + id
@@ -414,21 +411,30 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /** Reorder HUD screens. Called by the reorderable list on drop. */
+    /** Reorder HUD screens. Called by the reorderable list on drop.
+     *  The from/to indices refer to the FULL displayed list (enabled +
+     *  disabled-after) so dragging a disabled row into the enabled
+     *  block enables it implicitly. */
     fun moveHudScreen(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
             val current = settingsRepository.get()
-            val effective = current.hudScreensEnabled
+            val saved = current.hudScreensEnabled
                 .split(",")
                 .map { it.trim() }
                 .filter { it in knownHudScreens }
-                .ifEmpty { knownHudScreens }
-                .toMutableList()
-            if (fromIndex in effective.indices && toIndex in effective.indices) {
-                val item = effective.removeAt(fromIndex)
-                effective.add(toIndex, item)
+            // The effective ENABLED list is what we move within. Disabled
+            // screens (anything in knownHudScreens but not in this list)
+            // are appended below the drop targets in the UI -- the rider
+            // can still drag them but the drag should be a no-op until
+            // they enable them via the Switch. So we ignore reorder
+            // attempts that involve disabled rows.
+            val baseline = if (saved.isEmpty()) defaultEnabledHudScreens else saved
+            val mutable = baseline.toMutableList()
+            if (fromIndex in mutable.indices && toIndex in mutable.indices) {
+                val item = mutable.removeAt(fromIndex)
+                mutable.add(toIndex, item)
                 settingsRepository.update(
-                    current.copy(hudScreensEnabled = effective.joinToString(","))
+                    current.copy(hudScreensEnabled = mutable.joinToString(","))
                 )
             }
         }

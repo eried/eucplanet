@@ -63,7 +63,12 @@ import com.eried.eucplanet.hud.ui.screens.CameraScreen
 import com.eried.eucplanet.hud.ui.screens.CustomOverlayScreen
 import com.eried.eucplanet.hud.ui.screens.DashboardScreen
 import com.eried.eucplanet.hud.ui.screens.MapScreen
+import com.eried.eucplanet.hud.ui.screens.BigClockScreen
+import com.eried.eucplanet.hud.ui.screens.CompassScreen
 import com.eried.eucplanet.hud.ui.screens.NavScreen
+import com.eried.eucplanet.hud.ui.screens.PowerScreen
+import com.eried.eucplanet.hud.ui.screens.SafetyScreen
+import com.eried.eucplanet.hud.ui.screens.TripStatsScreen
 import com.eried.eucplanet.hud.ui.screens.TelemetryScreen
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.math.min
@@ -133,6 +138,16 @@ fun HudApp(
                         MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
                     HudUiController.Screen.Nav ->
                         NavScreen(hud = hud)
+                    HudUiController.Screen.Power ->
+                        PowerScreen(hud = hud)
+                    HudUiController.Screen.TripStats ->
+                        TripStatsScreen(hud = hud)
+                    HudUiController.Screen.Compass ->
+                        CompassScreen(hud = hud)
+                    HudUiController.Screen.Safety ->
+                        SafetyScreen(hud = hud)
+                    HudUiController.Screen.BigClock ->
+                        BigClockScreen(hud = hud)
                 }
 
                 // Brief toast when the rider switches screens, top-left,
@@ -334,6 +349,16 @@ private fun ScreenChangeToast(
                 R.string.hud_screen_map to R.string.hud_screen_map_desc
             HudUiController.Screen.Nav ->
                 R.string.hud_screen_nav to R.string.hud_screen_nav_desc
+            HudUiController.Screen.Power ->
+                R.string.hud_screen_power to R.string.hud_screen_power_desc
+            HudUiController.Screen.TripStats ->
+                R.string.hud_screen_trip_stats to R.string.hud_screen_trip_stats_desc
+            HudUiController.Screen.Compass ->
+                R.string.hud_screen_compass to R.string.hud_screen_compass_desc
+            HudUiController.Screen.Safety ->
+                R.string.hud_screen_safety to R.string.hud_screen_safety_desc
+            HudUiController.Screen.BigClock ->
+                R.string.hud_screen_big_clock to R.string.hud_screen_big_clock_desc
         }
         // Same chrome as DisconnectedBadge: 8.dp rounded corners, 0xE6111111
         // fill, 0xFF6B6B6B 1.dp border, same horizontal/vertical padding.

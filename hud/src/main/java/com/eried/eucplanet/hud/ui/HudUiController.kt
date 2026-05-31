@@ -20,11 +20,20 @@ import com.eried.eucplanet.hud.protocol.HudCommand
  */
 class HudUiController {
 
-    /** Stable identity of the screens, in default display order. */
-    enum class Screen { Dashboard, Camera, Telemetry, Custom, CustomCam, Map, Nav }
+    /** Stable identity of the screens. The first seven are the
+     *  "default" carousel that ships enabled on every HUD; the rest
+     *  are opt-in via the phone-side Personalize list. */
+    enum class Screen {
+        // Default-on
+        Dashboard, Camera, Telemetry, Custom, CustomCam, Map, Nav,
+        // Opt-in (default OFF, rider enables on the phone)
+        Power, TripStats, Compass, Safety, BigClock
+    }
 
     /** Default order, used when the rider hasn't customised the carousel
-     *  on the phone side. */
+     *  on the phone side. NOTE: this is intentionally the first seven
+     *  Screen enum values -- the additional opt-in screens stay hidden
+     *  until the rider toggles them on in Settings. */
     private val defaultScreens: List<Screen> = listOf(
         Screen.Dashboard, Screen.Camera, Screen.Telemetry,
         Screen.Custom, Screen.CustomCam, Screen.Map, Screen.Nav

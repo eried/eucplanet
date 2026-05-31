@@ -133,6 +133,11 @@
     <string name="hud_screen_name_custom_cam">Custom + camera</string>
     <string name="hud_screen_name_map">Map</string>
     <string name="hud_screen_name_nav">Navigator</string>
+    <string name="hud_screen_name_power">Watts and range</string>
+    <string name="hud_screen_name_trip_stats">Trip stats</string>
+    <string name="hud_screen_name_compass">Compass</string>
+    <string name="hud_screen_name_safety">Safety</string>
+    <string name="hud_screen_name_big_clock">Big clock</string>
 
     <!--
         HUD companion install hint + protocol version mismatch.
