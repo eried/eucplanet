@@ -1290,8 +1290,8 @@
     <string name="watch_paired_idle">Nieaktywny</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Ograniczenia Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Otwórz aplikację na zegarku ręcznie na początku każdej jazdy. Garmin nie pozwala aplikacjom z telefonu automatycznie uruchamiać aplikacji towarzyszącej.</string>
-    <string name="watch_paired_garmin_limit_rate">Telemetria odświeża się wolniej niż w Wear OS. SDK Connect IQ Mobile ogranicza częstotliwość aktualizacji.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin nie uruchamia automatycznie aplikacji zegarka</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin odświeża wolniej niż Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Obrót tarczy nie jest dostępny. Connect IQ nie ma natywnej macierzy transformacji do obracania renderowanej tarczy.</string>
     <string name="section_watch_hardware_buttons">Przyciski sprzętowe</string>
     <string name="watch_buttons_hardware_info">Przytrzymania mogą być przejmowane przez system na niektórych zegarkach</string>

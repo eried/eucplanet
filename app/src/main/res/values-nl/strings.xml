@@ -1289,8 +1289,8 @@
     <string name="watch_paired_idle">Inactief</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Garmin-beperkingen</string>
-    <string name="watch_paired_garmin_limit_launch">Open de horloge-app handmatig aan het begin van elke rit. Garmin staat telefoon-apps niet toe om de begeleidingsapp automatisch te starten.</string>
-    <string name="watch_paired_garmin_limit_rate">Telemetrie wordt langzamer ververst dan op Wear OS. De Connect IQ Mobile SDK beperkt de updatefrequentie.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin start de horloge-app niet automatisch</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin ververst langzamer dan Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Rotatie van de wijzerplaat is niet beschikbaar. Connect IQ heeft geen native transformatiematrix om de wijzerplaat te draaien.</string>
     <string name="section_watch_hardware_buttons">Hardware-knoppen</string>
     <string name="watch_buttons_hardware_info">Lang indrukken kan door het systeem worden onderschept op sommige horloges</string>

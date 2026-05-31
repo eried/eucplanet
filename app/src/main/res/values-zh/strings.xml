@@ -1253,8 +1253,8 @@
     <string name="watch_paired_idle">空闲</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Garmin 限制</string>
-    <string name="watch_paired_garmin_limit_launch">每次骑行开始时手动打开手表应用。Garmin 不允许手机应用自动启动配套应用。</string>
-    <string name="watch_paired_garmin_limit_rate">遥测数据的刷新速度比 Wear OS 慢。Connect IQ 移动 SDK 限制了更新速率。</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin 不会自动启动手表应用</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin 刷新比 Wear OS 慢</string>
     <string name="watch_paired_garmin_limit_rotation">表盘旋转不可用。Connect IQ 没有用于旋转渲染表盘的原生变换矩阵。</string>
     <string name="section_watch_hardware_buttons">硬件按键</string>
     <string name="watch_buttons_hardware_info">某些手表上的长按可能会被系统拦截</string>

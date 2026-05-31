@@ -1305,8 +1305,8 @@
     <string name="watch_paired_idle">Бездействует</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Ограничения Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Открывайте приложение на часах вручную в начале каждой поездки. Garmin не позволяет телефонным приложениям автоматически запускать приложение-компаньон.</string>
-    <string name="watch_paired_garmin_limit_rate">Телеметрия обновляется медленнее, чем на Wear OS. SDK Connect IQ Mobile ограничивает частоту обновления.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin не запускает приложение на часах автоматически</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin обновляет медленнее, чем Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Поворот циферблата недоступен. Connect IQ не имеет встроенной матрицы преобразования для поворота отрисованного циферблата.</string>
     <string name="section_watch_hardware_buttons">Физические кнопки</string>
     <string name="watch_buttons_hardware_info">Удержания могут перехватываться системой на некоторых часах</string>

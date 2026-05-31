@@ -1289,8 +1289,8 @@
     <string name="watch_paired_idle">Inattivo</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Limitazioni Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Apri manualmente l\'app dell\'orologio all\'inizio di ogni viaggio. Garmin non consente alle app del telefono di avviare automaticamente l\'app companion.</string>
-    <string name="watch_paired_garmin_limit_rate">La telemetria si aggiorna più lentamente rispetto a Wear OS. Il SDK Mobile di Connect IQ limita la frequenza di aggiornamento.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin non avvia automaticamente l\'app dell\'orologio</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin si aggiorna più lentamente di Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">La rotazione del quadrante non è disponibile. Connect IQ non ha una matrice di trasformazione nativa per ruotare il quadrante renderizzato.</string>
     <string name="section_watch_hardware_buttons">Pulsanti hardware</string>
     <string name="watch_buttons_hardware_info">I gesti di pressione prolungata possono essere intercettati dal sistema su alcuni orologi</string>

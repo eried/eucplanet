@@ -301,8 +301,8 @@
     <string name="watch_paired_idle">Idle</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Garmin limitations</string>
-    <string name="watch_paired_garmin_limit_launch">Open the watch app manually at the start of each ride. Garmin doesn\'t allow phone apps to auto-launch the companion.</string>
-    <string name="watch_paired_garmin_limit_rate">Telemetry refreshes slower than on Wear OS. The Connect IQ Mobile SDK caps the update rate.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin doesn\'t auto-launch the watch app</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin refreshes slower than Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Dial rotation isn\'t available. Connect IQ has no native transform matrix for rotating the rendered dial.</string>
 
     <string name="section_watch_general">General</string>

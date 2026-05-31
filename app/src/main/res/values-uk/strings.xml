@@ -1290,8 +1290,8 @@
     <string name="watch_paired_idle">Не активно</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Обмеження Garmin</string>
-    <string name="watch_paired_garmin_limit_launch">Відкривайте застосунок на годиннику вручну на початку кожної поїздки. Garmin не дозволяє застосункам з телефону автоматично запускати супутній застосунок.</string>
-    <string name="watch_paired_garmin_limit_rate">Телеметрія оновлюється повільніше, ніж на Wear OS. SDK Connect IQ Mobile обмежує частоту оновлення.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin не запускає застосунок на годиннику автоматично</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin оновлює повільніше, ніж Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Обертання циферблату недоступне. Connect IQ не має вбудованої матриці перетворення для обертання намальованого циферблату.</string>
     <string name="section_watch_hardware_buttons">Фізичні кнопки</string>
     <string name="watch_buttons_hardware_info">Утримання можуть перехоплюватися системою на деяких годинниках</string>

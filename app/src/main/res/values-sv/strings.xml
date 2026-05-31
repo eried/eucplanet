@@ -1253,8 +1253,8 @@
     <string name="watch_paired_idle">Inaktiv</string>
     <string name="watch_paired_rate_hz">%1$.1f Hz</string>
     <string name="watch_paired_garmin_limits_title">Garmin-begränsningar</string>
-    <string name="watch_paired_garmin_limit_launch">Öppna klockappen manuellt i början av varje åktur. Garmin tillåter inte att telefonappar auto-startar följeappen.</string>
-    <string name="watch_paired_garmin_limit_rate">Telemetri uppdateras långsammare än på Wear OS. Connect IQ Mobile SDK begränsar uppdateringsfrekvensen.</string>
+    <string name="watch_paired_garmin_limit_launch">Garmin startar inte klock-appen automatiskt</string>
+    <string name="watch_paired_garmin_limit_rate">Garmin uppdaterar långsammare än Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Rotation av urtavlan är inte tillgänglig. Connect IQ saknar inbyggd transformationsmatris för att rotera den renderade urtavlan.</string>
     <string name="section_watch_hardware_buttons">Fysiska knappar</string>
     <string name="watch_buttons_hardware_info">Håll kan fångas av systemet på vissa klockor</string>
