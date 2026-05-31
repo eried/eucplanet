@@ -330,27 +330,44 @@ class DashboardViewModel @Inject constructor(
     // Order strings sanitize against [com.eried.eucplanet.data.model.MetricCatalog]
     // / ActionCatalog upstream; here they're just raw strings until the
     // dashboard composable parses them.
+    //
+    // Seed each layout StateFlow with the rider's persisted value from
+    // initialSettings (read synchronously above), not with an empty
+    // string / "{}" placeholder. Otherwise the first composition reads
+    // the placeholder, falls back to AppSettings hardcoded defaults
+    // (BATTERY/TEMP/VOLT/CURRENT/LOAD/TRIP for metrics, HORN/LIGHT/…
+    // for actions) and the rider sees a one-frame flash of the default
+    // layout before the upstream Flow emits their saved layout. With
+    // these seeded correctly the cold-start render is the rider's own
+    // layout from frame zero.
     val dashboardMetricOrder: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricOrder }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricOrder)
     val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardMetricStats }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricStats)
     val dashboardMetricsColumns: StateFlow<Int> = settingsRepository.settings
         .map { it.dashboardMetricsColumns }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 2)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricsColumns)
     val dashboardCompositeMetrics: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardCompositeMetrics }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCompositeMetrics)
     val dashboardCustomTiles: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardCustomTiles }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCustomTiles)
     val dashboardActionOrder: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardActionOrder }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardActionOrder)
     val dashboardActionGroups: StateFlow<String> = settingsRepository.settings
         .map { it.dashboardActionGroups }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "{}")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardActionGroups)
 
     /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
     fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
