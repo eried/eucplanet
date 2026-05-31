@@ -842,9 +842,13 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
             "STOPWATCH" -> SevenSegmentDisplay(formatStopwatch(data.stopwatchMs), fg)
             "TEXT" -> BoxWithConstraints {
                 val w = maxWidth.value
+                // Honor the per-element 12/24 switch the customizer ships;
+                // it was silently ignored here before, so the toggle felt
+                // dead even though the underlying flag was being persisted.
+                val pattern = if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss a"
                 Column {
                     androidx.compose.material3.Text(
-                        text = formatClockTime(data.clockTimeMs, "HH:mm:ss"),
+                        text = formatClockTime(data.clockTimeMs, pattern),
                         color = fg,
                         fontWeight = FontWeight.Bold,
                         fontSize = (w * 0.16f).coerceIn(14f, 72f).sp,
@@ -860,8 +864,15 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
                     }
                 }
             }
+            // Seven-seg can only draw 0-9 / : / . so 12h mode drops the
+            // AM/PM suffix. Hours still flip 13-24 -> 1-12 which is the
+            // half of the toggle that's visible on a digital readout.
             else -> SevenSegmentDisplay(
-                formatClockTime(data.clockTimeMs, "HH:mm:ss"), fg
+                formatClockTime(
+                    data.clockTimeMs,
+                    if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss"
+                ),
+                fg
             )
         }
     }
