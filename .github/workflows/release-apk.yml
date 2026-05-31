@@ -321,6 +321,7 @@ jobs:
       - name: Replace prior artifacts on the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           tag="${{ needs.meta.outputs.tag }}"
           # Delete only the canonical-named assets we're about to re-upload,
