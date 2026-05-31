@@ -1,12 +1,19 @@
 name: Release builds
 
-# On every push of a `v*` tag (e.g. v0.8.11), build all three platforms with
+# On every push of a `v*` tag (e.g. v0.9.0), build every surface with
 # consistent filenames and attach them to the matching GitHub release:
 #
 #   phone-<version>-slim.apk          (slim release-signed phone APK)
 #   wearos-<version>.apk              (release-signed wear APK)
-#   garmin-<version>.iq               (multi-device Connect IQ bundle)
-#   garmin-<version>-<device>.prg     (one per popular device)
+#   hud-<version>.apk                 (release-signed HUD APK)
+#   garmin-<version>.iq               (multi-device Connect IQ bundle —
+#                                      this is the file you upload to the
+#                                      Connect IQ Store; one .iq covers
+#                                      every supported device)
+#   garmin-<version>-prgs.zip         (per-device .prg files bundled —
+#                                      for advanced sideload via
+#                                      Connect IQ Mobile on Garmins
+#                                      without store access)
 #
 # `<version>` is the tag with the leading `v` stripped (v0.9.0 -> 0.9.0).
 # Naming matches the branch-builds workflow's `<device>-...` convention.
@@ -150,11 +157,14 @@ jobs:
             exit 1
           fi
 
-      - name: Build slim release phone APK + wear APK
+      - name: Build slim release phone APK + wear + HUD
         run: |
           targets=":app:assembleRelease"
           if [ -f wear/build.gradle.kts ]; then
             targets="$targets :wear:assembleRelease"
+          fi
+          if [ -f hud/build.gradle.kts ]; then
+            targets="$targets :hud:assembleRelease"
           fi
           ./gradlew $targets -PembedWear=false --no-daemon --stacktrace
         env:
@@ -173,6 +183,16 @@ jobs:
           elif [ -f wear/build/outputs/apk/debug/wearos-debug.apk ]; then
             cp wear/build/outputs/apk/debug/wearos-debug.apk \
                "/tmp/out/wearos-${{ needs.meta.outputs.version }}.apk"
+          fi
+          # HUD release APK — same release/debug fallback as wear so older
+          # tags without a release signing config still produce something
+          # installable.
+          if [ -f hud/build/outputs/apk/release/hud-release.apk ]; then
+            cp hud/build/outputs/apk/release/hud-release.apk \
+               "/tmp/out/hud-${{ needs.meta.outputs.version }}.apk"
+          elif [ -f hud/build/outputs/apk/debug/hud-debug.apk ]; then
+            cp hud/build/outputs/apk/debug/hud-debug.apk \
+               "/tmp/out/hud-${{ needs.meta.outputs.version }}.apk"
           fi
           ls -la /tmp/out
 
@@ -250,8 +270,14 @@ jobs:
             -w
           ls -la "$IQ_OUT"
 
+          # Build each per-device .prg into /tmp/prgs first, then zip
+          # the lot into a single garmin-<version>-prgs.zip — uploading
+          # 17 individual files clutters the release page and most
+          # riders only need the .iq above. Power-users who specifically
+          # want a single device's .prg can unzip locally.
+          mkdir -p /tmp/prgs
           for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
-            OUT="/tmp/out/garmin-${{ needs.meta.outputs.version }}-${d}.prg"
+            OUT="/tmp/prgs/garmin-${{ needs.meta.outputs.version }}-${d}.prg"
             echo "--- building $d ---"
             monkeyc \
               -f garmin-watch-app/monkey.jungle \
@@ -260,6 +286,7 @@ jobs:
               -d "$d" \
               -w
           done
+          (cd /tmp/prgs && zip -q "/tmp/out/garmin-${{ needs.meta.outputs.version }}-prgs.zip" *.prg)
           ls -la /tmp/out
 
       - name: Stage for publish
