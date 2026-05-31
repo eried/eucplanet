@@ -6520,18 +6520,26 @@ private fun EngineSoundSection(
             )
         }
 
-        SegmentedChoice(
-            label = stringResource(R.string.engine_gearbox_label),
-            options = listOf(
-                "OFF" to stringResource(R.string.engine_gearbox_off),
-                "FOUR" to stringResource(R.string.engine_gearbox_four),
-                "SIX" to stringResource(R.string.engine_gearbox_six)
-            ),
-            current = settings.engineGearbox,
-            onChange = { viewModel.updateEngineGearbox(it) },
-            onPreview = { viewModel.previewEngineSection("GEARBOX") },
-            previewEnabled = parked
-        )
+        // Gearbox only makes sense for engines that actually shift. Profiles
+        // flagged gearless (2-stroke singles, CVT ATVs, electric/jet sims)
+        // have EngineSoundEngine ignore the gearbox setting anyway, so
+        // hiding it matches what already happens for supportsMuffler /
+        // supportsPops / supportsBrakeWhine — keeps the panel honest about
+        // which controls actually do something for the selected engine.
+        if (!currentProfile.gearless) {
+            SegmentedChoice(
+                label = stringResource(R.string.engine_gearbox_label),
+                options = listOf(
+                    "OFF" to stringResource(R.string.engine_gearbox_off),
+                    "FOUR" to stringResource(R.string.engine_gearbox_four),
+                    "SIX" to stringResource(R.string.engine_gearbox_six)
+                ),
+                current = settings.engineGearbox,
+                onChange = { viewModel.updateEngineGearbox(it) },
+                onPreview = { viewModel.previewEngineSection("GEARBOX") },
+                previewEnabled = parked
+            )
+        }
 
         SegmentedChoice(
             label = stringResource(R.string.engine_idle_label),
