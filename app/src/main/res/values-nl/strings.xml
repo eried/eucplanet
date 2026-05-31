@@ -1294,8 +1294,8 @@
     <string name="watch_paired_garmin_limit_rotation">Rotatie van de wijzerplaat is niet beschikbaar. Connect IQ heeft geen native transformatiematrix om de wijzerplaat te draaien.</string>
     <string name="section_watch_hardware_buttons">Hardware-knoppen</string>
     <string name="watch_buttons_hardware_info">Beschikbare acties hangen af van je horloge. Sommige lang-indrukken worden door het systeem onderschept bij bepaalde fabrikanten</string>
-    <string name="watch_buttons_touch_info">Beschikbare acties hangen af van je horloge</string>
-    <string name="watch_buttons_hardware_label">Hardware</string>
+    <string name="watch_buttons_touch_info">Hangt af van je horloge</string>
+    <string name="watch_buttons_hardware_label">Fysiek</string>
     <string name="watch_buttons_touch_label">Aanraking</string>
     <string name="section_watch_buttons">Knoppen</string>
     <string name="watch_hardware_button_1">Knop 1</string>

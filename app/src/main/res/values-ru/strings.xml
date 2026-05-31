@@ -1310,8 +1310,8 @@
     <string name="watch_paired_garmin_limit_rotation">Поворот циферблата недоступен. Connect IQ не имеет встроенной матрицы преобразования для поворота отрисованного циферблата.</string>
     <string name="section_watch_hardware_buttons">Физические кнопки</string>
     <string name="watch_buttons_hardware_info">Доступные действия зависят от твоих часов. Удержания у некоторых производителей перехватываются системой</string>
-    <string name="watch_buttons_touch_info">Доступные действия зависят от твоих часов</string>
-    <string name="watch_buttons_hardware_label">Аппаратные</string>
+    <string name="watch_buttons_touch_info">Зависит от твоих часов</string>
+    <string name="watch_buttons_hardware_label">Физические</string>
     <string name="watch_buttons_touch_label">Касание</string>
     <string name="section_watch_buttons">Кнопки</string>
     <string name="watch_hardware_button_1">Кнопка 1</string>

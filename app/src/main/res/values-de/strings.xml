@@ -1275,8 +1275,8 @@
     <string name="watch_paired_garmin_limit_rotation">Drehung des Zifferblatts ist nicht verfügbar. Connect IQ hat keine native Transformationsmatrix für das gerenderte Zifferblatt.</string>
     <string name="section_watch_hardware_buttons">Hardware-Tasten</string>
     <string name="watch_buttons_hardware_info">Verfügbare Aktionen hängen von deiner Uhr ab. Halten-Gesten werden bei einigen Herstellern vom System abgefangen</string>
-    <string name="watch_buttons_touch_info">Verfügbare Aktionen hängen von deiner Uhr ab</string>
-    <string name="watch_buttons_hardware_label">Hardware</string>
+    <string name="watch_buttons_touch_info">Hängt von deiner Uhr ab</string>
+    <string name="watch_buttons_hardware_label">Physisch</string>
     <string name="watch_buttons_touch_label">Touch</string>
     <string name="section_watch_buttons">Tasten</string>
     <string name="watch_hardware_button_1">Taste 1</string>

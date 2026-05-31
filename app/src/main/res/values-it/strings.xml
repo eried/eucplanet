@@ -1294,7 +1294,7 @@
     <string name="watch_paired_garmin_limit_rotation">La rotazione del quadrante non è disponibile. Connect IQ non ha una matrice di trasformazione nativa per ruotare il quadrante renderizzato.</string>
     <string name="section_watch_hardware_buttons">Pulsanti hardware</string>
     <string name="watch_buttons_hardware_info">Le azioni disponibili dipendono dal tuo orologio. Alcuni gesti di pressione prolungata vengono intercettati dal sistema su certi produttori</string>
-    <string name="watch_buttons_touch_info">Le azioni disponibili dipendono dal tuo orologio</string>
+    <string name="watch_buttons_touch_info">Dipende dal tuo orologio</string>
     <string name="watch_buttons_hardware_label">Fisici</string>
     <string name="watch_buttons_touch_label">Tocco</string>
     <string name="section_watch_buttons">Pulsanti</string>

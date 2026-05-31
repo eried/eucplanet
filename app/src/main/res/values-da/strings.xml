@@ -1260,8 +1260,8 @@
     <string name="watch_paired_garmin_limit_rotation">Rotation af urskiven er ikke tilgængelig. Connect IQ har ingen indbygget transformationsmatrix til at rotere urskiven.</string>
     <string name="section_watch_hardware_buttons">Fysiske knapper</string>
     <string name="watch_buttons_hardware_info">Tilgængelige handlinger afhænger af dit ur. Nogle hold-bevægelser opfanges af systemet på visse producenter</string>
-    <string name="watch_buttons_touch_info">Tilgængelige handlinger afhænger af dit ur</string>
-    <string name="watch_buttons_hardware_label">Hardware</string>
+    <string name="watch_buttons_touch_info">Afhænger af dit ur</string>
+    <string name="watch_buttons_hardware_label">Fysiske</string>
     <string name="watch_buttons_touch_label">Tryk</string>
     <string name="section_watch_buttons">Knapper</string>
     <string name="watch_hardware_button_1">Knap 1</string>

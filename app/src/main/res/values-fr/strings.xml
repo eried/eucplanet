@@ -1258,8 +1258,8 @@
     <string name="watch_paired_garmin_limit_rotation">La rotation du cadran n\'est pas disponible. Connect IQ ne dispose pas de matrice de transformation native pour faire pivoter le cadran rendu.</string>
     <string name="section_watch_hardware_buttons">Boutons physiques</string>
     <string name="watch_buttons_hardware_info">Les actions disponibles dépendent de ta montre. Certains gestes d\'appui long sont interceptés par le système sur certains fabricants</string>
-    <string name="watch_buttons_touch_info">Les actions disponibles dépendent de ta montre</string>
-    <string name="watch_buttons_hardware_label">Matériel</string>
+    <string name="watch_buttons_touch_info">Dépend de ta montre</string>
+    <string name="watch_buttons_hardware_label">Physiques</string>
     <string name="watch_buttons_touch_label">Tactile</string>
     <string name="section_watch_buttons">Boutons</string>
     <string name="watch_hardware_button_1">Bouton 1</string>

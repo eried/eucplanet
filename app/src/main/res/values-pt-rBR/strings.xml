@@ -1294,7 +1294,7 @@
     <string name="watch_paired_garmin_limit_rotation">A rotação do mostrador não está disponível. O Connect IQ não tem uma matriz de transformação nativa para girar o mostrador renderizado.</string>
     <string name="section_watch_hardware_buttons">Botões físicos</string>
     <string name="watch_buttons_hardware_info">As ações disponíveis dependem do seu relógio. Alguns gestos de pressionar e segurar são interceptados pelo sistema em certos fabricantes</string>
-    <string name="watch_buttons_touch_info">As ações disponíveis dependem do seu relógio</string>
+    <string name="watch_buttons_touch_info">Depende do seu relógio</string>
     <string name="watch_buttons_hardware_label">Físicos</string>
     <string name="watch_buttons_touch_label">Toque</string>
     <string name="section_watch_buttons">Botões</string>

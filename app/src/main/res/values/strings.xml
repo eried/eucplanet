@@ -337,8 +337,8 @@
     <string name="watch_button_hold_label">Long press</string>
     <string name="section_watch_hardware_buttons">Hardware buttons</string>
     <string name="watch_buttons_hardware_info">Available actions depend on what your watch can do. Some hold gestures get intercepted by the system on certain manufacturers</string>
-    <string name="watch_buttons_touch_info">Available actions depend on what your watch can do</string>
-    <string name="watch_buttons_hardware_label">Hardware</string>
+    <string name="watch_buttons_touch_info">Depends on what your watch supports</string>
+    <string name="watch_buttons_hardware_label">Physical</string>
     <string name="watch_buttons_touch_label">Touch</string>
     <string name="section_watch_buttons">Buttons</string>
     <string name="watch_hardware_button_1">Button 1</string>
