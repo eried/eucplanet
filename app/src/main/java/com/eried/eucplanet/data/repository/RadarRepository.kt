@@ -78,11 +78,26 @@ class RadarRepository @Inject constructor(
          * an unrealistic 1000 m/s rate.
          */
         private const val MIN_ELAPSED_MS_FOR_RATE = 100L
+
+        /**
+         * TEMPORARY demo flag. When true the repository ignores the BLE
+         * stack entirely and acts as if a Garmin Varia is paired, connected,
+         * and pushing a synthetic 3-car frame every second. Used to review
+         * the connected-state UI on an emulator without hardware.
+         * MUST be flipped back to false before shipping.
+         */
+        private const val DEMO_MODE = false
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    val connectionState: StateFlow<ConnectionState> get() = connectionManager.connectionState
+    /**
+     * Local mirror of the connection state. Normally tracks the BLE manager
+     * 1:1; in [DEMO_MODE] we hold it at CONNECTED so the UI shows the
+     * paired-and-streaming card without a real GATT link.
+     */
+    private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
+    val connectionState: StateFlow<ConnectionState> = _connectionState.asStateFlow()
 
     // Subscribers today: [RadarOverlayViewModel] (the floating lane bar),
     // the alarm engine via [publishFrame] -> [AlarmEngine.evaluateRadar].
@@ -116,6 +131,23 @@ class RadarRepository @Inject constructor(
     private val tracks = HashMap<Int, TrackState>()
 
     init {
+        if (DEMO_MODE) {
+            // Hardware-free preview: write a fake pairing, hold the
+            // connection state at CONNECTED, and push synthetic frames so
+            // the dashboard mini + settings paired-card + threat debug list
+            // all render exactly as they would with a real Varia behind us.
+            // The real BLE collectors (notifications, auto-reconnect) are
+            // skipped entirely so the demo can't tangle with the GATT stack.
+            scope.launch { runDemoMode() }
+        } else {
+            initRealBleCollectors()
+        }
+    }
+
+    private fun initRealBleCollectors() {
+        scope.launch {
+            connectionManager.connectionState.collect { _connectionState.value = it }
+        }
         scope.launch {
             connectionManager.notifications.collect { n ->
                 if (n.uuid == BATTERY_LEVEL_UUID) {
@@ -296,5 +328,69 @@ class RadarRepository @Inject constructor(
         tracks.clear()
         _currentFrame.value = null
         connectionManager.disconnect()
+    }
+
+    /**
+     * Hardware-free preview path. Pins a fake Varia pairing into settings
+     * so the Integration screen shows the paired card, flips
+     * [_connectionState] to CONNECTED so the overlay's gate opens, and
+     * emits one synthetic frame per second with three threats whose
+     * distances drift in a loop ,  one fast closer, one steady approacher,
+     * one drifting away. Skips [AlarmEngine.evaluateRadar] so the demo
+     * doesn't spam TTS / vibrate on the emulator.
+     */
+    private suspend fun runDemoMode() {
+        // Always overwrite on launch so a stale side / hidden-overlay
+        // value from a prior run can't make the demo render half-empty.
+        val s = settingsRepository.get()
+        settingsRepository.update(
+            s.copy(
+                radarAddress = "DEMO:00:00:00:00:00",
+                radarName = "Garmin Varia (demo)",
+                radarVendor = RadarVendor.VARIA.name,
+                radarShowOverlay = true,
+                radarOverlaySide = "BOTH"
+            )
+        )
+        _connectionState.value = ConnectionState.CONNECTED
+        var tick = 0
+        while (true) {
+            // Slow oscillation so the rider sees the dots move between
+            // ticks ,  proves the flow is alive without confusing the eye.
+            val phase = tick % 12
+            val closeM = 14 + phase * 2          // 14..36 m, oscillates
+            val midM = 55 + (phase - 6).let { it * it } / 2  // ~55..73 m
+            val farM = 100 + phase * 3           // 100..133 m
+            val frame = RadarFrame(
+                vendor = RadarVendor.VARIA,
+                threats = listOf(
+                    RadarThreat(
+                        id = 1,
+                        distanceM = closeM,
+                        approachSpeedKmh = 48,
+                        threatLevel = ThreatLevel.FAST_APPROACH,
+                        firstSeenMs = 0L
+                    ),
+                    RadarThreat(
+                        id = 2,
+                        distanceM = midM,
+                        approachSpeedKmh = 20,
+                        threatLevel = ThreatLevel.APPROACHING,
+                        firstSeenMs = 0L
+                    ),
+                    RadarThreat(
+                        id = 3,
+                        distanceM = farM,
+                        approachSpeedKmh = 4,
+                        threatLevel = ThreatLevel.NONE,
+                        firstSeenMs = 0L
+                    )
+                ),
+                batteryPercent = 72
+            )
+            _currentFrame.value = frame
+            tick += 1
+            kotlinx.coroutines.delay(1_000L)
+        }
     }
 }
