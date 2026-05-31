@@ -1047,6 +1047,7 @@
     <string name="dashboard_corner_right">Droite</string>
     <string name="dashboard_custom_tile_action_none">Texte</string>
     <string name="dashboard_custom_tile_action_qr">Afficher QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Cette case est vide</string>
     <string name="dashboard_custom_tile_action_url">Ouvrir URL</string>
     <string name="dashboard_custom_tile_template_label">TEXTE</string>
     <string name="dashboard_custom_tile_text_label">Texte</string>

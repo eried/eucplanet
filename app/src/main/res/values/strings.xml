@@ -137,6 +137,7 @@
     <string name="dashboard_custom_tile_action_none">Text</string>
     <string name="dashboard_custom_tile_action_url">Open URL</string>
     <string name="dashboard_custom_tile_action_qr">Show QR</string>
+    <string name="dashboard_custom_tile_empty_toast">This tile is empty</string>
     <string name="dashboard_custom_tile_url_label">URL</string>
     <string name="dashboard_rolling_window_30s">30 sec</string>
     <string name="dashboard_rolling_window_1m">1 min</string>

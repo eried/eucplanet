@@ -1083,6 +1083,7 @@
     <string name="dashboard_corner_right">Direita</string>
     <string name="dashboard_custom_tile_action_none">Texto</string>
     <string name="dashboard_custom_tile_action_qr">Mostrar QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Este bloco está vazio</string>
     <string name="dashboard_custom_tile_action_url">Abrir URL</string>
     <string name="dashboard_custom_tile_template_label">TEXTO</string>
     <string name="dashboard_custom_tile_text_label">Texto</string>

@@ -1083,6 +1083,7 @@
     <string name="dashboard_corner_right">Rechts</string>
     <string name="dashboard_custom_tile_action_none">Tekst</string>
     <string name="dashboard_custom_tile_action_qr">QR tonen</string>
+    <string name="dashboard_custom_tile_empty_toast">Deze tegel is leeg</string>
     <string name="dashboard_custom_tile_action_url">URL openen</string>
     <string name="dashboard_custom_tile_template_label">TEKST</string>
     <string name="dashboard_custom_tile_text_label">Tekst</string>

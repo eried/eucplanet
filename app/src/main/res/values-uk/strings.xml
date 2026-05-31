@@ -1084,6 +1084,7 @@
     <string name="dashboard_corner_right">Праворуч</string>
     <string name="dashboard_custom_tile_action_none">Текст</string>
     <string name="dashboard_custom_tile_action_qr">Показати QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Ця плитка порожня</string>
     <string name="dashboard_custom_tile_action_url">Відкрити URL</string>
     <string name="dashboard_custom_tile_template_label">ТЕКСТ</string>
     <string name="dashboard_custom_tile_text_label">Текст</string>

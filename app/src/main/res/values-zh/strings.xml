@@ -1047,6 +1047,7 @@
     <string name="dashboard_corner_right">右</string>
     <string name="dashboard_custom_tile_action_none">文本</string>
     <string name="dashboard_custom_tile_action_qr">显示二维码</string>
+    <string name="dashboard_custom_tile_empty_toast">此磁贴为空</string>
     <string name="dashboard_custom_tile_action_url">打开网址</string>
     <string name="dashboard_custom_tile_template_label">文本</string>
     <string name="dashboard_custom_tile_text_label">文本</string>

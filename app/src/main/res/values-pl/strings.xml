@@ -1084,6 +1084,7 @@
     <string name="dashboard_corner_right">Prawo</string>
     <string name="dashboard_custom_tile_action_none">Tekst</string>
     <string name="dashboard_custom_tile_action_qr">Pokaż QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Ten kafelek jest pusty</string>
     <string name="dashboard_custom_tile_action_url">Otwórz URL</string>
     <string name="dashboard_custom_tile_template_label">TEKST</string>
     <string name="dashboard_custom_tile_text_label">Tekst</string>

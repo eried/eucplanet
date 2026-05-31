@@ -69,6 +69,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MusicNote
@@ -2259,8 +2260,16 @@ fun CustomTileBody(tile: CustomTile) {
     // For OPEN_URL and SHOW_QR tiles, replace the rider's chosen group
     // icon with the action's own glyph (link / qr) so the tile itself
     // tells you what tapping it will do. NONE-action tiles keep the
-    // configured icon (display-only text tile).
-    val mainIcon = actionBadgeIcon(tile.action) ?: groupIconFor(tile.icon)
+    // configured icon (display-only text tile). Truly empty tiles
+    // (no text, no url, no action) force the EMPTY placeholder so the
+    // dashboard reads "blank slot, configure me" even on older saved
+    // tiles that still have icon="LINK" from the previous default.
+    val isTrulyEmpty = tile.text.isBlank() && tile.url.isBlank() &&
+        tile.action == CustomTileAction.NONE
+    val mainIcon = when {
+        isTrulyEmpty -> groupIconFor("EMPTY")
+        else -> actionBadgeIcon(tile.action) ?: groupIconFor(tile.icon)
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2703,6 +2712,11 @@ internal fun groupIconFor(key: String): ImageVector = when (key) {
     "WARNING" -> Icons.Filled.Warning
     "NOTIFICATIONS" -> Icons.Filled.Notifications
     "LINK" -> Icons.Filled.Link
+    // Outlined square placeholder for freshly-spawned / never-configured
+    // custom tiles, so the dashboard doesn't pretend an unconfigured tile
+    // is a link/qr. The rider can still pick this from the icon grid as
+    // an explicit "blank slot" visual.
+    "EMPTY" -> Icons.Filled.CheckBoxOutlineBlank
     else -> Icons.Filled.Folder
 }
 

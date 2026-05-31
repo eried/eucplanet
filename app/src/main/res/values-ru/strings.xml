@@ -1099,6 +1099,7 @@
     <string name="dashboard_corner_right">Справа</string>
     <string name="dashboard_custom_tile_action_none">Текст</string>
     <string name="dashboard_custom_tile_action_qr">Показать QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Эта плитка пуста</string>
     <string name="dashboard_custom_tile_action_url">Открыть URL</string>
     <string name="dashboard_custom_tile_template_label">ТЕКСТ</string>
     <string name="dashboard_custom_tile_text_label">Текст</string>

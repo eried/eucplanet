@@ -1064,6 +1064,7 @@
     <string name="dashboard_corner_right">Høyre</string>
     <string name="dashboard_custom_tile_action_none">Tekst</string>
     <string name="dashboard_custom_tile_action_qr">Vis QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Denne ruten er tom</string>
     <string name="dashboard_custom_tile_action_url">Åpne URL</string>
     <string name="dashboard_custom_tile_template_label">TEKST</string>
     <string name="dashboard_custom_tile_text_label">Tekst</string>

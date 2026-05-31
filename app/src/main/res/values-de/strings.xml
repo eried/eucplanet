@@ -1064,6 +1064,7 @@
     <string name="dashboard_corner_right">Rechts</string>
     <string name="dashboard_custom_tile_action_none">Text</string>
     <string name="dashboard_custom_tile_action_qr">QR zeigen</string>
+    <string name="dashboard_custom_tile_empty_toast">Diese Kachel ist leer</string>
     <string name="dashboard_custom_tile_action_url">URL öffnen</string>
     <string name="dashboard_custom_tile_template_label">TEXT</string>
     <string name="dashboard_custom_tile_text_label">Text</string>

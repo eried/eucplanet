@@ -1533,10 +1533,11 @@ data class CustomTile(
     val url: String = ""
 )
 
-/** Default icon for newly-spawned custom tiles. LINK reads as "tap-target"
- *  even before the rider configures the action — most riders dragging the
- *  template in are setting up a URL or QR, not just text. */
-const val CUSTOM_TILE_DEFAULT_ICON = "LINK"
+/** Default icon for newly-spawned custom tiles. EMPTY (outlined checkbox)
+ *  reads as "blank slot, configure me" — riders who only just dragged
+ *  the tile in haven't picked a purpose yet, so a Link icon would lie
+ *  about what tapping does. The rider picks a real icon when they edit. */
+const val CUSTOM_TILE_DEFAULT_ICON = "EMPTY"
 
 /**
  * Definition of a single action group instance. Stored in

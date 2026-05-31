@@ -277,6 +277,11 @@ fun DashboardScreen(
     // Holds the CustomTile whose SHOW_QR action was just tapped on the
     // live dashboard. Null when the QR popup is dismissed.
     var showQrForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
+    // Text-display dialog for NONE-action custom tiles that the rider gave
+    // a label/note. Mirrors showQrForTile's lifecycle so the rider can tap
+    // a text tile to read the full note in a scrollable box rather than
+    // squinting at the truncated tile face.
+    var showTextForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
     var showDiagnosticsConfirm by remember { mutableStateOf(false) }
     var showMapMenu by remember { mutableStateOf(false) }
     var showStudioMenu by remember { mutableStateOf(false) }
@@ -1471,7 +1476,25 @@ fun DashboardScreen(
                                                     com.eried.eucplanet.ui.settings.CustomTileAction.SHOW_QR -> {
                                                         showQrForTile = tile
                                                     }
-                                                    else -> onNavigateToMetric(key)
+                                                    // NONE-action: tile is either a text note (show
+                                                    // dialog with the text) or truly empty (toast).
+                                                    // Used to silently navigate to MetricDetailScreen
+                                                    // for a 'C:<uuid>' key which is nonsense; the
+                                                    // tile owns its content here.
+                                                    else -> {
+                                                        val hasText = tile?.text?.isNotBlank() == true
+                                                        if (hasText) {
+                                                            showTextForTile = tile
+                                                        } else {
+                                                            snackbarScope.launch {
+                                                                snackbar.showSnackbar(
+                                                                    toastContext.getString(
+                                                                        R.string.dashboard_custom_tile_empty_toast
+                                                                    )
+                                                                )
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                     ) {
@@ -1904,6 +1927,34 @@ fun DashboardScreen(
             if (showDiagnosticsDialog) {
                 com.eried.eucplanet.diagnostics.WheelDiagnosticsDialog(
                     onDismiss = { showDiagnosticsDialog = false }
+                )
+            }
+
+            // Custom-tile text-display dialog. NONE-action tiles with a
+            // non-blank text show their full note in a read-only text box
+            // so the rider can read content longer than the truncated
+            // tile face. Same dismiss/confirm shape as the QR dialog
+            // below so the two interactions feel like siblings.
+            showTextForTile?.let { textTile ->
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { showTextForTile = null },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(
+                            onClick = { showTextForTile = null }
+                        ) { Text(stringResource(R.string.action_ok)) }
+                    },
+                    text = {
+                        androidx.compose.material3.OutlinedTextField(
+                            value = textTile.text,
+                            onValueChange = {},
+                            readOnly = true,
+                            // Allow multi-line; no maxLines cap so the
+                            // whole note is visible — the dialog grows
+                            // with content (Material caps the dialog
+                            // height itself so it can't run off-screen).
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 )
             }
 

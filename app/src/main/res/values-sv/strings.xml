@@ -1047,6 +1047,7 @@
     <string name="dashboard_corner_right">Höger</string>
     <string name="dashboard_custom_tile_action_none">Text</string>
     <string name="dashboard_custom_tile_action_qr">Visa QR</string>
+    <string name="dashboard_custom_tile_empty_toast">Denna ruta är tom</string>
     <string name="dashboard_custom_tile_action_url">Öppna URL</string>
     <string name="dashboard_custom_tile_template_label">TEXT</string>
     <string name="dashboard_custom_tile_text_label">Text</string>
