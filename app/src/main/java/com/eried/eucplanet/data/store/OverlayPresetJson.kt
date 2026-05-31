@@ -147,6 +147,7 @@ object OverlayPresetJson {
         put("chromaKeyTolerance", el.chromaKeyTolerance.toDouble())
         put("clockStyle", el.clockStyle)
         put("clockShowDate", el.clockShowDate)
+        put("clock24Hour", el.clock24Hour)
         put("mapStyle", el.mapStyle)
         put("mapZoom", el.mapZoom)
         put("mapRotateWithHeading", el.mapRotateWithHeading)
@@ -205,6 +206,7 @@ object OverlayPresetJson {
             ).toFloat(),
             clockStyle = o.optString("clockStyle", d.clockStyle),
             clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
+            clock24Hour = o.optBoolean("clock24Hour", d.clock24Hour),
             mapStyle = o.optString("mapStyle", d.mapStyle),
             mapZoom = o.optInt("mapZoom", d.mapZoom),
             mapRotateWithHeading = o.optBoolean(

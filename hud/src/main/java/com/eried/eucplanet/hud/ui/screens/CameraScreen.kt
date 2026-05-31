@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -118,7 +119,19 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
             AndroidView(
-                modifier = Modifier.fillMaxSize(),
+                // -90 deg (CCW) rotation applied at the Compose layer.
+                // The Motoeye E6's rear camera sensor is mounted 90 deg
+                // off from the prism orientation, so CameraX's default
+                // preview comes out sideways for the rider. CameraX has
+                // a targetRotation API that would in theory handle this
+                // inside the pipeline, but it relies on the device
+                // reporting an accurate Surface.ROTATION_* value, which
+                // some aftermarket HUD firmwares get wrong. Doing the
+                // visual rotation in Compose is deterministic regardless
+                // of what the device reports.
+                modifier = Modifier
+                    .fillMaxSize()
+                    .rotate(-90f),
                 factory = { c ->
                     PreviewView(c).also { view ->
                         view.scaleType = PreviewView.ScaleType.FILL_CENTER

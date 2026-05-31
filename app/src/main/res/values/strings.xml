@@ -889,6 +889,7 @@
     <string name="studio_cfg_clock_text">Text</string>
     <string name="studio_cfg_clock_stopwatch">Stopwatch</string>
     <string name="studio_cfg_clock_show_date">Show date line</string>
+    <string name="studio_cfg_clock_24h">24-hour format</string>
     <string name="studio_cfg_metric_label">Metric</string>
     <string name="studio_cfg_max_label">Maximum</string>
     <string name="studio_cfg_show_label">Show label</string>

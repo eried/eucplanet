@@ -1592,6 +1592,23 @@ fun ElementConfigSheet(
                         Text(stringResource(R.string.studio_cfg_clock_show_date))
                     }
                 }
+                // 24h / 12h toggle for the DIGITAL and TEXT clock
+                // styles. Hidden for ANALOG / STOPWATCH where the
+                // setting has no meaning. Default true keeps existing
+                // presets on their hardcoded behaviour.
+                if (element.clockStyle == "DIGITAL" ||
+                    element.clockStyle == "TEXT"
+                ) {
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = element.clock24Hour,
+                            onCheckedChange = { onChange(element.copy(clock24Hour = it)) }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.studio_cfg_clock_24h))
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
             }
 

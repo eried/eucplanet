@@ -584,9 +584,18 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
                 nowMs = System.currentTimeMillis()
             }
         }
+        // Pattern picked off the per-element clock24Hour flag rather
+        // than the device's system 12/24 setting -- the rider owns the
+        // PRESET, and a HUD lent to a friend with a different system
+        // preference shouldn't silently re-render the rider's preset
+        // in a different format. The wall-clock badge at the root of
+        // HudApp does the opposite (follows system) because the rider
+        // running the HUD is the same person whose phone settings
+        // would apply to that badge.
+        val pattern = if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss a"
         Column {
             Text(
-                text = formatClockTime(nowMs, "HH:mm:ss"),
+                text = formatClockTime(nowMs, pattern),
                 color = fg,
                 fontWeight = FontWeight.Bold,
                 fontSize = (w * 0.16f).coerceIn(14f, 72f).sp,

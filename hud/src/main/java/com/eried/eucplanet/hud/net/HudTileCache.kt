@@ -28,13 +28,16 @@ import java.util.concurrent.TimeUnit
 class HudTileCache {
 
     companion object {
-        // positron is CartoCDN's "clear" light-style basemap: white
-        // background, grey buildings, blue roads. Rider asked for the
-        // standard non-dark map so the road network reads as a normal
-        // OSM-style chart, not the dark_matter chrome from the previous
-        // build.
+        // CartoCDN's "voyager" raster style: neutral parchment / light-
+        // grey background with the road network in contrasting blues
+        // and labels in a darker grey-brown. Rider asked for greater
+        // contrast and a more neutral palette than light_all (too white,
+        // too saturated on the prism in low ambient light) and brighter
+        // than dark_matter (whose dark background blends into the HUD's
+        // black-is-transparent prism at low brightness, making the
+        // entire chart vanish).
         private const val URL_TEMPLATE =
-            "https://%s.basemaps.cartocdn.com/light_all/%d/%d/%d.png"
+            "https://%s.basemaps.cartocdn.com/rastertiles/voyager/%d/%d/%d.png"
         private val SHARDS = arrayOf("a", "b", "c", "d")
         private const val USER_AGENT = "eucplanet-hud/1"
     }

@@ -189,6 +189,12 @@ data class OverlayElement(
     // CLOCK, DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
     val clockStyle: String = "DIGITAL",
     val clockShowDate: Boolean = false,
+    /** True for 24h ("17:42"), false for 12h with AM/PM ("5:42 PM").
+     *  Default true preserves the behaviour of presets shipped before
+     *  this toggle was added; legacy presets decode with the field
+     *  absent and fall back to 24h, which is what their renderer used
+     *  to hardcode. */
+    val clock24Hour: Boolean = true,
 
     // MAP, live mini-map options.
     /** Tile style: STREET / DARK / SATELLITE. */

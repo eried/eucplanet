@@ -148,7 +148,7 @@ data class HudState(
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
          */
-        const val PROTOCOL_MINOR: Int = 0
+        const val PROTOCOL_MINOR: Int = 1
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(
