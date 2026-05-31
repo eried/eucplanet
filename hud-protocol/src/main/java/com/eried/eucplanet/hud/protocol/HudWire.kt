@@ -52,6 +52,10 @@ data class HudState(
     val pwm: Float = 0f,
     val temperatureC: Float = 0f,
     val tripKm: Float = 0f,
+    /** Lifetime odometer in km. Wired in protocol minor 6 -- prior HUD
+     *  builds default this to 0f and show the ODO custom-overlay element
+     *  as 0.0, which is what older HUDs already did anyway. */
+    val totalKm: Float = 0f,
     val torque: Float = 0f,
     val lightOn: Boolean = false,
 
@@ -179,7 +183,7 @@ data class HudState(
          * surfaces a soft "update available" hint when the HUD's reported
          * minor is below ours.
          */
-        const val PROTOCOL_MINOR: Int = 5
+        const val PROTOCOL_MINOR: Int = 6
 
         /** Legacy alias. New code should read [PROTOCOL_MAJOR] / [PROTOCOL_MINOR]. */
         @Deprecated(

@@ -429,6 +429,7 @@ class HudServer @Inject constructor(
             pwm = d?.pwm ?: wd.pwm,
             temperatureC = d?.tempC ?: wd.maxTemperature,
             tripKm = d?.tripKm ?: wd.tripDistance,
+            totalKm = d?.totalKm ?: wd.totalDistance,
             torque = wd.torque,
             lightOn = wd.lightOn,
             gaugeMaxKmh = gaugeMax,

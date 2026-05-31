@@ -123,6 +123,9 @@ class HudDemoSource {
             pwm = pwm,
             tempC = tempC,
             tripKm = tripKm,
+            // Realistic odo baseline + accumulating trip so the demo
+            // shows a non-zero value for ODO custom-overlay tiles.
+            totalKm = 4521.3f + tripKm,
             dLat = dLat, dLng = dLng,
             navActive = true,
             navAngleDeg = turnAngle,
@@ -140,6 +143,7 @@ class HudDemoSource {
         val pwm: Float = 0f,
         val tempC: Float = 25f,
         val tripKm: Float = 0f,
+        val totalKm: Float = 0f,
         val dLat: Double = 0.0,
         val dLng: Double = 0.0,
         val navActive: Boolean = false,

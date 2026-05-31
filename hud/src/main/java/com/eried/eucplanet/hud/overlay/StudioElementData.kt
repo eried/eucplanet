@@ -45,6 +45,7 @@ data class StudioElementData(
                 torque = hud.torque,
                 maxTemperature = hud.temperatureC,
                 tripDistance = hud.tripKm,
+                totalDistance = hud.totalKm,
                 pitchAngle = hud.wheelPitchDeg,
                 rollAngle = hud.wheelRollDeg,
                 latitude = hud.latitude,
