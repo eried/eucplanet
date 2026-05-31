@@ -98,6 +98,12 @@ computers, settings shared with Wear OS; see
 [`docs/GARMIN_SETUP.md`](docs/GARMIN_SETUP.md)).
 
 **14 languages.** Full UI localisation, at parity across all of them.
+### Integrations
+- **Flic 2 buttons**: pair up to two buttons.
+- **Volume keys**: use the phone's physical volume up/down for extra shortcuts.
+- **External GPS**: pair a RaceBox (or any compatible BLE GPS) for centimetre-class speed and altitude without burning the phone radio. Falls back to phone GPS automatically.
+- **Garmin Varia rear-view radar**: pair a Varia (RTL515 / RTL516 / RVR315 / RCT715 / eRTL615 / RearVue 820 / RVR53320). A translucent lane bar hovers on the screen edge with one coloured dot per detected vehicle, red glow on fast closers. Two new alarm metrics (*Car distance*, *Car approach*) plug into the existing alarm engine so you can wire vibrate / beep / voice to "car within 30 m" or "car closing at 60+ km/h". Light control is not yet supported (Garmin keeps that UUID under NDA; every public client drives Varia lights over ANT+ instead).
+- **Wear OS companion**: full-bleed speed dial, three batteries (wheel/phone/watch), accent and unit settings synced from the phone, horn + light remote controls, navigation cue mirror. Tested on Galaxy Watch Ultra; works on any Wear OS 5+ watch.
 
 ---
 

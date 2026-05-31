@@ -665,6 +665,27 @@
     <string name="volume_up">Volume Up</string>
     <string name="volume_down">Volume Down</string>
 
+    <!-- Rear-view radar (Garmin Varia today) -->
+    <string name="section_radar">Rear-view radar</string>
+    <string name="radar_caption">Hold the Varia button for 2 seconds until it pulses purple, then start a scan.</string>
+    <string name="radar_pair_button">Start scan</string>
+    <string name="radar_pair_action">Pair</string>
+    <string name="radar_stop_scan">Stop scan</string>
+    <string name="radar_state_connected">Connected</string>
+    <string name="radar_state_connecting">Connecting…</string>
+    <string name="radar_state_disconnected">Disconnected</string>
+    <string name="radar_reconnect">Reconnect</string>
+    <string name="radar_disconnect">Disconnect</string>
+    <string name="radar_unpair">Forget device</string>
+    <string name="radar_battery_fmt">Battery %1$d%%</string>
+    <string name="radar_clear">Lane is clear</string>
+    <string name="radar_threats_count">Tracking %1$d vehicle(s):</string>
+    <string name="radar_show_overlay">Show threat overlay</string>
+    <string name="radar_show_overlay_desc">Thin radar lane in the dashboard gutters. One coloured dot per detected vehicle. Only visible on the dashboard.</string>
+    <string name="radar_overlay_left">Left edge</string>
+    <string name="radar_overlay_both">Both edges</string>
+    <string name="radar_overlay_right">Right edge</string>
+
     <!-- Voice (spoken) templates -->
     <string name="voice_speed_fmt">Speed %1$s</string>
     <string name="voice_battery_fmt">battery %1$d percent</string>
@@ -697,6 +718,8 @@
     <string name="alarm_metric_pwm_voice" translatable="false">PWM</string>
     <string name="alarm_metric_voltage">Voltage</string>
     <string name="alarm_metric_current">Current</string>
+    <string name="alarm_metric_radar_distance">Car distance</string>
+    <string name="alarm_metric_radar_approach">Car approach</string>
 
     <!-- Alarm comparators -->
     <string name="alarm_cmp_lt">Less than</string>

@@ -882,6 +882,39 @@ fun DashboardScreen(
                         )
                     }
                 }
+                // Radar mini lanes. CenterStart / CenterEnd line up
+                // vertically through the Map (BottomStart) and Studio
+                // (BottomEnd) glyphs ,  one straight left/right axis from
+                // each lane down to the corner button beneath it.
+                // Radar mini lanes. Horizontal bias -1 / +1 = same as
+                // CenterStart / CenterEnd. Vertical bias +0.3 drops them
+                // a bit below the dial centre so they sit above the Map
+                // and Studio corner glyphs rather than crowding the
+                // top P/D and GPS clusters.
+                //
+                // The right lane gets a +9 dp horizontal offset to line
+                // up with the Studio camera glyph's centre ,  the Studio
+                // icon is offset(x=4.dp) past the parent edge (32 dp wide,
+                // right edge at parent+4) so its centre sits at
+                // parent_width - 12 dp. The radar lane is 42 dp wide
+                // including its outer padding; at bias +1 its centre lands
+                // at parent_width - 21 dp, leaving a 9 dp shortfall. The
+                // offset closes that gap.
+                //
+                // Tap opens the radar pairing section of the Integration
+                // settings (tab 7).
+                DashboardRadarMiniForSide(
+                    targetSide = "LEFT",
+                    modifier = Modifier.align(androidx.compose.ui.BiasAlignment(-1f, 0.45f)),
+                    onOpenSettings = { onNavigateToSettings(7) }
+                )
+                DashboardRadarMiniForSide(
+                    targetSide = "RIGHT",
+                    modifier = Modifier
+                        .align(androidx.compose.ui.BiasAlignment(1f, 0.45f))
+                        .offset(x = 9.dp),
+                    onOpenSettings = { onNavigateToSettings(7) }
+                )
             }
 
             Spacer(Modifier.height(16.dp))
@@ -2968,7 +3001,7 @@ private fun WheelInfoBox(
             val infinite = androidx.compose.animation.core.rememberInfiniteTransition(label = "diagGlow")
             val alpha by infinite.animateFloat(
                 initialValue = 1f,
-                targetValue = 0.3f,
+                targetValue = 0.45f,
                 animationSpec = androidx.compose.animation.core.infiniteRepeatable(
                     animation = androidx.compose.animation.core.tween(
                         durationMillis = 1000,

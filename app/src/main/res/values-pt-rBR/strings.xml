@@ -1305,4 +1305,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin: Cima (pressionar longo) · Galaxy Watch Ultra: botão lateral inferior</string>
     <string name="section_watch_screen_buttons_desc">Áreas de toque desenhadas no mostrador do relógio</string>
     <string name="section_watch_hardware_buttons_desc">Botões laterais do relógio</string>
+    <!-- Radar de retrovisor (Garmin Varia hoje) -->
+    <string name="section_radar">Radar de retrovisor</string>
+    <string name="radar_caption">Mantenha o botão do Varia pressionado por 2 segundos até piscar em roxo e então inicie uma busca.</string>
+    <string name="radar_pair_button">Iniciar busca</string>
+    <string name="radar_pair_action">Parear</string>
+    <string name="radar_stop_scan">Parar busca</string>
+    <string name="radar_state_connected">Conectado</string>
+    <string name="radar_state_connecting">Conectando…</string>
+    <string name="radar_state_disconnected">Desconectado</string>
+    <string name="radar_reconnect">Reconectar</string>
+    <string name="radar_disconnect">Desconectar</string>
+    <string name="radar_unpair">Esquecer dispositivo</string>
+    <string name="radar_battery_fmt">Bateria %1$d %%</string>
+    <string name="radar_clear">Via livre</string>
+    <string name="radar_threats_count">Rastreando %1$d veículo(s):</string>
+    <string name="radar_show_overlay">Mostrar overlay de ameaças</string>
+    <string name="radar_show_overlay_desc">Barra de radar fina nas bordas do painel. Um ponto colorido por veículo detectado. Visível apenas no painel.</string>
+    <string name="radar_overlay_left">Borda esquerda</string>
+    <string name="radar_overlay_both">Ambos os lados</string>
+    <string name="radar_overlay_right">Borda direita</string>
+    <string name="alarm_metric_radar_distance">Distância do carro</string>
+    <string name="alarm_metric_radar_approach">Carro se aproximando</string>
+
 </resources>

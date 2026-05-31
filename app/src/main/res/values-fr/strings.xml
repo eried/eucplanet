@@ -1269,4 +1269,27 @@
     <string name="watch_hardware_button_2_subtitle">Garmin : Haut (appui long) · Galaxy Watch Ultra : bouton latéral inférieur</string>
     <string name="section_watch_screen_buttons_desc">Zones tactiles dessinées sur le cadran de la montre</string>
     <string name="section_watch_hardware_buttons_desc">Boutons latéraux de la montre</string>
+    <!-- Radar rétroviseur (Garmin Varia aujourd\'hui) -->
+    <string name="section_radar">Radar rétroviseur</string>
+    <string name="radar_caption">Maintenez le bouton du Varia pendant 2 secondes jusqu\'à ce qu\'il clignote en violet, puis lancez une recherche.</string>
+    <string name="radar_pair_button">Lancer la recherche</string>
+    <string name="radar_pair_action">Coupler</string>
+    <string name="radar_stop_scan">Arrêter la recherche</string>
+    <string name="radar_state_connected">Connecté</string>
+    <string name="radar_state_connecting">Connexion…</string>
+    <string name="radar_state_disconnected">Déconnecté</string>
+    <string name="radar_reconnect">Reconnecter</string>
+    <string name="radar_disconnect">Déconnecter</string>
+    <string name="radar_unpair">Oublier l\'appareil</string>
+    <string name="radar_battery_fmt">Batterie %1$d %%</string>
+    <string name="radar_clear">Voie dégagée</string>
+    <string name="radar_threats_count">Suivi de %1$d véhicule(s) :</string>
+    <string name="radar_show_overlay">Afficher la surcouche de menace</string>
+    <string name="radar_show_overlay_desc">Fine barre radar dans les bords du tableau de bord. Un point coloré par véhicule détecté. Visible uniquement sur le tableau de bord.</string>
+    <string name="radar_overlay_left">Bord gauche</string>
+    <string name="radar_overlay_both">Les deux côtés</string>
+    <string name="radar_overlay_right">Bord droit</string>
+    <string name="alarm_metric_radar_distance">Distance voiture</string>
+    <string name="alarm_metric_radar_approach">Voiture approche</string>
+
 </resources>
