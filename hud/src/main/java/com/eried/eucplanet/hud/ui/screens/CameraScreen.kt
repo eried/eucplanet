@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -119,32 +118,46 @@ fun RearCameraPreview(modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         if (hasPermission && !cameraFailed) {
             AndroidView(
-                // -90 deg (CCW) rotation applied at the Compose layer.
-                // The Motoeye E6's rear camera sensor is mounted 90 deg
-                // off from the prism orientation, so CameraX's default
-                // preview comes out sideways for the rider. CameraX has
-                // a targetRotation API that would in theory handle this
-                // inside the pipeline, but it relies on the device
-                // reporting an accurate Surface.ROTATION_* value, which
-                // some aftermarket HUD firmwares get wrong. Doing the
-                // visual rotation in Compose is deterministic regardless
-                // of what the device reports.
-                modifier = Modifier
-                    .fillMaxSize()
-                    .rotate(-90f),
+                // Two-step rotation that works on real HUDs AND on the
+                // emulator (preview-3 testers reported neither Compose
+                // Modifier.rotate nor view.rotation alone changed the
+                // displayed orientation):
+                //
+                //   1. PreviewView.ImplementationMode = COMPATIBLE.
+                //      The default PERFORMANCE mode uses a SurfaceView,
+                //      whose content is composited DIRECTLY to the
+                //      screen by SurfaceFlinger and bypasses the app's
+                //      view hierarchy -- nothing the app does in the
+                //      view tree can rotate it. COMPATIBLE switches to
+                //      a TextureView, which IS part of the view tree.
+                //   2. view.rotation = -90f on the TextureView. With
+                //      COMPATIBLE in place, this actually rotates the
+                //      texture sample, so the camera feed appears
+                //      a quarter turn CCW -- matching the Motoeye E6's
+                //      sensor mount offset.
+                //
+                // We also set Preview.targetRotation as a hint to
+                // CameraX so it picks the right resolution profile
+                // for the rotated viewport.
+                modifier = Modifier.fillMaxSize(),
                 factory = { c ->
                     PreviewView(c).also { view ->
+                        view.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                         view.scaleType = PreviewView.ScaleType.FILL_CENTER
+                        view.rotation = -90f
                     }
                 },
                 update = { view ->
+                    if (view.rotation != -90f) view.rotation = -90f
                     if (!bindStarted) {
                         bindStarted = true
                         val providerFuture = ProcessCameraProvider.getInstance(view.context)
                         providerFuture.addListener({
                             try {
                                 val provider = providerFuture.get()
-                                val preview = Preview.Builder().build().also {
+                                val preview = Preview.Builder()
+                                    .setTargetRotation(android.view.Surface.ROTATION_270)
+                                    .build().also {
                                     it.surfaceProvider = view.surfaceProvider
                                 }
                                 provider.unbindAll()
@@ -210,7 +223,7 @@ private fun CameraLoadingBadge(modifier: Modifier = Modifier) {
     val ctx = LocalContext.current
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RectangleShape)
             .background(Color(0xE6111111))
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,

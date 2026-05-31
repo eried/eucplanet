@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -116,9 +116,9 @@ fun BigClockScreen(hud: HudState) {
 private fun CornerBadge(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RectangleShape)
             .background(Color(0xE6111111))
-            .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFF6B6B6B), RectangleShape)
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Text(

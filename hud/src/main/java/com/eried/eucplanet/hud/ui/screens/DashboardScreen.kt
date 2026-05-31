@@ -182,15 +182,13 @@ private fun Tile(
         val strokeW = (h * 0.012f).coerceAtLeast(1f).dp
 
         Canvas(Modifier.fillMaxSize()) {
-            drawRoundRect(
-                color = Color(0xFF111111),
-                size = size,
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerR.toPx())
-            )
-            drawRoundRect(
+            // Square corners across the HUD chrome (per tester feedback).
+            // Custom overlays still use whatever their preset specifies;
+            // this is just the built-in Dashboard tile chrome.
+            drawRect(color = Color(0xFF111111), size = size)
+            drawRect(
                 color = accent.copy(alpha = 0.6f),
                 size = size,
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerR.toPx()),
                 style = Stroke(width = strokeW.toPx())
             )
         }

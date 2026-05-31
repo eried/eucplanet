@@ -7863,10 +7863,20 @@ private fun HudInstallHint(pairedHudVersion: String?) {
     // alone leaves the link visually identical to the surrounding
     // text and only reveals itself on hover (a tap target the rider
     // would not know is there).
+    // Use the accent (primary) colour, which is bright enough to read
+    // as a link against the surfaceVariant fill. The styling is set on
+    // the LinkAnnotation.Url's `styles` parameter so Compose's Text
+    // composable applies it to the link RUN (a separate addStyle on
+    // the same range doesn't always survive the LinkAnnotation merge).
     val linkColor = MaterialTheme.colorScheme.primary
     val annotated = remember(raw, updateUrl, linkColor) {
         val parsed = androidx.core.text.HtmlCompat.fromHtml(
             raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+        val linkSpanStyle = androidx.compose.ui.text.SpanStyle(
+            color = linkColor,
+            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
         )
         androidx.compose.ui.text.buildAnnotatedString {
             append(parsed.toString())
@@ -7876,22 +7886,12 @@ private fun HudInstallHint(pairedHudVersion: String?) {
                 if (sp.style == android.graphics.Typeface.BOLD) {
                     val start = parsed.getSpanStart(sp)
                     val end = parsed.getSpanEnd(sp)
-                    // Underlined + accent-coloured URL run, plus the
-                    // LinkAnnotation that wires the tap to the system
-                    // URL handler. Compose's Text composable wires
-                    // these up automatically -- no Modifier.clickable
-                    // needed on the row.
-                    addStyle(
-                        androidx.compose.ui.text.SpanStyle(
-                            color = linkColor,
-                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-                        ),
-                        start, end
-                    )
                     addLink(
                         url = androidx.compose.ui.text.LinkAnnotation.Url(
-                            "https://$updateUrl"
+                            url = "https://$updateUrl",
+                            styles = androidx.compose.ui.text.TextLinkStyles(
+                                style = linkSpanStyle
+                            )
                         ),
                         start = start,
                         end = end

@@ -466,22 +466,23 @@ class SettingsViewModel @Inject constructor(
     }
 
     /** Screens that are ON by default on a fresh install. Order is the
-     *  default carousel order. Anything in [knownHudScreens] but not in
-     *  this list ships disabled -- the rider opts in via the Personalize
-     *  list in Settings. */
+     *  default carousel order. Updated for preview-3 tester feedback:
+     *  ALL screens ship enabled so a new rider scrolls through the full
+     *  carousel and decides what to keep -- previously "opt-in defaults
+     *  off" meant testers never saw the Power / TripStats / Compass /
+     *  Safety / BigClock screens unless they read the release notes
+     *  carefully. The rider can still trim them from Personalize ->
+     *  HUD screens. */
     val defaultEnabledHudScreens: List<String> = listOf(
-        "Dashboard", "Camera", "Telemetry", "Custom", "CustomCam", "Map", "Nav"
+        "Dashboard", "Camera", "Telemetry",
+        "Custom", "CustomCam", "Map", "Nav",
+        "Power", "TripStats", "Compass", "Safety", "BigClock"
     )
 
     /** Stable identifiers for every HUD screen the app knows about,
      *  mirroring the HudUiController.Screen enum on the HUD side. Order
-     *  determines where new screens appear in the Personalize list. The
-     *  newer "opt-in" screens (Power onward) ship disabled so the rider
-     *  doesn't get a fresh suite of unfamiliar screens dropped on the
-     *  carousel without asking. */
-    val knownHudScreens: List<String> = defaultEnabledHudScreens + listOf(
-        "Power", "TripStats", "Compass", "Safety", "BigClock"
-    )
+     *  determines where new screens appear in the Personalize list. */
+    val knownHudScreens: List<String> = defaultEnabledHudScreens
 
     /** Parse the rider's saved enabled-set, falling back to defaults
      *  when nothing has been saved. Strict member check ensures stale

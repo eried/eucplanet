@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhonelinkOff
 import androidx.compose.material.icons.outlined.Info
@@ -112,6 +113,44 @@ fun HudApp(
     )
 
     MaterialTheme(colorScheme = colors) {
+        // Disconnect-state machine, computed at the top of the screen so
+        // the wall clock (rendered later) can know to skip when the
+        // disconnect badge is about to take its corner.
+        //
+        // Two graces, both gated on the same showDisconnect bit:
+        //   - boot grace: at first launch, wait DISCONNECT_BOOT_GRACE_MS
+        //     before alarming, covers HUD boot + phone hotspot DHCP +
+        //     first WS dial.
+        //   - reconnect grace: AFTER we've been connected at least once,
+        //     a mid-session drop waits DISCONNECT_RECONNECT_GRACE_MS
+        //     before showing the dialog so a transient blip (rider
+        //     walks behind a wall, phone OS suspends the WS for a
+        //     second) doesn't flash the panel red.
+        //
+        // The grace runs inside a LaunchedEffect keyed on the status:
+        // when status flips back to CONNECTED, the effect is cancelled
+        // and showDisconnect stays false. If the grace elapses without
+        // a reconnect, we flip it true and the chrome appears.
+        var everConnected by remember { mutableStateOf(false) }
+        if (st == HudServer.Status.CONNECTED) everConnected = true
+        var showDisconnect by remember { mutableStateOf(false) }
+        androidx.compose.runtime.LaunchedEffect(st) {
+            if (st == HudServer.Status.CONNECTED) {
+                showDisconnect = false
+            } else {
+                val grace = if (everConnected)
+                    DISCONNECT_RECONNECT_GRACE_MS
+                    else DISCONNECT_BOOT_GRACE_MS
+                kotlinx.coroutines.delay(grace)
+                showDisconnect = true
+            }
+        }
+        // True precisely when the DisconnectedBadge will be rendered
+        // at TopEnd (the dialog covers the full screen, so it doesn't
+        // collide with the clock the same way; we still hide the clock
+        // then because nothing under the dialog matters).
+        val disconnectChromeShowing = showDisconnect
+
         Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
             Box(Modifier.fillMaxSize()) {
                 // Immediate screen swap, no slide/fade animation. The
@@ -171,57 +210,35 @@ fun HudApp(
                         modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
                     )
 
-                    // Ambient wall clock, bottom-left, same chrome as the
-                    // disconnect / screen-change badges. Skipped on the two
-                    // Custom-overlay screens because that's the rider's
-                    // canvas; we shouldn't paint app chrome on top of their
-                    // preset.
+                    // Ambient wall clock, TOP-right. Moved here from
+                    // bottom-left after a tester reported it covering
+                    // the Safety screen's voltage-sag readout. Borderless
+                    // at the top so it reads as ambient status rather
+                    // than a competing UI tile (the disconnect badge
+                    // already has the bordered chrome treatment).
+                    //
+                    // Skipped on:
+                    //   * Custom / CustomCam -- the rider's canvas
+                    //   * BigClock -- showing the clock twice is silly
+                    //   * Whenever disconnect chrome is up at TopEnd --
+                    //     the disconnect signal wins that corner.
                     val showClock = controller.current != HudUiController.Screen.Custom &&
-                        controller.current != HudUiController.Screen.CustomCam
+                        controller.current != HudUiController.Screen.CustomCam &&
+                        controller.current != HudUiController.Screen.BigClock &&
+                        !disconnectChromeShowing
                     if (showClock) {
                         WallClockBadge(
                             modifier = Modifier
-                                .align(Alignment.BottomStart)
+                                .align(Alignment.TopEnd)
                                 .padding(12.dp)
                         )
                     }
                 }
 
                 // Disconnect chrome renders LAST so it sits in front of
-                // the wall clock and screen toast -- the rider's
-                // "your phone isn't talking to me" signal needs to win
-                // over the ambient overlays.
-                //
-                // Two graces, both gated on the same showDisconnect bit:
-                //   - boot grace: at first launch, wait DISCONNECT_BOOT_
-                //     GRACE_MS before alarming, covers HUD boot + phone
-                //     hotspot DHCP + first WS dial.
-                //   - reconnect grace: AFTER we've been connected at
-                //     least once, a mid-session drop waits DISCONNECT_
-                //     RECONNECT_GRACE_MS before showing the dialog so a
-                //     transient blip (rider walks behind a wall, phone
-                //     OS suspends the WS for a second) doesn't flash
-                //     the panel red.
-                //
-                // The grace runs inside a LaunchedEffect keyed on the
-                // status: when status flips back to CONNECTED, the
-                // effect is cancelled and showDisconnect stays false.
-                // If the grace elapses without a reconnect, we flip it
-                // true and the chrome appears.
-                var everConnected by remember { mutableStateOf(false) }
-                if (st == HudServer.Status.CONNECTED) everConnected = true
-                var showDisconnect by remember { mutableStateOf(false) }
-                androidx.compose.runtime.LaunchedEffect(st) {
-                    if (st == HudServer.Status.CONNECTED) {
-                        showDisconnect = false
-                    } else {
-                        val grace = if (everConnected)
-                            DISCONNECT_RECONNECT_GRACE_MS
-                            else DISCONNECT_BOOT_GRACE_MS
-                        kotlinx.coroutines.delay(grace)
-                        showDisconnect = true
-                    }
-                }
+                // the screen content -- the rider's "your phone isn't
+                // talking to me" signal needs to win over the ambient
+                // overlays.
                 if (showDisconnect) {
                     if (controller.disconnectedModalDismissed) {
                         DisconnectedBadge(
@@ -295,9 +312,9 @@ private fun BoxScope.VersionMismatchSurface(
         modifier = Modifier
             .align(Alignment.BottomEnd)
             .padding(12.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RectangleShape)
             .background(Color(0xE6111111))
-            .border(1.dp, strokeColor, RoundedCornerShape(8.dp))
+            .border(1.dp, strokeColor, RectangleShape)
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -379,9 +396,9 @@ private fun ScreenChangeToast(
         // (13.sp title / 11.sp description) matches the badge exactly.
         androidx.compose.foundation.layout.Column(
             modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RectangleShape)
                 .background(Color(0xE6111111))
-                .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+                .border(1.dp, Color(0xFF6B6B6B), RectangleShape)
                 .padding(horizontal = 10.dp, vertical = 6.dp)
         ) {
             // Title row: "<screen name>  <index>/<total>"
@@ -488,12 +505,12 @@ private fun DisconnectedDialog(localIp: String?) {
                 // so the dialog is naturally a lot tighter than before.
                 .widthIn(max = (maxWidth.value * 0.7f).dp)
                 .wrapContentSize()
-                .clip(RoundedCornerShape((side * 0.025f).dp))
+                .clip(RectangleShape)
                 .background(Color(0xE6111111))
                 .border(
                     width = (side * 0.004f).coerceAtLeast(1f).dp,
                     color = frameColor.copy(alpha = 0.7f),
-                    shape = RoundedCornerShape((side * 0.025f).dp)
+                    shape = RectangleShape
                 )
                 .padding(PaddingValues(horizontal = pad, vertical = pad)),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -660,9 +677,9 @@ private fun AddressRow(
                 // had -- just inside a much tighter dialog.
                 .width(cellW)
                 .heightIn(min = cellHMin)
-                .clip(RoundedCornerShape(cornerR))
+                .clip(RectangleShape)
                 .background(Color(0xFF2F2F2F))
-                .border(borderW, border.copy(alpha = 0.55f), RoundedCornerShape(cornerR))
+                .border(borderW, border.copy(alpha = 0.55f), RectangleShape)
                 .padding(horizontal = innerHPad),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -702,9 +719,9 @@ private fun DisconnectedBadge(localIp: String?, modifier: Modifier = Modifier) {
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RectangleShape)
             .background(Color(0xE6111111))
-            .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
+            .border(1.dp, Color(0xFF6B6B6B), RectangleShape)
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -746,12 +763,16 @@ private fun WallClockBadge(modifier: Modifier = Modifier) {
     val formatter = remember(pattern) {
         java.text.SimpleDateFormat(pattern, java.util.Locale.getDefault())
     }
+    // Semi-transparent black square fill, no rounded corners, no border.
+    // Sharp edges read as system chrome (status bar) rather than the
+    // UI-tile pill the bottom-left badge used to be. Keeps the clock
+    // legible over busy backgrounds (map, camera preview) without
+    // competing visually with the disconnect badge that shares this
+    // corner during a drop.
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color(0xE6111111))
-            .border(1.dp, Color(0xFF6B6B6B), RoundedCornerShape(8.dp))
-            .padding(horizontal = 10.dp, vertical = 6.dp)
+            .background(Color.Black.copy(alpha = 0.45f))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
             text = formatter.format(java.util.Date(nowMs)),

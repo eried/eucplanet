@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,34 +41,28 @@ fun SafetyScreen(hud: HudState, session: HudSessionState) {
     val sagV = if (maxVoltage > 1f) (maxVoltage - hud.voltage).coerceAtLeast(0f) else 0f
 
     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-        BoxWithConstraints(Modifier.fillMaxSize()) {
-            val h = maxHeight.value
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SafetyTile(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    label = "PWM",
-                    value = "${hud.pwm.toInt()}%",
-                    color = pwmColor(hud.pwm, hud.gaugeOrangeThresholdPct, hud.gaugeRedThresholdPct),
-                    sizeRefDp = h
-                )
-                SafetyTile(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    label = "TEMP",
-                    value = "${HudUnits.temperature(hud.temperatureC, hud.unitTemp).toInt()}°${hud.unitTemp}",
-                    color = tempColor(hud.temperatureC),
-                    sizeRefDp = h
-                )
-                SafetyTile(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    label = "SAG  (${hud.voltage.toInt()} V of ${maxVoltage.toInt()} V)",
-                    value = "-%.1f V".format(sagV),
-                    color = sagColor(sagV),
-                    sizeRefDp = h
-                )
-            }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SafetyTile(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                label = "PWM",
+                value = "${hud.pwm.toInt()}%",
+                color = pwmColor(hud.pwm, hud.gaugeOrangeThresholdPct, hud.gaugeRedThresholdPct)
+            )
+            SafetyTile(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                label = "TEMP",
+                value = "${HudUnits.temperature(hud.temperatureC, hud.unitTemp).toInt()}°${hud.unitTemp}",
+                color = tempColor(hud.temperatureC)
+            )
+            SafetyTile(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                label = "SAG  (${hud.voltage.toInt()} V of ${maxVoltage.toInt()} V)",
+                value = "-%.1f V".format(sagV),
+                color = sagColor(sagV)
+            )
         }
     }
 }
@@ -78,28 +72,33 @@ private fun SafetyTile(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    color: Color,
-    sizeRefDp: Float
+    color: Color
 ) {
-    Box(
+    BoxWithConstraints(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .clip(RectangleShape)
             .background(Color.Black)
-            .border(2.dp, color, RoundedCornerShape(10.dp))
+            .border(2.dp, color, RectangleShape)
             .padding(14.dp)
     ) {
+        // Per-tile font sizing: scale by the tile's own height (not the
+        // whole screen), so three stacked tiles each get a value that
+        // fills the tile without overflowing. Label takes ~14% of tile
+        // height; value takes ~52% leaving slack for the descender on
+        // characters like 'V' and the round caps on '0'.
+        val tileH = maxHeight.value
         Column {
             Text(
                 text = label,
                 color = color,
-                fontSize = (sizeRefDp * 0.04f).sp,
+                fontSize = (tileH * 0.14f).coerceIn(10f, 22f).sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
             Text(
                 text = value,
                 color = Color.White,
-                fontSize = (sizeRefDp * 0.18f).sp,
+                fontSize = (tileH * 0.52f).coerceIn(20f, 96f).sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
                 maxLines = 1

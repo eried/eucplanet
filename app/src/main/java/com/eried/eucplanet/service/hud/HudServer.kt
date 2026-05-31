@@ -85,14 +85,17 @@ class HudServer @Inject constructor(
         // "no IP / not autodetected" state within a reasonable wait.
         private const val MDNS_RESOLVE_TIMEOUT_MS = 5_000L
         private const val MULTICAST_LOCK_TAG = "eucplanet-hud-discovery"
-        // Default seven that the HUD shipped with before Personalize
-        // existed. Used as the snapshot's enabledHudScreens when the
-        // rider hasn't customised anything -- ensures the wire always
-        // carries a non-empty list, so the HUD can distinguish "no frame
-        // received" (empty) from "rider's choice" (non-empty).
+        // Default carousel order shipped with all 12 known screens.
+        // Mirrors SettingsViewModel.defaultEnabledHudScreens so a fresh
+        // install gets a non-empty wire field on the first frame --
+        // lets the HUD distinguish "no frame received yet" (empty)
+        // from "rider's choice" (non-empty). Updated from the original
+        // 7 after preview-3 tester feedback that the opt-in screens
+        // were invisible to most testers.
         private val DEFAULT_HUD_SCREENS = listOf(
             "Dashboard", "Camera", "Telemetry",
-            "Custom", "CustomCam", "Map", "Nav"
+            "Custom", "CustomCam", "Map", "Nav",
+            "Power", "TripStats", "Compass", "Safety", "BigClock"
         )
     }
 
