@@ -201,6 +201,16 @@ object SettingsJson {
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
         put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("hudServerEnabled", s.hudServerEnabled)
+        put("hudServerPort", s.hudServerPort)
+        put("hudIp", s.hudIp)
+        put("hudCustomOverlayName", s.hudCustomOverlayName)
+        put("hudCustomOverlayJson", s.hudCustomOverlayJson)
+        put("hudScreensEnabled", s.hudScreensEnabled)
+        put("hudScreensOrder", s.hudScreensOrder)
+        put("hudMapStyle", s.hudMapStyle)
+        put("hudMapContrastPct", s.hudMapContrastPct)
+        put("hudMapBrightnessPct", s.hudMapBrightnessPct)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
@@ -386,6 +396,16 @@ object SettingsJson {
         else base.navUserMarkerPhotoDataUrl,
         navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
+        hudIp = j.optString("hudIp", base.hudIp),
+        hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
+        hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
+        hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
+        hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
+        hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),
+        hudMapContrastPct = j.optInt("hudMapContrastPct", base.hudMapContrastPct),
+        hudMapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudMapBrightnessPct),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),

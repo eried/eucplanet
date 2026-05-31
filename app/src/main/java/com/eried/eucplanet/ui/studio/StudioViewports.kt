@@ -54,10 +54,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayPreset
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraHub
 import kotlin.math.abs
 import kotlin.math.cos

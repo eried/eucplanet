@@ -57,6 +57,7 @@ class WheelService : LifecycleService() {
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
     @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
+    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
     // Voice announcement
     private var voiceJob: Job? = null
@@ -112,6 +113,7 @@ class WheelService : LifecycleService() {
 
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
+            var hudWasOn = false
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
@@ -121,6 +123,20 @@ class WheelService : LifecycleService() {
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
                     s
                 )
+                // HUD server lives only while the toggle is on AND the service
+                // is running. Watching the settings flow rather than checking
+                // once at onCreate so the rider can toggle it mid-session.
+                // Debug prop `debug.eucplanet.hud.force=true` bypasses the
+                // toggle for emulator testing, where finding the Compose
+                // switch coordinates over adb is painful. No effect on real
+                // devices, which never have this prop set.
+                val forceOn = com.eried.eucplanet.service.hud.HudDebug
+                    .read("debug.eucplanet.hud.force") == "true"
+                val effective = s.hudServerEnabled || forceOn
+                if (effective != hudWasOn) {
+                    if (effective) hudServer.start() else hudServer.stop()
+                    hudWasOn = effective
+                }
             }
         }
 
@@ -288,6 +304,7 @@ class WheelService : LifecycleService() {
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
         try { garminBridge.publishFarewell() } catch (_: Exception) {}
+        try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         voiceService.shutdown()

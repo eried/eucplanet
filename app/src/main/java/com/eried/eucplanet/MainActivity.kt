@@ -84,7 +84,16 @@ class MainActivity : AppCompatActivity() {
             tripRepository.startLocationUpdates()
         }
         val s = _settings.value
-        if (s != null && s.voiceEnabled && !s.voiceOnlyWhenConnected && canStartWheelService()) {
+        val needsServiceForBackgroundFeature = s != null && canStartWheelService() && (
+            // Voice loop needs the service alive between rides so the periodic
+            // announcement keeps firing even before a wheel is connected.
+            (s.voiceEnabled && !s.voiceOnlyWhenConnected) ||
+            // HUD companion: the embedded HTTP/SSE server lives inside
+            // WheelService, so we need the service running for the HUD to
+            // pair even before a wheel is on the line.
+            s.hudServerEnabled
+        )
+        if (needsServiceForBackgroundFeature) {
             startForegroundService(Intent(this, WheelService::class.java))
         }
     }
@@ -227,7 +236,18 @@ class MainActivity : AppCompatActivity() {
                     }
                     // Gated on permission because Android 14+ crashes startForeground
                     // with location/connectedDevice types if neither perm is granted.
-                    if (it.voiceEnabled && !it.voiceOnlyWhenConnected && canStartWheelService()) {
+                    // Either always-on voice OR the HUD companion server can
+                    // require the foreground service before a wheel is paired.
+                    // The HUD-force debug prop is honoured too so emulator
+                    // testers don't have to find the Compose toggle by tap.
+                    val forceHud = com.eried.eucplanet.service.hud.HudDebug
+                        .read("debug.eucplanet.hud.force") == "true"
+                    val needsService = canStartWheelService() && (
+                        (it.voiceEnabled && !it.voiceOnlyWhenConnected) ||
+                        it.hudServerEnabled ||
+                        forceHud
+                    )
+                    if (needsService) {
                         startForegroundService(Intent(this@MainActivity, WheelService::class.java))
                     }
                 }

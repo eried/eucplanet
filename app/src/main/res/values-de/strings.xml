@@ -76,6 +76,22 @@
     <string name="tab_integration">Integration</string>
     <string name="tab_cloud">Einstellungen &amp; Fahrten sichern</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Datenverbindung aktivieren</string>
+    <string name="hud_ip_label">Geräte-IP</string>
+    <string name="hud_ip_label_autodetect">Geräte-IP (automatisch)</string>
+    <string name="hud_ip_desc">Gib die IP ein, die das HUD auf seinem Bildschirm anzeigt.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Standard 28080.</string>
+    <string name="hud_hotspot_off_hint">Telefon-Hotspot ist aus. Stelle sicher, dass das HUD und das Telefon im selben WLAN sind.</string>
+    <string name="hud_hotspot_on_hint">Telefon-Hotspot sendet. Verbinde das HUD mit dem WLAN dieses Telefons, um die Verbindung zu aktivieren.</string>
+    <string name="hud_custom_overlay_label">Benutzerdefiniertes HUD-Overlay</string>
+    <string name="hud_custom_overlay_placeholder">Wähle eine Overlay-Studio-Vorlage</string>
+    <string name="hud_custom_overlay_no_folder">Backup-Ordner nicht konfiguriert</string>
+    <string name="hud_custom_overlay_bundled_only">Wähle eine Vorlage (Backup-Ordner nicht festgelegt)</string>
+    <string name="hud_custom_overlay_none">Keines</string>
+
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-Ordner</string>
     <string name="cloud_caption">Ordner für Fahrten-CSVs und Einstellungs-Backup</string>

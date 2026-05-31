@@ -2,7 +2,7 @@ package com.eried.eucplanet.data.store
 
 import android.content.Context
 import android.util.Log
-import com.eried.eucplanet.data.model.OverlayPreset
+import com.eried.eucplanet.hud.protocol.OverlayPreset
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.sync.SyncManager
 import dagger.hilt.android.qualifiers.ApplicationContext

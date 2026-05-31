@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- HUD subscribes to the phone's local HTTP/SSE server over the phone's
+         hotspot. INTERNET covers the socket; ACCESS_WIFI_STATE +
+         ACCESS_NETWORK_STATE let us notice when the hotspot dis/reconnects
+         and gate discovery. CHANGE_WIFI_MULTICAST_STATE is required so JmDNS
+         can join the 224.0.0.251 multicast group for mDNS discovery. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+
+    <!-- ACCESS_WIFI_STATE auto-implies <uses-feature android.hardware.wifi
+         required=true>, which blocks install on aftermarket HUDs whose
+         custom Android ROM doesn't advertise wifi as a system feature even
+         though the hardware obviously has it. Same trap caught the
+         competitor app's first build. We need wifi at runtime but mark it
+         not-required here so the device's package parser doesn't reject
+         the APK at install time. -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+
+    <!-- The activity declares screenOrientation="landscape", which AGP
+         auto-promotes to a required android.hardware.screen.landscape
+         feature. Some aftermarket HUDs don't declare that feature either
+         (their launcher hard-codes landscape system-side). Override to
+         not-required so the parser accepts us. -->
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
+
+    <!-- Rear-camera screen. Optional: the screen degrades to a placeholder if
+         the HUD doesn't expose a camera through the standard HAL. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <!-- BLE not needed: the HUD is a renderer, not a wheel client. The phone
+         keeps owning the BLE link. -->
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.EucPlanetHud">
+
+        <activity
+            android:name=".HudActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:configChanges="screenSize|screenLayout|keyboardHidden|orientation"
+            android:theme="@style/Theme.EucPlanetHud"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

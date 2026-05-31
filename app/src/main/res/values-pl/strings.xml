@@ -104,6 +104,22 @@
     <string name="tab_watch">Zegarek</string>
     <string name="tab_cloud">Kopia zapasowa ustawień i tras</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Włącz transmisję danych</string>
+    <string name="hud_ip_label">IP urządzenia</string>
+    <string name="hud_ip_label_autodetect">IP urządzenia (automatycznie)</string>
+    <string name="hud_ip_desc">Wpisz IP wyświetlany przez HUD na ekranie.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Domyślnie 28080.</string>
+    <string name="hud_hotspot_off_hint">Hotspot telefonu jest wyłączony. Upewnij się, że HUD i telefon są w tej samej sieci WiFi.</string>
+    <string name="hud_hotspot_on_hint">Hotspot telefonu nadaje. Połącz HUD z WiFi tego telefonu, aby aktywować połączenie.</string>
+    <string name="hud_custom_overlay_label">Niestandardowa nakładka HUD</string>
+    <string name="hud_custom_overlay_placeholder">Wybierz preset Overlay Studio</string>
+    <string name="hud_custom_overlay_no_folder">Folder kopii zapasowej nie skonfigurowany</string>
+    <string name="hud_custom_overlay_bundled_only">Wybierz szablon (folder kopii zapasowej nie ustawiony)</string>
+    <string name="hud_custom_overlay_none">Brak</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Ogólne</string>
     <string name="section_watch_display">Ekran</string>

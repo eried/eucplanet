@@ -104,6 +104,22 @@
     <string name="tab_watch">Годинник</string>
     <string name="tab_cloud">Копія налаштувань і поїздок</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Увімкнути канал даних</string>
+    <string name="hud_ip_label">IP пристрою</string>
+    <string name="hud_ip_label_autodetect">IP пристрою (автоматично)</string>
+    <string name="hud_ip_desc">Введіть IP-адресу, яку HUD показує на екрані.</string>
+    <string name="hud_server_port">Порт</string>
+    <string name="hud_server_port_desc">За замовчуванням 28080.</string>
+    <string name="hud_hotspot_off_hint">Точка доступу телефона вимкнена. Переконайтеся, що HUD і телефон підключені до однієї мережі WiFi.</string>
+    <string name="hud_hotspot_on_hint">Точка доступу телефона активна. Підключіть HUD до WiFi цього телефона, щоб активувати з\'єднання.</string>
+    <string name="hud_custom_overlay_label">Користувацький HUD-оверлей</string>
+    <string name="hud_custom_overlay_placeholder">Виберіть пресет Overlay Studio</string>
+    <string name="hud_custom_overlay_no_folder">Папка резервного копіювання не налаштована</string>
+    <string name="hud_custom_overlay_bundled_only">Виберіть шаблон (папку резервного копіювання не задано)</string>
+    <string name="hud_custom_overlay_none">Немає</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Загальні</string>
     <string name="section_watch_display">Екран</string>

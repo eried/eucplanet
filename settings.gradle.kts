@@ -23,3 +23,5 @@ dependencyResolutionManagement {
 rootProject.name = "EucPlanet"
 include(":app")
 include(":wear")
+include(":hud")
+include(":hud-protocol")

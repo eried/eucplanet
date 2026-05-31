@@ -76,6 +76,22 @@
     <string name="tab_integration">集成</string>
     <string name="tab_cloud">设置与行程备份</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">启用数据连接</string>
+    <string name="hud_ip_label">设备 IP</string>
+    <string name="hud_ip_label_autodetect">设备 IP（自动）</string>
+    <string name="hud_ip_desc">输入 HUD 屏幕上显示的 IP 地址。</string>
+    <string name="hud_server_port">端口</string>
+    <string name="hud_server_port_desc">默认 28080。</string>
+    <string name="hud_hotspot_off_hint">手机热点已关闭。请确保 HUD 和手机在同一个 WiFi 网络上。</string>
+    <string name="hud_hotspot_on_hint">手机热点正在广播。将 HUD 连接到此手机的 WiFi 以启用连接。</string>
+    <string name="hud_custom_overlay_label">自定义 HUD 叠加</string>
+    <string name="hud_custom_overlay_placeholder">选择 Overlay Studio 预设</string>
+    <string name="hud_custom_overlay_no_folder">未配置备份文件夹</string>
+    <string name="hud_custom_overlay_bundled_only">选择一个预设（未设置备份文件夹）</string>
+    <string name="hud_custom_overlay_none">无</string>
+
     <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">存放行程 CSV 与设置备份的文件夹。</string>
     <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
