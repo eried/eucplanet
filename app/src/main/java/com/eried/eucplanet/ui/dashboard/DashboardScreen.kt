@@ -369,6 +369,16 @@ fun DashboardScreen(
         }
         AlertDialog(
             onDismissRequest = { showWarningsDialog = false },
+            // usePlatformDefaultWidth = false breaks Material3's default
+            // ~280–560 dp cap so the dialog can stretch closer to the screen
+            // edges — gives each warning card a useful body-text width and
+            // keeps the inline Fix button from getting squeezed.
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false
+            ),
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .padding(vertical = 24.dp),
             title = { Text(stringResource(R.string.warnings_dialog_title)) },
             text = {
                 androidx.compose.foundation.layout.Column(
@@ -403,11 +413,13 @@ fun DashboardScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
-                                // FilledTonalButton — soft primary tint, no
-                                // border. Reads as a recommended next step
-                                // without the visual weight of a primary
-                                // filled Button on every warning card.
-                                androidx.compose.material3.FilledTonalButton(onClick = w.fix) {
+                                // Primary filled Button — solid accent colour
+                                // so the call-to-action is unmissable on
+                                // every warning card. Close stays a neutral
+                                // TextButton, matching Material guidance
+                                // (one emphasised action per dialog, the
+                                // dismissive button is muted).
+                                Button(onClick = w.fix) {
                                     Text(stringResource(R.string.warnings_fix_button))
                                 }
                             }
