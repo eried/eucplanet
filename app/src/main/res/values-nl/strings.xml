@@ -1350,4 +1350,5 @@
     <string name="warnings_fix_button">Oplossen</string>
     <string name="warnings_perm_notifications_title">Meldingen uit</string>
     <string name="warnings_perm_notifications_body">Je ziet de ritstatus niet in de statusbalk en krijgt geen spraakmeldingen in het meldingenpaneel</string>
+    <string name="hud_screen_name_map_nav">Kaart + Nav</string>
 </resources>

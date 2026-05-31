@@ -475,7 +475,7 @@ class SettingsViewModel @Inject constructor(
      *  HUD screens. */
     val defaultEnabledHudScreens: List<String> = listOf(
         "Dashboard", "Camera", "Telemetry",
-        "Custom", "CustomCam", "Map", "Nav",
+        "Custom", "CustomCam", "MapNav", "Map", "Nav",
         "Power", "TripStats", "Compass", "Safety", "BigClock"
     )
 

@@ -63,6 +63,7 @@ import com.eried.eucplanet.hud.protocol.HudState
 import com.eried.eucplanet.hud.ui.screens.CameraScreen
 import com.eried.eucplanet.hud.ui.screens.CustomOverlayScreen
 import com.eried.eucplanet.hud.ui.screens.DashboardScreen
+import com.eried.eucplanet.hud.ui.screens.MapNavScreen
 import com.eried.eucplanet.hud.ui.screens.MapScreen
 import com.eried.eucplanet.hud.ui.screens.BigClockScreen
 import com.eried.eucplanet.hud.ui.screens.CompassScreen
@@ -184,6 +185,8 @@ fun HudApp(
                             CustomOverlayScreen(hud = hud, withCamera = false)
                         HudUiController.Screen.CustomCam ->
                             CustomOverlayScreen(hud = hud, withCamera = true)
+                        HudUiController.Screen.MapNav ->
+                            MapNavScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
                         HudUiController.Screen.Map ->
                             MapScreen(hud = hud, zoom = controller.mapZoom, peer = pr, cache = tileCache)
                         HudUiController.Screen.Nav ->
@@ -374,6 +377,8 @@ private fun ScreenChangeToast(
                 R.string.hud_screen_custom to R.string.hud_screen_custom_desc
             HudUiController.Screen.CustomCam ->
                 R.string.hud_screen_custom_cam to R.string.hud_screen_custom_cam_desc
+            HudUiController.Screen.MapNav ->
+                R.string.hud_screen_map_nav to R.string.hud_screen_map_nav_desc
             HudUiController.Screen.Map ->
                 R.string.hud_screen_map to R.string.hud_screen_map_desc
             HudUiController.Screen.Nav ->

@@ -1350,4 +1350,5 @@
     <string name="warnings_fix_button">Corrigir</string>
     <string name="warnings_perm_notifications_title">Notificações desativadas</string>
     <string name="warnings_perm_notifications_body">Você não verá o status do trajeto na barra de status nem receberá avisos por voz nas notificações</string>
+    <string name="hud_screen_name_map_nav">Mapa + Nav</string>
 </resources>

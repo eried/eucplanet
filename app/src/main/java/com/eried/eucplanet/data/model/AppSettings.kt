@@ -400,8 +400,15 @@ data class AppSettings(
      * Storage key kept as `hudServerEnabled` for backwards compat with
      * existing rider settings -- the meaning is "HUD link active", role was
      * inverted in v0.1.4.
+     *
+     * Default: false in release, true in debug builds. Debug-only opt-in
+     * by default means a fresh sideload-for-testing install dials the HUD
+     * immediately without the rider having to find the toggle in Settings —
+     * which is exactly the flow the dev loop runs every reinstall. Release
+     * users still see it disabled so a HUDless rider doesn't burn battery
+     * on a dial loop they'll never use.
      */
-    val hudServerEnabled: Boolean = false,
+    val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
     /**
      * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
      * Exposed as a setting because some carrier-grade hotspots refuse to

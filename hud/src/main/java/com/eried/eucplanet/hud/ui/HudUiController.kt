@@ -25,18 +25,19 @@ class HudUiController {
      *  are opt-in via the phone-side Personalize list. */
     enum class Screen {
         // Default-on
-        Dashboard, Camera, Telemetry, Custom, CustomCam, Map, Nav,
+        Dashboard, Camera, Telemetry, Custom, CustomCam, MapNav,
         // Opt-in (default OFF, rider enables on the phone)
-        Power, TripStats, Compass, Safety, BigClock
+        Map, Nav, Power, TripStats, Compass, Safety, BigClock
     }
 
     /** Default order, used when the rider hasn't customised the carousel
-     *  on the phone side. NOTE: this is intentionally the first seven
-     *  Screen enum values -- the additional opt-in screens stay hidden
-     *  until the rider toggles them on in Settings. */
+     *  on the phone side. The new combined MapNav screen replaces the
+     *  standalone Map + Nav in the default set — riders who prefer the
+     *  dedicated full-screen turn arrow can opt them back in via the
+     *  phone Personalize list. */
     private val defaultScreens: List<Screen> = listOf(
         Screen.Dashboard, Screen.Camera, Screen.Telemetry,
-        Screen.Custom, Screen.CustomCam, Screen.Map, Screen.Nav
+        Screen.Custom, Screen.CustomCam, Screen.MapNav
     )
 
     /** Active carousel, kept observable so when [applyEnabledScreens] swaps

@@ -1314,4 +1314,5 @@
     <string name="warnings_fix_button">Åtgärda</string>
     <string name="warnings_perm_notifications_title">Aviseringar av</string>
     <string name="warnings_perm_notifications_body">Du ser inte resestatus i statusfältet och får inga talvarningar i aviseringspanelen</string>
+    <string name="hud_screen_name_map_nav">Karta + Nav</string>
 </resources>

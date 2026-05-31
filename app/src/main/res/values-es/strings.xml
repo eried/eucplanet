@@ -1331,4 +1331,5 @@
     <string name="warnings_fix_button">Arreglar</string>
     <string name="warnings_perm_notifications_title">Notificaciones desactivadas</string>
     <string name="warnings_perm_notifications_body">No verás el estado del viaje en la barra de estado ni recibirás avisos por voz en las notificaciones</string>
+    <string name="hud_screen_name_map_nav">Mapa + Nav</string>
 </resources>

@@ -1331,4 +1331,5 @@
     <string name="warnings_fix_button">Fiks</string>
     <string name="warnings_perm_notifications_title">Varsler av</string>
     <string name="warnings_perm_notifications_body">Du ser ikke turstatus i statuslinjen og får ingen talevarsler i varslingsfeltet</string>
+    <string name="hud_screen_name_map_nav">Kart + Nav</string>
 </resources>

@@ -1366,4 +1366,5 @@
     <string name="warnings_fix_button">Исправить</string>
     <string name="warnings_perm_notifications_title">Уведомления выключены</string>
     <string name="warnings_perm_notifications_body">Статус поездки не появится в строке состояния, голосовые оповещения не будут показаны в шторке</string>
+    <string name="hud_screen_name_map_nav">Карта + Навигация</string>
 </resources>

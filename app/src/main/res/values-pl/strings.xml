@@ -1351,4 +1351,5 @@
     <string name="warnings_fix_button">Napraw</string>
     <string name="warnings_perm_notifications_title">Powiadomienia wyłączone</string>
     <string name="warnings_perm_notifications_body">Nie zobaczysz statusu jazdy w pasku stanu ani nie otrzymasz głosowych powiadomień</string>
+    <string name="hud_screen_name_map_nav">Mapa + Nawigacja</string>
 </resources>

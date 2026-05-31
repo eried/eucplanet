@@ -1350,4 +1350,5 @@
     <string name="warnings_fix_button">Correggi</string>
     <string name="warnings_perm_notifications_title">Notifiche disattivate</string>
     <string name="warnings_perm_notifications_body">Non vedrai lo stato del viaggio nella barra di stato e non riceverai avvisi vocali nelle notifiche</string>
+    <string name="hud_screen_name_map_nav">Mappa + Nav</string>
 </resources>

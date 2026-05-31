@@ -1331,4 +1331,5 @@
     <string name="warnings_fix_button">Beheben</string>
     <string name="warnings_perm_notifications_title">Benachrichtigungen aus</string>
     <string name="warnings_perm_notifications_body">Der Fahrstatus erscheint nicht in der Statusleiste und Sprachhinweise tauchen nicht in der Benachrichtigungsleiste auf</string>
+    <string name="hud_screen_name_map_nav">Karte + Nav</string>
 </resources>

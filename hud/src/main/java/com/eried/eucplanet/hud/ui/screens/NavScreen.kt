@@ -121,7 +121,7 @@ fun NavScreen(hud: HudState) {
  * right-hand turns, matching `NavState.arrowAngleDeg`.
  */
 @Composable
-private fun TurnArrow(angleDeg: Float, color: Color) {
+internal fun TurnArrow(angleDeg: Float, color: Color) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         rotate(degrees = angleDeg) {
             val cx = size.width / 2f

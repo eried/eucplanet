@@ -1314,4 +1314,5 @@
     <string name="warnings_fix_button">Corriger</string>
     <string name="warnings_perm_notifications_title">Notifications désactivées</string>
     <string name="warnings_perm_notifications_body">Tu ne verras pas le statut du trajet dans la barre d\'état et tu n\'auras pas d\'alertes vocales dans les notifications</string>
+    <string name="hud_screen_name_map_nav">Carte + Nav</string>
 </resources>

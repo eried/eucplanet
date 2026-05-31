@@ -15,6 +15,8 @@
     <string name="hud_screen_map_desc">Your position with direction of travel</string>
     <string name="hud_screen_nav">Navigator</string>
     <string name="hud_screen_nav_desc">Turn-by-turn instructions</string>
+    <string name="hud_screen_map_nav">Map + Nav</string>
+    <string name="hud_screen_map_nav_desc">Live map with turn cues when navigating</string>
     <string name="hud_screen_power">Watts and range</string>
     <string name="hud_screen_power_desc">Instant power, 60 s trace, range estimate</string>
     <string name="hud_screen_trip_stats">Trip stats</string>
