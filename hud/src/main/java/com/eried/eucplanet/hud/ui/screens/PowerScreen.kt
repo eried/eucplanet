@@ -12,11 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,9 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUnits
 import com.eried.eucplanet.hud.ui.parseHexColor
-import kotlin.math.abs
 
 /**
  * Watts + range estimate. Big instantaneous power readout, 60-second
@@ -41,27 +36,19 @@ import kotlin.math.abs
  * denominator both see the same window.
  */
 @Composable
-fun PowerScreen(hud: HudState) {
+fun PowerScreen(hud: HudState, session: HudSessionState) {
     val accent = parseHexColor(hud.accentArgb)
     val watts = (hud.voltage * hud.current)
     val isRegen = hud.current < 0f
 
-    // Rolling 60s buffer of instantaneous watts. Same SideEffect pattern
-    // the Telemetry screen uses -- avoids the LaunchedEffect coroutine
-    // churn that the wire stream would otherwise trigger 5x per second.
-    val buf = remember { java.util.ArrayDeque<Float>(300) }
-    SideEffect {
-        if (!hud.voltage.isNaN() && !hud.current.isNaN()) {
-            buf.addLast(watts)
-            while (buf.size > 300) buf.removeFirst()
-        }
-    }
-
-    val avgW: Float = if (buf.isEmpty()) watts else {
-        var s = 0f
-        for (v in buf) s += v
-        s / buf.size
-    }
+    // Rolling 60s buffer + running average live in HudSessionState so
+    // they survive screen switches. Reading session.wattsTick here
+    // registers a Compose dependency on the tick counter -- Canvas
+    // re-runs every time a new sample is pushed.
+    val buf = session.wattsBuffer
+    val tick = session.wattsTick
+    @Suppress("UNUSED_EXPRESSION") tick
+    val avgW: Float = if (session.avgWatts.isNaN()) watts else session.avgWatts
 
     // Range estimate: very rough.
     //   batteryPercent gives us "how much pack is left" (0-100).

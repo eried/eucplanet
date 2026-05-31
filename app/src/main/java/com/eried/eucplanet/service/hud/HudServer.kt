@@ -439,10 +439,30 @@ class HudServer @Inject constructor(
             wheelRollDeg = wd.rollAngle,
             wheelPitchDeg = wd.pitchAngle,
             customOverlayJson = s.hudCustomOverlayJson,
-            enabledHudScreens = s.hudScreensEnabled
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() },
+            enabledHudScreens = run {
+                // Carousel order = the rider's preferred row order,
+                // filtered to keep only the enabled screens. Both
+                // fields are independent in storage so toggling a row
+                // off doesn't move it in the Personalize list.
+                val order = s.hudScreensOrder.split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                val enabled = s.hudScreensEnabled.split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet()
+                if (order.isEmpty() && enabled.isEmpty()) {
+                    // Fresh install: don't ship anything, HUD uses its
+                    // default seven (matches pre-personalize behaviour).
+                    emptyList()
+                } else if (order.isEmpty()) {
+                    // Only enabled-set set (rider toggled but never
+                    // dragged). Use it in insertion order.
+                    enabled.toList()
+                } else {
+                    order.filter { it in enabled }
+                }
+            },
             navActive = d?.navActive ?: navShow,
             navArrowAngleDeg = d?.navAngleDeg ?: nav.arrowAngleDeg(),
             navPrimary = d?.navPrimary ?: nav.primaryText,

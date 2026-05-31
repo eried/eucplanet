@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.eried.eucplanet.hud.net.HudServer
 import com.eried.eucplanet.hud.net.HudTileCache
 import com.eried.eucplanet.hud.ui.HudApp
+import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUiController
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -41,6 +42,11 @@ class HudActivity : ComponentActivity() {
     // fresh empty HudTileCache on entry -- the rider saw the checker-
     // board placeholder every time they returned to a map view.
     private val tileCache = HudTileCache()
+    // Activity-scoped session accumulators (Power sparkline buffer, trip
+    // stats, safety-screen sag baseline). Survive screen switches so the
+    // buffers keep growing whether or not the screen that reads them is
+    // currently composed; reset only on HUD process restart.
+    private val sessionState = HudSessionState()
 
     /**
      * One-shot launcher for the CAMERA runtime permission. Triggered on
@@ -98,6 +104,16 @@ class HudActivity : ComponentActivity() {
                 .collect { controller.applyEnabledScreens(it) }
         }
 
+        // Feed every accepted wire frame into the session accumulators
+        // so screens that show rolling state (PowerScreen sparkline,
+        // TripStats max/avg, Safety sag baseline) keep updating even
+        // when their screen isn't the current one. The renderer
+        // composables stay pure: they read what sessionState exposes,
+        // they don't mutate anything themselves.
+        lifecycleScope.launch {
+            server.state.collect { hud -> sessionState.ingest(hud) }
+        }
+
         setContent {
             HudApp(
                 state = server.state,
@@ -107,6 +123,7 @@ class HudActivity : ComponentActivity() {
                 versionCompat = server.versionCompat,
                 controller = controller,
                 tileCache = tileCache,
+                sessionState = sessionState,
                 onCommand = server::sendCommand
             )
         }

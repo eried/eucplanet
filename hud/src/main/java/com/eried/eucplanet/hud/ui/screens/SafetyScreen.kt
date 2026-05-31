@@ -13,11 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUnits
 
 /**
@@ -38,14 +34,10 @@ import com.eried.eucplanet.hud.ui.HudUnits
  *                 ~84 V packs).
  */
 @Composable
-fun SafetyScreen(hud: HudState) {
-    // Track max voltage seen this session for sag calc. Reset on HUD
-    // reboot only -- a 5 s wifi blip shouldn't reset the rider's
-    // session-high.
-    var maxVoltage by remember { mutableStateOf(0f) }
-    SideEffect {
-        if (hud.voltage > maxVoltage && hud.voltage.isFinite()) maxVoltage = hud.voltage
-    }
+fun SafetyScreen(hud: HudState, session: HudSessionState) {
+    // Session-high voltage lives in HudSessionState so it survives
+    // screen switches; a HUD reboot is the only thing that resets it.
+    val maxVoltage = session.maxVoltage
     val sagV = if (maxVoltage > 1f) (maxVoltage - hud.voltage).coerceAtLeast(0f) else 0f
 
     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {

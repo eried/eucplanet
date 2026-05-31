@@ -13,11 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUnits
 
 /**
@@ -37,32 +33,18 @@ import com.eried.eucplanet.hud.ui.HudUnits
  * 60 km tally.
  */
 @Composable
-fun TripStatsScreen(hud: HudState) {
-    // Anchor on the first received timestampMs so duration measures
-    // "since pair", not "since HUD boot". Falls back to System.now if
-    // the phone hasn't started shipping timestamps yet.
-    var firstTs by remember { mutableStateOf(0L) }
-    var maxSpeed by remember { mutableStateOf(0f) }
-    var sumSpeed by remember { mutableStateOf(0f) }
-    var samples by remember { mutableStateOf(0) }
-    var tripStartKm by remember { mutableStateOf(Float.NaN) }
-    SideEffect {
-        val ts = if (hud.timestampMs > 0L) hud.timestampMs else System.currentTimeMillis()
-        if (firstTs == 0L) firstTs = ts
-        if (hud.speedKmh > maxSpeed) maxSpeed = hud.speedKmh
-        if (hud.speedKmh.isFinite()) {
-            sumSpeed += hud.speedKmh
-            samples += 1
-        }
-        if (tripStartKm.isNaN() && hud.tripKm.isFinite()) tripStartKm = hud.tripKm
-    }
-
+fun TripStatsScreen(hud: HudState, session: HudSessionState) {
+    // All accumulators live in HudSessionState so the values survive
+    // screen switches and represent the whole session, not "since I
+    // last looked at this screen."
     val nowTs = if (hud.timestampMs > 0L) hud.timestampMs else System.currentTimeMillis()
-    val elapsedMs = if (firstTs > 0L) (nowTs - firstTs).coerceAtLeast(0L) else 0L
-    val avgSpeed = if (samples > 0) sumSpeed / samples else 0f
-    val sessionDistKm = if (tripStartKm.isFinite())
-        (hud.tripKm - tripStartKm).coerceAtLeast(0f)
+    val elapsedMs = if (session.firstFrameMs > 0L)
+        (nowTs - session.firstFrameMs).coerceAtLeast(0L) else 0L
+    val avgSpeed = session.avgSpeedKmh.let { if (it.isNaN()) 0f else it }
+    val sessionDistKm = if (session.tripStartKm.isFinite())
+        (hud.tripKm - session.tripStartKm).coerceAtLeast(0f)
         else 0f
+    val maxSpeed = session.maxSpeedKmh
 
     Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
         BoxWithConstraints(Modifier.fillMaxSize()) {

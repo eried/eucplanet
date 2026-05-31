@@ -92,6 +92,7 @@ fun HudApp(
     versionCompat: StateFlow<com.eried.eucplanet.hud.protocol.VersionCompat>,
     controller: HudUiController,
     tileCache: com.eried.eucplanet.hud.net.HudTileCache,
+    sessionState: HudSessionState,
     onCommand: (HudCommand) -> Unit
 ) {
     val hud by state.collectAsStateWithLifecycle()
@@ -139,13 +140,13 @@ fun HudApp(
                     HudUiController.Screen.Nav ->
                         NavScreen(hud = hud)
                     HudUiController.Screen.Power ->
-                        PowerScreen(hud = hud)
+                        PowerScreen(hud = hud, session = sessionState)
                     HudUiController.Screen.TripStats ->
-                        TripStatsScreen(hud = hud)
+                        TripStatsScreen(hud = hud, session = sessionState)
                     HudUiController.Screen.Compass ->
                         CompassScreen(hud = hud)
                     HudUiController.Screen.Safety ->
-                        SafetyScreen(hud = hud)
+                        SafetyScreen(hud = hud, session = sessionState)
                     HudUiController.Screen.BigClock ->
                         BigClockScreen(hud = hud)
                 }

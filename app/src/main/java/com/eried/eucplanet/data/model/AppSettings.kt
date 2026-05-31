@@ -394,6 +394,22 @@ data class AppSettings(
      * as belt-and-suspenders.
      */
     val hudScreensEnabled: String = "",
+    /**
+     * Rider's preferred FULL display order of all known HUD screens,
+     * comma-separated. Used to keep disabled screens in their current
+     * row when the rider toggles a Switch off in the Personalize list:
+     * the row's enabled state changes, the row's POSITION doesn't.
+     *
+     * Empty string = default order (the defaults followed by the opt-in
+     * screens in declaration order). When set, contains every known
+     * screen id in the order the rider arranged them. Any future-added
+     * screens not in the saved value are appended at the end.
+     *
+     * The wire-format `enabledHudScreens` field is computed by walking
+     * THIS order and filtering by the enabled set, so the HUD's
+     * carousel order matches the order the rider sees in Settings.
+     */
+    val hudScreensOrder: String = "",
 
     // --- Motor Sound generator ---
     //

@@ -3771,11 +3771,6 @@ private fun HudPersonalizeCard(
                         .padding(bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        stringResource(R.string.hud_personalize_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                     HudScreenList(settings = settings, viewModel = viewModel)
                     // Custom overlay picker sits at the bottom of the
                     // personalize block: it's another "customise what
@@ -3797,19 +3792,25 @@ private fun HudScreenList(
     val ctx = LocalContext.current
     val known = viewModel.knownHudScreens
     val defaultEnabled = viewModel.defaultEnabledHudScreens
-    // Resolve the saved order into a UI list. Saved value is comma-
-    // separated stable ids. When NOTHING is saved (fresh install) we
-    // show the DEFAULT 7 enabled at the top + 5 opt-in screens disabled
-    // below them. When the rider has saved something, we honour their
-    // exact order and append any not-in-list known ids as disabled
-    // below.
-    val saved = settings.hudScreensEnabled.split(",")
-        .map { it.trim() }
-        .filter { it in known }
-    val effectiveEnabled = if (saved.isEmpty()) defaultEnabled else saved
-    val enabledSet = effectiveEnabled.toSet()
-    val orderedAll = remember(saved, defaultEnabled, known) {
-        effectiveEnabled + known.filter { it !in enabledSet }
+    // Row order comes from hudScreensOrder; enabled state from
+    // hudScreensEnabled. The two are independent in storage so
+    // toggling a Switch off doesn't move the row -- it stays in
+    // place and just goes unchecked.
+    val orderedAll = remember(settings.hudScreensOrder, known) {
+        val parsed = settings.hudScreensOrder.split(",")
+            .map { it.trim() }
+            .filter { it in known }
+            .distinct()
+        parsed + known.filter { it !in parsed }
+    }
+    val enabledSet = remember(settings.hudScreensEnabled, defaultEnabled) {
+        val parsed = settings.hudScreensEnabled.split(",")
+            .map { it.trim() }
+            .filter { it in known }
+            .toSet()
+        if (parsed.isEmpty() && settings.hudScreensEnabled.isBlank()) {
+            defaultEnabled.toSet()
+        } else parsed
     }
     val haptic = LocalHapticFeedback.current
     val isOnlyOneEnabled = enabledSet.size <= 1
