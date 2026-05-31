@@ -297,13 +297,37 @@ fun DashboardScreen(
     }
 
     val backAction by viewModel.backButtonAction.collectAsState()
+
+    // Reliable "Stop all" exit. Three things compound to make
+    // `viewModel.stopEverything(); activity?.finish()` flaky in practice:
+    //  (a) `activity?.finish()` no-ops when LocalContext.current isn't an
+    //      Activity at click time (it can be a ContextWrapper across some
+    //      recompositions, particularly under config changes). The rider
+    //      then sees "back triggered the dialog but Stop all did nothing".
+    //  (b) `finish()` alone leaves the task entry in recents, so the user
+    //      sees the app card still there and assumes the exit didn't take.
+    //  (c) `showQuitDialog` is never set false on the confirm path, so if
+    //      finish() loses the race, the dialog state lives on and reopens.
+    // Centralising the exit flow here means both the direct STOP_ALL back
+    // action and the AlertDialog confirm button go through the same proven
+    // shutdown sequence.
+    val performStopAllAndExit: () -> Unit = {
+        showQuitDialog = false
+        viewModel.stopEverything()
+        // Prefer finishAndRemoveTask so the rider's "Stop all" intent also
+        // clears the recents card. Fall back to finish() if no task to remove.
+        val act = activity ?: (toastContext as? Activity)
+        if (act != null) {
+            act.finishAndRemoveTask()
+        } else {
+            Log.w("Dashboard", "Stop all: no Activity reference, exit may be incomplete")
+        }
+    }
+
     BackHandler {
         when (backAction) {
             "BACKGROUND" -> activity?.moveTaskToBack(true)
-            "STOP_ALL" -> {
-                viewModel.stopEverything()
-                activity?.finish()
-            }
+            "STOP_ALL" -> performStopAllAndExit()
             else -> showQuitDialog = true   // "ASK" (default) or anything we don't recognise
         }
     }
@@ -382,10 +406,7 @@ fun DashboardScreen(
             title = { Text(stringResource(R.string.exit_title)) },
             text = { Text(stringResource(R.string.exit_body)) },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.stopEverything()
-                    activity?.finish()
-                }) {
+                TextButton(onClick = performStopAllAndExit) {
                     Text(stringResource(R.string.exit_stop_all), color = AccentRed)
                 }
             },
