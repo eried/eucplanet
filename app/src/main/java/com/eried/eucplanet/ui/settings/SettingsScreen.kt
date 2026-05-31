@@ -3423,56 +3423,32 @@ private fun RestorePickerDialog(
  * Settings screen, so we don't need a faster poll.
  */
 /**
- * Top banner inside the HUD Integration card. Picks between four states:
- *  - EXACT (or nothing paired): an always-on "Get the HUD app at
- *    eucplanet.ried.no/hud" install hint (info-styled).
- *  - REMOTE_BEHIND/AHEAD_MINOR: soft "update available" hint (info-styled).
- *  - REMOTE_BEHIND/AHEAD_MAJOR: red error-styled banner that names which
- *    side needs the update.
+ * Phone-side install hint for the HUD APK. Shown ONLY when no HUD has
+ * paired yet: pre-pairing it tells a first-time rider where to get the
+ * app; once a HUD pairs, the rider clearly has the app and the hint
+ * becomes noise.
  *
  * Same chrome (surface + outlined icon) as [HudHotspotHint] so the two
- * banners read as a visual pair.
+ * banners read as a visual pair. The URL inside is a clickable link.
+ *
+ * Version mismatches between phone and HUD are deliberately NOT
+ * reported here: the HUD-side UI carries that responsibility because
+ * the rider is looking at the HUD while riding, not the phone. The
+ * phone is just the config device.
  */
 @Composable
-private fun HudVersionBanner(
-    compat: com.eried.eucplanet.hud.protocol.VersionCompat,
-    pairedHudVersion: String?
-) {
-    // Hide the install hint entirely once a HUD has paired (we know
-    // the rider has the app). Mismatch banners still render -- those
-    // are actionable regardless of pairing state.
-    if (compat == com.eried.eucplanet.hud.protocol.VersionCompat.EXACT &&
-        pairedHudVersion != null
-    ) return
+private fun HudInstallHint(pairedHudVersion: String?) {
+    if (pairedHudVersion != null) return
 
-    val isMajor = compat.isBlocking
-    val isInstallHint =
-        compat == com.eried.eucplanet.hud.protocol.VersionCompat.EXACT
-    val msgRes = when (compat) {
-        com.eried.eucplanet.hud.protocol.VersionCompat.EXACT ->
-            R.string.hud_install_hint
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MINOR ->
-            R.string.hud_version_hint_hud_behind
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MINOR ->
-            R.string.hud_version_hint_phone_behind
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_BEHIND_MAJOR ->
-            R.string.hud_version_block_hud_behind
-        com.eried.eucplanet.hud.protocol.VersionCompat.REMOTE_AHEAD_MAJOR ->
-            R.string.hud_version_block_phone_behind
-    }
-    val bg = if (isMajor) MaterialTheme.colorScheme.errorContainer
-        else MaterialTheme.colorScheme.surfaceVariant
-    val fg = if (isMajor) MaterialTheme.colorScheme.onErrorContainer
-        else MaterialTheme.colorScheme.onSurfaceVariant
-    val icon = if (isMajor) Icons.Outlined.Warning else Icons.Outlined.Info
     val updateUrl = stringResource(R.string.hud_update_url)
-    val raw = stringResource(msgRes)
-    // Convert the <b>URL</b> substrings into an AnnotatedString. For
-    // the install-hint case we additionally wrap the URL run in a
-    // LinkAnnotation so a tap opens the browser; mismatch banners
-    // are intentionally text-only so the rider stops to read what
-    // happened before doing anything.
-    val annotated = remember(raw, isInstallHint, updateUrl) {
+    val raw = stringResource(R.string.hud_install_hint)
+    // Visible link styling: tinted + underlined so the rider sees at
+    // a glance that the URL is interactive. Without this, addLink
+    // alone leaves the link visually identical to the surrounding
+    // text and only reveals itself on hover (a tap target the rider
+    // would not know is there).
+    val linkColor = MaterialTheme.colorScheme.primary
+    val annotated = remember(raw, updateUrl, linkColor) {
         val parsed = androidx.core.text.HtmlCompat.fromHtml(
             raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
         )
@@ -3484,29 +3460,33 @@ private fun HudVersionBanner(
                 if (sp.style == android.graphics.Typeface.BOLD) {
                     val start = parsed.getSpanStart(sp)
                     val end = parsed.getSpanEnd(sp)
+                    // Underlined + accent-coloured URL run, plus the
+                    // LinkAnnotation that wires the tap to the system
+                    // URL handler. Compose's Text composable wires
+                    // these up automatically -- no Modifier.clickable
+                    // needed on the row.
                     addStyle(
                         androidx.compose.ui.text.SpanStyle(
+                            color = linkColor,
+                            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                         ),
                         start, end
                     )
-                    if (isInstallHint) {
-                        // Tap on the URL run opens the browser.
-                        addLink(
-                            url = androidx.compose.ui.text.LinkAnnotation.Url(
-                                "https://$updateUrl"
-                            ),
-                            start = start,
-                            end = end
-                        )
-                    }
+                    addLink(
+                        url = androidx.compose.ui.text.LinkAnnotation.Url(
+                            "https://$updateUrl"
+                        ),
+                        start = start,
+                        end = end
+                    )
                 }
             }
         }
     }
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = bg,
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -3515,15 +3495,15 @@ private fun HudVersionBanner(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = Icons.Outlined.Info,
                 contentDescription = null,
-                tint = fg,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
             )
             Text(
                 text = annotated,
                 style = MaterialTheme.typography.bodySmall,
-                color = fg
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -3628,14 +3608,14 @@ private fun HudIntegrationSection(
     ) {
         SectionHeader(stringResource(R.string.section_hud_companion))
 
-        // Install hint surfaces ONLY when no HUD has paired yet (i.e.
-        // hudVersion is null). Once a HUD pairs we know the rider
-        // has the app, so the hint becomes noise. Mismatch banners
-        // override regardless of pairing state -- those are
-        // actionable signals.
-        val compat by viewModel.hudVersionCompat.collectAsState()
+        // Phone surface is intentionally limited to the install hint:
+        // version mismatches are reported on the HUD side only. The
+        // HUD is the device the rider is actually looking at while
+        // riding, so duplicating the banner here just made the phone
+        // app shout when the rider could already see the answer on
+        // the helmet. Hides itself once a HUD has paired.
         val pairedHudVersion by viewModel.hudVersion.collectAsState()
-        HudVersionBanner(compat = compat, pairedHudVersion = pairedHudVersion)
+        HudInstallHint(pairedHudVersion = pairedHudVersion)
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home
