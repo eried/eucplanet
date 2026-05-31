@@ -251,7 +251,7 @@ jobs:
             -w
           ls -la "$IQ_OUT"
 
-          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm; do
+          for d in venu2 venu3 fenix843mm fenix847mm fenix6xpro fenix8solar47mm epix2pro47mm instinct2 instinct2s instinct2x instinct3amoled45mm instinct3amoled50mm instinct3solar45mm instinctcrossover instinctcrossoveramoled instincte40mm instincte45mm; do
             OUT="/tmp/out/${{ needs.meta.outputs.prefix }}-garmin-${d}.prg"
             echo "--- building $d ---"
             monkeyc \

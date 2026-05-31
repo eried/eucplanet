@@ -38,7 +38,17 @@ param(
         'fenix847mm',
         'fenix6xpro',
         'fenix8solar47mm',
-        'epix2pro47mm'
+        'epix2pro47mm',
+        'instinct2',
+        'instinct2s',
+        'instinct2x',
+        'instinct3amoled45mm',
+        'instinct3amoled50mm',
+        'instinct3solar45mm',
+        'instinctcrossover',
+        'instinctcrossoveramoled',
+        'instincte40mm',
+        'instincte45mm'
     )
 )
 
