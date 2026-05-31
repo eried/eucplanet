@@ -31,24 +31,17 @@ param(
 
     [string] $OutputZip = "$PSScriptRoot\..\ciq-bundle.zip",
 
-    [string[]] $Devices = @(
-        'venu2',
-        'venu3',
-        'fenix843mm',
-        'fenix847mm',
-        'fenix6xpro',
-        'fenix8solar47mm',
-        'epix2pro47mm',
-        'instinct2',
-        'instinct2s',
-        'instinct2x',
-        'instinct3amoled45mm',
-        'instinct3amoled50mm',
-        'instinct3solar45mm',
-        'instinctcrossover',
-        'instinctcrossoveramoled',
-        'instincte40mm',
-        'instincte45mm'
+    # Default: every device listed in garmin-watch-app/manifest.xml (currently
+    # 135 — every CIQ 3.0+ watchApp-capable device). monkeyc errors on any
+    # manifest device whose profile isn't bundled, so the default has to
+    # match the manifest one-for-one. Pass -Devices @('venu3','fenix843mm')
+    # only when you want a slim bundle for a faster local dev cycle.
+    [string[]] $Devices = $(
+        $manifest = Join-Path $PSScriptRoot '..\garmin-watch-app\manifest.xml'
+        Select-String -Path $manifest -Pattern 'iq:product id="([^"]+)"' -AllMatches |
+            ForEach-Object { $_.Matches } |
+            ForEach-Object { $_.Groups[1].Value } |
+            Sort-Object -Unique
     )
 )
 
