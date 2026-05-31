@@ -55,7 +55,24 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun horn(): ByteArray = VeteranCommands.horn()
 
-    override fun setLight(on: Boolean): ByteArray = VeteranCommands.setLight(on)
+    /**
+     * Light state is never echoed in Veteran realtime frames (per
+     * docs/protocols/veteran.md §6: "Light state has no readback.
+     * Track it locally after each write."). We cache the last
+     * commanded state here and stamp it onto every outgoing telemetry
+     * in [onRawNotification] so the dashboard's local-tracked
+     * [WheelRepository.toggleLight] doesn't see lightOn flip back
+     * to the default `false` on the very next 5 Hz realtime frame
+     * — which is exactly the bug the LK19486 rider hit: first toggle
+     * sent SetLightON, parser-default false overwrote it ~200 ms
+     * later, next toggle re-sent SetLightON instead of SetLightOFF.
+     */
+    @Volatile private var lastLightOn: Boolean = false
+
+    override fun setLight(on: Boolean): ByteArray {
+        lastLightOn = on
+        return VeteranCommands.setLight(on)
+    }
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined
@@ -157,7 +174,7 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
                 "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
             )
             val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
-            if (telem != null) out += DecodeResult.Telemetry(telem)
+            if (telem != null) out += DecodeResult.Telemetry(telem.copy(lightOn = lastLightOn))
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
                 // pipeline; result is discarded until the UI is ready for it.
@@ -170,5 +187,9 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         parser.reset()
         detectedModel = null
+        // A wheel reboot loses light state on the wheel side, so the rider's
+        // most reliable mental model after a reconnect is "light is off until
+        // I press the button again". Reset the cache to match.
+        lastLightOn = false
     }
 }
