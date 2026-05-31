@@ -226,42 +226,39 @@ fun LiveMetricTile(
             }
         }
 
-        // Variable-zone layout. When the rider picked only one side
-        // reading, the empty side zone is omitted entirely so the
-        // remaining badge + centre share the tile width evenly (a 2-
-        // column read), instead of leaving an asymmetric gap where
-        // the missing badge would have sat. With both sides present
-        // it's a 3-column layout; with no sides the centre fills the
-        // tile like the original default.
+        // Zone overlay. The centre column ALWAYS centres on the tile
+        // midpoint, regardless of how many side readings are active —
+        // a 2-zone (left+centre) layout used to push the big value off
+        // toward 72% of the tile width via a Row + weights, which read
+        // as "the centre is wrong". Now the big value is always at the
+        // tile centre and the badges sit at the actual corners. With 0,
+        // 1 or 2 side readings the visual centre never moves; with both
+        // present the result is identical to the previous 3-column row.
         val hasLeft = cornerLeftLabel != null && cornerLeftValue != null
         val hasRight = cornerRightLabel != null && cornerRightValue != null
         val hasSideReadings = hasLeft || hasRight
         val centerBigSp = if (hasSideReadings) 18 else 20
-        androidx.compose.foundation.layout.Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 12.dp),
-            verticalAlignment = Alignment.Top
+                .padding(vertical = 10.dp, horizontal = 12.dp)
         ) {
-            if (hasLeft) {
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.TopStart
-                ) {
-                    SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
-                }
-            }
+            // Centre column drawn first as the visual anchor — laid out
+            // across the full tile width and centre-aligned so the big
+            // number always lands on the tile midpoint.
             Box(
-                modifier = Modifier.weight(1.2f),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.TopCenter
             ) {
                 CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
             }
+            if (hasLeft) {
+                Box(modifier = Modifier.align(Alignment.TopStart)) {
+                    SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
+                }
+            }
             if (hasRight) {
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.TopEnd
-                ) {
+                Box(modifier = Modifier.align(Alignment.TopEnd)) {
                     SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
                 }
             }
