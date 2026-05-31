@@ -8,6 +8,7 @@
     <string name="action_cancel">Avbryt</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Ferdig</string>
+    <string name="action_close">Lukk</string>
 <string name="crash_log_action_prompt">Du holdt %1$s inne. Slett bare denne loggen, eller alle. Trykk Avbryt og deretter på filen for å dele den.</string>
     <string name="crash_log_delete_one">Slett denne loggen</string>
     <string name="crash_log_delete_all">Slett alle</string>

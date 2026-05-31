@@ -9,6 +9,7 @@
     <string name="action_cancel">Annulla</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Fatto</string>
+    <string name="action_close">Chiudi</string>
 <string name="crash_log_action_prompt">Hai tenuto premuto %1$s. Elimina solo questo log, o tutti. Per condividerlo, tocca Annulla e poi tocca il file.</string>
     <string name="crash_log_delete_one">Elimina questo log</string>
     <string name="crash_log_delete_all">Elimina tutto</string>

@@ -8,6 +8,7 @@
     <string name="action_cancel">Отмена</string>
     <string name="action_ok">ОК</string>
     <string name="action_done">Готово</string>
+    <string name="action_close">Закрыть</string>
 <string name="crash_log_action_prompt">Вы удерживали %1$s. Удалите этот журнал или все сразу. Чтобы поделиться, нажмите «Отмена» и коснитесь файла.</string>
     <string name="crash_log_delete_one">Удалить этот лог</string>
     <string name="crash_log_delete_all">Удалить все</string>

@@ -8,6 +8,7 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">Aceptar</string>
     <string name="action_done">Listo</string>
+    <string name="action_close">Cerrar</string>
 <string name="crash_log_action_prompt">Mantuviste pulsado %1$s. Elimina solo este registro, o elimínalos todos. Para compartirlo, toca Cancelar y luego toca el archivo.</string>
     <string name="crash_log_delete_one">Borrar este registro</string>
     <string name="crash_log_delete_all">Eliminar todo</string>

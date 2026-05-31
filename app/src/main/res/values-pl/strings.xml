@@ -9,6 +9,7 @@
     <string name="action_cancel">Anuluj</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Gotowe</string>
+    <string name="action_close">Zamknij</string>
 <string name="crash_log_action_prompt">Przytrzymano %1$s. Usuń tylko ten dziennik lub wszystkie. Aby udostępnić, dotknij Anuluj, a potem dotknij pliku.</string>
     <string name="crash_log_delete_one">Usuń ten log</string>
     <string name="crash_log_delete_all">Usuń wszystkie</string>

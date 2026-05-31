@@ -8,6 +8,7 @@
     <string name="action_cancel">Annuler</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Terminé</string>
+    <string name="action_close">Fermer</string>
 <string name="crash_log_action_prompt">Tu as appuyé longuement sur %1$s. Supprime ce journal, ou tous. Pour le partager, touche Annuler puis le fichier.</string>
     <string name="crash_log_delete_one">Supprimer ce journal</string>
     <string name="crash_log_delete_all">Tout supprimer</string>

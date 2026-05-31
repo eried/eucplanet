@@ -9,6 +9,7 @@
     <string name="action_cancel">Скасувати</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Готово</string>
+    <string name="action_close">Закрити</string>
 <string name="crash_log_action_prompt">Ви утримували %1$s. Видаліть цей журнал або всі. Щоб поділитися, натисніть «Скасувати» й торкніться файлу.</string>
     <string name="crash_log_delete_one">Видалити цей лог</string>
     <string name="crash_log_delete_all">Видалити всі</string>

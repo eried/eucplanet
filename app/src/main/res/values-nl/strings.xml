@@ -9,6 +9,7 @@
     <string name="action_cancel">Annuleren</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Klaar</string>
+    <string name="action_close">Sluiten</string>
 <string name="crash_log_action_prompt">Je hebt %1$s lang ingedrukt. Verwijder alleen dit logboek, of allemaal. Tik op Annuleren en dan op het bestand om het te delen.</string>
     <string name="crash_log_delete_one">Dit logbestand verwijderen</string>
     <string name="crash_log_delete_all">Alles verwijderen</string>

@@ -380,23 +380,34 @@ fun DashboardScreen(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
-                            androidx.compose.foundation.layout.Column(
+                            // Row layout — title/body in a weighted column on
+                            // the left, Fix button hugging the right edge so
+                            // the rider sees the call-to-action without
+                            // scanning down past the body text.
+                            Row(
                                 modifier = Modifier.padding(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Text(
-                                    stringResource(w.titleRes),
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                Text(
-                                    stringResource(w.bodyRes),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                androidx.compose.material3.TextButton(
-                                    onClick = w.fix,
-                                    modifier = Modifier.align(Alignment.End)
+                                androidx.compose.foundation.layout.Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
+                                    Text(
+                                        stringResource(w.titleRes),
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                    Text(
+                                        stringResource(w.bodyRes),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                // FilledTonalButton — soft primary tint, no
+                                // border. Reads as a recommended next step
+                                // without the visual weight of a primary
+                                // filled Button on every warning card.
+                                androidx.compose.material3.FilledTonalButton(onClick = w.fix) {
                                     Text(stringResource(R.string.warnings_fix_button))
                                 }
                             }
@@ -406,7 +417,7 @@ fun DashboardScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showWarningsDialog = false }) {
-                    Text(stringResource(R.string.action_ok))
+                    Text(stringResource(R.string.action_close))
                 }
             }
         )

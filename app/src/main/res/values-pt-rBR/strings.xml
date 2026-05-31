@@ -9,6 +9,7 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_ok">OK</string>
     <string name="action_done">Concluído</string>
+    <string name="action_close">Fechar</string>
 <string name="crash_log_action_prompt">Você tocou e segurou %1$s. Exclua só este registro, ou todos. Para compartilhar, toque em Cancelar e depois no arquivo.</string>
     <string name="crash_log_delete_one">Apagar este log</string>
     <string name="crash_log_delete_all">Excluir tudo</string>
