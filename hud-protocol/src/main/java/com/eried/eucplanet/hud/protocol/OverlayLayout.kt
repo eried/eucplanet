@@ -1,4 +1,4 @@
-package com.eried.eucplanet.data.model
+package com.eried.eucplanet.hud.protocol
 
 import java.util.UUID
 
@@ -189,6 +189,12 @@ data class OverlayElement(
     // CLOCK, DIGITAL / ANALOG / TEXT / STOPWATCH; a date line for the TEXT style.
     val clockStyle: String = "DIGITAL",
     val clockShowDate: Boolean = false,
+    /** True for 24h ("17:42"), false for 12h with AM/PM ("5:42 PM").
+     *  Default true preserves the behaviour of presets shipped before
+     *  this toggle was added; legacy presets decode with the field
+     *  absent and fall back to 24h, which is what their renderer used
+     *  to hardcode. */
+    val clock24Hour: Boolean = true,
 
     // MAP, live mini-map options.
     /** Tile style: STREET / DARK / SATELLITE. */
@@ -227,7 +233,23 @@ data class OverlayElement(
      * the value ("42 km/h"); LEFT shows it before ("km/h 42") for layouts
      * that want the unit prefix-aligned with other left-justified labels.
      */
-    val unitPosition: String = "RIGHT"
+    val unitPosition: String = "RIGHT",
+
+    /**
+     * DATA_DIAL: render a 3-colour track (green/yellow/red) underneath the
+     * needle arc instead of the flat translucent ring. The thresholds are
+     * read as a percentage of [gaugeMax] so the same widget works whether
+     * it's wired to speed (0..100 km/h), temp (0..120 °C), or PWM (0..100%).
+     * Mirrors the cockpit speed-gauge "Colour band" feature for visual
+     * parity between the at-a-glance dashboard and the recorded overlay.
+     *
+     * Defaults: 80% transition to yellow, 90% transition to red, band off.
+     * (Sensible for the most common SPEED case at gaugeMax=100; the rider
+     * is expected to tweak per-metric.)
+     */
+    val dialShowColorBand: Boolean = false,
+    val dialOrangeThresholdPct: Int = 80,
+    val dialRedThresholdPct: Int = 90
 )
 
 /**

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
@@ -27,8 +28,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 223
-        versionName = "0.8.12"
+        versionCode = 224
+        versionName = "0.8.13"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -68,6 +69,16 @@ android {
             )
             if (keystoreProps.isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Fall back to the debug keystore so local release
+                // builds work without a real release signing config and
+                // sideload-update over an existing debug install without
+                // forcing testers to uninstall first (mismatched
+                // signatures otherwise). CI workflows that ship to Play
+                // or GitHub Releases inject RELEASE_KEYSTORE secrets at
+                // build time and pick the branch above instead, so
+                // production releases never see this fallback.
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
@@ -145,6 +156,23 @@ dependencies {
     if (garminEnabled) {
         implementation(libs.garmin.ciq)
     }
+
+    // Shared wire-format types for the HUD companion app. Lives in its own
+    // module so the phone and the HUD compile against the same Kotlin
+    // classes, no manual JSON parity drift.
+    implementation(project(":hud-protocol"))
+    implementation(libs.kotlinx.serialization.json)
+
+    // OkHttp powers the outbound WebSocket [HudServer] uses to dial the HUD
+    // and push telemetry frames. Built-in WebSocket support, no extra module
+    // needed beyond the core artifact.
+    implementation(libs.okhttp)
+
+    // JmDNS: when the rider leaves the HUD IP blank, the phone falls back
+    // to mDNS auto-discovery, looking for the HUD's _eucplanet._tcp
+    // advertisement on whatever subnet the phone has. Same library on
+    // both ends so behaviour is consistent.
+    implementation(libs.jmdns)
 
     // Compose
     val composeBom = platform(libs.compose.bom)

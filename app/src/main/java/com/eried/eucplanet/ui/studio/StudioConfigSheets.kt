@@ -104,11 +104,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraInfo
 import sh.calvin.reorderable.ReorderableColumn
 import kotlin.math.roundToInt
@@ -1592,6 +1592,23 @@ fun ElementConfigSheet(
                         Text(stringResource(R.string.studio_cfg_clock_show_date))
                     }
                 }
+                // 24h / 12h toggle for the DIGITAL and TEXT clock
+                // styles. Hidden for ANALOG / STOPWATCH where the
+                // setting has no meaning. Default true keeps existing
+                // presets on their hardcoded behaviour.
+                if (element.clockStyle == "DIGITAL" ||
+                    element.clockStyle == "TEXT"
+                ) {
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = element.clock24Hour,
+                            onCheckedChange = { onChange(element.copy(clock24Hour = it)) }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.studio_cfg_clock_24h))
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
             }
 
@@ -1657,6 +1674,25 @@ fun ElementConfigSheet(
                             label = { Text(lbl) }
                         )
                     }
+                }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_dial_color_band),
+                    element.dialShowColorBand
+                ) { onChange(element.copy(dialShowColorBand = it)) }
+                if (element.dialShowColorBand) {
+                    com.eried.eucplanet.ui.settings.GaugeThresholdSlider(
+                        orangePct = element.dialOrangeThresholdPct,
+                        redPct = element.dialRedThresholdPct,
+                        safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
+                        onChange = { o, r ->
+                            onChange(
+                                element.copy(
+                                    dialOrangeThresholdPct = o,
+                                    dialRedThresholdPct = r
+                                )
+                            )
+                        }
+                    )
                 }
             }
 

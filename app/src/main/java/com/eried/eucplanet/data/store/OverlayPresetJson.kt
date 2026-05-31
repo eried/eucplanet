@@ -1,11 +1,11 @@
 package com.eried.eucplanet.data.store
 
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
-import com.eried.eucplanet.data.model.OverlayPreset
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -147,6 +147,7 @@ object OverlayPresetJson {
         put("chromaKeyTolerance", el.chromaKeyTolerance.toDouble())
         put("clockStyle", el.clockStyle)
         put("clockShowDate", el.clockShowDate)
+        put("clock24Hour", el.clock24Hour)
         put("mapStyle", el.mapStyle)
         put("mapZoom", el.mapZoom)
         put("mapRotateWithHeading", el.mapRotateWithHeading)
@@ -158,6 +159,9 @@ object OverlayPresetJson {
         put("barShowValue", el.barShowValue)
         put("dialStyle", el.dialStyle)
         put("unitPosition", el.unitPosition)
+        put("dialShowColorBand", el.dialShowColorBand)
+        put("dialOrangeThresholdPct", el.dialOrangeThresholdPct)
+        put("dialRedThresholdPct", el.dialRedThresholdPct)
     }
 
     private fun elementFromJson(o: JSONObject): OverlayElement? {
@@ -205,6 +209,7 @@ object OverlayPresetJson {
             ).toFloat(),
             clockStyle = o.optString("clockStyle", d.clockStyle),
             clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
+            clock24Hour = o.optBoolean("clock24Hour", d.clock24Hour),
             mapStyle = o.optString("mapStyle", d.mapStyle),
             mapZoom = o.optInt("mapZoom", d.mapZoom),
             mapRotateWithHeading = o.optBoolean(
@@ -217,7 +222,10 @@ object OverlayPresetJson {
             gForceSmoothing = o.optDouble("gForceSmoothing", d.gForceSmoothing.toDouble()).toFloat(),
             barShowValue = o.optBoolean("barShowValue", d.barShowValue),
             dialStyle = o.optString("dialStyle", d.dialStyle),
-            unitPosition = o.optString("unitPosition", d.unitPosition)
+            unitPosition = o.optString("unitPosition", d.unitPosition),
+            dialShowColorBand = o.optBoolean("dialShowColorBand", d.dialShowColorBand),
+            dialOrangeThresholdPct = o.optInt("dialOrangeThresholdPct", d.dialOrangeThresholdPct),
+            dialRedThresholdPct = o.optInt("dialRedThresholdPct", d.dialRedThresholdPct)
         )
     }
 

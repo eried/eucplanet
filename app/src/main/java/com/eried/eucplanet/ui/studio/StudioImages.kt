@@ -27,7 +27,7 @@ object StudioImages {
 
     /**
      * Read [uri], downscale it and return PNG bytes as a base64 string ready to
-     * store in [com.eried.eucplanet.data.model.OverlayElement.imageData].
+     * store in [com.eried.eucplanet.hud.protocol.OverlayElement.imageData].
      * PNG keeps any alpha channel the source image already has.
      */
     suspend fun encodeForPreset(context: Context, uri: Uri): String? =

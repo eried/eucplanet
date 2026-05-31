@@ -77,6 +77,22 @@
     <string name="tab_integration">Integration</string>
     <string name="tab_cloud">Backup af indstillinger og ture</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Aktivér datalink</string>
+    <string name="hud_ip_label">Enheds-IP</string>
+    <string name="hud_ip_label_autodetect">Enheds-IP (automatisk)</string>
+    <string name="hud_ip_desc">Indtast den IP, som HUD\'en viser på skærmen.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Standard 28080.</string>
+    <string name="hud_hotspot_off_hint">Telefonens hotspot er slukket. Sørg for, at HUD\'en og telefonen er på samme WiFi-netværk.</string>
+    <string name="hud_hotspot_on_hint">Telefonens hotspot sender. Tilslut HUD\'en til denne telefons WiFi for at aktivere forbindelsen.</string>
+    <string name="hud_custom_overlay_label">Brugerdefineret HUD-overlay</string>
+    <string name="hud_custom_overlay_placeholder">Vælg et Overlay Studio-preset</string>
+    <string name="hud_custom_overlay_no_folder">Backup-mappe ikke konfigureret</string>
+    <string name="hud_custom_overlay_bundled_only">Vælg et preset (backup-mappe ikke indstillet)</string>
+    <string name="hud_custom_overlay_none">Ingen</string>
+
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup</string>
     <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>

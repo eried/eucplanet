@@ -20,6 +20,10 @@ media3 = "1.4.1"
 camerax = "1.4.1"
 zxing = "3.5.3"
 garminCiq = "2.4.0"
+ktor = "2.3.13"
+okhttp = "4.12.0"
+kotlinxSerialization = "1.7.3"
+jmdns = "3.5.9"
 junit = "4.13.2"
 
 [libraries]
@@ -90,6 +94,30 @@ media3-common = { group = "androidx.media3", name = "media3-common", version.ref
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+# CameraX preview view (PreviewView). Used by the HUD module to drive the
+# rear-camera screen; the phone Overlay Studio renders its own SurfaceTextures
+# so it doesn't pull this dependency in.
+camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+
+# Ktor: WebSocket server in :hud that the phone connects out to over the
+# rider's hotspot. CIO engine to avoid pulling Netty.
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
+ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets", version.ref = "ktor" }
+ktor-server-status-pages = { group = "io.ktor", name = "ktor-server-status-pages", version.ref = "ktor" }
+
+# OkHttp: phone-side outbound WebSocket dialer. Built-in WebSocket support
+# means no extra module needed beyond the core artifact.
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+
+# kotlinx.serialization for the JSON wire format. Used on both sides.
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# JmDNS: pure-Java mDNS/Bonjour. Phone advertises _eucplanet._tcp; HUD
+# resolves it on the hotspot subnet. Android's NsdManager would also work,
+# but JmDNS gives consistent behaviour across the rather varied Android
+# builds we see on aftermarket HUDs.
+jmdns = { group = "org.jmdns", name = "jmdns", version.ref = "jmdns" }
 
 # Unit tests (JVM, no Android runtime). Used for pure-Kotlin parsers
 # like VariaAdapter that have no Android dependency.
@@ -109,7 +137,9 @@ garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", v
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }

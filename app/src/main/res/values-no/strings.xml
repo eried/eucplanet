@@ -77,6 +77,22 @@
     <string name="tab_integration">Integrasjon</string>
     <string name="tab_cloud">Backup av innstillinger og turer</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Aktiver datalink</string>
+    <string name="hud_ip_label">Enhets-IP</string>
+    <string name="hud_ip_label_autodetect">Enhets-IP (automatisk)</string>
+    <string name="hud_ip_desc">Skriv inn IP-adressen som HUD-en viser på skjermen.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Standard 28080.</string>
+    <string name="hud_hotspot_off_hint">Telefonens hotspot er av. Sørg for at HUD-en og telefonen er på samme WiFi-nettverk.</string>
+    <string name="hud_hotspot_on_hint">Telefonens hotspot kringkaster. Koble HUD-en til denne telefonens WiFi for å aktivere linken.</string>
+    <string name="hud_custom_overlay_label">Tilpasset HUD-overlegg</string>
+    <string name="hud_custom_overlay_placeholder">Velg en Overlay Studio-forhåndsinnstilling</string>
+    <string name="hud_custom_overlay_no_folder">Sikkerhetskopimappe ikke konfigurert</string>
+    <string name="hud_custom_overlay_bundled_only">Velg en mal (sikkerhetskopimappe ikke satt)</string>
+    <string name="hud_custom_overlay_none">Ingen</string>
+
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup</string>

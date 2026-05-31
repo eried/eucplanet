@@ -306,6 +306,70 @@
     <string name="watch_paired_garmin_limit_rate">Garmin refreshes slower than Wear OS</string>
     <string name="watch_paired_garmin_limit_rotation">Dial rotation isn\'t available. Connect IQ has no native transform matrix for rotating the rendered dial.</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Enable data link</string>
+    <string name="hud_ip_label">Device IP</string>
+    <string name="hud_ip_label_autodetect">Device IP (automatic)</string>
+    <string name="hud_ip_desc">Type the IP the HUD shows on its on-screen banner.</string>
+    <string name="hud_server_port">Port</string>
+    <string name="hud_server_port_desc">Default 28080.</string>
+    <string name="hud_hotspot_off_hint">Phone hotspot is off. Make sure the HUD and the phone are on the same WiFi network.</string>
+    <string name="hud_hotspot_on_hint">Phone hotspot is broadcasting. Connect the HUD to this phone\'s WiFi to enable the link.</string>
+    <string name="hud_overlay_subsection">Custom overlay</string>
+    <string name="hud_overlay_subsection_desc">Import an Overlay Studio preset onto the HUD\'s Custom screen, without backgrounds. The preset is copied here, so later edits in the studio won\'t change the HUD until you import again</string>
+    <string name="hud_overlay_select_preset">Import preset</string>
+    <string name="hud_overlay_current_preset">Current: %1$s</string>
+    <string name="hud_custom_overlay_label">Custom HUD overlay</string>
+    <string name="hud_custom_overlay_placeholder">Pick an Overlay Studio preset</string>
+    <string name="hud_custom_overlay_no_folder">Backup folder not configured</string>
+    <string name="hud_custom_overlay_bundled_only">Pick a starter (Backup folder not set)</string>
+    <string name="hud_custom_overlay_none">Clear</string>
+    <string name="hud_search_corpus">HUD heads-up display companion server stream telemetry hotspot motoeye turn arrow</string>
+
+    <!-- HUD Personalize collapsible card -->
+    <string name="hud_personalize_title">Personalize</string>
+    <string name="hud_screens_title">HUD screens</string>
+    <string name="hud_map_options_title">Map options</string>
+    <string name="hud_personalize_desc">Pick which screens the HUD shows and the order they cycle through. At least one screen must stay enabled.</string>
+    <string name="hud_screen_name_dashboard">Dashboard</string>
+    <string name="hud_screen_name_camera">Rear camera</string>
+    <string name="hud_screen_name_telemetry">Telemetry</string>
+    <string name="hud_screen_name_custom">Custom overlay + black</string>
+    <string name="hud_screen_name_custom_cam">Custom overlay + camera</string>
+    <string name="hud_screen_name_map">Map</string>
+    <string name="hud_screen_name_nav">Navigator</string>
+    <string name="hud_screen_name_power">Watts and range</string>
+    <string name="hud_screen_name_trip_stats">Trip stats</string>
+    <string name="hud_screen_name_compass">Compass</string>
+    <string name="hud_screen_name_safety">Safety</string>
+    <string name="hud_screen_name_big_clock">Big clock</string>
+
+    <!-- Map tile style picker (HUD Map screen and Custom overlay MAP element).
+         The slug values themselves are shown to the rider as the dropdown
+         items, so only the field LABEL is localised here. -->
+    <string name="hud_map_style_label">Map style</string>
+    <string name="hud_map_contrast_label">Contrast</string>
+    <string name="hud_map_brightness_label">Brightness</string>
+
+    <!--
+        HUD companion install hint + protocol version mismatch.
+        Severity carried in WORDS as well as colour:
+            "available" = soft hint (info-styled, surfaceVariant), link
+                          still works, rider can ignore for now.
+            "required"  = blocking (errorContainer, red), HUD has stopped
+                          accepting wire frames and the dashboard there
+                          is frozen until updated.
+        Each variant names which side the rider must update on.
+    -->
+    <string name="hud_install_hint">Need the HUD app? Get it at <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_update_url">eucplanet.ried.no/hud</string>
+    <string name="hud_version_hint_hud_behind">HUD update available. Newer phone features won\'t show until you update the HUD from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_hint_phone_behind">Phone update available. Some HUD features won\'t show until you update this phone app from <b>eucplanet.ried.no/hud</b></string>
+    <string name="hud_version_block_hud_behind">HUD update required. The HUD app is too old to talk to this phone. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+    <string name="hud_version_block_phone_behind">Phone update required. This phone app is too old to talk to the HUD. Update it from <b>eucplanet.ried.no/hud</b> to continue.</string>
+
+    <!-- Wear OS companion settings -->
     <string name="section_watch_general">General</string>
     <string name="section_watch_display">Display</string>
     <string name="section_watch_advanced">Advanced</string>
@@ -1123,6 +1187,7 @@
     <string name="studio_cfg_clock_text">Text</string>
     <string name="studio_cfg_clock_stopwatch">Stopwatch</string>
     <string name="studio_cfg_clock_show_date">Show date line</string>
+    <string name="studio_cfg_clock_24h">24-hour format</string>
     <string name="studio_cfg_metric_label">Metric</string>
     <string name="studio_cfg_max_label">Maximum</string>
     <string name="studio_cfg_show_label">Show label</string>
@@ -1404,6 +1469,7 @@
     <string name="studio_cfg_dial_style">Dial</string>
     <string name="studio_cfg_dial_full">Circle</string>
     <string name="studio_cfg_dial_semi">Half</string>
+    <string name="studio_cfg_dial_color_band">Color band</string>
     <string name="studio_snap_to_grid">Snap to grid</string>
     <string name="studio_overwrite_title">Overwrite preset?</string>
     <string name="studio_overwrite_body">A preset named \"%1$s\" already exists.</string>

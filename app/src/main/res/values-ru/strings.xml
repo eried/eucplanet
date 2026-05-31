@@ -77,6 +77,22 @@
     <string name="tab_integration">Интеграции</string>
     <string name="tab_cloud">Резервная копия настроек и поездок</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Включить передачу данных</string>
+    <string name="hud_ip_label">IP устройства</string>
+    <string name="hud_ip_label_autodetect">IP устройства (автоматически)</string>
+    <string name="hud_ip_desc">Введите IP-адрес, который HUD показывает на экране.</string>
+    <string name="hud_server_port">Порт</string>
+    <string name="hud_server_port_desc">По умолчанию 28080.</string>
+    <string name="hud_hotspot_off_hint">Точка доступа телефона отключена. Убедитесь, что HUD и телефон находятся в одной WiFi-сети.</string>
+    <string name="hud_hotspot_on_hint">Точка доступа телефона работает. Подключите HUD к WiFi этого телефона для активации связи.</string>
+    <string name="hud_custom_overlay_label">Пользовательский HUD-оверлей</string>
+    <string name="hud_custom_overlay_placeholder">Выберите пресет Overlay Studio</string>
+    <string name="hud_custom_overlay_no_folder">Папка резервного копирования не настроена</string>
+    <string name="hud_custom_overlay_bundled_only">Выберите шаблон (папка резервного копирования не задана)</string>
+    <string name="hud_custom_overlay_none">Нет</string>
+
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
     <string name="cloud_caption">Папка для CSV поездок и резервной копии настроек</string>

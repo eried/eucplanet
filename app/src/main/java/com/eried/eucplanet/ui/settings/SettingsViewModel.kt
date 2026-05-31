@@ -40,8 +40,72 @@ class SettingsViewModel @Inject constructor(
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
     private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
-    val cheatState: com.eried.eucplanet.cheats.CheatState
+    val cheatState: com.eried.eucplanet.cheats.CheatState,
+    private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
+    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink
 ) : ViewModel() {
+
+    /** Live HUD protocol compatibility for the Settings/Integration card.
+     *  Surfaces the "update HUD" / "update phone" hints. EXACT means nothing
+     *  to show. */
+    val hudVersionCompat = hudCommandSink.hudVersionCompat
+    /** APK version string the HUD reported on pairing, e.g. "0.1.6". Null
+     *  when no HUD is currently paired. */
+    val hudVersion = hudCommandSink.hudVersion
+
+    /**
+     * Full preset-list snapshot for the HUD overlay picker dialog:
+     *   - folderAvailable: rider has configured a sync folder
+     *   - savedPresets: rider-saved presets in the folder
+     *   - bundledPortrait: starter presets whose elements are mostly upright
+     *   - bundledLandscape: starter presets whose elements are pre-rotated
+     *
+     * The portrait / landscape split uses the same rule as the Studio: more
+     * than half of the elements rotated => landscape.
+     */
+    suspend fun loadHudOverlayLists(): HudOverlayLists {
+        val hasFolder = overlayPresetStore.presetFolderAvailable()
+        val saved = if (hasFolder) overlayPresetStore.listPresets() else emptyList()
+        val portrait = mutableListOf<String>()
+        val landscape = mutableListOf<String>()
+        overlayPresetStore.listBundledPresets().forEach { name ->
+            val els = overlayPresetStore.loadBundledPreset(name)?.elements
+            if (els != null && els.isNotEmpty() &&
+                els.count { it.rotationDeg != 0f } * 2 > els.size
+            ) {
+                landscape.add(name)
+            } else {
+                portrait.add(name)
+            }
+        }
+        return HudOverlayLists(hasFolder, saved, portrait, landscape)
+    }
+
+    data class HudOverlayLists(
+        val folderAvailable: Boolean,
+        val savedPresets: List<String>,
+        val bundledPortrait: List<String>,
+        val bundledLandscape: List<String>
+    )
+
+    /** Resolve a preset name -> JSON via OverlayPresetStore, then persist
+     *  it on the settings. The HUD link reads the json and ships it to
+     *  the HUD on the next state frame. */
+    fun pickHudOverlay(name: String) {
+        viewModelScope.launch {
+            if (name.isBlank()) {
+                updateHudCustomOverlay("", "")
+                return@launch
+            }
+            // Bundled first (works without backup folder); saved second.
+            val preset = overlayPresetStore.loadBundledPreset(name)
+                ?: overlayPresetStore.loadPreset(name)
+                ?: return@launch
+            val json = com.eried.eucplanet.data.store.OverlayPresetJson
+                .toJson(preset).toString()
+            updateHudCustomOverlay(name, json)
+        }
+    }
 
     /** Manual "wake the watch app" trigger, fires the same /euc/wake
      *  message that MainActivity.onResume() sends. Lets the user verify
@@ -369,6 +433,120 @@ class SettingsViewModel @Inject constructor(
     fun updateWatchUpdateRate(v: String) = update { copy(watchUpdateRate = v) }
     fun updateWheelNameDisplay(v: String) = update { copy(wheelNameDisplay = v) }
     fun updateWatchShowNavigation(v: Boolean) = update { copy(watchShowNavigation = v) }
+
+    // HUD companion
+    fun updateHudServerEnabled(v: Boolean) = update { copy(hudServerEnabled = v) }
+    fun updateHudServerPort(v: Int) = update {
+        // Match the dial port range. Below 1024 the HUD's listening socket
+        // couldn't bind without root; above 65535 isn't a port.
+        copy(hudServerPort = v.coerceIn(1024, 65535))
+    }
+    fun updateHudIp(v: String) = update { copy(hudIp = v.trim()) }
+    /**
+     * Set the HUD's "Custom" screen to mirror an Overlay Studio preset.
+     * Caller supplies the resolved JSON so the ViewModel doesn't need to
+     * know about asset/IO paths. Empty name clears the choice.
+     */
+    fun updateHudCustomOverlay(name: String, json: String) = update {
+        copy(hudCustomOverlayName = name.trim(), hudCustomOverlayJson = json)
+    }
+
+    /** Update the HUD's map tile style. See AppSettings.hudMapStyle for
+     *  the recognised codes; empty = "use HUD's compiled default." */
+    fun updateHudMapStyle(code: String) = update { copy(hudMapStyle = code) }
+
+    /** Map tile contrast, 50..200 percent (100 = neutral). */
+    fun updateHudMapContrast(pct: Int) = update {
+        copy(hudMapContrastPct = pct.coerceIn(50, 200))
+    }
+
+    /** Map tile brightness offset, -100..100 (0 = neutral). */
+    fun updateHudMapBrightness(pct: Int) = update {
+        copy(hudMapBrightnessPct = pct.coerceIn(-100, 100))
+    }
+
+    /** Screens that are ON by default on a fresh install. Order is the
+     *  default carousel order. Updated for preview-3 tester feedback:
+     *  ALL screens ship enabled so a new rider scrolls through the full
+     *  carousel and decides what to keep -- previously "opt-in defaults
+     *  off" meant testers never saw the Power / TripStats / Compass /
+     *  Safety / BigClock screens unless they read the release notes
+     *  carefully. The rider can still trim them from Personalize ->
+     *  HUD screens. */
+    val defaultEnabledHudScreens: List<String> = listOf(
+        "Dashboard", "Camera", "Telemetry",
+        "Custom", "CustomCam", "Map", "Nav",
+        "Power", "TripStats", "Compass", "Safety", "BigClock"
+    )
+
+    /** Stable identifiers for every HUD screen the app knows about,
+     *  mirroring the HudUiController.Screen enum on the HUD side. Order
+     *  determines where new screens appear in the Personalize list. */
+    val knownHudScreens: List<String> = defaultEnabledHudScreens
+
+    /** Parse the rider's saved enabled-set, falling back to defaults
+     *  when nothing has been saved. Strict member check ensures stale
+     *  values from a future schema don't leak in. */
+    private fun parseEnabledSet(raw: String): Set<String> {
+        val parsed = raw.split(",")
+            .map { it.trim() }
+            .filter { it in knownHudScreens }
+            .toSet()
+        return parsed.ifEmpty {
+            if (raw.isBlank()) defaultEnabledHudScreens.toSet()
+            else emptySet() // raw set explicitly, but nothing recognised
+        }
+    }
+
+    /** Parse the rider's saved row order, falling back to the default
+     *  full known order when nothing has been saved. Always returns
+     *  every known screen exactly once -- if the saved value is
+     *  partial (e.g. shipped before some screens were added), the
+     *  newer screens are appended at the end. */
+    private fun parseOrder(raw: String): List<String> {
+        val parsed = raw.split(",")
+            .map { it.trim() }
+            .filter { it in knownHudScreens }
+            .distinct()
+        return parsed + knownHudScreens.filter { it !in parsed }
+    }
+
+    /** Toggle whether a HUD screen is enabled. Touches ONLY the enabled
+     *  set -- the row's position in the Personalize list is preserved
+     *  because hudScreensOrder is independent. Enforces a minimum of
+     *  one enabled screen so the carousel can't be emptied. */
+    fun setHudScreenEnabled(id: String, enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val set = parseEnabledSet(current.hudScreensEnabled).toMutableSet()
+            if (enabled) {
+                set.add(id)
+            } else {
+                if (set.size <= 1 && id in set) return@launch // keep one
+                set.remove(id)
+            }
+            settingsRepository.update(
+                current.copy(hudScreensEnabled = set.joinToString(","))
+            )
+        }
+    }
+
+    /** Reorder HUD screens. Touches ONLY hudScreensOrder. Toggle state
+     *  is preserved. from/to are indices into the full ordered list,
+     *  which is what the Personalize ReorderableColumn renders. */
+    fun moveHudScreen(fromIndex: Int, toIndex: Int) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val order = parseOrder(current.hudScreensOrder).toMutableList()
+            if (fromIndex in order.indices && toIndex in order.indices) {
+                val item = order.removeAt(fromIndex)
+                order.add(toIndex, item)
+                settingsRepository.update(
+                    current.copy(hudScreensOrder = order.joinToString(","))
+                )
+            }
+        }
+    }
 
     // Navigator
     fun updateNavVoiceEnabled(v: Boolean) = update { copy(navVoiceEnabled = v) }

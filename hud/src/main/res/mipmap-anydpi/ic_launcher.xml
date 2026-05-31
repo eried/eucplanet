@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Fallback launcher icon for Android < 8.0 (API < 26), where the
+  adaptive-icon element parses but isn't supported. Points at the same
+  foreground vector we use inside the API 26+ adaptive icon, just without
+  the layered background. Older HUD firmware ends up with a simple flat
+  icon, which is fine - the launcher is rarely visible anyway since the
+  HUD's car-mode launcher hides standard tile chrome.
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_launcher_foreground" />

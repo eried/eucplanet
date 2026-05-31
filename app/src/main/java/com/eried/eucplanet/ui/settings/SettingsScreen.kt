@@ -57,6 +57,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Apps
@@ -539,7 +540,10 @@ fun SettingsScreen(
         stringResource(R.string.section_volume_keys),
         stringResource(R.string.volume_keys_enable),
         stringResource(R.string.section_radar),
-        stringResource(R.string.radar_caption)
+        stringResource(R.string.radar_caption),
+        stringResource(R.string.section_hud_companion),
+        stringResource(R.string.hud_server_enabled),
+        stringResource(R.string.hud_search_corpus)
     ).joinToString(" ")
 
     val corpusNavigator = listOf(
@@ -5445,6 +5449,9 @@ private fun FlicTab(
         SectionHeader(stringResource(R.string.section_radar))
         RadarSection()
 
+        settingsViewModel.settings.collectAsState().value?.let { s ->
+            HudIntegrationSection(settings = s, viewModel = settingsViewModel)
+        }
     }
 }
 
@@ -6388,7 +6395,7 @@ private fun SwitchSetting(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GaugeThresholdSlider(
+internal fun GaugeThresholdSlider(
     orangePct: Int,
     redPct: Int,
     safeColor: androidx.compose.ui.graphics.Color,
@@ -7845,3 +7852,668 @@ private fun surfaceKindLabel(kind: com.eried.eucplanet.data.model.PairedSurface.
         com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN ->
             stringResource(R.string.watch_paired_kind_garmin)
     }
+@Composable
+private fun HudInstallHint(pairedHudVersion: String?) {
+    if (pairedHudVersion != null) return
+
+    val updateUrl = stringResource(R.string.hud_update_url)
+    val raw = stringResource(R.string.hud_install_hint)
+    // Visible link styling: tinted + underlined so the rider sees at
+    // a glance that the URL is interactive. Without this, addLink
+    // alone leaves the link visually identical to the surrounding
+    // text and only reveals itself on hover (a tap target the rider
+    // would not know is there).
+    // Use the accent (primary) colour, which is bright enough to read
+    // as a link against the surfaceVariant fill. The styling is set on
+    // the LinkAnnotation.Url's `styles` parameter so Compose's Text
+    // composable applies it to the link RUN (a separate addStyle on
+    // the same range doesn't always survive the LinkAnnotation merge).
+    val linkColor = MaterialTheme.colorScheme.primary
+    val annotated = remember(raw, updateUrl, linkColor) {
+        val parsed = androidx.core.text.HtmlCompat.fromHtml(
+            raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+        val linkSpanStyle = androidx.compose.ui.text.SpanStyle(
+            color = linkColor,
+            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+        )
+        androidx.compose.ui.text.buildAnnotatedString {
+            append(parsed.toString())
+            parsed.getSpans(
+                0, parsed.length, android.text.style.StyleSpan::class.java
+            ).forEach { sp ->
+                if (sp.style == android.graphics.Typeface.BOLD) {
+                    val start = parsed.getSpanStart(sp)
+                    val end = parsed.getSpanEnd(sp)
+                    addLink(
+                        url = androidx.compose.ui.text.LinkAnnotation.Url(
+                            url = "https://$updateUrl",
+                            styles = androidx.compose.ui.text.TextLinkStyles(
+                                style = linkSpanStyle
+                            )
+                        ),
+                        start = start,
+                        end = end
+                    )
+                }
+            }
+        }
+    }
+    androidx.compose.material3.Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = annotated,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun HudHotspotHint() {
+    val ctx = LocalContext.current
+    var hotspotOn by remember { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            hotspotOn = detectHotspotEnabled(ctx)
+            kotlinx.coroutines.delay(5_000L)
+        }
+    }
+    // Always informational, never alarming. surfaceVariant + the outlined
+    // Info icon matches the InfoHint pattern used elsewhere in the app, so
+    // this reads as a regular "here's some context" card, not a red error.
+    // null = first probe in flight; suppress so the card doesn't flash.
+    val on = hotspotOn ?: return
+    androidx.compose.material3.Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = stringResource(
+                    if (on) R.string.hud_hotspot_on_hint else R.string.hud_hotspot_off_hint
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+/**
+ * Two-stage hotspot detection. Returns true/false when we have a signal, or
+ * false when nothing answered (so the UI defaults to surfacing the hint).
+ */
+private fun detectHotspotEnabled(ctx: android.content.Context): Boolean {
+    // Stage 1: reflection into the legacy isWifiApEnabled API.
+    val viaReflection: Boolean? = runCatching {
+        val wifi = ctx.applicationContext
+            .getSystemService(android.content.Context.WIFI_SERVICE)
+            as android.net.wifi.WifiManager
+        val m = wifi.javaClass.getMethod("isWifiApEnabled")
+        m.invoke(wifi) as? Boolean
+    }.getOrNull()
+    if (viaReflection != null) return viaReflection
+
+    // Stage 2: look for a SoftAP-style network interface. When the rider
+    // toggles hotspot on, the kernel brings up an interface named "ap0",
+    // "softap0", "wlan1" (Samsung) or "swlan0" (some MIUI). When hotspot
+    // is off, none of those exist - only "wlan0" for the regular client.
+    return runCatching {
+        val ifs = java.net.NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
+        ifs.any { iface ->
+            val name = iface.name.orEmpty().lowercase()
+            iface.isUp && !iface.isLoopback && (
+                name.startsWith("ap") || name.startsWith("softap") ||
+                name.startsWith("swlan") || name == "wlan1"
+            )
+        }
+    }.getOrDefault(false)
+}
+
+// --- HUD section (lives inside the Integration tab) ---
+
+/**
+ * HUD companion settings, surfaced as a section at the bottom of the
+ * Integration tab next to Flic 2 buttons and Volume keys.
+ *
+ * Intentionally minimal in v0.1 — one master switch plus the port and a
+ * mirror-navigation toggle. Anything else is wired to the same shared
+ * settings the phone already exposes (units, accent, gauge thresholds), so
+ * a single source of truth governs phone + watch + HUD.
+ *
+ * The phone-side server is gated on [com.eried.eucplanet.data.model.AppSettings.hudServerEnabled]
+ * and on the [com.eried.eucplanet.service.WheelService] being alive; it
+ * binds a listening socket only while the rider has the app actively open.
+ */
+@Composable
+private fun HudIntegrationSection(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        SectionHeader(stringResource(R.string.section_hud_companion))
+
+        // Phone surface is intentionally limited to the install hint:
+        // version mismatches are reported on the HUD side only. The
+        // HUD is the device the rider is actually looking at while
+        // riding, so duplicating the banner here just made the phone
+        // app shout when the rider could already see the answer on
+        // the helmet. Hides itself once a HUD has paired.
+        val pairedHudVersion by viewModel.hudVersion.collectAsState()
+        HudInstallHint(pairedHudVersion = pairedHudVersion)
+
+        // Hotspot hint sits ABOVE the link controls -- it's the usual
+        // setup step. Optional: some riders put the HUD on their home
+        // wifi or a separate router, in which case the hotspot doesn't
+        // matter. The hint copy makes that explicit so a rider whose
+        // hotspot is intentionally off doesn't think anything is wrong.
+        HudHotspotHint()
+
+        // IP + port live side by side as one logical input: the rider
+        // reads the IP off the HUD's screen, port is almost always the
+        // default. They're disabled while the link is active so an
+        // accidental keystroke can't drop a live connection.
+        val fieldsEnabled = !settings.hudServerEnabled
+        // Local edit buffers, seeded from settings ONCE at first
+        // composition and never re-keyed. The DataStore-backed write
+        // back from updateHudIp / updateHudServerPort is asynchronous;
+        // re-keying these on settings.* would race the IME and scramble
+        // mid-edit keystrokes (testers reported "192" appearing as "921").
+        var ipText by remember { mutableStateOf(settings.hudIp) }
+        var portText by remember { mutableStateOf(settings.hudServerPort.toString()) }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // When the link is on and the field is empty, the client falls
+            // back to mDNS auto-discovery. We surface that in the LABEL
+            // (which is always visible) instead of the placeholder (which
+            // only shows when the field is focused) so the rider sees the
+            // autodetect state without having to tap into the field first.
+            val ipLabel = if (settings.hudServerEnabled && ipText.isBlank())
+                stringResource(R.string.hud_ip_label_autodetect)
+            else stringResource(R.string.hud_ip_label)
+            OutlinedTextField(
+                value = ipText,
+                onValueChange = { new ->
+                    if (new.length <= 15 && new.all { it.isDigit() || it == '.' }) {
+                        ipText = new
+                        viewModel.updateHudIp(new)
+                    }
+                },
+                label = { Text(ipLabel) },
+                // 192.168.43.42 looks like a typical Android-hotspot
+                // client IP (43.0/24 is the legacy AOSP softAP subnet,
+                // .42 is obviously placeholder-ish so it doesn't get
+                // mistaken for an actual fixed address).
+                placeholder = { Text("192.168.43.42") },
+                singleLine = true,
+                enabled = fieldsEnabled,
+                // KeyboardType.Phone for digits + dots.
+                //
+                // platformImeOptions passes Android IME flags Compose
+                // doesn't expose directly:
+                //  - flagNoPersonalizedLearning: don't store typed IPs
+                //  - flagNoExtractUi: suppress Gboard's candidate strip,
+                //    which on dark theme rendered as the "black bar"
+                //    below the field testers reported.
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Next,
+                    autoCorrectEnabled = false,
+                    platformImeOptions = androidx.compose.ui.text.input.PlatformImeOptions(
+                        "flagNoPersonalizedLearning|flagNoExtractUi"
+                    )
+                ),
+                modifier = Modifier.weight(2f)
+            )
+            OutlinedTextField(
+                value = portText,
+                onValueChange = { new ->
+                    if (new.length <= 5 && new.all { it.isDigit() }) {
+                        portText = new
+                        // Only commit to the ViewModel if the typed value
+                        // is inside the legal port range. Mid-edit values
+                        // like "2" would otherwise be coerced to 1024 and
+                        // re-render the field, eating the cursor.
+                        new.toIntOrNull()?.takeIf { it in 1024..65535 }
+                            ?.let { viewModel.updateHudServerPort(it) }
+                    }
+                },
+                label = { Text(stringResource(R.string.hud_server_port)) },
+                singleLine = true,
+                enabled = fieldsEnabled,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+                    imeAction = androidx.compose.ui.text.input.ImeAction.Done,
+                    autoCorrectEnabled = false,
+                    platformImeOptions = androidx.compose.ui.text.input.PlatformImeOptions(
+                        "flagNoPersonalizedLearning|flagNoExtractUi"
+                    )
+                ),
+                modifier = Modifier.weight(1f)
+            )
+        }
+        // Toggle goes UNDER the IP/port -- the rider configures the
+        // address first and then flips the switch to dial out. Flipping
+        // it also locks the fields above so the live connection can't
+        // be edited out from under itself. No description below the
+        // label: the rider already knows what they're enabling by this
+        // point (they typed in an IP just above).
+        SwitchSetting(
+            label = stringResource(R.string.hud_server_enabled),
+            checked = settings.hudServerEnabled,
+            onCheckedChange = { viewModel.updateHudServerEnabled(it) }
+        )
+
+        // Two top-level collapsibles under the Integration card.
+        // HUD screens first because the reorder list inside is the
+        // primary repeat-visit destination; Map options second.
+        HudScreensCard(settings = settings, viewModel = viewModel)
+        HudMapOptionsCard(settings = settings, viewModel = viewModel)
+    }
+}
+
+/** Map appearance: tile style + contrast + brightness sliders. Uses the
+ *  shared AdvancedCollapsable for chrome + auto-scroll-on-expand. */
+@Composable
+private fun HudMapOptionsCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    AdvancedCollapsable(
+        title = stringResource(R.string.hud_map_options_title),
+        stateKey = "hud_map_options"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HudMapStylePicker(settings = settings, viewModel = viewModel)
+            HudMapContrastSlider(settings = settings, viewModel = viewModel)
+            HudMapBrightnessSlider(settings = settings, viewModel = viewModel)
+        }
+    }
+}
+
+/** Carousel personalization: which screens appear + custom overlay choice.
+ *  Uses the shared AdvancedCollapsable for chrome + auto-scroll-on-expand. */
+@Composable
+private fun HudScreensCard(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    AdvancedCollapsable(
+        title = stringResource(R.string.hud_screens_title),
+        stateKey = "hud_screens"
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            HudScreenList(settings = settings, viewModel = viewModel)
+            HudOverlayPicker(settings = settings, viewModel = viewModel)
+        }
+    }
+}
+
+@Composable
+private fun HudMapContrastSlider(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.hud_map_contrast_label),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                "${settings.hudMapContrastPct}%",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        androidx.compose.material3.Slider(
+            value = settings.hudMapContrastPct.toFloat(),
+            onValueChange = { viewModel.updateHudMapContrast(it.toInt()) },
+            valueRange = 50f..200f,
+            steps = 29 // 5% increments across the 150-wide range
+        )
+    }
+}
+
+@Composable
+private fun HudMapBrightnessSlider(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(R.string.hud_map_brightness_label),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            // Signed display so the rider sees +20 / -20 rather than just
+            // "20" -- it's a +/- offset, not a magnitude.
+            val v = settings.hudMapBrightnessPct
+            Text(
+                if (v > 0) "+$v" else v.toString(),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        androidx.compose.material3.Slider(
+            value = settings.hudMapBrightnessPct.toFloat(),
+            onValueChange = { viewModel.updateHudMapBrightness(it.toInt()) },
+            valueRange = -100f..100f,
+            steps = 39 // 5-unit increments across the 200-wide range
+        )
+    }
+}
+
+@Composable
+private fun HudScreenList(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    val ctx = LocalContext.current
+    val known = viewModel.knownHudScreens
+    val defaultEnabled = viewModel.defaultEnabledHudScreens
+    // Row order comes from hudScreensOrder; enabled state from
+    // hudScreensEnabled. The two are independent in storage so
+    // toggling a Switch off doesn't move the row -- it stays in
+    // place and just goes unchecked.
+    val orderedAll = remember(settings.hudScreensOrder, known) {
+        val parsed = settings.hudScreensOrder.split(",")
+            .map { it.trim() }
+            .filter { it in known }
+            .distinct()
+        parsed + known.filter { it !in parsed }
+    }
+    val enabledSet = remember(settings.hudScreensEnabled, defaultEnabled) {
+        val parsed = settings.hudScreensEnabled.split(",")
+            .map { it.trim() }
+            .filter { it in known }
+            .toSet()
+        if (parsed.isEmpty() && settings.hudScreensEnabled.isBlank()) {
+            defaultEnabled.toSet()
+        } else parsed
+    }
+    val haptic = LocalHapticFeedback.current
+    val isOnlyOneEnabled = enabledSet.size <= 1
+
+    sh.calvin.reorderable.ReorderableColumn(
+        list = orderedAll,
+        onSettle = { from, to -> viewModel.moveHudScreen(from, to) },
+        onMove = { haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+        modifier = Modifier.fillMaxWidth()
+    ) { _, id, _ ->
+        key(id) {
+            val checked = id in enabledSet
+            // Prevent the rider from unchecking the LAST enabled
+            // screen -- they need at least one screen on the carousel
+            // or the HUD has no content to show.
+            val canUncheck = !(isOnlyOneEnabled && checked)
+            // Matches the chrome of [ReportRow] used by the voice
+            // periodic-report list at the top of the Voice tab: drag
+            // handle on the left, label in weighted middle, Material3
+            // Switch on the right. No vertical padding -- the
+            // ReorderableColumn handles spacing between rows.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.DragHandle,
+                    contentDescription = stringResource(R.string.action_reorder),
+                    modifier = Modifier
+                        .draggableHandle()
+                        .size(28.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.width(6.dp))
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = hudScreenDisplayName(ctx, id),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                Switch(
+                    checked = checked,
+                    onCheckedChange = { wantChecked ->
+                        if (wantChecked || canUncheck) {
+                            viewModel.setHudScreenEnabled(id, wantChecked)
+                        }
+                    },
+                    enabled = wantCheckedCanFlip(checked, canUncheck)
+                )
+            }
+        }
+    }
+}
+
+/** Disable the Checkbox visually when it's the last enabled screen AND
+ *  already checked -- prevents the rider from tapping the only screen
+ *  they have off, while letting them tick disabled screens back on. */
+private fun wantCheckedCanFlip(currentlyChecked: Boolean, canUncheck: Boolean): Boolean {
+    if (!currentlyChecked) return true
+    return canUncheck
+}
+
+/** Map stable HUD screen id to its localized display name. Falls back
+ *  to the id itself for unknown ids so a future-shipped HUD that
+ *  reports a brand-new screen still surfaces SOMETHING the rider can
+ *  see and reorder. */
+private fun hudScreenDisplayName(ctx: android.content.Context, id: String): String = when (id) {
+    "Dashboard" -> ctx.getString(R.string.hud_screen_name_dashboard)
+    "Camera" -> ctx.getString(R.string.hud_screen_name_camera)
+    "Telemetry" -> ctx.getString(R.string.hud_screen_name_telemetry)
+    "Custom" -> ctx.getString(R.string.hud_screen_name_custom)
+    "CustomCam" -> ctx.getString(R.string.hud_screen_name_custom_cam)
+    "Map" -> ctx.getString(R.string.hud_screen_name_map)
+    "Nav" -> ctx.getString(R.string.hud_screen_name_nav)
+    "Power" -> ctx.getString(R.string.hud_screen_name_power)
+    "TripStats" -> ctx.getString(R.string.hud_screen_name_trip_stats)
+    "Compass" -> ctx.getString(R.string.hud_screen_name_compass)
+    "Safety" -> ctx.getString(R.string.hud_screen_name_safety)
+    "BigClock" -> ctx.getString(R.string.hud_screen_name_big_clock)
+    else -> id
+}
+
+/**
+ * Map-tile style picker. The chosen code goes into AppSettings.hudMapStyle,
+ * ships over the wire on the next 5 Hz frame, and the HUD's HudTileCache
+ * swaps URL templates + clears its bitmap LRU so the change is visible
+ * within a few seconds.
+ *
+ * Five Carto raster styles cover the readability range riders care about:
+ * Voyager (default, neutral parchment), Dark + Dark-no-labels (night riding
+ * / OLED-style cockpits), Light (high contrast on bright prisms), and
+ * Positron (low-key low-saturation). All five are free with CDN attribution
+ * (handled in the HUD's MapScreen footer).
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HudMapStylePicker(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    // Carto raster basemap slugs, all 10 publicly served styles. Labels
+    // are the raw slugs on purpose: the rider asked to see the internal
+    // names, not localised friendly text. Order: voyager family,
+    // positron (light_*) family, dark matter (dark_*) family.
+    val options = listOf(
+        "voyager",
+        "voyager_nolabels",
+        "voyager_labels_under",
+        "voyager_only_labels",
+        "light_all",
+        "light_nolabels",
+        "light_only_labels",
+        "dark_all",
+        "dark_nolabels",
+        "dark_only_labels",
+    )
+    val currentCode = settings.hudMapStyle.ifBlank { "voyager" }
+    val currentLabel = currentCode
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = currentLabel,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.hud_map_style_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { code ->
+                DropdownMenuItem(
+                    text = { Text(code) },
+                    onClick = {
+                        viewModel.updateHudMapStyle(code)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun HudOverlayPicker(
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel
+) {
+    var lists by remember {
+        mutableStateOf<SettingsViewModel.HudOverlayLists?>(null)
+    }
+    var sheetOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(settings.syncFolderUri, settings.hudCustomOverlayName) {
+        lists = viewModel.loadHudOverlayLists()
+    }
+
+    // Section block: small SUBSECTION label + 2-line description + a
+    // button that opens the existing Studio LoadPresetSheet. Matches the
+    // style of other settings sub-blocks: label uppercase primary,
+    // bodySmall onSurfaceVariant body text, button is filled tonal.
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.hud_overlay_subsection).uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = stringResource(R.string.hud_overlay_subsection_desc),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (settings.hudCustomOverlayName.isNotBlank()) {
+            Text(
+                text = stringResource(
+                    R.string.hud_overlay_current_preset,
+                    settings.hudCustomOverlayName
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            androidx.compose.material3.FilledTonalButton(
+                onClick = { sheetOpen = true }
+            ) {
+                Text(stringResource(R.string.hud_overlay_select_preset))
+            }
+            if (settings.hudCustomOverlayName.isNotBlank()) {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.pickHudOverlay("") }
+                ) {
+                    Text(stringResource(R.string.hud_custom_overlay_none))
+                }
+            }
+        }
+    }
+
+    if (sheetOpen) {
+        val l = lists
+        // The Studio's LoadPresetSheet internally uses a verticalScroll
+        // inside a side panel; that scroll needs a bounded height to
+        // measure. Calling it inline inside the settings Column (itself
+        // verticalScroll) gives it an infinite-height parent and
+        // crashes. Wrap in a Dialog so it lives in its own window with
+        // proper constraints.
+        if (l != null) {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { sheetOpen = false },
+                properties = androidx.compose.ui.window.DialogProperties(
+                    usePlatformDefaultWidth = false
+                )
+            ) {
+                com.eried.eucplanet.ui.studio.LoadPresetSheet(
+                    folderAvailable = l.folderAvailable,
+                    presets = l.savedPresets,
+                    bundledPresets = l.bundledPortrait,
+                    bundledLandscapePresets = l.bundledLandscape,
+                    onLoad = { name ->
+                        viewModel.pickHudOverlay(name)
+                        sheetOpen = false
+                    },
+                    onLoadBundled = { name ->
+                        viewModel.pickHudOverlay(name)
+                        sheetOpen = false
+                    },
+                    onDelete = { /* delete handled in the Studio, not here */ },
+                    onOpenFolderSettings = { sheetOpen = false },
+                    onDismiss = { sheetOpen = false }
+                )
+            }
+        }
+    }
+}
+

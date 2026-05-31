@@ -3,10 +3,10 @@ package com.eried.eucplanet.ui.studio
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.ble.ConnectionState
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayPreset
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.ExternalGpsRepository

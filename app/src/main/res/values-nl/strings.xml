@@ -105,6 +105,22 @@
     <string name="tab_watch">Horloge</string>
     <string name="tab_cloud">Back-up van instellingen &amp; ritten</string>
 
+    <!-- HUD companion settings -->
+    <string name="section_hud_companion">Motoeye HUD</string>
+    <string name="hud_server_enabled">Gegevenslink inschakelen</string>
+    <string name="hud_ip_label">Apparaat-IP</string>
+    <string name="hud_ip_label_autodetect">Apparaat-IP (automatisch)</string>
+    <string name="hud_ip_desc">Voer het IP-adres in dat de HUD op zijn scherm weergeeft.</string>
+    <string name="hud_server_port">Poort</string>
+    <string name="hud_server_port_desc">Standaard 28080.</string>
+    <string name="hud_hotspot_off_hint">Telefoon-hotspot is uit. Zorg ervoor dat de HUD en de telefoon op hetzelfde WiFi-netwerk zijn.</string>
+    <string name="hud_hotspot_on_hint">Telefoon-hotspot zendt uit. Verbind de HUD met de WiFi van deze telefoon om de link in te schakelen.</string>
+    <string name="hud_custom_overlay_label">Aangepaste HUD-overlay</string>
+    <string name="hud_custom_overlay_placeholder">Kies een Overlay Studio-voorinstelling</string>
+    <string name="hud_custom_overlay_no_folder">Back-upmap niet geconfigureerd</string>
+    <string name="hud_custom_overlay_bundled_only">Kies een voorinstelling (back-upmap niet ingesteld)</string>
+    <string name="hud_custom_overlay_none">Geen</string>
+
     <!-- Wear OS companion settings -->
     <string name="section_watch_general">Algemeen</string>
     <string name="section_watch_display">Weergave</string>

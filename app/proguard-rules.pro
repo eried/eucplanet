@@ -22,3 +22,15 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Ktor (embedded HUD companion server) references java.lang.management for an
+# IntelliJ debugger heuristic that doesn't exist on Android. Telling R8 not to
+# warn lets the shrink complete; the code path is never exercised at runtime.
+-dontwarn java.lang.management.**
+-dontwarn io.ktor.**
+-dontwarn kotlinx.coroutines.debug.**
+
+# JmDNS multicast discovery -- the library inspects classes reflectively for
+# DNS record types.
+-keep class javax.jmdns.** { *; }
+-dontwarn javax.jmdns.**

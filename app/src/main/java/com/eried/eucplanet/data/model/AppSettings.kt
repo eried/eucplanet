@@ -389,6 +389,106 @@ data class AppSettings(
      */
     val watchShowNavigation: Boolean = true,
 
+    // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
+    /**
+     * Master switch for the phone-side WebSocket dialer that pushes telemetry
+     * to an external HUD (e.g. an aftermarket E6-class motorcycle HUD). Off
+     * by default. The HUD itself is a separate APK (`:hud` module) and acts
+     * as the listener; we connect out to it because phone hotspots routinely
+     * block multicast and inbound peer traffic.
+     *
+     * Storage key kept as `hudServerEnabled` for backwards compat with
+     * existing rider settings -- the meaning is "HUD link active", role was
+     * inverted in v0.1.4.
+     */
+    val hudServerEnabled: Boolean = false,
+    /**
+     * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
+     * Exposed as a setting because some carrier-grade hotspots refuse to
+     * route certain port ranges; riders rarely need to touch it.
+     */
+    val hudServerPort: Int = 28080,
+    /**
+     * IPv4 of the HUD the rider reads off its on-screen banner and types into
+     * the phone settings. Blank means "no HUD configured"; we won't try to
+     * dial out until the rider fills this in. mDNS auto-discovery may
+     * populate this in a future build, but right now manual entry is the
+     * only path because softAP multicast filtering kills discovery on too
+     * many phones.
+     */
+    val hudIp: String = "",
+    /**
+     * Name of the Overlay Studio preset the rider chose to mirror on the
+     * HUD as a "Custom" screen. Empty = no custom overlay configured.
+     * Resolved against bundled assets + the rider's backup folder by the
+     * OverlayPresetStore; the resolved JSON travels over the wire via
+     * [hudCustomOverlayJson] so the HUD doesn't need filesystem access.
+     */
+    val hudCustomOverlayName: String = "",
+    /**
+     * Cached JSON of the resolved custom overlay preset. Updated whenever
+     * [hudCustomOverlayName] changes; the HUD reads this directly and
+     * renders the elements (no viewport backgrounds -- this is meant to
+     * overlay on the HUD's transparent panel like a video stream's
+     * lower-third).
+     */
+    val hudCustomOverlayJson: String = "",
+    /**
+     * Ordered list of HUD screens the rider has enabled, by stable id
+     * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
+     * "Map", "Nav"). Stored as a comma-separated string so it slots
+     * cleanly into the existing key/value DataStore.
+     *
+     * Empty string = "use the default carousel" (= all seven screens in
+     * declaration order). Non-empty = each comma-separated id is one
+     * screen and the order is the carousel order.
+     *
+     * The phone-side UI enforces a minimum of one screen so the rider
+     * can't disable everything and lose access to the HUD; the HUD
+     * also falls back to the default seven on an empty-list wire frame
+     * as belt-and-suspenders.
+     */
+    val hudScreensEnabled: String = "",
+    /**
+     * Rider's preferred FULL display order of all known HUD screens,
+     * comma-separated. Used to keep disabled screens in their current
+     * row when the rider toggles a Switch off in the Personalize list:
+     * the row's enabled state changes, the row's POSITION doesn't.
+     *
+     * Empty string = default order (the defaults followed by the opt-in
+     * screens in declaration order). When set, contains every known
+     * screen id in the order the rider arranged them. Any future-added
+     * screens not in the saved value are appended at the end.
+     *
+     * The wire-format `enabledHudScreens` field is computed by walking
+     * THIS order and filtering by the enabled set, so the HUD's
+     * carousel order matches the order the rider sees in Settings.
+     */
+    val hudScreensOrder: String = "",
+    /**
+     * Which CartoCDN raster style the HUD should use for its Map screen
+     * and the MAP element inside a Custom overlay. Empty = the HUD picks
+     * its compiled-in default (currently "voyager", neutral parchment
+     * background). Other supported codes: "dark_matter",
+     * "dark_matter_nolabels", "voyager", "light_all", "positron".
+     * Anything else falls back to the HUD's compiled default so the
+     * rider doesn't get a blank map if they pick something we removed.
+     */
+    val hudMapStyle: String = "",
+    /**
+     * Per-axis tile post-processing. Both run as a single ColorMatrix on
+     * the HUD; at the neutral values (contrast=100, brightness=0) the
+     * matrix is identity and we skip the ColorFilter entirely so there's
+     * no GPU cost for the common case.
+     *
+     * Contrast: 50..200 percent, 100 = neutral (no gain).
+     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
+     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
+     * 100 from each channel before clamping.
+     */
+    val hudMapContrastPct: Int = 100,
+    val hudMapBrightnessPct: Int = 0,
+
     // --- Motor Sound generator ---
     //
     // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
