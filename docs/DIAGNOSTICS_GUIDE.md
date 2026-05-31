@@ -37,7 +37,10 @@ One `.txt` log, shared straight from the app. That's the whole thing.
    finger on it; sliding off cancels.
 4. Read the warning, confirm, and tap **Enter**.
 
-The version number now **pulses red**. That means it's recording.
+> [!NOTE]
+> When version number now **pulses red**. That means it's already recording.
+
+<img width="200" alt="Screenshot_1780217539" src="https://github.com/user-attachments/assets/9d074fa6-5e46-45a9-adce-bc0ae220f237" />
 
 ## 2. Describe the problem
 
@@ -57,7 +60,7 @@ Horn button in the app does nothing
 
 ## 3. Make the problem happen
 
-1. Tap the **X** in the top-left to close the panel. It keeps recording in
+1. Tap the **X** in the top-left to close the panel (not the **Stop** symbol). It keeps recording in
    the background (the version number stays red).
 2. **Connect** to your wheel as normal and reproduce the problem:
    - speed / battery / distance issue: ride a little, slow and safe, and
