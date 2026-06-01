@@ -122,6 +122,12 @@
     <string name="dashboard_view_wide">Wide</string>
     <string name="dashboard_composite_template_label">MULTI</string>
     <string name="dashboard_group_template_label">GROUP</string>
+    <string name="dashboard_custom_ble_template">BLE</string>
+    <string name="dashboard_custom_ble_default_name">Custom BLE</string>
+    <string name="dashboard_custom_ble_label">Button label</string>
+    <string name="dashboard_custom_ble_family">Wheel family filter</string>
+    <string name="dashboard_custom_ble_frames">Frames (hex)</string>
+    <string name="dashboard_custom_ble_frames_error">Invalid hex — use byte pairs like 4c 6b 41 70</string>
     <string name="dashboard_composite_layout_row2">2 rows</string>
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>

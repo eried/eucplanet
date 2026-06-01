@@ -56,6 +56,16 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun horn(): ByteArray = VeteranCommands.horn()
 
     /**
+     * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
+     * from [horn] is followed by this `LdAp` companion. WheelLog sends just the
+     * `LkAp` half, so its horn is silently ignored on these wheels (the frame is
+     * accepted but produces no beep). Decoded from a LeaperKim-app btsnoop on a
+     * Lynx S (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
+     * writes both, in order.
+     */
+    override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()
+
+    /**
      * Light state is never echoed in Veteran realtime frames (per
      * docs/protocols/veteran.md §6: "Light state has no readback.
      * Track it locally after each write."). We cache the last
@@ -71,8 +81,22 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun setLight(on: Boolean): ByteArray {
         lastLightOn = on
-        return VeteranCommands.setLight(on)
+        // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
+        return VeteranCommands.setHighBeam(on)
+        // LOW beam (legacy ASCII, single frame). To switch the in-app light
+        // toggle back to the low beam: comment the high-beam return above,
+        // uncomment the line below, and make [setLightFollowup] return null.
+        // return VeteranCommands.setLight(on)
     }
+
+    /**
+     * Second frame of the high-beam command (`LdAp`); the wheel ignores the
+     * `LkAp` half from [setLight] on its own. Decoded from the same Lynx S
+     * btsnoop as the horn. If you switch [setLight] back to the low beam,
+     * change this to `null` (low beam is a single ASCII frame).
+     */
+    override fun setLightFollowup(on: Boolean): ByteArray =
+        VeteranCommands.setHighBeamCompanion(on)
 
     // Veteran writes tilt-back and alarm thresholds as two separate frames
     // (different magic + sub-op per setting), so we leave the combined

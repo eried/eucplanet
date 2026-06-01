@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -272,10 +273,32 @@ class FlicManager @Inject constructor(
      * route through a different executor in the UI layer because they need
      * navigation / Snackbar / Compose handles this service doesn't have.
      */
+    /**
+     * Resolve and fire a CUSTOM BLE action (key "B:<uuid>"). Family-gated: a
+     * command only fires on a matching connected wheel, so raw user bytes never
+     * reach the wrong wheel. No-op (logged) otherwise.
+     */
+    private fun dispatchCustomBle(key: String, settings: AppSettings) {
+        val commands = CustomBleCommand.parseAll(settings.dashboardCustomBle)
+        val cmd = CustomBleCommand.resolveForDispatch(
+            commands, key, wheelRepository.connectedFamilyId
+        )
+        if (cmd == null) {
+            Log.i(TAG, "custom BLE $key skipped: no match / wrong wheel / empty")
+            return
+        }
+        Log.i(TAG, "custom BLE $key -> ${cmd.frames.size} frame(s) on ${cmd.family}")
+        wheelRepository.sendCustomBle(cmd.frames)
+    }
+
     private suspend fun executeAction(key: String, settings: AppSettings) {
         if (key.isEmpty() || key == "NONE") return
         _lastActionAt.value = System.currentTimeMillis()
         Log.d(TAG, "executeAction key=$key")
+        if (CustomBleCommand.isCustomBleId(key)) {
+            dispatchCustomBle(key, settings)
+            return
+        }
         when (key) {
             "HORN" -> wheelRepository.sendHorn()
             "LIGHT_TOGGLE" -> {

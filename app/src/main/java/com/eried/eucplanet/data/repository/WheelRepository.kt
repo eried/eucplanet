@@ -481,6 +481,25 @@ class WheelRepository @Inject constructor(
 
     fun sendHorn() {
         wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
+        // Veteran (Lynx-class) needs an LdAp companion frame right after the
+        // LkAp horn or the wheel stays silent; queued as a second write so it
+        // lands in order. Null for every other family (single-frame horn).
+        wheelAdapter.hornFollowup()?.let { bleManager.writeCommand(it) }
+    }
+
+    /**
+     * The connected wheel's adapter family id ("veteran", "kingsong", ...), or
+     * null when disconnected. Gates family-scoped custom BLE commands so raw
+     * user bytes never reach a wheel they were not authored for.
+     */
+    val connectedFamilyId: String?
+        get() = if (bleManager.connectionState.value == ConnectionState.CONNECTED) {
+            wheelAdapter.familyId
+        } else null
+
+    /** Write a custom BLE command's frames verbatim — one BLE write each, in order. */
+    fun sendCustomBle(frames: List<ByteArray>) {
+        frames.forEach { if (it.isNotEmpty()) bleManager.writeCommand(it) }
     }
 
     /**
@@ -504,6 +523,10 @@ class WheelRepository @Inject constructor(
             "toggleLight: lightOn was=$current, sending $next"
         )
         wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
+        // Veteran high beam needs an LdAp companion frame right after the LkAp
+        // frame; queued as a second write so it lands in order. Null for the
+        // ASCII low beam and every other family (single-frame headlight).
+        wheelAdapter.setLightFollowup(next)?.let { bleManager.writeCommand(it) }
         _wheelData.value = _wheelData.value.copy(lightOn = next)
         startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
