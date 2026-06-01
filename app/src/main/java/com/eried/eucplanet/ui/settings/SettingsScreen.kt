@@ -8255,8 +8255,13 @@ private fun surfaceKindLabel(kind: com.eried.eucplanet.data.model.PairedSurface.
             stringResource(R.string.watch_paired_kind_garmin)
     }
 @Composable
-private fun HudInstallHint(pairedHudVersion: String?) {
-    if (pairedHudVersion != null) return
+private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean) {
+    // Hide the hint as soon as a HUD has paired -- AND keep it hidden
+    // for the rest of the session even if the WebSocket drops. Without
+    // the sticky flag, the hint flashed back on every reconnect and
+    // told a rider who has the HUD installed to "Get it at ...", which
+    // reads as broken UX.
+    if (pairedHudVersion != null || hudEverConnected) return
 
     val updateUrl = stringResource(R.string.hud_update_url)
     val raw = stringResource(R.string.hud_install_hint)
@@ -8433,7 +8438,11 @@ private fun HudIntegrationSection(
         // app shout when the rider could already see the answer on
         // the helmet. Hides itself once a HUD has paired.
         val pairedHudVersion by viewModel.hudVersion.collectAsState()
-        HudInstallHint(pairedHudVersion = pairedHudVersion)
+        val hudEverConnected by viewModel.hudEverConnected.collectAsState()
+        HudInstallHint(
+            pairedHudVersion = pairedHudVersion,
+            hudEverConnected = hudEverConnected
+        )
 
         // Hotspot hint sits ABOVE the link controls -- it's the usual
         // setup step. Optional: some riders put the HUD on their home

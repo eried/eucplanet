@@ -53,6 +53,7 @@ class SettingsViewModel @Inject constructor(
     /** APK version string the HUD reported on pairing, e.g. "0.1.6". Null
      *  when no HUD is currently paired. */
     val hudVersion = hudCommandSink.hudVersion
+    val hudEverConnected = hudCommandSink.hudEverConnected
 
     /**
      * Full preset-list snapshot for the HUD overlay picker dialog:

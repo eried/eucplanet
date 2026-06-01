@@ -36,6 +36,13 @@ class HudCommandSink @Inject constructor(
      *  hint after the HUD goes away. */
     val hudVersionCompat: StateFlow<VersionCompat> = _hudVersionCompat.asStateFlow()
 
+    /** True once a HUD has paired at least once this session. Stays true
+     *  through disconnects so the "Need the HUD app?" install hint
+     *  doesn't blink back on every time the WebSocket bounces -- the
+     *  rider has already proved they have the HUD installed. */
+    private val _hudEverConnected = MutableStateFlow(false)
+    val hudEverConnected: StateFlow<Boolean> = _hudEverConnected.asStateFlow()
+
     private val _hudVersion = MutableStateFlow<String?>(null)
     /** APK version string the HUD reported in its Pair message, e.g.
      *  "0.1.6". Null until paired. Used in the UI hint copy and in
@@ -59,6 +66,7 @@ class HudCommandSink @Inject constructor(
                 val major = if (cmd.hudProtocolMajor == 0) 1 else cmd.hudProtocolMajor
                 _hudVersionCompat.value = VersionCompat.classify(major, cmd.hudProtocolMinor)
                 _hudVersion.value = cmd.hudVersion.ifBlank { null }
+                _hudEverConnected.value = true
             }
             HudCommand.ToggleLight -> {
                 Log.i(TAG, "HUD command: ToggleLight")
