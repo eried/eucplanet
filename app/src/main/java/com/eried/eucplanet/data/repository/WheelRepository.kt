@@ -532,11 +532,52 @@ class WheelRepository @Inject constructor(
     // --- Control commands ---
 
     fun sendHorn() {
-        wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
-        // Veteran (Lynx-class) needs an LdAp companion frame right after the
-        // LkAp horn or the wheel stays silent; queued as a second write so it
-        // lands in order. Null for every other family (single-frame horn).
-        wheelAdapter.hornFollowup()?.let { bleManager.writeCommand(it) }
+        val cmd = wheelAdapter.horn()
+        if (cmd != null) {
+            bleManager.writeCommand(cmd)
+            // Veteran (Lynx-class) needs an LdAp companion frame right after
+            // the LkAp horn or the wheel stays silent; queued as a second
+            // write so it lands in order. Null for every other family
+            // (single-frame horn).
+            wheelAdapter.hornFollowup()?.let { bleManager.writeCommand(it) }
+        } else {
+            // Wheel family has no horn opcode (Ninebot Z protocol 19 doesn't
+            // define one, Ninebot Legacy is read-only). Fall back to a phone
+            // beep + vibration so the rider gets some feedback instead of
+            // tapping into the void. The audit flagged this as DANGEROUS:
+            // the button rendered enabled but did absolutely nothing.
+            playPhoneHornFallback()
+        }
+    }
+
+    /** Phone-side fallback for wheel families that lack a horn opcode.
+     *  Brief tone + vibration -- not a real horn but at least the rider
+     *  knows the tap registered. Best-effort; silently catches every
+     *  audio / vibrator error so a locked-down audio policy never throws
+     *  out of a horn tap. */
+    private fun playPhoneHornFallback() {
+        try {
+            val tone = android.media.ToneGenerator(
+                android.media.AudioManager.STREAM_MUSIC, 100
+            )
+            tone.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 400)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try { tone.release() } catch (_: Throwable) {}
+            }, 600L)
+        } catch (_: Throwable) {}
+        try {
+            val vib = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+            if (vib != null && android.os.Build.VERSION.SDK_INT >= 26) {
+                vib.vibrate(
+                    android.os.VibrationEffect.createOneShot(
+                        300L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vib?.vibrate(300L)
+            }
+        } catch (_: Throwable) {}
     }
 
     /**
