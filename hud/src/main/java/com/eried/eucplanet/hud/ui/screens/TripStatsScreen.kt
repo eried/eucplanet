@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.hud.protocol.HudState
+import com.eried.eucplanet.hud.ui.AutoFitText
 import com.eried.eucplanet.hud.ui.HudSessionState
 import com.eried.eucplanet.hud.ui.HudUnits
 
@@ -110,27 +111,38 @@ private fun StatTile(
             .background(Color.Black)
             .padding(12.dp)
     ) {
+        // BoxWithConstraints around the tile interior gives AutoFitText
+        // an accurate horizontal budget. Each tile picks its own font
+        // size based on its OWN width (not the screen height) so the
+        // value text shrinks ONLY when its specific content would
+        // overflow -- DIST + AVG share width but their content lengths
+        // differ.
         Column {
-            Text(
+            AutoFitText(
                 text = label,
+                targetSize = (sizeRefDp * 0.05f).sp,
                 color = Color(0xFF8B949E),
-                fontSize = (sizeRefDp * 0.05f).sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.fillMaxWidth()
             )
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(
+                // The value+unit line is the one that overflows for long
+                // distances ("1234.5 km") or long times ("1:23:45"). Wrap
+                // the inline value in AutoFitText with the tile width as
+                // the budget; the unit gets the leftover horizontal space.
+                AutoFitText(
                     text = value,
+                    targetSize = (sizeRefDp * 0.22f).sp,
                     color = Color.White,
-                    fontSize = (sizeRefDp * 0.22f).sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
-                    maxLines = 1
+                    modifier = Modifier.weight(1f, fill = false)
                 )
                 if (unit.isNotEmpty()) {
-                    Text(
+                    AutoFitText(
                         text = " $unit",
+                        targetSize = (sizeRefDp * 0.06f).sp,
                         color = Color(0xFFB0B0B0),
-                        fontSize = (sizeRefDp * 0.06f).sp,
                         modifier = Modifier.padding(bottom = (sizeRefDp * 0.03f).dp)
                     )
                 }

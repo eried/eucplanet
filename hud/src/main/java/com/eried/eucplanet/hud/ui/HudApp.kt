@@ -8,7 +8,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -312,13 +311,12 @@ private fun BoxScope.VersionMismatchSurface(
     val icon = if (isMajor) Icons.Filled.PhonelinkOff
         else Icons.Outlined.Info
 
-    // Tapping the badge launches the URL in whatever browser the HUD
-    // device has — on a phone-class emulator that's Chrome / system
-    // browser; on a real e-ink HUD module without a browser the Intent
-    // resolves to nothing and the runCatching swallows the
-    // ActivityNotFoundException so we never crash. The URL itself is
-    // also styled with an underline so the visual cue reads as a link
-    // even when the device doesn't actually have a browser to open.
+    // The HUD has no touchscreen, so the badge stays display-only --
+    // the URL text is shown for the rider to type into a phone /
+    // computer. Dropped the .clickable + ACTION_VIEW intent that used
+    // to open a browser; on the real MotoEye E6 there's no browser to
+    // launch anyway, and the underlined text was misleading the rider
+    // into thinking the HUD was tap-aware.
     Row(
         modifier = Modifier
             .align(Alignment.BottomEnd)
@@ -326,16 +324,6 @@ private fun BoxScope.VersionMismatchSurface(
             .clip(RectangleShape)
             .background(Color(0xE6111111))
             .border(1.dp, strokeColor, RectangleShape)
-            .clickable {
-                runCatching {
-                    ctx.startActivity(
-                        android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse("https://$url")
-                        ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
-                }
-            }
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -359,7 +347,6 @@ private fun BoxScope.VersionMismatchSurface(
                 color = strokeColor,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
-                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
                 maxLines = 1
             )
         }

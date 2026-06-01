@@ -92,7 +92,23 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
             buildTileFilter(hud.hudMapContrastPct, hud.hudMapBrightnessPct)
         }
 
-        val z = zoom.toInt().coerceIn(3, 19)
+        // Animate the zoom float so UP/DOWN-driven zoom changes are
+        // smoothed visually instead of snapping a full tile-set per
+        // integer step. The animation runs at 200 ms with the default
+        // easing -- long enough to register as a continuous transition,
+        // short enough that the rider's next tap feels responsive.
+        val animatedZoom by androidx.compose.animation.core.animateFloatAsState(
+            targetValue = zoom,
+            animationSpec = androidx.compose.animation.core.tween(durationMillis = 200),
+            label = "hud-map-zoom"
+        )
+        val z = animatedZoom.toInt().coerceIn(3, 19)
+        // 1.0 at integer zoom, up to 2.0 just below the next integer.
+        // Tile pixel size scales by this factor so the visual is
+        // continuous; new-zoom tiles are fetched once the integer
+        // boundary is crossed.
+        val zScale = Math.pow(2.0, (animatedZoom - z).toDouble()).toFloat()
+        val tilePx = 256f * zScale
         val (cx, cy) = lonLatToTileFloat(hud.longitude, hud.latitude, z)
 
         // Kick off async fetches for the visible tile window whenever the
@@ -125,14 +141,14 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                 // re-execute when tiles finish loading.
                 @Suppress("UNUSED_EXPRESSION") tick
 
-                val cols = (this.size.width / 256f).toInt() + 2
-                val rows = (this.size.height / 256f).toInt() + 2
+                val cols = (this.size.width / tilePx).toInt() + 2
+                val rows = (this.size.height / tilePx).toInt() + 2
                 val originX = floor(cx).toInt() - cols / 2
                 val originY = floor(cy).toInt() - rows / 2
                 val centerPx = Offset(this.size.width / 2f, this.size.height / 2f)
                 val originTilePx = Offset(
-                    centerPx.x - ((cx - originX) * 256f),
-                    centerPx.y - ((cy - originY) * 256f)
+                    centerPx.x - ((cx - originX) * tilePx),
+                    centerPx.y - ((cy - originY) * tilePx)
                 )
 
                 // Rotate the map so the rider's direction of travel always
@@ -152,20 +168,26 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                     // sides). The integer-offset + oversized-dst overload
                     // lets the neighbour cover the seam at the cost of
                     // <1 px of repeated edge content, which is invisible.
+                    // Destination tile is one pixel oversized on each
+                    // axis so adjacent tiles overlap and don't leak the
+                    // background through rotation seams. With tilePx
+                    // continuous, dstSize = tilePx + 2 keeps the same
+                    // ~1 px overlap at any fractional zoom.
+                    val dst = (tilePx + 2f).toInt().coerceAtLeast(1)
                     for (dy in 0 until rows) for (dx in 0 until cols) {
                         val tx = originX + dx
                         val ty = originY + dy
                         if (tx < 0 || ty < 0) continue
                         val bm = cache.peek(z, tx, ty)
-                        val tlx = (originTilePx.x + dx * 256f).roundToInt()
-                        val tly = (originTilePx.y + dy * 256f).roundToInt()
+                        val tlx = (originTilePx.x + dx * tilePx).roundToInt()
+                        val tly = (originTilePx.y + dy * tilePx).roundToInt()
                         if (bm != null) {
                             drawImage(
                                 image = bm.asImageBitmap(),
                                 srcOffset = IntOffset.Zero,
                                 srcSize = IntSize(256, 256),
                                 dstOffset = IntOffset(tlx, tly),
-                                dstSize = IntSize(258, 258),
+                                dstSize = IntSize(dst, dst),
                                 filterQuality = FilterQuality.Low,
                                 colorFilter = tileFilter
                             )
@@ -173,7 +195,7 @@ fun MapScreen(hud: HudState, zoom: Float, peer: String?, cache: HudTileCache) {
                             drawRect(
                                 color = Color(0xFF1A1A1A),
                                 topLeft = Offset(tlx.toFloat(), tly.toFloat()),
-                                size = Size(258f, 258f)
+                                size = Size(dst.toFloat(), dst.toFloat())
                             )
                         }
                     }
