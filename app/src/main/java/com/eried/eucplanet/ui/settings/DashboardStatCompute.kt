@@ -24,7 +24,7 @@ fun computeDashboardStatValue(
     if (samples.isEmpty()) return null
     val values = samples.map { it.value }
     return when (stat) {
-        DashboardStat.NONE -> null
+        DashboardStat.NONE, DashboardStat.EMPTY -> null
         DashboardStat.CURRENT -> fallbackCurrent
         DashboardStat.MIN -> values.min()
         DashboardStat.MAX, DashboardStat.SUSTAINED_PEAK -> values.max()

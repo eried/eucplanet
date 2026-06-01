@@ -4459,7 +4459,7 @@ private fun CenterStatBadge(
 }
 
 private fun statShortLabel(stat: DashboardStat): String = when (stat) {
-    DashboardStat.NONE -> ""
+    DashboardStat.NONE, DashboardStat.EMPTY -> ""
     DashboardStat.CURRENT -> "NOW"
     DashboardStat.MIN -> "MIN"
     DashboardStat.MAX -> "MAX"
