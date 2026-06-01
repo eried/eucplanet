@@ -1357,6 +1357,7 @@ private fun ActionDragPreview(
     // accent-tinted folder icon so the floating preview reads as "you're
     // moving a group" rather than a plain action.
     val isGroup = isActionGroupKey(key) || key == ACTION_GROUP_TEMPLATE_KEY
+    val isBle = isCustomBleKey(key) || key == CUSTOM_BLE_TEMPLATE_KEY
     val groupIconKey = if (isGroup) {
         if (key == ACTION_GROUP_TEMPLATE_KEY) GROUP_DEFAULT_ICON
         else viewModel.getActionGroup(settings, key)?.icon ?: GROUP_DEFAULT_ICON
@@ -1366,10 +1367,31 @@ private fun ActionDragPreview(
         else viewModel.getActionGroup(settings, key)?.name?.ifBlank { null }
             ?: stringResource(R.string.dashboard_group_default_name)
     } else null
-    val icon = if (isGroup) groupIconFor(groupIconKey!!) else dashboardActionIcon(key)
-    val label = if (isGroup) groupLabel!! else actionChipLabel(key)
-    val tint = if (isGroup) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.onSurfaceVariant
+    val bleIconKey = if (isBle) {
+        if (key == CUSTOM_BLE_TEMPLATE_KEY) CUSTOM_BLE_DEFAULT_ICON
+        else viewModel.getCustomBle(settings, key)?.iconKey?.ifBlank { CUSTOM_BLE_DEFAULT_ICON }
+            ?: CUSTOM_BLE_DEFAULT_ICON
+    } else null
+    val bleLabel = if (isBle) {
+        if (key == CUSTOM_BLE_TEMPLATE_KEY) stringResource(R.string.dashboard_custom_ble_template)
+        else viewModel.getCustomBle(settings, key)?.label?.ifBlank { null }
+            ?: stringResource(R.string.dashboard_custom_ble_default_name)
+    } else null
+    val icon = when {
+        isGroup -> groupIconFor(groupIconKey!!)
+        isBle -> groupIconFor(bleIconKey!!)
+        else -> dashboardActionIcon(key)
+    }
+    val label = when {
+        isGroup -> groupLabel!!
+        isBle -> bleLabel!!
+        else -> actionChipLabel(key)
+    }
+    val tint = when {
+        isGroup -> MaterialTheme.colorScheme.primary
+        isBle -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
     val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
     val outlineColor = MaterialTheme.colorScheme.outlineVariant
     Box(
@@ -3807,8 +3829,14 @@ private fun CustomBleSheet(
     val families = listOf("veteran", "kingsong", "begode", "inmotion_v2", "inmotion_v1", "ninebot")
 
     fun persist() {
-        if (parsedFrames != null) lastValid.value = parsedFrames
-        viewModel.updateCustomBle(id, label, icon, family, parsedFrames ?: lastValid.value)
+        // Re-parse the CURRENT text here. `parsedFrames` is a composition-scoped
+        // val captured from the previous composition, so using it persisted the
+        // frames a keystroke behind — a hex that only becomes valid on the last
+        // character never saved, so the field looked empty on reopen (you were
+        // seeing the placeholder, which happens to be the low-beam hex).
+        val parsed = com.eried.eucplanet.data.model.CustomBleCommand.parseFrames(framesText)
+        if (parsed != null) lastValid.value = parsed
+        viewModel.updateCustomBle(id, label, icon, family, parsed ?: lastValid.value)
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {

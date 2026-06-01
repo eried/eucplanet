@@ -1420,62 +1420,16 @@ class SettingsViewModel @Inject constructor(
             if (fromIndex < 0 || toIndex !in items.indices) return@launch
             if (fromIndex == toIndex) return@launch
 
-            // Move semantics (per rider feedback): drop = put `key` at toIndex
-            // and leave fromIndex EMPTY. The previously-occupant of toIndex
-            // is discarded entirely — composite / custom-tile definitions
-            // for the displaced tile are deleted alongside its order entry
-            // since they only live on the active grid (the pool catalog is
-            // the source of truth for static metrics, so they re-appear in
-            // the pool via sanitize()).
-            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            // Big-tile-to-big-tile drag = genuine A<->B swap: the dragged tile
+            // and the tile it lands on exchange positions. Nothing is created,
+            // deleted, or left empty, so composite / custom-tile instances are
+            // preserved. (Pool->grid drops go through setDashboardMetricAtIndex.)
             val displaced = items[toIndex]
             items[toIndex] = key
-            // Only top-level grid slots get an EMPTY sentinel — pool-area
-            // sources are catalog entries that sanitize() re-adds anyway.
-            if (fromIndex < activeCount) {
-                items[fromIndex] = EMPTY_SLOT_KEY
-            } else {
-                items.removeAt(fromIndex)
-            }
-
-            // Drop the displaced dynamic instance from any remaining order
-            // slot (it was just overwritten at toIndex but may still appear
-            // elsewhere in the list as a duplicate) AND from its definitions.
-            val displacedIsComposite = isCompositeMetricKey(displaced)
-            val displacedIsCustomTile = isCustomTileKey(displaced)
-            if (displacedIsComposite || displacedIsCustomTile) {
-                items.removeAll { it == displaced }
-            }
-
-            // Same orphan cleanup as before: dynamic instances that ended up
-            // past the active region are deleted (no orphan composites in
-            // Available metrics).
-            val orphanedComposites = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isCompositeMetricKey(k) }
-                .map { it.value }
-            val orphanedCustomTiles = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isCustomTileKey(k) }
-                .map { it.value }
-            val toDelete = (orphanedComposites + orphanedCustomTiles +
-                (if (displacedIsComposite || displacedIsCustomTile) listOf(displaced) else emptyList())
-            ).toSet()
-            val cleanedItems = items.filter { it !in (toDelete - setOf(EMPTY_SLOT_KEY)) }
-
-            val compositesRoot = parseSlotStatsRoot(current.dashboardCompositeMetrics)
-            (orphanedComposites + if (displacedIsComposite) listOf(displaced) else emptyList())
-                .toSet()
-                .forEach { compositesRoot.remove(it) }
-            val tilesRoot = parseSlotStatsRoot(current.dashboardCustomTiles)
-            (orphanedCustomTiles + if (displacedIsCustomTile) listOf(displaced) else emptyList())
-                .toSet()
-                .forEach { tilesRoot.remove(it) }
+            items[fromIndex] = displaced
 
             settingsRepository.update(
-                current.copy(
-                    dashboardMetricOrder = cleanedItems.joinToString(","),
-                    dashboardCompositeMetrics = compositesRoot.toString(),
-                    dashboardCustomTiles = tilesRoot.toString()
-                )
+                current.copy(dashboardMetricOrder = items.joinToString(","))
             )
         }
     }
@@ -1492,42 +1446,17 @@ class SettingsViewModel @Inject constructor(
             if (fromIndex < 0 || toIndex !in items.indices) return@launch
             if (fromIndex == toIndex) return@launch
 
-            // Move semantics matching the metric grid: drop = put `key` at
-            // toIndex and leave fromIndex EMPTY. Displaced action group
-            // instance is deleted entirely.
-            val activeCount = ACTIVE_DASHBOARD_TILE_COUNT
+            // Big-tile-to-big-tile drag = genuine A<->B swap: the dragged tile
+            // and the tile it lands on exchange positions. Nothing is created,
+            // deleted, or left empty, so group / custom-BLE instances are
+            // preserved. (Pool->grid drops go through setDashboardActionAtIndex.)
             val displaced = items[toIndex]
             items[toIndex] = key
-            if (fromIndex < activeCount) {
-                items[fromIndex] = EMPTY_SLOT_KEY
-            } else {
-                items.removeAt(fromIndex)
-            }
-            val displacedIsGroup = isActionGroupKey(displaced)
-            if (displacedIsGroup) {
-                items.removeAll { it == displaced }
-            }
+            items[fromIndex] = displaced
 
-            val orphanedGroups = items.withIndex()
-                .filter { (idx, k) -> idx >= activeCount && isActionGroupKey(k) }
-                .map { it.value }
-            val toDelete = (orphanedGroups +
-                (if (displacedIsGroup) listOf(displaced) else emptyList())
-            ).toSet()
-            val cleaned = items.filter { it !in (toDelete - setOf(EMPTY_SLOT_KEY)) }
-
-            if (toDelete.isEmpty()) {
-                settingsRepository.update(current.copy(dashboardActionOrder = cleaned.joinToString(",")))
-            } else {
-                val groupsRoot = parseSlotStatsRoot(current.dashboardActionGroups)
-                toDelete.forEach { groupsRoot.remove(it) }
-                settingsRepository.update(
-                    current.copy(
-                        dashboardActionOrder = cleaned.joinToString(","),
-                        dashboardActionGroups = groupsRoot.toString()
-                    )
-                )
-            }
+            settingsRepository.update(
+                current.copy(dashboardActionOrder = items.joinToString(","))
+            )
         }
     }
 
