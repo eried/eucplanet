@@ -3565,8 +3565,17 @@ private fun CompositeCellDropdown(
         onExpandedChange = { if (enabled) expanded = !expanded },
         modifier = modifier
     ) {
+        // Closed field shows the rendered glyph for the placeholders so it
+        // matches how the cell will look on the dashboard ("-" for (none),
+        // blank space for (empty)). Open menu items show the text labels
+        // "(none)" and "(empty)" so the rider can tell the picks apart.
+        val closedFieldValue = when (currentKey) {
+            COMPOSITE_CELL_EMPTY -> "–"
+            COMPOSITE_CELL_BLANK -> " "
+            else -> metricChipLabel(currentKey)
+        }
         OutlinedTextField(
-            value = metricChipLabel(currentKey),
+            value = closedFieldValue,
             onValueChange = {},
             readOnly = true,
             singleLine = true,

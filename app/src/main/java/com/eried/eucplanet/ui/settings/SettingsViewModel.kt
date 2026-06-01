@@ -1806,11 +1806,12 @@ data class CustomTile(
     val url: String = ""
 )
 
-/** Default icon for newly-spawned custom tiles. EMPTY (outlined checkbox)
- *  reads as "blank slot, configure me" — riders who only just dragged
- *  the tile in haven't picked a purpose yet, so a Link icon would lie
- *  about what tapping does. The rider picks a real icon when they edit. */
-const val CUSTOM_TILE_DEFAULT_ICON = "EMPTY"
+/** Default icon for newly-spawned custom tiles. INFO (a filled "i") reads
+ *  as "informational placeholder, configure me" -- friendlier than the
+ *  outlined checkbox the old default used; "i" is a near-universal
+ *  affordance for "this slot holds info, tap to configure". The rider
+ *  picks a real icon when they edit the tile. */
+const val CUSTOM_TILE_DEFAULT_ICON = "INFO"
 
 /**
  * Definition of a single action group instance. Stored in
