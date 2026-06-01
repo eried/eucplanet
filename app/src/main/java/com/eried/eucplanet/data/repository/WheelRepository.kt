@@ -488,6 +488,21 @@ class WheelRepository @Inject constructor(
     }
 
     /**
+     * The connected wheel's adapter family id ("veteran", "kingsong", ...), or
+     * null when disconnected. Gates family-scoped custom BLE commands so raw
+     * user bytes never reach a wheel they were not authored for.
+     */
+    val connectedFamilyId: String?
+        get() = if (bleManager.connectionState.value == ConnectionState.CONNECTED) {
+            wheelAdapter.familyId
+        } else null
+
+    /** Write a custom BLE command's frames verbatim — one BLE write each, in order. */
+    fun sendCustomBle(frames: List<ByteArray>) {
+        frames.forEach { if (it.isNotEmpty()) bleManager.writeCommand(it) }
+    }
+
+    /**
      * Send the family-specific "reset trip meter" command. Returns true when
      * the active adapter has a documented command (the wheel takes a frame or
      * two to zero offset 8..11 in its realtime stream); false when the
