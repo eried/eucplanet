@@ -495,8 +495,22 @@ class DashboardViewModel @Inject constructor(
                 }
             } catch (_: Exception) { /* best effort */ }
         }
-        val intent = Intent(context, WheelService::class.java)
-        context.stopService(intent)
+        // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
+        // onStartCommand can flip the kill-on-destroy flag before stopSelf
+        // triggers onDestroy. A plain stopService(intent) would skip
+        // onStartCommand entirely and leave the flag unset, so the kill
+        // path wouldn't fire and the OS would keep the process cached
+        // (the original "Stop All didn't take" bug).
+        val intent = Intent(context, WheelService::class.java).apply {
+            action = WheelService.ACTION_STOP_ALL_AND_KILL
+        }
+        try { context.startService(intent) } catch (_: Exception) {
+            // startService can throw if the app is already in the background
+            // (Android O+ restrictions). Fall back to plain stopService so
+            // the service at least tears down, even if the SIGKILL doesn't
+            // fire and the OS keeps the process briefly cached.
+            context.stopService(Intent(context, WheelService::class.java))
+        }
     }
 
     fun onHornPress() {

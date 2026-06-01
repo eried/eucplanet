@@ -41,6 +41,13 @@ class WheelService : LifecycleService() {
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val ACTION_START_NAVIGATION = "com.eried.eucplanet.START_NAVIGATION"
         const val ACTION_STOP_NAVIGATION = "com.eried.eucplanet.STOP_NAVIGATION"
+        /** Stop everything AND hard-kill the process as the last step of
+         *  onDestroy. The activity uses this for "Stop All" so the rider
+         *  doesn't see the app card linger in the OS cached-process pool
+         *  after every visible piece is gone. The kill runs from inside
+         *  the service's onDestroy so cleanup completes first, on its own
+         *  schedule -- no arbitrary delay timer needed. */
+        const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
     }
@@ -64,6 +71,11 @@ class WheelService : LifecycleService() {
     private var lastConnectionState: ConnectionState? = null
     private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
+    // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
+    // SIGKILL the process at the end of cleanup. Set only once -- never
+    // cleared, the process is going away anyway.
+    @Volatile
+    private var killProcessOnDestroy: Boolean = false
 
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
@@ -292,6 +304,13 @@ class WheelService : LifecycleService() {
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
             }
+            ACTION_STOP_ALL_AND_KILL -> {
+                // Mark first, stopSelf second -- stopSelf can race ahead
+                // of onDestroy on some Android builds and we want the
+                // flag visible by the time onDestroy reads it.
+                killProcessOnDestroy = true
+                stopSelf()
+            }
         }
 
         return START_STICKY
@@ -312,6 +331,14 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
         super.onDestroy()
+        // Last thing: if this destroy was driven by Stop All, SIGKILL
+        // our own process. Doing it here (instead of from the activity
+        // via a delayed Handler) means we kill the moment our cleanup
+        // is done -- no arbitrary timer window where the OS keeps the
+        // app card around as a cached zombie.
+        if (killProcessOnDestroy) {
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 
     // --- Auto-record motion gating ---

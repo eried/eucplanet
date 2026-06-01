@@ -321,27 +321,17 @@ fun DashboardScreen(
     // shutdown sequence.
     val performStopAllAndExit: () -> Unit = {
         showQuitDialog = false
+        // The service now SIGKILLs the process from inside its own
+        // onDestroy when ACTION_STOP_ALL_AND_KILL is delivered. That
+        // happens at the natural end of cleanup, no arbitrary timer
+        // here -- the activity just signals + finishes its task.
         viewModel.stopEverything()
-        // Prefer finishAndRemoveTask so the rider's "Stop all" intent also
-        // clears the recents card. Fall back to finish() if no task to remove.
         val act = activity ?: (toastContext as? Activity)
         if (act != null) {
             act.finishAndRemoveTask()
         } else {
             Log.w("Dashboard", "Stop all: no Activity reference, exit may be incomplete")
         }
-        // Hard-kill the process AFTER giving onDestroy hooks ~600 ms to
-        // run their async cleanup (wear / garmin farewell broadcast, trip
-        // recording flush, HUD server stop). Without the kill, Android
-        // keeps the process in its cached-zombie pool: UI is gone, the
-        // service is stopped, the notification is removed, but `ps` and
-        // Settings > Apps still report the app as Running for a while.
-        // That cached state is what the rider perceives as "Stop all
-        // didn't take" -- the app card lingers in the OS view even
-        // though every visible piece is gone.
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            android.os.Process.killProcess(android.os.Process.myPid())
-        }, 600L)
     }
 
     BackHandler {
