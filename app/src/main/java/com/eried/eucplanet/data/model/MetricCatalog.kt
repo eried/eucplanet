@@ -386,6 +386,47 @@ object MetricCatalog {
             descriptionRes = R.string.metric_desc_bt_rssi,
             accent = AccentBlue,
             sparkline = SparklineStyle.LINE
+        ),
+
+        // ---- Composite-friendly extras (small static text, no sparkline) ----
+        // These work as standalone tiles too but were sized + worded for
+        // composite cells. GPS coords as one "lat, long" string; firmware-
+        // reported wheel limits so the rider can see what their wheel will
+        // enforce; current ride mode (lock/drive/idle); light on/off mirror.
+        MetricSpec(
+            key = "LAT_LONG",
+            labelRes = R.string.metric_chip_lat_long,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
+        MetricSpec(
+            key = "WHEEL_MAX_SPEED",
+            labelRes = R.string.metric_chip_wheel_max_speed,
+            accent = AccentOrange,
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
+        MetricSpec(
+            key = "WHEEL_ALARM_SPEED",
+            labelRes = R.string.metric_chip_wheel_alarm_speed,
+            accent = AccentOrange,
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
+        MetricSpec(
+            key = "PC_MODE",
+            labelRes = R.string.metric_chip_pc_mode,
+            accent = AccentBlue,
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
+        ),
+        MetricSpec(
+            key = "LIGHT_ON",
+            labelRes = R.string.metric_chip_light_on,
+            accent = AccentGreen,
+            sparkline = SparklineStyle.NONE,
+            supportsStats = false
         )
     )
 

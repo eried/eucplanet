@@ -834,7 +834,10 @@ class SettingsViewModel @Inject constructor(
         // wheel-firmware fields some boards expose.
         "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
         // Connectivity diagnostic — useful when debugging dropouts.
-        "BT_RSSI"
+        "BT_RSSI",
+        // Extras targeted at composite-tile cells (small text, no
+        // sparkline) -- they also render fine as standalone tiles.
+        "LAT_LONG", "WHEEL_MAX_SPEED", "WHEEL_ALARM_SPEED", "PC_MODE", "LIGHT_ON"
     )
     /**
      * Dashboard-eligible actions, derived from [ActionCatalog]. Adding a

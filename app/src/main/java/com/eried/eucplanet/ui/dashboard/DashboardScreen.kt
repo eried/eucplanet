@@ -1078,6 +1078,17 @@ fun DashboardScreen(
             }
             val tripValue = com.eried.eucplanet.util.Units.distance(wheelData.tripDistance, distanceUnit)
             val distUnit = com.eried.eucplanet.util.Units.distanceUnit(distanceUnit)
+            // Short unit string for the WHEEL_MAX_SPEED / WHEEL_ALARM_SPEED
+            // tiles. Mirrors the dashboard's existing speed-unit-label
+            // pattern but only the suffix, no context lookup, so the
+            // composite renderer (which doesn't have a Compose Context in
+            // its closure) can use it straight.
+            val speedUnitLabel = when (speedUnit) {
+                "mph" -> "mph"
+                "ms" -> "m/s"
+                "kn" -> "kn"
+                else -> "km/h"
+            }
 
             // A connected wheel that hasn't sent telemetry yet leaves these
             // fields at the WheelData defaults (0). Showing "0%" or "0.0V"
@@ -1223,8 +1234,30 @@ fun DashboardScreen(
                     "LOAD" -> "%.0f%%".format(pwm)
                     "TRIP" -> "%.1f %s".format(tripValue, distUnit)
                     "SPEED" -> "%.0f".format(wheelData.speed)
-                    "BATTERY_POWER" -> "${wheelData.batteryPower}W"
+                    "BATTERY_POWER", "POWER" -> "${wheelData.batteryPower}W"
                     "MOTOR_POWER" -> "${wheelData.motorPower}W"
+                    // Composite-friendly extras (also work as standalone
+                    // tiles -- the small numbers fit fine in a 61 dp box).
+                    "LAT_LONG" -> if (wheelData.latitude != 0.0 || wheelData.longitude != 0.0)
+                        "%.4f, %.4f".format(wheelData.latitude, wheelData.longitude) else placeholder
+                    "WHEEL_MAX_SPEED" -> if (wheelData.wheelMaxSpeedKmh > 0f)
+                        "%.0f %s".format(
+                            com.eried.eucplanet.util.Units.speed(wheelData.wheelMaxSpeedKmh, speedUnit),
+                            speedUnitLabel
+                        ) else placeholder
+                    "WHEEL_ALARM_SPEED" -> if (wheelData.wheelAlarmSpeedKmh > 0f)
+                        "%.0f %s".format(
+                            com.eried.eucplanet.util.Units.speed(wheelData.wheelAlarmSpeedKmh, speedUnit),
+                            speedUnitLabel
+                        ) else placeholder
+                    "PC_MODE" -> when (wheelData.pcMode) {
+                        0 -> "LOCK"
+                        1 -> "DRIVE"
+                        2 -> "OFF"
+                        3 -> "IDLE"
+                        else -> placeholder
+                    }
+                    "LIGHT_ON" -> if (wheelData.lightOn) "ON" else "OFF"
                     "ODOMETER" -> "%.1f %s".format(
                         com.eried.eucplanet.util.Units.distance(wheelData.totalDistance, distanceUnit),
                         distUnit
@@ -1544,10 +1577,20 @@ fun DashboardScreen(
                                             ) ?: return@cellRenderer placeholder
                                             "%.1f".format(value)
                                         }
+                                    // ROW2 stacks two cells vertically so it needs 2x the
+                                    // standard tile height. BUT only when the rider has
+                                    // actually populated both cells -- ROW2 with one cell
+                                    // filled should collapse back to the standard 61 dp so
+                                    // the rider doesn't see an empty half-tile.
+                                    val populatedCells = composite?.cells?.count { it.isNotBlank() } ?: 0
+                                    val compositeHeight = if (
+                                        composite?.layout == com.eried.eucplanet.ui.settings.CompositeLayout.ROW2 &&
+                                        populatedCells >= 2
+                                    ) 122.dp else 61.dp
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(61.dp)
+                                            .height(compositeHeight)
                                             .clip(RoundedCornerShape(10.dp))
                                             .background(MaterialTheme.colorScheme.surfaceVariant)
                                             .onGloballyPositioned { coords ->

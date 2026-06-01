@@ -228,6 +228,11 @@
     <string name="metric_chip_motor_rpm">RPM</string>
     <string name="metric_chip_regen_wh">Regen</string>
     <string name="metric_chip_bt_rssi">BT signal</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
+    <string name="metric_chip_wheel_max_speed">Wheel max</string>
+    <string name="metric_chip_wheel_alarm_speed">Wheel alarm</string>
+    <string name="metric_chip_pc_mode">Ride mode</string>
+    <string name="metric_chip_light_on">Light</string>
 
     <!-- Short variants for the dashboard tile face. When present, the tile
          shows this; the slot editor sheet keeps showing the full
