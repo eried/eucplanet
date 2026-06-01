@@ -1135,9 +1135,6 @@ private fun DashboardLayoutTab(
                     s.left != DashboardStat.NONE || s.right != DashboardStat.NONE || s.sparkline
                 },
                 onTap = { _ -> showPoolTapToast() },
-                onDeleteComposite = { id -> viewModel.deleteCompositeMetric(id) },
-                onDeleteCustomTile = { id -> viewModel.deleteCustomTile(id) },
-                onDemoteMetric = { key -> viewModel.demoteMetricToCustomTile(key) },
                 controller = dragController
             )
         }
@@ -1181,8 +1178,6 @@ private fun DashboardLayoutTab(
             ActionPool(
                 catalogKeys = viewModel.knownDashboardActions,
                 onTap = { _ -> showPoolTapToast() },
-                onDeleteGroup = { id -> viewModel.deleteActionGroup(id) },
-                onDeleteCustomBle = { id -> viewModel.deleteCustomBle(id) },
                 controller = dragController
             )
         }
@@ -1996,9 +1991,6 @@ private fun MetricPool(
     valueOf: (String) -> String,
     statsEnabledOf: (String) -> Boolean,
     onTap: (String) -> Unit,
-    onDeleteComposite: (String) -> Unit,
-    onDeleteCustomTile: (String) -> Unit,
-    onDemoteMetric: (String) -> Unit,
     controller: DashboardDragController
 ) {
     // metricChipLabel is @Composable (reads string resources), so resolve
@@ -2031,38 +2023,10 @@ private fun MetricPool(
                 expectedSizePx = poolPillSizePx,
                 controller = controller
             )
-            // Pool handles three different "back to pool" actions in one
-            // drop target, distinguished by the source key:
-            //  - Composite tile → delete the composite definition
-            //  - Custom tile → delete the custom-tile definition
-            //  - Regular metric in active grid → demote: metric goes to the
-            //    pool, a fresh empty custom tile spawns in its place
-            // Template drags (COMPOSITE_TEMPLATE_KEY / CUSTOM_TILE_TEMPLATE_KEY)
-            // are rejected so dragging a template back here doesn't double-
-            // spawn anything. overrideExpectedSizePx shrinks the floating
-            // preview to pool-pill size on hover so the rider sees the
-            // "going back to pool" affordance regardless of which case fires.
-            .dashboardDropTarget(
-                key = "metric-pool-trash",
-                kind = DropKind.METRIC_POOL_TRASH,
-                controller = controller,
-                onDrop = { sourceKey ->
-                    // Only fire when the source was a big grid tile.
-                    // Pool→pool drags are no-ops (catalog stays full).
-                    if (controller.sourceFromGrid) {
-                        when {
-                            isCompositeMetricKey(sourceKey) -> onDeleteComposite(sourceKey)
-                            isCustomTileKey(sourceKey) -> onDeleteCustomTile(sourceKey)
-                            else -> onDemoteMetric(sourceKey)
-                        }
-                    }
-                },
-                acceptsSourceKey = { sourceKey ->
-                    sourceKey != COMPOSITE_TEMPLATE_KEY &&
-                        sourceKey != CUSTOM_TILE_TEMPLATE_KEY
-                },
-                overrideExpectedSizePx = poolPillSizePx
-            )
+            // No pool drop target: dragging a big tile out to the pool is a
+            // no-op (it snaps back). Dynamic instances are deleted from the
+            // slot editor (Reset slot), keeping behaviour consistent with the
+            // action grid.
             .verticalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
@@ -2074,10 +2038,10 @@ private fun MetricPool(
             // available source. Dragging it onto a grid slot spawns a new
             // composite instance.
             MetricCompositeTemplatePill(controller = controller)
-            // CustomTileTemplatePill is intentionally hidden — riders create
-            // custom tiles implicitly by dragging a regular metric back to
-            // the pool. The template pill code is preserved so we can
-            // re-surface it later if we want explicit creation.
+            // Explicit custom-tile creation (text / link / QR). Drag-to-pool
+            // demote was removed for consistency, so this template is now the
+            // only way to add one — sits next to the + Stack composite source.
+            CustomTileTemplatePill(controller = controller)
             sorted.forEach { key ->
                 MetricPoolPill(
                     key = key,
@@ -2962,8 +2926,6 @@ private fun CustomBleTile(
 private fun ActionPool(
     catalogKeys: List<String>,
     onTap: (String) -> Unit,
-    onDeleteGroup: (String) -> Unit,
-    onDeleteCustomBle: (String) -> Unit,
     controller: DashboardDragController
 ) {
     val labeled = catalogKeys.map { it to actionChipLabel(it) }
@@ -2984,30 +2946,9 @@ private fun ActionPool(
                 expectedSizePx = poolPillSizePx,
                 controller = controller
             )
-            // Trash for action-group instances. The predicate ensures regular
-            // pool pills and the template drag pass through unaffected, and
-            // overrideExpectedSizePx previews the tile shrinking to pool-pill
-            // size so the rider sees "this is being deleted" instead of the
-            // tile growing to fill the whole pool.
-            .dashboardDropTarget(
-                key = "action-pool-trash",
-                kind = DropKind.ACTION_POOL_TRASH,
-                controller = controller,
-                onDrop = { sourceKey ->
-                    // Only grid-sourced dynamic instances get deleted. Static
-                    // actions can't be removed from the catalog; pool→pool
-                    // drags are no-ops by the same rule.
-                    if (controller.sourceFromGrid && isActionGroupKey(sourceKey)) {
-                        onDeleteGroup(sourceKey)
-                    } else if (controller.sourceFromGrid && isCustomBleKey(sourceKey)) {
-                        onDeleteCustomBle(sourceKey)
-                    }
-                },
-                acceptsSourceKey = { sourceKey ->
-                    isActionGroupKey(sourceKey) || isCustomBleKey(sourceKey)
-                },
-                overrideExpectedSizePx = poolPillSizePx
-            )
+            // No pool drop target: dragging a big tile out to the pool is a
+            // no-op (it snaps back). Group / custom-BLE instances are deleted
+            // from the slot editor (Reset slot).
             .verticalScroll(rememberScrollState())
             .padding(8.dp)
     ) {
