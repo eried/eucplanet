@@ -1716,6 +1716,9 @@ fun CompositeMetricBody(
     // and gets the divider treatment, just over the real cell count.
     val populated = cells.mapIndexedNotNull { i, key ->
         val k = key.trim()
+        // COMPOSITE_CELL_EMPTY ("(none)") collapses the slot -- drop it.
+        // COMPOSITE_CELL_BLANK ("(empty)") reserves the slot -- keep it
+        // so the layout count stays put; CompositeCell renders an empty Box.
         if (k.isEmpty() || k == COMPOSITE_CELL_EMPTY) null
         else k to (rawStats.getOrNull(i) ?: DashboardStat.CURRENT)
     }
@@ -1786,14 +1789,23 @@ private fun CompositeCell(
     valueOf: (String) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isEmpty = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
+    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
+    val isBlank = key == COMPOSITE_CELL_BLANK
+    val isEmpty = isNone || isBlank
     val accent = if (!isEmpty) metricAccentColor(key) else MaterialTheme.colorScheme.onSurfaceVariant
-    if (isEmpty) {
-        // Column-style cells live in COL2/COL3 layouts where horizontal space
-        // is tight (especially three side-by-side cells), so an "(empty)"
-        // word reads as crowded clutter. A single en-dash glyph is enough to
-        // signal "deliberately blank" without competing with the surrounding
-        // cells for attention.
+    if (isBlank) {
+        // "(empty)" placeholder: reserves the slot but draws nothing,
+        // so the surrounding composite layout stays the size the rider
+        // designed even though this cell intentionally has no content.
+        Box(modifier = modifier)
+        return
+    }
+    if (isNone) {
+        // "(none)": the slot ITSELF is meant to read as "deliberately
+        // blank, prefer to collapse". The CompositeMetricBody filter
+        // drops these from the layout entirely; the dash here is for
+        // any code path that still renders the cell (the editor list
+        // before the filter, for instance).
         Box(
             modifier = modifier,
             contentAlignment = Alignment.Center
@@ -1863,8 +1875,13 @@ private fun CompositeCellRow(
     valueOf: (String) -> String,
     modifier: Modifier = Modifier
 ) {
-    val isEmpty = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
-    if (isEmpty) {
+    val isNone = key.isEmpty() || key == COMPOSITE_CELL_EMPTY
+    val isBlank = key == COMPOSITE_CELL_BLANK
+    if (isBlank) {
+        Box(modifier = modifier)
+        return
+    }
+    if (isNone) {
         Box(
             modifier = modifier.padding(horizontal = 8.dp),
             contentAlignment = Alignment.CenterStart
@@ -3436,7 +3453,14 @@ private fun CompositeMetricSheet(
             // overall height never jumps when the rider switches between
             // ROW2/COL2 (2 cells) and COL3 (3 cells).
             val cellCatalog = remember(viewModel) {
-                listOf(COMPOSITE_CELL_EMPTY) + viewModel.knownDashboardMetrics
+                // Placeholders first, then a visual divider, then all the
+                // real metrics. The dropdown renders PICKER_DIVIDER_SENTINEL
+                // as a non-clickable HorizontalDivider.
+                listOf(
+                    COMPOSITE_CELL_BLANK,
+                    COMPOSITE_CELL_EMPTY,
+                    PICKER_DIVIDER_SENTINEL
+                ) + viewModel.knownDashboardMetrics
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -3558,13 +3582,17 @@ private fun CompositeCellDropdown(
             onDismissRequest = { expanded = false }
         ) {
             options.forEach { key ->
-                DropdownMenuItem(
-                    text = { Text(metricChipLabel(key)) },
-                    onClick = {
-                        onSelect(key)
-                        expanded = false
-                    }
-                )
+                if (key == PICKER_DIVIDER_SENTINEL) {
+                    androidx.compose.material3.HorizontalDivider()
+                } else {
+                    DropdownMenuItem(
+                        text = { Text(metricChipLabel(key)) },
+                        onClick = {
+                            onSelect(key)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -4510,23 +4538,50 @@ private fun SlotStatsEditor(
     stats: MetricSlotStats,
     onCornerChange: (SlotCorner, DashboardStat) -> Unit
 ) {
+    // Picker option lists per corner.
+    //   Sides (LEFT / RIGHT): placeholders first (EMPTY → "(empty)" reserves
+    //     the slot, NONE → "(none)" collapses the layout), divider rendered
+    //     by the dropdown, then real stats.
+    //   CENTER: never a placeholder -- the centre always shows the metric's
+    //     primary value. Stats are CURRENT plus the aggregates.
+    val sideOptions = remember {
+        listOf(
+            DashboardStat.EMPTY,
+            DashboardStat.NONE,
+            DashboardStat.CURRENT,
+            DashboardStat.MIN, DashboardStat.MAX, DashboardStat.SUSTAINED_PEAK,
+            DashboardStat.AVG, DashboardStat.MEDIAN,
+            DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
+        )
+    }
+    val centerOptions = remember {
+        listOf(
+            DashboardStat.CURRENT,
+            DashboardStat.MIN, DashboardStat.MAX, DashboardStat.SUSTAINED_PEAK,
+            DashboardStat.AVG, DashboardStat.MEDIAN,
+            DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
+        )
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         CornerStatDropdown(
             modifier = Modifier.weight(1f),
             label = stringResource(R.string.dashboard_corner_left),
             value = stats.left,
+            options = sideOptions,
             onSelect = { onCornerChange(SlotCorner.LEFT, it) }
         )
         CornerStatDropdown(
             modifier = Modifier.weight(1f),
             label = stringResource(R.string.dashboard_corner_center),
             value = stats.center,
+            options = centerOptions,
             onSelect = { onCornerChange(SlotCorner.CENTER, it) }
         )
         CornerStatDropdown(
             modifier = Modifier.weight(1f),
             label = stringResource(R.string.dashboard_corner_right),
             value = stats.right,
+            options = sideOptions,
             onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
         )
     }
@@ -4653,10 +4708,10 @@ private fun CornerStatDropdown(
     modifier: Modifier,
     label: String,
     value: DashboardStat,
+    options: List<DashboardStat>,
     onSelect: (DashboardStat) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val options = remember { DashboardStat.values().toList() }
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -4677,7 +4732,13 @@ private fun CornerStatDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            options.forEach { option ->
+            // Placeholder group (EMPTY / NONE) sits at the top, then a
+            // visual divider, then real stats. Divider only renders when
+            // both groups are present.
+            val isPlaceholder = { s: DashboardStat ->
+                s == DashboardStat.NONE || s == DashboardStat.EMPTY
+            }
+            options.forEachIndexed { idx, option ->
                 DropdownMenuItem(
                     text = { Text(statDisplayLabel(option)) },
                     onClick = {
@@ -4685,6 +4746,10 @@ private fun CornerStatDropdown(
                         expanded = false
                     }
                 )
+                val nextIsReal = options.getOrNull(idx + 1)?.let { !isPlaceholder(it) } == true
+                if (isPlaceholder(option) && nextIsReal) {
+                    androidx.compose.material3.HorizontalDivider()
+                }
             }
         }
     }
@@ -4815,6 +4880,7 @@ private fun SlotSheetActionPreview(key: String) {
 @Composable
 internal fun metricChipLabel(key: String, short: Boolean = false): String {
     if (key == COMPOSITE_CELL_EMPTY) return stringResource(R.string.dashboard_composite_empty_label)
+    if (key == COMPOSITE_CELL_BLANK) return stringResource(R.string.dashboard_composite_blank_label)
     val spec = com.eried.eucplanet.data.model.MetricCatalog.byKey(key) ?: return key
     if (short) {
         val ctx = LocalContext.current

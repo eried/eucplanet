@@ -132,7 +132,10 @@
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
-    <string name="dashboard_composite_empty_label">(empty)</string>
+    <!-- "(none)" is the collapsing placeholder: cell renders "-", layout collapses. -->
+    <string name="dashboard_composite_empty_label">(none)</string>
+    <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
+    <string name="dashboard_composite_blank_label">(empty)</string>
     <string name="dashboard_stat_empty">(empty)</string>
     <string name="dashboard_group_default_name">My actions</string>
     <string name="dashboard_group_empty_toast">No actions to show</string>

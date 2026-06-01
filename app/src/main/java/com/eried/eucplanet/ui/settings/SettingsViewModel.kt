@@ -1876,10 +1876,22 @@ const val CUSTOM_BLE_DEFAULT_ICON = "BOLT"
 const val COMPOSITE_TEXT_PREFIX = "TEXT:"
 
 /** Pseudo-metric for an unbound composite cell. Stored as the TEXT prefix
- *  with no content, which renders as the "(empty)" placeholder. Treated as
- *  equivalent to the legacy "EMPTY" sentinel from earlier in-development
- *  builds. */
+ *  with no content. Picker labels this as "(none)"; cell renders as the
+ *  "–" dash glyph. When the rider picks this, the layout COLLAPSES (other
+ *  populated cells share the freed space). */
 const val COMPOSITE_CELL_EMPTY = COMPOSITE_TEXT_PREFIX
+
+/** Pseudo-metric that reserves a composite cell slot without showing any
+ *  glyph. Picker labels as "(empty)", cell renders as a blank space. The
+ *  rider picks this when they want to keep the composite's column / row
+ *  count visually intact (e.g. a COL3 tile with two reads + a deliberate
+ *  blank stays a 3-column tile instead of collapsing into 2 halves). */
+const val COMPOSITE_CELL_BLANK = "BLANK:"
+
+/** Sentinel inserted into picker option lists to render a visual divider
+ *  between groups (placeholders vs real options). Dropdowns recognise this
+ *  and render a non-clickable HorizontalDivider in its place. */
+const val PICKER_DIVIDER_SENTINEL = "__DIVIDER__"
 
 /**
  * Sentinel key for an intentionally-blank top-level grid slot. Different from
