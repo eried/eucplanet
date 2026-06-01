@@ -1174,7 +1174,8 @@ fun DashboardScreen(
                 stat: com.eried.eucplanet.ui.settings.DashboardStat
             ): String? {
                 if (stat == com.eried.eucplanet.ui.settings.DashboardStat.NONE ||
-                    stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT) return null
+                    stat == com.eried.eucplanet.ui.settings.DashboardStat.CURRENT ||
+                    stat == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY) return null
                 val buf = when (key) {
                     "BATTERY" -> history.battery
                     "TEMPERATURE" -> history.temperature
@@ -1208,6 +1209,9 @@ fun DashboardScreen(
                 when (stat) {
                     com.eried.eucplanet.ui.settings.DashboardStat.NONE -> ""
                     com.eried.eucplanet.ui.settings.DashboardStat.CURRENT -> ""
+                    // EMPTY is a reserved placeholder -- no visible label or
+                    // value, but the tile renderer still reserves its slot.
+                    com.eried.eucplanet.ui.settings.DashboardStat.EMPTY -> ""
                     com.eried.eucplanet.ui.settings.DashboardStat.MIN -> "MIN"
                     com.eried.eucplanet.ui.settings.DashboardStat.MAX -> "MAX"
                     com.eried.eucplanet.ui.settings.DashboardStat.AVG -> "AVG"
@@ -1406,6 +1410,8 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
                                 centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("BATTERY") }
@@ -1424,6 +1430,8 @@ fun DashboardScreen(
                                     cornerLeftValue = cornerLeftValue,
                                     cornerRightLabel = cornerRightLabel,
                                     cornerRightValue = cornerRightValue,
+                                    leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                    rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
                                     centerStatLabel = centerStatLabel,
                                     modifier = Modifier.weight(1f),
                                     onClick = { onNavigateToMetric("TEMPERATURE") }
@@ -1441,6 +1449,8 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
                                 centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("VOLTAGE") }
@@ -1458,6 +1468,8 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
                                 centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("CURRENT") },
@@ -1474,6 +1486,8 @@ fun DashboardScreen(
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
                                 cornerRightValue = cornerRightValue,
+                                leftReservesSlot = slotStats.left == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
+                                rightReservesSlot = slotStats.right == com.eried.eucplanet.ui.settings.DashboardStat.EMPTY,
                                 centerStatLabel = centerStatLabel,
                                 modifier = Modifier.weight(1f),
                                 onClick = { onNavigateToMetric("LOAD") }

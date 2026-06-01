@@ -59,6 +59,11 @@ fun LiveMetricTile(
     /** Top-right side readout, mirror of the left one. */
     cornerRightLabel: String? = null,
     cornerRightValue: String? = null,
+    /** Set when the left side stat is the explicit "(empty)" placeholder
+     *  rather than NONE. Keeps the 3-zone layout intact even though the
+     *  corner draws nothing -- the rider asked to reserve the slot. */
+    leftReservesSlot: Boolean = false,
+    rightReservesSlot: Boolean = false,
     /** Centre stat tag — rendered inline with [label] when the rider made the
      *  big number show a non-default aggregation (e.g. "MAX BATTERY  82%"). */
     centerStatLabel: String? = null,
@@ -234,9 +239,19 @@ fun LiveMetricTile(
         // tile centre and the badges sit at the actual corners. With 0,
         // 1 or 2 side readings the visual centre never moves; with both
         // present the result is identical to the previous 3-column row.
-        val hasLeft = cornerLeftLabel != null && cornerLeftValue != null
-        val hasRight = cornerRightLabel != null && cornerRightValue != null
-        val hasSideReadings = hasLeft || hasRight
+        val hasLeftBadge = cornerLeftLabel != null && cornerLeftValue != null
+        val hasRightBadge = cornerRightLabel != null && cornerRightValue != null
+        // "occupies" includes the deliberate (empty) reservation so the 3-
+        // zone layout stays balanced when the rider asked for it.
+        val occupiesLeft = hasLeftBadge || leftReservesSlot
+        val occupiesRight = hasRightBadge || rightReservesSlot
+        val hasSideReadings = occupiesLeft || occupiesRight
+        // Force the anchored-centre 3-zone layout whenever ANY side slot is
+        // reserved (real badge or "(empty)" placeholder), even if only one
+        // side has a real reading. Otherwise the half-collapse below kicks
+        // in for the bare-single-badge case.
+        val forceAnchoredCenter = leftReservesSlot || rightReservesSlot ||
+            (hasLeftBadge && hasRightBadge)
         val centerBigSp = if (hasSideReadings) 18 else 20
         Box(
             modifier = Modifier
@@ -253,7 +268,28 @@ fun LiveMetricTile(
             // space on the right" -- two off-balance reads in a layout
             // that visually expected three.
             when {
-                hasLeft && !hasRight -> androidx.compose.foundation.layout.Row(
+                forceAnchoredCenter -> {
+                    // 3-zone layout: centre column on the tile midpoint,
+                    // real badges at the corners. Reserved-only sides
+                    // render no badge but keep the layout 3-zone.
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
+                    }
+                    if (hasLeftBadge) {
+                        Box(modifier = Modifier.align(Alignment.TopStart)) {
+                            SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
+                        }
+                    }
+                    if (hasRightBadge) {
+                        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                            SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
+                        }
+                    }
+                }
+                hasLeftBadge && !hasRightBadge -> androidx.compose.foundation.layout.Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Top
                 ) {
@@ -264,7 +300,7 @@ fun LiveMetricTile(
                         CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
                     }
                 }
-                hasRight && !hasLeft -> androidx.compose.foundation.layout.Row(
+                hasRightBadge && !hasLeftBadge -> androidx.compose.foundation.layout.Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Top
                 ) {
@@ -276,23 +312,12 @@ fun LiveMetricTile(
                     }
                 }
                 else -> {
-                    // 0 OR 2 side badges -> centre column on the tile
-                    // midpoint, badges at the actual corners.
+                    // Neither side set -> centre column on tile midpoint.
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.TopCenter
                     ) {
                         CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
-                    }
-                    if (hasLeft) {
-                        Box(modifier = Modifier.align(Alignment.TopStart)) {
-                            SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
-                        }
-                    }
-                    if (hasRight) {
-                        Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                            SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
-                        }
                     }
                 }
             }

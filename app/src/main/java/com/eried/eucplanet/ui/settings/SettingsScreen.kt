@@ -3648,6 +3648,7 @@ private fun compositeCellStatLabel(stat: DashboardStat): String = when (stat) {
     DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75)
     DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95)
     DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99)
+    DashboardStat.EMPTY -> stringResource(R.string.dashboard_stat_empty)
 }
 
 /**
@@ -4301,61 +4302,74 @@ private fun ThreeZoneRow(
     sideLabelSp: Int,
     metricLabelSp: Int
 ) {
-    val showLeft = stats.left != DashboardStat.NONE
-    val showRight = stats.right != DashboardStat.NONE
+    // Match LiveMetricTile's collapse logic so the editor preview reflects
+    // what the rider will actually see on the dashboard:
+    //   - both sides set OR EITHER side is the (empty) placeholder ->
+    //     anchored 3-zone layout (centre on tile midpoint, badges at corners).
+    //   - exactly one side has a real badge -> 2-column split (badge | centre
+    //     or centre | badge).
+    //   - neither side set -> centred in the full width.
+    val hasLeftBadge = stats.left != DashboardStat.NONE && stats.left != DashboardStat.EMPTY
+    val hasRightBadge = stats.right != DashboardStat.NONE && stats.right != DashboardStat.EMPTY
+    val leftReserves = stats.left == DashboardStat.EMPTY
+    val rightReserves = stats.right == DashboardStat.EMPTY
+    val anchorCentre = leftReserves || rightReserves || (hasLeftBadge && hasRightBadge)
 
-    // Fixed three-column layout: the left column always sits at the left edge
-    // of the tile, right at the right edge, centre centred. Each badge's own
-    // text aligns with its column's outer edge so the side readings never
-    // drift toward the centre regardless of which combination is set.
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.TopStart
+    val centre: @Composable () -> Unit = {
+        CenterStatBadge(
+            stat = stats.center,
+            metricLabel = metricLabel,
+            value = value,
+            accent = accent,
+            centerBigSp = centerBigSp,
+            statLabelSp = sideLabelSp,
+            metricLabelSp = metricLabelSp
+        )
+    }
+    val leftBadge: @Composable () -> Unit = {
+        SideStatBadge(
+            stat = stats.left, value = value, accent = accent,
+            valueSp = sideValueSp, labelSp = sideLabelSp, align = Alignment.Start
+        )
+    }
+    val rightBadge: @Composable () -> Unit = {
+        SideStatBadge(
+            stat = stats.right, value = value, accent = accent,
+            valueSp = sideValueSp, labelSp = sideLabelSp, align = Alignment.End
+        )
+    }
+
+    when {
+        anchorCentre -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
         ) {
-            if (showLeft) {
-                SideStatBadge(
-                    stat = stats.left,
-                    value = value,
-                    accent = accent,
-                    valueSp = sideValueSp,
-                    labelSp = sideLabelSp,
-                    align = Alignment.Start
-                )
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
+                if (hasLeftBadge) leftBadge()
+            }
+            Box(modifier = Modifier.weight(1.2f), contentAlignment = Alignment.TopCenter) { centre() }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopEnd) {
+                if (hasRightBadge) rightBadge()
             }
         }
-        Box(
-            modifier = Modifier.weight(1.2f),
+        hasLeftBadge && !hasRightBadge -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopStart) { leftBadge() }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) { centre() }
+        }
+        hasRightBadge && !hasLeftBadge -> Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) { centre() }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopEnd) { rightBadge() }
+        }
+        else -> Box(
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.TopCenter
-        ) {
-            CenterStatBadge(
-                stat = stats.center,
-                metricLabel = metricLabel,
-                value = value,
-                accent = accent,
-                centerBigSp = centerBigSp,
-                statLabelSp = sideLabelSp,
-                metricLabelSp = metricLabelSp
-            )
-        }
-        Box(
-            modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            if (showRight) {
-                SideStatBadge(
-                    stat = stats.right,
-                    value = value,
-                    accent = accent,
-                    valueSp = sideValueSp,
-                    labelSp = sideLabelSp,
-                    align = Alignment.End
-                )
-            }
-        }
+        ) { centre() }
     }
 }
 
@@ -4693,6 +4707,7 @@ private fun statDisplayLabel(stat: DashboardStat): String = when (stat) {
     DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75)
     DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95)
     DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99)
+    DashboardStat.EMPTY -> stringResource(R.string.dashboard_stat_empty)
 }
 
 /**
@@ -4714,7 +4729,13 @@ private fun statSelectedLabel(stat: DashboardStat): String = when (stat) {
     DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75_short)
     DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95_short)
     DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99_short)
+    DashboardStat.EMPTY -> stringResource(R.string.dashboard_stat_empty)
 }
+
+/** True when the stat is a deliberate "reserve this slot" placeholder. The
+ *  tile renderer uses this to keep the 3-zone layout intact instead of
+ *  collapsing into 2 equal halves when only one real side reading is set. */
+internal fun isReservedSlot(stat: DashboardStat): Boolean = stat == DashboardStat.EMPTY
 
 @Composable
 private fun SlotSheetActionPreview(key: String) {

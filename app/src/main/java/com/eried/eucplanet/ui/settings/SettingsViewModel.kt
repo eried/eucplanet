@@ -1917,7 +1917,17 @@ fun wrapAsTextCell(content: String): String = COMPOSITE_TEXT_PREFIX + content
 // picker reads: None / Now / Min / Max / Sustained peak / Avg / Median (P50)
 // / P75 / P95 / P99.
 enum class DashboardStat {
-    NONE, CURRENT, MIN, MAX, SUSTAINED_PEAK, AVG, MEDIAN, P75, P95, P99
+    NONE, CURRENT, MIN, MAX, SUSTAINED_PEAK, AVG, MEDIAN, P75, P95, P99,
+    /**
+     * Visible "(empty)" placeholder. Different from NONE:
+     *   NONE  -> "no stat here, collapse the tile's layout"
+     *           (e.g. a single side badge re-flows to two halves)
+     *   EMPTY -> "reserve this slot but show nothing"
+     *           (keeps the tile in 3-zone layout with a blank corner)
+     * Lets the rider preserve a tile's visual width when they want one
+     * side stat without the auto-2-column re-flow.
+     */
+    EMPTY
 }
 
 enum class SlotCorner(val jsonKey: String) {
