@@ -1184,7 +1184,14 @@ class SettingsViewModel @Inject constructor(
             val id = it.next()
             val node = root.optJSONObject(id) ?: continue
             val text = node.optString("text", "")
-            val icon = node.optString("icon", CUSTOM_TILE_DEFAULT_ICON).ifEmpty { CUSTOM_TILE_DEFAULT_ICON }
+            val rawIcon = node.optString("icon", CUSTOM_TILE_DEFAULT_ICON).ifEmpty { CUSTOM_TILE_DEFAULT_ICON }
+            // Migration: the old default icon was "EMPTY" (outlined checkbox).
+            // The new default is "INFO" (filled "i"). Existing tiles whose
+            // saved icon is "EMPTY" are almost certainly the never-edited
+            // default rather than a deliberate pick (no rider asks for the
+            // square-checkbox icon), so upgrade them on load. A rider who
+            // genuinely wanted EMPTY can re-pick it from the icon list.
+            val icon = if (rawIcon == "EMPTY") CUSTOM_TILE_DEFAULT_ICON else rawIcon
             val action = runCatching {
                 CustomTileAction.valueOf(node.optString("action", CustomTileAction.NONE.name))
             }.getOrDefault(CustomTileAction.NONE)
