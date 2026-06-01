@@ -330,6 +330,18 @@ fun DashboardScreen(
         } else {
             Log.w("Dashboard", "Stop all: no Activity reference, exit may be incomplete")
         }
+        // Hard-kill the process AFTER giving onDestroy hooks ~600 ms to
+        // run their async cleanup (wear / garmin farewell broadcast, trip
+        // recording flush, HUD server stop). Without the kill, Android
+        // keeps the process in its cached-zombie pool: UI is gone, the
+        // service is stopped, the notification is removed, but `ps` and
+        // Settings > Apps still report the app as Running for a while.
+        // That cached state is what the rider perceives as "Stop all
+        // didn't take" -- the app card lingers in the OS view even
+        // though every visible piece is gone.
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }, 600L)
     }
 
     BackHandler {
@@ -498,7 +510,17 @@ fun DashboardScreen(
                     TextButton(onClick = { showQuitDialog = false }) {
                         Text(stringResource(R.string.action_cancel))
                     }
-                    TextButton(onClick = { activity?.finish() }) {
+                    TextButton(onClick = {
+                        // "Background" should send the task to the back so
+                        // the service + notification stay alive. The previous
+                        // activity?.finish() killed the activity AND removed
+                        // the task, which is silently a Stop-all-lite. The
+                        // BackHandler's BACKGROUND branch already does the
+                        // right moveTaskToBack(true); this button just
+                        // matches it.
+                        showQuitDialog = false
+                        activity?.moveTaskToBack(true)
+                    }) {
                         Text(stringResource(R.string.exit_background))
                     }
                 }
