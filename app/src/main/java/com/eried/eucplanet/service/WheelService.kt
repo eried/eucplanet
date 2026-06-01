@@ -130,7 +130,7 @@ class WheelService : LifecycleService() {
                 // toggle for emulator testing, where finding the Compose
                 // switch coordinates over adb is painful. No effect on real
                 // devices, which never have this prop set.
-                val forceOn = com.eried.eucplanet.service.hud.HudDebug
+                val forceOn = com.eried.eucplanet.hud.protocol.HudDebug
                     .read("debug.eucplanet.hud.force") == "true"
                 val effective = s.hudServerEnabled || forceOn
                 if (effective != hudWasOn) {

@@ -249,7 +249,7 @@ class MainActivity : AppCompatActivity() {
                     // require the foreground service before a wheel is paired.
                     // The HUD-force debug prop is honoured too so emulator
                     // testers don't have to find the Compose toggle by tap.
-                    val forceHud = com.eried.eucplanet.service.hud.HudDebug
+                    val forceHud = com.eried.eucplanet.hud.protocol.HudDebug
                         .read("debug.eucplanet.hud.force") == "true"
                     val needsService = canStartWheelService() && (
                         (it.voiceEnabled && !it.voiceOnlyWhenConnected) ||
