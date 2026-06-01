@@ -98,7 +98,9 @@ class CompositeWheelAdapter @Inject constructor(
     override fun pollSettings(): ByteArray = active.pollSettings()
 
     override fun horn(): ByteArray? = active.horn()
+    override fun hornFollowup(): ByteArray? = active.hornFollowup()
     override fun setLight(on: Boolean): ByteArray? = active.setLight(on)
+    override fun setLightFollowup(on: Boolean): ByteArray? = active.setLightFollowup(on)
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? =
         active.setMaxSpeed(tiltbackKmh, alarmKmh)
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =

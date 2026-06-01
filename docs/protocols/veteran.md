@@ -170,7 +170,12 @@ Cell counts per model:
 ## 6. Control commands
 
 Commands are ASCII strings written to the notify/write characteristic, except for
-the v3+ horn which is a 14-byte binary blob. Bytes go out as one BLE write each.
+the horn and the LeaperKim binary settings (section 6.2), which are CRC32-framed
+binary. The horn on Sherman S and newer is a PAIR of 14-byte frames (`LkAp` then
+`LdAp`); the single `LkAp` blob that WheelLog sends is silently ignored by
+Lynx-class firmware (see section 6.2). Bytes go out as one BLE write each; a
+logical frame larger than the ATT MTU is split across writes and the wheel
+reassembles by magic.
 
 ### 6.1 ASCII commands
 
@@ -223,8 +228,9 @@ Known sub-frames, all observed in a single captured session:
 | Angle adjustment | LkAp  | 16        | `01 80 80 80 80 80 <i8>`                 | i8 in tenths of a degree (e.g. `0xDC` = -36 → -3.6°) |
 | Ride mode        | LdAp  | 15        | `01 02 80 80 80 <u8>`                    | u8 ride-mode scalar (observed range 30..100, slider labels match raw value) |
 | PWM%             | LdAp  | 18        | `01 02 80 80 80 80 80 80 <u8>`           | u8 PWM percent (observed 53, 64) |
-| Beep / horn      | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger |
-| Toggle (unknown) | LkAp  | 13        | `01 80 80 <0\|1>`                        | u8 boolean — purpose not yet identified (seen during a transition between connection states) |
+| Horn (frame 1)   | LkAp  | 14        | `00 80 80 80 01`                         | n/a — one-shot trigger; MUST be sent with frame 2 |
+| Horn (frame 2)   | LdAp  | 14        | `00 00 80 80 01`                         | n/a — companion; without it Lynx-class firmware stays silent |
+| High beam on/off | LkAp + LdAp | 13   | `01 80 80 <0\|1>` then `01 00 80 <0\|1>` | u8 boolean, last byte `01`=on / `00`=off. Separate from the ASCII `SetLightON/OFF` low beam. |
 
 Notes:
 
@@ -233,11 +239,20 @@ Notes:
   prefix and payload byte 1 (`0x02` vs `0x80`).
 - Every captured frame validated against `CRC32(magic + length + payload)` big-endian.
   The Java `zlib.CRC32` is byte-identical to what the LeaperKim app emits.
-- A typical write is followed immediately by an `LdAp` echo / ack frame from the app
-  with the same length and a similar payload; we have not yet confirmed whether the
-  echo is a separate write or a fragmented continuation of the same GATT operation.
-  Sending only the first frame appears sufficient — the wheel applies the setting
-  on the next realtime frame's offsets 24/26.
+- Each command is two back-to-back frames in the byte stream: the `LkAp` frame
+  immediately followed by an `LdAp` companion of the same length. They are NOT a
+  fragmented single GATT operation — they are two distinct vendor frames the wheel
+  reassembles by magic (the app streams the ~28-byte pair as 20 + 8 byte ATT writes
+  purely because of the 20-byte MTU).
+  - For the **value settings** (tilt-back, alarm, …) the `LkAp` frame alone is
+    sufficient: the wheel reflects the new value on the next realtime frame
+    (offsets 24/26), so the `LdAp` companion looks like a redundant echo.
+  - The **horn is the exception** — a one-shot with no readback. The wheel only
+    beeps when the `LkAp` frame (`00 80 80 80 01`) is followed by its `LdAp`
+    companion (`00 00 80 80 01`). Sending the `LkAp` blob alone — exactly what
+    WheelLog and pre-fix EUC Planet builds do — reaches the wheel with a valid
+    CRC but produces no sound (verified on a Lynx S btsnoop: four `LkAp`-only
+    writes, zero beeps; the official app sends both frames on every press).
 - We currently surface only tilt-back and alarm in `VeteranCommands`; the other
   decoded frames live there as private builders so the protocol knowledge is
   preserved when we add UI for them.

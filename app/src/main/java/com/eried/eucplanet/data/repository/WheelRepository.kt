@@ -481,6 +481,10 @@ class WheelRepository @Inject constructor(
 
     fun sendHorn() {
         wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
+        // Veteran (Lynx-class) needs an LdAp companion frame right after the
+        // LkAp horn or the wheel stays silent; queued as a second write so it
+        // lands in order. Null for every other family (single-frame horn).
+        wheelAdapter.hornFollowup()?.let { bleManager.writeCommand(it) }
     }
 
     /**
@@ -504,6 +508,10 @@ class WheelRepository @Inject constructor(
             "toggleLight: lightOn was=$current, sending $next"
         )
         wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
+        // Veteran high beam needs an LdAp companion frame right after the LkAp
+        // frame; queued as a second write so it lands in order. Null for the
+        // ASCII low beam and every other family (single-frame headlight).
+        wheelAdapter.setLightFollowup(next)?.let { bleManager.writeCommand(it) }
         _wheelData.value = _wheelData.value.copy(lightOn = next)
         startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
