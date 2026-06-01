@@ -143,18 +143,25 @@ private fun PortraitRawCanvas(
     containerH: Dp
 ) {
     preset.elements.forEach { el ->
-        Box(
-            modifier = Modifier
-                .offset(x = containerW * el.x, y = containerH * el.y)
-                .widthIn(max = containerW * el.width)
-                .then(
-                    if (el.height > 0f)
-                        Modifier.heightIn(max = containerH * el.height)
-                    else Modifier
-                )
-                .graphicsLayer(alpha = el.opacity)
-        ) {
-            OverlayElementRenderer(el, data)
+        // key(el.id) so Compose tracks element identity, not list position.
+        // Without it, any add/remove/reorder in the customizer wipes the
+        // remember{} state inside each renderer -- DATA_GRAPH rolling
+        // buffers reset to empty, ClockElement's LaunchedEffect restarts,
+        // etc. Mirrors what LandscapeRotatedCanvas already does below.
+        key(el.id) {
+            Box(
+                modifier = Modifier
+                    .offset(x = containerW * el.x, y = containerH * el.y)
+                    .widthIn(max = containerW * el.width)
+                    .then(
+                        if (el.height > 0f)
+                            Modifier.heightIn(max = containerH * el.height)
+                        else Modifier
+                    )
+                    .graphicsLayer(alpha = el.opacity)
+            ) {
+                OverlayElementRenderer(el, data)
+            }
         }
     }
 }
