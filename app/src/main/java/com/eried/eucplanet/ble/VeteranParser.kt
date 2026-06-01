@@ -230,6 +230,9 @@ class VeteranParser {
 
             val percent = batteryPercentForModel(voltageCv, resolvedModel)
 
+            // Veteran frames don't carry power directly; estimate from
+            // voltage * current so the POWER tile populates.
+            val powerW = (voltage * current).toInt()
             return WheelData(
                 speed = speedKmh,
                 voltage = voltage,
@@ -240,6 +243,8 @@ class VeteranParser {
                 maxTemperature = tempC,
                 tripDistance = tripKm,
                 totalDistance = totalKm,
+                batteryPower = powerW,
+                motorPower = powerW,
                 pitchAngle = pitch,
                 wheelMaxSpeedKmh = rawTiltbackKmh,
                 wheelAlarmSpeedKmh = rawAlertKmh,

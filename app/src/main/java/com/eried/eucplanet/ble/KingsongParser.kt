@@ -58,6 +58,10 @@ object KingsongParser {
 
         val batteryPercent = batteryPercentFromVoltage(voltage, model)
 
+        // KingSong frames don't carry an explicit power reading; estimate
+        // battery power (and use the same value for motor power) as
+        // voltage * current so the dashboard POWER tiles populate.
+        val powerW = (voltage * current).toInt()
         return WheelData(
             speed = speed,
             voltage = voltage,
@@ -66,6 +70,8 @@ object KingsongParser {
             temperatures = listOf(temperature),
             maxTemperature = temperature,
             totalDistance = totalDistanceMeters / 1000f,
+            batteryPower = powerW,
+            motorPower = powerW,
             pcMode = pcMode,
             timestamp = System.currentTimeMillis()
         )

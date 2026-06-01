@@ -246,6 +246,11 @@ class BegodeParser {
         if (!hasExtras) lastPwmPct = pwmPct
         lastPcMode = if (kotlin.math.abs(speed) > 0.5f) 1 else 3
 
+        // Begode firmware doesn't expose battery / motor power directly --
+        // estimate as voltage * current so the POWER / BATTERY_POWER tiles
+        // populate instead of sitting at 0. Motor power gets the same
+        // estimate since we have no separate motor reading on this family.
+        val powerW = (voltage * phaseCurrent).toInt()
         return WheelData(
             speed = speed,
             voltage = voltage,
@@ -255,6 +260,8 @@ class BegodeParser {
             temperatures = listOf(tempC),
             maxTemperature = tempC,
             tripDistance = tripKm,
+            batteryPower = powerW,
+            motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
@@ -351,6 +358,7 @@ class BegodeParser {
         // shows whichever is more concerning at this moment.
         val temps = listOf(lastTempC, motorTempC)
 
+        val powerW = (lastVoltage * battCurrent).toInt()
         return WheelData(
             speed = lastSpeedKmh,
             voltage = lastVoltage,
@@ -360,6 +368,8 @@ class BegodeParser {
             temperatures = temps,
             maxTemperature = temps.max(),
             tripDistance = lastTripKm,
+            batteryPower = powerW,
+            motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
