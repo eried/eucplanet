@@ -384,6 +384,10 @@ class DashboardViewModel @Inject constructor(
         .map { it.dashboardActionGroups }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
             initialSettings.dashboardActionGroups)
+    val dashboardCustomBle: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCustomBle }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCustomBle)
 
     /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
     fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)

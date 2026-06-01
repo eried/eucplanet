@@ -597,6 +597,17 @@ data class AppSettings(
     val dashboardCustomTiles: String = "{}",
 
     /**
+     * Custom BLE action definitions as a JSON object keyed by `B:<uuid>`. Each
+     * value is `{ "label": <text>, "icon": <icon_key>, "family": <familyId>,
+     * "frames": [<hex>, ...] }`. Frames are written verbatim (one BLE write each,
+     * in order) to the connected wheel, but only when its family matches; the id
+     * appears in [dashboardActionOrder] like a built-in action key. Opt-in for
+     * advanced users — empty object until a rider drags the CUSTOM BLE template.
+     * See [com.eried.eucplanet.data.model.CustomBleCommand].
+     */
+    val dashboardCustomBle: String = "{}",
+
+    /**
      * Per-metric corner-stat configuration as a JSON object. Each known metric
      * key maps to a config object with five stat slots (center, top-left,
      * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are

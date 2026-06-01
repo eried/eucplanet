@@ -144,7 +144,25 @@ interface WheelAdapter {
 
     // --- Control commands. Return null if the wheel doesn't support the action. ---
     fun horn(): ByteArray?
+
+    /**
+     * Optional second frame sent immediately after [horn]. Veteran's current
+     * (Lynx-class) firmware only beeps when the `LkAp` horn frame is followed
+     * by an `LdAp` companion frame, so [VeteranAdapter] returns it here. Default
+     * null for families whose horn is a single write.
+     */
+    fun hornFollowup(): ByteArray? = null
+
     fun setLight(on: Boolean): ByteArray?
+
+    /**
+     * Optional second frame sent immediately after [setLight], for families
+     * whose headlight command is a two-frame write. Veteran drives the high
+     * beam as an `LkAp` + `LdAp` pair, so [VeteranAdapter] returns the `LdAp`
+     * companion here. Default null (single-write headlight).
+     */
+    fun setLightFollowup(on: Boolean): ByteArray? = null
+
     fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray?
 
     /**

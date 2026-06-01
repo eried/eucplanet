@@ -247,6 +247,7 @@ fun DashboardScreen(
     val dashboardCustomTilesJson by viewModel.dashboardCustomTiles.collectAsState()
     val dashboardActionOrderRaw by viewModel.dashboardActionOrder.collectAsState()
     val dashboardActionGroupsJson by viewModel.dashboardActionGroups.collectAsState()
+    val dashboardCustomBleJson by viewModel.dashboardCustomBle.collectAsState()
     // Phone-battery and GPS feeds for the catalog metrics that aren't
     // sourced from WheelData. Both update lazily; the value pipeline
     // just reads the latest StateFlow snapshot on each recomposition.
@@ -1885,6 +1886,42 @@ fun DashboardScreen(
                                 // lives in the settings module; for
                                 // now the tap is a no-op so the rider
                                 // still sees a recognisable tile.
+                                key.startsWith("B:") -> {
+                                    // Custom BLE command instance (B:uuid).
+                                    // Reads the rider's label + icon from
+                                    // dashboardCustomBleJson; tap dispatches
+                                    // through the shared FlicManager path,
+                                    // which family-gates the raw frames.
+                                    val parsedBle = remember(dashboardCustomBleJson, key) {
+                                        try {
+                                            val root = org.json.JSONObject(
+                                                dashboardCustomBleJson.ifBlank { "{}" }
+                                            )
+                                            val node = root.optJSONObject(key)
+                                            val lbl = node?.optString("label", "") ?: ""
+                                            val ic = node?.optString("icon", "BOLT") ?: "BOLT"
+                                            Pair(lbl, ic)
+                                        } catch (_: Exception) {
+                                            Pair("", "BOLT")
+                                        }
+                                    }
+                                    val (bleLabel, bleIcon) = parsedBle
+                                    val bleDefault = stringResource(
+                                        R.string.dashboard_custom_ble_default_name
+                                    )
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        ActionButton(
+                                            icon = com.eried.eucplanet.ui.settings.groupIconFor(
+                                                bleIcon.ifBlank { "BOLT" }
+                                            ),
+                                            label = bleLabel.ifBlank { bleDefault },
+                                            enabled = true,
+                                            onClick = { viewModel.dispatchActionByName(key) },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            aspectRatio = actionAspect, heightDp = actionHeight
+                                        )
+                                    }
+                                }
                                 key.startsWith("G:") -> {
                                     // Parse the group definition once per
                                     // change to the groups JSON. Name +
