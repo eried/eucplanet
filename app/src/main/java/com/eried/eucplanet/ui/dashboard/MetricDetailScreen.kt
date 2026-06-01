@@ -316,7 +316,10 @@ private fun MetricDetailBody(
         MetricType.CURRENT -> fullHistory.current
         MetricType.LOAD -> fullHistory.load
         MetricType.SPEED -> fullHistory.speed
-        null -> emptyList()
+        // Any other catalog metric pulls from the extras map populated
+        // by WheelRepository's 1Hz sampler. Empty list when the metric
+        // isn't sampled yet (cold boot) or the wheel doesn't report it.
+        null -> fullHistory.extras[key].orEmpty()
     }
 
     fun convert(v: Float): Float = when (legacyType) {

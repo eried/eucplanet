@@ -41,7 +41,46 @@ data class FullMetricHistory(
     val voltage: List<MetricSample> = emptyList(),
     val current: List<MetricSample> = emptyList(),
     val load: List<MetricSample> = emptyList(),
-    val speed: List<MetricSample> = emptyList()
+    val speed: List<MetricSample> = emptyList(),
+    /**
+     * Rolling history for every other catalog metric the dashboard
+     * displays. Indexed by metric key (MOTOR_POWER, PITCH, MOTOR_TEMP,
+     * etc.) so MetricDetailScreen can graph any tile in the catalog,
+     * not just the legacy 6. Same retention window as the legacy
+     * buffers (HISTORY_WINDOW_MS).
+     */
+    val extras: Map<String, List<MetricSample>> = emptyMap()
+)
+
+/**
+ * Metric keys that are extracted from WheelData on every 1 Hz tick and
+ * appended to FullMetricHistory.extras so their tiles can graph. The
+ * extractor returns the raw value in WheelData's canonical units; the
+ * MetricDetailScreen applies the rider's display unit conversion.
+ *
+ * Adding a metric here is the only step needed for its tap-to-graph to
+ * start working -- no separate buffer or sample-tick code, no schema
+ * change to FullMetricHistory.
+ */
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float>> = listOf(
+    "MOTOR_POWER" to { it.motorPower.toFloat() },
+    "BATTERY_POWER" to { it.batteryPower.toFloat() },
+    // POWER is an alias of BATTERY_POWER kept for backwards-compat with
+    // dashboards saved before the catalog rename; same buffer.
+    "POWER" to { it.batteryPower.toFloat() },
+    "BATTERY_1" to { it.battery1Percent },
+    "BATTERY_2" to { it.battery2Percent },
+    "PITCH" to { it.pitchAngle },
+    "ROLL" to { it.rollAngle },
+    "G_FORCE" to { it.gForce },
+    "LATERAL_G" to { it.accelX },
+    "FORWARD_G" to { it.accelY },
+    "TORQUE" to { it.torque },
+    "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
+    "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
+    "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
+    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f }
 )
 
 @Singleton
@@ -137,6 +176,12 @@ class WheelRepository @Inject constructor(
     private val ampsHist = mutableListOf<MetricSample>()
     private val loadHist = mutableListOf<MetricSample>()
     private val speedHist = mutableListOf<MetricSample>()
+    // One buffer per entry in EXTRA_HISTORY_METRICS. Keys mirror the
+    // catalog so the metric-detail screen can fish the right list out
+    // by name without a hard-coded switch per metric.
+    private val extrasHist: MutableMap<String, MutableList<MetricSample>> =
+        EXTRA_HISTORY_METRICS.associate { (key, _) -> key to mutableListOf<MetricSample>() }
+            .toMutableMap()
     private var lastHistorySampleMs = 0L
 
     private val _fullHistory = MutableStateFlow(FullMetricHistory())
@@ -152,13 +197,19 @@ class WheelRepository @Inject constructor(
     fun resetHistory(key: String) {
         val current = _fullHistory.value
         _fullHistory.value = when (key) {
-            "BATTERY" -> current.copy(battery = emptyList())
-            "TEMPERATURE" -> current.copy(temperature = emptyList())
-            "VOLTAGE" -> current.copy(voltage = emptyList())
-            "CURRENT" -> current.copy(current = emptyList())
-            "LOAD" -> current.copy(load = emptyList())
-            "SPEED" -> current.copy(speed = emptyList())
-            else -> current
+            "BATTERY" -> { battHist.clear(); current.copy(battery = emptyList()) }
+            "TEMPERATURE" -> { tempHist.clear(); current.copy(temperature = emptyList()) }
+            "VOLTAGE" -> { voltHist.clear(); current.copy(voltage = emptyList()) }
+            "CURRENT" -> { ampsHist.clear(); current.copy(current = emptyList()) }
+            "LOAD" -> { loadHist.clear(); current.copy(load = emptyList()) }
+            "SPEED" -> { speedHist.clear(); current.copy(speed = emptyList()) }
+            else -> {
+                // Extras live in the keyed map; clear that one list and
+                // emit a new extras map so downstream collectors see the
+                // reset. Other metrics' buffers untouched.
+                extrasHist[key]?.clear()
+                current.copy(extras = extrasHist.mapValues { (_, list) -> list.toList() })
+            }
         }
     }
 
@@ -433,6 +484,7 @@ class WheelRepository @Inject constructor(
             // Different wheel, clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
             ampsHist.clear(); loadHist.clear(); speedHist.clear()
+            extrasHist.values.forEach { it.clear() }
             _fullHistory.value = FullMetricHistory()
         }
         lastConnectedAddress = address
@@ -920,19 +972,29 @@ class WheelRepository @Inject constructor(
                     ampsHist.add(MetricSample(now, d.current))
                     loadHist.add(MetricSample(now, d.pwm.absoluteValue))
                     speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                    // Sample every extra metric on the same tick. Each
+                    // EXTRA_HISTORY_METRICS entry feeds one buffer in
+                    // extrasHist; the extractor is read against the same
+                    // WheelData snapshot the legacy 6 use, so all rolling
+                    // history is time-aligned.
+                    for ((key, extractor) in EXTRA_HISTORY_METRICS) {
+                        extrasHist[key]?.add(MetricSample(now, extractor(d)))
+                    }
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.
                     val cutoff = now - HISTORY_WINDOW_MS
                     listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
                         .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                    extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     _fullHistory.value = FullMetricHistory(
                         battery = battHist.toList(),
                         temperature = tempHist.toList(),
                         voltage = voltHist.toList(),
                         current = ampsHist.toList(),
                         load = loadHist.toList(),
-                        speed = speedHist.toList()
+                        speed = speedHist.toList(),
+                        extras = extrasHist.mapValues { (_, list) -> list.toList() }
                     )
                 }
                 // Evaluate alarm rules against new telemetry
