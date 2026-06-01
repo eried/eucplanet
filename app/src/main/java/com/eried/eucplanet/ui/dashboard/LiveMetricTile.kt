@@ -243,23 +243,57 @@ fun LiveMetricTile(
                 .fillMaxWidth()
                 .padding(vertical = 10.dp, horizontal = 12.dp)
         ) {
-            // Centre column drawn first as the visual anchor — laid out
-            // across the full tile width and centre-aligned so the big
-            // number always lands on the tile midpoint.
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
-            }
-            if (hasLeft) {
-                Box(modifier = Modifier.align(Alignment.TopStart)) {
-                    SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
+            // Three layout cases driven by how many side badges are set.
+            // Both badges OR neither -> centre at the tile midpoint (the
+            // historic anchored-centre layout). Exactly one badge -> split
+            // the tile into two equal halves so the badge occupies one
+            // half and the main label + value the other. Without this
+            // split, a single side badge (e.g. l=MIN, r=NONE) read as
+            // "MIN at the left edge, BATTERY at the tile centre, dead
+            // space on the right" -- two off-balance reads in a layout
+            // that visually expected three.
+            when {
+                hasLeft && !hasRight -> androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopStart) {
+                        SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
+                    }
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+                        CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
+                    }
                 }
-            }
-            if (hasRight) {
-                Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                    SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
+                hasRight && !hasLeft -> androidx.compose.foundation.layout.Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+                        CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
+                    }
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.TopEnd) {
+                        SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
+                    }
+                }
+                else -> {
+                    // 0 OR 2 side badges -> centre column on the tile
+                    // midpoint, badges at the actual corners.
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.TopCenter
+                    ) {
+                        CenterColumn(label, value, centerStatLabel, accent, centerBigSp)
+                    }
+                    if (hasLeft) {
+                        Box(modifier = Modifier.align(Alignment.TopStart)) {
+                            SideBadge(cornerLeftLabel!!, cornerLeftValue!!, accent, Alignment.Start)
+                        }
+                    }
+                    if (hasRight) {
+                        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                            SideBadge(cornerRightLabel!!, cornerRightValue!!, accent, Alignment.End)
+                        }
+                    }
                 }
             }
         }
