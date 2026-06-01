@@ -305,11 +305,25 @@ class WheelService : LifecycleService() {
                 navigationEngine.stop()
             }
             ACTION_STOP_ALL_AND_KILL -> {
-                // Mark first, stopSelf second -- stopSelf can race ahead
-                // of onDestroy on some Android builds and we want the
-                // flag visible by the time onDestroy reads it.
+                // Mark first, drop foreground status second, then stopSelf
+                // last. Order matters: stopForeground clears the FG flag
+                // so START_NOT_STICKY actually keeps Android from
+                // resurrecting us; if we skipped that, the SIGKILL at the
+                // end of onDestroy looked like a crash and the OS
+                // restarted the service (and re-spawned MainActivity off
+                // the launcher route, which the rider was seeing as a
+                // grey screen + "app reset"). Returning START_NOT_STICKY
+                // below seals it: even if Android wanted to redeliver,
+                // this intent's stickiness is disabled.
                 killProcessOnDestroy = true
+                @Suppress("DEPRECATION")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                } else {
+                    stopForeground(true)
+                }
                 stopSelf()
+                return START_NOT_STICKY
             }
         }
 
