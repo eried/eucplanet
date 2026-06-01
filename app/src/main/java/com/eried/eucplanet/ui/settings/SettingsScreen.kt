@@ -2337,14 +2337,16 @@ fun CustomTileBody(tile: CustomTile) {
     // For OPEN_URL and SHOW_QR tiles, replace the rider's chosen group
     // icon with the action's own glyph (link / qr) so the tile itself
     // tells you what tapping it will do. NONE-action tiles keep the
-    // configured icon (display-only text tile). Truly empty tiles
-    // (no text, no url, no action) force the EMPTY placeholder so the
-    // dashboard reads "blank slot, configure me" even on older saved
-    // tiles that still have icon="LINK" from the previous default.
+    // Truly-empty tiles (no text, no url, no action) fall back to the
+    // current default-icon constant so the dashboard reads "blank slot,
+    // configure me" with the same glyph the rider sees on fresh tiles.
+    // Previously this was hardcoded to "EMPTY" (outlined checkbox);
+    // tracking CUSTOM_TILE_DEFAULT_ICON keeps the unconfigured visual
+    // aligned with whatever default the codebase has chosen.
     val isTrulyEmpty = tile.text.isBlank() && tile.url.isBlank() &&
         tile.action == CustomTileAction.NONE
     val mainIcon = when {
-        isTrulyEmpty -> groupIconFor("EMPTY")
+        isTrulyEmpty -> groupIconFor(CUSTOM_TILE_DEFAULT_ICON)
         else -> actionBadgeIcon(tile.action) ?: groupIconFor(tile.icon)
     }
     Column(
