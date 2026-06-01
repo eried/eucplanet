@@ -1704,38 +1704,77 @@ fun CompositeMetricBody(
     valueOf: (String) -> String
 ) {
     val cells = composite.cells.take(composite.layout.cellCount)
-    val padded = cells + List(composite.layout.cellCount - cells.size) { "" }
-    // Parallel stats list, padded with CURRENT for missing entries so
-    // every cell has a defined stat. CURRENT means "no stat indicator"
-    // — the cell shows the metric label + value as before.
-    val paddedStats = composite.cellStats.take(composite.layout.cellCount) +
-        List(
-            (composite.layout.cellCount - composite.cellStats.size).coerceAtLeast(0)
-        ) { DashboardStat.CURRENT }
+    val rawStats = composite.cellStats.take(composite.layout.cellCount)
+    // Pair cells with their stats first so filtering keeps them aligned,
+    // THEN drop any empty / "–" cells. Empty cells used to render an
+    // en-dash placeholder that took up its slot's full share of width;
+    // when the rider configured (say) a COL3 tile with only 2 cells
+    // populated they got "value | value | –", which read like two
+    // off-center reads with a permanent dash hole. Filtering here makes
+    // the populated cells share the FULL tile width / height; the
+    // rider's layout choice still controls orientation (row vs column)
+    // and gets the divider treatment, just over the real cell count.
+    val populated = cells.mapIndexedNotNull { i, key ->
+        val k = key.trim()
+        if (k.isEmpty() || k == COMPOSITE_CELL_EMPTY) null
+        else k to (rawStats.getOrNull(i) ?: DashboardStat.CURRENT)
+    }
     val divider = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-    when (composite.layout) {
-        CompositeLayout.ROW2 -> Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 4.dp)
-        ) {
-            CompositeCellRow(padded[0], paddedStats[0], valueOf, Modifier.fillMaxWidth().weight(1f))
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(divider))
-            CompositeCellRow(padded[1], paddedStats[1], valueOf, Modifier.fillMaxWidth().weight(1f))
+    // Layout collapses by populated count: anything with <=1 populated cell
+    // renders as a single full-tile read; 2 cells render as the rider's
+    // chosen orientation (ROW2 stacks, COL2/COL3 side-by-side); only the
+    // full 3 cells render as COL3.
+    when {
+        populated.isEmpty() -> {
+            // Nothing to draw -- keep the tile blank rather than rendering
+            // three dashes. This is the deliberate "empty composite" state.
         }
-        CompositeLayout.COL2 -> Row(
+        populated.size == 1 -> {
+            val (key, stat) = populated[0]
+            // ROW-style layout for a single cell when the rider picked ROW2
+            // (matches the visual mass they expected); column for everything
+            // else. Either way it's a single cell filling the tile.
+            if (composite.layout == CompositeLayout.ROW2) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 4.dp)
+                ) {
+                    CompositeCellRow(key, stat, valueOf, Modifier.fillMaxWidth().weight(1f))
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    CompositeCell(key, stat, valueOf, Modifier.weight(1f))
+                }
+            }
+        }
+        populated.size == 2 -> {
+            if (composite.layout == CompositeLayout.ROW2) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 2.dp, vertical = 4.dp)
+                ) {
+                    CompositeCellRow(populated[0].first, populated[0].second, valueOf, Modifier.fillMaxWidth().weight(1f))
+                    Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(divider))
+                    CompositeCellRow(populated[1].first, populated[1].second, valueOf, Modifier.fillMaxWidth().weight(1f))
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    CompositeCell(populated[0].first, populated[0].second, valueOf, Modifier.weight(1f))
+                    Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
+                    CompositeCell(populated[1].first, populated[1].second, valueOf, Modifier.weight(1f))
+                }
+            }
+        }
+        else -> Row(
             modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
         ) {
-            CompositeCell(padded[0], paddedStats[0], valueOf, Modifier.weight(1f))
+            CompositeCell(populated[0].first, populated[0].second, valueOf, Modifier.weight(1f))
             Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
-            CompositeCell(padded[1], paddedStats[1], valueOf, Modifier.weight(1f))
-        }
-        CompositeLayout.COL3 -> Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp)
-        ) {
-            CompositeCell(padded[0], paddedStats[0], valueOf, Modifier.weight(1f))
+            CompositeCell(populated[1].first, populated[1].second, valueOf, Modifier.weight(1f))
             Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
-            CompositeCell(padded[1], paddedStats[1], valueOf, Modifier.weight(1f))
-            Box(modifier = Modifier.fillMaxHeight().width(1.dp).background(divider))
-            CompositeCell(padded[2], paddedStats[2], valueOf, Modifier.weight(1f))
+            CompositeCell(populated[2].first, populated[2].second, valueOf, Modifier.weight(1f))
         }
     }
 }
