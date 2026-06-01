@@ -3835,21 +3835,36 @@ private fun CustomBleSheet(
                 )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    stringResource(R.string.dashboard_custom_ble_family),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            var familyExpanded by remember { mutableStateOf(false) }
+            androidx.compose.material3.ExposedDropdownMenuBox(
+                expanded = familyExpanded,
+                onExpandedChange = { familyExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = family,
+                    onValueChange = {},
+                    readOnly = true,
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.dashboard_custom_ble_family)) },
+                    trailingIcon = {
+                        androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = familyExpanded
+                        )
+                    },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-                Row(
-                    modifier = Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ExposedDropdownMenu(
+                    expanded = familyExpanded,
+                    onDismissRequest = { familyExpanded = false }
                 ) {
                     families.forEach { f ->
-                        androidx.compose.material3.FilterChip(
-                            selected = family == f,
-                            onClick = { family = f; persist() },
-                            label = { Text(f) }
+                        androidx.compose.material3.DropdownMenuItem(
+                            text = { Text(f) },
+                            onClick = {
+                                family = f
+                                familyExpanded = false
+                                persist()
+                            }
                         )
                     }
                 }
@@ -3861,12 +3876,9 @@ private fun CustomBleSheet(
                 label = { Text(stringResource(R.string.dashboard_custom_ble_frames)) },
                 placeholder = { Text("53 65 74 4c 69 67 68 74 4f 4e") },
                 isError = framesError,
-                supportingText = {
-                    Text(
-                        if (framesError) stringResource(R.string.dashboard_custom_ble_frames_error)
-                        else stringResource(R.string.dashboard_custom_ble_frames_hint)
-                    )
-                },
+                supportingText = if (framesError) {
+                    { Text(stringResource(R.string.dashboard_custom_ble_frames_error)) }
+                } else null,
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth()
             )
