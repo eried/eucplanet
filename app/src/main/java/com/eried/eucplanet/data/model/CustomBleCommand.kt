@@ -132,7 +132,7 @@ data class CustomBleCommand(
                 out[key] = CustomBleCommand(
                     id = key,
                     label = v.optString("label", ""),
-                    iconKey = v.optString("icon", "Campaign"),
+                    iconKey = v.optString("icon", "BOLT"),
                     family = v.optString("family", ""),
                     frames = frames
                 )

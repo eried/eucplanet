@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import android.location.Location
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
@@ -874,7 +875,7 @@ class SettingsViewModel @Inject constructor(
             listCompositeMetrics(s).keys + listCustomTiles(s).keys
         )
     fun dashboardActionOrder(s: AppSettings): List<String> =
-        sanitize(s.dashboardActionOrder, knownDashboardActions, listActionGroups(s).keys)
+        sanitize(s.dashboardActionOrder, knownDashboardActions, listActionGroups(s).keys + listCustomBle(s).keys)
 
     // --- Composite metrics (multi-cell tiles) -----------------------------
     //
@@ -1039,7 +1040,7 @@ class SettingsViewModel @Inject constructor(
             val order = sanitize(
                 current.dashboardActionOrder,
                 knownDashboardActions,
-                root.keys().asSequence().toSet()
+                root.keys().asSequence().toSet() + listCustomBle(current).keys
             ).toMutableList()
             val safeIdx = insertAtIndex.coerceIn(0, order.size)
             if (safeIdx < order.size) {
@@ -1088,6 +1089,84 @@ class SettingsViewModel @Inject constructor(
                     dashboardActionGroups = root.toString(),
                     dashboardActionOrder = order
                 )
+            )
+        }
+    }
+
+    // --- Custom BLE commands (rider-authored raw frames, family-scoped) ----
+
+    fun listCustomBle(s: AppSettings): Map<String, CustomBleCommand> =
+        CustomBleCommand.parseAll(s.dashboardCustomBle)
+
+    fun getCustomBle(s: AppSettings, id: String): CustomBleCommand? = listCustomBle(s)[id]
+
+    fun createCustomBleAt(insertAtIndex: Int): String {
+        val newId = CustomBleCommand.newId(java.util.UUID.randomUUID().toString().take(8))
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomBle)
+            root.put(
+                newId,
+                org.json.JSONObject()
+                    .put("label", "")
+                    .put("icon", CUSTOM_BLE_DEFAULT_ICON)
+                    .put("family", "veteran")
+                    .put("frames", org.json.JSONArray(emptyList<String>()))
+            )
+            val order = sanitize(
+                current.dashboardActionOrder,
+                knownDashboardActions,
+                listActionGroups(current).keys + root.keys().asSequence().toSet()
+            ).toMutableList()
+            val safeIdx = insertAtIndex.coerceIn(0, order.size)
+            if (safeIdx < order.size) {
+                val displaced = order.removeAt(safeIdx)
+                order.add(safeIdx, newId)
+                order.add(displaced)
+            } else {
+                order.add(newId)
+            }
+            settingsRepository.update(
+                current.copy(
+                    dashboardCustomBle = root.toString(),
+                    dashboardActionOrder = order.joinToString(",")
+                )
+            )
+        }
+        return newId
+    }
+
+    fun updateCustomBle(
+        id: String,
+        label: String,
+        icon: String,
+        family: String,
+        frames: List<ByteArray>
+    ) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomBle)
+            val node = root.optJSONObject(id) ?: org.json.JSONObject()
+            node.put("label", label)
+            node.put("icon", icon.ifEmpty { CUSTOM_BLE_DEFAULT_ICON })
+            node.put("family", family)
+            node.put("frames", org.json.JSONArray(frames.map { CustomBleCommand.bytesToHex(it) }))
+            root.put(id, node)
+            settingsRepository.update(current.copy(dashboardCustomBle = root.toString()))
+        }
+    }
+
+    fun deleteCustomBle(id: String) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            val root = parseSlotStatsRoot(current.dashboardCustomBle)
+            root.remove(id)
+            val order = current.dashboardActionOrder
+                .split(",").map { it.trim() }
+                .filter { it.isNotEmpty() && it != id }
+                .joinToString(",")
+            settingsRepository.update(
+                current.copy(dashboardCustomBle = root.toString(), dashboardActionOrder = order)
             )
         }
     }
@@ -1287,7 +1366,7 @@ class SettingsViewModel @Inject constructor(
             val items = sanitize(
                 current.dashboardActionOrder,
                 knownDashboardActions,
-                listActionGroups(current).keys
+                listActionGroups(current).keys + listCustomBle(current).keys
             ).toMutableList()
             if (slotIndex !in 0 until ACTIVE_DASHBOARD_TILE_COUNT) return@launch
             if (slotIndex !in items.indices) return@launch
@@ -1295,7 +1374,7 @@ class SettingsViewModel @Inject constructor(
             if (displaced == key) return@launch
 
             items[slotIndex] = key
-            if (isActionGroupKey(displaced)) {
+            if (isActionGroupKey(displaced) || isCustomBleKey(displaced)) {
                 items.removeAll { it == displaced }
             }
 
@@ -1304,10 +1383,16 @@ class SettingsViewModel @Inject constructor(
                     .also { it.remove(displaced) }.toString()
             else current.dashboardActionGroups
 
+            val newBle = if (isCustomBleKey(displaced))
+                parseSlotStatsRoot(current.dashboardCustomBle)
+                    .also { it.remove(displaced) }.toString()
+            else current.dashboardCustomBle
+
             settingsRepository.update(
                 current.copy(
                     dashboardActionOrder = items.joinToString(","),
-                    dashboardActionGroups = newGroups
+                    dashboardActionGroups = newGroups,
+                    dashboardCustomBle = newBle
                 )
             )
         }
@@ -1401,7 +1486,7 @@ class SettingsViewModel @Inject constructor(
             val items = sanitize(
                 current.dashboardActionOrder,
                 knownDashboardActions,
-                listActionGroups(current).keys
+                listActionGroups(current).keys + listCustomBle(current).keys
             ).toMutableList()
             val fromIndex = items.indexOf(key)
             if (fromIndex < 0 || toIndex !in items.indices) return@launch
@@ -1557,7 +1642,7 @@ class SettingsViewModel @Inject constructor(
             val items = sanitize(
                 current.dashboardActionOrder,
                 knownDashboardActions,
-                listActionGroups(current).keys
+                listActionGroups(current).keys + listCustomBle(current).keys
             ).toMutableList()
             val naturalKey = knownDashboardActions.getOrNull(slotIndex) ?: return@launch
             if (slotIndex !in items.indices) return@launch
@@ -1841,6 +1926,10 @@ const val ACTION_GROUP_PREFIX = "G:"
 const val COMPOSITE_TEMPLATE_KEY = "+M"
 /** Pool template key for the "+ Group" action-group source. */
 const val ACTION_GROUP_TEMPLATE_KEY = "+G"
+/** Pool template key for the "+ BLE" custom-command source. */
+const val CUSTOM_BLE_TEMPLATE_KEY = "+B"
+/** Default icon key for a freshly-created custom BLE command. */
+const val CUSTOM_BLE_DEFAULT_ICON = "BOLT"
 /**
  * Prefix marking a composite cell value as rider-typed text rather than a
  * metric key. The string after the prefix is the literal text the cell
@@ -1879,6 +1968,8 @@ const val CUSTOM_TILE_TEMPLATE_KEY = "+C"
 
 fun isCompositeMetricKey(key: String): Boolean = key.startsWith(COMPOSITE_METRIC_PREFIX)
 fun isActionGroupKey(key: String): Boolean = key.startsWith(ACTION_GROUP_PREFIX)
+fun isCustomBleKey(key: String): Boolean =
+    key.startsWith(com.eried.eucplanet.data.model.CustomBleCommand.ID_PREFIX)
 fun isCustomTileKey(key: String): Boolean = key.startsWith(CUSTOM_TILE_PREFIX)
 fun isTextCell(key: String): Boolean = key.startsWith(COMPOSITE_TEXT_PREFIX) || key == "EMPTY"
 fun textCellContent(key: String): String = when {

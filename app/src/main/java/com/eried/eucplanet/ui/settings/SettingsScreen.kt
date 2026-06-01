@@ -1151,17 +1151,22 @@ private fun DashboardLayoutTab(
             activeCount = actionActiveCount,
             columns = actionColumnsEffective,
             groupOf = { id -> viewModel.getActionGroup(settings, id) },
+            customBleOf = { id -> viewModel.getCustomBle(settings, id) },
             onSwapInto = { key, index ->
                 // Catalog model — see metric grid for explanation.
                 when {
                     key == ACTION_GROUP_TEMPLATE_KEY -> viewModel.createActionGroupAt(index)
+                    key == CUSTOM_BLE_TEMPLATE_KEY -> viewModel.createCustomBleAt(index)
                     dragController.sourceFromGrid -> viewModel.moveDashboardActionToIndex(key, index)
                     else -> viewModel.setDashboardActionAtIndex(key, index)
                 }
             },
             onTapTile = { key, slotIndex ->
-                editing = if (isActionGroupKey(key)) DashboardEditTarget.Group(key, slotIndex)
-                else DashboardEditTarget.Action(key, slotIndex)
+                editing = when {
+                    isActionGroupKey(key) -> DashboardEditTarget.Group(key, slotIndex)
+                    isCustomBleKey(key) -> DashboardEditTarget.CustomBle(key, slotIndex)
+                    else -> DashboardEditTarget.Action(key, slotIndex)
+                }
             },
             controller = dragController
         )
@@ -1177,6 +1182,7 @@ private fun DashboardLayoutTab(
                 catalogKeys = viewModel.knownDashboardActions,
                 onTap = { _ -> showPoolTapToast() },
                 onDeleteGroup = { id -> viewModel.deleteActionGroup(id) },
+                onDeleteCustomBle = { id -> viewModel.deleteCustomBle(id) },
                 controller = dragController
             )
         }
@@ -1203,12 +1209,15 @@ private fun DashboardLayoutTab(
         // happens to occupy the slot AND wiping the natural key's stats
         // so the restored metric shows its fresh out-of-box appearance.
         val onResetSlot: () -> Unit = {
-            val isActionTarget = target is DashboardEditTarget.Action ||
-                target is DashboardEditTarget.Group
-            if (isActionTarget) {
-                viewModel.resetDashboardActionAtIndex(target.slotIndex)
-            } else {
-                viewModel.resetDashboardMetricAtIndex(target.slotIndex)
+            when {
+                // A custom BLE command has no "shipped default" — Reset means
+                // delete the command and clear the slot.
+                target is DashboardEditTarget.CustomBle ->
+                    viewModel.deleteCustomBle(target.key)
+                target is DashboardEditTarget.Action || target is DashboardEditTarget.Group ->
+                    viewModel.resetDashboardActionAtIndex(target.slotIndex)
+                else ->
+                    viewModel.resetDashboardMetricAtIndex(target.slotIndex)
             }
             editing = null
         }
@@ -1221,6 +1230,13 @@ private fun DashboardLayoutTab(
                 onReset = onResetSlot
             )
             is DashboardEditTarget.Group -> ActionGroupSheet(
+                id = target.key,
+                settings = settings,
+                viewModel = viewModel,
+                onDismiss = { editing = null },
+                onReset = onResetSlot
+            )
+            is DashboardEditTarget.CustomBle -> CustomBleSheet(
                 id = target.key,
                 settings = settings,
                 viewModel = viewModel,
@@ -1402,6 +1418,8 @@ private sealed interface DashboardEditTarget {
     data class Group(override val key: String, override val slotIndex: Int) : DashboardEditTarget
     /** Custom tile instance — `key` is the tile ID like `C:abc123`. */
     data class CustomTile(override val key: String, override val slotIndex: Int) : DashboardEditTarget
+    /** Custom BLE command instance — `key` is the command ID like `B:abc123`. */
+    data class CustomBle(override val key: String, override val slotIndex: Int) : DashboardEditTarget
 }
 
 private const val DASHBOARD_DRAG_METRIC_LABEL = "eucplanet/dashMetric"
@@ -2506,6 +2524,7 @@ private fun ActionMiniGrid(
     activeCount: Int,
     columns: Int,
     groupOf: (String) -> ActionGroup?,
+    customBleOf: (String) -> com.eried.eucplanet.data.model.CustomBleCommand?,
     onSwapInto: (String, Int) -> Unit,
     onTapTile: (String, Int) -> Unit,
     controller: DashboardDragController
@@ -2543,6 +2562,17 @@ private fun ActionMiniGrid(
                                         ActionGroupTile(
                                             id = key,
                                             group = group,
+                                            slotIndex = slotIndex,
+                                            modifier = tileMod,
+                                            onSwapInto = onSwapInto,
+                                            onTap = { onTapTile(key, slotIndex) },
+                                            controller = controller
+                                        )
+                                    }
+                                    isCustomBleKey(key) -> {
+                                        CustomBleTile(
+                                            id = key,
+                                            command = customBleOf(key),
                                             slotIndex = slotIndex,
                                             modifier = tileMod,
                                             onSwapInto = onSwapInto,
@@ -2822,6 +2852,83 @@ private fun ActionGroupTile(
 }
 
 /**
+ * Grid tile for a custom BLE command (`B:<uuid>`). Renders the rider's chosen
+ * icon + label, tinted tertiary so it reads as "a custom command" distinct from
+ * plain actions and groups. Tap opens [CustomBleSheet]; drag/drop mirror
+ * [ActionGroupTile].
+ */
+@Composable
+private fun CustomBleTile(
+    id: String,
+    command: com.eried.eucplanet.data.model.CustomBleCommand?,
+    slotIndex: Int,
+    modifier: Modifier,
+    onSwapInto: (String, Int) -> Unit,
+    onTap: () -> Unit,
+    controller: DashboardDragController
+) {
+    val icon = groupIconFor(command?.iconKey?.ifBlank { CUSTOM_BLE_DEFAULT_ICON } ?: CUSTOM_BLE_DEFAULT_ICON)
+    val label = command?.label?.ifBlank { null }
+        ?: stringResource(R.string.dashboard_custom_ble_default_name)
+    val surfaceColor = MaterialTheme.colorScheme.surfaceVariant
+    val outlineColor = MaterialTheme.colorScheme.outlineVariant
+    val accent = MaterialTheme.colorScheme.tertiary
+    val isBeingDragged = controller.draggingKey == id
+    val isDropTarget = controller.isDragging &&
+        controller.draggingKey != id &&
+        controller.hoveredTarget?.slotIndex == slotIndex &&
+        controller.sourceKind == DragSourceKind.ACTION
+    val borderColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isDropTarget) accent else outlineColor,
+        label = "ble-tile-border"
+    )
+    val borderWidth by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (isDropTarget) 2.dp else 1.dp,
+        label = "ble-tile-border-w"
+    )
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(surfaceColor)
+            .border(borderWidth, borderColor, RoundedCornerShape(10.dp))
+            .clickable(onClick = onTap)
+            .dashboardDragSource(
+                key = id,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = true
+            )
+            .dashboardDropTarget(
+                key = "action-slot-$slotIndex",
+                kind = DropKind.ACTION_GRID_SLOT,
+                slotIndex = slotIndex,
+                controller = controller,
+                onDrop = { sourceKey -> onSwapInto(sourceKey, slotIndex) }
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 4.dp, end = 4.dp, top = 21.dp)
+                .alpha(if (isBeingDragged) 0f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(26.dp), tint = accent)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                label,
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+/**
  * Action pool = catalog. Renders the group template followed by every key
  * in [catalogKeys] sorted alphabetically by display label. Action groups
  * are dynamic instances and only live in the grid — pool drops only handle
@@ -2834,6 +2941,7 @@ private fun ActionPool(
     catalogKeys: List<String>,
     onTap: (String) -> Unit,
     onDeleteGroup: (String) -> Unit,
+    onDeleteCustomBle: (String) -> Unit,
     controller: DashboardDragController
 ) {
     val labeled = catalogKeys.map { it to actionChipLabel(it) }
@@ -2864,14 +2972,18 @@ private fun ActionPool(
                 kind = DropKind.ACTION_POOL_TRASH,
                 controller = controller,
                 onDrop = { sourceKey ->
-                    // Only grid-sourced groups get deleted. Static actions
-                    // can't be removed from the catalog; pool→pool drags
-                    // are no-ops by the same rule.
+                    // Only grid-sourced dynamic instances get deleted. Static
+                    // actions can't be removed from the catalog; pool→pool
+                    // drags are no-ops by the same rule.
                     if (controller.sourceFromGrid && isActionGroupKey(sourceKey)) {
                         onDeleteGroup(sourceKey)
+                    } else if (controller.sourceFromGrid && isCustomBleKey(sourceKey)) {
+                        onDeleteCustomBle(sourceKey)
                     }
                 },
-                acceptsSourceKey = { sourceKey -> isActionGroupKey(sourceKey) },
+                acceptsSourceKey = { sourceKey ->
+                    isActionGroupKey(sourceKey) || isCustomBleKey(sourceKey)
+                },
                 overrideExpectedSizePx = poolPillSizePx
             )
             .verticalScroll(rememberScrollState())
@@ -2886,6 +2998,7 @@ private fun ActionPool(
             // group instance; the template stays here because we render it
             // unconditionally rather than from the order list.
             ActionGroupTemplatePill(controller = controller)
+            CustomBleTemplatePill(controller = controller)
             sorted.forEach { key ->
                 ActionPoolPill(key = key, onTap = onTap, controller = controller)
             }
@@ -2952,6 +3065,74 @@ private fun ActionGroupTemplatePill(
             Spacer(Modifier.height(2.dp))
             Text(
                 stringResource(R.string.dashboard_group_template_label),
+                fontSize = 10.sp,
+                color = labelColor,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = 0.5.sp,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+/**
+ * Pool template for a custom BLE command. Mirrors [ActionGroupTemplatePill]:
+ * a dashed "+ BLE" pill the rider drags onto a grid slot to spawn a new
+ * `B:<uuid>` command (routed to createCustomBleAt) and open its editor.
+ */
+@Composable
+private fun CustomBleTemplatePill(
+    controller: DashboardDragController
+) {
+    val outlineColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+    val labelColor = MaterialTheme.colorScheme.tertiary
+    val density = LocalDensity.current
+    val dashSpec = remember(density) {
+        androidx.compose.ui.graphics.drawscope.Stroke(
+            width = with(density) { 1.5.dp.toPx() },
+            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                floatArrayOf(with(density) { 4.dp.toPx() }, with(density) { 3.dp.toPx() })
+            )
+        )
+    }
+    val cornerRadiusPx = with(density) { 10.dp.toPx() }
+    val isBeingDragged = controller.draggingKey == CUSTOM_BLE_TEMPLATE_KEY
+    Box(
+        modifier = Modifier
+            .width(102.dp)
+            .height(66.dp)
+            .drawBehind {
+                drawRoundRect(
+                    color = outlineColor,
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadiusPx),
+                    style = dashSpec
+                )
+            }
+            .dashboardDragSource(
+                key = CUSTOM_BLE_TEMPLATE_KEY,
+                value = "",
+                sourceKind = DragSourceKind.ACTION,
+                controller = controller,
+                fromGrid = false
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 6.dp, vertical = 6.dp)
+                .alpha(if (isBeingDragged) 0.4f else 1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Bolt,
+                contentDescription = null,
+                tint = labelColor,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                stringResource(R.string.dashboard_custom_ble_template),
                 fontSize = 10.sp,
                 color = labelColor,
                 fontWeight = FontWeight.Medium,
@@ -3142,7 +3323,8 @@ private fun DashboardSlotSheet(
                 // keeping them for `when` exhaustiveness.
                 is DashboardEditTarget.Composite,
                 is DashboardEditTarget.Group,
-                is DashboardEditTarget.CustomTile -> Unit
+                is DashboardEditTarget.CustomTile,
+                is DashboardEditTarget.CustomBle -> Unit
             }
             SlotSheetFooter(onReset, onDismiss)
             Spacer(Modifier.height(8.dp))
@@ -3586,6 +3768,108 @@ private fun ActionGroupSheet(
                     }
                 }
             }
+
+            SlotSheetFooter(onReset, onDismiss)
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+/**
+ * Editor for a custom BLE command (`B:<uuid>`). Label + icon + target family +
+ * the raw frames (one hex frame per line). Closing commits; Reset deletes the
+ * command. Mirrors [ActionGroupSheet]; frames are validated live and only
+ * persisted when they parse.
+ */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@Composable
+private fun CustomBleSheet(
+    id: String,
+    settings: com.eried.eucplanet.data.model.AppSettings,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+    onReset: () -> Unit
+) {
+    val cmd = viewModel.getCustomBle(settings, id)
+        ?: com.eried.eucplanet.data.model.CustomBleCommand(
+            id, "", CUSTOM_BLE_DEFAULT_ICON, "veteran", emptyList()
+        )
+    val sheetState = rememberModalBottomSheetState()
+    var label by remember(id) { mutableStateOf(cmd.label) }
+    var icon by remember(id) { mutableStateOf(cmd.iconKey) }
+    var family by remember(id) { mutableStateOf(cmd.family.ifBlank { "veteran" }) }
+    var framesText by remember(id) {
+        mutableStateOf(com.eried.eucplanet.data.model.CustomBleCommand.framesToText(cmd.frames))
+    }
+    val lastValid = remember(id) { androidx.compose.runtime.mutableStateOf(cmd.frames) }
+    val parsedFrames = com.eried.eucplanet.data.model.CustomBleCommand.parseFrames(framesText)
+    val framesError = parsedFrames == null && framesText.isNotBlank()
+    val families = listOf("veteran", "kingsong", "begode", "inmotion_v2", "inmotion_v1", "ninebot")
+
+    fun persist() {
+        if (parsedFrames != null) lastValid.value = parsedFrames
+        viewModel.updateCustomBle(id, label, icon, family, parsedFrames ?: lastValid.value)
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(modifier = Modifier.padding(top = 8.dp), contentAlignment = Alignment.Center) {
+                    GroupIconButton(currentKey = icon, onSelect = { icon = it; persist() })
+                }
+                OutlinedTextField(
+                    value = label,
+                    onValueChange = { label = it; persist() },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.dashboard_custom_ble_label)) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    stringResource(R.string.dashboard_custom_ble_family),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(
+                    modifier = Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    families.forEach { f ->
+                        androidx.compose.material3.FilterChip(
+                            selected = family == f,
+                            onClick = { family = f; persist() },
+                            label = { Text(f) }
+                        )
+                    }
+                }
+            }
+
+            OutlinedTextField(
+                value = framesText,
+                onValueChange = { framesText = it; persist() },
+                label = { Text(stringResource(R.string.dashboard_custom_ble_frames)) },
+                placeholder = { Text("53 65 74 4c 69 67 68 74 4f 4e") },
+                isError = framesError,
+                supportingText = {
+                    Text(
+                        if (framesError) stringResource(R.string.dashboard_custom_ble_frames_error)
+                        else stringResource(R.string.dashboard_custom_ble_frames_hint)
+                    )
+                },
+                minLines = 2,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             SlotSheetFooter(onReset, onDismiss)
             Spacer(Modifier.height(8.dp))
