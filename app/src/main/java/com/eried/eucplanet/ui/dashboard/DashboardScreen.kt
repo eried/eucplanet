@@ -145,12 +145,8 @@ import com.eried.eucplanet.data.model.MetricCatalog
 import com.eried.eucplanet.data.model.SparklineStyle
 import com.eried.eucplanet.data.model.arrowAngleDeg
 import com.eried.eucplanet.ui.navigator.NavigationOverlayViewModel
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentPurple
-import com.eried.eucplanet.ui.theme.AccentRed
-import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.remap
 import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
@@ -202,9 +198,9 @@ fun DashboardScreen(
     val gpsExtra by viewModel.gpsExtraSpeed.collectAsState()
     val externalGpsSpeed = gpsExtra?.first
     val externalGpsAccent = when (gpsExtra?.second) {
-        "EXTERNAL" -> AccentPurple
-        "PHONE" -> AccentBlue
-        else -> AccentPurple
+        "EXTERNAL" -> MaterialTheme.appColors.metricPosition
+        "PHONE" -> MaterialTheme.appColors.metricVoltage
+        else -> MaterialTheme.appColors.metricPosition
     }
     val externalGpsPaired by viewModel.externalGpsPaired.collectAsState()
     val tripCount by viewModel.tripCount.collectAsState()
@@ -474,7 +470,7 @@ fun DashboardScreen(
                     showDisconnectDialog = false
                     viewModel.disconnect()
                 }) {
-                    Text(stringResource(R.string.disconnect), color = AccentRed)
+                    Text(stringResource(R.string.disconnect), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
@@ -492,7 +488,7 @@ fun DashboardScreen(
             text = { Text(stringResource(R.string.exit_body)) },
             confirmButton = {
                 TextButton(onClick = performStopAllAndExit) {
-                    Text(stringResource(R.string.exit_stop_all), color = AccentRed)
+                    Text(stringResource(R.string.exit_stop_all), color = MaterialTheme.appColors.statusDanger)
                 }
             },
             dismissButton = {
@@ -575,7 +571,7 @@ fun DashboardScreen(
                                 Icon(
                                     imageVector = Icons.Filled.WarningAmber,
                                     contentDescription = stringResource(R.string.warnings_indicator_desc),
-                                    tint = androidx.compose.ui.graphics.Color(0xFFFFB300)
+                                    tint = MaterialTheme.appColors.statusWarn
                                 )
                                 if (warnings.size > 1) {
                                     Text(
@@ -719,7 +715,7 @@ fun DashboardScreen(
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
-            val safeColor = if (useAccent) primary else AccentGreen
+            val safeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood
             // BoxWithConstraints with weight(1f, fill=true): the dial Box
             // absorbs ALL leftover vertical space so the ODO footer stays
             // pinned just below the action buttons. On phones the dial is a
@@ -749,14 +745,15 @@ fun DashboardScreen(
                     speed = animatedSpeed,
                     maxSpeed = gaugeMax,
                     speedUnit = speedUnit,
-                    overrideColor = if (useAccent) primary else null,
+                    // Accents are gone; the speed arc now follows the themeable
+                    // gaugeFill token (so it matches the watch and is editable).
+                    overrideColor = null,
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
-                    // Safe band is always green so it reads as the safety
-                    // signal and not the user's accent. The speed indicator
-                    // arc (overrideColor above) still wears the accent.
-                    safeBandColor = AccentGreen,
+                    // Speed-arc fill = the gaugeFill token. When the color band is
+                    // on, the warn/danger tiers still override it as safety signals.
+                    safeBandColor = MaterialTheme.appColors.gaugeFill,
                     // Extra GPS overlay (dot on the dial). Colour depends on
                     // which source is active per user's GPS preferences.
                     externalSpeed = externalGpsSpeed,
@@ -815,7 +812,7 @@ fun DashboardScreen(
                     )
                     DashIndicatorLetter(
                         "D", active = live && wheelData.pcMode == 1,
-                        activeColor = if (useAccent) primary else AccentGreen
+                        activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood
                     )
                 }
                 // GPS indicator, top-right. The icon glyph + colour speak for
@@ -850,7 +847,7 @@ fun DashboardScreen(
                     DashIndicatorIcon(
                         icon = gpsIcon,
                         active = gpsFix && locationGranted,
-                        activeColor = if (useAccent) primary else AccentGreen,
+                        activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood,
                         modifier = Modifier
                     )
                     // E badge only when an external GPS is paired at all. Dim
@@ -861,7 +858,7 @@ fun DashboardScreen(
                         DashIndicatorLetter(
                             "E",
                             active = externalLive,
-                            activeColor = if (useAccent) primary else AccentGreen
+                            activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood
                         )
                     }
                     DropdownMenu(
@@ -890,7 +887,7 @@ fun DashboardScreen(
                     DashIndicatorIcon(
                         icon = Icons.Default.PhotoCamera,
                         active = true,
-                        activeColor = if (useAccent) primary else AccentGreen,
+                        activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood,
                         modifier = Modifier
                             .offset(x = 4.dp)
                             .padding(bottom = 8.dp)
@@ -948,8 +945,8 @@ fun DashboardScreen(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
                         contentDescription = stringResource(R.string.nav_open),
-                        tint = if (navActive) AccentGreen
-                        else if (useAccent) primary else AccentGreen,
+                        tint = if (navActive) MaterialTheme.appColors.statusGood
+                        else if (useAccent) primary else MaterialTheme.appColors.statusGood,
                         modifier = Modifier
                             .padding(start = 4.dp, bottom = 10.dp)
                             .size(32.dp)
@@ -1035,8 +1032,8 @@ fun DashboardScreen(
             // Stats grid, 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
             val live = connectionState == ConnectionState.CONNECTED
             val battColor = when {
-                live && wheelData.batteryPercent < 20 -> AccentRed
-                live && wheelData.batteryPercent < 40 -> AccentOrange
+                live && wheelData.batteryPercent < 20 -> MaterialTheme.appColors.statusDanger
+                live && wheelData.batteryPercent < 40 -> MaterialTheme.appColors.statusWarn
                 else -> safeColor
             }
             // EUC motor temperature tiers. The stored value is always °C, so
@@ -1049,13 +1046,13 @@ fun DashboardScreen(
             //   ≥ 150 °C (≈ 302 °F)                 red
             val tempColor = when {
                 !live || wheelData.maxTemperature <= 0f -> safeColor
-                wheelData.maxTemperature >= 150f -> AccentRed
-                wheelData.maxTemperature >= 105f -> AccentYellow
+                wheelData.maxTemperature >= 150f -> MaterialTheme.appColors.statusDanger
+                wheelData.maxTemperature >= 105f -> MaterialTheme.appColors.gaugeWarn
                 else -> safeColor
             }
             val loadColor = when {
-                live && pwm >= 80 -> AccentRed
-                live && pwm >= 60 -> AccentOrange
+                live && pwm >= 80 -> MaterialTheme.appColors.statusDanger
+                live && pwm >= 60 -> MaterialTheme.appColors.statusWarn
                 else -> safeColor
             }
 
@@ -1458,12 +1455,12 @@ fun DashboardScreen(
                             "CURRENT" -> LiveMetricTile(
                                 label = if (showWatts) wattsLabel else ampsLabel,
                                 value = centerOverride ?: currentText,
-                                accent = if (live && wheelData.current > 20) AccentOrange else primary,
+                                accent = if (live && wheelData.current > 20) MaterialTheme.appColors.statusWarn else primary,
                                 sparkData = history.current,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
                                 sparklineEnabled = sparklineEnabled,
                                 bipolarBaseline = spec?.bipolarBaseline ?: 0f,
-                                bipolarNegativeAccent = spec?.bipolarNegativeAccent ?: AccentGreen,
+                                bipolarNegativeAccent = spec?.bipolarNegativeAccent ?: MaterialTheme.appColors.statusGood,
                                 cornerLeftLabel = cornerLeftLabel,
                                 cornerLeftValue = cornerLeftValue,
                                 cornerRightLabel = cornerRightLabel,
@@ -1736,7 +1733,7 @@ fun DashboardScreen(
                                             else -> key
                                         },
                                         value = centerOverride ?: displayValueFor(key),
-                                        accent = spec?.accent ?: primary,
+                                        accent = spec?.accent?.let { MaterialTheme.appColors.remap(it) } ?: primary,
                                         sparkData = emptyList(),
                                         sparkStyle = spec?.sparkline ?: SparklineStyle.NONE,
                                         sparklineEnabled = sparklineEnabled,
@@ -1821,7 +1818,7 @@ fun DashboardScreen(
                                 icon = Icons.Default.FlashlightOn,
                                 label = stringResource(R.string.action_light),
                                 active = wheelData.lightOn,
-                                activeColor = if (useAccent) primary else AccentYellow,
+                                activeColor = if (useAccent) primary else MaterialTheme.appColors.gaugeWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lightBusy,
                                 onClick = { viewModel.onLightToggle() },
                                 aspectRatio = actionAspect, heightDp = actionHeight,
@@ -1867,7 +1864,7 @@ fun DashboardScreen(
                                 label = if (safetyActive) stringResource(R.string.action_legal_on)
                                     else stringResource(R.string.action_legal_mode),
                                 active = safetyActive,
-                                activeColor = if (useAccent) primary else AccentOrange,
+                                activeColor = if (useAccent) primary else MaterialTheme.appColors.statusWarn,
                                 enabled = connectionState == ConnectionState.CONNECTED,
                                 onClick = { viewModel.onSafetySpeedToggle() },
                                 aspectRatio = actionAspect, heightDp = actionHeight,
@@ -1883,7 +1880,7 @@ fun DashboardScreen(
                                 if (locked) stringResource(R.string.action_locked)
                                     else stringResource(R.string.action_lock_wheel),
                                 active = locked,
-                                activeColor = if (useAccent) primary else AccentRed,
+                                activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
                                 enabled = connectionState == ConnectionState.CONNECTED && !lockBusy,
                                 onClick = {
                                     if (lockBlockedBySpeed) {
@@ -1905,7 +1902,7 @@ fun DashboardScreen(
                                     else -> stringResource(R.string.action_recorder)
                                 },
                                 active = recording,
-                                activeColor = if (useAccent) primary else AccentRed,
+                                activeColor = if (useAccent) primary else MaterialTheme.appColors.statusDanger,
                                 onClick = { onNavigateToRecording() },
                                 aspectRatio = actionAspect, heightDp = actionHeight,
                                 menu = { dismiss ->
@@ -2742,7 +2739,7 @@ fun DashboardScreen(
                             Column {
                                 Text(
                                     stringResource(R.string.service_mode_caution),
-                                    color = Color(0xFFE53935),
+                                    color = MaterialTheme.appColors.statusDanger,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(Modifier.height(12.dp))
@@ -2829,12 +2826,12 @@ private fun SpeedGauge(
     showColorBand: Boolean = false,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
-    safeBandColor: Color = AccentBlue,
+    safeBandColor: Color = MaterialTheme.appColors.gaugeFill,
     /** External GPS speed in km/h, or null when no external GPS box is connected.
      *  Drives a small marker on the dial and a smaller readout under the main number,
      *  both in [externalAccentColor]. */
     externalSpeed: Float? = null,
-    externalAccentColor: Color = AccentPurple,
+    externalAccentColor: Color = MaterialTheme.appColors.metricPosition,
     modifier: Modifier = Modifier
 ) {
     // Speed-arc + speed-number colour rule (phone & watch share this rule):
@@ -2844,14 +2841,20 @@ private fun SpeedGauge(
     val orangeFrac = (orangeThresholdPct / 100f).coerceIn(0.05f, 0.95f)
     val redFrac = (redThresholdPct / 100f).coerceIn(orangeFrac + 0.04f, 0.95f)
     val speedFraction = (speed / maxSpeed).coerceIn(0f, 1f)
+    // Gauge band tier colors. Captured into vals here (composable scope) so the
+    // Canvas DrawScope below — which can't read MaterialTheme — can still use them.
+    // The "orange" approaching tier maps to statusWarn (defaults to AccentOrange,
+    // pixel-identical); the "red" tier maps to gaugeDanger.
+    val bandWarnColor = MaterialTheme.appColors.statusWarn
+    val bandDangerColor = MaterialTheme.appColors.gaugeDanger
     val speedColor = when {
-        showColorBand && speedFraction >= redFrac    -> AccentRed
-        showColorBand && speedFraction >= orangeFrac -> AccentOrange
+        showColorBand && speedFraction >= redFrac    -> bandDangerColor
+        showColorBand && speedFraction >= orangeFrac -> bandWarnColor
         showColorBand                                -> safeBandColor
         overrideColor != null                        -> overrideColor
         else                                          -> safeBandColor
     }
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val trackColor = MaterialTheme.appColors.gaugeTrack
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
 
@@ -2900,11 +2903,11 @@ private fun SpeedGauge(
                 startAngle = startAngle, sweepAngle = sweepTotal * orangeFrac,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
-            drawArc(color = AccentOrange.copy(alpha = bandAlpha),
+            drawArc(color = bandWarnColor.copy(alpha = bandAlpha),
                 startAngle = orangeStart, sweepAngle = orangeSweep,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
-            drawArc(color = AccentRed.copy(alpha = bandAlpha),
+            drawArc(color = bandDangerColor.copy(alpha = bandAlpha),
                 startAngle = redStart, sweepAngle = redSweep,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
@@ -3250,7 +3253,7 @@ private fun FlicIndicator(
     // Always visible. Filled circle when paired, hollow ring when not. Flash turns it green on action.
     val baseAlpha = if (hasFlic) 1f else 0.55f
     val alpha = (baseAlpha + flashAlpha.value * (1f - baseAlpha)).coerceAtMost(1f)
-    val tint = if (flashAlpha.value > 0f) AccentGreen
+    val tint = if (flashAlpha.value > 0f) MaterialTheme.appColors.statusGood
                else MaterialTheme.colorScheme.onSurface
     val icon = if (hasFlic || flashAlpha.value > 0f) Icons.Default.RadioButtonChecked
                else Icons.Default.RadioButtonUnchecked
@@ -3269,9 +3272,9 @@ private fun FlicIndicator(
 @Composable
 private fun ConnectionDot(state: ConnectionState) {
     val color = when (state) {
-        ConnectionState.CONNECTED -> AccentGreen
-        ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING -> AccentYellow
-        ConnectionState.DISCONNECTED -> AccentRed
+        ConnectionState.CONNECTED -> MaterialTheme.appColors.connectionActive
+        ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING -> MaterialTheme.appColors.statusWarn
+        ConnectionState.DISCONNECTED -> MaterialTheme.appColors.statusDanger
     }
     Box(
         modifier = Modifier
@@ -3454,7 +3457,7 @@ private fun ActionButton(
     label: String,
     modifier: Modifier = Modifier,
     active: Boolean = false,
-    activeColor: Color = AccentBlue,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -3505,7 +3508,7 @@ private fun ActionTile(
     onClick: () -> Unit,
     menu: @Composable ColumnScope.(dismiss: () -> Unit) -> Unit,
     active: Boolean = false,
-    activeColor: Color = AccentBlue,
+    activeColor: Color = MaterialTheme.colorScheme.primary,
     enabled: Boolean = true,
     aspectRatio: Float? = 1f,
     heightDp: Int? = null

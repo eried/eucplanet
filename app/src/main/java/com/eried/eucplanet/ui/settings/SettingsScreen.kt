@@ -239,6 +239,7 @@ import com.eried.eucplanet.ui.theme.AccentPink
 import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -463,7 +464,6 @@ fun SettingsScreen(
         stringResource(R.string.section_display),
         stringResource(R.string.units_label),
         stringResource(R.string.theme),
-        stringResource(R.string.accent_color),
         stringResource(R.string.show_gauge_color_band),
         stringResource(R.string.language)
     ).joinToString(" ")
@@ -4682,7 +4682,9 @@ private fun ViewDropdown(
         ) {
             options.forEach { cols ->
                 DropdownMenuItem(
-                    text = { Text(viewLabel(cols)) },
+                    // Expanded list spells out that Wide is the tablet layout; the
+                    // collapsed field keeps the short label so it doesn't overflow.
+                    text = { Text(viewMenuLabel(cols)) },
                     onClick = {
                         onSelect(cols)
                         expanded = false
@@ -4696,6 +4698,15 @@ private fun ViewDropdown(
 @Composable
 private fun viewLabel(columns: Int): String = when (columns) {
     3 -> stringResource(R.string.dashboard_view_wide)
+    else -> stringResource(R.string.dashboard_view_default)
+}
+
+/** Label for the expanded dropdown only — qualifies Wide as the tablet layout so
+ *  riders understand they won't normally see it; the collapsed field uses
+ *  [viewLabel] so the short text fits. */
+@Composable
+private fun viewMenuLabel(columns: Int): String = when (columns) {
+    3 -> stringResource(R.string.dashboard_view_wide_menu)
     else -> stringResource(R.string.dashboard_view_default)
 }
 
@@ -5178,12 +5189,16 @@ private fun DisplayTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    val themeOptions = listOf(
-        "black" to stringResource(R.string.theme_black),
-        "dark" to stringResource(R.string.theme_dark),
-        "light" to stringResource(R.string.theme_light),
-        "system" to stringResource(R.string.theme_system)
-    )
+    // Theme combo: built-in themes (Light, Dark, Pure Black) + saved customs
+    // (visible once a backup folder is set). Replaces the legacy theme-mode +
+    // accent pickers — the accent is now the active theme's `primary` token.
+    val themeChoices = viewModel.themeChoices.collectAsState().value
+    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, settings.themeDirty) {
+        viewModel.refreshThemeChoices()
+    }
+    val currentTheme = settings.activeThemeName.ifEmpty {
+        themeChoices.builtIns.firstOrNull() ?: "Pure Black"
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -5202,18 +5217,19 @@ private fun DisplayTab(
             onSelect = { viewModel.updateLanguage(it) }
         )
 
-        SimpleDropdown(
+        ThemeDropdown(
             label = stringResource(R.string.theme),
-            currentKey = settings.themeMode,
-            options = themeOptions,
-            onSelect = { viewModel.updateThemeMode(it) }
+            current = if (settings.themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            builtIns = themeChoices.builtIns,
+            saved = themeChoices.saved,
+            unsaved = themeChoices.unsaved,
+            onSelect = { viewModel.selectTheme(it) },
+            onSelectUnsaved = { viewModel.selectUnsavedTheme(it) }
         )
 
-        Text(stringResource(R.string.accent_color), style = MaterialTheme.typography.labelLarge)
-        AccentPicker(
-            current = settings.accentColor,
-            onSelect = { viewModel.updateAccentColor(it) }
-        )
+        SwitchSetting("Theme customization widget", settings.themeEditorEnabled) {
+            viewModel.setThemeEditorEnabled(it)
+        }
 
         SwitchSetting(
             stringResource(R.string.show_gauge_color_band),
@@ -5227,7 +5243,7 @@ private fun DisplayTab(
             GaugeThresholdSlider(
                 orangePct = settings.gaugeOrangeThresholdPct,
                 redPct = settings.gaugeRedThresholdPct,
-                safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
+                safeColor = MaterialTheme.appColors.gaugeFill,
                 onChange = { o, r -> viewModel.updateGaugeThresholds(o, r) }
             )
         }
@@ -5805,7 +5821,7 @@ private fun FlicTab(
                     LeftAlignedScanButton(
                         label = stringResource(R.string.flic_stop_scan),
                         onClick = { viewModel.stopScan() },
-                        containerColor = AccentRed
+                        containerColor = MaterialTheme.appColors.statusDanger
                     )
                 } else {
                     LeftAlignedScanButton(
@@ -5831,7 +5847,7 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
                     ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
                     ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
                 }
@@ -5844,7 +5860,7 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
                     ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
                     ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
                 }
@@ -6466,7 +6482,7 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
@@ -6814,8 +6830,8 @@ internal fun GaugeThresholdSlider(
     var range by remember(orangePct, redPct) {
         mutableStateOf(orangePct.toFloat()..redPct.toFloat())
     }
-    val orangeColor = com.eried.eucplanet.ui.theme.AccentOrange
-    val redColor = com.eried.eucplanet.ui.theme.AccentRed
+    val orangeColor = MaterialTheme.appColors.gaugeWarn
+    val redColor = MaterialTheme.appColors.gaugeDanger
 
     Column(modifier = Modifier.padding(top = 4.dp)) {
         RangeSlider(
@@ -6892,6 +6908,60 @@ internal fun GaugeThresholdSlider(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun ThemeDropdown(
+    label: String,
+    current: String,
+    builtIns: List<String>,
+    saved: List<String>,
+    unsaved: List<String>,
+    onSelect: (String) -> Unit,
+    onSelectUnsaved: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = current,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            builtIns.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = { onSelect(name); expanded = false }
+                )
+            }
+            // Saved custom themes + unsaved drafts live below the 3 built-ins,
+            // behind a divider. Drafts are shown as "<name> (unsaved)".
+            if (saved.isNotEmpty() || unsaved.isNotEmpty()) {
+                androidx.compose.material3.HorizontalDivider()
+            }
+            saved.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = { onSelect(name); expanded = false }
+                )
+            }
+            unsaved.forEach { base ->
+                DropdownMenuItem(
+                    text = { Text("$base (unsaved)") },
+                    onClick = { onSelectUnsaved(base); expanded = false }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun SimpleDropdown(
     label: String,
     currentKey: String,
@@ -6924,50 +6994,6 @@ private fun SimpleDropdown(
                     }
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun AccentPicker(current: String, onSelect: (String) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        com.eried.eucplanet.ui.theme.AccentOptions.forEach { opt ->
-            val selected = opt.key == current
-            val isRainbow = com.eried.eucplanet.ui.theme.isDefaultAccent(opt.key)
-            val rainbowBrush = if (isRainbow) androidx.compose.ui.graphics.Brush.sweepGradient(
-                listOf(
-                    com.eried.eucplanet.ui.theme.AccentRed,
-                    com.eried.eucplanet.ui.theme.AccentOrange,
-                    com.eried.eucplanet.ui.theme.AccentYellow,
-                    com.eried.eucplanet.ui.theme.AccentGreen,
-                    com.eried.eucplanet.ui.theme.AccentTeal,
-                    com.eried.eucplanet.ui.theme.AccentBlue,
-                    com.eried.eucplanet.ui.theme.AccentPurple,
-                    com.eried.eucplanet.ui.theme.AccentPink,
-                    com.eried.eucplanet.ui.theme.AccentRed
-                )
-            ) else null
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier
-                    .size(if (selected) 40.dp else 32.dp)
-                    .clip(androidx.compose.foundation.shape.CircleShape)
-                    .then(
-                        if (rainbowBrush != null) Modifier.background(rainbowBrush)
-                        else Modifier.background(opt.color)
-                    )
-                    .then(
-                        if (selected) Modifier.border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            shape = androidx.compose.foundation.shape.CircleShape
-                        ) else Modifier
-                    )
-                    .clickable { onSelect(opt.key) }
-            )
         }
     }
 }
@@ -7006,7 +7032,7 @@ private fun ButtonConfig(
                             value = editText,
                             onValueChange = { editText = it },
                             singleLine = true,
-                            textStyle = MaterialTheme.typography.titleMedium.copy(color = AccentBlue),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.appColors.primary),
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 IconButton(onClick = {
@@ -7025,7 +7051,7 @@ private fun ButtonConfig(
                             Text(
                                 title,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = AccentBlue
+                                color = MaterialTheme.appColors.primary
                             )
                             Spacer(Modifier.width(6.dp))
                             Icon(
@@ -7040,7 +7066,7 @@ private fun ButtonConfig(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -7557,8 +7583,8 @@ private fun EngineSpeedVolumeCurveEditor(
     val maxMult = 1f
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val lineColor = AccentBlue
-    val pointColor = AccentOrange
+    val lineColor = MaterialTheme.appColors.metricVoltage
+    val pointColor = MaterialTheme.appColors.tertiary
     val textMeasurer = rememberTextMeasurer()
 
     // Always render exactly 4 normalized points at the canonical speeds.
@@ -8175,7 +8201,8 @@ private fun StatusBadge(active: Boolean) {
         Icon(
             imageVector = Icons.Default.FiberManualRecord,
             contentDescription = null,
-            tint = if (active) Color(0xFF2ECC40) else LocalContentColor.current.copy(alpha = 0.5f),
+            tint = if (active) com.eried.eucplanet.ui.theme.LocalAppColors.current.connectionActive
+                else LocalContentColor.current.copy(alpha = 0.5f),
             modifier = Modifier.size(10.dp)
         )
         Text(

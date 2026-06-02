@@ -33,7 +33,11 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
-        const val CHANNEL_ID = "wheel_connection"
+        // Bumped to _v2 so the new lock-screen visibility on the channel actually
+        // applies: a NotificationChannel's settings are frozen after first
+        // creation, so an existing install ignores code changes to the old id.
+        const val CHANNEL_ID = "wheel_connection_v2"
+        private const val CHANNEL_ID_LEGACY = "wheel_connection"
         const val NOTIFICATION_ID = 1
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
@@ -447,8 +451,15 @@ class WheelService : LifecycleService() {
         ).apply {
             description = getString(R.string.notification_channel_description)
             setShowBadge(false)
+            // Show the live speed/battery on a secure lock screen instead of
+            // "Contents hidden". The user's system "Notifications on lock screen"
+            // setting still has the final say.
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
         val manager = getSystemService(NotificationManager::class.java)
+        // Drop the pre-v2 channel so its old (private) lock-screen setting and
+        // duplicate entry don't linger in system settings.
+        runCatching { manager.deleteNotificationChannel(CHANNEL_ID_LEGACY) }
         manager.createNotificationChannel(channel)
     }
 
@@ -482,7 +493,12 @@ class WheelService : LifecycleService() {
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setSilent(true)
+            // Full content on a secure lock screen (pairs with the channel's
+            // PUBLIC lockscreenVisibility above).
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
+            // tagging it silent made lock screens set to "hide silent
+            // notifications" suppress it entirely.
             .build()
     }
 

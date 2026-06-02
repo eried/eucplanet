@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Watch
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -106,7 +107,12 @@ private fun rememberSecondTick(): Long {
 @Composable
 fun WatchApp() {
     val state by WatchStateRepository.state.collectAsStateWithLifecycle()
-    val accent = accentColorFor(state.accentKey)
+    val colors = remember(state.themePacked) { parseWatchColors(state.themePacked) }
+    // Prefer the full theme's accent; fall back to the legacy accent key only
+    // when an older phone hasn't sent the packed palette.
+    val accent = if (state.themePacked.isNotBlank()) colors.accent
+                 else accentColorFor(state.accentKey)
+    CompositionLocalProvider(LocalWatchColors provides colors) {
     MaterialTheme {
         Scaffold(timeText = {}) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -129,6 +135,7 @@ fun WatchApp() {
             }
         }
     }
+    }
 }
 
 /**
@@ -139,6 +146,7 @@ fun WatchApp() {
 @Composable
 private fun NavWatchOverlay(state: WatchState, accent: Color) {
     val context = LocalContext.current
+    val colors = LocalWatchColors.current
     val angle by animateFloatAsState(
         targetValue = if (state.navArrived) 0f else state.navAngle,
         animationSpec = tween(durationMillis = 350),
@@ -159,7 +167,7 @@ private fun NavWatchOverlay(state: WatchState, accent: Color) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(colors.background)
             // Consume every gesture so a swipe can't reach the pager behind
             // the popup while navigation is showing.
             .pointerInput(Unit) {
@@ -190,7 +198,7 @@ private fun NavWatchOverlay(state: WatchState, accent: Color) {
             if (state.navPrimary.isNotBlank()) {
                 Text(
                     text = state.navPrimary,
-                    color = Color.White,
+                    color = colors.textPrimary,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     fontSize = 17.sp,
@@ -212,6 +220,7 @@ private fun NavWatchOverlay(state: WatchState, accent: Color) {
 
 @Composable
 private fun MainScreen(state: WatchState, accent: Color) {
+    val colors = LocalWatchColors.current
     // Smooth the virtual rotation so re-anchoring from a setting change or a
     // post-disconnect snap doesn't pop. Single fixed 1 s ease-in-out covers
     // every angle delta with no per-frame math.
@@ -223,7 +232,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(colors.background)
             // Virtual orientation lets the rider tilt the dial in software when the wheel
             // is in motion, applied to the first screen only so the details screen stays
             // in its canonical orientation. Clamped on the phone side to [-90..90].
@@ -289,10 +298,15 @@ private fun MainScreen(state: WatchState, accent: Color) {
             showColorBand = state.showGaugeBand,
             orangeThresholdPct = state.gaugeOrangeThresholdPct,
             redThresholdPct = state.gaugeRedThresholdPct,
+            fillColor = colors.gaugeFill,
+            warnColor = colors.gaugeWarn,
+            dangerColor = colors.gaugeDanger,
+            trackColor = colors.gaugeTrack,
+            dimColor = colors.textSecondary,
             fullBleed = true,
             drawSpeedText = false,
             gpsSpeedKmh = if (phoneAlive) state.gpsSpeedKmh else Float.NaN,
-            gpsDotColor = gpsSourceColor(state.gpsSource),
+            gpsDotColor = if (state.gpsSource == "EXTERNAL") colors.gpsExternal else colors.gpsPhone,
             modifier = Modifier.fillMaxSize()
         )
 
@@ -345,9 +359,10 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         animatedSpeed, maxSpeed,
                         showBand = true,
                         state.gaugeOrangeThresholdPct,
-                        state.gaugeRedThresholdPct
+                        state.gaugeRedThresholdPct,
+                        colors
                     )
-                } else if (useAccent) accent else GaugeAccentGreen
+                } else if (useAccent) accent else colors.gaugeFill
                 // Stale → dash so the rider sees "no signal" rather than a
                 // frozen number that might match their current speed by chance.
                 Text(
@@ -356,7 +371,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     else DASH,
                     fontSize = speedFontSp,
                     fontWeight = FontWeight.Bold,
-                    color = if (phoneAlive) speedTextColor else Color(0xFF606060)
+                    color = if (phoneAlive) speedTextColor else colors.textDisabled
                 )
                 if (showUnit) {
                     Spacer(Modifier.width(3.dp))
@@ -364,7 +379,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                         text = WatchUnits.speedUnit(LocalContext.current, state.speedUnit),
                         fontSize = unitSp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF9AA0A6),
+                        color = colors.textSecondary,
                         modifier = Modifier.padding(bottom = (sw * 0.05f).coerceIn(12f, 18f).dp)
                     )
                 }
@@ -384,7 +399,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     // ≥60 / ≥80 tiers always override with orange / red so the
                     // danger signal can't be hidden by the accent.
                     val pwmAccent = state.accentKey != "default"
-                    val pwmSafeColor = if (pwmAccent) accent else GaugeAccentGreen
+                    val pwmSafeColor = if (pwmAccent) accent else colors.gaugeFill
                     // pwmLive treats a stale phone the same as a disconnected
                     // wheel; without a fresh push we don't know whether the
                     // motor is still hot.
@@ -402,8 +417,8 @@ private fun MainScreen(state: WatchState, accent: Color) {
                     if (showPwmNumber) {
                         val pwmNumberColor = when {
                             !pwmLive -> pwmSafeColor
-                            state.pwmPercent >= 80f -> GaugeAccentRed
-                            state.pwmPercent >= 60f -> GaugeAccentOrange
+                            state.pwmPercent >= 80f -> colors.gaugeDanger
+                            state.pwmPercent >= 60f -> colors.gaugeWarn
                             else -> pwmSafeColor
                         }
                         val numberText = if (pwmLive) "%.0f%%".format(state.pwmPercent) else DASH
@@ -425,7 +440,7 @@ private fun MainScreen(state: WatchState, accent: Color) {
                                     text = "PWM: ",
                                     fontSize = pwmNumberSp,
                                     fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF9AA0A6)
+                                    color = colors.textSecondary
                                 )
                                 Text(
                                     text = numberText,
@@ -484,22 +499,19 @@ private fun speedBandColor(
     maxSpeedKmh: Float,
     showBand: Boolean,
     orangePct: Int,
-    redPct: Int
+    redPct: Int,
+    colors: WatchColors
 ): Color {
-    if (!showBand) return GaugeAccentGreen
+    if (!showBand) return colors.gaugeFill
     val orangeFrac = (orangePct / 100f).coerceIn(0.25f, 0.95f)
     val redFrac = (redPct / 100f).coerceIn(orangeFrac + 0.01f, 1f)
     val frac = (speedKmh / maxSpeedKmh).coerceIn(0f, 1f)
     return when {
-        frac >= redFrac    -> GaugeAccentRed
-        frac >= orangeFrac -> GaugeAccentOrange
-        else               -> GaugeAccentGreen
+        frac >= redFrac    -> colors.gaugeDanger
+        frac >= orangeFrac -> colors.gaugeWarn
+        else               -> colors.gaugeFill
     }
 }
-
-@Deprecated("Use speedBandColor; kept for compatibility.")
-private fun speedTierColor(speedKmh: Float, maxSpeedKmh: Float): Color =
-    speedBandColor(speedKmh, maxSpeedKmh, showBand = true, orangePct = 65, redPct = 85)
 
 /**
  * Compact PWM-as-load progress bar. Track is dim grey; fill colour shifts
@@ -515,13 +527,14 @@ private fun LoadBar(
     safeColor: Color = Color(0xFF66BB6A),
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalWatchColors.current
     val pct = percent.coerceIn(0f, 100f)
     val fillColor = when {
-        pct >= 80f -> Color(0xFFEF5350)
-        pct >= 60f -> Color(0xFFFFA726)
+        pct >= 80f -> colors.gaugeDanger
+        pct >= 60f -> colors.gaugeWarn
         else -> safeColor
     }
-    val trackColor = Color(0xFF333333)
+    val trackColor = colors.gaugeTrack
     // Glide the bar fill between telemetry pushes (~4-5 Hz) so it grows and
     // shrinks smoothly instead of jumping. ~250 ms linear matches the speed
     // gauge animation; the colour tier still flips instantly off the raw pct.
@@ -576,13 +589,6 @@ private fun BatteryRow(
     }
 }
 
-private fun pwmTierColor(percent: Float): Color = when {
-    percent > 80f -> Color(0xFFEF5350)
-    percent > 60f -> Color(0xFFFFA726)
-    percent > 40f -> Color(0xFFFFCA28)
-    else -> Color(0xFF66BB6A)
-}
-
 @Composable
 private fun BatteryChip(
     icon: ImageVector,
@@ -598,10 +604,11 @@ private fun BatteryChip(
     // Disconnected (percent == null) falls back to the safe-tier green
     // so the dash matches the speed glyph above it instead of dimming
     // out, same logic the dashboard uses for the speed reading.
+    val colors = LocalWatchColors.current
     val tint = when {
         useAccentTint -> accent
-        percent == null -> GaugeAccentGreen
-        else -> batteryTint(percent)
+        percent == null -> colors.safe
+        else -> batteryTint(percent, colors)
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
@@ -620,11 +627,11 @@ private fun BatteryChip(
     }
 }
 
-private fun batteryTint(percent: Int): Color = when {
-    percent <= 0 -> Color(0xFF606060)
-    percent < 15 -> Color(0xFFE53935)
-    percent < 30 -> Color(0xFFFFB300)
-    else -> Color(0xFF66BB6A)
+private fun batteryTint(percent: Int, colors: WatchColors): Color = when {
+    percent <= 0 -> colors.textDisabled
+    percent < 15 -> colors.batteryLow
+    percent < 30 -> colors.gaugeWarn
+    else -> colors.battery
 }
 
 @Composable
@@ -688,30 +695,31 @@ private fun ConfigurableActionButton(
 
     // Stateful tinting for actions whose UI usually reflects on/off: light,
     // lock, recording. Other actions render with the neutral palette.
+    val colors = LocalWatchColors.current
     val isLightOn = clickAction == "LIGHT_TOGGLE" && state.lightOn
-    val disabledBg = Color(0xFF1A1A1A)
-    val disabledFg = Color(0xFF555555)
+    val disabledBg = colors.surface
+    val disabledFg = colors.textDisabled
     val backgroundColor = when {
         !live -> disabledBg
         stylePrimary -> accent
         isLightOn -> accent.copy(alpha = 0.30f)
-        else -> Color(0xFF2A2A2A)
+        else -> colors.surfaceVariant
     }
     val contentColor = when {
         !live -> disabledFg
-        stylePrimary -> Color.Black
+        stylePrimary -> colors.onAccent
         isLightOn -> accent
-        else -> Color(0xFFB0B0B0)
+        else -> colors.textSecondary
     }
     val tintColor = when {
         !live -> disabledFg
-        stylePrimary -> Color.Black
+        stylePrimary -> colors.onAccent
         // Light-on uses the accent (matches the phone dashboard's tile rule).
-        // Default accent falls back to yellow so the "torch is on" cue still
-        // reads at a glance.
+        // Default accent falls back to the warn hue so the "torch is on" cue
+        // still reads at a glance.
         clickAction == "LIGHT_TOGGLE" && state.lightOn ->
-            if (state.accentKey != "default") accent else Color(0xFFFFC107)
-        clickAction == "LIGHT_TOGGLE" -> Color(0xFF606060)
+            if (state.accentKey != "default") accent else colors.gaugeWarn
+        clickAction == "LIGHT_TOGGLE" -> colors.textDisabled
         else -> contentColor
     }
 
@@ -810,10 +818,11 @@ private fun vibrate(context: Context, ms: Long) {
 
 @Composable
 private fun DetailsScreen(state: WatchState, accent: Color) {
+    val colors = LocalWatchColors.current
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(colors.background),
         contentAlignment = Alignment.Center
     ) {
         val sw = maxWidth.value
@@ -862,14 +871,14 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                 Text(
                     text = stringResource(R.string.watch_disconnected),
                     fontSize = headerSp,
-                    color = Color(0xFF9AA0A6),
+                    color = colors.textSecondary,
                     fontWeight = FontWeight.SemiBold
                 )
             } else if (state.wheelName.isNotBlank()) {
                 Text(
                     text = state.wheelName,
                     fontSize = headerSp,
-                    color = Color.White,
+                    color = colors.textPrimary,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -877,7 +886,9 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             // stays the muted grey from the dashboard's small label.
             val useAccent = state.accentKey != "default"
             val detailMaxSpeed = if (state.maxSpeedKmh > 0f) state.maxSpeedKmh else 70f
-            val speedColor = if (useAccent) accent else speedTierColor(state.speedKmh, detailMaxSpeed)
+            val speedColor = if (useAccent) accent
+                else speedBandColor(state.speedKmh, detailMaxSpeed, true,
+                    state.gaugeOrangeThresholdPct, state.gaugeRedThresholdPct, colors)
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     // Headline speed dashes out the same way the main-screen
@@ -886,14 +897,14 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
                     text = if (phoneAlive) "%.0f".format(speedDisplay) else DASH,
                     fontSize = speedSp,
                     fontWeight = FontWeight.Bold,
-                    color = if (phoneAlive) speedColor else Color(0xFF606060)
+                    color = if (phoneAlive) speedColor else colors.textDisabled
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     text = speedUnit,
                     fontSize = speedUnitSp,
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF9AA0A6),
+                    color = colors.textSecondary,
                     modifier = Modifier.padding(bottom = (speedSp.value * 0.18f).dp)
                 )
             }
@@ -913,17 +924,17 @@ private fun DetailsScreen(state: WatchState, accent: Color) {
             val cyanColor = accent
             val tempColor = when {
                 useAccent -> accent
-                !live -> GaugeAccentGreen
-                state.temperatureC > 60f -> GaugeAccentRed
-                state.temperatureC > 45f -> GaugeAccentOrange
-                else -> GaugeAccentGreen
+                !live -> colors.gaugeFill
+                state.temperatureC > 60f -> colors.gaugeDanger
+                state.temperatureC > 45f -> colors.gaugeWarn
+                else -> colors.gaugeFill
             }
             val pwmColor = when {
                 useAccent -> accent
-                !live -> GaugeAccentGreen
-                state.pwmPercent > 80f -> GaugeAccentRed
-                state.pwmPercent > 60f -> GaugeAccentOrange
-                else -> GaugeAccentGreen
+                !live -> colors.gaugeFill
+                state.pwmPercent > 80f -> colors.gaugeDanger
+                state.pwmPercent > 60f -> colors.gaugeWarn
+                else -> colors.gaugeFill
             }
             DetailRow(R.string.watch_voltage_label, if (live) "%.1f V".format(state.voltage) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
             DetailRow(R.string.watch_current_label, if (live) "%.1f A".format(state.current) else DASH, labelSp, valueSp, labelWidth, valueWidth, cyanColor)
@@ -946,6 +957,7 @@ private fun DetailRow(
     valueWidth: Dp,
     valueColor: Color = Color.White
 ) {
+    val colors = LocalWatchColors.current
     // Fixed-width label + fixed-width value gives a tabular alignment so
     // values stack vertically across rows. The whole row is centred by the
     // Column's CenterHorizontally alignment.
@@ -956,7 +968,7 @@ private fun DetailRow(
         Text(
             text = stringResource(labelRes),
             fontSize = labelSp,
-            color = Color(0xFF9AA0A6),
+            color = colors.textSecondary,
             textAlign = TextAlign.End,
             modifier = Modifier.width(labelWidth)
         )

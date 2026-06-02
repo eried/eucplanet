@@ -69,12 +69,7 @@ import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentPurple
-import com.eried.eucplanet.ui.theme.AccentRed
-import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
@@ -200,7 +195,7 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
-                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { deleteCandidate = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -230,18 +225,18 @@ private fun AlarmRuleCard(
         // One distinct colour per metric, so rules that share a metric read as
         // a visual group in the list.
         else -> when (metric) {
-            AlarmMetric.SPEED -> AccentOrange
-            AlarmMetric.BATTERY -> AccentGreen
-            AlarmMetric.TEMPERATURE -> AccentRed
-            AlarmMetric.PWM -> AccentYellow
-            AlarmMetric.VOLTAGE -> AccentBlue
-            AlarmMetric.CURRENT -> AccentPurple
+            AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
+            AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+            AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
+            AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
+            AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
+            AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
             // Radar shares the red/orange palette with TEMPERATURE / SPEED
             // since these are all "hazard" metrics that fire on a threshold
             // breach. Same tint for both radar metrics so a rider's "car
             // closing" rule group reads as one block in the list.
-            AlarmMetric.RADAR_DISTANCE -> AccentRed
-            AlarmMetric.RADAR_APPROACH_SPEED -> AccentRed
+            AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
+            AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
         }
     }
 
@@ -306,7 +301,7 @@ private fun AlarmRuleCard(
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.Delete, stringResource(R.string.action_delete), modifier = Modifier.size(16.dp),
-                        tint = AccentRed)
+                        tint = MaterialTheme.appColors.statusDanger)
                 }
             }
         }
@@ -522,7 +517,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Beep ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_beep),
-                    color = AccentOrange,
+                    color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
                     onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount) }
                 )
@@ -569,7 +564,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Voice ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_voice),
-                    color = AccentGreen,
+                    color = MaterialTheme.appColors.statusGood,
                     enabled = voiceEnabled,
                     onPreview = { onPreviewVoice(voiceText, selectedMetric, displayedThreshold) }
                 )
@@ -598,7 +593,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Vibrate ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_vibrate),
-                    color = AccentRed,
+                    color = MaterialTheme.appColors.statusDanger,
                     enabled = vibrateEnabled,
                     onPreview = { onPreviewVibrate(vibrateDurationMs) }
                 )
@@ -657,7 +652,7 @@ private fun AlarmRuleEditorDialog(
 
                 // --- Timing ---
                 Text(stringResource(R.string.alarm_section_timing), fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                    color = AccentBlue)
+                    color = MaterialTheme.appColors.metricVoltage)
 
                 Text(stringResource(R.string.alarm_cooldown_fmt, cooldownSeconds), fontSize = 12.sp)
                 Slider(

@@ -52,8 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +73,7 @@ fun FlicScreen(
                 TextButton(onClick = {
                     viewModel.forgetButton(addr)
                     forgetTarget = null
-                }) { Text(stringResource(R.string.flic_forget), color = AccentRed) }
+                }) { Text(stringResource(R.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { forgetTarget = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -111,7 +110,7 @@ fun FlicScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = { viewModel.stopScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
                     ) {
                         Text(stringResource(R.string.flic_stop_scan))
                     }
@@ -193,7 +192,7 @@ private fun ButtonConfig(
                             value = editText,
                             onValueChange = { editText = it },
                             singleLine = true,
-                            textStyle = MaterialTheme.typography.titleMedium.copy(color = AccentBlue),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.appColors.metricVoltage),
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 IconButton(onClick = {
@@ -212,7 +211,7 @@ private fun ButtonConfig(
                             Text(
                                 title,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = AccentBlue
+                                color = MaterialTheme.appColors.metricVoltage
                             )
                             Spacer(Modifier.width(6.dp))
                             Icon(
@@ -230,7 +229,7 @@ private fun ButtonConfig(
                     )
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
                 }
             }
 

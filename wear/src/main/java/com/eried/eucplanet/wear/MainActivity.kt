@@ -57,6 +57,10 @@ class MainActivity : ComponentActivity() {
                     distanceUnit = intent.getStringExtra("distanceUnit") ?: "km",
                     tempUnit = intent.getStringExtra("tempUnit") ?: "C",
                     accentKey = intent.getStringExtra("accent") ?: "default",
+                    // Packed theme colors for testing the custom-theme mirror,
+                    // same "#"-less AARRGGBB pipe order as ThemeAccent.packForWatch.
+                    themePacked = intent.getStringExtra("theme") ?: "",
+                    showGaugeBand = intent.getBooleanExtra("band", false),
                     pwmDisplay = intent.getStringExtra("pwmDisplay") ?: "BOTH",
                     showSpeedUnit = intent.getBooleanExtra("showSpeedUnit", true),
                     showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),

@@ -53,10 +53,7 @@ import com.eried.eucplanet.service.encodeVolumeCurve
 import com.eried.eucplanet.service.parseVolumeCurve
 import com.eried.eucplanet.service.pchipInterpolate
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.SunCalculator
 import com.eried.eucplanet.util.Units
 import java.text.SimpleDateFormat
@@ -97,7 +94,7 @@ fun AutomationsContent(
 
         if (settings.autoLightsEnabled) {
             if (autoLightsSuspended) {
-                Card(colors = CardDefaults.cardColors(containerColor = AccentOrange.copy(alpha = 0.15f))) {
+                Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.statusWarn.copy(alpha = 0.15f))) {
                     Row(
                         modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -106,12 +103,12 @@ fun AutomationsContent(
                         Icon(
                             imageVector = Icons.Filled.ErrorOutline,
                             contentDescription = null,
-                            tint = AccentOrange
+                            tint = MaterialTheme.appColors.statusWarn
                         )
                         Text(
                             stringResource(R.string.auto_lights_suspended),
                             style = MaterialTheme.typography.bodySmall,
-                            color = AccentOrange
+                            color = MaterialTheme.appColors.statusWarn
                         )
                     }
                 }
@@ -170,14 +167,14 @@ fun AutomationsContent(
                         description = stringResource(R.string.auto_midnight_sun_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
-                        accent = AccentYellow
+                        accent = MaterialTheme.appColors.gaugeWarn
                     )
                     SunCalculator.SunResult.PolarNight -> PolarStateCard(
                         title = stringResource(R.string.auto_polar_night_title),
                         description = stringResource(R.string.auto_polar_night_body),
                         latitude = loc.latitude,
                         longitude = loc.longitude,
-                        accent = AccentBlue
+                        accent = MaterialTheme.appColors.metricVoltage
                     )
                 }
             } else {
@@ -277,10 +274,14 @@ private fun SunScheduleGraph(
     val lightsOnStr = fmt.format(Date(lightsOnMillis))
     val lightsOffStr = fmt.format(Date(lightsOffMillis))
 
+    // Night-mode deep blue: a data-viz fill for the night portion of the
+    // day/night timeline bar, not app chrome — kept as a literal so it
+    // doesn't follow the theme's surface tokens. See report.
     val nightColor = Color(0xFF1A237E)
-    val dayColor = AccentYellow.copy(alpha = 0.25f)
-    val lightsOnColor = AccentGreen.copy(alpha = 0.35f)
-    val sunriseColor = AccentOrange
+    val dayColor = MaterialTheme.appColors.gaugeWarn.copy(alpha = 0.25f)
+    val lightsMarkerColor = MaterialTheme.appColors.statusGood
+    val lightsOnColor = lightsMarkerColor.copy(alpha = 0.35f)
+    val sunriseColor = MaterialTheme.appColors.statusWarn
     val textMeasurer = rememberTextMeasurer()
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val nowMillis = remember { System.currentTimeMillis() }
@@ -297,7 +298,7 @@ private fun SunScheduleGraph(
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(stringResource(R.string.auto_sunrise_sunset), style = MaterialTheme.typography.titleMedium,
-                color = AccentOrange)
+                color = sunriseColor)
             if (latitude != 0.0 || longitude != 0.0) {
                 Text(
                     "%.4f, %.4f".format(latitude, longitude),
@@ -359,9 +360,9 @@ private fun SunScheduleGraph(
 
                 // Lights ON/OFF markers (dashed)
                 val dash = PathEffect.dashPathEffect(floatArrayOf(4f, 4f))
-                drawLine(AccentGreen, Offset(lightsOnX, barY - 2f), Offset(lightsOnX, barY + barH + 2f),
+                drawLine(lightsMarkerColor, Offset(lightsOnX, barY - 2f), Offset(lightsOnX, barY + barH + 2f),
                     strokeWidth = 1.5f, pathEffect = dash)
-                drawLine(AccentGreen, Offset(lightsOffX, barY - 2f), Offset(lightsOffX, barY + barH + 2f),
+                drawLine(lightsMarkerColor, Offset(lightsOffX, barY - 2f), Offset(lightsOffX, barY + barH + 2f),
                     strokeWidth = 1.5f, pathEffect = dash)
 
                 // Now indicator
@@ -376,7 +377,7 @@ private fun SunScheduleGraph(
                 drawCircle(sunriseColor, radius = 9f, center = Offset(sunsetX, sunIconY))
 
                 // Lights ON/OFF labels at top
-                val greenStyle = TextStyle(fontSize = 13.sp, color = AccentGreen, fontWeight = FontWeight.Medium)
+                val greenStyle = TextStyle(fontSize = 13.sp, color = lightsMarkerColor, fontWeight = FontWeight.Medium)
                 val onLabel = textMeasurer.measure("ON $lightsOnStr", greenStyle)
                 drawText(onLabel, topLeft = Offset(
                     (lightsOnX - onLabel.size.width / 2f).coerceIn(0f, w - onLabel.size.width),
@@ -427,8 +428,8 @@ private fun SplineCurveEditor(
     val multiplierRange = maxMultiplier - minMultiplier
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val lineColor = AccentBlue
-    val pointColor = AccentOrange
+    val lineColor = MaterialTheme.appColors.metricVoltage
+    val pointColor = MaterialTheme.appColors.statusWarn
     val probeColor = MaterialTheme.colorScheme.onSurface
     val textMeasurer = rememberTextMeasurer()
 

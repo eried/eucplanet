@@ -67,6 +67,7 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.theme.appColors
 import java.nio.ByteBuffer
 
 /**
@@ -238,6 +239,9 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
     val isLast = idx == steps.lastIndex
     val targetRect = step.target?.let { state.bounds[it] }
     val accent = MaterialTheme.colorScheme.primary
+    // Scrim base captured here (composable scope) so the Canvas DrawScope below,
+    // which can't read MaterialTheme, can dim with the theme's scrim color.
+    val scrimColor = MaterialTheme.appColors.scrim
 
     var showSkipConfirm by remember { mutableStateOf(false) }
     fun advance() { if (isLast) onFinish() else state.stepIndex = idx + 1 }
@@ -276,7 +280,7 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
             val t = (at - pad).coerceAtLeast(0f)
             val rt = (ar + pad).coerceAtMost(size.width)
             val b = (ab + pad).coerceAtMost(size.height)
-            val scrim = Color.Black.copy(alpha = 0.74f)
+            val scrim = scrimColor.copy(alpha = 0.74f)
             drawRect(scrim, topLeft = Offset(0f, 0f), size = Size(size.width, t))
             drawRect(scrim, topLeft = Offset(0f, b), size = Size(size.width, size.height - b))
             drawRect(scrim, topLeft = Offset(0f, t), size = Size(l, b - t))
@@ -284,7 +288,7 @@ fun WelcomeTutorialOverlay(state: CoachmarkState, onFinish: () -> Unit) {
             if (b - t > 0f && rt - l > 0f) {
                 if (cut < 1f) {
                     drawRect(
-                        Color.Black.copy(alpha = 0.74f * (1f - cut)),
+                        scrimColor.copy(alpha = 0.74f * (1f - cut)),
                         topLeft = Offset(l, t), size = Size(rt - l, b - t)
                     )
                 }

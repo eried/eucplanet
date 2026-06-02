@@ -67,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.data.model.TripRecord
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -163,8 +164,8 @@ fun StudioReplayDialog(
         // panel from stretching edge-to-edge in landscape.
         modifier = modifier.widthIn(max = 500.dp).fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xF21A1A20),
-        contentColor = Color.White,
+        color = MaterialTheme.appColors.dialog,
+        contentColor = MaterialTheme.appColors.textPrimary,
         shadowElevation = 12.dp
     ) {
         Column(Modifier.padding(14.dp)) {
@@ -172,7 +173,7 @@ fun StudioReplayDialog(
             // they rotate with the panel instead of escaping as popups.
             var picker by remember { mutableStateOf(0) }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.History, contentDescription = null, tint = StudioControlAccent)
+                Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.appColors.primary)
                 Spacer(Modifier.width(8.dp))
                 Text(
                     when (picker) {
@@ -190,7 +191,7 @@ fun StudioReplayDialog(
                         Icon(
                             Icons.Default.Opacity,
                             contentDescription = stringResource(R.string.studio_replay_cd_fade),
-                            tint = if (dimmed) StudioControlAccent else Color.White
+                            tint = if (dimmed) MaterialTheme.appColors.primary else MaterialTheme.appColors.textPrimary
                         )
                     }
                 }
@@ -209,7 +210,7 @@ fun StudioReplayDialog(
                 if (trips.isEmpty()) {
                     Text(
                         stringResource(R.string.studio_replay_no_trips),
-                        color = Color.White.copy(alpha = 0.5f),
+                        color = MaterialTheme.appColors.textSecondary,
                         modifier = Modifier.padding(12.dp)
                     )
                 }
@@ -228,7 +229,7 @@ fun StudioReplayDialog(
                 replaySpeeds.forEach { s ->
                     Text(
                         speedLabel(s),
-                        color = if (s == speed) StudioControlAccent else Color.White,
+                        color = if (s == speed) MaterialTheme.appColors.primary else MaterialTheme.appColors.textPrimary,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onSpeed(s); picker = 0 }
@@ -297,7 +298,7 @@ fun StudioReplayDialog(
             // current ( range-start - range-end ) total; the range only shows
             // once a handle is moved off the very start / end of the trip.
             val trimmed = active && (rangeStartMs > 0L || rangeEndMs < dur)
-            val clockColor = Color.White.copy(alpha = if (active) 0.7f else 0.4f)
+            val clockColor = MaterialTheme.appColors.textSecondary.copy(alpha = if (active) 1f else 0.6f)
             // current playback (centred under the play button), trimmed
             // range (centred under the timeline), total (right).
             Row(
@@ -346,12 +347,12 @@ fun StudioReplayDialog(
                 Text(
                     "${exportPrefs.photoFormat.name} · ${exportPrefs.videoFormat.name}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = StudioControlAccent
+                    color = MaterialTheme.appColors.primary
                 )
                 Icon(
                     Icons.Default.ExpandMore,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = MaterialTheme.appColors.textPrimary
                 )
             }
             }
@@ -396,7 +397,7 @@ private fun ExportFormatChooser(
         Text(
             stringResource(R.string.studio_export_photo),
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.6f),
+            color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -417,7 +418,7 @@ private fun ExportFormatChooser(
         Text(
             stringResource(R.string.studio_export_video),
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.6f),
+            color = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -448,12 +449,12 @@ private fun ExportFormatChooser(
                 stringResource(R.string.studio_export_options),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f)
+                color = MaterialTheme.appColors.textSecondary
             )
             Icon(
                 if (optionsOpen) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.6f)
+                tint = MaterialTheme.appColors.textSecondary
             )
         }
         if (optionsOpen) {
@@ -468,7 +469,7 @@ private fun ExportFormatChooser(
             Text(
                 stringResource(R.string.studio_export_scale),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f),
+                color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -485,7 +486,7 @@ private fun ExportFormatChooser(
             Text(
                 stringResource(R.string.studio_export_chroma),
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f * ctrlAlpha),
+                color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha),
                 modifier = Modifier.padding(bottom = 6.dp)
             )
             Row(
@@ -501,8 +502,8 @@ private fun ExportFormatChooser(
                             .background(Color(argb))
                             .border(
                                 width = if (selected) 3.dp else 1.dp,
-                                color = if (selected) StudioControlAccent
-                                else Color.White.copy(alpha = 0.4f),
+                                color = if (selected) MaterialTheme.appColors.primary
+                                else MaterialTheme.appColors.textSecondary.copy(alpha = 0.6f),
                                 shape = CircleShape
                             )
                             .then(
@@ -554,8 +555,8 @@ private fun ExportFormatChooser(
                     onCheckedChange = if (opaqueAffects)
                         { v -> onForceOpaque(v) } else null,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = StudioControlAccent,
-                        checkedTrackColor = StudioControlAccent.copy(alpha = 0.45f)
+                        checkedThumbColor = MaterialTheme.appColors.primary,
+                        checkedTrackColor = MaterialTheme.appColors.primary.copy(alpha = 0.45f)
                     )
                 )
             }
@@ -565,7 +566,7 @@ private fun ExportFormatChooser(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 2.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.6f * ctrlAlpha)
+                color = MaterialTheme.appColors.textSecondary.copy(alpha = ctrlAlpha)
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -589,13 +590,13 @@ private fun FormatChip(
         modifier
             .clip(RoundedCornerShape(8.dp))
             .background(
-                if (selected) StudioControlAccent.copy(alpha = 0.22f)
-                else Color.White.copy(alpha = 0.06f)
+                if (selected) MaterialTheme.appColors.primary.copy(alpha = 0.22f)
+                else MaterialTheme.appColors.textPrimary.copy(alpha = 0.06f)
             )
             .border(
                 width = 1.dp,
-                color = if (selected) StudioControlAccent
-                else Color.White.copy(alpha = 0.18f),
+                color = if (selected) MaterialTheme.appColors.primary
+                else MaterialTheme.appColors.textSecondary.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable { onClick() }
@@ -608,7 +609,7 @@ private fun FormatChip(
         ) {
             Text(
                 label,
-                color = if (selected) StudioControlAccent else Color.White,
+                color = if (selected) MaterialTheme.appColors.primary else MaterialTheme.appColors.textPrimary,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -642,6 +643,11 @@ private fun ReplayTimeline(
     modifier: Modifier = Modifier
 ) {
     val dur = durationMs.coerceAtLeast(1L)
+    // Scrubber chrome colours captured here (composable scope) so the Canvas
+    // DrawScope below can paint them; it can't read MaterialTheme itself.
+    val scrubAccent = MaterialTheme.appColors.primary
+    val scrubTrack = MaterialTheme.appColors.gaugeTrack
+    val scrubHandle = MaterialTheme.appColors.textPrimary
     BoxWithConstraints(modifier.height(82.dp)) {
         // The Canvas's real laid-out width, captured via onSizeChanged below.
         // NOT constraints.maxWidth: inside the rotated landscape panel
@@ -719,14 +725,14 @@ private fun ReplayTimeline(
                 }
                 )
         ) {
-            val accent = Color(0xFF4FC3F7)
+            val accent = scrubAccent
             val trackY = size.height * 0.42f
             val sx = xOf(rangeStartMs)
             val ex = xOf(rangeEndMs)
             val px = xOf(positionMs)
             // Track + trimmed span.
             drawLine(
-                Color(0x44FFFFFF), Offset(0f, trackY), Offset(wPx, trackY),
+                scrubTrack, Offset(0f, trackY), Offset(wPx, trackY),
                 strokeWidth = 5f, cap = StrokeCap.Round
             )
             drawLine(
@@ -735,7 +741,7 @@ private fun ReplayTimeline(
             )
             // Range trim handles: down-pointing pentagons resting on the track.
             listOf(sx, ex).forEach { hx ->
-                drawPath(handlePentagon(hx, trackY, down = true), Color.White)
+                drawPath(handlePentagon(hx, trackY, down = true), scrubHandle)
             }
             // Playhead: an up-pointing pentagon, same size, below the track.
             drawLine(

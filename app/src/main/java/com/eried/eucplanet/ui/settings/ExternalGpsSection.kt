@@ -43,8 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * Section in the Integration tab for pairing/unpairing an external BLE GPS box.
@@ -127,7 +126,7 @@ fun ExternalGpsSection(
                 Button(
                     onClick = { viewModel.unpair() },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
                 ) {
                     Text(stringResource(R.string.external_gps_unpair))
                 }
@@ -382,7 +381,7 @@ private fun AutoDetectDialog(
         dismissButton = {
             if (showCancel) {
                 TextButton(onClick = onCancel) {
-                    Text(stringResource(R.string.external_gps_autodetect_abort), color = AccentRed)
+                    Text(stringResource(R.string.external_gps_autodetect_abort), color = MaterialTheme.appColors.statusDanger)
                 }
             }
         }
@@ -430,7 +429,7 @@ private fun UnpairedExternalGpsCard(
             LeftAlignedScanButton(
                 label = stringResource(R.string.external_gps_stop_scan),
                 onClick = onStopScan,
-                containerColor = AccentRed
+                containerColor = MaterialTheme.appColors.statusDanger
             )
         } else {
             LeftAlignedScanButton(
@@ -454,10 +453,10 @@ private fun PairedExternalGpsCard(
         ConnectionState.DISCONNECTED -> stringResource(R.string.external_gps_state_disconnected)
     }
     val stateColor = when (connectionState) {
-        ConnectionState.CONNECTED -> AccentGreen
+        ConnectionState.CONNECTED -> MaterialTheme.appColors.statusGood
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING ->
             MaterialTheme.colorScheme.onSurfaceVariant
-        ConnectionState.DISCONNECTED -> AccentRed
+        ConnectionState.DISCONNECTED -> MaterialTheme.appColors.statusDanger
     }
 
     Card(

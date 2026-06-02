@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,9 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.ThreatLevel
 import com.eried.eucplanet.ui.radar.RadarOverlayViewModel
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * Compact radar lane shown inside the dashboard's dial Box. Replaces the
@@ -101,13 +100,19 @@ private fun fontForDistance(distanceM: Int): TextUnit = when {
 @Composable
 private fun MiniLaneBar(frame: RadarFrame?) {
     val textMeasurer = rememberTextMeasurer()
+    // Threat / battery tier colors captured here (composable scope) so the Canvas
+    // DrawScope below — which can't read MaterialTheme — can color by status token.
+    val statusDanger = MaterialTheme.appColors.statusDanger
+    val statusWarn = MaterialTheme.appColors.statusWarn
+    val statusGood = MaterialTheme.appColors.statusGood
+    val guidelineColor = MaterialTheme.appColors.outline.copy(alpha = 0.2f)
     Box(
         modifier = Modifier
             .padding(horizontal = 2.dp, vertical = 4.dp)
             .width(LANE_WIDTH_DP.dp)
             .height(LANE_HEIGHT_DP.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(Color(0x80000000))
+            .background(MaterialTheme.appColors.scrim.copy(alpha = 0x80 / 255f))
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val w = size.width
@@ -125,7 +130,7 @@ private fun MiniLaneBar(frame: RadarFrame?) {
             // down a road instead of floating in a black void. Subtle so
             // the threats dominate the eye path.
             drawLine(
-                color = Color(0x33FFFFFF),
+                color = guidelineColor,
                 start = Offset(w / 2f, laneTop - squareSize / 2f + 2.dp.toPx()),
                 end = Offset(w / 2f, laneBottom + squareSize / 2f - 2.dp.toPx()),
                 strokeWidth = 1.dp.toPx(),
@@ -142,9 +147,9 @@ private fun MiniLaneBar(frame: RadarFrame?) {
                 val ratio = clamped.toFloat() / LANE_RANGE_M.toFloat()
                 val centerY = laneBottom - ratio * laneHeight
                 val color = when (t.threatLevel) {
-                    ThreatLevel.FAST_APPROACH -> AccentRed
-                    ThreatLevel.APPROACHING -> AccentOrange
-                    ThreatLevel.NONE -> AccentGreen
+                    ThreatLevel.FAST_APPROACH -> statusDanger
+                    ThreatLevel.APPROACHING -> statusWarn
+                    ThreatLevel.NONE -> statusGood
                 }
 
                 // Filled colour square: the threat marker.
@@ -183,9 +188,9 @@ private fun MiniLaneBar(frame: RadarFrame?) {
             // reads as "halfway", not "shifted left".
             frame?.batteryPercent?.let { pct ->
                 val batteryColor = when {
-                    pct >= 50 -> AccentGreen
-                    pct >= 20 -> AccentOrange
-                    else -> AccentRed
+                    pct >= 50 -> statusGood
+                    pct >= 20 -> statusWarn
+                    else -> statusDanger
                 }
                 val maxLen = w * 0.64f
                 val barLen = maxLen * pct / 100f

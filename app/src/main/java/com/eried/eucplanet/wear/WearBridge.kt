@@ -81,6 +81,9 @@ class WearBridge @Inject constructor(
         private const val K_UNIT_DISTANCE = "ud"
         private const val K_UNIT_TEMP = "ut"
         private const val K_ACCENT = "ac"
+        // Packed custom-theme colors for the watch (background/gauge/battery/text).
+        // Field order is fixed by ThemeAccent.packForWatch / WatchColors.
+        private const val K_THEME = "thm"
         private const val K_TIMESTAMP = "ts"
         // GPS extra-speed readout, mirrors the phone dashboard's gpsExtraSpeed.
         // K_GPS_SPEED is Float.NaN when there is nothing to show; K_GPS_SOURCE
@@ -318,7 +321,22 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_UNIT_DISTANCE, com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings))
                 dataMap.putString(K_UNIT_TEMP, com.eried.eucplanet.util.Units.effectiveTempUnit(settings))
                 dataMap.putBoolean(K_IMPERIAL, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings) == "mph")
-                dataMap.putString(K_ACCENT, settings.accentColor)
+                // The active theme's primary as "#AARRGGBB" so the watch follows
+                // the custom theme; the watch parses hex (and still accepts legacy keys).
+                dataMap.putString(
+                    K_ACCENT,
+                    com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
+                        settings.activeThemeColorsJson, settings.accentColor
+                    )
+                )
+                // Full theme palette so the watch face background, gauge, battery
+                // and text follow the rider's custom theme, not just the accent.
+                dataMap.putString(
+                    K_THEME,
+                    com.eried.eucplanet.ui.theme.ThemeAccent.packForWatch(
+                        settings.activeThemeColorsJson
+                    )
+                )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)

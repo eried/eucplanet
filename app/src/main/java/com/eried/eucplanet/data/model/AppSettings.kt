@@ -196,10 +196,38 @@ data class AppSettings(
     // means "not set yet", MainActivity picks a default from the system locale on
     // first launch and persists the choice.
     val language: String = "",
-    // themeMode: "black", "dark", "light", "system"
-    val themeMode: String = "black",
-    // accentColor: key into the accent palette
+    // themeMode: LEGACY. Was "black"|"dark"|"light"|"system". Kept only for backup
+    // compatibility and the one-time migration into the custom theme system (see
+    // ui/theme/ThemeMigration). New installs default to "system" so the install
+    // pick applies (OS-light -> Light, OS-dark -> Pure Black); existing users keep
+    // their stored value, so migrating them is invisible.
+    val themeMode: String = "system",
+    // accentColor: LEGACY accent palette key. Kept for backup compat + migration
+    // into the active theme's `primary` token. The accent picker UI is removed.
     val accentColor: String = "default",
+
+    // --- Custom theme system ---
+    /**
+     * The active theme's resolved tokens as JSON (see ui/theme/ThemeJson). Empty
+     * until first launch / upgrade seeds it from the legacy [themeMode] +
+     * [accentColor]; once seeded it is the single source of truth (the OS no
+     * longer drives the theme). Rides along with the settings backup.
+     */
+    val activeThemeColorsJson: String = "",
+    /** Display / base name of the active theme: a built-in name or a saved custom. */
+    val activeThemeName: String = "",
+    /** True when the active theme is an unsaved working draft (edited, not yet saved). */
+    val themeDirty: Boolean = false,
+    /**
+     * Persistent unsaved working drafts, keyed by the base theme they were forked
+     * from, as JSON: `{ "<baseName>": "<colors json>", ... }`. Each appears in the
+     * theme combo as "<baseName> (unsaved)" so the rider can switch away to a
+     * preset and back to a draft without losing edits. Editing a clean theme adds
+     * its draft here; Save-as removes it.
+     */
+    val unsavedThemesJson: String = "{}",
+    /** Master switch for the floating theme editor widget. Off = theme combo only. */
+    val themeEditorEnabled: Boolean = false,
     // Colored danger-zone band behind the speed arc (yellow/orange/red thresholds).
     val showGaugeColorBand: Boolean = false,
     // Percentages of the full speed sweep where orange and red zones begin (yellow fills below orange).

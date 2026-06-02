@@ -43,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     private val engineSoundEngine: com.eried.eucplanet.audio.EngineSoundEngine,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
+    private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
     hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink
 ) : ViewModel() {
 
@@ -647,8 +648,35 @@ class SettingsViewModel @Inject constructor(
      */
     fun cancelLanguageSwitch() { _ttsSwitchPrompt.value = null }
 
-    fun updateThemeMode(v: String) = update { copy(themeMode = v) }
-    fun updateAccentColor(v: String) = update { copy(accentColor = v) }
+
+    // --- Custom theme system ---
+    private val _themeChoices = MutableStateFlow(
+        com.eried.eucplanet.ui.theme.ThemeChoices(
+            com.eried.eucplanet.ui.theme.BuiltInThemes.all.map { it.name },
+            emptyList(),
+            emptyList(),
+            folderAvailable = false
+        )
+    )
+    /** Built-ins + saved customs for the theme combo. Call [refreshThemeChoices]
+     *  on screen entry / after a save so newly-saved themes appear. */
+    val themeChoices: StateFlow<com.eried.eucplanet.ui.theme.ThemeChoices> = _themeChoices.asStateFlow()
+
+    fun refreshThemeChoices() {
+        viewModelScope.launch { _themeChoices.value = themeController.availableThemes() }
+    }
+
+    fun selectTheme(name: String) {
+        viewModelScope.launch { themeController.selectTheme(name) }
+    }
+
+    fun selectUnsavedTheme(base: String) {
+        viewModelScope.launch { themeController.selectUnsaved(base) }
+    }
+
+    fun setThemeEditorEnabled(enabled: Boolean) {
+        viewModelScope.launch { themeController.setEditorEnabled(enabled) }
+    }
     fun updateShowGaugeColorBand(v: Boolean) = update { copy(showGaugeColorBand = v) }
     fun updateGaugeThresholds(orangePct: Int, redPct: Int) = update {
         // Keep all three bands visible: green ≥ 5%, orange ≥ 4%, red ≥ 5%. That way
