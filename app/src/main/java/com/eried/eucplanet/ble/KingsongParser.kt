@@ -102,6 +102,27 @@ object KingsongParser {
         )
     }
 
+    /**
+     * Light-mode echo carried in `0xB9[10]` (same byte layout as the outbound
+     * `setLightMode` write). Wheel firmware echoes its current setting back on
+     * every B9 frame so a freshly-connected phone can sync to whatever state
+     * the wheel was already in.
+     *
+     * Mapping: 0x12=ON, 0x13=OFF, 0x14=AUTO. AUTO returns null because a
+     * single boolean can't represent "let the ambient sensor decide", and we'd
+     * rather not lie in either direction; callers should leave the prior
+     * `lightOn` value untouched when this returns null.
+     */
+    fun parseLightOn(frame: ByteArray): Boolean? {
+        if (frame.size < 20) return null
+        if (frame[16] != 0xB9.toByte()) return null
+        return when (frame[10].toInt() and 0xFF) {
+            0x12 -> true
+            0x13 -> false
+            else -> null
+        }
+    }
+
     /** True when frame `0xB9` reports the wheel is currently charging. */
     fun isCharging(frame: ByteArray): Boolean {
         if (frame.size < 20) return false

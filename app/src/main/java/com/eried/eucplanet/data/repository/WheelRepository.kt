@@ -987,10 +987,22 @@ class WheelRepository @Inject constructor(
                 // sees the calibrated value, there is no second source of
                 // truth elsewhere in the app.
                 val cal = speedCalibrationMultiplier
+                // During the LIGHT_COOLDOWN_MS window after a manual tap, a
+                // Telemetry frame the adapter emitted *before* the tap can
+                // still land here and overwrite the optimistic lightOn we
+                // just set in toggleLight(). That brief flip back to the old
+                // value triggers a stray TTS "lights on/off" transition in
+                // WheelService.checkLightTransition (race seen ~3-4 times
+                // per 20 taps in tester reports). Preserve the optimistic
+                // value during the cooldown for every family, same defensive
+                // pattern P6 already uses unconditionally because its parser
+                // can't recover lightOn from telemetry at all.
+                val lightOn = if (isP6 || _lightBusy.value) previous.lightOn
+                              else result.data.lightOn
                 _wheelData.value = result.data.copy(
                     speed = kotlin.math.abs(result.data.speed * cal),
                     totalDistance = totalKm,
-                    lightOn = if (isP6) previous.lightOn else result.data.lightOn
+                    lightOn = lightOn
                 )
                 // Mirror wheel-reported tilt-back / alarm thresholds into the
                 // app's settings store on adapters that surface them (Veteran),
