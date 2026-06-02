@@ -1054,8 +1054,9 @@
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">关闭</string>
     <string name="dashboard_columns">列</string>
+    <string name="dashboard_composite_blank_label">（空）</string>
     <string name="dashboard_composite_cell_label">单元 %1$d</string>
-    <string name="dashboard_composite_empty_label">（空）</string>
+    <string name="dashboard_composite_empty_label">（无）</string>
     <string name="dashboard_composite_layout_col2">2 列</string>
     <string name="dashboard_composite_layout_col3">3 列</string>
     <string name="dashboard_composite_layout_row2">2 行</string>
@@ -1098,6 +1099,7 @@
     <string name="dashboard_slot_sparkline_chip">统计</string>
     <string name="dashboard_stat_avg">均</string>
     <string name="dashboard_stat_current">现在</string>
+    <string name="dashboard_stat_empty">（空）</string>
     <string name="dashboard_stat_max">最大 / 峰</string>
     <string name="dashboard_stat_median">中位数 (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
@@ -1145,12 +1147,15 @@
     <string name="metric_chip_gps_heading">航向</string>
     <string name="metric_chip_gps_speed">GPS 速度</string>
     <string name="metric_chip_headroom">余量</string>
+    <string name="metric_chip_lat_long">经纬度</string>
     <string name="metric_chip_lateral_g">横向 g</string>
+    <string name="metric_chip_light_on">车灯</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">电机功率</string>
     <string name="metric_chip_motor_rpm">转速</string>
     <string name="metric_chip_motor_temp">电机温度</string>
     <string name="metric_chip_odometer">里程</string>
+    <string name="metric_chip_pc_mode">骑行模式</string>
     <string name="metric_chip_phone_battery">手机电量</string>
     <string name="metric_chip_pitch">俯仰</string>
     <string name="metric_chip_power">功率</string>
@@ -1167,6 +1172,8 @@
     <string name="metric_chip_voltage">电压</string>
     <string name="metric_chip_wh_consumed">能量</string>
     <string name="metric_chip_wh_per_km">瓦时/公里</string>
+    <string name="metric_chip_wheel_alarm_speed">车体报警</string>
+    <string name="metric_chip_wheel_max_speed">车体限速</string>
     <string name="metric_desc_avg_trip_speed">行程距离除以已骑行时间。</string>
     <string name="metric_desc_bt_rssi">到独轮车的蓝牙信号强度——越接近 0 dBm 越强。</string>
     <string name="metric_desc_gps_accuracy">GPS 定位误差半径——越低越准确。</string>

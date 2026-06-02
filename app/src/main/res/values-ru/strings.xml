@@ -1106,8 +1106,9 @@
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Закрыть</string>
     <string name="dashboard_columns">Колонки</string>
+    <string name="dashboard_composite_blank_label">(пусто)</string>
     <string name="dashboard_composite_cell_label">Ячейка %1$d</string>
-    <string name="dashboard_composite_empty_label">(пусто)</string>
+    <string name="dashboard_composite_empty_label">(нет)</string>
     <string name="dashboard_composite_layout_col2">2 колонки</string>
     <string name="dashboard_composite_layout_col3">3 колонки</string>
     <string name="dashboard_composite_layout_row2">2 ряда</string>
@@ -1150,6 +1151,7 @@
     <string name="dashboard_slot_sparkline_chip">Стат.</string>
     <string name="dashboard_stat_avg">Ср</string>
     <string name="dashboard_stat_current">Сейчас</string>
+    <string name="dashboard_stat_empty">(пусто)</string>
     <string name="dashboard_stat_max">Макс / Пик</string>
     <string name="dashboard_stat_median">Медиана (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
@@ -1197,12 +1199,15 @@
     <string name="metric_chip_gps_heading">Курс</string>
     <string name="metric_chip_gps_speed">Скор. GPS</string>
     <string name="metric_chip_headroom">Запас</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">Боковой g</string>
+    <string name="metric_chip_light_on">Свет</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Мощн. мотора</string>
     <string name="metric_chip_motor_rpm">об/мин</string>
     <string name="metric_chip_motor_temp">Температура мотора</string>
     <string name="metric_chip_odometer">Одометр</string>
+    <string name="metric_chip_pc_mode">Режим</string>
     <string name="metric_chip_phone_battery">Батарея телефона</string>
     <string name="metric_chip_pitch">Наклон</string>
     <string name="metric_chip_power">Мощность</string>
@@ -1219,6 +1224,8 @@
     <string name="metric_chip_voltage">Напряжение</string>
     <string name="metric_chip_wh_consumed">Энергия</string>
     <string name="metric_chip_wh_per_km">Вт·ч / км</string>
+    <string name="metric_chip_wheel_alarm_speed">Сигнал колеса</string>
+    <string name="metric_chip_wheel_max_speed">Макс. колеса</string>
     <string name="metric_desc_avg_trip_speed">Расстояние трипа, делённое на пройденное время езды.</string>
     <string name="metric_desc_bt_rssi">Сила сигнала Bluetooth к колесу — ближе к 0 dBm сильнее.</string>
     <string name="metric_desc_gps_accuracy">Радиус ошибки позиционирования GPS — ниже точнее.</string>

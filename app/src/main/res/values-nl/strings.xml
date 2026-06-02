@@ -1090,8 +1090,9 @@
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Sluiten</string>
     <string name="dashboard_columns">Kolommen</string>
+    <string name="dashboard_composite_blank_label">(leeg)</string>
     <string name="dashboard_composite_cell_label">Cel %1$d</string>
-    <string name="dashboard_composite_empty_label">(leeg)</string>
+    <string name="dashboard_composite_empty_label">(geen)</string>
     <string name="dashboard_composite_layout_col2">2 kolommen</string>
     <string name="dashboard_composite_layout_col3">3 kolommen</string>
     <string name="dashboard_composite_layout_row2">2 rijen</string>
@@ -1134,6 +1135,7 @@
     <string name="dashboard_slot_sparkline_chip">Stats</string>
     <string name="dashboard_stat_avg">Gem</string>
     <string name="dashboard_stat_current">Nu</string>
+    <string name="dashboard_stat_empty">(leeg)</string>
     <string name="dashboard_stat_max">Max / Piek</string>
     <string name="dashboard_stat_median">Mediaan (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
@@ -1181,12 +1183,15 @@
     <string name="metric_chip_gps_heading">Koers</string>
     <string name="metric_chip_gps_speed">GPS-snelheid</string>
     <string name="metric_chip_headroom">Marge</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">Zijwaartse g</string>
+    <string name="metric_chip_light_on">Licht</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motorvermogen</string>
     <string name="metric_chip_motor_rpm">tpm</string>
     <string name="metric_chip_motor_temp">Motortemperatuur</string>
     <string name="metric_chip_odometer">Kilometerteller</string>
+    <string name="metric_chip_pc_mode">Rijmodus</string>
     <string name="metric_chip_phone_battery">Telefoonaccu</string>
     <string name="metric_chip_pitch">Pitch</string>
     <string name="metric_chip_power">Vermogen</string>
@@ -1203,6 +1208,8 @@
     <string name="metric_chip_voltage">Spanning</string>
     <string name="metric_chip_wh_consumed">Energie</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wheel_alarm_speed">Wielalarm</string>
+    <string name="metric_chip_wheel_max_speed">Wiel max</string>
     <string name="metric_desc_avg_trip_speed">Tripafstand gedeeld door rijtijd tot nu toe.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signaalsterkte naar het wiel — dichter bij 0 dBm is sterker.</string>
     <string name="metric_desc_gps_accuracy">GPS-foutmarge — lager is nauwkeuriger.</string>

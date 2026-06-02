@@ -1091,8 +1091,9 @@
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Zamknij</string>
     <string name="dashboard_columns">Kolumny</string>
+    <string name="dashboard_composite_blank_label">(pusta)</string>
     <string name="dashboard_composite_cell_label">Komórka %1$d</string>
-    <string name="dashboard_composite_empty_label">(pusta)</string>
+    <string name="dashboard_composite_empty_label">(brak)</string>
     <string name="dashboard_composite_layout_col2">2 kolumny</string>
     <string name="dashboard_composite_layout_col3">3 kolumny</string>
     <string name="dashboard_composite_layout_row2">2 wiersze</string>
@@ -1135,6 +1136,7 @@
     <string name="dashboard_slot_sparkline_chip">Stat.</string>
     <string name="dashboard_stat_avg">Śr</string>
     <string name="dashboard_stat_current">Teraz</string>
+    <string name="dashboard_stat_empty">(pusta)</string>
     <string name="dashboard_stat_max">Maks. / Szczyt</string>
     <string name="dashboard_stat_median">Mediana (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
@@ -1182,12 +1184,15 @@
     <string name="metric_chip_gps_heading">Kurs</string>
     <string name="metric_chip_gps_speed">Pręd. GPS</string>
     <string name="metric_chip_headroom">Zapas</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">Boczne g</string>
+    <string name="metric_chip_light_on">Światło</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Moc silnika</string>
     <string name="metric_chip_motor_rpm">obr/min</string>
     <string name="metric_chip_motor_temp">Temperatura silnika</string>
     <string name="metric_chip_odometer">Licznik km</string>
+    <string name="metric_chip_pc_mode">Tryb jazdy</string>
     <string name="metric_chip_phone_battery">Bateria telefonu</string>
     <string name="metric_chip_pitch">Pochylenie</string>
     <string name="metric_chip_power">Moc</string>
@@ -1204,6 +1209,8 @@
     <string name="metric_chip_voltage">Napięcie</string>
     <string name="metric_chip_wh_consumed">Energia</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wheel_alarm_speed">Alarm koła</string>
+    <string name="metric_chip_wheel_max_speed">Maks koła</string>
     <string name="metric_desc_avg_trip_speed">Dystans trasy podzielony przez dotychczasowy czas jazdy.</string>
     <string name="metric_desc_bt_rssi">Siła sygnału Bluetooth do koła — bliżej 0 dBm jest silniejsze.</string>
     <string name="metric_desc_gps_accuracy">Promień błędu pozycji GPS — niższy jest dokładniejszy.</string>

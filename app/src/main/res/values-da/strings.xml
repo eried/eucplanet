@@ -1056,8 +1056,9 @@
     <string name="alarm_metric_pwm_voice"></string>
     <string name="dashboard_close">Luk</string>
     <string name="dashboard_columns">Kolonner</string>
+    <string name="dashboard_composite_blank_label">(tom)</string>
     <string name="dashboard_composite_cell_label">Celle %1$d</string>
-    <string name="dashboard_composite_empty_label">(tom)</string>
+    <string name="dashboard_composite_empty_label">(ingen)</string>
     <string name="dashboard_composite_layout_col2">2 kolonner</string>
     <string name="dashboard_composite_layout_col3">3 kolonner</string>
     <string name="dashboard_composite_layout_row2">2 rækker</string>
@@ -1100,6 +1101,7 @@
     <string name="dashboard_slot_sparkline_chip">Stat.</string>
     <string name="dashboard_stat_avg">Gns</string>
     <string name="dashboard_stat_current">Nu</string>
+    <string name="dashboard_stat_empty">(tom)</string>
     <string name="dashboard_stat_max">Maks / Spids</string>
     <string name="dashboard_stat_median">Median (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
@@ -1147,12 +1149,15 @@
     <string name="metric_chip_gps_heading">Retning</string>
     <string name="metric_chip_gps_speed">GPS-fart</string>
     <string name="metric_chip_headroom">Margen</string>
+    <string name="metric_chip_lat_long">Lat, Long</string>
     <string name="metric_chip_lateral_g">Side-g</string>
+    <string name="metric_chip_light_on">Lys</string>
     <string name="metric_chip_load">PWM</string>
     <string name="metric_chip_motor_power">Motoreffekt</string>
     <string name="metric_chip_motor_rpm">o/min</string>
     <string name="metric_chip_motor_temp">Motortemperatur</string>
     <string name="metric_chip_odometer">Kilometertæller</string>
+    <string name="metric_chip_pc_mode">Køremodus</string>
     <string name="metric_chip_phone_battery">Telefonbatteri</string>
     <string name="metric_chip_pitch">Hældning</string>
     <string name="metric_chip_power">Effekt</string>
@@ -1169,6 +1174,8 @@
     <string name="metric_chip_voltage">Spænding</string>
     <string name="metric_chip_wh_consumed">Energi</string>
     <string name="metric_chip_wh_per_km">Wh / km</string>
+    <string name="metric_chip_wheel_alarm_speed">Hjul-alarm</string>
+    <string name="metric_chip_wheel_max_speed">Maks hjul</string>
     <string name="metric_desc_avg_trip_speed">Tripafstand divideret med kørselstid hidtil.</string>
     <string name="metric_desc_bt_rssi">Bluetooth-signalstyrke til hjulet — tættere på 0 dBm er stærkere.</string>
     <string name="metric_desc_gps_accuracy">GPS-positionsfejlradius — lavere er mere præcist.</string>
