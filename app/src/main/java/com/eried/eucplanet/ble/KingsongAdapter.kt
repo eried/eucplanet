@@ -134,7 +134,14 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                     tripDistance = lastTelemetry.tripDistance,
                     dynamicSpeedLimit = lastTelemetry.dynamicSpeedLimit,
                     temperatures = combinedTemps,
-                    maxTemperature = combinedTemps.maxOrNull() ?: 0f
+                    maxTemperature = combinedTemps.maxOrNull() ?: 0f,
+                    // lightOn lives on B9 (echoed at byte 10). A9 is fresh
+                    // from parseLiveTelemetry which defaults lightOn=false,
+                    // so without this carry-forward every A9 frame (3x/sec)
+                    // resets lightOn -> false, then the next B9 sets it
+                    // back -> true, oscillating at frame interleave rate
+                    // and spamming the TTS "lights on/off" announcement.
+                    lightOn = lastTelemetry.lightOn
                 )
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
