@@ -280,11 +280,31 @@ class FlicManager @Inject constructor(
      */
     private fun dispatchCustomBle(key: String, settings: AppSettings) {
         val commands = CustomBleCommand.parseAll(settings.dashboardCustomBle)
-        val cmd = CustomBleCommand.resolveForDispatch(
-            commands, key, wheelRepository.connectedFamilyId
-        )
+        val raw = commands[key]
+        val connected = wheelRepository.connectedFamilyId
+        val cmd = CustomBleCommand.resolveForDispatch(commands, key, connected)
         if (cmd == null) {
-            Log.i(TAG, "custom BLE $key skipped: no match / wrong wheel / empty")
+            // Tell the rider WHY the tap did nothing instead of silently
+            // dropping. The three failure modes from resolveForDispatch:
+            //   1. Unknown key (rider deleted the command? shouldn't happen
+            //      from a live tile, but defensive)
+            //   2. No frames defined (rider made the tile but never typed
+            //      the hex bytes)
+            //   3. Family mismatch / not connected
+            val reason = when {
+                raw == null -> "no such command"
+                !raw.isSendable -> "no BLE frames defined"
+                connected == null -> "no wheel connected"
+                raw.family != connected ->
+                    "command is for ${raw.family}, wheel is $connected"
+                else -> "unknown"
+            }
+            Log.i(TAG, "custom BLE $key skipped: $reason")
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(
+                    context, "Custom BLE: $reason", android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
             return
         }
         Log.i(TAG, "custom BLE $key -> ${cmd.frames.size} frame(s) on ${cmd.family}")

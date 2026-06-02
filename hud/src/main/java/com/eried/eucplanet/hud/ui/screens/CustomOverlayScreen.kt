@@ -320,6 +320,13 @@ private fun parseElement(o: JSONObject): OverlayElement? {
         cameraKey = o.optString("cameraKey", d.cameraKey),
         clockStyle = o.optString("clockStyle", d.clockStyle),
         clockShowDate = o.optBoolean("clockShowDate", d.clockShowDate),
+        // Was missing from the HUD-side parser, so every preset arrived
+        // with clock24Hour back at its default (true = 24h) regardless
+        // of what the rider picked in the phone customizer. Phone-side
+        // OverlayPresetJson DOES emit the field; the HUD just wasn't
+        // reading it. Tester confirmed the symptom: 12h in the editor
+        // preview, 24h on the actual HUD.
+        clock24Hour = o.optBoolean("clock24Hour", d.clock24Hour),
         mapStyle = o.optString("mapStyle", d.mapStyle),
         mapZoom = o.optInt("mapZoom", d.mapZoom),
         mapRotateWithHeading = o.optBoolean("mapRotateWithHeading", d.mapRotateWithHeading),

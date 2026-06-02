@@ -1109,12 +1109,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             val current = settingsRepository.get()
             val root = parseSlotStatsRoot(current.dashboardCustomBle)
+            // Default the family to whatever wheel is currently connected,
+            // so a rider creating a tile on an InMotion V14 doesn't end up
+            // with a "veteran"-targeted command that silently no-ops at
+            // dispatch (the family-gate in resolveForDispatch drops every
+            // frame whose family doesn't match the connected wheel). Falls
+            // back to "veteran" only when nothing is connected at create
+            // time -- the rider can change it from the editor anyway.
+            val initialFamily = wheelRepository.connectedFamilyId ?: "veteran"
             root.put(
                 newId,
                 org.json.JSONObject()
                     .put("label", "")
                     .put("icon", CUSTOM_BLE_DEFAULT_ICON)
-                    .put("family", "veteran")
+                    .put("family", initialFamily)
                     .put("frames", org.json.JSONArray(emptyList<String>()))
             )
             val order = sanitize(
