@@ -318,7 +318,14 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_UNIT_DISTANCE, com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings))
                 dataMap.putString(K_UNIT_TEMP, com.eried.eucplanet.util.Units.effectiveTempUnit(settings))
                 dataMap.putBoolean(K_IMPERIAL, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings) == "mph")
-                dataMap.putString(K_ACCENT, settings.accentColor)
+                // The active theme's primary as "#AARRGGBB" so the watch follows
+                // the custom theme; the watch parses hex (and still accepts legacy keys).
+                dataMap.putString(
+                    K_ACCENT,
+                    com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
+                        settings.activeThemeColorsJson, settings.accentColor
+                    )
+                )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)

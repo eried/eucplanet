@@ -491,9 +491,6 @@ class HudServer @Inject constructor(
         )
     }
 
-    private fun resolveAccentArgb(s: AppSettings): String {
-        val accent = AccentOptions.firstOrNull { it.key == s.accentColor }?.color ?: AccentTeal
-        val argb = accent.value.toLong().ushr(32).toInt()
-        return "#%08X".format(argb)
-    }
+    private fun resolveAccentArgb(s: AppSettings): String =
+        com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(s.activeThemeColorsJson, s.accentColor)
 }

@@ -19,17 +19,33 @@ private val AccentPurple = Color(0xFFAB47BC)
 private val AccentTeal = Color(0xFF26C6DA)
 private val AccentPink = Color(0xFFEC407A)
 
-fun accentColorFor(key: String): Color = when (key) {
-    "default", "teal" -> AccentTeal
-    "green" -> AccentGreen
-    "dark_green" -> AccentDarkGreen
-    "orange" -> AccentOrange
-    "pink" -> AccentPink
-    "purple" -> AccentPurple
-    "red" -> AccentRed
-    "blue" -> AccentBlue
-    "yellow" -> AccentYellow
-    else -> AccentTeal
+fun accentColorFor(key: String): Color {
+    // The phone now sends the active theme's primary as "#AARRGGBB"; parse it.
+    // Legacy palette keys still resolve (older phones / the adb test intent).
+    if (key.startsWith("#")) parseHexColor(key)?.let { return it }
+    return when (key) {
+        "default", "teal" -> AccentTeal
+        "green" -> AccentGreen
+        "dark_green" -> AccentDarkGreen
+        "orange" -> AccentOrange
+        "pink" -> AccentPink
+        "purple" -> AccentPurple
+        "red" -> AccentRed
+        "blue" -> AccentBlue
+        "yellow" -> AccentYellow
+        else -> AccentTeal
+    }
+}
+
+private fun parseHexColor(s: String): Color? {
+    val clean = s.removePrefix("#")
+    return runCatching {
+        when (clean.length) {
+            6 -> Color((0xFF000000L or clean.toLong(16)).toInt())
+            8 -> Color(clean.toLong(16).toInt())
+            else -> null
+        }
+    }.getOrNull()
 }
 
 /**

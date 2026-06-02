@@ -488,7 +488,14 @@ class GarminBridge @Inject constructor(
             put(GarminKeys.UNIT_DISTANCE, distanceUnit)
             put(GarminKeys.UNIT_TEMP, tempUnit)
             put(GarminKeys.IMPERIAL, speedUnit == "mph")
-            put(GarminKeys.ACCENT, settings.accentColor)
+            // Active theme primary as "#AARRGGBB" (forward-compat; the Garmin
+            // watch app does not paint with the accent yet).
+            put(
+                GarminKeys.ACCENT,
+                com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
+                    settings.activeThemeColorsJson, settings.accentColor
+                )
+            )
             put(GarminKeys.OPT_KEEP_ON, settings.watchKeepScreenOn)
             put(GarminKeys.OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
             put(GarminKeys.OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)
