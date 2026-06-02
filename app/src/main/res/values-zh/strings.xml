@@ -1056,7 +1056,7 @@
     <string name="dashboard_columns">列</string>
     <string name="dashboard_composite_blank_label">（空）</string>
     <string name="dashboard_composite_cell_label">单元 %1$d</string>
-    <string name="dashboard_composite_empty_label">（无）</string>
+    <string name="dashboard_composite_empty_label">（空白）</string>
     <string name="dashboard_composite_layout_col2">2 列</string>
     <string name="dashboard_composite_layout_col3">3 列</string>
     <string name="dashboard_composite_layout_row2">2 行</string>
@@ -1104,7 +1104,7 @@
     <string name="dashboard_stat_median">中位数 (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">最小</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">（空白）</string>
     <string name="dashboard_stat_p75">75 百分位</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95 百分位</string>

@@ -132,8 +132,8 @@
     <string name="dashboard_composite_layout_col2">2 columns</string>
     <string name="dashboard_composite_layout_col3">3 columns</string>
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
-    <!-- "(none)" is the collapsing placeholder: cell renders "-", layout collapses. -->
-    <string name="dashboard_composite_empty_label">(none)</string>
+    <!-- "(blank)" is the collapsing placeholder: cell renders "-", layout collapses. -->
+    <string name="dashboard_composite_empty_label">(blank)</string>
     <!-- "(empty)" is the reserving placeholder: cell renders blank, layout intact. -->
     <string name="dashboard_composite_blank_label">(empty)</string>
     <string name="dashboard_stat_empty">(empty)</string>
@@ -171,7 +171,10 @@
     <string name="dashboard_corner_right">Right</string>
     <string name="dashboard_slot_sparkline">Live trend background</string>
     <string name="dashboard_slot_sparkline_chip">Stats</string>
-    <string name="dashboard_stat_none">—</string>
+    <!-- Open-menu label for DashboardStat.NONE; closed-field shows a literal
+         "-" glyph from statSelectedLabel so the rider sees the visual at a
+         glance regardless of locale. -->
+    <string name="dashboard_stat_none">(blank)</string>
     <string name="dashboard_stat_current">Now</string>
     <string name="dashboard_stat_min">Min</string>
     <string name="dashboard_stat_max">Max / Peak</string>

@@ -1056,7 +1056,7 @@
     <string name="dashboard_columns">Kolumner</string>
     <string name="dashboard_composite_blank_label">(tom)</string>
     <string name="dashboard_composite_cell_label">Cell %1$d</string>
-    <string name="dashboard_composite_empty_label">(ingen)</string>
+    <string name="dashboard_composite_empty_label">(ledig)</string>
     <string name="dashboard_composite_layout_col2">2 kolumner</string>
     <string name="dashboard_composite_layout_col3">3 kolumner</string>
     <string name="dashboard_composite_layout_row2">2 rader</string>
@@ -1104,7 +1104,7 @@
     <string name="dashboard_stat_median">Median (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(ledig)</string>
     <string name="dashboard_stat_p75">75:e percentilen</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95:e percentilen</string>

@@ -4793,7 +4793,11 @@ private fun statDisplayLabel(stat: DashboardStat): String = when (stat) {
  */
 @Composable
 private fun statSelectedLabel(stat: DashboardStat): String = when (stat) {
-    DashboardStat.NONE -> stringResource(R.string.dashboard_stat_none)
+    // Closed-field glyphs for the two placeholders -- dash for the
+    // collapsing "(blank)" pick, literal space for the reserving
+    // "(empty)" pick. Matches the live tile visual so the rider sees
+    // what they're getting without re-opening the picker.
+    DashboardStat.NONE -> "–"
     DashboardStat.CURRENT -> stringResource(R.string.dashboard_stat_current)
     DashboardStat.MIN -> stringResource(R.string.dashboard_stat_min)
     // MAX's long label is "Max / Peak"; in the closed dropdown field we use
@@ -4805,7 +4809,7 @@ private fun statSelectedLabel(stat: DashboardStat): String = when (stat) {
     DashboardStat.P75 -> stringResource(R.string.dashboard_stat_p75_short)
     DashboardStat.P95 -> stringResource(R.string.dashboard_stat_p95_short)
     DashboardStat.P99 -> stringResource(R.string.dashboard_stat_p99_short)
-    DashboardStat.EMPTY -> stringResource(R.string.dashboard_stat_empty)
+    DashboardStat.EMPTY -> " "
 }
 
 /** True when the stat is a deliberate "reserve this slot" placeholder. The

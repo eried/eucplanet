@@ -1056,7 +1056,7 @@
     <string name="dashboard_columns">Colonnes</string>
     <string name="dashboard_composite_blank_label">(vide)</string>
     <string name="dashboard_composite_cell_label">Cellule %1$d</string>
-    <string name="dashboard_composite_empty_label">(aucune)</string>
+    <string name="dashboard_composite_empty_label">(libre)</string>
     <string name="dashboard_composite_layout_col2">2 colonnes</string>
     <string name="dashboard_composite_layout_col3">3 colonnes</string>
     <string name="dashboard_composite_layout_row2">2 lignes</string>
@@ -1104,7 +1104,7 @@
     <string name="dashboard_stat_median">Médiane (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(libre)</string>
     <string name="dashboard_stat_p75">75e centile</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95e centile</string>

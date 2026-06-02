@@ -1092,7 +1092,7 @@
     <string name="dashboard_columns">Columnas</string>
     <string name="dashboard_composite_blank_label">(vacía)</string>
     <string name="dashboard_composite_cell_label">Celda %1$d</string>
-    <string name="dashboard_composite_empty_label">(ninguna)</string>
+    <string name="dashboard_composite_empty_label">(en blanco)</string>
     <string name="dashboard_composite_layout_col2">2 columnas</string>
     <string name="dashboard_composite_layout_col3">3 columnas</string>
     <string name="dashboard_composite_layout_row2">2 filas</string>
@@ -1140,7 +1140,7 @@
     <string name="dashboard_stat_median">Mediana (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Mín.</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(en blanco)</string>
     <string name="dashboard_stat_p75">Percentil 75</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">Percentil 95</string>

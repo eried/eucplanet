@@ -1073,7 +1073,7 @@
     <string name="dashboard_columns">Spalten</string>
     <string name="dashboard_composite_blank_label">(leer)</string>
     <string name="dashboard_composite_cell_label">Zelle %1$d</string>
-    <string name="dashboard_composite_empty_label">(keine)</string>
+    <string name="dashboard_composite_empty_label">(frei)</string>
     <string name="dashboard_composite_layout_col2">2 Spalten</string>
     <string name="dashboard_composite_layout_col3">3 Spalten</string>
     <string name="dashboard_composite_layout_row2">2 Reihen</string>
@@ -1121,7 +1121,7 @@
     <string name="dashboard_stat_median">Median (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min.</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(frei)</string>
     <string name="dashboard_stat_p75">75. Perzentil</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95. Perzentil</string>

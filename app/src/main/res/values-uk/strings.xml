@@ -1093,7 +1093,7 @@
     <string name="dashboard_columns">Колонки</string>
     <string name="dashboard_composite_blank_label">(порожня)</string>
     <string name="dashboard_composite_cell_label">Клітинка %1$d</string>
-    <string name="dashboard_composite_empty_label">(немає)</string>
+    <string name="dashboard_composite_empty_label">(вільно)</string>
     <string name="dashboard_composite_layout_col2">2 колонки</string>
     <string name="dashboard_composite_layout_col3">3 колонки</string>
     <string name="dashboard_composite_layout_row2">2 ряди</string>
@@ -1141,7 +1141,7 @@
     <string name="dashboard_stat_median">Медіана (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Мін</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(вільно)</string>
     <string name="dashboard_stat_p75">75-й перцентиль</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95-й перцентиль</string>

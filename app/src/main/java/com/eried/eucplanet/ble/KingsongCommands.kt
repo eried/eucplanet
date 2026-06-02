@@ -93,11 +93,27 @@ object KingsongCommands {
     fun queryLimits(): ByteArray = frame(Type.QUERY_LIMITS)
 
     /**
-     * Light mode: 0=off, 1=on, 2=auto. Encoded as `mode + 0x12` per the public
-     * reference, with `data[3] = 0x01` to make the write take.
+     * Light mode: 0=off, 1=on, 2=auto.
+     *
+     * KingSong firmware encodes the wire byte at offset 2 as:
+     *   0x12 = ON, 0x13 = OFF, 0x14 = AUTO
+     * which is the opposite of what some public references claim
+     * (mode + 0x12). A KS-18XL tester confirmed via Service Mode that
+     * the old `(mode + 0x12)` mapping inverted on / off: tapping the
+     * "headlight on" diagnostic turned the light OFF and vice versa.
+     *
+     * Mapping the call-site mode (0=off / 1=on / 2=auto) to the actual
+     * wire byte explicitly so the function's external contract still
+     * reads "0=off, 1=on, 2=auto" -- no caller has to think about
+     * KS-specific byte order. `data[3] = 0x01` to make the write take.
      */
     fun setLightMode(mode: Int): ByteArray = frame(Type.LIGHT) { f ->
-        f[2] = (mode.coerceIn(0, 2) + 0x12).toByte()
+        val wireByte = when (mode.coerceIn(0, 2)) {
+            0 -> 0x13  // OFF
+            1 -> 0x12  // ON
+            else -> 0x14  // AUTO
+        }
+        f[2] = wireByte.toByte()
         f[3] = 0x01
     }
 

@@ -1092,7 +1092,7 @@
     <string name="dashboard_columns">Kolommen</string>
     <string name="dashboard_composite_blank_label">(leeg)</string>
     <string name="dashboard_composite_cell_label">Cel %1$d</string>
-    <string name="dashboard_composite_empty_label">(geen)</string>
+    <string name="dashboard_composite_empty_label">(vrij)</string>
     <string name="dashboard_composite_layout_col2">2 kolommen</string>
     <string name="dashboard_composite_layout_col3">3 kolommen</string>
     <string name="dashboard_composite_layout_row2">2 rijen</string>
@@ -1140,7 +1140,7 @@
     <string name="dashboard_stat_median">Mediaan (P50)</string>
     <string name="dashboard_stat_median_short">P50</string>
     <string name="dashboard_stat_min">Min</string>
-    <string name="dashboard_stat_none">—</string>
+    <string name="dashboard_stat_none">(vrij)</string>
     <string name="dashboard_stat_p75">75e percentiel</string>
     <string name="dashboard_stat_p75_short">P75</string>
     <string name="dashboard_stat_p95">95e percentiel</string>
