@@ -745,14 +745,15 @@ fun DashboardScreen(
                     speed = animatedSpeed,
                     maxSpeed = gaugeMax,
                     speedUnit = speedUnit,
-                    overrideColor = if (useAccent) primary else null,
+                    // Accents are gone; the speed arc now follows the themeable
+                    // gaugeFill token (so it matches the watch and is editable).
+                    overrideColor = null,
                     showColorBand = showGaugeColorBand,
                     orangeThresholdPct = gaugeOrangePct,
                     redThresholdPct = gaugeRedPct,
-                    // Safe band is always green so it reads as the safety
-                    // signal and not the user's accent. The speed indicator
-                    // arc (overrideColor above) still wears the accent.
-                    safeBandColor = MaterialTheme.appColors.statusGood,
+                    // Speed-arc fill = the gaugeFill token. When the color band is
+                    // on, the warn/danger tiers still override it as safety signals.
+                    safeBandColor = MaterialTheme.appColors.gaugeFill,
                     // Extra GPS overlay (dot on the dial). Colour depends on
                     // which source is active per user's GPS preferences.
                     externalSpeed = externalGpsSpeed,
@@ -2825,7 +2826,7 @@ private fun SpeedGauge(
     showColorBand: Boolean = false,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
-    safeBandColor: Color = MaterialTheme.appColors.statusGood,
+    safeBandColor: Color = MaterialTheme.appColors.gaugeFill,
     /** External GPS speed in km/h, or null when no external GPS box is connected.
      *  Drives a small marker on the dial and a smaller readout under the main number,
      *  both in [externalAccentColor]. */
@@ -2853,7 +2854,7 @@ private fun SpeedGauge(
         overrideColor != null                        -> overrideColor
         else                                          -> safeBandColor
     }
-    val trackColor = MaterialTheme.colorScheme.surfaceVariant
+    val trackColor = MaterialTheme.appColors.gaugeTrack
     val dimColor = MaterialTheme.colorScheme.onSurfaceVariant
     val textMeasurer = rememberTextMeasurer()
 

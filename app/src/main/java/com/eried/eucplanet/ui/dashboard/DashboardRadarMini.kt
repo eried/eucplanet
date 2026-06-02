@@ -105,6 +105,7 @@ private fun MiniLaneBar(frame: RadarFrame?) {
     val statusDanger = MaterialTheme.appColors.statusDanger
     val statusWarn = MaterialTheme.appColors.statusWarn
     val statusGood = MaterialTheme.appColors.statusGood
+    val guidelineColor = MaterialTheme.appColors.outline.copy(alpha = 0.2f)
     Box(
         modifier = Modifier
             .padding(horizontal = 2.dp, vertical = 4.dp)
@@ -129,7 +130,7 @@ private fun MiniLaneBar(frame: RadarFrame?) {
             // down a road instead of floating in a black void. Subtle so
             // the threats dominate the eye path.
             drawLine(
-                color = Color(0x33FFFFFF),
+                color = guidelineColor,
                 start = Offset(w / 2f, laneTop - squareSize / 2f + 2.dp.toPx()),
                 end = Offset(w / 2f, laneBottom + squareSize / 2f - 2.dp.toPx()),
                 strokeWidth = 1.dp.toPx(),

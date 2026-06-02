@@ -18,18 +18,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,20 +55,28 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
 
 /**
- * The token(s) whose current value is closest to a sampled screen pixel — how
- * the target tool answers "which class of color is that". Returns the top [n] by
- * RGB distance so we can ask the user when several are close.
+ * Tokens whose value matches a sampled screen pixel — how the target tool answers
+ * "which class of color is that". Lists EVERY token that exactly produces the
+ * sampled color (so e.g. all four near-identical surfaces show up), falling back
+ * to the 3 nearest when nothing matches exactly.
  */
-fun nearestTokens(sampled: Color, base: AppThemeColors, n: Int = 3): List<ThemeTokenSpec> =
-    ThemeTokens.specs.sortedBy { spec ->
+fun nearestTokens(sampled: Color, base: AppThemeColors): List<ThemeTokenSpec> {
+    val scored = ThemeTokens.specs.map { spec ->
         val c = spec.get(base)
         val dr = c.red - sampled.red
         val dg = c.green - sampled.green
         val db = c.blue - sampled.blue
-        dr * dr + dg * dg + db * db
-    }.take(n)
+        spec to (dr * dr + dg * dg + db * db)
+    }.sortedBy { it.second }
+    if (scored.isEmpty()) return emptyList()
+    val min = scored.first().second
+    val eps = 0.0008f
+    val tied = scored.filter { it.second <= min + eps }.map { it.first }
+    return if (tied.size > 3) tied else scored.take(3).map { it.first }
+}
 
 /** factor<1 darkens (multiply); factor>=1 lightens (lerp toward white). For the blink. */
 fun Color.adjustLightness(factor: Float): Color = if (factor >= 1f) {
@@ -75,17 +87,20 @@ fun Color.adjustLightness(factor: Float): Color = if (factor >= 1f) {
 }
 
 /**
- * Full-screen target overlay with two phases:
- *  - **Aiming** (no candidates yet): dim + spotlight + draggable crosshair, with
- *    Identify / Cancel clamped on-screen beneath the ring.
- *  - **Choosing** (after Identify): dragging is disabled and the dim is lifted so
- *    the blink preview is visible. A centered list lets you tap a candidate to
- *    blink it; Select confirms (and scrolls to it in the widget), Cancel exits.
+ * Full-screen target overlay. The dimmed spotlight + crosshair stay on screen the
+ * whole time; the crosshair is draggable only while aiming. After Identify the
+ * circle remains (frozen) and a centered chooser lets you tap a candidate to blink
+ * it, then Select (which scrolls to it in the widget) or Cancel.
  */
 @Composable
 fun ThemeTargetOverlay(
     base: AppThemeColors,
     ring: Offset,
+    /** True while the finger is still held on the eyedropper button (live aim). */
+    fingerDown: Boolean,
+    /** True when the finger was released OFF the button — sample immediately,
+     *  skipping the Identify/Cancel step. */
+    autoIdentify: Boolean,
     onRing: (Offset) -> Unit,
     onPreviewToken: (ThemeTokenSpec) -> Unit,
     onPicked: (ThemeTokenSpec) -> Unit,
@@ -95,88 +110,120 @@ fun ThemeTargetOverlay(
     var boxWin by remember { mutableStateOf(Offset.Zero) }
     var candidates by remember { mutableStateOf<List<ThemeTokenSpec>?>(null) }
     var chosen by remember { mutableStateOf<ThemeTokenSpec?>(null) }
+    // If a drag-release auto-Identify resolves nothing, fall back to the aim
+    // buttons rather than stranding the user behind a button-less overlay.
+    var autoFallback by remember { mutableStateOf(false) }
     val ringState = rememberUpdatedState(ring)
     var dragRing by remember { mutableStateOf(ring) }
 
     val spotlightDp = 60.dp
     val ringDp = 26.dp
-    val aiming = candidates == null
+
+    // Sample the screen pixel under the crosshair → matching tokens. The spotlight
+    // hole keeps the dim from tinting the sampled pixel.
+    fun sample() {
+        val window = (view.context as? Activity)?.window
+        val sx = (boxWin.x + ringState.value.x).roundToInt()
+        val sy = (boxWin.y + ringState.value.y).roundToInt()
+        if (window != null && view.width > 0 && view.height > 0 &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+        ) {
+            val bmp = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            runCatching {
+                PixelCopy.request(window, bmp, { result ->
+                    if (result == PixelCopy.SUCCESS &&
+                        sx in 0 until bmp.width && sy in 0 until bmp.height
+                    ) {
+                        chosen = null
+                        candidates = nearestTokens(Color(bmp.getPixel(sx, sy)), base)
+                    }
+                    bmp.recycle()
+                }, Handler(Looper.getMainLooper()))
+            }.onFailure { bmp.recycle() }
+        }
+    }
+
+    // Drag-off-button release: sample the moment the finger lifts. A short delay
+    // lets the spotlight settle on the release point; the fallback re-shows the
+    // buttons if PixelCopy returned nothing.
+    LaunchedEffect(autoIdentify) {
+        if (autoIdentify) {
+            autoFallback = false
+            delay(40)
+            sample()
+            delay(300)
+            if (candidates == null) autoFallback = true
+        }
+    }
+
+    val choosing = candidates != null
+    // Aim buttons appear only after a tap-release inside the button (or the auto
+    // path fell through) — never while the finger is down or mid-sample.
+    val showAimButtons = !choosing && !fingerDown && (!autoIdentify || autoFallback)
+    val gestureMode = when {
+        fingerDown -> "live"      // eyedropper button owns the gesture; stay passive
+        showAimButtons -> "aim"   // drag the crosshair to re-aim
+        else -> "modal"           // choosing / sampling: swallow touches
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .onGloballyPositioned { boxWin = it.positionInWindow() }
-            // Drag only while aiming; once Identify is pressed, dragging is off.
-            .then(
-                if (aiming) Modifier.pointerInput(Unit) {
-                    detectDragGestures(
+            .pointerInput(gestureMode) {
+                when (gestureMode) {
+                    "aim" -> detectDragGestures(
                         onDragStart = { dragRing = ringState.value },
                         onDrag = { change, drag -> change.consume(); dragRing += drag; onRing(dragRing) }
                     )
-                } else Modifier.pointerInput(Unit) {
-                    // Choosing: swallow all gestures so dragging is fully disabled
-                    // and the app behind the chooser isn't touchable.
-                    awaitPointerEventScope {
+                    "modal" -> awaitPointerEventScope {
                         while (true) { awaitPointerEvent().changes.forEach { it.consume() } }
                     }
+                    // "live": do nothing so the eyedropper button keeps the pointer.
                 }
-            )
-    ) {
-        if (aiming) {
-            // Dim everything, clear a spotlight hole around the ring, draw crosshair.
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-            ) {
-                val spotR = spotlightDp.toPx()
-                val ringR = ringDp.toPx()
-                drawRect(Color.Black.copy(alpha = 0.74f))
-                drawCircle(Color.Transparent, radius = spotR, center = ring, blendMode = BlendMode.Clear)
-                drawCircle(Color.Black, radius = ringR + 2f, center = ring, style = Stroke(width = 5f))
-                drawCircle(Color.White, radius = ringR, center = ring, style = Stroke(width = 3f))
-                drawCircle(Color.White, radius = 4f, center = ring, style = Stroke(width = 1.5f))
             }
+    ) {
+        // Dim + spotlight + crosshair — always visible (kept while choosing too).
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+        ) {
+            val spotR = spotlightDp.toPx()
+            val ringR = ringDp.toPx()
+            drawRect(Color.Black.copy(alpha = 0.74f))
+            drawCircle(Color.Transparent, radius = spotR, center = ring, blendMode = BlendMode.Clear)
+            drawCircle(Color.Black, radius = ringR + 2f, center = ring, style = Stroke(width = 5f))
+            drawCircle(Color.White, radius = ringR, center = ring, style = Stroke(width = 3f))
+            drawCircle(Color.White, radius = 4f, center = ring, style = Stroke(width = 1.5f))
+        }
 
-            // Identify / Cancel beneath the crosshair, clamped to stay on-screen.
+        if (showAimButtons) {
+            // Identify / Cancel sit below the circle, but flip ABOVE it when there
+            // isn't room below — never overlapping the circle, always on-screen.
             Row(
                 modifier = Modifier.offset {
                     val rowW = 220.dp.toPx()
                     val rowH = 56.dp.toPx()
+                    val margin = 14.dp.toPx()
+                    val spot = spotlightDp.toPx()
+                    val belowY = boxWin.y + ring.y + spot + margin
+                    val aboveY = boxWin.y + ring.y - spot - margin - rowH
+                    val y = (if (belowY + rowH <= view.height) belowY else aboveY)
+                        .coerceIn(0f, (view.height - rowH).coerceAtLeast(0f))
                     val x = (boxWin.x + ring.x - rowW / 2f)
                         .coerceIn(0f, (view.width - rowW).coerceAtLeast(0f))
-                    val y = (boxWin.y + ring.y + spotlightDp.toPx() + 14.dp.toPx())
-                        .coerceIn(0f, (view.height - rowH).coerceAtLeast(0f))
                     IntOffset(x.roundToInt(), y.roundToInt())
                 },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FilledTonalButton(onClick = {
-                    val window = (view.context as? Activity)?.window
-                    val sx = (boxWin.x + ring.x).roundToInt()
-                    val sy = (boxWin.y + ring.y).roundToInt()
-                    if (window != null && view.width > 0 && view.height > 0 &&
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    ) {
-                        val bmp = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-                        runCatching {
-                            PixelCopy.request(window, bmp, { result ->
-                                if (result == PixelCopy.SUCCESS &&
-                                    sx in 0 until bmp.width && sy in 0 until bmp.height
-                                ) {
-                                    chosen = null
-                                    candidates = nearestTokens(Color(bmp.getPixel(sx, sy)), base)
-                                }
-                                bmp.recycle()
-                            }, Handler(Looper.getMainLooper()))
-                        }.onFailure { bmp.recycle() }
-                    }
-                }) { Text("Identify") }
+                // Cancel on the left, primary (Identify) on the right — matches the
+                // app's dialog button convention (dismiss left, confirm right).
                 TextButton(onClick = onCancel) { Text("Cancel") }
+                FilledTonalButton(onClick = { sample() }) { Text("Identify") }
             }
-        } else {
-            // Choosing: no dim (so the blink is visible), centered, drag disabled.
-            // Tapping a candidate blinks it; Select confirms, Cancel exits.
+        } else if (choosing) {
+            // Centered chooser: title + tap-to-blink list (scrolls if many) + buttons.
             val list = candidates ?: emptyList()
             Surface(
                 modifier = Modifier
@@ -188,30 +235,41 @@ fun ThemeTargetOverlay(
                 tonalElevation = 6.dp
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    list.forEach { spec ->
-                        val selected = chosen?.key == spec.key
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-                                    else Color.Transparent
-                                )
-                                .clickable { chosen = spec; onPreviewToken(spec) }
-                                .padding(vertical = 8.dp, horizontal = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
+                    Text(
+                        "Color identifier results",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(start = 6.dp, bottom = 8.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .heightIn(max = 240.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        list.forEach { spec ->
+                            val selected = chosen?.key == spec.key
+                            Row(
                                 modifier = Modifier
-                                    .size(20.dp)
-                                    .background(spec.get(base), RoundedCornerShape(4.dp))
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Text(
-                                "${spec.group} • ${spec.label}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+                                        else Color.Transparent
+                                    )
+                                    .clickable { chosen = spec; onPreviewToken(spec) }
+                                    .padding(vertical = 8.dp, horizontal = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .background(spec.get(base), RoundedCornerShape(4.dp))
+                                )
+                                Spacer(Modifier.width(10.dp))
+                                Text(
+                                    "${spec.group} • ${spec.label}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
                     Spacer(Modifier.height(8.dp))

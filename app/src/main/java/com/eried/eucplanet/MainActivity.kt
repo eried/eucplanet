@@ -39,6 +39,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// Process-scoped: the theme customization widget is session-only, so we clear any
+// persisted "on" state exactly once per launch (this survives Activity recreation
+// such as a rotation, so toggling it on mid-session isn't undone).
+private var widgetSessionReset = false
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -192,7 +197,15 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             settingsRepository.settings.collect {
                 val first = _settings.value == null
-                _settings.value = it
+                // Session-only theme widget: on the first load of a fresh process,
+                // clear any persisted "on" (and mask this emission so it never
+                // flashes on). In-session toggles after this pass through normally.
+                val effective = if (!widgetSessionReset) {
+                    widgetSessionReset = true
+                    if (it.themeEditorEnabled) themeController.setEditorEnabled(false)
+                    it.copy(themeEditorEnabled = false)
+                } else it
+                _settings.value = effective
                 // Honour the "keep screen on" toggle. Setting the window flag
                 // is idempotent so we don't need a delta check.
                 if (it.phoneKeepScreenOn) {

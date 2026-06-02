@@ -239,6 +239,7 @@ import com.eried.eucplanet.ui.theme.AccentPink
 import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -4681,7 +4682,9 @@ private fun ViewDropdown(
         ) {
             options.forEach { cols ->
                 DropdownMenuItem(
-                    text = { Text(viewLabel(cols)) },
+                    // Expanded list spells out that Wide is the tablet layout; the
+                    // collapsed field keeps the short label so it doesn't overflow.
+                    text = { Text(viewMenuLabel(cols)) },
                     onClick = {
                         onSelect(cols)
                         expanded = false
@@ -4695,6 +4698,15 @@ private fun ViewDropdown(
 @Composable
 private fun viewLabel(columns: Int): String = when (columns) {
     3 -> stringResource(R.string.dashboard_view_wide)
+    else -> stringResource(R.string.dashboard_view_default)
+}
+
+/** Label for the expanded dropdown only — qualifies Wide as the tablet layout so
+ *  riders understand they won't normally see it; the collapsed field uses
+ *  [viewLabel] so the short text fits. */
+@Composable
+private fun viewMenuLabel(columns: Int): String = when (columns) {
+    3 -> stringResource(R.string.dashboard_view_wide_menu)
     else -> stringResource(R.string.dashboard_view_default)
 }
 
@@ -5231,7 +5243,7 @@ private fun DisplayTab(
             GaugeThresholdSlider(
                 orangePct = settings.gaugeOrangeThresholdPct,
                 redPct = settings.gaugeRedThresholdPct,
-                safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
+                safeColor = MaterialTheme.appColors.gaugeFill,
                 onChange = { o, r -> viewModel.updateGaugeThresholds(o, r) }
             )
         }
@@ -5809,7 +5821,7 @@ private fun FlicTab(
                     LeftAlignedScanButton(
                         label = stringResource(R.string.flic_stop_scan),
                         onClick = { viewModel.stopScan() },
-                        containerColor = AccentRed
+                        containerColor = MaterialTheme.appColors.statusDanger
                     )
                 } else {
                     LeftAlignedScanButton(
@@ -5835,7 +5847,7 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    Text(stringResource(R.string.volume_up), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
                     ActionDropdown(stringResource(R.string.flic_click), settings.volumeUpClick) { settingsViewModel.updateVolumeUpClick(it) }
                     ActionDropdown(stringResource(R.string.flic_hold), settings.volumeUpHold) { settingsViewModel.updateVolumeUpHold(it) }
                 }
@@ -5848,7 +5860,7 @@ private fun FlicTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = AccentBlue)
+                    Text(stringResource(R.string.volume_down), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.appColors.primary)
                     ActionDropdown(stringResource(R.string.flic_click), settings.volumeDownClick) { settingsViewModel.updateVolumeDownClick(it) }
                     ActionDropdown(stringResource(R.string.flic_hold), settings.volumeDownHold) { settingsViewModel.updateVolumeDownHold(it) }
                 }
@@ -6470,7 +6482,7 @@ private fun CloudTab(
                 ) { Text(stringResource(R.string.cloud_change_folder)) }
                 Button(
                     onClick = { viewModel.clearSyncFolder() },
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cloud_remove_folder)) }
             }
@@ -6818,8 +6830,8 @@ internal fun GaugeThresholdSlider(
     var range by remember(orangePct, redPct) {
         mutableStateOf(orangePct.toFloat()..redPct.toFloat())
     }
-    val orangeColor = com.eried.eucplanet.ui.theme.AccentOrange
-    val redColor = com.eried.eucplanet.ui.theme.AccentRed
+    val orangeColor = MaterialTheme.appColors.gaugeWarn
+    val redColor = MaterialTheme.appColors.gaugeDanger
 
     Column(modifier = Modifier.padding(top = 4.dp)) {
         RangeSlider(
@@ -7020,7 +7032,7 @@ private fun ButtonConfig(
                             value = editText,
                             onValueChange = { editText = it },
                             singleLine = true,
-                            textStyle = MaterialTheme.typography.titleMedium.copy(color = AccentBlue),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.appColors.primary),
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 IconButton(onClick = {
@@ -7039,7 +7051,7 @@ private fun ButtonConfig(
                             Text(
                                 title,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = AccentBlue
+                                color = MaterialTheme.appColors.primary
                             )
                             Spacer(Modifier.width(6.dp))
                             Icon(
@@ -7054,7 +7066,7 @@ private fun ButtonConfig(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -7571,8 +7583,8 @@ private fun EngineSpeedVolumeCurveEditor(
     val maxMult = 1f
     val gridColor = MaterialTheme.colorScheme.surfaceVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val lineColor = AccentBlue
-    val pointColor = AccentOrange
+    val lineColor = MaterialTheme.appColors.metricVoltage
+    val pointColor = MaterialTheme.appColors.tertiary
     val textMeasurer = rememberTextMeasurer()
 
     // Always render exactly 4 normalized points at the canonical speeds.

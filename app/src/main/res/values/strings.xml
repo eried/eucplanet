@@ -120,6 +120,8 @@
     <string name="dashboard_view">View</string>
     <string name="dashboard_view_default">Default</string>
     <string name="dashboard_view_wide">Wide</string>
+    <!-- Shown only in the expanded layout dropdown so riders know Wide is the tablet/3-column layout; the collapsed field stays just "Wide" so it fits. -->
+    <string name="dashboard_view_wide_menu">Wide (for tablets)</string>
     <string name="dashboard_composite_template_label">MULTI</string>
     <string name="dashboard_group_template_label">GROUP</string>
     <string name="dashboard_custom_ble_template">BLE</string>
@@ -600,7 +602,7 @@
     <string name="welcome_tut_outro_end">Keep the eyes on the road and away from this app while unicycling!</string>
     <string name="welcome_tut_speed">Your live speed. Change units in Settings → %1$s</string>
     <string name="welcome_tut_metrics">Live battery, temp, voltage and more. Rearrange them in Settings → %1$s</string>
-    <string name="welcome_tut_actions">Quick controls. Customize them in Settings → %1$s → %2$s</string>
+    <string name="welcome_tut_actions">Quick controls. Tweak them in the same place, under %2$s</string>
     <string name="welcome_tut_map">Open the navigator to plan routes and get turn-by-turn guidance</string>
     <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>

@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -89,6 +90,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.WheelData
@@ -127,9 +129,6 @@ data class StudioElementData(
 
 /** Compose [Color] -> the 0xAARRGGBB [Long] stored in [OverlayElement]. */
 fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
-
-/** Fixed colour for the studio's own edit controls (selection chrome). */
-val StudioControlAccent = Color(0xFF4FC3F7)
 
 /**
  * Draws every overlay element in z-order. When [editable], elements can be
@@ -237,10 +236,10 @@ private fun StudioElementBox(
     val effW = snapFx(element.width, gridX)
     val effH = if (element.height > 0f) snapFx(element.height, gridY) else 0f
     val live by rememberUpdatedState(element)
-    val accent = StudioControlAccent
+    val accent = MaterialTheme.appColors.primary
     // A distinct accent for the rotate handle so it is never confused with the
     // resize grip (the studio's standard blue accent).
-    val rotateAccent = Color(0xFFFFB74D)
+    val rotateAccent = MaterialTheme.appColors.tertiary
     // Size of the element's content in px, captured from the rotated marquee
     // layer, i.e. the unrotated content bounds, so its centre is exact.
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
@@ -412,7 +411,7 @@ private fun StudioElementBox(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         ChromeButton(Icons.Default.Build, accent, onConfigure)
-                        ChromeButton(Icons.Default.Close, Color(0xFFE53935), onDelete)
+                        ChromeButton(Icons.Default.Close, MaterialTheme.appColors.statusDanger, onDelete)
                     }
                     Box(
                         Modifier
@@ -468,7 +467,7 @@ private fun StudioElementBox(
                         Icon(
                             Icons.Default.OpenInFull,
                             contentDescription = stringResource(R.string.studio_cd_resize),
-                            tint = Color.White,
+                            tint = MaterialTheme.appColors.textPrimary,
                             modifier = Modifier.size(16.dp).rotate(90f)
                         )
                     }
@@ -556,7 +555,7 @@ private fun StudioElementBox(
                     Icon(
                         Icons.Default.Sync,
                         contentDescription = stringResource(R.string.studio_cd_rotate),
-                        tint = Color.White,
+                        tint = MaterialTheme.appColors.textPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -578,7 +577,7 @@ private fun ChromeButton(
         Modifier
             .size(30.dp)
             .clip(CircleShape)
-            .background(Color(0xDD1E1E26))
+            .background(MaterialTheme.appColors.surfaceVariant)
             .border(1.dp, tint, CircleShape)
             .pointerInput(Unit) { detectTapGestures(onTap = { currentOnClick() }) },
         contentAlignment = Alignment.Center
@@ -1193,9 +1192,9 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     // between the arc and the end-cap disc doesn't double-up alpha and
     // bleed through as a half-circle dark spot when the element opacity
     // is < 1. Inside the layer everything draws fully opaque.
-    val bandSafe = com.eried.eucplanet.ui.theme.AccentGreen
-    val bandWarn = com.eried.eucplanet.ui.theme.AccentOrange
-    val bandDanger = com.eried.eucplanet.ui.theme.AccentRed
+    val bandSafe = MaterialTheme.appColors.gaugeFill
+    val bandWarn = MaterialTheme.appColors.gaugeWarn
+    val bandDanger = MaterialTheme.appColors.gaugeDanger
     // Geometry:
     //   FULL -> 1:1, classic 270 deg arc.
     //   SEMICIRCLE -> dome (radius w/2) on top, a fixed-ish-dp rounded

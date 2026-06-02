@@ -104,6 +104,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.hud.protocol.OverlayElement
 import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.hud.protocol.ViewportConfig
@@ -533,7 +534,7 @@ fun StudioSidePanel(
                                 Icons.Default.Opacity,
                                 contentDescription =
                                     stringResource(R.string.studio_replay_cd_fade),
-                                tint = if (dimmed) StudioControlAccent
+                                tint = if (dimmed) MaterialTheme.appColors.primary
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -1683,7 +1684,7 @@ fun ElementConfigSheet(
                     com.eried.eucplanet.ui.settings.GaugeThresholdSlider(
                         orangePct = element.dialOrangeThresholdPct,
                         redPct = element.dialRedThresholdPct,
-                        safeColor = com.eried.eucplanet.ui.theme.AccentGreen,
+                        safeColor = MaterialTheme.appColors.gaugeFill,
                         onChange = { o, r ->
                             onChange(
                                 element.copy(
@@ -1887,7 +1888,7 @@ fun ElementConfigSheet(
                     Icon(
                         Icons.Default.Sync,
                         contentDescription = null,
-                        tint = Color(0xFFFFB74D),
+                        tint = MaterialTheme.appColors.tertiary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
@@ -2015,7 +2016,7 @@ private fun ColorSwatch(
         Modifier
             .size(36.dp)
             .clip(CircleShape)
-            .background(if (transparent) Color(0xFF3A3A42) else Color(color))
+            .background(if (transparent) MaterialTheme.appColors.surfaceVariant else Color(color))
             .border(
                 width = if (selected) 3.dp else 1.dp,
                 color = if (selected) MaterialTheme.colorScheme.primary
@@ -2030,7 +2031,7 @@ private fun ColorSwatch(
             Icon(
                 Icons.Default.FormatColorReset,
                 contentDescription = stringResource(R.string.studio_cd_invisible),
-                tint = Color(0xFFBBBBBB),
+                tint = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
         }

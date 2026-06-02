@@ -41,6 +41,11 @@ fun SpeedGauge(
     showColorBand: Boolean = true,
     orangeThresholdPct: Int = 65,
     redThresholdPct: Int = 85,
+    /** Safe-zone / fill, warning and danger colors — themed from the phone.
+     *  Defaults reproduce the watch's original fixed gauge palette. */
+    fillColor: Color = GaugeAccentGreen,
+    warnColor: Color = GaugeAccentOrange,
+    dangerColor: Color = GaugeAccentRed,
     trackColor: Color = Color(0xFF2A2A2A),
     dimColor: Color = Color(0xFF9AA0A6),
     /** When true, the gauge traces near the bezel and scale labels render
@@ -65,11 +70,11 @@ fun SpeedGauge(
     val redFracG = (redThresholdPct / 100f).coerceIn(orangeFracG + 0.04f, 0.95f)
     val frac = (speed / maxSpeed.coerceAtLeast(0.0001f)).coerceIn(0f, 1f)
     val speedColor = when {
-        showColorBand && frac >= redFracG    -> GaugeAccentRed
-        showColorBand && frac >= orangeFracG -> GaugeAccentOrange
-        showColorBand                         -> GaugeAccentGreen
+        showColorBand && frac >= redFracG    -> dangerColor
+        showColorBand && frac >= orangeFracG -> warnColor
+        showColorBand                         -> fillColor
         useAccent                             -> accent
-        else                                  -> GaugeAccentGreen
+        else                                  -> fillColor
     }
     val textMeasurer = rememberTextMeasurer()
 
@@ -87,7 +92,7 @@ fun SpeedGauge(
         // for labels outside.
         val arcInset = if (fullBleed) dim * 0.025f else dim * 0.06f
         val arcRadius = dim / 2f - arcThickness - arcInset
-        val center = Offset(size.width / 2f, size.height * 0.52f)
+        val center = Offset(size.width / 2f, size.height * 0.50f)
 
         val startAngle = 140f
         val sweepTotal = 260f
@@ -122,15 +127,15 @@ fun SpeedGauge(
             val redSweep = sweepTotal * (1f - redFrac)
             val bandTopLeft = Offset(center.x - bandRadius, center.y - bandRadius)
             val bandSize = Size(bandRadius * 2, bandRadius * 2)
-            drawArc(color = GaugeAccentGreen.copy(alpha = bandAlpha),
+            drawArc(color = fillColor.copy(alpha = bandAlpha),
                 startAngle = startAngle, sweepAngle = sweepTotal * orangeFrac,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
-            drawArc(color = GaugeAccentYellow.copy(alpha = bandAlpha),
+            drawArc(color = warnColor.copy(alpha = bandAlpha),
                 startAngle = orangeStart, sweepAngle = orangeSweep,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))
-            drawArc(color = GaugeAccentRed.copy(alpha = bandAlpha),
+            drawArc(color = dangerColor.copy(alpha = bandAlpha),
                 startAngle = redStart, sweepAngle = redSweep,
                 useCenter = false, topLeft = bandTopLeft, size = bandSize,
                 style = Stroke(width = bandThickness, cap = StrokeCap.Butt))

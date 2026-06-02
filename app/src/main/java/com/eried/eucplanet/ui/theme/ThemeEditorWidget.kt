@@ -1,13 +1,12 @@
 package com.eried.eucplanet.ui.theme
 
-import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Colorize
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Minimize
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Save
@@ -61,11 +60,16 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.eucplanet.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -85,7 +89,6 @@ fun ThemeEditorWidget(
     val liveColors = vm.live.collectAsState().value
     val choices = vm.choices.collectAsState().value
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     // Refresh available themes / folder state when the widget shows and whenever
     // the backup folder or saved set changes (so Save-as enables + the combo
@@ -101,10 +104,26 @@ fun ThemeEditorWidget(
 
     var offset by remember { mutableStateOf(Offset(36f, 220f)) }
     var collapsed by remember { mutableStateOf(false) }
+    // Keep the widget fully on-screen — whatever its current size (collapsed pill
+    // or expanded card) — so a drag can never push it out of reach and lose it.
+    val view = LocalView.current
+    var widgetSize by remember { mutableStateOf(IntSize.Zero) }
+    fun clampToScreen(o: Offset): Offset {
+        if (view.width == 0 || view.height == 0) return o
+        val maxX = (view.width - widgetSize.width).coerceAtLeast(0).toFloat()
+        val maxY = (view.height - widgetSize.height).coerceAtLeast(0).toFloat()
+        return Offset(o.x.coerceIn(0f, maxX), o.y.coerceIn(0f, maxY))
+    }
     var selectedKey by remember { mutableStateOf<String?>(null) }
     var showSave by remember { mutableStateOf(false) }
+    var pendingReplaceName by remember { mutableStateOf<String?>(null) }
+    var showNoFolder by remember { mutableStateOf(false) }
     var pendingOverwrite by remember { mutableStateOf(false) }
     var pickMode by remember { mutableStateOf(false) }
+    // Eyedropper gesture: fingerDown = the finger is still on the button (live
+    // aim, no buttons); autoIdentify = released off the button → sample at once.
+    var fingerDown by remember { mutableStateOf(false) }
+    var autoIdentify by remember { mutableStateOf(false) }
     // Crosshair position (window coords), hoisted so the eyedropper can drag it
     // straight out of the button in one motion, and the overlay can drag it too.
     var ringPos by remember { mutableStateOf(Offset(360f, 760f)) }
@@ -153,16 +172,28 @@ fun ThemeEditorWidget(
     val titleName = settings.activeThemeName.ifEmpty { "Theme" }
     val title = if (settings.themeDirty) "$titleName (unsaved)" else titleName
 
+    // Re-clamp when the widget changes size (expand <-> collapse) or the screen
+    // resizes, so collapsing a card that sat near an edge can't strand the pill.
+    LaunchedEffect(widgetSize) { offset = clampToScreen(offset) }
+
     Box(
-        modifier = Modifier.offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+        modifier = Modifier
+            .offset {
+                val c = clampToScreen(offset)
+                IntOffset(c.x.roundToInt(), c.y.roundToInt())
+            }
+            .onSizeChanged { widgetSize = it }
     ) {
         if (collapsed) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
                     .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
                     .pointerInput(Unit) {
-                        detectDragGestures { change, drag -> change.consume(); offset += drag }
+                        detectDragGestures { change, drag ->
+                            change.consume(); offset = clampToScreen(offset + drag)
+                        }
                     }
                     .clickable { collapsed = false },
                 contentAlignment = Alignment.Center
@@ -178,7 +209,10 @@ fun ThemeEditorWidget(
         Card(
             modifier = Modifier.widthIn(min = 240.dp, max = 280.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            // Outline so the floating editor reads as a distinct surface over the
+            // dashboard behind it, whatever the theme's background is.
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
         ) {
             // Header (drag handle) — shows the active theme name + unsaved state.
             Row(
@@ -186,7 +220,9 @@ fun ThemeEditorWidget(
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .pointerInput(Unit) {
-                        detectDragGestures { change, drag -> change.consume(); offset += drag }
+                        detectDragGestures { change, drag ->
+                            change.consume(); offset = clampToScreen(offset + drag)
+                        }
                     }
                     .padding(start = 12.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -197,24 +233,29 @@ fun ThemeEditorWidget(
                     title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
+                    // Long theme names truncate with "…" instead of wrapping and
+                    // growing the header (the card width is fixed).
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
                 // Order: minimize, save, eyedropper (rightmost).
                 IconButton(onClick = { collapsed = true }, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Minimize",
+                    Icon(Icons.Filled.Minimize, contentDescription = "Minimize",
                         modifier = Modifier.size(18.dp))
                 }
                 IconButton(onClick = {
                     if (choices.folderAvailable) showSave = true
-                    else Toast.makeText(
-                        context, "Set a backup folder to save themes", Toast.LENGTH_SHORT
-                    ).show()
+                    else showNoFolder = true
                 }, modifier = Modifier.size(36.dp)) {
                     Icon(Icons.Filled.Save, contentDescription = "Save as new theme",
                         modifier = Modifier.size(18.dp))
                 }
-                // Eyedropper: opens the picker on PRESS (not release) and lets you
-                // drag the crosshair straight out of the button in one motion.
+                // Eyedropper. Two flows decided by where the finger lifts:
+                //  • drag off the button and release → auto-Identify at the release
+                //    point (no Identify/Cancel step).
+                //  • tap (press + release on the button) → the aim flow with the
+                //    draggable crosshair + Identify/Cancel.
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -222,9 +263,25 @@ fun ThemeEditorWidget(
                         .pointerInput(Unit) {
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
+                                down.consume()
                                 ringPos = pickerBtnCenter
+                                fingerDown = true
+                                autoIdentify = false
                                 pickMode = true
-                                drag(down.id) { change ->
+                                while (true) {
+                                    val ev = awaitPointerEvent()
+                                    val change = ev.changes.firstOrNull { it.id == down.id } ?: break
+                                    if (!change.pressed) {
+                                        // Released inside the button → tap → aim flow.
+                                        // Released outside → dragged away → auto-Identify.
+                                        val inside =
+                                            change.position.x in 0f..size.width.toFloat() &&
+                                            change.position.y in 0f..size.height.toFloat()
+                                        fingerDown = false
+                                        autoIdentify = !inside
+                                        change.consume()
+                                        break
+                                    }
                                     ringPos += change.positionChange()
                                     change.consume()
                                 }
@@ -289,6 +346,8 @@ fun ThemeEditorWidget(
         ThemeTargetOverlay(
             base = base,
             ring = ringPos,
+            fingerDown = fingerDown,
+            autoIdentify = autoIdentify,
             onRing = { ringPos = it },
             onPreviewToken = { spec -> blink(spec) },
             onPicked = { spec -> selectedKey = spec.key; pickMode = false },
@@ -310,10 +369,37 @@ fun ThemeEditorWidget(
             confirmButton = {
                 TextButton(
                     enabled = name.isNotBlank(),
-                    onClick = { vm.saveAs(name.trim()) { showSave = false } }
+                    onClick = {
+                        val n = name.trim()
+                        // Saving onto a DIFFERENT existing saved theme would clobber
+                        // it — confirm first. Re-saving the one you're editing, or a
+                        // brand-new name, saves straight away.
+                        if (n in choices.saved && n != settings.activeThemeName) {
+                            pendingReplaceName = n
+                        } else {
+                            vm.saveAs(n) { showSave = false }
+                        }
+                    }
                 ) { Text("Save") }
             },
             dismissButton = { TextButton(onClick = { showSave = false }) { Text("Cancel") } }
+        )
+    }
+
+    // Typed a name that matches another existing saved theme — confirm the replace.
+    pendingReplaceName?.let { n ->
+        AlertDialog(
+            onDismissRequest = { pendingReplaceName = null },
+            title = { Text("Replace theme?") },
+            text = { Text("A theme named \"$n\" already exists. Saving will replace it.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    vm.saveAs(n) { showSave = false; pendingReplaceName = null }
+                }) { Text("Replace") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingReplaceName = null }) { Text("Cancel") }
+            }
         )
     }
 
@@ -322,7 +408,7 @@ fun ThemeEditorWidget(
     if (pendingOverwrite) {
         AlertDialog(
             onDismissRequest = { pendingOverwrite = false; vm.preview(null) },
-            title = { Text("Unsaved version will be lost") },
+            title = { Text("Discard the unsaved draft?") },
             text = {
                 Text(
                     "This theme already has an unsaved version of it. If you start " +
@@ -334,6 +420,26 @@ fun ThemeEditorWidget(
             },
             dismissButton = {
                 TextButton(onClick = { pendingOverwrite = false; vm.preview(null) }) { Text("Cancel") }
+            }
+        )
+    }
+
+    // Saving needs a backup folder. Use an in-widget dialog (matching the other
+    // dialogs here) rather than a system Toast, so it follows the app's
+    // Snackbar/dialog convention instead of the OS toast style.
+    if (showNoFolder) {
+        AlertDialog(
+            onDismissRequest = { showNoFolder = false },
+            title = { Text("No backup folder") },
+            text = {
+                Text(
+                    "To save themes, choose a backup folder:\n" +
+                        stringResource(R.string.tab_cloud) + " → " +
+                        stringResource(R.string.cloud_choose_folder)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showNoFolder = false }) { Text("OK") }
             }
         )
     }

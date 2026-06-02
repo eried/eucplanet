@@ -10,8 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import com.eried.eucplanet.ui.theme.appColors
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -426,7 +427,7 @@ fun DashboardDragPreviewOverlay(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color(0xFFEF4444).copy(alpha = redOverlayAlpha))
+                    .background(MaterialTheme.appColors.statusDanger.copy(alpha = redOverlayAlpha))
             )
         }
     }
