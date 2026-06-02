@@ -158,8 +158,8 @@
     <string name="wheel_name_brand">Mærke</string>
     <string name="last_device">Seneste enhed: %1$s</string>
     <string name="section_application">Applikation</string>
-    <string name="back_button_action">Når du stryger tilbage</string>
-    <string name="back_button_action_desc">Vælg, hvad du gør, når du stryger tilbage fra hovedskærmen</string>
+    <string name="back_button_action">Tilbage-handling</string>
+    <string name="back_button_action_desc">Hvad der sker, når du stryger eller trykker tilbage fra hovedskærmen</string>
     <string name="back_button_action_ask">Spørg</string>
     <string name="back_button_action_background">Baggrund</string>
     <string name="back_button_action_stop">Stop alle</string>

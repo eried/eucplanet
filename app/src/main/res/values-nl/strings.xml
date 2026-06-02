@@ -219,8 +219,8 @@
     <string name="wheel_name_brand">Merk</string>
     <string name="last_device">Laatste apparaat: %1$s</string>
     <string name="section_application">Toepassing</string>
-    <string name="back_button_action">Bij terugvegen</string>
-    <string name="back_button_action_desc">Kies wat terugvegen vanaf het dashboard doet</string>
+    <string name="back_button_action">Terug-actie</string>
+    <string name="back_button_action_desc">Wat er gebeurt als je terugveegt of op terug drukt vanaf het dashboard</string>
     <string name="back_button_action_ask">Vragen</string>
     <string name="back_button_action_background">Achtergrond</string>
     <string name="back_button_action_stop">Alles stoppen</string>

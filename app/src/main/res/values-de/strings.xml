@@ -152,8 +152,8 @@
     <string name="auto_connect_on_start">Automatisch verbinden beim Start</string>
     <string name="last_device">Letztes Gerät: %1$s</string>
     <string name="section_application">Anwendung</string>
-    <string name="back_button_action">Beim Zurückwischen</string>
-    <string name="back_button_action_desc">Lege fest, was beim Zurückwischen vom Dashboard passiert</string>
+    <string name="back_button_action">Zurück-Aktion</string>
+    <string name="back_button_action_desc">Was passiert, wenn du vom Dashboard zurückgehst</string>
     <string name="back_button_action_ask">Fragen</string>
     <string name="back_button_action_background">Hintergrund</string>
     <string name="back_button_action_stop">Alles stoppen</string>

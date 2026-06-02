@@ -156,8 +156,8 @@
     <string name="wheel_name_brand">Märke</string>
     <string name="last_device">Senaste enhet: %1$s</string>
     <string name="section_application">Applikation</string>
-    <string name="back_button_action">När du sveper tillbaka</string>
-    <string name="back_button_action_desc">Välj vad svep bakåt från huvudskärmen gör</string>
+    <string name="back_button_action">Bakåt-åtgärd</string>
+    <string name="back_button_action_desc">Vad som händer när du sveper eller trycker bakåt från huvudskärmen</string>
     <string name="back_button_action_ask">Fråga</string>
     <string name="back_button_action_background">Bakgrund</string>
     <string name="back_button_action_stop">Stoppa allt</string>

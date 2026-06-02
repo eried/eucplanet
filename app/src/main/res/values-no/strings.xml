@@ -152,8 +152,8 @@
     <string name="auto_connect_on_start">Auto-koble til ved start</string>
     <string name="last_device">Siste enhet: %1$s</string>
     <string name="section_application">Applikasjon</string>
-    <string name="back_button_action">Når du sveiper tilbake</string>
-    <string name="back_button_action_desc">Velg hva som skjer når du sveiper tilbake fra dashbordet</string>
+    <string name="back_button_action">Tilbake-handling</string>
+    <string name="back_button_action_desc">Hva som skjer når du sveiper eller trykker tilbake fra dashbordet</string>
     <string name="back_button_action_ask">Spør</string>
     <string name="back_button_action_background">Bakgrunn</string>
     <string name="back_button_action_stop">Stopp alt</string>

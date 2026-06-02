@@ -156,8 +156,8 @@
     <string name="wheel_name_brand">Marque</string>
     <string name="last_device">Dernier appareil : %1$s</string>
     <string name="section_application">Application</string>
-    <string name="back_button_action">En balayant vers l\'arrière</string>
-    <string name="back_button_action_desc">Choisis ce que fait le balayage retour depuis l\'écran principal</string>
+    <string name="back_button_action">Action retour</string>
+    <string name="back_button_action_desc">Ce qui se passe quand tu balaies ou appuies sur retour depuis l\'écran principal</string>
     <string name="back_button_action_ask">Demander</string>
     <string name="back_button_action_background">Arrière-plan</string>
     <string name="back_button_action_stop">Tout arrêter</string>

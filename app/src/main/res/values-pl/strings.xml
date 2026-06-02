@@ -219,8 +219,8 @@
     <string name="wheel_name_brand">Marka</string>
     <string name="last_device">Ostatnie urządzenie: %1$s</string>
     <string name="section_application">Aplikacja</string>
-    <string name="back_button_action">Po przesunięciu wstecz</string>
-    <string name="back_button_action_desc">Wybierz, co robi przesunięcie wstecz z głównego ekranu</string>
+    <string name="back_button_action">Akcja wstecz</string>
+    <string name="back_button_action_desc">Co się dzieje po przesunięciu lub naciśnięciu wstecz z głównego ekranu</string>
     <string name="back_button_action_ask">Pytaj</string>
     <string name="back_button_action_background">W tle</string>
     <string name="back_button_action_stop">Zatrzymaj wszystko</string>

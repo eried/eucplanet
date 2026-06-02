@@ -219,8 +219,8 @@
     <string name="wheel_name_brand">Бренд</string>
     <string name="last_device">Останній пристрій: %1$s</string>
     <string name="section_application">Застосунок</string>
-    <string name="back_button_action">При свайпі назад</string>
-    <string name="back_button_action_desc">Вибери, що робить свайп назад з головного екрана</string>
+    <string name="back_button_action">Дія «Назад»</string>
+    <string name="back_button_action_desc">Що відбувається, коли свайпаєш або тиснеш «Назад» з головного екрана</string>
     <string name="back_button_action_ask">Питати</string>
     <string name="back_button_action_background">У фоні</string>
     <string name="back_button_action_stop">Зупинити все</string>

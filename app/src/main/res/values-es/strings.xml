@@ -152,8 +152,8 @@
     <string name="auto_connect_on_start">Conectar automáticamente al inicio</string>
     <string name="last_device">Último dispositivo: %1$s</string>
     <string name="section_application">Aplicación</string>
-    <string name="back_button_action">Al deslizar atrás</string>
-    <string name="back_button_action_desc">Elige qué hace deslizar atrás desde el panel principal</string>
+    <string name="back_button_action">Acción de volver</string>
+    <string name="back_button_action_desc">Qué ocurre al deslizar o pulsar atrás desde el panel principal</string>
     <string name="back_button_action_ask">Preguntar</string>
     <string name="back_button_action_background">Segundo plano</string>
     <string name="back_button_action_stop">Detener todo</string>

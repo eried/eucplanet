@@ -507,8 +507,8 @@
     <string name="wheel_name_brand">Brand</string>
     <string name="last_device">Last device: %1$s</string>
     <string name="section_application">Application</string>
-    <string name="back_button_action">When swiping back</string>
-    <string name="back_button_action_desc">Choose what swiping back from the dashboard does</string>
+    <string name="back_button_action">Back action</string>
+    <string name="back_button_action_desc">What happens when you swipe or press back from the dashboard</string>
     <string name="back_button_action_ask">Ask</string>
     <string name="back_button_action_background">Background</string>
     <string name="back_button_action_stop">Stop all</string>

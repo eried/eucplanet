@@ -219,8 +219,8 @@
     <string name="wheel_name_brand">Marca</string>
     <string name="last_device">Ultimo dispositivo: %1$s</string>
     <string name="section_application">Applicazione</string>
-    <string name="back_button_action">Scorrendo indietro</string>
-    <string name="back_button_action_desc">Scegli cosa fa lo scorrimento indietro dalla schermata principale</string>
+    <string name="back_button_action">Azione indietro</string>
+    <string name="back_button_action_desc">Cosa succede quando scorri o premi indietro dalla schermata principale</string>
     <string name="back_button_action_ask">Chiedi</string>
     <string name="back_button_action_background">In background</string>
     <string name="back_button_action_stop">Ferma tutto</string>
