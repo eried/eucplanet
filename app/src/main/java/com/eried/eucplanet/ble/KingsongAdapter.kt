@@ -84,7 +84,21 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     override fun pollSettings(): ByteArray = ByteArray(0)
 
     override fun horn(): ByteArray = KingsongCommands.horn()
-    override fun setLight(on: Boolean): ByteArray = KingsongCommands.setLight(on)
+
+    /**
+     * Optimistically update `lastTelemetry.lightOn` at the moment the rider
+     * taps the toggle, *before* the wheel echoes the new state back on its
+     * next 0xB9 frame (~50-150 ms round trip). Without this, the first 0xA9
+     * frame that arrives after the tap would carry the old `lightOn` value
+     * (carried forward from previous `lastTelemetry`), then the B9 echo
+     * would flip it -- yielding one stray TTS "off / on" flicker per tap
+     * even after the rave-party fix. With this, the adapter's view matches
+     * the rider's intent immediately and the B9 echo just re-confirms it.
+     */
+    override fun setLight(on: Boolean): ByteArray {
+        lastTelemetry = lastTelemetry.copy(lightOn = on)
+        return KingsongCommands.setLight(on)
+    }
 
     /**
      * KingSong's `0x85` packet writes all four speed thresholds at once. We
