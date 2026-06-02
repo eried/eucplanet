@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
-import com.eried.eucplanet.ui.theme.AccentOrange
+import com.eried.eucplanet.ui.theme.appColors
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -58,10 +58,12 @@ fun ExperimentalBanner(
     val context = LocalContext.current
     var showDialog by remember { mutableStateOf(false) }
 
+    val bannerAccent = MaterialTheme.appColors.statusWarn
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(AccentOrange.copy(alpha = 0.18f))
+            .background(bannerAccent.copy(alpha = 0.18f))
             .clickable {
                 if (state.explainerSeen) {
                     openIssueForm(context, detectedWheelName, detectedFirmware)
@@ -76,13 +78,13 @@ fun ExperimentalBanner(
         Icon(
             imageVector = Icons.Filled.Warning,
             contentDescription = null,
-            tint = AccentOrange,
+            tint = bannerAccent,
             modifier = Modifier.size(18.dp)
         )
         Text(
             text = stringResource(R.string.experimental_banner),
             style = MaterialTheme.typography.bodySmall,
-            color = AccentOrange
+            color = bannerAccent
         )
     }
 

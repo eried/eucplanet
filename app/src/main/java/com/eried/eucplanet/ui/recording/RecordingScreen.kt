@@ -76,9 +76,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -162,7 +160,7 @@ fun RecordingScreen(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllTrips { showClearDialog = false }
-                }) { Text(stringResource(R.string.action_delete_all), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.action_cancel)) }
@@ -188,7 +186,7 @@ fun RecordingScreen(
                 TextButton(onClick = {
                     viewModel.deleteTrip(tripToDelete!!)
                     tripToDelete = null
-                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { tripToDelete = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -250,7 +248,7 @@ fun RecordingScreen(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = AccentRed) },
+                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = MaterialTheme.appColors.statusDanger) },
                                 onClick = {
                                     showManageMenu = false
                                     showClearDialog = true
@@ -268,7 +266,7 @@ fun RecordingScreen(
             if (!importing) {
                 FloatingActionButton(
                     onClick = { viewModel.toggleRecording() },
-                    containerColor = AccentRed
+                    containerColor = MaterialTheme.appColors.statusDanger
                 ) {
                     Icon(
                         if (recording) Icons.Default.Stop else Icons.Default.FiberManualRecord,
@@ -337,7 +335,7 @@ fun RecordingScreen(
                     Icon(
                         if (gpsFix) Icons.Default.LocationOn else Icons.Default.LocationOff,
                         contentDescription = null,
-                        tint = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (gpsFix) MaterialTheme.appColors.statusGood else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(Modifier.size(6.dp))
@@ -347,7 +345,7 @@ fun RecordingScreen(
                             else R.string.recording_gps_waiting
                         ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (gpsFix) MaterialTheme.appColors.statusGood else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -473,7 +471,7 @@ private fun TripCard(
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (isRecording) AccentRed.copy(alpha = 0.15f)
+            containerColor = if (isRecording) MaterialTheme.appColors.statusDanger.copy(alpha = 0.15f)
                              else MaterialTheme.colorScheme.surfaceVariant
         ),
         shape = RoundedCornerShape(12.dp),
@@ -487,7 +485,7 @@ private fun TripCard(
         ) {
             if (isRecording) {
                 Icon(Icons.Default.FiberManualRecord, null,
-                    tint = AccentRed, modifier = Modifier
+                    tint = MaterialTheme.appColors.statusDanger, modifier = Modifier
                         .size(16.dp)
                         .padding(end = 4.dp))
             }
@@ -495,7 +493,7 @@ private fun TripCard(
                 Text(
                     dateFormat.format(Date(trip.startTime)),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (isRecording) AccentRed else MaterialTheme.colorScheme.onSurface
+                    color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )
                 if (isRecording) {
                     val elapsed = (now - trip.startTime) / 1000
@@ -508,7 +506,7 @@ private fun TripCard(
                             distanceUnitLabel, minutes, seconds
                         ),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = AccentRed
+                        color = MaterialTheme.appColors.statusDanger
                     )
                 } else {
                     val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
@@ -565,7 +563,7 @@ private fun PendingStatusIcon() {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.Pending, contentDescription = msg, tint = AccentOrange,
+        Icon(Icons.Default.Pending, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
             modifier = Modifier.size(20.dp))
     }
 }
@@ -582,7 +580,7 @@ private fun UploadStatusIcon(trip: TripRecord) {
     val snackbar = LocalSnackbar.current
     val scope = LocalSnackbarScope.current
     IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
-        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = AccentGreen,
+        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = MaterialTheme.appColors.statusGood,
             modifier = Modifier.size(20.dp))
     }
 }

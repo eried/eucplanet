@@ -65,6 +65,9 @@ private const val ROUTE_BUILDER_HTML_1: String = """
      while it pans. Hard-pinning each tile to opaque + no transitions
      stops the flicker entirely. */
   .leaflet-tile { opacity: 1 !important; transition: none !important; }
+  /* On-map controls (zoom +/-, recenter) follow the rider's theme accent,
+     pushed from native via nativeSetAccent -> the --accent CSS variable. */
+  .leaflet-bar a, .leaflet-control a { color: var(--accent, #4FC3F7) !important; }
   .leaflet-tile-container { transition: none !important; }
   .leaflet-fade-anim .leaflet-tile { opacity: 1 !important; }
   /* Force GPU compositing on the panes we animate. Without explicit
@@ -1509,6 +1512,9 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // accent no longer re-tints the route. Kept callable so existing
     // composables that push the accent don't crash.
     accentColor = hex;
+    // The on-map controls (zoom +/-, recenter) DO follow the theme accent via
+    // the --accent CSS variable, so the map chrome is part of the global theme.
+    try { document.documentElement.style.setProperty('--accent', hex); } catch(e){}
   };
 
   // Full path vs Next segment. Re-render so the dashed preview appears /

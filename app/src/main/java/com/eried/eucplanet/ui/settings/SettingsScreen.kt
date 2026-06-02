@@ -463,7 +463,6 @@ fun SettingsScreen(
         stringResource(R.string.section_display),
         stringResource(R.string.units_label),
         stringResource(R.string.theme),
-        stringResource(R.string.accent_color),
         stringResource(R.string.show_gauge_color_band),
         stringResource(R.string.language)
     ).joinToString(" ")
@@ -5178,12 +5177,16 @@ private fun DisplayTab(
     settings: com.eried.eucplanet.data.model.AppSettings,
     viewModel: SettingsViewModel
 ) {
-    val themeOptions = listOf(
-        "black" to stringResource(R.string.theme_black),
-        "dark" to stringResource(R.string.theme_dark),
-        "light" to stringResource(R.string.theme_light),
-        "system" to stringResource(R.string.theme_system)
-    )
+    // Theme combo: built-in themes (Light, Dark, Pure Black) + saved customs
+    // (visible once a backup folder is set). Replaces the legacy theme-mode +
+    // accent pickers — the accent is now the active theme's `primary` token.
+    val themeChoices = viewModel.themeChoices.collectAsState().value
+    LaunchedEffect(settings.activeThemeName, settings.syncFolderUri, settings.themeDirty) {
+        viewModel.refreshThemeChoices()
+    }
+    val currentTheme = settings.activeThemeName.ifEmpty {
+        themeChoices.builtIns.firstOrNull() ?: "Pure Black"
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -5202,18 +5205,19 @@ private fun DisplayTab(
             onSelect = { viewModel.updateLanguage(it) }
         )
 
-        SimpleDropdown(
+        ThemeDropdown(
             label = stringResource(R.string.theme),
-            currentKey = settings.themeMode,
-            options = themeOptions,
-            onSelect = { viewModel.updateThemeMode(it) }
+            current = if (settings.themeDirty) "$currentTheme (unsaved)" else currentTheme,
+            builtIns = themeChoices.builtIns,
+            saved = themeChoices.saved,
+            unsaved = themeChoices.unsaved,
+            onSelect = { viewModel.selectTheme(it) },
+            onSelectUnsaved = { viewModel.selectUnsavedTheme(it) }
         )
 
-        Text(stringResource(R.string.accent_color), style = MaterialTheme.typography.labelLarge)
-        AccentPicker(
-            current = settings.accentColor,
-            onSelect = { viewModel.updateAccentColor(it) }
-        )
+        SwitchSetting("Theme customization widget", settings.themeEditorEnabled) {
+            viewModel.setThemeEditorEnabled(it)
+        }
 
         SwitchSetting(
             stringResource(R.string.show_gauge_color_band),
@@ -6892,6 +6896,60 @@ internal fun GaugeThresholdSlider(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+private fun ThemeDropdown(
+    label: String,
+    current: String,
+    builtIns: List<String>,
+    saved: List<String>,
+    unsaved: List<String>,
+    onSelect: (String) -> Unit,
+    onSelectUnsaved: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = current,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(highlightMatches(label, LocalSettingsSearchQuery.current)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            builtIns.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = { onSelect(name); expanded = false }
+                )
+            }
+            // Saved custom themes + unsaved drafts live below the 3 built-ins,
+            // behind a divider. Drafts are shown as "<name> (unsaved)".
+            if (saved.isNotEmpty() || unsaved.isNotEmpty()) {
+                androidx.compose.material3.HorizontalDivider()
+            }
+            saved.forEach { name ->
+                DropdownMenuItem(
+                    text = { Text(name) },
+                    onClick = { onSelect(name); expanded = false }
+                )
+            }
+            unsaved.forEach { base ->
+                DropdownMenuItem(
+                    text = { Text("$base (unsaved)") },
+                    onClick = { onSelectUnsaved(base); expanded = false }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun SimpleDropdown(
     label: String,
     currentKey: String,
@@ -6924,50 +6982,6 @@ private fun SimpleDropdown(
                     }
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun AccentPicker(current: String, onSelect: (String) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        com.eried.eucplanet.ui.theme.AccentOptions.forEach { opt ->
-            val selected = opt.key == current
-            val isRainbow = com.eried.eucplanet.ui.theme.isDefaultAccent(opt.key)
-            val rainbowBrush = if (isRainbow) androidx.compose.ui.graphics.Brush.sweepGradient(
-                listOf(
-                    com.eried.eucplanet.ui.theme.AccentRed,
-                    com.eried.eucplanet.ui.theme.AccentOrange,
-                    com.eried.eucplanet.ui.theme.AccentYellow,
-                    com.eried.eucplanet.ui.theme.AccentGreen,
-                    com.eried.eucplanet.ui.theme.AccentTeal,
-                    com.eried.eucplanet.ui.theme.AccentBlue,
-                    com.eried.eucplanet.ui.theme.AccentPurple,
-                    com.eried.eucplanet.ui.theme.AccentPink,
-                    com.eried.eucplanet.ui.theme.AccentRed
-                )
-            ) else null
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier
-                    .size(if (selected) 40.dp else 32.dp)
-                    .clip(androidx.compose.foundation.shape.CircleShape)
-                    .then(
-                        if (rainbowBrush != null) Modifier.background(rainbowBrush)
-                        else Modifier.background(opt.color)
-                    )
-                    .then(
-                        if (selected) Modifier.border(
-                            width = 2.dp,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            shape = androidx.compose.foundation.shape.CircleShape
-                        ) else Modifier
-                    )
-                    .clickable { onSelect(opt.key) }
-            )
         }
     }
 }
@@ -8175,7 +8189,8 @@ private fun StatusBadge(active: Boolean) {
         Icon(
             imageVector = Icons.Default.FiberManualRecord,
             contentDescription = null,
-            tint = if (active) Color(0xFF2ECC40) else LocalContentColor.current.copy(alpha = 0.5f),
+            tint = if (active) com.eried.eucplanet.ui.theme.LocalAppColors.current.connectionActive
+                else LocalContentColor.current.copy(alpha = 0.5f),
             modifier = Modifier.size(10.dp)
         )
         Text(

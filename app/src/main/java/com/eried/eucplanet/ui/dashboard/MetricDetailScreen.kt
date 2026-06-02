@@ -75,6 +75,8 @@ import com.eried.eucplanet.ui.theme.AccentBlue
 import com.eried.eucplanet.ui.theme.AccentGreen
 import com.eried.eucplanet.ui.theme.AccentOrange
 import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.GraphBounds
 import com.eried.eucplanet.util.GraphScale
 
@@ -352,7 +354,12 @@ private fun MetricDetailBody(
         null -> rawCurrentValueFor(key, wheelData)
     }
 
-    val accentColor = legacyType?.color ?: catalogSpec?.accent ?: AccentBlue
+    // Both legacyType.color (a baked MetricType palette Color) and catalogSpec.accent
+    // are baked palette constants; remap each to the active theme's matching token.
+    // The final fallback (blue, used as a metric accent) maps to metricVoltage.
+    val accentColor = (legacyType?.color ?: catalogSpec?.accent)
+        ?.let { MaterialTheme.appColors.remap(it) }
+        ?: MaterialTheme.appColors.metricVoltage
 
     Text(
         "${"%.1f".format(currentValue)} $unitLabel",

@@ -39,9 +39,7 @@ import com.eried.eucplanet.ble.radar.RadarScanResult
 import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.ThreatLevel
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * Sub-section of the Integration settings tab for pairing a rear-view radar
@@ -99,7 +97,7 @@ fun RadarSection(
                 Button(
                     onClick = { viewModel.unpair() },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
                 ) {
                     Text(stringResource(R.string.radar_unpair))
                 }
@@ -197,7 +195,7 @@ private fun UnpairedRadarCard(
             LeftAlignedScanButton(
                 label = stringResource(R.string.radar_stop_scan),
                 onClick = onStopScan,
-                containerColor = AccentRed
+                containerColor = MaterialTheme.appColors.statusDanger
             )
         } else {
             LeftAlignedScanButton(
@@ -221,10 +219,10 @@ private fun PairedRadarCard(
         ConnectionState.DISCONNECTED -> stringResource(R.string.radar_state_disconnected)
     }
     val stateColor = when (connectionState) {
-        ConnectionState.CONNECTED -> AccentGreen
+        ConnectionState.CONNECTED -> MaterialTheme.appColors.statusGood
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING ->
             MaterialTheme.colorScheme.onSurfaceVariant
-        ConnectionState.DISCONNECTED -> AccentRed
+        ConnectionState.DISCONNECTED -> MaterialTheme.appColors.statusDanger
     }
 
     Card(
@@ -254,7 +252,7 @@ private fun PairedRadarCard(
                     Text(
                         stringResource(R.string.radar_clear),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = AccentGreen
+                        color = MaterialTheme.appColors.statusGood
                     )
                 } else {
                     // Debug-friendly per-target dump so the user can confirm
@@ -275,8 +273,8 @@ private fun PairedRadarCard(
                     ) {
                         frame.threats.sortedBy { it.distanceM }.forEach { t ->
                             val color = when (t.threatLevel) {
-                                ThreatLevel.FAST_APPROACH -> AccentRed
-                                ThreatLevel.APPROACHING -> AccentOrange
+                                ThreatLevel.FAST_APPROACH -> MaterialTheme.appColors.statusDanger
+                                ThreatLevel.APPROACHING -> MaterialTheme.appColors.statusWarn
                                 ThreatLevel.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
                             }
                             Text(

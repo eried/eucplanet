@@ -1,11 +1,13 @@
 package com.eried.eucplanet.ui.common
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import com.eried.eucplanet.ui.theme.appColors
 
 val LocalSettingsSearchQuery = compositionLocalOf { "" }
 
@@ -13,7 +15,7 @@ val LocalSettingsSearchQuery = compositionLocalOf { "" }
 fun highlightMatches(text: String, query: String): AnnotatedString {
     val q = query.trim()
     if (q.isEmpty()) return AnnotatedString(text)
-    val highlightBg = Color(0xFFFFEB3B).copy(alpha = 0.55f)
+    val highlightBg = MaterialTheme.appColors.selection.copy(alpha = 0.55f)
     val highlightFg = Color.Black
     return buildAnnotatedString {
         append(text)
