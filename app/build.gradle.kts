@@ -254,6 +254,9 @@ dependencies {
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
 
+    // Play Integrity API (Standard Integrity Manager for request-hash-bound tokens)
+    implementation("com.google.android.play:integrity:1.4.0")
+
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
     // org.json is bundled in the Android SDK but not available on the JVM test
