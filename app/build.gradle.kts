@@ -258,19 +258,22 @@ dependencies {
     testImplementation(libs.junit)
 }
 
-// Gradle Play Publisher: `./gradlew :app:publishReleaseBundle` uploads the
-// signed AAB to the Play "Open testing" (beta) track and (releaseStatus =
-// COMPLETED) sends it for review so it auto-publishes on approval. Credentials
-// come from a local play-service-account.json (gitignored) or, in CI, the
-// ANDROID_PUBLISHER_CREDENTIALS env var. When neither is present the publish
-// tasks just error if invoked; normal builds are unaffected. Release notes are
-// read from src/main/play/release-notes/<locale>/default.txt.
+// Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
+//   ./gradlew :app:publishReleaseBundle                     -> Open testing (beta)
+//   ./gradlew :app:publishReleaseBundle --track production  -> Production
+// Default track is beta; --track overrides per run (also --release-status draft
+// or --user-fraction 0.1 for a held / staged push). releaseStatus = COMPLETED
+// means the upload is sent for review and auto-publishes on approval.
+// Credentials: play-service-account.json at the repo root (gitignored).
+// Release notes come from src/main/play/release-notes/en-US/default.txt, which
+// is rewritten from reviewed text at release time (drafted + approved, never
+// auto-generated from commit messages).
 play {
     val playCreds = rootProject.file("play-service-account.json")
     if (playCreds.exists()) {
         serviceAccountCredentials.set(playCreds)
     }
-    track.set("beta") // Play "Open testing"
+    track.set("beta") // default; override per run with --track production
     defaultToAppBundles.set(true)
     releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }
