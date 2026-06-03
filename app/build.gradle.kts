@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.play.publisher)
 }
 
 val keystorePropsFile = rootProject.file("keystore.properties")
@@ -255,4 +256,21 @@ dependencies {
 
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
+}
+
+// Gradle Play Publisher: `./gradlew :app:publishReleaseBundle` uploads the
+// signed AAB to the Play "Open testing" (beta) track and (releaseStatus =
+// COMPLETED) sends it for review so it auto-publishes on approval. Credentials
+// come from a local play-service-account.json (gitignored) or, in CI, the
+// ANDROID_PUBLISHER_CREDENTIALS env var. When neither is present the publish
+// tasks just error if invoked; normal builds are unaffected. Release notes are
+// read from src/main/play/release-notes/<locale>/default.txt.
+play {
+    val playCreds = rootProject.file("play-service-account.json")
+    if (playCreds.exists()) {
+        serviceAccountCredentials.set(playCreds)
+    }
+    track.set("beta") // Play "Open testing"
+    defaultToAppBundles.set(true)
+    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }

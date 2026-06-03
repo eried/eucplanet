@@ -25,6 +25,7 @@ okhttp = "4.12.0"
 kotlinxSerialization = "1.7.3"
 jmdns = "3.5.9"
 junit = "4.13.2"
+playPublisher = "3.12.1"
 
 [libraries]
 # Compose
@@ -143,3 +144,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+play-publisher = { id = "com.github.triplet.play", version.ref = "playPublisher" }

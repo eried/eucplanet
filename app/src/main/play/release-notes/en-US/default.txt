@@ -1,0 +1,4 @@
+- "(factory)" reset moved directly under "(default)" in the backup Restore picker, with a divider above your named backups.
+- Shorter wording on the factory reset confirmation.
+- Removed the auto-record tip (auto-record is on by default).
+- Translation updates.
