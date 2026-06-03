@@ -20,13 +20,27 @@ sealed interface UploadResult {
     data class Retry(val code: Int, val retryAfterSec: Long?) : UploadResult      // 429/5xx/network
 }
 
+/**
+ * Contract for the eucstats HTTP API. Extracted as an interface so
+ * [EucStatsRepository] can be tested with a fake implementation on the JVM
+ * without a live server or OkHttp.
+ */
+interface EucStatsApiContract {
+    fun registerRider(payload: JSONObject): JSONObject?
+    fun getCard(storeId: String): RiderCard?
+    fun patchRider(storeId: String, payload: JSONObject): Int
+    fun deleteRider(storeId: String): Boolean
+    fun exportRider(storeId: String): String?
+    fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult
+}
+
 class EucStatsApi(
     private val client: OkHttpClient,
     private val baseUrl: () -> String,
-) {
+) : EucStatsApiContract {
     private val json = "application/json; charset=utf-8".toMediaType()
 
-    fun registerRider(payload: JSONObject): JSONObject? {
+    override fun registerRider(payload: JSONObject): JSONObject? {
         val req = Request.Builder().url("${baseUrl()}/riders")
             .post(payload.toString().toRequestBody(json)).build()
         client.newCall(req).execute().use { resp ->
@@ -35,7 +49,7 @@ class EucStatsApi(
         }
     }
 
-    fun getCard(storeId: String): RiderCard? {
+    override fun getCard(storeId: String): RiderCard? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId/card").get().build()
         client.newCall(req).execute().use { resp ->
             if (!resp.isSuccessful) return null
@@ -53,24 +67,24 @@ class EucStatsApi(
         }
     }
 
-    fun patchRider(storeId: String, payload: JSONObject): Int {
+    override fun patchRider(storeId: String, payload: JSONObject): Int {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId")
             .patch(payload.toString().toRequestBody(json)).build()
         client.newCall(req).execute().use { return it.code }
     }
 
-    fun deleteRider(storeId: String): Boolean {
+    override fun deleteRider(storeId: String): Boolean {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId").delete().build()
         client.newCall(req).execute().use { return it.isSuccessful }
     }
 
-    fun exportRider(storeId: String): String? {
+    override fun exportRider(storeId: String): String? {
         val req = Request.Builder().url("${baseUrl()}/riders/$storeId/export").get().build()
         client.newCall(req).execute().use { return if (it.isSuccessful) it.body?.string() else null }
     }
 
     /** POST /trips multipart: meta (JSON string) + trip (gzipped CSV). */
-    fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult {
+    override fun uploadTrip(metaJson: String, gzippedCsv: ByteArray): UploadResult {
         val body = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("meta", metaJson)
             .addFormDataPart("trip", "trip.csv.gz",
