@@ -47,6 +47,9 @@ android {
             if (process.exitValue() == 0) out else ""
         } catch (e: Exception) { "" }
         buildConfigField("String", "GIT_BRANCH", "\"$gitBranch\"")
+
+        buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"https://eucstats.ried.no/api/v1\"")
+        buildConfigField("long", "EUCSTATS_GCP_PROJECT_NUMBER", "0L")
     }
 
     signingConfigs {
@@ -61,6 +64,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "EUCSTATS_API_BASE_URL", "\"http://10.0.2.2:8000/api/v1\"")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true

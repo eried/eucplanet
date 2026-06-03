@@ -11,6 +11,7 @@ import com.eried.eucplanet.data.eucstats.EucStatsClock
 import com.eried.eucplanet.data.eucstats.EucStatsOsVersion
 import com.eried.eucplanet.data.eucstats.EucStatsSettingsPort
 import com.eried.eucplanet.data.eucstats.EucStatsTripFileBytes
+import com.eried.eucplanet.data.eucstats.PlayIntegrityAttestation
 import com.eried.eucplanet.data.eucstats.StubAttestation
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
@@ -28,9 +29,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object EucStatsModule {
 
-    /** Base URL for the eucstats API. */
-    private const val EUCSTATS_BASE_URL = "https://api.eucstats.com/v1"
-
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
@@ -38,19 +36,21 @@ object EucStatsModule {
     @Provides
     @Singleton
     fun provideEucStatsApi(client: OkHttpClient): EucStatsApiContract =
-        EucStatsApi(client) { EUCSTATS_BASE_URL }
+        EucStatsApi(client) { BuildConfig.EUCSTATS_API_BASE_URL }
 
     /**
-     * Attestation provider. Uses the stub implementation which the server
-     * accepts while Play Integrity is not yet fully configured.
-     * Swap [StubAttestation] for [PlayIntegrityAttestation] once a real
-     * GCP project number is available via a build config field.
+     * Attestation provider. Uses [PlayIntegrityAttestation] when a non-zero
+     * [BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER] is configured; falls back to
+     * [StubAttestation] (which the server accepts in stub mode) until the real
+     * GCP project number is supplied.
      */
     @Provides
     @Singleton
-    @Suppress("UNUSED_PARAMETER")
     fun provideAttestation(@ApplicationContext context: Context): Attestation =
-        StubAttestation()
+        if (BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER != 0L)
+            PlayIntegrityAttestation(context, BuildConfig.EUCSTATS_GCP_PROJECT_NUMBER)
+        else
+            StubAttestation()
 
     /**
      * Bridge between [EucStatsSettingsPort] (Android-free interface used by
