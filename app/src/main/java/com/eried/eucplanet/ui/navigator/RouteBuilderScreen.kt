@@ -377,6 +377,18 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Push the themeable per-mode route colors + preview line so editing the
+    // routeWalk/Bike/Drive/Straight/Preview tokens recolors the map (applied on
+    // the next route/preview redraw). Order matches nativeSetRouteColors().
+    val rc = MaterialTheme.appColors
+    val routeColorsArg = listOf(rc.routeWalk, rc.routeBike, rc.routeDrive, rc.routeStraight, rc.routePreview)
+        .joinToString(",") { "'#%06X'".format(0xFFFFFF and it.toArgb()) }
+    LaunchedEffect(pageReady, routeColorsArg) {
+        if (pageReady) {
+            webView?.evaluateJavascript("nativeSetRouteColors($routeColorsArg);", null)
+        }
+    }
+
     // Apply the saved base map style (dark / light / satellite).
     LaunchedEffect(pageReady, mapType) {
         if (pageReady) {

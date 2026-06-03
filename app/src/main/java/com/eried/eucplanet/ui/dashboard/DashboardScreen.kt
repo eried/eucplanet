@@ -273,6 +273,16 @@ fun DashboardScreen(
     // tap opens.
     var showAboutDialog by remember { mutableStateOf(false) }
     var showDiagnosticsDialog by remember { mutableStateOf(false) }
+    // The service-mode overlay floats outside the dashboard, so it can't flip
+    // the local dialog state above directly. Instead it posts a request to
+    // DashboardDialogBus and navigates here; we honor it and clear the bus.
+    val dialogRequest by DashboardDialogBus.pending.collectAsState()
+    androidx.compose.runtime.LaunchedEffect(dialogRequest) {
+        when (dialogRequest) {
+            "about" -> { showAboutDialog = true; DashboardDialogBus.consume() }
+            "service" -> { showDiagnosticsDialog = true; DashboardDialogBus.consume() }
+        }
+    }
     // Holds the CustomTile whose SHOW_QR action was just tapped on the
     // live dashboard. Null when the QR popup is dismissed.
     var showQrForTile by remember { mutableStateOf<com.eried.eucplanet.ui.settings.CustomTile?>(null) }
@@ -2086,42 +2096,49 @@ fun DashboardScreen(
                                     }
                                 }
                                 else -> {
-                                    // Catalog-driven generic action. OPEN_*,
-                                    // unit toggle, alarms-mute and reset-trip
-                                    // need handles the FlicManager service
-                                    // doesn't have (navController, snackbar,
-                                    // settings writer), so they dispatch
-                                    // locally; everything else routes through
-                                    // the shared physical-surface dispatch.
+                                    // Catalog-driven generic action. Dashboard-only
+                                    // actions (OPEN_*, unit toggle, alarms-mute,
+                                    // reset-trip) need handles the FlicManager
+                                    // service doesn't have (navController, snackbar,
+                                    // settings writer); those are supplied via the
+                                    // ActionUi below. Everything else falls through
+                                    // to the shared physical-surface dispatch. This
+                                    // is the same ActionUi the service-mode overlay
+                                    // builds, so both surfaces fire the full catalog.
                                     val actionSpec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key)
                                     val labelText = actionSpec?.let { stringResource(it.labelRes) } ?: key
-                                    val tap: () -> Unit = when (key) {
-                                        "OPEN_ABOUT" -> ({ showAboutDialog = true })
-                                        "OPEN_NAVIGATION" -> onNavigateToNavigator
-                                        "OPEN_STUDIO" -> onNavigateToStudio
-                                        "OPEN_SERVICE" -> ({ showDiagnosticsDialog = true })
-                                        "OPEN_TRIPS" -> onNavigateToRecording
-                                        "TOGGLE_UNITS" -> ({
-                                            viewModel.toggleUnits()
-                                            snackbarScope.launch {
-                                                snackbar.showSnackbar(
-                                                    toastContext.getString(R.string.action_chip_toggle_units)
-                                                )
-                                            }
-                                        })
-                                        "MUTE_ALARMS" -> ({ viewModel.toggleAlarmsMuted() })
-                                        "RESET_TRIP" -> ({
-                                            snackbarScope.launch {
-                                                val ok = viewModel.resetWheelTrip()
-                                                snackbar.showSnackbar(
-                                                    toastContext.getString(
-                                                        if (ok) R.string.action_chip_reset_trip
-                                                        else R.string.action_unsupported_on_wheel
-                                                    )
-                                                )
-                                            }
-                                        })
-                                        else -> ({ viewModel.dispatchActionByName(key) })
+                                    val tap: () -> Unit = {
+                                        com.eried.eucplanet.data.model.dispatchAction(
+                                            key,
+                                            ui = object : com.eried.eucplanet.data.model.ActionUi {
+                                                override fun openNavigation() = onNavigateToNavigator()
+                                                override fun openStudio() = onNavigateToStudio()
+                                                override fun openAbout() { showAboutDialog = true }
+                                                override fun openService() { showDiagnosticsDialog = true }
+                                                override fun openTrips() = onNavigateToRecording()
+                                                override fun toggleUnits() {
+                                                    viewModel.toggleUnits()
+                                                    snackbarScope.launch {
+                                                        snackbar.showSnackbar(
+                                                            toastContext.getString(R.string.action_chip_toggle_units)
+                                                        )
+                                                    }
+                                                }
+                                                override fun toggleAlarmsMuted() { viewModel.toggleAlarmsMuted() }
+                                                override fun resetTrip() {
+                                                    snackbarScope.launch {
+                                                        val ok = viewModel.resetWheelTrip()
+                                                        snackbar.showSnackbar(
+                                                            toastContext.getString(
+                                                                if (ok) R.string.action_chip_reset_trip
+                                                                else R.string.action_unsupported_on_wheel
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            fallback = { viewModel.dispatchActionByName(it) }
+                                        )
                                     }
                                     val offlineSafe = key.startsWith("OPEN_") ||
                                             key == "TOGGLE_UNITS" || key == "MUTE_ALARMS" ||

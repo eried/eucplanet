@@ -22,8 +22,13 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.eried.eucplanet.data.model.ActionUi
 import com.eried.eucplanet.data.model.AppSettings
+import com.eried.eucplanet.data.model.dispatchAction
+import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.repository.SettingsRepository
+import com.eried.eucplanet.ui.navigation.Screen
+import com.eried.eucplanet.diagnostics.ConnectionInfo
 import com.eried.eucplanet.diagnostics.DiagnosticsLogger
 import com.eried.eucplanet.diagnostics.ServiceModeOverlay
 import com.eried.eucplanet.diagnostics.ServiceOverlaySnapshot
@@ -352,6 +357,10 @@ class MainActivity : AppCompatActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    // Main-thread scope for the service overlay's settings/wheel
+                    // action hooks (toggle units, mute, reset trip) — nav actions
+                    // run synchronously on the click thread and don't need it.
+                    val overlayScope = androidx.compose.runtime.rememberCoroutineScope()
                     // When a Share-to-app intent dropped a pending stop into
                     // the repository (see consumeShareIntent), jump straight
                     // to the route builder. The Builder's own LaunchedEffect
@@ -401,15 +410,65 @@ class MainActivity : AppCompatActivity() {
                             ServiceModeOverlay(
                                 snapshot = activeSnapshot,
                                 onFireAction = { key ->
-                                    flicManager.dispatchActionByName(key)
-                                    // Re-snapshot so the action-status
-                                    // readout reflects any toggle that
-                                    // just flipped. Tiny delay would be
-                                    // nicer but the dispatch path itself
-                                    // is async — for now the rider can
-                                    // press Fire again to re-read.
+                                    // Same unified dispatch the dashboard tiles use:
+                                    // dashboard-only actions run through this overlay's
+                                    // ActionUi (it has the navController), everything
+                                    // else falls through to the physical-surface path.
+                                    dispatchAction(
+                                        key,
+                                        ui = object : ActionUi {
+                                            override fun openNavigation() {
+                                                navController.navigate(Screen.RouteBuilder.route) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            override fun openStudio() {
+                                                navController.navigate(Screen.OverlayStudio.createRoute(null)) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            // OPEN_ABOUT / OPEN_SERVICE are dashboard-local
+                                            // dialogs, so post the request to the dashboard
+                                            // via the bus, then navigate there to open it.
+                                            override fun openAbout() {
+                                                com.eried.eucplanet.ui.dashboard.DashboardDialogBus.open("about")
+                                                navController.navigate(Screen.Dashboard.route) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            override fun openService() {
+                                                com.eried.eucplanet.ui.dashboard.DashboardDialogBus.open("service")
+                                                navController.navigate(Screen.Dashboard.route) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            override fun openTrips() {
+                                                navController.navigate(Screen.Recording.route) { launchSingleTop = true }
+                                                ServiceOverlayState.dismiss()
+                                            }
+                                            override fun toggleUnits() {
+                                                overlayScope.launch {
+                                                    settingsRepository.update(settingsRepository.get().withUnitsToggled())
+                                                }
+                                            }
+                                            override fun toggleAlarmsMuted() {
+                                                overlayScope.launch {
+                                                    val c = settingsRepository.get()
+                                                    settingsRepository.update(c.copy(alarmsMuted = !c.alarmsMuted))
+                                                }
+                                            }
+                                            override fun resetTrip() {
+                                                overlayScope.launch {
+                                                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                                        wheelRepository.resetTripMeter()
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        fallback = { flicManager.dispatchActionByName(it) }
+                                    )
+                                    // Re-snapshot so the action-status readout reflects
+                                    // any toggle that just flipped. The dispatch path is
+                                    // async, so the rider can press Fire again to re-read.
                                     ServiceOverlayState.refresh(buildServiceOverlaySnapshot())
                                 },
+                                onRefresh = { ServiceOverlayState.refresh(buildServiceOverlaySnapshot()) },
                                 onDismiss = { ServiceOverlayState.dismiss() }
                             )
                         }
@@ -432,14 +491,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        // Service-mode override: while diagnostics is enabled, volume keys
-        // open the debug overlay instead of firing their bound action.
-        // The overlay snapshots wheel state + history so the rider can
-        // inspect raw values and fire any catalog action without needing
-        // a Flic button. Service mode is a developer-only state behind
-        // the "Enter" confirmation in the Service Mode dialog.
+        // Service-mode override: while diagnostics is enabled, volume-UP
+        // opens the debug overlay instead of firing its bound action.
+        // Volume-DOWN deliberately falls through to the normal volume-key
+        // handling below, so the rider can still bind an action to it (or
+        // just change phone volume) while the overlay is up. The overlay
+        // snapshots wheel state + history so the rider can inspect raw
+        // values and fire any catalog action without needing a Flic button.
+        // Service mode is a developer-only state behind the "Enter"
+        // confirmation in the Service Mode dialog.
         if (DiagnosticsLogger.enabled.value &&
-            (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) &&
+            keyCode == KeyEvent.KEYCODE_VOLUME_UP &&
             event?.repeatCount == 0
         ) {
             ServiceOverlayState.show(buildServiceOverlaySnapshot())
@@ -475,11 +537,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        // Service mode swallows the up event too, otherwise opening the
-        // overlay on KeyDown would still fire the bound click-action on
+        // Service mode swallows the volume-UP key-up too, otherwise opening
+        // the overlay on KeyDown would still fire the bound click-action on
         // KeyUp and the rider would get both the dialog and a HORN beep.
+        // Volume-DOWN is left alone so its normal binding still works.
         if (DiagnosticsLogger.enabled.value &&
-            (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
+            keyCode == KeyEvent.KEYCODE_VOLUME_UP
         ) {
             return true
         }
@@ -507,7 +570,65 @@ class MainActivity : AppCompatActivity() {
             tripRecording = tripRepository.recording.value,
             imperialUnits = s?.imperialUnits ?: false,
             safetyActive = wheelRepository.safetySpeedActive.value,
-            alarmsMuted = s?.alarmsMuted ?: false
+            alarmsMuted = s?.alarmsMuted ?: false,
+            connections = buildServiceConnections(s)
+        )
+    }
+
+    /** Snapshot of every transport for the overlay's Connections tab, read
+     *  from the repositories / bridges this activity already injects. */
+    private fun buildServiceConnections(s: AppSettings?): List<ConnectionInfo> = buildList {
+        add(
+            ConnectionInfo(
+                label = "Wheel (BLE)",
+                state = wheelRepository.connectionState.value.name,
+                detail = buildString {
+                    append("device: ").append(wheelRepository.connectedDeviceName.value ?: "—").append('\n')
+                    append("family: ").append(wheelRepository.connectedFamilyId ?: "—")
+                    append("\n\n── all wheel data ──\n")
+                    append(com.eried.eucplanet.diagnostics.reflectFields(wheelRepository.wheelData.value))
+                }
+            )
+        )
+        val nodes = wearBridge.pairedNodes.value
+        add(
+            ConnectionInfo(
+                label = "Watch (Wear)",
+                state = if (nodes.isEmpty()) "none" else "${nodes.size} node(s)",
+                detail = if (nodes.isEmpty()) "no paired watch" else nodes.joinToString("\n")
+            )
+        )
+        val flics = flicManager.pairedButtons.value
+        add(
+            ConnectionInfo(
+                label = "Flic buttons",
+                state = if (flics.isEmpty()) "none" else "${flics.size} paired",
+                detail = if (flics.isEmpty()) "no buttons paired"
+                else flics.joinToString("\n\n") { b ->
+                    buildString {
+                        append("name:  ").append(b.name ?: "?").append('\n')
+                        append("addr:  ").append(b.bdAddr).append('\n')
+                        // Flic2Button.connectionState: 0=disconnected 1=connecting
+                        // 2=starting 3=ready.
+                        append("state: ").append(b.connectionState)
+                    }
+                }
+            )
+        )
+        add(
+            ConnectionInfo(
+                label = "HUD",
+                state = if (s?.hudServerEnabled == true) "enabled" else "off",
+                // No live HUD counters are exposed to the activity, so this is the
+                // HUD config we have (endpoint + which screens / map style).
+                detail = buildString {
+                    append("endpoint: ")
+                    append(s?.hudIp?.ifBlank { "mDNS auto" } ?: "mDNS auto")
+                    append(':').append(s?.hudServerPort ?: 28080).append('\n')
+                    append("screens:  ").append(s?.hudScreensEnabled?.ifBlank { "(default)" } ?: "(default)").append('\n')
+                    append("map:      ").append(s?.hudMapStyle?.ifBlank { "(default)" } ?: "(default)")
+                }
+            )
         )
     }
 

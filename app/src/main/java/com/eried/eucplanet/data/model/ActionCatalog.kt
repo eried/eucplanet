@@ -42,10 +42,10 @@ import com.eried.eucplanet.R
  * active?" so any surface can render an active highlight. Null means the
  * action has no resting state (HORN, VOICE_ANNOUNCE, RESET_TRIP, etc.).
  *
- * [ActionSpec.execute] is the unified executor. Today it's stubbed because
- * Flic / volume / watch dispatch still goes through `FlicManager`; phase B
- * migrates those callers to invoke `ActionSpec.execute` directly so the
- * action layer owns dispatch end-to-end.
+ * Dispatch is unified through [dispatchAction]: eyes-free actions route
+ * through `FlicManager` (the shared physical-surface executor); dashboard-only
+ * actions ([ActionUi]) are handled by whichever Compose surface fired them
+ * (the dashboard action tile or the service-mode debug overlay).
  */
 
 /**
@@ -97,14 +97,6 @@ data class StatusContext(
     val safetyActive: Boolean = false
 )
 
-/**
- * Side-effecting context for [ActionSpec.execute]. Phase B fills this in
- * with real dependencies (wheel repository, voice service, navigation
- * controller, etc.); today it's a placeholder so the metadata refactor
- * doesn't have to touch dispatch code.
- */
-class ActionContext
-
 data class ActionSpec(
     /** Stable identifier persisted in settings (settings, group definitions, Flic bindings, watch bindings). */
     val key: String,
@@ -126,13 +118,7 @@ data class ActionSpec(
      * reader returns true when pressing would be a no-op, so the UI can
      * disable or de-emphasize the button.
      */
-    val statusReader: ((StatusContext) -> Boolean)? = null,
-    /**
-     * Fires the action. Stubbed in phase A — dispatch still routes through
-     * FlicManager.executeAction. Phase B migrates that executor here so
-     * every surface uses one path.
-     */
-    val execute: (suspend (ActionContext) -> Unit)? = null
+    val statusReader: ((StatusContext) -> Boolean)? = null
 )
 
 object ActionCatalog {

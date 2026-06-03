@@ -97,5 +97,9 @@ fun themedFilterChipColors(): SelectableChipColors {
     return FilterChipDefaults.filterChipColors(
         selectedContainerColor = c.chipSelected,
         containerColor = c.chipBackground,
+        // Without an explicit selected label/icon color, Material defaults it to a
+        // token that can match chipSelected (=primary) → invisible selected text.
+        selectedLabelColor = c.onPrimary,
+        selectedLeadingIconColor = c.onPrimary,
     )
 }

@@ -649,6 +649,10 @@ private const val ROUTE_BUILDER_HTML_1: String = """
   var nextActiveMarkerIdx = -1;
   var userMarker = null;
   var accentColor = '#4FC3F7';   // the rider's theme accent, pushed from native
+  // Per-travel-mode route colors + the gold preview line. Defaults match the
+  // historical hard-coded hex; pushed from native via nativeSetRouteColors so
+  // the routeWalk/Bike/Drive/Straight/Preview theme tokens drive them.
+  var routeWalk='#7E57C2', routeBike='#26A69A', routeDrive='#FB8C00', routeStraight='#42A5F5', routePreview='#FFCA28';
   // While navigation is running we deliberately freeze the builder: pins
   // become non-draggable and don't react to map clicks, the dotted arrival
   // ring is given a thicker, brighter stroke so the rider's eye is drawn to
@@ -849,7 +853,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     clearPendingLine();
     if (!pts || pts.length < 2) return;
     pendingLine = L.polyline(pts, {
-      color: '#FFCA28', weight: 5, opacity: 0.85,
+      color: routePreview, weight: 5, opacity: 0.85,
       dashArray: '8,12', lineCap: 'round'
     }).addTo(map);
   }
@@ -880,11 +884,11 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     var pts = active.map(function(w){ return [w.lat, w.lng]; });
     previewLineGeom = pts;
     previewLine = L.polyline(pts, {
-      color: '#FFCA28',
+      color: routePreview,
       weight: 5, opacity: 0.80,
       dashArray: '8,12', lineCap: 'round'
     }).addTo(map);
-    drawPreviewArrows(pts, '#FFCA28');
+    drawPreviewArrows(pts, routePreview);
   }
 
   // Travel-mode → polyline colour. Cool→warm activity gradient: each step up
@@ -906,10 +910,10 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // Chosen for readability on Dark / Light / Satellite basemaps and
     // clear separation from the gold preview chain (#FFCA28) + green
     // next-stop (#66BB6A).
-    if (mode === 'CYCLING')  return '#26A69A';
-    if (mode === 'WALKING')  return '#7E57C2';
-    if (mode === 'STRAIGHT') return '#42A5F5';
-    if (mode === 'DRIVING')  return '#FB8C00';
+    if (mode === 'CYCLING')  return routeBike;
+    if (mode === 'WALKING')  return routeWalk;
+    if (mode === 'STRAIGHT') return routeStraight;
+    if (mode === 'DRIVING')  return routeDrive;
     return accentColor;
   }
 
@@ -1032,7 +1036,7 @@ private const val ROUTE_BUILDER_HTML_2: String = """
       clearRouteArrows();
     }
     if (previewLineGeom){
-      drawPreviewArrows(previewLineGeom, '#FFCA28');
+      drawPreviewArrows(previewLineGeom, routePreview);
     } else {
       clearPreviewArrows();
     }
@@ -1515,6 +1519,13 @@ private const val ROUTE_BUILDER_HTML_2: String = """
     // The on-map controls (zoom +/-, recenter) DO follow the theme accent via
     // the --accent CSS variable, so the map chrome is part of the global theme.
     try { document.documentElement.style.setProperty('--accent', hex); } catch(e){}
+  };
+
+  // Themeable route colors (routeWalk/Bike/Drive/Straight/Preview tokens).
+  // Updated vars apply on the next route / preview redraw.
+  window.nativeSetRouteColors = function(walk,bike,drive,straight,preview){
+    routeWalk = walk; routeBike = bike; routeDrive = drive;
+    routeStraight = straight; routePreview = preview;
   };
 
   // Full path vs Next segment. Re-render so the dashed preview appears /

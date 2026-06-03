@@ -592,8 +592,6 @@
     <string name="welcome_tut_welcome">Welcome to EUC Planet, a no-nonsense, open-source app for electric unicycles</string>
     <string name="welcome_tut_bt">Connect and disconnect your wheel here</string>
     <string name="welcome_tut_version">Many wheels just need testers to be fully supported, usually an easy fix. Tap the version to open About and help out</string>
-    <string name="welcome_tut_buttons">Many buttons have extra actions, try long-pressing them. Play around!</string>
-    <string name="welcome_tut_final">That is the whole tour. Ride safe, explore everything, and have fun!</string>
     <string name="welcome_tut_outro_title">That is the tour!</string>
     <string name="welcome_tut_outro_backup">Save your trips: pick a %1$s in Settings → %2$s, then view them at eucviewer.ried.no</string>
     <string name="welcome_tut_outro_buttons">Many buttons have extra actions, try long-pressing them</string>
@@ -607,7 +605,6 @@
     <string name="welcome_tut_gps">Tap for live data view here, you can even calibrate your wheel speed based on GPS speed. Check the calibration later in Settings → %1$s</string>
     <string name="welcome_tut_camera">Record video with a live telemetry overlay. Create custom fancy overlays and export them to make your own videos with data from past trips</string>
     <string name="welcome_tut_pd">Shows Park or Drive. Tap it to set your %1$s</string>
-    <string name="welcome_tut_backup">Pick a %1$s in Settings → %2$s to save your trips, then view them at eucviewer.ried.no</string>
     <string name="voice_selector_label">Voice</string>
     <string name="voice_speech_speed">Speech Speed</string>
     <string name="unit_x">x</string>

@@ -93,7 +93,7 @@ fun DataSourcesSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         // Source A in compare mode = the source tab the user picked last. The
         // user enters compare mode via the Compare chip; the bottom row then

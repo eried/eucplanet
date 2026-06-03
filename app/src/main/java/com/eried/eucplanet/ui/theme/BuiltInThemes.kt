@@ -80,7 +80,10 @@ object BuiltInThemes {
             textSecondary = TextSecondaryLight,
             textDisabled = Color(0xFF9E9E9E),
             primary = accent,
-            onPrimary = Color.White,
+            // Dark ink on the teal accent — white-on-teal is only ~1.75:1 (poor),
+            // dark-on-teal is ~10:1. Matches the Dark theme's dark onPrimary so
+            // primary-filled controls (filled buttons, selected chips) read well.
+            onPrimary = TextPrimaryLight,
             secondary = AccentGreen,
             tertiary = AccentOrange,
             selection = accent,

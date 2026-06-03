@@ -115,6 +115,13 @@ fun ThemeTargetOverlay(
     var autoFallback by remember { mutableStateOf(false) }
     val ringState = rememberUpdatedState(ring)
     var dragRing by remember { mutableStateOf(ring) }
+    // Center reticle pulses white↔black every 2s so it reads on any sampled color.
+    var reticleFlip by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { while (true) { delay(2000); reticleFlip = !reticleFlip } }
+    // Measured Identify/Cancel row size so it centers on the circle regardless of
+    // label widths / locale (a hard-coded width left it off-center).
+    var rowWpx by remember { mutableStateOf(0) }
+    var rowHpx by remember { mutableStateOf(0) }
 
     val spotlightDp = 60.dp
     val ringDp = 26.dp
@@ -195,26 +202,31 @@ fun ThemeTargetOverlay(
             drawCircle(Color.Transparent, radius = spotR, center = ring, blendMode = BlendMode.Clear)
             drawCircle(Color.Black, radius = ringR + 2f, center = ring, style = Stroke(width = 5f))
             drawCircle(Color.White, radius = ringR, center = ring, style = Stroke(width = 3f))
-            drawCircle(Color.White, radius = 4f, center = ring, style = Stroke(width = 1.5f))
+            // Center reticle: two concentric dots that swap white↔black every 2s,
+            // so one is always contrasting against the sampled color behind it.
+            drawCircle(if (reticleFlip) Color.White else Color.Black, radius = 4f, center = ring, style = Stroke(width = 1.5f))
+            drawCircle(if (reticleFlip) Color.Black else Color.White, radius = 6f, center = ring, style = Stroke(width = 1f))
         }
 
         if (showAimButtons) {
             // Identify / Cancel sit below the circle, but flip ABOVE it when there
             // isn't room below — never overlapping the circle, always on-screen.
             Row(
-                modifier = Modifier.offset {
-                    val rowW = 220.dp.toPx()
-                    val rowH = 56.dp.toPx()
-                    val margin = 14.dp.toPx()
-                    val spot = spotlightDp.toPx()
-                    val belowY = boxWin.y + ring.y + spot + margin
-                    val aboveY = boxWin.y + ring.y - spot - margin - rowH
-                    val y = (if (belowY + rowH <= view.height) belowY else aboveY)
-                        .coerceIn(0f, (view.height - rowH).coerceAtLeast(0f))
-                    val x = (boxWin.x + ring.x - rowW / 2f)
-                        .coerceIn(0f, (view.width - rowW).coerceAtLeast(0f))
-                    IntOffset(x.roundToInt(), y.roundToInt())
-                },
+                modifier = Modifier
+                    .offset {
+                        val rowW = if (rowWpx > 0) rowWpx.toFloat() else 220.dp.toPx()
+                        val rowH = if (rowHpx > 0) rowHpx.toFloat() else 56.dp.toPx()
+                        val margin = 14.dp.toPx()
+                        val spot = spotlightDp.toPx()
+                        val belowY = boxWin.y + ring.y + spot + margin
+                        val aboveY = boxWin.y + ring.y - spot - margin - rowH
+                        val y = (if (belowY + rowH <= view.height) belowY else aboveY)
+                            .coerceIn(0f, (view.height - rowH).coerceAtLeast(0f))
+                        val x = (boxWin.x + ring.x - rowW / 2f)
+                            .coerceIn(0f, (view.width - rowW).coerceAtLeast(0f))
+                        IntOffset(x.roundToInt(), y.roundToInt())
+                    }
+                    .onGloballyPositioned { rowWpx = it.size.width; rowHpx = it.size.height },
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Cancel on the left, primary (Identify) on the right — matches the

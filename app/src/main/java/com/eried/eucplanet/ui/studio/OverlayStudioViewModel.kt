@@ -116,6 +116,9 @@ class OverlayStudioViewModel @Inject constructor(
 
     private val initialSettings = runBlocking(Dispatchers.IO) { settingsRepository.get() }
 
+    /** Whether the HUD server is on — the studio badges HUD-unsupported controls when true. */
+    val hudEnabled: Boolean = initialSettings.hudServerEnabled
+
     // --- Working layout ------------------------------------------------------
     private val _preset = MutableStateFlow(OverlayPreset())
     val preset: StateFlow<OverlayPreset> = _preset.asStateFlow()

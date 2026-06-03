@@ -182,6 +182,14 @@ class SettingsViewModel @Inject constructor(
             .map { it.isNotEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /** True when at least one Garmin device is paired. The Watch tab uses this to
+     *  badge Wear-only features (auto-start, dial rotation, …) as unsupported on
+     *  Garmin when a Garmin AND a Wear OS watch are both paired. */
+    val hasGarminPaired: StateFlow<Boolean> =
+        garminBridge.pairedDevices
+            .map { it.isNotEmpty() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     /**
      * True when at least one paired surface has bindable hardware buttons:
      *  - Any Garmin device (every Garmin watch ships ≥2 physical buttons,

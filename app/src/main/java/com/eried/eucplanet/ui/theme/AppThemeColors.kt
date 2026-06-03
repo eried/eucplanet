@@ -114,6 +114,12 @@ data class AppThemeColors(
     val snackbarBackground: Color = Color.Unspecified,
     val snackbarText: Color = Color.Unspecified,
     val snackbarAction: Color = Color.Unspecified,
+    // Navigation / map route lines (per travel mode) + the route preview line
+    val routeWalk: Color = Color.Unspecified,
+    val routeBike: Color = Color.Unspecified,
+    val routeDrive: Color = Color.Unspecified,
+    val routeStraight: Color = Color.Unspecified,
+    val routePreview: Color = Color.Unspecified,
 )
 
 /**
@@ -151,6 +157,12 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     snackbarBackground = snackbarBackground.takeOrElse { textPrimary },
     snackbarText = snackbarText.takeOrElse { surface },
     snackbarAction = snackbarAction.takeOrElse { primary },
+    // Map route colors keep their historical hex unless the rider edits them.
+    routeWalk = routeWalk.takeOrElse { Color(0xFF7E57C2) },
+    routeBike = routeBike.takeOrElse { Color(0xFF26A69A) },
+    routeDrive = routeDrive.takeOrElse { Color(0xFFFB8C00) },
+    routeStraight = routeStraight.takeOrElse { Color(0xFF42A5F5) },
+    routePreview = routePreview.takeOrElse { Color(0xFFFFCA28) },
 )
 
 /**
@@ -261,6 +273,11 @@ object ThemeTokens {
         ThemeTokenSpec("navRouteLine", "Map route line", GROUP_NAV, { it.navRouteLine }, { c, v -> c.copy(navRouteLine = v) }),
         ThemeTokenSpec("navPopupPanel", "Nav popup panel", GROUP_NAV, { it.navPopupPanel }, { c, v -> c.copy(navPopupPanel = v) }),
         ThemeTokenSpec("navPopupInk", "Nav popup ink", GROUP_NAV, { it.navPopupInk }, { c, v -> c.copy(navPopupInk = v) }),
+        ThemeTokenSpec("routeWalk", "Route: walk", GROUP_NAV, { it.routeWalk }, { c, v -> c.copy(routeWalk = v) }),
+        ThemeTokenSpec("routeBike", "Route: bike", GROUP_NAV, { it.routeBike }, { c, v -> c.copy(routeBike = v) }),
+        ThemeTokenSpec("routeDrive", "Route: drive", GROUP_NAV, { it.routeDrive }, { c, v -> c.copy(routeDrive = v) }),
+        ThemeTokenSpec("routeStraight", "Route: straight", GROUP_NAV, { it.routeStraight }, { c, v -> c.copy(routeStraight = v) }),
+        ThemeTokenSpec("routePreview", "Route: preview line", GROUP_NAV, { it.routePreview }, { c, v -> c.copy(routePreview = v) }),
 
         ThemeTokenSpec("connectionActive", "Connected / active", GROUP_INDICATOR, { it.connectionActive }, { c, v -> c.copy(connectionActive = v) }),
         ThemeTokenSpec("connectionIdle", "Disconnected / idle", GROUP_INDICATOR, { it.connectionIdle }, { c, v -> c.copy(connectionIdle = v) }),

@@ -504,14 +504,16 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
             .height(40.dp)
             .width(48.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-            .background(MaterialTheme.appColors.scrim.copy(alpha = 0.8f))
+            .background(MaterialTheme.appColors.surface.copy(alpha = 0.92f))
             .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
         contentAlignment = Alignment.Center
     ) {
         Icon(
             icon,
             contentDescription = null,
-            tint = MaterialTheme.appColors.textPrimary,
+            // Themed chip: light surface in light theme, primary-tinted icon —
+            // consistent with the selected-element config wrench.
+            tint = MaterialTheme.appColors.primary,
             modifier = Modifier
                 .size(18.dp)
                 .rotate(-LocalStudioRotation.current.toFloat())
@@ -696,9 +698,17 @@ private fun DividerControls(
                 .pointerInput(Unit) { detectTapGestures(onTap = { onConfig() }) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = MaterialTheme.appColors.textPrimary,
+            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = MaterialTheme.appColors.primary,
                 modifier = Modifier.size(17.dp)
                     .rotate(-LocalStudioRotation.current.toFloat()))
+        }
+        // The divider's background fill isn't rendered on the HUD, so flag the
+        // control with a "not on HUD" badge while the HUD is enabled.
+        if (LocalStudioHudEnabled.current) {
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge(
+                "HUD",
+                modifier = Modifier.padding(end = 8.dp)
+            )
         }
     }
 }

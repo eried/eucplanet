@@ -14,6 +14,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
@@ -401,15 +402,7 @@ class DashboardViewModel @Inject constructor(
      */
     fun toggleUnits() {
         viewModelScope.launch {
-            val current = settingsRepository.get()
-            val isImperial = current.unitSpeed == "mph" &&
-                    current.unitDistance == "mi" && current.unitTemp == "F"
-            val next = if (isImperial) {
-                current.copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
-            } else {
-                current.copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
-            }
-            settingsRepository.update(next)
+            settingsRepository.update(settingsRepository.get().withUnitsToggled())
         }
     }
 

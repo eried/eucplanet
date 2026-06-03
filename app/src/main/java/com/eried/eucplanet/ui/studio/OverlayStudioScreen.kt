@@ -854,7 +854,10 @@ fun OverlayStudioScreen(
     }
 
     // Everything in the studio chrome rotates to face a sideways-held phone.
-    CompositionLocalProvider(LocalStudioRotation provides deviceRotation) {
+    CompositionLocalProvider(
+        LocalStudioRotation provides deviceRotation,
+        LocalStudioHudEnabled provides viewModel.hudEnabled
+    ) {
     BoxWithConstraints(
         Modifier
             .fillMaxSize()

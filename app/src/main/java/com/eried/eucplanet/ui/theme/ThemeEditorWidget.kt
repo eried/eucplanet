@@ -264,7 +264,10 @@ fun ThemeEditorWidget(
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 down.consume()
-                                ringPos = pickerBtnCenter
+                                // Seed the crosshair ABOVE the touch point so, as the finger
+                                // drags the tool out, the reticle (and the sampled pixel) ride
+                                // above the fingertip where the rider can see what they're on.
+                                ringPos = pickerBtnCenter - Offset(0f, 80.dp.toPx())
                                 fingerDown = true
                                 autoIdentify = false
                                 pickMode = true

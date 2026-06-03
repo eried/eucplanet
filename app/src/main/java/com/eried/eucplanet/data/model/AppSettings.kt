@@ -657,3 +657,16 @@ data class AppSettings(
 // of truth for every rider-triggerable command and the surfaces it can be
 // bound to. Settings still store the action name as a String (e.g. "HORN",
 // "VOICE_ANNOUNCE", or "NONE" for unbound) so there is no schema change.
+
+/**
+ * Flip the three unit fields between a clean metric trio and a clean imperial
+ * trio in one write. Metric is the reference state, so anything that isn't
+ * already a clean imperial trio (incl. custom mixes like knots + Norwegian
+ * mile) snaps to metric first. Shared by the TOGGLE_UNITS action so the
+ * dashboard tile and the service-mode overlay use one definition.
+ */
+fun AppSettings.withUnitsToggled(): AppSettings {
+    val isImperial = unitSpeed == "mph" && unitDistance == "mi" && unitTemp == "F"
+    return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+    else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
+}

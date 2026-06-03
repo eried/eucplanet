@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -24,10 +27,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import com.eried.eucplanet.data.model.ActionCatalog
 import com.eried.eucplanet.data.model.ActionSpec
@@ -43,7 +48,6 @@ import com.eried.eucplanet.data.model.ActionSurface
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.data.repository.FullMetricHistory
 import com.eried.eucplanet.data.repository.MetricSample
-import com.eried.eucplanet.ui.settings.metricAccentColor
 import com.eried.eucplanet.ui.settings.metricChipLabel
 import com.eried.eucplanet.ui.settings.metricDescription
 import com.eried.eucplanet.ui.settings.metricSupportsStats
@@ -52,13 +56,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Snapshot fed to [ServiceModeOverlay]. Captured once when the overlay
- * opens so the values stay frozen while the rider inspects them. The
- * activity re-snapshots after every fire so action-status readouts
- * reflect the new state.
+ * One transport's live status for the Connections tab. Built by
+ * [com.eried.eucplanet.MainActivity.buildServiceOverlaySnapshot] from the
+ * repositories / bridges the activity already injects, so the overlay stays
+ * a pure renderer with no extra dependencies of its own.
+ */
+data class ConnectionInfo(
+    val label: String,
+    val state: String,
+    val detail: String,
+)
+
+/**
+ * Snapshot fed to [ServiceModeOverlay]. Captured when the overlay opens (and
+ * re-captured after every Fire, or continuously while Live is on) so the
+ * readouts reflect current state.
  */
 data class ServiceOverlaySnapshot(
     val wheel: WheelData,
+    /** Full per-metric history buffers, for the Metrics tab's min/max/avg/last. */
     val history: FullMetricHistory,
     /** True while [com.eried.eucplanet.data.repository.TripRepository.recording] is on. */
     val tripRecording: Boolean,
@@ -67,7 +83,9 @@ data class ServiceOverlaySnapshot(
     /** True when the wheel is currently in safety / legal mode. */
     val safetyActive: Boolean = false,
     /** True when the alarms-muted setting is on. */
-    val alarmsMuted: Boolean = false
+    val alarmsMuted: Boolean = false,
+    /** Per-transport connection status for the Connections tab. */
+    val connections: List<ConnectionInfo> = emptyList()
 ) {
     /** Projects into the catalog's read-only StatusContext for [com.eried.eucplanet.data.model.ActionSpec.statusReader]. */
     fun toStatusContext(): com.eried.eucplanet.data.model.StatusContext =
@@ -98,7 +116,7 @@ object ServiceOverlayState {
         _open.value = true
     }
 
-    /** Replace the snapshot without changing open state. Used after the rider fires an action. */
+    /** Replace the snapshot without changing open state. Used after a fire and by the Refresh button. */
     fun refresh(snapshot: ServiceOverlaySnapshot) {
         _snapshot.value = snapshot
     }
@@ -109,21 +127,24 @@ object ServiceOverlayState {
 }
 
 /**
- * Compact debug overlay. Two combos with detail panes below each:
- *   - Metric combo → raw / count / min / max / avg / last samples
- *   - Action combo + Fire button → current status (where known)
+ * Compact debug overlay with three tabs:
+ *   - Actions     → fire any catalog action; shows its metadata + status
+ *   - Metrics     → live dump of every WheelData field (reflection)
+ *   - Connections → wheel / watch / Flic / HUD transports, combo + detail
  *
- * Designed as a developer surface. No realtime updates; the snapshot
- * refreshes after every fire so status readouts catch up.
+ * Developer surface. Frozen on open; toggle Live (top-right) for continuous
+ * updates, or re-fire to re-read.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServiceModeOverlay(
     snapshot: ServiceOverlaySnapshot,
     onFireAction: (key: String) -> Unit,
+    onRefresh: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var tab by remember { mutableIntStateOf(0) }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
@@ -142,94 +163,34 @@ fun ServiceModeOverlay(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
+                IconButton(onClick = onRefresh) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+                }
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Filled.Close, contentDescription = "Close")
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
-            MetricPicker(snapshot = snapshot)
-
-            Spacer(Modifier.height(16.dp))
-
-            ActionPicker(snapshot = snapshot, onFire = onFireAction)
-
-            Spacer(Modifier.height(16.dp))
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun MetricPicker(snapshot: ServiceOverlaySnapshot) {
-    var expanded by remember { mutableStateOf(false) }
-    var selected by remember { mutableStateOf(serviceMetricKeys.first()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            singleLine = true,
-            label = { Text("Metric") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            serviceMetricKeys.forEach { key ->
-                DropdownMenuItem(
-                    text = { Text(key, fontFamily = FontFamily.Monospace) },
-                    onClick = {
-                        selected = key
-                        expanded = false
-                    }
-                )
+            val titles = listOf("Actions", "Metrics", "Connections")
+            TabRow(selectedTabIndex = tab) {
+                titles.forEachIndexed { i, title ->
+                    Tab(
+                        selected = tab == i,
+                        onClick = { tab = i },
+                        text = { Text(title) }
+                    )
+                }
             }
-        }
-    }
-    Spacer(Modifier.height(8.dp))
-    DetailBox(text = composeMetricDetailText(selected, snapshot))
-}
+            Spacer(Modifier.height(12.dp))
 
-/** @Composable wrapper so we can read stringResource()-backed metric metadata. */
-@Composable
-private fun composeMetricDetailText(key: String, snapshot: ServiceOverlaySnapshot): String {
-    val label = metricChipLabel(key)
-    val description = metricDescription(key)
-    val accent = metricAccentColor(key)
-    val accentName = accentLabelFor(accent)
-    val supportsStats = metricSupportsStats(key)
-    val raw = rawMetricValue(key, snapshot.wheel)
-    val history = historyFor(key, snapshot.history)
-    val hasHistory = !history.isNullOrEmpty()
+            when (tab) {
+                0 -> ActionPicker(snapshot = snapshot, onFire = onFireAction)
+                1 -> MetricsView(snapshot = snapshot)
+                else -> ConnectionsView(snapshot = snapshot)
+            }
 
-    return buildString {
-        append("key:    ").append(key).append('\n')
-        append("label:  ").append(label).append('\n')
-        if (description != null) {
-            append("desc:   ").append(description).append('\n')
-        }
-        append("accent: ").append(accentName).append('\n')
-        append("stats:  ").append(if (supportsStats) "supported" else "not applicable")
-        append('\n')
-        append("hist:   ").append(if (hasHistory) "buffer (1Hz, 5min window)" else "none")
-        append('\n')
-        append("raw:    ").append(raw)
-        if (hasHistory) {
-            val values = history!!.map { it.value }
-            append('\n').append("count:  ").append(values.size)
-            append('\n').append("min:    ").append("%.4f".format(values.min()))
-            append('\n').append("max:    ").append("%.4f".format(values.max()))
-            append('\n').append("avg:    ").append("%.4f".format(values.average()))
-            append('\n').append("last:   ").append(values.takeLast(8).joinToString(", ") { "%.2f".format(it) })
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
@@ -307,20 +268,119 @@ private fun composeActionDetailText(key: String, snapshot: ServiceOverlaySnapsho
         append("icon:       ").append(iconName).append('\n')
         append("eyes-free:  ").append(spec.isEyesFreeSafe).append('\n')
         append("surfaces:   ").append(surfaces).append('\n')
-        append("reader:     ").append(if (hasStatusReader) "wired" else "(stub — phase A)").append('\n')
+        append("reader:     ").append(if (hasStatusReader) "wired" else "(none)").append('\n')
         append("status:     ").append(statusLine)
     }
 }
 
+/**
+ * Metrics tab: a combo over the catalog metrics with rich per-metric detail
+ * (label, description, raw value, history stats). The full reflection dump of
+ * every WheelData field lives under Connections → Wheel.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MetricsView(snapshot: ServiceOverlaySnapshot) {
+    var expanded by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(serviceMetricKeys.first()) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selected,
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text("Metric") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            serviceMetricKeys.forEach { key ->
+                DropdownMenuItem(
+                    text = { Text(key, fontFamily = FontFamily.Monospace) },
+                    onClick = { selected = key; expanded = false }
+                )
+            }
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    DetailBox(text = composeMetricDetailText(selected, snapshot))
+}
+
+/**
+ * Connections tab: one combo over the transports in the snapshot, with the
+ * selected transport's state + details below.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ConnectionsView(snapshot: ServiceOverlaySnapshot) {
+    val conns = snapshot.connections
+    if (conns.isEmpty()) {
+        DetailBox(text = "(no connection info)")
+        return
+    }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedIdx by remember { mutableIntStateOf(0) }
+    val selected = conns[selectedIdx.coerceIn(0, conns.size - 1)]
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = "${selected.label} — ${selected.state}",
+            onValueChange = {},
+            readOnly = true,
+            singleLine = true,
+            label = { Text("Connection") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            conns.forEachIndexed { i, c ->
+                DropdownMenuItem(
+                    text = { Text("${c.label} — ${c.state}") },
+                    onClick = {
+                        selectedIdx = i
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    DetailBox(
+        text = buildString {
+            append("transport: ").append(selected.label).append('\n')
+            append("state:     ").append(selected.state).append('\n')
+            append(selected.detail)
+        }
+    )
+}
+
+// Fixed height + always scrollable so the panel stays the same size across
+// tabs (short Connections detail and the long Metrics dump look identical).
 @Composable
 private fun DetailBox(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(320.dp)
             .background(
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                 RoundedCornerShape(8.dp)
             )
+            .verticalScroll(rememberScrollState())
             .padding(10.dp)
     ) {
         Text(
@@ -332,9 +392,51 @@ private fun DetailBox(text: String) {
 }
 
 /**
- * Order matches knownDashboardMetrics. Duplicated here to keep the
- * diagnostics module free of a settings-module dependency.
- * TODO consolidate via a shared MetricCatalog mirror of ActionCatalog.
+ * One-line status string for an action — what does the rider see right now?
+ * Delegates to [com.eried.eucplanet.data.model.ActionSpec.statusReader] when
+ * the catalog wires one, falling back to a "no resting state" note for
+ * one-shot actions (HORN, VOICE_ANNOUNCE, MEDIA_*, RESET_TRIP).
+ */
+private fun actionStatusText(key: String, snapshot: ServiceOverlaySnapshot): String {
+    val spec = ActionCatalog.byKey(key) ?: return "(unknown action)"
+    val reader = spec.statusReader ?: return "(one-shot, no resting state)"
+    val active = reader(snapshot.toStatusContext())
+    return "active=$active"
+}
+
+/** @Composable wrapper for the selected metric's detail — label/description
+ *  (stringResource-backed) + raw value + history stats, then a full reflection
+ *  dump of every WheelData field for the "see everything internal" view. */
+@Composable
+private fun composeMetricDetailText(key: String, snapshot: ServiceOverlaySnapshot): String {
+    val label = metricChipLabel(key)
+    val description = metricDescription(key)
+    val supportsStats = metricSupportsStats(key)
+    val raw = rawMetricValue(key, snapshot.wheel)
+    val history = historyFor(key, snapshot.history)
+    val hasHistory = !history.isNullOrEmpty()
+    return buildString {
+        append("key:    ").append(key).append('\n')
+        append("label:  ").append(label).append('\n')
+        if (description != null) append("desc:   ").append(description).append('\n')
+        append("stats:  ").append(if (supportsStats) "supported" else "not applicable").append('\n')
+        append("hist:   ").append(if (hasHistory) "buffer (1Hz, 5min window)" else "none").append('\n')
+        append("raw:    ").append(raw)
+        if (hasHistory) {
+            val values = history!!.map { it.value }
+            append('\n').append("count:  ").append(values.size)
+            append('\n').append("min:    ").append("%.4f".format(values.min()))
+            append('\n').append("max:    ").append("%.4f".format(values.max()))
+            append('\n').append("avg:    ").append("%.4f".format(values.average()))
+            append('\n').append("last:   ").append(values.takeLast(8).joinToString(", ") { "%.2f".format(it) })
+        }
+    }
+}
+
+/**
+ * Order matches knownDashboardMetrics. Duplicated here to keep the diagnostics
+ * module free of a settings-module dependency for the key list itself; the
+ * reflection dump below covers any field not in this curated set.
  */
 private val serviceMetricKeys: List<String> = listOf(
     "BATTERY", "TEMPERATURE", "VOLTAGE", "CURRENT", "LOAD", "TRIP",
@@ -352,35 +454,6 @@ private val serviceMetricKeys: List<String> = listOf(
     "SLOPE", "ASCENT", "DESCENT", "MOTOR_RPM", "REGEN_WH",
     "BT_RSSI"
 )
-
-/**
- * One-line status string for an action — what does the rider see right
- * now? Delegates to [com.eried.eucplanet.data.model.ActionSpec.statusReader]
- * when the catalog wires one, falling back to a "no resting state" note
- * for one-shot actions (HORN, VOICE_ANNOUNCE, MEDIA_*, RESET_TRIP).
- */
-private fun actionStatusText(key: String, snapshot: ServiceOverlaySnapshot): String {
-    val spec = ActionCatalog.byKey(key) ?: return "(unknown action)"
-    val reader = spec.statusReader ?: return "(one-shot, no resting state)"
-    val active = reader(snapshot.toStatusContext())
-    return "active=$active"
-}
-
-/**
- * Reverse-lookup the AccentXxx Color constants so the metric detail box
- * can show a human-readable color name instead of raw ARGB. Falls back
- * to a hex string if a metric uses a non-palette color.
- */
-private fun accentLabelFor(color: androidx.compose.ui.graphics.Color): String {
-    return when (color.toArgb().toLong() and 0xFFFFFFFFL) {
-        com.eried.eucplanet.ui.theme.AccentGreen.toArgb().toLong() and 0xFFFFFFFFL -> "Green"
-        com.eried.eucplanet.ui.theme.AccentOrange.toArgb().toLong() and 0xFFFFFFFFL -> "Orange"
-        com.eried.eucplanet.ui.theme.AccentBlue.toArgb().toLong() and 0xFFFFFFFFL -> "Blue"
-        com.eried.eucplanet.ui.theme.AccentPurple.toArgb().toLong() and 0xFFFFFFFFL -> "Purple"
-        com.eried.eucplanet.ui.theme.AccentPink.toArgb().toLong() and 0xFFFFFFFFL -> "Pink"
-        else -> "#${(color.toArgb() and 0xFFFFFF).toString(16).padStart(6, '0').uppercase()}"
-    }
-}
 
 private fun rawMetricValue(key: String, wheel: WheelData): String = when (key) {
     "BATTERY" -> wheel.batteryPercent.toString()
@@ -418,4 +491,35 @@ private fun historyFor(key: String, history: FullMetricHistory): List<MetricSamp
     "LOAD" -> history.load
     "SPEED" -> history.speed
     else -> null
+}
+
+/**
+ * Reflect every declared field of [obj] into a "name: value" dump, sorted by
+ * name. Java reflection (not kotlin-reflect) so no extra dependency; synthetic
+ * / static fields (Compose `$stable`, companions) are skipped. Used to surface
+ * the full internal state of a linked device's snapshot (e.g. WheelData) in the
+ * Connections tab.
+ */
+fun reflectFields(obj: Any?): String {
+    if (obj == null) return "—"
+    val fields = obj.javaClass.declaredFields
+        .filter { !it.isSynthetic && !java.lang.reflect.Modifier.isStatic(it.modifiers) }
+        .sortedBy { it.name }
+    return buildString {
+        fields.forEach { f ->
+            f.isAccessible = true
+            val raw = runCatching { f.get(obj) }.getOrNull()
+            append(f.name).append(": ").append(formatFieldValue(raw)).append('\n')
+        }
+    }.trimEnd().ifEmpty { "(no fields)" }
+}
+
+private fun formatFieldValue(v: Any?): String = when (v) {
+    null -> "—"
+    is Float -> "%.3f".format(v)
+    is Double -> "%.3f".format(v)
+    is List<*> -> v.joinToString(prefix = "[", postfix = "]") { formatFieldValue(it) }
+    is FloatArray -> v.joinToString(prefix = "[", postfix = "]") { "%.3f".format(it) }
+    is IntArray -> v.joinToString(prefix = "[", postfix = "]")
+    else -> v.toString()
 }

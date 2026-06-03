@@ -196,6 +196,10 @@ fun ViewportLayout.displayName(): String =
         ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
     }
 
+/** Element types the HUD can't render (it shows telemetry, not camera / images). */
+private val OverlayElementType.notOnHud: Boolean
+    get() = this == OverlayElementType.FLOATING_CAMERA || this == OverlayElementType.IMAGE
+
 private val OverlayElementType.labelRes: Int
     get() = when (this) {
         OverlayElementType.WHEEL_NAME -> R.string.studio_element_wheel_name
@@ -273,7 +277,8 @@ fun StudioToolsFlyout(
                 // trip's transparent checkerboard), so configuring them is moot.
                 FlyoutItem(
                     Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes),
-                    enabled = !replayMode
+                    enabled = !replayMode,
+                    hudBadge = LocalStudioHudEnabled.current
                 ) {
                     onDismiss(); onChangeLayout()
                 }
@@ -369,11 +374,15 @@ private fun FlyoutItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     enabled: Boolean = true,
+    hudBadge: Boolean = false,
     onClick: () -> Unit
 ) {
     DropdownMenuItem(
         text = { Text(label) },
         leadingIcon = { Icon(icon, contentDescription = null) },
+        trailingIcon = if (hudBadge) ({
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+        }) else null,
         enabled = enabled,
         onClick = onClick
     )
@@ -381,6 +390,10 @@ private fun FlyoutItem(
 
 /** Physical device rotation (0/90/180/270) for orienting studio chrome. */
 val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
+
+/** True while the HUD server is enabled. Studio controls the HUD can't render
+ *  (panes, image/clipart) show a "not on HUD" badge when this is on. */
+val LocalStudioHudEnabled = androidx.compose.runtime.compositionLocalOf { false }
 
 /**
  * Rotates the content by -[rotation]° with correct layout: for 90/270 the
@@ -616,7 +629,13 @@ fun AddElementSheet(
                             tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text(type.label(), fontWeight = FontWeight.SemiBold)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(type.label(), fontWeight = FontWeight.SemiBold)
+                                if (LocalStudioHudEnabled.current && type.notOnHud) {
+                                    Spacer(Modifier.width(6.dp))
+                                    com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+                                }
+                            }
                             Text(
                                 elementHint(type),
                                 style = MaterialTheme.typography.bodySmall,
@@ -664,7 +683,7 @@ fun LayoutPickerSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_layout_title))
+            SheetHeader(stringResource(R.string.studio_layout_title), hudBadge = LocalStudioHudEnabled.current)
             Spacer(Modifier.height(4.dp))
             ViewportLayout.entries.chunked(3).forEach { row ->
                 Row(
@@ -988,7 +1007,7 @@ fun ViewportConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1))
+            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1), hudBadge = LocalStudioHudEnabled.current)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = config.source == ViewportSourceType.CAMERA,
@@ -1284,7 +1303,7 @@ fun DividerConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_divider_title))
+            SheetHeader(stringResource(R.string.studio_divider_title), hudBadge = LocalStudioHudEnabled.current)
             Text(stringResource(R.string.studio_divider_colour_label), fontWeight = FontWeight.SemiBold)
             ColorSwatchRow(color) { onChange(it, thickness) }
             LabeledSlider(
@@ -1506,7 +1525,7 @@ fun ElementConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(element.type.label())
+            SheetHeader(element.type.label(), hudBadge = LocalStudioHudEnabled.current && element.type.notOnHud)
 
             // Metric chooser comes first whenever the widget has one: the
             // metric is the widget's identity (a SPEED graph vs a BATTERY
@@ -2304,13 +2323,22 @@ private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
 }
 
 @Composable
-private fun SheetHeader(title: String) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 12.dp).wrapContentHeight()
-    )
+private fun SheetHeader(title: String, hudBadge: Boolean = false) {
+    Row(
+        modifier = Modifier.padding(bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.wrapContentHeight()
+        )
+        if (hudBadge) {
+            Spacer(Modifier.width(8.dp))
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -2375,6 +2403,12 @@ fun ManageElementsSheet(
                     Icon(Icons.Default.Dashboard, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.studio_flyout_panes))
+                }
+                if (LocalStudioHudEnabled.current) {
+                    com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge(
+                        "HUD",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                 }
             }
             if (elements.isNotEmpty()) {

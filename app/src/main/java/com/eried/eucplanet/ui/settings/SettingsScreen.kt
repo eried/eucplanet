@@ -108,6 +108,7 @@ import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Motorcycle
 import androidx.compose.material.icons.filled.Watch
+import androidx.compose.material.icons.outlined.Watch as WatchOutlined
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Smartphone
@@ -3314,7 +3315,8 @@ private fun DashboardSlotSheet(
     val sheetState = rememberModalBottomSheetState()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
             modifier = Modifier
@@ -3422,7 +3424,8 @@ private fun CompositeMetricSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
             modifier = Modifier
@@ -3752,7 +3755,8 @@ private fun ActionGroupSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
             modifier = Modifier
@@ -3884,7 +3888,7 @@ private fun CustomBleSheet(
         viewModel.updateCustomBle(id, label, icon, family, parsed ?: lastValid.value)
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.appColors.sheetBackground) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -4123,7 +4127,8 @@ private fun CustomTileSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        sheetState = sheetState,
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         Column(
             modifier = Modifier
@@ -5930,6 +5935,13 @@ private fun WatchTab(
     val pairedSurfaces by viewModel.pairedSurfaces.collectAsStateWithLifecycle()
     val hasWearOs by viewModel.hasWearOsPaired.collectAsStateWithLifecycle()
     val hasHardwareButtons by viewModel.hasHardwareButtonCapableWatch.collectAsStateWithLifecycle()
+    val hasGarminPaired by viewModel.hasGarminPaired.collectAsStateWithLifecycle()
+    // "Not on Garmin" badge for the Wear-only rows — shown only when a Garmin is
+    // ALSO paired (the feature works on the Wear watch, just not the Garmin one).
+    // When only a Garmin is paired these rows stay hidden (hasWearOs gate).
+    val garminBadge: (@Composable () -> Unit)? = if (hasGarminPaired) {
+        { com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("GARMIN") }
+    } else null
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -5956,7 +5968,8 @@ private fun WatchTab(
                 description = stringResource(R.string.watch_auto_start_desc),
                 checked = settings.watchAutoStart,
                 onCheckedChange = { viewModel.updateWatchAutoStart(it) },
-                onTest = { viewModel.testWatchWake() }
+                onTest = { viewModel.testWatchWake() },
+                badge = garminBadge
             )
         }
         SwitchSettingWithDesc(
@@ -5980,7 +5993,8 @@ private fun WatchTab(
                 label = stringResource(R.string.watch_keep_on),
                 description = stringResource(R.string.watch_keep_on_desc),
                 checked = settings.watchKeepScreenOn,
-                onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) }
+                onCheckedChange = { viewModel.updateWatchKeepScreenOn(it) },
+                badge = garminBadge
             )
         }
         SwitchSettingWithDesc(
@@ -6005,10 +6019,16 @@ private fun WatchTab(
             // of what we set here, so the choice would be misleading on a
             // Garmin-only setup. Surfaced only when a Wear OS device is paired.
             if (hasWearOs) {
-                Text(
-                    stringResource(R.string.watch_update_rate),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.watch_update_rate),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (garminBadge != null) {
+                        Spacer(Modifier.width(6.dp))
+                        garminBadge()
+                    }
+                }
                 val updateRateOptions = listOf(
                     "CONSERVATIVE" to stringResource(R.string.watch_update_conservative),
                     "NORMAL" to stringResource(R.string.watch_update_normal),
@@ -6107,11 +6127,16 @@ private fun WatchTab(
             // offscreen-bitmap-and-rotate path on Garmin that we haven't
             // implemented yet. Surfaced only when a Wear OS device is paired.
             if (hasWearOs) {
-            Text(
-                stringResource(R.string.watch_dial_rotation),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.watch_dial_rotation),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (garminBadge != null) {
+                    Spacer(Modifier.width(6.dp))
+                    garminBadge()
+                }
+            }
             SliderSetting(
                 label = "",
                 // Fixed -90 / 90 captions under the slider ends; the live angle is
@@ -6266,7 +6291,8 @@ private fun SwitchSettingWithDesc(
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    onTest: (() -> Unit)? = null
+    onTest: (() -> Unit)? = null,
+    badge: (@Composable () -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -6281,6 +6307,10 @@ private fun SwitchSettingWithDesc(
                 if (onTest != null) {
                     Spacer(Modifier.width(4.dp))
                     PlayButton(onClick = onTest)
+                }
+                if (badge != null) {
+                    Spacer(Modifier.width(6.dp))
+                    badge()
                 }
             }
             Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
@@ -6849,6 +6879,7 @@ private fun SliderSetting(
 private fun SwitchSetting(
     label: String,
     checked: Boolean,
+    badge: (@Composable () -> Unit)? = null,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
@@ -6856,7 +6887,13 @@ private fun SwitchSetting(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
+            if (badge != null) {
+                Spacer(Modifier.width(6.dp))
+                badge()
+            }
+        }
         Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }
@@ -8029,10 +8066,6 @@ private fun DeviceRegion(
             surfaces.forEach { surface -> DeviceCard(surface) }
         }
     }
-    val hasGarmin = surfaces.any { it.kind == com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN }
-    if (hasGarmin) {
-        GarminLimitationsCard()
-    }
 }
 
 /**
@@ -8172,24 +8205,6 @@ private fun WatchButtonsCollapsable(
 }
 
 /**
- * Flat Garmin-limitations panel — two MetricInfoBoxes shown directly when a
- * Garmin is paired. Previously this was a collapsible card with a
- * "Garmin limitations" title, but the limitations are short and important
- * enough that hiding them behind a tap was unhelpful — riders now see
- * them as soon as the Garmin appears in the device list.
- */
-@Composable
-private fun GarminLimitationsCard() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_launch))
-        MetricInfoBox(stringResource(R.string.watch_paired_garmin_limit_rate))
-    }
-}
-
-/**
  * One device card, 1-per-row full-width. Left column: kind icon + device
  * name (title) + kind label (subtitle). Right column: compact status and
  * update-rate badges. Active cards tint with primaryContainer so the
@@ -8199,21 +8214,13 @@ private fun GarminLimitationsCard() {
 private fun DeviceCard(
     surface: com.eried.eucplanet.data.model.PairedSurface
 ) {
-    val container = if (surface.active) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-    val content = if (surface.active) {
-        MaterialTheme.colorScheme.onPrimaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    // No active/idle background tint — the StatusBadge (live dot + label) already
+    // conveys connection state, so every device card uses one neutral surface.
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
-        color = container,
-        contentColor = content
+        color = MaterialTheme.appColors.surface,
+        contentColor = MaterialTheme.appColors.textPrimary
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -8222,8 +8229,8 @@ private fun DeviceCard(
         ) {
             Icon(
                 imageVector = when (surface.kind) {
-                    com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS -> Icons.Default.Watch
-                    com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN -> Icons.Default.Smartphone
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.WEAR_OS -> Icons.Outlined.WatchOutlined
+                    com.eried.eucplanet.data.model.PairedSurface.Kind.GARMIN -> Icons.Default.Watch
                 },
                 contentDescription = null,
                 modifier = Modifier.size(22.dp)
@@ -8316,7 +8323,7 @@ private fun EmptyDevicePill() {
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Watch,
+                imageVector = Icons.Outlined.WatchOutlined,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(18.dp)
@@ -8355,45 +8362,32 @@ private fun HudInstallHint(pairedHudVersion: String?, hudEverConnected: Boolean)
 
     val updateUrl = stringResource(R.string.hud_update_url)
     val raw = stringResource(R.string.hud_install_hint)
-    // Visible link styling: tinted + underlined so the rider sees at
-    // a glance that the URL is interactive. Without this, addLink
-    // alone leaves the link visually identical to the surrounding
-    // text and only reveals itself on hover (a tap target the rider
-    // would not know is there).
-    // Use the accent (primary) colour, which is bright enough to read
-    // as a link against the surfaceVariant fill. The styling is set on
-    // the LinkAnnotation.Url's `styles` parameter so Compose's Text
-    // composable applies it to the link RUN (a separate addStyle on
-    // the same range doesn't always survive the LinkAnnotation merge).
+        .replace("<b>", "").replace("</b>", "")
     val linkColor = MaterialTheme.colorScheme.primary
+    // Mirror the welcome tutorial's link handling (OutroLinkBullet): locate the
+    // URL run by text — not via HtmlCompat bold-span detection, which wasn't
+    // reliably tagging the run, so no clickable link was ever added — and attach
+    // a LinkAnnotation.Url. The https:// prefix is required or ACTION_VIEW has no
+    // scheme to launch.
     val annotated = remember(raw, updateUrl, linkColor) {
-        val parsed = androidx.core.text.HtmlCompat.fromHtml(
-            raw, androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
-        )
-        val linkSpanStyle = androidx.compose.ui.text.SpanStyle(
-            color = linkColor,
-            textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
-        )
         androidx.compose.ui.text.buildAnnotatedString {
-            append(parsed.toString())
-            parsed.getSpans(
-                0, parsed.length, android.text.style.StyleSpan::class.java
-            ).forEach { sp ->
-                if (sp.style == android.graphics.Typeface.BOLD) {
-                    val start = parsed.getSpanStart(sp)
-                    val end = parsed.getSpanEnd(sp)
-                    addLink(
-                        url = androidx.compose.ui.text.LinkAnnotation.Url(
-                            url = "https://$updateUrl",
-                            styles = androidx.compose.ui.text.TextLinkStyles(
-                                style = linkSpanStyle
+            append(raw)
+            val i = raw.indexOf(updateUrl)
+            if (i >= 0) {
+                addLink(
+                    androidx.compose.ui.text.LinkAnnotation.Url(
+                        url = "https://$updateUrl",
+                        styles = androidx.compose.ui.text.TextLinkStyles(
+                            style = androidx.compose.ui.text.SpanStyle(
+                                color = linkColor,
+                                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
                             )
-                        ),
-                        start = start,
-                        end = end
-                    )
-                }
+                        )
+                    ),
+                    start = i,
+                    end = i + updateUrl.length
+                )
             }
         }
     }
