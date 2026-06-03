@@ -263,6 +263,8 @@ dependencies {
     // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
     // without Robolectric.
     testImplementation("org.json:json:20240303")
+    // MockWebServer for EucStatsApi JVM tests — version must match libs.okhttp (4.12.0)
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
