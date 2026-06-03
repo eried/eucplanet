@@ -10,6 +10,8 @@ import com.eried.eucplanet.data.model.PairedSurface
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.eucstats.EucStatsRepository
+import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.BackupOutcome
 import com.eried.eucplanet.data.sync.SyncChoice
@@ -44,7 +46,8 @@ class SettingsViewModel @Inject constructor(
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val overlayPresetStore: com.eried.eucplanet.data.store.OverlayPresetStore,
     private val themeController: com.eried.eucplanet.ui.theme.ThemeController,
-    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink
+    hudCommandSink: com.eried.eucplanet.service.hud.HudCommandSink,
+    private val eucStatsRepository: EucStatsRepository,
 ) : ViewModel() {
 
     /** Live HUD protocol compatibility for the Settings/Integration card.
@@ -1810,6 +1813,87 @@ class SettingsViewModel @Inject constructor(
     fun syncFolderDisplayName(): String? {
         val s = settings.value ?: return null
         return syncManager.getSyncFolderDisplayName(s)
+    }
+
+    // ---- EucStats online upload ----
+
+    /** Live rider card from the eucstats backend, null when not registered or not yet fetched. */
+    val onlineUploadCard: StateFlow<RiderCard?> = eucStatsRepository.card
+
+    /** Refresh the rider card from the backend (no-op if no store_id is persisted). */
+    fun refreshOnlineUploadCard() {
+        viewModelScope.launch { eucStatsRepository.refreshCard() }
+    }
+
+    /** Register a new eucstats account. [onResult] is called on the main thread with the success flag. */
+    fun registerOnlineUpload(
+        displayName: String,
+        flag: String,
+        avatarPngBase64: String,
+        onResult: (Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val ok = eucStatsRepository.register(displayName, flag, avatarPngBase64)
+            onResult(ok)
+        }
+    }
+
+    /**
+     * Enable or disable online upload.
+     *
+     * Disabling always succeeds and just flips the flag.
+     * Enabling is silently skipped when a sync folder or store_id is absent —
+     * the UI is responsible for routing the rider through onboarding first.
+     */
+    fun setOnlineUploadEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            if (!enabled) {
+                settingsRepository.update(current.copy(onlineUploadEnabled = false))
+                return@launch
+            }
+            // Preconditions: sync folder configured AND already registered.
+            if (current.syncFolderUri == null || current.eucstatsStoreId == null) return@launch
+            settingsRepository.update(current.copy(onlineUploadEnabled = true))
+            eucStatsRepository.refreshCard()
+        }
+    }
+
+    /** Enqueue a background upload of all pending eucstats trips via WorkManager. */
+    fun retryEucstatsUploads() {
+        viewModelScope.launch {
+            val s = settingsRepository.get()
+            syncManager.enqueueEucStatsUpload(s)
+        }
+    }
+
+    /** PATCH the rider's eucstats profile. [onResult] receives the HTTP status code. */
+    fun editOnlineProfile(
+        displayName: String?,
+        flag: String?,
+        avatarPngBase64: String?,
+        onResult: (Int) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val code = eucStatsRepository.editProfile(displayName, flag, avatarPngBase64)
+            onResult(code)
+        }
+    }
+
+    /** Delete the eucstats account and clear local credentials. [onResult] receives the success flag. */
+    fun deleteOnlineAccount(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = eucStatsRepository.deleteAccount()
+            onResult(ok)
+        }
+    }
+
+    /** Fetch the rider's exported data JSON. [onResult] receives the JSON string, or null on failure. */
+    fun exportOnlineData(onResult: (String?) -> Unit) {
+        viewModelScope.launch {
+            val json = eucStatsRepository.exportData()
+            onResult(json)
+        }
     }
 }
 
