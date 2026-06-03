@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.data.model.SparklineStyle
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * Live dashboard metric tile. One renderer for every metric, driven by
@@ -94,7 +95,7 @@ fun LiveMetricTile(
             // for the same reason.
             .height(61.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.appColors.tileBackground)
             .then(clickModifier),
         contentAlignment = Alignment.Center
     ) {
@@ -379,7 +380,7 @@ private fun CenterColumn(
             Text(
                 metricLabel.uppercase(),
                 fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.appColors.tileLabel,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 0.5.sp,
                 // Lock to a single line so long names like "Battery power"

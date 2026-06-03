@@ -31,6 +31,9 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.ui.common.HintText
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
 
 /**
  * The "Navigator" settings section: voice guidance, the default travel mode,
@@ -65,7 +68,8 @@ fun NavigatorSettingsContent(
             )
             Switch(
                 checked = settings.navSolveFullPath,
-                onCheckedChange = { viewModel.updateNavSolveFullPath(it) }
+                onCheckedChange = { viewModel.updateNavSolveFullPath(it) },
+                colors = themedSwitchColors(),
             )
         }
         HintText(stringResource(R.string.nav_setting_full_path_desc), small = true)
@@ -116,7 +120,8 @@ fun NavigatorSettingsContent(
                     if (!fs.isFocused && geocoder != settings.navGeocoderUrl) {
                         viewModel.updateNavGeocoderUrl(geocoder.trim())
                     }
-                }
+                },
+            colors = themedFieldColors(),
         )
 
         var router by rememberSaveable(settings.navRouterUrl) {
@@ -133,7 +138,8 @@ fun NavigatorSettingsContent(
                     if (!fs.isFocused && router != settings.navRouterUrl) {
                         viewModel.updateNavRouterUrl(router.trim())
                     }
-                }
+                },
+            colors = themedFieldColors(),
         )
 
         Spacer(Modifier.height(8.dp))
@@ -165,7 +171,8 @@ private fun SliderRow(
             value = value,
             onValueChange = onChange,
             valueRange = range,
-            steps = steps
+            steps = steps,
+            colors = themedSliderColors(),
         )
     }
 }

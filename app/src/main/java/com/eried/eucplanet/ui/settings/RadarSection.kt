@@ -40,6 +40,8 @@ import com.eried.eucplanet.data.model.RadarFrame
 import com.eried.eucplanet.data.model.ThreatLevel
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
 
 /**
  * Sub-section of the Integration settings tab for pairing a rear-view radar
@@ -126,7 +128,8 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
         )
         Switch(
             checked = s.radarShowOverlay,
-            onCheckedChange = { viewModel.updateShowOverlay(it) }
+            onCheckedChange = { viewModel.updateShowOverlay(it) },
+            colors = themedSwitchColors(),
         )
     }
     HintText(stringResource(R.string.radar_show_overlay_desc), small = true)
@@ -147,7 +150,8 @@ private fun RadarOverlaySettings(viewModel: RadarViewModel) {
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == s.radarOverlaySide,
                     onClick = { viewModel.updateOverlaySide(key) },
-                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size)
+                    shape = SegmentedButtonDefaults.itemShape(i, sideOptions.size),
+                    colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
         }

@@ -9,6 +9,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
 import org.json.JSONObject
 
@@ -75,6 +76,87 @@ data class AppThemeColors(
     // Indicators
     val connectionActive: Color,
     val connectionIdle: Color,
+
+    // --- Granular add-on tokens. Default Unspecified and resolved from a base
+    //     token by fillDerived(), so the 3 built-ins and any theme saved before
+    //     these existed keep rendering with no per-theme values to maintain.
+    // Surfaces
+    val tileBackground: Color = Color.Unspecified,
+    val sheetBackground: Color = Color.Unspecified,
+    val topBar: Color = Color.Unspecified,
+    val menuBackground: Color = Color.Unspecified,
+    val divider: Color = Color.Unspecified,
+    // Text & icons
+    val sectionHeader: Color = Color.Unspecified,
+    val link: Color = Color.Unspecified,
+    val hint: Color = Color.Unspecified,
+    val tileLabel: Color = Color.Unspecified,
+    val tileValue: Color = Color.Unspecified,
+    val iconTint: Color = Color.Unspecified,
+    // Inputs & controls
+    val fieldBackground: Color = Color.Unspecified,
+    val fieldText: Color = Color.Unspecified,
+    val fieldLabel: Color = Color.Unspecified,
+    val fieldBorder: Color = Color.Unspecified,
+    val segmentSelectedBg: Color = Color.Unspecified,
+    val segmentSelectedText: Color = Color.Unspecified,
+    val segmentText: Color = Color.Unspecified,
+    val switchOn: Color = Color.Unspecified,
+    val switchOff: Color = Color.Unspecified,
+    val sliderActive: Color = Color.Unspecified,
+    val sliderTrack: Color = Color.Unspecified,
+    val controlChecked: Color = Color.Unspecified,
+    // Buttons & chips
+    val tonalButtonFill: Color = Color.Unspecified,
+    val tonalButtonText: Color = Color.Unspecified,
+    val textButton: Color = Color.Unspecified,
+    val outlineButtonBorder: Color = Color.Unspecified,
+    val chipBackground: Color = Color.Unspecified,
+    val chipSelected: Color = Color.Unspecified,
+    // Feedback
+    val snackbarBackground: Color = Color.Unspecified,
+    val snackbarText: Color = Color.Unspecified,
+    val snackbarAction: Color = Color.Unspecified,
+)
+
+/**
+ * Resolve any granular add-on token still left [Color.Unspecified] to the base
+ * token it falls back to. Applied to every theme after construction (and after
+ * Pure Black overrides its surfaces) so derived values track the right base.
+ */
+fun AppThemeColors.fillDerived(): AppThemeColors = copy(
+    tileBackground = tileBackground.takeOrElse { surfaceVariant },
+    sheetBackground = sheetBackground.takeOrElse { dialog },
+    topBar = topBar.takeOrElse { appBackground },
+    menuBackground = menuBackground.takeOrElse { surface },
+    divider = divider.takeOrElse { outline },
+    sectionHeader = sectionHeader.takeOrElse { textSecondary },
+    link = link.takeOrElse { primary },
+    hint = hint.takeOrElse { textSecondary },
+    tileLabel = tileLabel.takeOrElse { textSecondary },
+    tileValue = tileValue.takeOrElse { textPrimary },
+    iconTint = iconTint.takeOrElse { textSecondary },
+    fieldBackground = fieldBackground.takeOrElse { surface },
+    fieldText = fieldText.takeOrElse { textPrimary },
+    fieldLabel = fieldLabel.takeOrElse { textSecondary },
+    fieldBorder = fieldBorder.takeOrElse { outline },
+    segmentSelectedBg = segmentSelectedBg.takeOrElse { surfaceVariant },
+    segmentSelectedText = segmentSelectedText.takeOrElse { primary },
+    segmentText = segmentText.takeOrElse { textPrimary },
+    switchOn = switchOn.takeOrElse { primary },
+    switchOff = switchOff.takeOrElse { surfaceVariant },
+    sliderActive = sliderActive.takeOrElse { primary },
+    sliderTrack = sliderTrack.takeOrElse { surfaceVariant },
+    controlChecked = controlChecked.takeOrElse { primary },
+    tonalButtonFill = tonalButtonFill.takeOrElse { surfaceVariant },
+    tonalButtonText = tonalButtonText.takeOrElse { primary },
+    textButton = textButton.takeOrElse { primary },
+    outlineButtonBorder = outlineButtonBorder.takeOrElse { outline },
+    chipBackground = chipBackground.takeOrElse { surfaceVariant },
+    chipSelected = chipSelected.takeOrElse { primary },
+    snackbarBackground = snackbarBackground.takeOrElse { textPrimary },
+    snackbarText = snackbarText.takeOrElse { surface },
+    snackbarAction = snackbarAction.takeOrElse { primary },
 )
 
 /**
@@ -85,22 +167,41 @@ data class AppThemeColors(
  */
 fun AppThemeColors.toColorScheme(): ColorScheme {
     val base = if (isLight) lightColorScheme() else darkColorScheme()
+    // Map EVERY Material slot from a token — the unmapped *container / inverse /
+    // tint* slots used to fall back to Material's default purple, which is why
+    // things like the segmented selector's selected text weren't following the
+    // theme. The "container" slots stay subtle (surfaceVariant fill + accent
+    // content) so filled-tonal buttons / chips don't turn into solid accents.
     return base.copy(
         primary = primary,
         onPrimary = onPrimary,
+        primaryContainer = primary,
+        onPrimaryContainer = onPrimary,
+        inversePrimary = primary,
         secondary = secondary,
         onSecondary = onPrimary,
+        secondaryContainer = surfaceVariant,
+        onSecondaryContainer = primary,
         tertiary = tertiary,
         onTertiary = onPrimary,
+        tertiaryContainer = surfaceVariant,
+        onTertiaryContainer = tertiary,
         background = appBackground,
         onBackground = textPrimary,
         surface = surface,
         onSurface = textPrimary,
         surfaceVariant = surfaceVariant,
         onSurfaceVariant = textSecondary,
-        outline = outline,
-        scrim = scrim,
+        surfaceTint = primary,
+        inverseSurface = textPrimary,
+        inverseOnSurface = surface,
         error = statusDanger,
+        onError = onPrimary,
+        errorContainer = surfaceVariant,
+        onErrorContainer = statusDanger,
+        outline = outline,
+        outlineVariant = outline,
+        scrim = scrim,
     )
 }
 
@@ -126,6 +227,9 @@ object ThemeTokens {
     const val GROUP_GAUGE = "Gauge"
     const val GROUP_NAV = "Navigation"
     const val GROUP_INDICATOR = "Indicators"
+    const val GROUP_INPUTS = "Inputs & controls"
+    const val GROUP_BUTTONS = "Buttons & chips"
+    const val GROUP_FEEDBACK = "Feedback"
 
     val specs: List<ThemeTokenSpec> = listOf(
         ThemeTokenSpec("appBackground", "App background", GROUP_SURFACES, { it.appBackground }, { c, v -> c.copy(appBackground = v) }),
@@ -166,6 +270,44 @@ object ThemeTokens {
 
         ThemeTokenSpec("connectionActive", "Connected / active", GROUP_INDICATOR, { it.connectionActive }, { c, v -> c.copy(connectionActive = v) }),
         ThemeTokenSpec("connectionIdle", "Disconnected / idle", GROUP_INDICATOR, { it.connectionIdle }, { c, v -> c.copy(connectionIdle = v) }),
+
+        // --- Granular add-on tokens ---
+        ThemeTokenSpec("tileBackground", "Tile background", GROUP_SURFACES, { it.tileBackground }, { c, v -> c.copy(tileBackground = v) }),
+        ThemeTokenSpec("sheetBackground", "Bottom sheet", GROUP_SURFACES, { it.sheetBackground }, { c, v -> c.copy(sheetBackground = v) }),
+        ThemeTokenSpec("topBar", "Top app bar", GROUP_SURFACES, { it.topBar }, { c, v -> c.copy(topBar = v) }),
+        ThemeTokenSpec("menuBackground", "Dropdown menu", GROUP_SURFACES, { it.menuBackground }, { c, v -> c.copy(menuBackground = v) }),
+        ThemeTokenSpec("divider", "Divider line", GROUP_SURFACES, { it.divider }, { c, v -> c.copy(divider = v) }),
+
+        ThemeTokenSpec("sectionHeader", "Section header", GROUP_TEXT, { it.sectionHeader }, { c, v -> c.copy(sectionHeader = v) }),
+        ThemeTokenSpec("link", "Link text", GROUP_TEXT, { it.link }, { c, v -> c.copy(link = v) }),
+        ThemeTokenSpec("hint", "Hint / placeholder", GROUP_TEXT, { it.hint }, { c, v -> c.copy(hint = v) }),
+        ThemeTokenSpec("tileLabel", "Tile label", GROUP_TEXT, { it.tileLabel }, { c, v -> c.copy(tileLabel = v) }),
+        ThemeTokenSpec("tileValue", "Tile value", GROUP_TEXT, { it.tileValue }, { c, v -> c.copy(tileValue = v) }),
+        ThemeTokenSpec("iconTint", "Icon tint", GROUP_TEXT, { it.iconTint }, { c, v -> c.copy(iconTint = v) }),
+
+        ThemeTokenSpec("fieldBackground", "Field background", GROUP_INPUTS, { it.fieldBackground }, { c, v -> c.copy(fieldBackground = v) }),
+        ThemeTokenSpec("fieldText", "Field text", GROUP_INPUTS, { it.fieldText }, { c, v -> c.copy(fieldText = v) }),
+        ThemeTokenSpec("fieldLabel", "Field label", GROUP_INPUTS, { it.fieldLabel }, { c, v -> c.copy(fieldLabel = v) }),
+        ThemeTokenSpec("fieldBorder", "Field border", GROUP_INPUTS, { it.fieldBorder }, { c, v -> c.copy(fieldBorder = v) }),
+        ThemeTokenSpec("segmentSelectedBg", "Selector selected fill", GROUP_INPUTS, { it.segmentSelectedBg }, { c, v -> c.copy(segmentSelectedBg = v) }),
+        ThemeTokenSpec("segmentSelectedText", "Selector selected text", GROUP_INPUTS, { it.segmentSelectedText }, { c, v -> c.copy(segmentSelectedText = v) }),
+        ThemeTokenSpec("segmentText", "Selector text", GROUP_INPUTS, { it.segmentText }, { c, v -> c.copy(segmentText = v) }),
+        ThemeTokenSpec("switchOn", "Switch on", GROUP_INPUTS, { it.switchOn }, { c, v -> c.copy(switchOn = v) }),
+        ThemeTokenSpec("switchOff", "Switch off track", GROUP_INPUTS, { it.switchOff }, { c, v -> c.copy(switchOff = v) }),
+        ThemeTokenSpec("sliderActive", "Slider active", GROUP_INPUTS, { it.sliderActive }, { c, v -> c.copy(sliderActive = v) }),
+        ThemeTokenSpec("sliderTrack", "Slider track", GROUP_INPUTS, { it.sliderTrack }, { c, v -> c.copy(sliderTrack = v) }),
+        ThemeTokenSpec("controlChecked", "Checkbox / radio", GROUP_INPUTS, { it.controlChecked }, { c, v -> c.copy(controlChecked = v) }),
+
+        ThemeTokenSpec("tonalButtonFill", "Tonal button fill", GROUP_BUTTONS, { it.tonalButtonFill }, { c, v -> c.copy(tonalButtonFill = v) }),
+        ThemeTokenSpec("tonalButtonText", "Tonal button text", GROUP_BUTTONS, { it.tonalButtonText }, { c, v -> c.copy(tonalButtonText = v) }),
+        ThemeTokenSpec("textButton", "Text button", GROUP_BUTTONS, { it.textButton }, { c, v -> c.copy(textButton = v) }),
+        ThemeTokenSpec("outlineButtonBorder", "Outlined button border", GROUP_BUTTONS, { it.outlineButtonBorder }, { c, v -> c.copy(outlineButtonBorder = v) }),
+        ThemeTokenSpec("chipBackground", "Chip background", GROUP_BUTTONS, { it.chipBackground }, { c, v -> c.copy(chipBackground = v) }),
+        ThemeTokenSpec("chipSelected", "Chip selected", GROUP_BUTTONS, { it.chipSelected }, { c, v -> c.copy(chipSelected = v) }),
+
+        ThemeTokenSpec("snackbarBackground", "Snackbar background", GROUP_FEEDBACK, { it.snackbarBackground }, { c, v -> c.copy(snackbarBackground = v) }),
+        ThemeTokenSpec("snackbarText", "Snackbar text", GROUP_FEEDBACK, { it.snackbarText }, { c, v -> c.copy(snackbarText = v) }),
+        ThemeTokenSpec("snackbarAction", "Snackbar action", GROUP_FEEDBACK, { it.snackbarAction }, { c, v -> c.copy(snackbarAction = v) }),
     )
 
     /** Specs grouped in declaration order, for the editor's sectioned list. */

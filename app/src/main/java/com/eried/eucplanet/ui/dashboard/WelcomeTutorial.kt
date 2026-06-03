@@ -178,6 +178,7 @@ private fun OutroBullet(text: String) {
 @Composable
 private fun OutroLinkBullet(text: String) {
     val accent = MaterialTheme.colorScheme.primary
+    val link = MaterialTheme.appColors.link
     val marker = "eucviewer.ried.no"
     val annotated = buildAnnotatedString {
         val i = text.indexOf(marker)
@@ -189,7 +190,7 @@ private fun OutroLinkBullet(text: String) {
                 LinkAnnotation.Url(
                     "https://$marker",
                     styles = TextLinkStyles(
-                        style = SpanStyle(color = accent, textDecoration = TextDecoration.Underline)
+                        style = SpanStyle(color = link, textDecoration = TextDecoration.Underline)
                     )
                 )
             ) { append(marker) }

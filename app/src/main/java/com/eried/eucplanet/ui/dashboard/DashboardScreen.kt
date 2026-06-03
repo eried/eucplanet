@@ -150,6 +150,7 @@ import com.eried.eucplanet.ui.theme.remap
 import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
+import com.eried.eucplanet.ui.theme.themedFieldColors
 
 /**
  * Opens the system gallery to the videos or photos collection. Overlay Studio
@@ -529,7 +530,16 @@ fun DashboardScreen(
         com.eried.eucplanet.ui.common.LocalSnackbarScope provides snackbarScope
     ) {
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) },
+        snackbarHost = {
+            SnackbarHost(snackbar, modifier = Modifier.imePadding()) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -640,7 +650,7 @@ fun DashboardScreen(
                             )
                             if (hasSyncFolder) {
                                 androidx.compose.material3.HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                    color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.cloud_backup_now)) },
@@ -661,7 +671,7 @@ fun DashboardScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.appColors.topBar
                 )
             )
         }
@@ -1845,7 +1855,7 @@ fun DashboardScreen(
                                         onClick = { dismiss(); onNavigateToSettings(5) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
-                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                        color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
                                         text = {
@@ -1912,7 +1922,7 @@ fun DashboardScreen(
                                         onClick = { dismiss(); onNavigateToSettings(4) }
                                     )
                                     androidx.compose.material3.HorizontalDivider(
-                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                        color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                     )
                                     DropdownMenuItem(
                                         text = {
@@ -2188,7 +2198,8 @@ fun DashboardScreen(
                             // whole note is visible — the dialog grows
                             // with content (Material caps the dialog
                             // height itself so it can't run off-screen).
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = themedFieldColors(),
                         )
                     }
                 )
@@ -2484,7 +2495,7 @@ fun DashboardScreen(
                                                 )
                                                 Spacer(Modifier.height(12.dp))
                                                 androidx.compose.material3.HorizontalDivider(
-                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    color = MaterialTheme.appColors.divider.copy(alpha = 0.4f),
                                                     thickness = 1.dp
                                                 )
                                                 Spacer(Modifier.height(10.dp))
@@ -2506,7 +2517,7 @@ fun DashboardScreen(
                                                     "Ilya Shkolnik & WheelLog community" to "Public protocol research the KingSong, Begode and Veteran adapters draw on.",
                                                     "InMotion" to "For making my awesome V14."
                                                 )
-                                                val dividerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                                val dividerColor = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                                                 credits.forEachIndexed { idx, (name, why) ->
                                                     if (idx > 0) {
                                                         androidx.compose.material3.HorizontalDivider(
@@ -2538,7 +2549,7 @@ fun DashboardScreen(
                                                 }
                                                 Spacer(Modifier.height(14.dp))
                                                 androidx.compose.material3.HorizontalDivider(
-                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                                                    color = MaterialTheme.appColors.divider.copy(alpha = 0.4f),
                                                     thickness = 1.dp
                                                 )
                                                 Spacer(Modifier.height(10.dp))
@@ -3468,12 +3479,12 @@ private fun ActionButton(
     val container = when {
         !enabled -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = disabledAlpha)
         active -> activeColor.copy(alpha = 0.2f)
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        else -> MaterialTheme.appColors.tileBackground
     }
     val content = when {
         !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = disabledAlpha)
         active -> activeColor
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.appColors.tileLabel
     }
     Box(
         modifier = modifier

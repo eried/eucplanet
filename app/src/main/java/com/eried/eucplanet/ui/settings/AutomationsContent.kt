@@ -61,6 +61,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
 
 @Composable
 fun AutomationsContent(
@@ -89,7 +91,8 @@ fun AutomationsContent(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.autoLightsEnabled,
-                onCheckedChange = { viewModel.updateAutoLightsEnabled(it) })
+                onCheckedChange = { viewModel.updateAutoLightsEnabled(it) },
+                colors = themedSwitchColors(),)
         }
 
         if (settings.autoLightsEnabled) {
@@ -125,7 +128,8 @@ fun AutomationsContent(
                         value = settings.autoLightsOnMinutesBefore.toFloat(),
                         onValueChange = { viewModel.updateAutoLightsOnMinutes(it.roundToInt()) },
                         valueRange = 0f..120f,
-                        steps = 11
+                        steps = 11,
+                        colors = themedSliderColors(),
                     )
                 }
             }
@@ -142,7 +146,8 @@ fun AutomationsContent(
                         value = settings.autoLightsOffMinutesAfter.toFloat(),
                         onValueChange = { viewModel.updateAutoLightsOffMinutes(it.roundToInt()) },
                         valueRange = 0f..120f,
-                        steps = 11
+                        steps = 11,
+                        colors = themedSliderColors(),
                     )
                 }
             }
@@ -199,7 +204,8 @@ fun AutomationsContent(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f))
             Switch(checked = settings.autoVolumeEnabled,
-                onCheckedChange = { viewModel.updateAutoVolumeEnabled(it) })
+                onCheckedChange = { viewModel.updateAutoVolumeEnabled(it) },
+                colors = themedSwitchColors(),)
         }
 
         if (settings.autoVolumeEnabled) {

@@ -277,6 +277,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Seed the saved settings synchronously so the FIRST composed frame
+        // already carries the rider's custom theme. Without this, _settings is
+        // null for one frame and the app flashes the system-default theme before
+        // DataStore loads. Best-effort + time-boxed: on failure _settings stays
+        // null and resolveColors() falls back to the OS-based built-in (Pure
+        // Black / Light).
+        if (_settings.value == null) {
+            runCatching {
+                kotlinx.coroutines.runBlocking {
+                    kotlinx.coroutines.withTimeoutOrNull(700) { settingsRepository.get() }
+                }
+            }.getOrNull()?.let { _settings.value = it.copy(themeEditorEnabled = false) }
+        }
+
         setContent {
             val s by _settings.collectAsState()
             // Ask for the BLE / location / notification permissions on the

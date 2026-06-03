@@ -113,6 +113,11 @@ import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraInfo
 import sh.calvin.reorderable.ReorderableColumn
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
+import com.eried.eucplanet.ui.theme.themedTonalButtonColors
+import com.eried.eucplanet.ui.theme.themedFilterChipColors
 
 /** Which secondary sheet / dialog the studio is currently showing. */
 sealed interface StudioSheet {
@@ -292,7 +297,7 @@ fun StudioToolsFlyout(
                         onDismiss(); onReplayMode()
                     }
                 }
-                HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.appColors.divider)
                 FlyoutSection(stringResource(R.string.studio_flyout_section_elements))
                 // Manage elements stays enabled even with no elements --
                 // the sheet now also hosts the Add button, so it's a valid
@@ -758,7 +763,8 @@ fun SavePresetDialog(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text(stringResource(R.string.studio_save_preset_name_label)) },
-                        singleLine = true
+                        singleLine = true,
+                        colors = themedFieldColors(),
                     )
                 }
             }
@@ -987,7 +993,8 @@ fun ViewportConfigSheet(
                     selected = config.source == ViewportSourceType.CAMERA,
                     onClick = { onChange(config.copy(source = ViewportSourceType.CAMERA)) },
                     label = { Text(stringResource(R.string.studio_viewport_camera)) },
-                    leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
+                    leadingIcon = { Icon(Icons.Default.PhotoCamera, null) },
+                    colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.SOLID ||
@@ -1004,7 +1011,8 @@ fun ViewportConfigSheet(
                             Icons.Default.FormatColorFill,
                             contentDescription = stringResource(R.string.studio_viewport_fill)
                         )
-                    }
+                    },
+                    colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.IMAGE,
@@ -1015,7 +1023,8 @@ fun ViewportConfigSheet(
                             Icons.Default.Image,
                             contentDescription = stringResource(R.string.studio_viewport_image)
                         )
-                    }
+                    },
+                    colors = themedFilterChipColors(),
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -1047,7 +1056,8 @@ fun ViewportConfigSheet(
                                 FilterChip(
                                     selected = config.cameraOrientation == deg,
                                     onClick = { onChange(config.copy(cameraOrientation = deg)) },
-                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) }
+                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) },
+                                    colors = themedFilterChipColors(),
                                 )
                             }
                         }
@@ -1160,7 +1170,8 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
             FilterChip(
                 selected = config.colorFilter == key,
                 onClick = { onChange(config.copy(colorFilter = key)) },
-                label = { Text(lbl) }
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1199,7 +1210,8 @@ private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> 
             FilterChip(
                 selected = config.fitMode == key,
                 onClick = { onChange(config.copy(fitMode = key)) },
-                label = { Text(lbl) }
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1239,7 +1251,8 @@ private fun CameraPicker(
                 enabled = !atLimit || cam.key in inUseKeys,
                 onClick = { onPick(cam.key) },
                 label = { Text(cam.label) },
-                leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
+                leadingIcon = { Icon(Icons.Default.PhotoCamera, null) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1316,17 +1329,20 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
                     )
                 )
             },
-            label = { Text(stringResource(R.string.studio_bg_solid)) }
+            label = { Text(stringResource(R.string.studio_bg_solid)) },
+            colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && !config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = false)) },
-            label = { Text(stringResource(R.string.studio_bg_linear)) }
+            label = { Text(stringResource(R.string.studio_bg_linear)) },
+            colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = true)) },
-            label = { Text(stringResource(R.string.studio_bg_radial)) }
+            label = { Text(stringResource(R.string.studio_bg_radial)) },
+            colors = themedFilterChipColors(),
         )
     }
     Spacer(Modifier.height(12.dp))
@@ -1451,7 +1467,8 @@ private fun GradientStopRow(
         Slider(
             value = position.coerceIn(0f, 1f),
             onValueChange = { onPosition(it.coerceIn(0f, 1f)) },
-            valueRange = 0f..1f
+            valueRange = 0f..1f,
+            colors = themedSliderColors(),
         )
     }
 }
@@ -1528,7 +1545,8 @@ fun ElementConfigSheet(
                             else -> TextAlign.Start
                         }
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = themedFieldColors(),
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -1555,7 +1573,8 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.textAlign == key,
                             onClick = { onChange(element.copy(textAlign = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
                 }
@@ -1577,7 +1596,8 @@ fun ElementConfigSheet(
                             FilterChip(
                                 selected = element.clockStyle == key,
                                 onClick = { onChange(element.copy(clockStyle = key)) },
-                                label = { Text(lbl) }
+                                label = { Text(lbl) },
+                                colors = themedFilterChipColors(),
                             )
                         }
                     }
@@ -1587,7 +1607,8 @@ fun ElementConfigSheet(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Switch(
                             checked = element.clockShowDate,
-                            onCheckedChange = { onChange(element.copy(clockShowDate = it)) }
+                            onCheckedChange = { onChange(element.copy(clockShowDate = it)) },
+                            colors = themedSwitchColors(),
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.studio_cfg_clock_show_date))
@@ -1604,7 +1625,8 @@ fun ElementConfigSheet(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Switch(
                             checked = element.clock24Hour,
-                            onCheckedChange = { onChange(element.copy(clock24Hour = it)) }
+                            onCheckedChange = { onChange(element.copy(clock24Hour = it)) },
+                            colors = themedSwitchColors(),
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.studio_cfg_clock_24h))
@@ -1644,7 +1666,8 @@ fun ElementConfigSheet(
                             FilterChip(
                                 selected = element.unitPosition == key,
                                 onClick = { onChange(element.copy(unitPosition = key)) },
-                                label = { Text(lbl) }
+                                label = { Text(lbl) },
+                                colors = themedFilterChipColors(),
                             )
                         }
                     }
@@ -1672,7 +1695,8 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.dialStyle == key,
                             onClick = { onChange(element.copy(dialStyle = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
                 }
@@ -1756,7 +1780,8 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.mapStyle == key,
                             onClick = { onChange(element.copy(mapStyle = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
                 }
@@ -1910,7 +1935,8 @@ fun ElementConfigSheet(
                         onChange(element.copy(rotationDeg = it.coerceIn(-180f, 180f)))
                     },
                     valueRange = -180f..180f,
-                    steps = 71
+                    steps = 71,
+                    colors = themedSliderColors(),
                 )
                 // Drop shadow applies to every element type.
                 ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
@@ -1957,7 +1983,8 @@ private fun MetricPicker(selected: String, onPick: (String) -> Unit) {
             FilterChip(
                 selected = metric.key == selected,
                 onClick = { onPick(metric.key) },
-                label = { Text(metric.displayName()) }
+                label = { Text(metric.displayName()) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -2257,7 +2284,8 @@ private fun LabeledSlider(
                 }
             },
             valueRange = min..max,
-            steps = steps
+            steps = steps,
+            colors = themedSliderColors(),
         )
     }
 }
@@ -2269,7 +2297,8 @@ private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(label, Modifier.weight(1f))
-        Switch(checked = checked, onCheckedChange = onChange)
+        Switch(checked = checked, onCheckedChange = onChange,
+            colors = themedSwitchColors(),)
     }
 }
 
@@ -2330,7 +2359,8 @@ fun ManageElementsSheet(
             ) {
                 FilledTonalButton(
                     onClick = onAddElement,
-                    enabled = canAddElement
+                    enabled = canAddElement,
+                    colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Widgets, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -2338,7 +2368,8 @@ fun ManageElementsSheet(
                 }
                 FilledTonalButton(
                     onClick = onChangePanes,
-                    enabled = canChangePanes
+                    enabled = canChangePanes,
+                    colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Dashboard, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -2380,7 +2411,8 @@ private fun SnapToGridRow(snapToGrid: Boolean, onSnapToGrid: (Boolean) -> Unit) 
     ) {
         androidx.compose.material3.Switch(
             checked = snapToGrid,
-            onCheckedChange = onSnapToGrid
+            onCheckedChange = onSnapToGrid,
+            colors = themedSwitchColors(),
         )
         Spacer(Modifier.width(12.dp))
         Text(stringResource(R.string.studio_snap_to_grid))

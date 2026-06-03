@@ -240,6 +240,13 @@ import com.eried.eucplanet.ui.theme.AccentPurple
 import com.eried.eucplanet.ui.theme.AccentRed
 import com.eried.eucplanet.ui.theme.AccentYellow
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedFilterChipColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedTextButtonColors
+import com.eried.eucplanet.ui.theme.themedTonalButtonColors
 import com.eried.eucplanet.util.Units
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -675,7 +682,8 @@ fun SettingsScreen(
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 10.dp)
+                            .padding(end = 10.dp),
+                        colors = themedFieldColors(),
                     )
                 },
                 navigationIcon = {
@@ -684,7 +692,7 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.appColors.topBar
                 )
             )
         },
@@ -692,7 +700,14 @@ fun SettingsScreen(
             // imePadding lifts the snackbar above the soft keyboard so cheat
             // results / unit-toggle confirms / etc don't appear behind it
             // when triggered from the Settings search field.
-            SnackbarHost(snackbar, modifier = Modifier.imePadding())
+            SnackbarHost(snackbar, modifier = Modifier.imePadding()) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
         }
     ) { padding ->
       androidx.compose.runtime.CompositionLocalProvider(
@@ -914,7 +929,8 @@ private fun GeneralTab(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.wheelNameDisplay,
                     onClick = { viewModel.updateWheelNameDisplay(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size)
+                    shape = SegmentedButtonDefaults.itemShape(index, wheelNameOptions.size),
+                    colors = themedSegmentedColors(),
                 ) {
                     Text(
                         label,
@@ -955,7 +971,8 @@ private fun GeneralTab(
                     modifier = Modifier.fillMaxHeight(),
                     selected = key == settings.backButtonAction,
                     onClick = { viewModel.updateBackButtonAction(key) },
-                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size)
+                    shape = SegmentedButtonDefaults.itemShape(index, backOptions.size),
+                    colors = themedSegmentedColors(),
                 ) {
                     Text(
                         label,
@@ -1461,7 +1478,8 @@ private fun DashboardColumnSelector(current: Int, onSelect: (Int) -> Unit) {
                 SegmentedButton(
                     selected = n == current,
                     onClick = { onSelect(n) },
-                    shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                    shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                    colors = themedSegmentedColors(),
                 ) { Text(n.toString()) }
             }
         }
@@ -3440,7 +3458,8 @@ private fun CompositeMetricSheet(
                             layout = lay
                             persist(lay, baseCells, baseStats)
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, options.size)
+                        shape = SegmentedButtonDefaults.itemShape(index, options.size),
+                        colors = themedSegmentedColors(),
                     ) {
                         Text(compositeLayoutLabel(lay))
                     }
@@ -3521,7 +3540,7 @@ private fun SlotSheetFooter(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onReset) {
+        TextButton(onClick = onReset, colors = themedTextButtonColors()) {
             Icon(
                 Icons.Filled.Restore,
                 contentDescription = null,
@@ -3531,7 +3550,8 @@ private fun SlotSheetFooter(
             Text(stringResource(R.string.dashboard_restore_slot))
         }
         Spacer(Modifier.weight(1f))
-        FilledTonalButton(onClick = onClose) {
+        FilledTonalButton(onClick = onClose,
+            colors = themedTonalButtonColors(),) {
             Text(stringResource(R.string.dashboard_close))
         }
     }
@@ -3586,7 +3606,8 @@ private fun CompositeCellDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -3594,7 +3615,7 @@ private fun CompositeCellDropdown(
         ) {
             options.forEach { key ->
                 if (key == PICKER_DIVIDER_SENTINEL) {
-                    androidx.compose.material3.HorizontalDivider()
+                    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.appColors.divider)
                 } else {
                     DropdownMenuItem(
                         text = { Text(metricChipLabel(key)) },
@@ -3656,7 +3677,8 @@ private fun CompositeCellStatDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = enabled)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
@@ -3775,7 +3797,8 @@ private fun ActionGroupSheet(
                     singleLine = true,
                     label = { Text(stringResource(R.string.dashboard_group_name_label)) },
                     placeholder = { Text(defaultName) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = themedFieldColors(),
                 )
             }
 
@@ -3879,7 +3902,8 @@ private fun CustomBleSheet(
                     onValueChange = { label = it; persist() },
                     singleLine = true,
                     label = { Text(stringResource(R.string.dashboard_custom_ble_label)) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = themedFieldColors(),
                 )
             }
 
@@ -3899,7 +3923,8 @@ private fun CustomBleSheet(
                             expanded = familyExpanded
                         )
                     },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier.menuAnchor().fillMaxWidth(),
+                    colors = themedFieldColors(),
                 )
                 ExposedDropdownMenu(
                     expanded = familyExpanded,
@@ -3928,7 +3953,8 @@ private fun CustomBleSheet(
                     { Text(stringResource(R.string.dashboard_custom_ble_frames_error)) }
                 } else null,
                 minLines = 2,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = themedFieldColors(),
             )
 
             SlotSheetFooter(onReset, onDismiss)
@@ -4045,7 +4071,8 @@ private fun ActionGroupSlotDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -4156,7 +4183,8 @@ private fun CustomTileSheet(
                     placeholder = {
                         Text(stringResource(R.string.dashboard_custom_tile_text_placeholder))
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    colors = themedFieldColors(),
                 )
             }
 
@@ -4177,7 +4205,8 @@ private fun CustomTileSheet(
                             actionBadgeIcon(opt)?.let { v ->
                                 Icon(v, contentDescription = null, modifier = Modifier.size(16.dp))
                             }
-                        }
+                        },
+                        colors = themedSegmentedColors(),
                     ) {
                         Text(customTileActionLabel(opt))
                     }
@@ -4199,7 +4228,8 @@ private fun CustomTileSheet(
                     singleLine = true,
                     label = { Text(stringResource(R.string.dashboard_custom_tile_url_label)) },
                     placeholder = { Text(placeholder) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = themedFieldColors(),
                 )
             }
 
@@ -4312,7 +4342,8 @@ private fun SlotSheetMetricPreview(
                 // Asymmetric inset: 2dp from the top so the chip hugs the
                 // upper edge, full 8dp on the right so it clears the
                 // rounded corner.
-                .padding(top = 2.dp, end = 8.dp)
+                .padding(top = 2.dp, end = 8.dp),
+            colors = themedFilterChipColors(),
         )
     }
 }
@@ -4624,7 +4655,8 @@ private fun RollingWindowDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -4674,7 +4706,8 @@ private fun ViewDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && !forcedWide) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = !forcedWide)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded && !forcedWide,
@@ -4748,7 +4781,8 @@ private fun CornerStatDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -4770,7 +4804,7 @@ private fun CornerStatDropdown(
                 )
                 val nextIsReal = options.getOrNull(idx + 1)?.let { !isPlaceholder(it) } == true
                 if (isPlaceholder(option) && nextIsReal) {
-                    androidx.compose.material3.HorizontalDivider()
+                    androidx.compose.material3.HorizontalDivider(color = MaterialTheme.appColors.divider)
                 }
             }
         }
@@ -5307,7 +5341,8 @@ private fun UnitsSetting(
                             }
                         }
                     },
-                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size)
+                    shape = SegmentedButtonDefaults.itemShape(index, systemOptions.size),
+                    colors = themedSegmentedColors(),
                 ) { Text(label) }
             }
         }
@@ -5517,7 +5552,7 @@ private fun VoiceTab(
             onCheckedChange = { viewModel.updateNavVoiceEnabled(it) },
             onTest = { viewModel.testSpeak(navSample) }
         )
-        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.appColors.divider.copy(alpha = 0.2f))
 
         val sLock = stringResource(R.string.voice_wheel_locked)
         val sUnlock = stringResource(R.string.voice_wheel_unlocked)
@@ -5981,7 +6016,8 @@ private fun WatchTab(
                             modifier = Modifier.fillMaxHeight(),
                             selected = key == settings.watchUpdateRate,
                             onClick = { viewModel.updateWatchUpdateRate(key) },
-                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size)
+                            shape = SegmentedButtonDefaults.itemShape(index, updateRateOptions.size),
+                            colors = themedSegmentedColors(),
                         ) {
                             Text(
                                 label,
@@ -6031,7 +6067,8 @@ private fun WatchTab(
                         modifier = Modifier.fillMaxHeight(),
                         selected = key == settings.watchPwmDisplay,
                         onClick = { viewModel.updateWatchPwmDisplay(key) },
-                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size)
+                        shape = SegmentedButtonDefaults.itemShape(index, loadOptions.size),
+                        colors = themedSegmentedColors(),
                     ) {
                         Text(
                             label,
@@ -6238,7 +6275,7 @@ private fun SwitchSettingWithDesc(
                     PlayButton(onClick = onTest)
                 }
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+            Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
         }
         Text(
             description,
@@ -6670,9 +6707,9 @@ private fun ReportRow(
             PlayButton(onClick = onTest)
         }
         Switch(checked = periodicChecked, onCheckedChange = onPeriodicChange,
-            modifier = Modifier.weight(0.55f))
+            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
         Switch(checked = triggerChecked, onCheckedChange = onTriggerChange,
-            modifier = Modifier.weight(0.55f))
+            modifier = Modifier.weight(0.55f), colors = themedSwitchColors())
     }
 }
 
@@ -6692,7 +6729,7 @@ private fun AnnounceSwitchSetting(
             Spacer(Modifier.width(4.dp))
             PlayButton(onClick = onTest)
         }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }
 
@@ -6702,7 +6739,7 @@ internal fun SectionHeader(title: String) {
     Text(
         text = highlightMatches(title, query),
         style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.colorScheme.primary
+        color = MaterialTheme.appColors.sectionHeader
     )
 }
 
@@ -6793,7 +6830,8 @@ private fun SliderSetting(
                 onValueChange = onValueChange,
                 valueRange = safeRange,
                 steps = computedSteps,
-                enabled = enabled
+                enabled = enabled,
+                colors = themedSliderColors()
             )
         }
     }
@@ -6811,7 +6849,7 @@ private fun SwitchSetting(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(highlightMatches(label, LocalSettingsSearchQuery.current), style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange, colors = themedSwitchColors())
     }
 }
 
@@ -6930,7 +6968,8 @@ private fun ThemeDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             builtIns.forEach { name ->
@@ -6942,7 +6981,7 @@ private fun ThemeDropdown(
             // Saved custom themes + unsaved drafts live below the 3 built-ins,
             // behind a divider. Drafts are shown as "<name> (unsaved)".
             if (saved.isNotEmpty() || unsaved.isNotEmpty()) {
-                androidx.compose.material3.HorizontalDivider()
+                androidx.compose.material3.HorizontalDivider(color = MaterialTheme.appColors.divider)
             }
             saved.forEach { name ->
                 DropdownMenuItem(
@@ -6982,7 +7021,8 @@ private fun SimpleDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { (key, text) ->
@@ -7041,7 +7081,8 @@ private fun ButtonConfig(
                                 }) {
                                     Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
                                 }
-                            }
+                            },
+                            colors = themedFieldColors(),
                         )
                     } else {
                         Row(
@@ -7322,7 +7363,8 @@ private fun EngineTypePicker(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                colors = themedFieldColors(),
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -7399,7 +7441,8 @@ private fun VoiceSelector(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -7496,7 +7539,8 @@ private fun SegmentedChoice(
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
-                    }
+                    },
+                    colors = themedSegmentedColors(),
                 )
             }
         }
@@ -7535,7 +7579,8 @@ private fun ActionDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -7848,7 +7893,8 @@ private fun NamedBackupDialog(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester)
+                    .focusRequester(focusRequester),
+                colors = themedFieldColors(),
             )
         },
         confirmButton = {
@@ -7900,7 +7946,8 @@ private fun RestorePickerDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable, true),
+                        colors = themedFieldColors(),
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownOpen,
@@ -8538,7 +8585,8 @@ private fun HudIntegrationSection(
                         "flagNoPersonalizedLearning|flagNoExtractUi"
                     )
                 ),
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.weight(2f),
+                colors = themedFieldColors(),
             )
             OutlinedTextField(
                 value = portText,
@@ -8564,7 +8612,8 @@ private fun HudIntegrationSection(
                         "flagNoPersonalizedLearning|flagNoExtractUi"
                     )
                 ),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = themedFieldColors(),
             )
         }
         // Toggle goes UNDER the IP/port -- the rider configures the
@@ -8646,7 +8695,8 @@ private fun HudMapContrastSlider(
             value = settings.hudMapContrastPct.toFloat(),
             onValueChange = { viewModel.updateHudMapContrast(it.toInt()) },
             valueRange = 50f..200f,
-            steps = 29 // 5% increments across the 150-wide range
+            steps = 29, // 5% increments across the 150-wide range
+            colors = themedSliderColors()
         )
     }
 }
@@ -8676,7 +8726,8 @@ private fun HudMapBrightnessSlider(
             value = settings.hudMapBrightnessPct.toFloat(),
             onValueChange = { viewModel.updateHudMapBrightness(it.toInt()) },
             valueRange = -100f..100f,
-            steps = 39 // 5-unit increments across the 200-wide range
+            steps = 39, // 5-unit increments across the 200-wide range
+            colors = themedSliderColors()
         )
     }
 }
@@ -8758,7 +8809,8 @@ private fun HudScreenList(
                             viewModel.setHudScreenEnabled(id, wantChecked)
                         }
                     },
-                    enabled = wantCheckedCanFlip(checked, canUncheck)
+                    enabled = wantCheckedCanFlip(checked, canUncheck),
+                    colors = themedSwitchColors()
                 )
             }
         }
@@ -8844,7 +8896,8 @@ private fun HudMapStylePicker(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -8909,13 +8962,15 @@ private fun HudOverlayPicker(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             androidx.compose.material3.FilledTonalButton(
-                onClick = { sheetOpen = true }
+                onClick = { sheetOpen = true },
+                colors = themedTonalButtonColors(),
             ) {
                 Text(stringResource(R.string.hud_overlay_select_preset))
             }
             if (settings.hudCustomOverlayName.isNotBlank()) {
                 androidx.compose.material3.TextButton(
-                    onClick = { viewModel.pickHudOverlay("") }
+                    onClick = { viewModel.pickHudOverlay("") },
+                    colors = themedTextButtonColors()
                 ) {
                     Text(stringResource(R.string.hud_custom_overlay_none))
                 }

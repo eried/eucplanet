@@ -53,6 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -201,7 +202,8 @@ private fun ButtonConfig(
                                 }) {
                                     Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
                                 }
-                            }
+                            },
+                            colors = themedFieldColors(),
                         )
                     } else {
                         Row(
@@ -276,7 +278,8 @@ private fun ActionDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,

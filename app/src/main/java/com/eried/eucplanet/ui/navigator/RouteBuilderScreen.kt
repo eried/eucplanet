@@ -108,6 +108,9 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.nav.NavFormat
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -518,7 +521,16 @@ fun RouteBuilderScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHost) },
+        snackbarHost = {
+            SnackbarHost(snackbarHost) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 modifier = Modifier.onSizeChanged { sz -> topBarHeightPx = sz.height },
@@ -526,7 +538,7 @@ fun RouteBuilderScreen(
                     // 80 % alpha so the map shows through the top bar (the
                     // map area extends under it via the contentWindowInsets
                     // override below).
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
+                    containerColor = MaterialTheme.appColors.topBar.copy(alpha = 0.80f)
                 ),
                 navigationIcon = {
                     IconButton(onClick = onExit) {
@@ -558,7 +570,8 @@ fun RouteBuilderScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 8.dp)
-                            .onFocusChanged { searchFocused = it.isFocused }
+                            .onFocusChanged { searchFocused = it.isFocused },
+                        colors = themedFieldColors(),
                     )
                 },
                 actions = {
@@ -896,7 +909,7 @@ fun RouteBuilderScreen(
                                 )
                             }
                             HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                             )
                         }
                         if (searching) {
@@ -911,7 +924,7 @@ fun RouteBuilderScreen(
                         }
                         searchResults.forEachIndexed { i, result ->
                             if (i > 0) HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                             )
                             TextButton(
                                 onClick = {
@@ -1070,7 +1083,7 @@ fun RouteBuilderScreen(
                     // lone divider on top of Customize looks pointless.
                     val hasAddStop = waypoints.isNotEmpty() && !navRunning
                     val hasOtherItems = homePlace == null || workPlace == null || hasAddStop
-                    if (hasOtherItems) HorizontalDivider()
+                    if (hasOtherItems) HorizontalDivider(color = MaterialTheme.appColors.divider)
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.nav_customize_marker_short)) },
                         onClick = {
@@ -1220,7 +1233,7 @@ private fun BuilderMenu(
         // Marker-customization group, bounded by separators above and below
         // so the rider's-avatar actions read as a distinct cluster from the
         // route / settings items.
-        HorizontalDivider()
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_customize_marker)) },
             onClick = { onDismiss(); onCustomizeMarker() }
@@ -1231,14 +1244,14 @@ private fun BuilderMenu(
                 onClick = { onDismiss(); onResetMarker() }
             )
         }
-        HorizontalDivider()
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_setting_params)) },
             onClick = { onDismiss(); onNavSettings() }
         )
         // Forget Home / Work sit last, they are rare, destructive actions.
         if (hasHome || hasWork) {
-            HorizontalDivider()
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
         }
         if (hasHome) {
             DropdownMenuItem(
@@ -1499,7 +1512,8 @@ private fun BottomPanel(
                                 onClick = { onModeChange(mode) },
                                 enabled = !modesLocked,
                                 shape = SegmentedButtonDefaults.itemShape(index, modes.size),
-                                icon = {}
+                                icon = {},
+                                colors = themedSegmentedColors(),
                             ) {
                                 if (!solveFullPath && mode != TravelMode.STRAIGHT) {
                                     // Next segment + routed mode: icon with a
@@ -1751,7 +1765,7 @@ private fun BottomPanel(
                                         //      changes to Home / Work are surprising)
                                         val canSaveHome = !navRunning && home == null
                                         val canSaveWork = !navRunning && work == null
-                                        if (canSaveHome || canSaveWork) HorizontalDivider()
+                                        if (canSaveHome || canSaveWork) HorizontalDivider(color = MaterialTheme.appColors.divider)
                                         if (canSaveHome) {
                                             DropdownMenuItem(
                                                 text = { Text(stringResource(R.string.nav_save_home)) },

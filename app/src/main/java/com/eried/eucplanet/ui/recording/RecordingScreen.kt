@@ -199,7 +199,16 @@ fun RecordingScreen(
         LocalSnackbarScope provides snackbarScope
     ) {
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.imePadding()) },
+        snackbarHost = {
+            SnackbarHost(snackbar, modifier = Modifier.imePadding()) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.recording_title)) },
@@ -224,7 +233,7 @@ fun RecordingScreen(
                                     onOpenBackupSettings()
                                 }
                             )
-                            HorizontalDivider()
+                            HorizontalDivider(color = MaterialTheme.appColors.divider)
                         }
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_import)) },

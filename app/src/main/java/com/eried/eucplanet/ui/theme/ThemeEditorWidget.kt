@@ -363,7 +363,8 @@ fun ThemeEditorWidget(
             text = {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it },
-                    singleLine = true, label = { Text("Name") }
+                    singleLine = true, label = { Text("Name") },
+                    colors = themedFieldColors()
                 )
             },
             confirmButton = {
@@ -506,6 +507,7 @@ private fun ChannelSlider(label: String, value: Float, onValue: (Float) -> Unit,
             value = value,
             onValueChange = onValue,
             onValueChangeFinished = onCommit,
+            colors = themedSliderColors(),
             modifier = Modifier.weight(1f)
         )
         Text(

@@ -71,6 +71,10 @@ import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
@@ -279,7 +283,8 @@ private fun AlarmRuleCard(
                         )
                     }
                 }
-                Switch(checked = rule.enabled, onCheckedChange = onToggle)
+                Switch(checked = rule.enabled, onCheckedChange = onToggle,
+                    colors = themedSwitchColors(),)
             }
 
             Row(
@@ -509,7 +514,8 @@ private fun AlarmRuleEditorDialog(
                             .coerceIn(thresholdRangeInternal)
                     },
                     valueRange = displayedRange,
-                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0)
+                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0),
+                    colors = themedSliderColors(),
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -527,7 +533,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_beep), fontSize = 13.sp)
-                    Switch(checked = beepEnabled, onCheckedChange = { beepEnabled = it })
+                    Switch(checked = beepEnabled, onCheckedChange = { beepEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (beepEnabled) {
@@ -539,7 +546,8 @@ private fun AlarmRuleEditorDialog(
                         // urgency reminders (e.g. battery dip). Top stays at
                         // 3 kHz where the piezo gets piercing.
                         valueRange = 200f..3000f,
-                        steps = 27
+                        steps = 27,
+                        colors = themedSliderColors(),
                     )
 
                     Text(stringResource(R.string.alarm_beep_duration_fmt, beepDurationMs), fontSize = 12.sp)
@@ -547,7 +555,8 @@ private fun AlarmRuleEditorDialog(
                         value = beepDurationMs.toFloat(),
                         onValueChange = { beepDurationMs = it.toInt() },
                         valueRange = 100f..1000f,
-                        steps = 8
+                        steps = 8,
+                        colors = themedSliderColors(),
                     )
 
                     Text(stringResource(R.string.alarm_beep_repeats_fmt, beepCount), fontSize = 12.sp)
@@ -555,7 +564,8 @@ private fun AlarmRuleEditorDialog(
                         value = beepCount.toFloat(),
                         onValueChange = { beepCount = it.toInt() },
                         valueRange = 1f..5f,
-                        steps = 3
+                        steps = 3,
+                        colors = themedSliderColors(),
                     )
                 }
 
@@ -574,7 +584,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_voice), fontSize = 13.sp)
-                    Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
+                    Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (voiceEnabled) {
@@ -583,7 +594,8 @@ private fun AlarmRuleEditorDialog(
                         onValueChange = { voiceText = it },
                         label = { Text(stringResource(R.string.alarm_voice_template)) },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 2
+                        minLines = 2,
+                        colors = themedFieldColors(),
                     )
                     HintText(stringResource(R.string.alarm_voice_template_help), small = true)
                 }
@@ -603,7 +615,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_vibrate), fontSize = 13.sp)
-                    Switch(checked = vibrateEnabled, onCheckedChange = { vibrateEnabled = it })
+                    Switch(checked = vibrateEnabled, onCheckedChange = { vibrateEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (vibrateEnabled) {
@@ -612,7 +625,8 @@ private fun AlarmRuleEditorDialog(
                         value = vibrateDurationMs.toFloat(),
                         onValueChange = { vibrateDurationMs = it.toInt() },
                         valueRange = 100f..2000f,
-                        steps = 18
+                        steps = 18,
+                        colors = themedSliderColors(),
                     )
 
                     Spacer(Modifier.height(4.dp))
@@ -642,7 +656,8 @@ private fun AlarmRuleEditorDialog(
                                 modifier = Modifier.fillMaxHeight(),
                                 selected = key == vibrateTarget,
                                 onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size)
+                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
+                                colors = themedSegmentedColors(),
                             ) { Text(label) }
                         }
                     }
@@ -664,7 +679,8 @@ private fun AlarmRuleEditorDialog(
                             .toInt().coerceIn(5, 60)
                     },
                     valueRange = 5f..60f,
-                    steps = 10
+                    steps = 10,
+                    colors = themedSliderColors(),
                 )
                 HintText(stringResource(R.string.alarm_cooldown_help), small = true)
 
@@ -674,7 +690,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_repeat), fontSize = 13.sp)
-                    Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it })
+                    Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it },
+                        colors = themedSwitchColors(),)
                 }
                 HintText(stringResource(R.string.alarm_repeat_help), small = true)
 
@@ -773,7 +790,8 @@ private fun DropdownSelect(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,

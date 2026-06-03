@@ -44,6 +44,8 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
 
 /**
  * Section in the Integration tab for pairing/unpairing an external BLE GPS box.
@@ -220,7 +222,8 @@ private fun ToggleRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange,
+            colors = themedSwitchColors(),)
     }
 }
 
@@ -246,7 +249,8 @@ private fun InlineAxisDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,

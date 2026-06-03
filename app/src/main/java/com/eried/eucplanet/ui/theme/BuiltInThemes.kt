@@ -18,9 +18,7 @@ object BuiltInThemes {
     private val navInk = Color(0xFF11151C)
     private val statusConnected = Color(0xFF2ECC40)
 
-    val dark = BuiltInTheme(
-        "Dark",
-        AppThemeColors(
+    private val darkColors = AppThemeColors(
             isLight = false,
             appBackground = DarkBackground,
             surface = DarkSurface,
@@ -53,18 +51,19 @@ object BuiltInThemes {
             navPopupInk = navInk,
             connectionActive = statusConnected,
             connectionIdle = TextSecondary,
-        )
     )
+
+    val dark = BuiltInTheme("Dark", darkColors.fillDerived())
 
     val pureBlack = BuiltInTheme(
         "Pure Black",
-        dark.colors.copy(
+        darkColors.copy(
             appBackground = BlackBackground,
             surface = BlackSurface,
             surfaceVariant = BlackSurfaceVariant,
             dialog = BlackSurface,
             gaugeTrack = BlackSurfaceVariant,
-        )
+        ).fillDerived()
     )
 
     val light = BuiltInTheme(
@@ -102,7 +101,7 @@ object BuiltInThemes {
             navPopupInk = Color.White,
             connectionActive = statusConnected,
             connectionIdle = TextSecondaryLight,
-        )
+        ).fillDerived()
     )
 
     /** Declaration order = combo order: Light, Dark, Pure Black. */
