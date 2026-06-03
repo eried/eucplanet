@@ -323,3 +323,37 @@ jobs:
           prerelease: true
           make_latest: "false"
           files: /tmp/stage/*
+
+      - name: Announce build on Telegram
+        # Posts each branch build into the @EUCPlanetApp "Github" topic. Opt-in
+        # via the TELEGRAM_* secrets; failures never break the build (|| true).
+        # The commit message is passed via env (never inlined) to avoid
+        # expression injection.
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_RELEASES_CHAT_ID }}
+          THREAD_ID: ${{ secrets.TELEGRAM_RELEASES_THREAD_ID }}
+          GH_REPO: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+          BRANCH: ${{ needs.meta.outputs.branch }}
+          SHORT_SHA: ${{ needs.meta.outputs.short_sha }}
+          TAG: ${{ needs.meta.outputs.tag }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ] || [ -z "$THREAD_ID" ]; then
+            echo "::notice::Telegram secrets not set; skipping announcement."; exit 0
+          fi
+          url="${SERVER_URL}/${GH_REPO}/releases/tag/${TAG}"
+          subject=$(printf '%s' "$COMMIT_MSG" | head -n1)
+          esc() { printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g'; }
+          text="🔨 <b>Build</b> on <code>$(esc "$BRANCH")</code> @ <code>$(esc "$SHORT_SHA")</code>
+          $(esc "$subject")
+
+          ⬇️ Latest build (phone, Wear OS, HUD, Garmin):
+          ${url}"
+          curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT_ID}" \
+            -d "message_thread_id=${THREAD_ID}" \
+            --data-urlencode "text=${text}" \
+            -d "parse_mode=HTML" -d "disable_web_page_preview=true" \
+            -o /dev/null -w "Telegram HTTP %{http_code}\n" || true
