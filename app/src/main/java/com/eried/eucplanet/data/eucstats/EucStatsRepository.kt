@@ -35,11 +35,11 @@ class EucStatsRepository @Inject constructor(
     private val settings: EucStatsSettingsPort,
     private val tripDao: TripDao,
     /** Reads the raw CSV bytes for a given trip — injected so no Android FS needed in tests. */
-    private val tripFileBytes: (TripRecord) -> ByteArray,
-    private val appVersion: String,
-    private val osVersion: String,
+    @EucStatsTripFileBytes private val tripFileBytes: @JvmSuppressWildcards (TripRecord) -> ByteArray,
+    @EucStatsAppVersion private val appVersion: String,
+    @EucStatsOsVersion private val osVersion: String,
     /** Millisecond clock, injectable for tests. */
-    private val clock: () -> Long = { System.currentTimeMillis() },
+    @EucStatsClock private val clock: @JvmSuppressWildcards () -> Long = { System.currentTimeMillis() },
 ) {
 
     private val _card = MutableStateFlow<RiderCard?>(null)
