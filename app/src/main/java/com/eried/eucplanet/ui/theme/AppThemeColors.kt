@@ -91,8 +91,6 @@ data class AppThemeColors(
     val link: Color = Color.Unspecified,
     val hint: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
-    val tileValue: Color = Color.Unspecified,
-    val iconTint: Color = Color.Unspecified,
     // Inputs & controls
     val fieldBackground: Color = Color.Unspecified,
     val fieldText: Color = Color.Unspecified,
@@ -105,7 +103,6 @@ data class AppThemeColors(
     val switchOff: Color = Color.Unspecified,
     val sliderActive: Color = Color.Unspecified,
     val sliderTrack: Color = Color.Unspecified,
-    val controlChecked: Color = Color.Unspecified,
     // Buttons & chips
     val tonalButtonFill: Color = Color.Unspecified,
     val tonalButtonText: Color = Color.Unspecified,
@@ -134,8 +131,6 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
     tileLabel = tileLabel.takeOrElse { textSecondary },
-    tileValue = tileValue.takeOrElse { textPrimary },
-    iconTint = iconTint.takeOrElse { textSecondary },
     fieldBackground = fieldBackground.takeOrElse { surface },
     fieldText = fieldText.takeOrElse { textPrimary },
     fieldLabel = fieldLabel.takeOrElse { textSecondary },
@@ -147,7 +142,6 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     switchOff = switchOff.takeOrElse { surfaceVariant },
     sliderActive = sliderActive.takeOrElse { primary },
     sliderTrack = sliderTrack.takeOrElse { surfaceVariant },
-    controlChecked = controlChecked.takeOrElse { primary },
     tonalButtonFill = tonalButtonFill.takeOrElse { surfaceVariant },
     tonalButtonText = tonalButtonText.takeOrElse { primary },
     textButton = textButton.takeOrElse { primary },
@@ -282,8 +276,6 @@ object ThemeTokens {
         ThemeTokenSpec("link", "Link text", GROUP_TEXT, { it.link }, { c, v -> c.copy(link = v) }),
         ThemeTokenSpec("hint", "Hint / placeholder", GROUP_TEXT, { it.hint }, { c, v -> c.copy(hint = v) }),
         ThemeTokenSpec("tileLabel", "Tile label", GROUP_TEXT, { it.tileLabel }, { c, v -> c.copy(tileLabel = v) }),
-        ThemeTokenSpec("tileValue", "Tile value", GROUP_TEXT, { it.tileValue }, { c, v -> c.copy(tileValue = v) }),
-        ThemeTokenSpec("iconTint", "Icon tint", GROUP_TEXT, { it.iconTint }, { c, v -> c.copy(iconTint = v) }),
 
         ThemeTokenSpec("fieldBackground", "Field background", GROUP_INPUTS, { it.fieldBackground }, { c, v -> c.copy(fieldBackground = v) }),
         ThemeTokenSpec("fieldText", "Field text", GROUP_INPUTS, { it.fieldText }, { c, v -> c.copy(fieldText = v) }),
@@ -296,7 +288,6 @@ object ThemeTokens {
         ThemeTokenSpec("switchOff", "Switch off track", GROUP_INPUTS, { it.switchOff }, { c, v -> c.copy(switchOff = v) }),
         ThemeTokenSpec("sliderActive", "Slider active", GROUP_INPUTS, { it.sliderActive }, { c, v -> c.copy(sliderActive = v) }),
         ThemeTokenSpec("sliderTrack", "Slider track", GROUP_INPUTS, { it.sliderTrack }, { c, v -> c.copy(sliderTrack = v) }),
-        ThemeTokenSpec("controlChecked", "Checkbox / radio", GROUP_INPUTS, { it.controlChecked }, { c, v -> c.copy(controlChecked = v) }),
 
         ThemeTokenSpec("tonalButtonFill", "Tonal button fill", GROUP_BUTTONS, { it.tonalButtonFill }, { c, v -> c.copy(tonalButtonFill = v) }),
         ThemeTokenSpec("tonalButtonText", "Tonal button text", GROUP_BUTTONS, { it.tonalButtonText }, { c, v -> c.copy(tonalButtonText = v) }),

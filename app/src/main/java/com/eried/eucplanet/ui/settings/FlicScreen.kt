@@ -283,7 +283,8 @@ private fun ActionDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             // "None" is a synthetic first option — represents the
             // unbound state. The catalog itself doesn't carry a NONE

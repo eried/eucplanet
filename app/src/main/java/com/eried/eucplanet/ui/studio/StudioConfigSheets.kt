@@ -262,7 +262,8 @@ fun StudioToolsFlyout(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.appColors.menuBackground
     ) {
         androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {

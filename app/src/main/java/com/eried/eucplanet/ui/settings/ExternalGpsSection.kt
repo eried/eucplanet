@@ -254,7 +254,8 @@ private fun InlineAxisDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { (key, text) ->
                 DropdownMenuItem(

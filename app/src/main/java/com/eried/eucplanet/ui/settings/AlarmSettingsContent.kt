@@ -795,7 +795,8 @@ private fun DropdownSelect(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { (value, displayLabel) ->
                 DropdownMenuItem(

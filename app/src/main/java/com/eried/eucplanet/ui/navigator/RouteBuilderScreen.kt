@@ -1045,7 +1045,8 @@ fun RouteBuilderScreen(
                 DropdownMenu(
                     expanded = selfMenuOpen,
                     onDismissRequest = { selfMenuOpen = false },
-                    offset = selfMenuOffset
+                    offset = selfMenuOffset,
+                    containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
@@ -1116,7 +1117,8 @@ fun RouteBuilderScreen(
                 DropdownMenu(
                     expanded = markerMenuIndex >= 0,
                     onDismissRequest = { markerMenuIndex = -1 },
-                    offset = markerMenuOffset
+                    offset = markerMenuOffset,
+                    containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
@@ -1205,7 +1207,7 @@ private fun BuilderMenu(
     hasCustomMarker: Boolean,
     navRunning: Boolean
 ) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // "Start navigation" is omitted here, it is already a primary button.
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
@@ -1752,7 +1754,8 @@ private fun BottomPanel(
                                     }
                                     DropdownMenu(
                                         expanded = rowMenu,
-                                        onDismissRequest = { rowMenu = false }
+                                        onDismissRequest = { rowMenu = false },
+                                        containerColor = MaterialTheme.appColors.menuBackground
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.nav_pin_center)) },

@@ -223,7 +223,8 @@ fun RecordingScreen(
                     }
                     DropdownMenu(
                         expanded = showManageMenu,
-                        onDismissRequest = { showManageMenu = false }
+                        onDismissRequest = { showManageMenu = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         if (onOpenBackupSettings != null) {
                             DropdownMenuItem(

@@ -3611,7 +3611,8 @@ private fun CompositeCellDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { key ->
                 if (key == PICKER_DIVIDER_SENTINEL) {
@@ -3682,7 +3683,8 @@ private fun CompositeCellStatDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded && enabled,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { opt ->
                 DropdownMenuItem(
@@ -3928,7 +3930,8 @@ private fun CustomBleSheet(
                 )
                 ExposedDropdownMenu(
                     expanded = familyExpanded,
-                    onDismissRequest = { familyExpanded = false }
+                    onDismissRequest = { familyExpanded = false },
+                    containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     families.forEach { f ->
                         androidx.compose.material3.DropdownMenuItem(
@@ -4000,7 +4003,8 @@ private fun GroupIconButton(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.width(264.dp)
+            modifier = Modifier.width(264.dp),
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             // 6-wide grid inside a fixed-width popup keeps icons square
             // and visible without scrolling for the first ~30 icons.
@@ -4076,7 +4080,8 @@ private fun ActionGroupSlotDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { key ->
                 DropdownMenuItem(
@@ -4660,7 +4665,8 @@ private fun RollingWindowDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { seconds ->
                 DropdownMenuItem(
@@ -4711,7 +4717,8 @@ private fun ViewDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded && !forcedWide,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { cols ->
                 DropdownMenuItem(
@@ -4786,7 +4793,8 @@ private fun CornerStatDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             // Placeholder group (EMPTY / NONE) sits at the top, then a
             // visual divider, then real stats. Divider only renders when
@@ -6971,7 +6979,7 @@ private fun ThemeDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             builtIns.forEach { name ->
                 DropdownMenuItem(
                     text = { Text(name) },
@@ -7024,7 +7032,7 @@ private fun SimpleDropdown(
                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             colors = themedFieldColors(),
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, containerColor = MaterialTheme.appColors.menuBackground) {
             options.forEach { (key, text) ->
                 DropdownMenuItem(
                     text = { Text(text) },
@@ -7368,7 +7376,8 @@ private fun EngineTypePicker(
             )
             ExposedDropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                containerColor = MaterialTheme.appColors.menuBackground
             ) {
                 profiles.forEach { p ->
                     val itemIsSampled = p.sampleAssetBase != null
@@ -7446,7 +7455,8 @@ private fun VoiceSelector(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             voices.forEach { voice ->
                 DropdownMenuItem(
@@ -7584,7 +7594,8 @@ private fun ActionDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             DropdownMenuItem(
                 text = { Text(noneLabel) },
@@ -7951,7 +7962,8 @@ private fun RestorePickerDialog(
                     )
                     ExposedDropdownMenu(
                         expanded = dropdownOpen,
-                        onDismissRequest = { dropdownOpen = false }
+                        onDismissRequest = { dropdownOpen = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         list.forEach { entry ->
                             DropdownMenuItem(
@@ -8901,7 +8913,8 @@ private fun HudMapStylePicker(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { code ->
                 DropdownMenuItem(

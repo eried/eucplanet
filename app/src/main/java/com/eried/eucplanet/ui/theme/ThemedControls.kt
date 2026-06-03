@@ -40,6 +40,8 @@ fun themedFieldColors(): TextFieldColors {
         unfocusedLabelColor = c.fieldLabel,
         focusedBorderColor = c.fieldBorder,
         unfocusedBorderColor = c.fieldBorder,
+        focusedPlaceholderColor = c.hint,
+        unfocusedPlaceholderColor = c.hint,
     )
 }
 

@@ -639,7 +639,8 @@ fun DashboardScreen(
                         }
                         DropdownMenu(
                             expanded = showSettingsMenu,
-                            onDismissRequest = { showSettingsMenu = false }
+                            onDismissRequest = { showSettingsMenu = false },
+                            containerColor = MaterialTheme.appColors.menuBackground
                         ) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.section_cloud_settings)) },
@@ -873,7 +874,8 @@ fun DashboardScreen(
                     }
                     DropdownMenu(
                         expanded = showGpsMenu,
-                        onDismissRequest = { showGpsMenu = false }
+                        onDismissRequest = { showGpsMenu = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         DropdownMenuItem(
                             text = {
@@ -909,7 +911,8 @@ fun DashboardScreen(
                     )
                     DropdownMenu(
                         expanded = showStudioMenu,
-                        onDismissRequest = { showStudioMenu = false }
+                        onDismissRequest = { showStudioMenu = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.dash_view_video_gallery)) },
@@ -971,7 +974,8 @@ fun DashboardScreen(
                     )
                     DropdownMenu(
                         expanded = showMapMenu,
-                        onDismissRequest = { showMapMenu = false }
+                        onDismissRequest = { showMapMenu = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         // a) Start / Stop, shown only when there is an active
                         // session to stop, or a saved route to start.
@@ -3540,7 +3544,8 @@ private fun ActionTile(
         )
         DropdownMenu(
             expanded = menuOpen,
-            onDismissRequest = { menuOpen = false }
+            onDismissRequest = { menuOpen = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             menu { menuOpen = false }
         }
