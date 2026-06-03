@@ -489,7 +489,10 @@ object MetaBuilder {
         meta.put("os_version", osVersion)
         meta.put("sample_count", trip.sampleCount)
         meta.put("file_sha256", sha256Hex(csvBytes))
-        meta.put("distance_km_client", trip.distanceKm.toDouble())
+        // NOTE: distance_km_client (a float) is intentionally OMITTED. It is optional
+        // per the contract and unused by the server, and floats risk client/server
+        // request_hash mismatch (Python json.dumps(18.0)="18.0" vs Kotlin="18"). Keeping
+        // the envelope float-free makes the canonical hash unambiguous.
         meta.put("wheel", trip.wheelMetaJson?.let { JSONObject(it) } ?: JSONObject())
         return meta
     }
