@@ -1022,6 +1022,34 @@
     <string name="service_mode_enter">Enter</string>
     <string name="toast_external_speed_change">Speed updated from wheel: %1$d km/h tiltback, %2$d km/h alarm</string>
 
+    <!-- ==== EucStats online upload onboarding ==== -->
+
+    <!-- Step 1: Consent -->
+    <string name="online_upload_consent_title">Join the EUC leaderboard</string>
+    <string name="online_upload_consent_intro">Before joining, please read what becomes public:</string>
+    <string name="online_upload_consent_bullet_name">Your display name</string>
+    <string name="online_upload_consent_bullet_flag">Your country flag</string>
+    <string name="online_upload_consent_bullet_avatar">Your avatar photo</string>
+    <string name="online_upload_consent_bullet_stats">Aggregate ride statistics (distance, speed…)</string>
+    <string name="online_upload_consent_bullet_location">Trip start/end locations, clustered to ~10 km</string>
+    <string name="online_upload_consent_no_raw_gps">Raw GPS tracks are never published.</string>
+    <string name="online_upload_consent_agree">Agree &amp; continue</string>
+
+    <!-- Step 2: Profile -->
+    <string name="online_upload_profile_title">Create your profile</string>
+    <string name="online_upload_profile_name_label">Display name</string>
+    <string name="online_upload_profile_flag_label">Country code (ISO 3166-1 alpha-2)</string>
+    <string name="online_upload_profile_flag_placeholder">e.g. NO, US, DE</string>
+    <string name="online_upload_profile_flag_error">Enter a 2-letter country code (e.g. NO)</string>
+    <string name="online_upload_profile_avatar_pick">Pick photo…</string>
+    <string name="online_upload_profile_avatar_change">Change photo…</string>
+    <string name="online_upload_profile_avatar_required">Required — tap to pick and crop</string>
+    <string name="online_upload_profile_avatar_placeholder">Photo</string>
+
+    <!-- Registration outcome -->
+    <string name="online_upload_register_action">Register</string>
+    <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
+
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
     <string name="studio_not_connected">Not connected</string>
