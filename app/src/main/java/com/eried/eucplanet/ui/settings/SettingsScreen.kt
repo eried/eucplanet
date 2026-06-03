@@ -6694,9 +6694,10 @@ private fun CloudTab(
         }
 
         // ---- Online stats section ----
-        // State for the onboarding dialog and profile dialog
+        // State for the onboarding dialog, profile dialog, and unlink confirmation
         var showOnboarding  by remember { mutableStateOf(false) }
         var showOnlineProfile by remember { mutableStateOf(false) }
+        var showUnlinkConfirm by remember { mutableStateOf(false) }
 
         if (showOnboarding) {
             OnlineUploadOnboardingDialog(
@@ -6719,35 +6720,66 @@ private fun CloudTab(
             )
         }
 
+        if (showUnlinkConfirm) {
+            AlertDialog(
+                onDismissRequest = { showUnlinkConfirm = false },
+                title = { Text(stringResource(R.string.online_unlink_title)) },
+                text = { Text(stringResource(R.string.online_unlink_body)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.setOnlineUploadEnabled(false)
+                        showUnlinkConfirm = false
+                    }) { Text(stringResource(R.string.online_unlink_confirm)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showUnlinkConfirm = false }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
         // Online leaderboards — only shown once a backup folder is configured.
         if (settings.syncFolderUri != null) {
             SectionHeader(stringResource(R.string.section_online_stats))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    stringResource(R.string.online_upload_toggle),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.appColors.textPrimary,
-                )
-                Switch(
-                    checked = settings.onlineUploadEnabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled) {
-                            if (settings.eucstatsStoreId == null) {
-                                showOnboarding = true
-                            } else {
-                                viewModel.setOnlineUploadEnabled(true)
-                            }
-                        } else {
-                            viewModel.setOnlineUploadEnabled(false)
-                        }
+            if (!settings.onlineUploadEnabled) {
+                val siteUrl = stringResource(R.string.online_upload_site_url)
+                Button(
+                    onClick = {
+                        if (settings.eucstatsStoreId == null) showOnboarding = true
+                        else viewModel.setOnlineUploadEnabled(true)
                     },
-                    colors = themedSwitchColors(),
-                )
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.online_upload_join))
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(
+                        stringResource(R.string.online_upload_join_caption),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.appColors.textSecondary,
+                    )
+                    TextButton(
+                        onClick = {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse(siteUrl)
+                            )
+                            runCatching { context.startActivity(intent) }
+                        },
+                        colors = themedTextButtonColors(),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.online_upload_site_label),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
         }
 
@@ -6889,6 +6921,19 @@ private fun CloudTab(
                             colors = themedTextButtonColors(),
                         ) {
                             Text(stringResource(R.string.online_profile_manage))
+                        }
+                    }
+                    // Unlink on its own line to avoid crowding on narrow screens
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        TextButton(
+                            onClick = { showUnlinkConfirm = true },
+                            colors = themedTextButtonColors(),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                        ) {
+                            Text(
+                                stringResource(R.string.online_upload_unlink),
+                                color = MaterialTheme.appColors.statusDanger,
+                            )
                         }
                     }
                 }

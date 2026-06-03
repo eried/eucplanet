@@ -1060,6 +1060,14 @@
     <string name="online_upload_top_speed">top %s km/h</string>
     <string name="online_upload_trips">%d trips</string>
     <string name="online_upload_total_km">%s km</string>
+    <string name="online_upload_join">Join EUCStats Leaderboard</string>
+    <string name="online_upload_join_caption">Your rides appear on the public leaderboard at</string>
+    <string name="online_upload_site_label">eucstats.ried.no</string>
+    <string name="online_upload_site_url">https://eucstats.ried.no/</string>
+    <string name="online_upload_unlink">Unlink</string>
+    <string name="online_unlink_title">Unlink from the leaderboard?</string>
+    <string name="online_unlink_body">This phone stops uploading rides. Your rider ID stays saved in your settings and in eucplanet_settings.json in your backup folder — keep that backup safe so you can rejoin as the same rider. Your existing stats stay on eucstats; use Delete account to remove them.</string>
+    <string name="online_unlink_confirm">Unlink</string>
 
     <!-- Online profile (edit/GDPR) -->
     <string name="online_profile_manage">Manage profile</string>
