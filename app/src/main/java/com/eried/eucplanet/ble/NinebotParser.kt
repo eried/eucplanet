@@ -179,6 +179,9 @@ class NinebotParser(private val protocol: NinebotProtocol) {
         val voltage = ByteUtils.getUint16LE(data, 24) / 100f
         val current = ByteUtils.getInt16LE(data, 26) / 100f
 
+        // Ninebot Z frames don't carry an explicit power reading; estimate
+        // from voltage * current so the POWER tiles populate.
+        val powerW = (voltage * current).toInt()
         return WheelData(
             speed = speed,
             voltage = voltage,
@@ -188,6 +191,8 @@ class NinebotParser(private val protocol: NinebotProtocol) {
             maxTemperature = temperature,
             tripDistance = tripDistanceMeters / 1000f,
             totalDistance = totalDistanceMeters / 1000f,
+            batteryPower = powerW,
+            motorPower = powerW,
             timestamp = System.currentTimeMillis()
         )
     }
@@ -290,6 +295,7 @@ class NinebotParser(private val protocol: NinebotProtocol) {
             NinebotLegacyVariant.DEFAULT, null -> ByteUtils.getInt16LE(data, 10) / 10f
         }
 
+        val powerW = (voltage * current).toInt()
         return WheelData(
             speed = speed,
             voltage = voltage,
@@ -298,6 +304,8 @@ class NinebotParser(private val protocol: NinebotProtocol) {
             temperatures = listOf(temperature),
             maxTemperature = temperature,
             totalDistance = totalDistanceMeters / 1000f,
+            batteryPower = powerW,
+            motorPower = powerW,
             timestamp = System.currentTimeMillis()
         )
     }

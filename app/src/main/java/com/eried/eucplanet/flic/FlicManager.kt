@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.KeyEvent
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.AppSettings
-import com.eried.eucplanet.data.model.FlicAction
+import com.eried.eucplanet.data.model.CustomBleCommand
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
@@ -248,60 +248,110 @@ class FlicManager @Inject constructor(
             else -> return
         }
 
-        val action = try {
-            FlicAction.valueOf(actionName)
-        } catch (_: Exception) {
-            FlicAction.NONE
-        }
-
-        Log.i(TAG, "Dispatching action: $action")
-        executeAction(action, settings)
+        Log.i(TAG, "Dispatching action: $actionName")
+        executeAction(actionName, settings)
     }
 
     fun dispatchActionByName(actionName: String) {
-        val action = try { FlicAction.valueOf(actionName) } catch (_: Exception) { FlicAction.NONE }
-        if (action == FlicAction.NONE) return
+        if (actionName.isEmpty() || actionName == "NONE") return
         scope.launch {
             val settings = settingsRepository.get()
-            executeAction(action, settings)
+            executeAction(actionName, settings)
         }
     }
 
-    private suspend fun executeAction(action: FlicAction, settings: AppSettings) {
-        if (action != FlicAction.NONE) _lastActionAt.value = System.currentTimeMillis()
-        when (action) {
-            FlicAction.NONE -> {}
-            FlicAction.HORN -> wheelRepository.sendHorn()
-            FlicAction.LIGHT_TOGGLE -> {
+    /**
+     * Executes the action identified by [key]. Unknown / blank / "NONE" keys
+     * are no-ops. The dispatch table below is the SINGLE source of behavior
+     * for every physical surface (Flic, volume key, watch) — adding a new
+     * action means:
+     *   1. Append to [com.eried.eucplanet.data.model.ActionCatalog.all] (metadata)
+     *   2. Add a branch here (behavior)
+     * That's it — no other file in the action layer needs to grow.
+     *
+     * Dashboard-only actions (OPEN_*, MUTE_ALARMS, RESET_TRIP, TOGGLE_UNITS)
+     * route through a different executor in the UI layer because they need
+     * navigation / Snackbar / Compose handles this service doesn't have.
+     */
+    /**
+     * Resolve and fire a CUSTOM BLE action (key "B:<uuid>"). Family-gated: a
+     * command only fires on a matching connected wheel, so raw user bytes never
+     * reach the wrong wheel. No-op (logged) otherwise.
+     */
+    private fun dispatchCustomBle(key: String, settings: AppSettings) {
+        val commands = CustomBleCommand.parseAll(settings.dashboardCustomBle)
+        val raw = commands[key]
+        val connected = wheelRepository.connectedFamilyId
+        val cmd = CustomBleCommand.resolveForDispatch(commands, key, connected)
+        if (cmd == null) {
+            // Tell the rider WHY the tap did nothing instead of silently
+            // dropping. The three failure modes from resolveForDispatch:
+            //   1. Unknown key (rider deleted the command? shouldn't happen
+            //      from a live tile, but defensive)
+            //   2. No frames defined (rider made the tile but never typed
+            //      the hex bytes)
+            //   3. Family mismatch / not connected
+            val reason = when {
+                raw == null -> "no such command"
+                !raw.isSendable -> "no BLE frames defined"
+                connected == null -> "no wheel connected"
+                raw.family != connected ->
+                    "command is for ${raw.family}, wheel is $connected"
+                else -> "unknown"
+            }
+            Log.i(TAG, "custom BLE $key skipped: $reason")
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(
+                    context, "Custom BLE: $reason", android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
+            return
+        }
+        Log.i(TAG, "custom BLE $key -> ${cmd.frames.size} frame(s) on ${cmd.family}")
+        wheelRepository.sendCustomBle(cmd.frames)
+    }
+
+    private suspend fun executeAction(key: String, settings: AppSettings) {
+        if (key.isEmpty() || key == "NONE") return
+        _lastActionAt.value = System.currentTimeMillis()
+        Log.d(TAG, "executeAction key=$key")
+        if (CustomBleCommand.isCustomBleId(key)) {
+            dispatchCustomBle(key, settings)
+            return
+        }
+        when (key) {
+            "HORN" -> wheelRepository.sendHorn()
+            "LIGHT_TOGGLE" -> {
                 automationManager.notifyManualLightChange()
                 wheelRepository.toggleLight()
             }
-            FlicAction.LOCK_TOGGLE -> wheelRepository.toggleLock()
-            FlicAction.SAFETY_TOGGLE -> wheelRepository.toggleSafetySpeed()
-            FlicAction.SAFETY_ON -> wheelRepository.enableSafetySpeed()
-            FlicAction.SAFETY_OFF -> wheelRepository.disableSafetySpeed()
-            FlicAction.VOICE_ANNOUNCE -> {
+            "LOCK_TOGGLE" -> wheelRepository.toggleLock()
+            "SAFETY_TOGGLE" -> wheelRepository.toggleSafetySpeed()
+            "SAFETY_ON" -> wheelRepository.enableSafetySpeed()
+            "SAFETY_OFF" -> wheelRepository.disableSafetySpeed()
+            "VOICE_ANNOUNCE" -> {
                 voiceService.announceTrigger(
                     wheelRepository.wheelData.value, settings,
                     isRecording = tripRepository.recording.value
                 )
             }
-            FlicAction.RECORD_TOGGLE -> {
+            "RECORD_TOGGLE" -> {
                 if (tripRepository.recording.value) {
                     tripRepository.stopRecording()
                 } else {
                     tripRepository.startRecording()
                 }
             }
-            FlicAction.RECORD_START -> {
+            "RECORD_START" -> {
                 if (!tripRepository.recording.value) tripRepository.startRecording()
             }
-            FlicAction.RECORD_STOP -> {
+            "RECORD_STOP" -> {
                 if (tripRepository.recording.value) tripRepository.stopRecording()
             }
-            FlicAction.MEDIA_PLAY_PAUSE -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
-            FlicAction.MEDIA_NEXT -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
-            FlicAction.MEDIA_PREVIOUS -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+            "MEDIA_PLAY_PAUSE" -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+            "MEDIA_NEXT" -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_NEXT)
+            "MEDIA_PREVIOUS" -> sendMediaKey(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+            else -> Log.w(TAG, "Unknown / unsupported action key for physical surface: $key")
         }
     }
 

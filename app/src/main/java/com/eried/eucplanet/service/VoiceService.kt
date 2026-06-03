@@ -105,6 +105,7 @@ class VoiceService @Inject constructor(
                 isReady = true
                 Log.i(TAG, "TTS initialized")
                 loadAvailableVoices()
+                autoSyncVoiceToLanguageIfNeeded()
                 observeSettings()
                 flushPendingBeforeReady()
                 if (welcomePending) {
@@ -282,6 +283,32 @@ class VoiceService @Inject constructor(
         val locale = Locale.forLanguageTag(localeTag.replace("_", "-"))
         tts?.language = locale
         Log.i(TAG, "TTS voice set to: $locale")
+    }
+
+    /**
+     * Called once after TTS becomes ready and the available-voices list is
+     * populated. When the rider has never explicitly picked a voice
+     * (voiceLocaleOverridden=false), align the voice with the UI language
+     * picked at first launch. Does nothing if a matching voice is unavailable
+     * on the device.
+     *
+     * This is the first-launch path: detectSystemLanguage() runs in
+     * MainActivity and saves [AppSettings.language] before TTS is even
+     * constructed, so we can't pick the voice there. This hook closes the
+     * loop once the engine is ready, without requiring a Settings round-trip
+     * from the rider.
+     */
+    private fun autoSyncVoiceToLanguageIfNeeded() {
+        scope.launch {
+            val s = settingsRepository.get()
+            if (s.voiceLocaleOverridden) return@launch
+            val lang = s.language.ifBlank { return@launch }
+            val tag = pickVoiceForLanguage(lang) ?: return@launch
+            if (tag == s.voiceLocale) return@launch
+            Log.i(TAG, "Auto-syncing TTS voice to UI language: lang=$lang -> $tag")
+            settingsRepository.update(s.copy(voiceLocale = tag))
+            setVoiceLocale(tag)
+        }
     }
 
     fun currentVoiceLanguage(): String {

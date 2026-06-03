@@ -59,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.remap
 import com.eried.eucplanet.util.Units
 
 /**
@@ -91,7 +93,7 @@ fun DataSourcesSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.appColors.sheetBackground
     ) {
         // Source A in compare mode = the source tab the user picked last. The
         // user enters compare mode via the Compare chip; the bottom row then
@@ -193,7 +195,7 @@ private fun TabBar(
             DataSource.values().forEach { src ->
                 SourceTabChip(
                     label = stringResource(src.labelRes),
-                    color = src.color,
+                    color = MaterialTheme.appColors.remap(src.color),
                     isSelected = src == selectedSource,
                     isLive = snapshots[src]?.isLive == true,
                     onClick = { onSelectSource(src) },
@@ -240,7 +242,7 @@ private fun CompareBPicker(
             DataSource.values().forEach { src ->
                 SourceTabChip(
                     label = stringResource(src.labelRes),
-                    color = src.color,
+                    color = MaterialTheme.appColors.remap(src.color),
                     isSelected = src == selected,
                     isLive = snapshots[src]?.isLive == true,
                     onClick = { onSelect(src) },
@@ -304,7 +306,7 @@ private fun SourceTabChip(
                     modifier = Modifier
                         .size(7.dp)
                         .clip(CircleShape)
-                        .border(1.dp, Color(0xFF707070), CircleShape)
+                        .border(1.dp, MaterialTheme.appColors.connectionIdle, CircleShape)
                 )
             }
             Spacer(Modifier.width(5.dp))
@@ -380,6 +382,9 @@ private fun SourceTab(
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val speedUnitLabel = Units.speedUnit(context, speedUnit)
+    // The source's baked palette hue, remapped onto the active theme's
+    // metric tokens so the per-source colour follows the theme.
+    val sourceColor = MaterialTheme.appColors.remap(source.color)
     // Vertical speed, accuracy and inter-fix distance are secondary GPS
     // fields with their own metric-vs-imperial helpers; an m/s phone
     // speed setting still reads metric there.
@@ -397,18 +402,18 @@ private fun SourceTab(
         ValueRow(
             label = stringResource(com.eried.eucplanet.R.string.sources_speed),
             value = snapshot.speedKmh?.let { "%.1f %s".format(Units.speed(it, speedUnit), speedUnitLabel) },
-            color = source.color
+            color = sourceColor
         )
         if (source.hasPosition) {
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_heading),
                 value = snapshot.headingDeg?.let { "%.0f°".format(it) },
-                color = source.color
+                color = sourceColor
             )
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_vertical_speed),
                 value = snapshot.verticalSpeedMps?.let { formatVerticalSpeed(it, imperial) },
-                color = source.color
+                color = sourceColor
             )
             // Position row with sats + accuracy folded into the label itself
             // so the metadata sits inline rather than wrapping to a second
@@ -427,7 +432,7 @@ private fun SourceTab(
                 value = snapshot.latitude?.let { lat ->
                     snapshot.longitude?.let { lon -> "%.5f, %.5f".format(lat, lon) }
                 },
-                color = source.color
+                color = sourceColor
             )
         }
         // Freshness row, "Last update 3s ago" / "Updated just now" / "--".
@@ -445,7 +450,7 @@ private fun SourceTab(
             GForceCrosshair(
                 snapshot = snapshot,
                 trail = trail,
-                color = source.color,
+                color = sourceColor,
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .aspectRatio(1f)
@@ -453,15 +458,15 @@ private fun SourceTab(
             )
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_lateral_x),
-                value = formatG(snapshot.accelXG), color = source.color
+                value = formatG(snapshot.accelXG), color = sourceColor
             )
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_vertical_y),
-                value = formatG(snapshot.accelYG), color = source.color
+                value = formatG(snapshot.accelYG), color = sourceColor
             )
             ValueRow(
                 label = stringResource(com.eried.eucplanet.R.string.sources_forward_z),
-                value = formatG(snapshot.accelZG), color = source.color
+                value = formatG(snapshot.accelZG), color = sourceColor
             )
         }
     }
@@ -534,7 +539,7 @@ private fun ValueRow(label: String, value: String?, color: Color) {
             value ?: "--",
             fontSize = 14.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (value != null) color else Color(0xFF707070)
+            color = if (value != null) color else MaterialTheme.appColors.textDisabled
         )
     }
 }
@@ -706,6 +711,9 @@ private fun CompareTab(
     val imperial = speedUnit == "mph"
     val snapA = snapshots[a] ?: SourceSnapshot()
     val snapB = snapshots[b] ?: SourceSnapshot()
+    // Each source's baked palette hue remapped onto the active theme's tokens.
+    val aColor = MaterialTheme.appColors.remap(a.color)
+    val bColor = MaterialTheme.appColors.remap(b.color)
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         // Speed is the headline comparison.
@@ -772,8 +780,8 @@ private fun CompareTab(
             title = stringResource(com.eried.eucplanet.R.string.sources_speed),
             seriesA = speedSeriesA,
             seriesB = speedSeriesB,
-            colorA = a.color,
-            colorB = b.color,
+            colorA = aColor,
+            colorB = bColor,
             unit = speedUnitLabel,
             transform = { Units.speed(it, speedUnit) },
             deltaCurrent = speedDeltaCurrent,
@@ -833,8 +841,8 @@ private fun CompareTab(
                 valueB = snapB.headingDeg?.let { "%.0f°".format(it) },
                 delta = if (snapA.headingDeg != null && snapB.headingDeg != null)
                     "%+.0f°".format(shortestArc(snapA.headingDeg, snapB.headingDeg)) else null,
-                colorA = a.color,
-                colorB = b.color
+                colorA = aColor,
+                colorB = bColor
             )
         }
         if (snapA.verticalSpeedMps != null || snapB.verticalSpeedMps != null) {
@@ -844,8 +852,8 @@ private fun CompareTab(
                 valueB = snapB.verticalSpeedMps?.let { "%+.2f m/s".format(it) },
                 delta = if (snapA.verticalSpeedMps != null && snapB.verticalSpeedMps != null)
                     "%+.2f m/s".format(snapB.verticalSpeedMps - snapA.verticalSpeedMps) else null,
-                colorA = a.color,
-                colorB = b.color
+                colorA = aColor,
+                colorB = bColor
             )
         }
         val gA = snapA.horizGMagnitude
@@ -856,8 +864,8 @@ private fun CompareTab(
                 valueA = gA?.let { "%.2f g".format(it) },
                 valueB = gB?.let { "%.2f g".format(it) },
                 delta = if (gA != null && gB != null) "%+.2f g".format(gB - gA) else null,
-                colorA = a.color,
-                colorB = b.color
+                colorA = aColor,
+                colorB = bColor
             )
         }
 
@@ -882,7 +890,7 @@ private fun CompareTab(
             )
             if (lat1 != null && lon1 != null && lat2 != null && lon2 != null) {
                 MiniMap(
-                    points = listOf(lat1 to lon1 to a.color, lat2 to lon2 to b.color),
+                    points = listOf(lat1 to lon1 to aColor, lat2 to lon2 to bColor),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(140.dp)
@@ -947,7 +955,7 @@ private fun ComparisonChart(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (deltaCurrent != null) MaterialTheme.colorScheme.onSurface
-                    else Color(0xFF707070)
+                    else MaterialTheme.appColors.textDisabled
                 )
                 if (deltaAvg != null) {
                     Text(
@@ -1091,7 +1099,7 @@ private fun CompareTableRow(
             modifier = Modifier.weight(0.20f),
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
-            color = if (delta != null) MaterialTheme.colorScheme.onSurface else Color(0xFF707070)
+            color = if (delta != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.appColors.textDisabled
         )
     }
 }
@@ -1383,6 +1391,10 @@ private fun MiniMap(
     val latSpanM = latSpanDeg * 111_320.0
     val lonSpanM = lonSpanDeg * 111_320.0 * cosLat
 
+    // Connector line between the two fixes; captured into a val since the
+    // Canvas DrawScope can't read MaterialTheme directly.
+    val connectorColor = MaterialTheme.appColors.outline
+
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
@@ -1403,7 +1415,7 @@ private fun MiniMap(
             }
             val pa = toXY(a.first, a.second)
             val pb = toXY(b.first, b.second)
-            drawLine(Color(0xFF606060), pa, pb, strokeWidth = 1.5f)
+            drawLine(connectorColor, pa, pb, strokeWidth = 1.5f)
             drawCircle(colorA, radius = 7f, center = pa)
             drawCircle(Color.White, radius = 2.5f, center = pa)
             drawCircle(colorB, radius = 7f, center = pb)

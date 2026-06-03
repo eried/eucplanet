@@ -55,21 +55,69 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     override fun horn(): ByteArray = VeteranCommands.horn()
 
-    override fun setLight(on: Boolean): ByteArray = VeteranCommands.setLight(on)
+    /**
+     * Current Lynx-class firmware only sounds the horn when the `LkAp` frame
+     * from [horn] is followed by this `LdAp` companion. WheelLog sends just the
+     * `LkAp` half, so its horn is silently ignored on these wheels (the frame is
+     * accepted but produces no beep). Decoded from a LeaperKim-app btsnoop on a
+     * Lynx S (mVer 9). [com.eried.eucplanet.data.repository.WheelRepository.sendHorn]
+     * writes both, in order.
+     */
+    override fun hornFollowup(): ByteArray = VeteranCommands.hornCompanion()
 
     /**
-     * Veteran has no documented write command for absolute max speed. The
-     * `SETh/m/s` family sets pedal stiffness thresholds, not the absolute
-     * speed limit, so we return null here and let the UI gray the action
-     * out via [WheelCapabilities.hasMaxSpeed]. Threshold control will land
-     * on its own knob in a follow-up once the UI separates the two.
+     * Light state is never echoed in Veteran realtime frames (per
+     * docs/protocols/veteran.md §6: "Light state has no readback.
+     * Track it locally after each write."). We cache the last
+     * commanded state here and stamp it onto every outgoing telemetry
+     * in [onRawNotification] so the dashboard's local-tracked
+     * [WheelRepository.toggleLight] doesn't see lightOn flip back
+     * to the default `false` on the very next 5 Hz realtime frame
+     * — which is exactly the bug the LK19486 rider hit: first toggle
+     * sent SetLightON, parser-default false overwrote it ~200 ms
+     * later, next toggle re-sent SetLightON instead of SetLightOFF.
      */
+    @Volatile private var lastLightOn: Boolean = false
+
+    override fun setLight(on: Boolean): ByteArray {
+        lastLightOn = on
+        // HIGH beam by default (LkAp frame; LdAp companion via [setLightFollowup]).
+        return VeteranCommands.setHighBeam(on)
+        // LOW beam (legacy ASCII, single frame). To switch the in-app light
+        // toggle back to the low beam: comment the high-beam return above,
+        // uncomment the line below, and make [setLightFollowup] return null.
+        // return VeteranCommands.setLight(on)
+    }
+
+    /**
+     * Second frame of the high-beam command (`LdAp`); the wheel ignores the
+     * `LkAp` half from [setLight] on its own. Decoded from the same Lynx S
+     * btsnoop as the horn. If you switch [setLight] back to the low beam,
+     * change this to `null` (low beam is a single ASCII frame).
+     */
+    override fun setLightFollowup(on: Boolean): ByteArray =
+        VeteranCommands.setHighBeamCompanion(on)
+
+    // Veteran writes tilt-back and alarm thresholds as two separate frames
+    // (different magic + sub-op per setting), so we leave the combined
+    // setMaxSpeed null and route through setMaxSpeedCommit / setAlarmSpeedCommit
+    // — the same flow P6 already uses for its two-packet flash-commit.
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? = null
+
+    override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray =
+        VeteranCommands.setTiltbackSpeed(tiltbackKmh.toInt())
+
+    override fun setAlarmSpeedCommit(alarmKmh: Float): ByteArray =
+        VeteranCommands.setAlarmSpeed(alarmKmh.toInt())
 
     // No volume, no DRL, no software lock per spec section 8.
     override fun setVolume(percent: Int): ByteArray? = null
     override fun setDRL(on: Boolean): ByteArray? = null
     override fun setLock(locked: Boolean): ByteArray? = null
+
+    // CLEARMETER zeroes offset 8..11 (trip) on the next frame; see
+    // VeteranCommands.resetTrip and spec section 6.
+    override fun resetTripMeter(): ByteArray = VeteranCommands.resetTrip()
 
     override fun requestAuthKey(): ByteArray? = null
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = null
@@ -132,31 +180,29 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
 
     /**
      * Reassemble the byte stream into Veteran frames and dispatch each to
-     * the right parser. Short frames produce a [DecodeResult.Telemetry];
-     * long (smart-BMS) frames are parsed for cell/temp data but currently
-     * surfaced as Unknown: there's no DecodeResult shape for per-cell
-     * voltages yet, so we'd be losing fidelity by squeezing them through
-     * the existing telemetry record. They'll get their own result type
-     * once the dashboard grows a BMS panel.
+     * the right parser. Telemetry (voltage / speed / current / temp / trip)
+     * lives in the first ~36 bytes of every frame regardless of LEN, so
+     * parseTelemetry runs for both short and long frames. Long (smart-BMS)
+     * frames additionally carry per-cell data after offset 46; the cell
+     * slice is decoded but currently discarded until the dashboard grows
+     * a BMS panel. Without this, BMS-equipped wheels (Lynx S, Patton with
+     * smart BMS, Oryx) connect but the dashboard stays at zero because
+     * they only ever emit long frames.
      */
     override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
         val frames = parser.feed(rawBytes)
         if (frames.isEmpty()) return emptyList()
         val out = mutableListOf<DecodeResult>()
         for (f in frames) {
+            DiagnosticsLogger.note(
+                "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
+            )
+            val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
+            if (telem != null) out += DecodeResult.Telemetry(telem.copy(lightOn = lastLightOn))
             if (f.isLong) {
                 // Best-effort BMS parse so a malformed slice can't crash the
                 // pipeline; result is discarded until the UI is ready for it.
                 VeteranParser.parseLongFrame(f.bytes)
-            } else {
-                // Surface the reassembled short frame to the Service Mode
-                // Inspect tab. Mirrors the V14/P6 path in InMotionV2Adapter so
-                // the picker can offer per-family realtime body inspection.
-                DiagnosticsLogger.note(
-                    "Veteran realtime len=${f.bytes.size} body=${f.bytes.joinToString(" ") { "%02x".format(it) }}"
-                )
-                val telem = VeteranParser.parseTelemetry(f.bytes, detectedModel)
-                if (telem != null) out += DecodeResult.Telemetry(telem)
             }
         }
         return out
@@ -165,5 +211,9 @@ class VeteranAdapter @Inject constructor() : WheelAdapter {
     override fun onDisconnect() {
         parser.reset()
         detectedModel = null
+        // A wheel reboot loses light state on the wheel side, so the rider's
+        // most reliable mental model after a reconnect is "light is off until
+        // I press the button again". Reset the cache to match.
+        lastLightOn = false
     }
 }

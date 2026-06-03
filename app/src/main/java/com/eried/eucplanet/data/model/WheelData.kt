@@ -31,5 +31,12 @@ data class WheelData(
     val dynamicCurrentLimit: Float = 0f,
     val lightOn: Boolean = false,
     val pcMode: Int = -1,  // 0=lock, 1=drive, 2=shutdown, 3=idle (-1=unknown/no telemetry yet)
+    /** Tiltback / max-speed threshold the wheel firmware reports in its telemetry,
+     *  in km/h. -1 = the active adapter doesn't surface this. Used so the
+     *  Settings UI reflects what the wheel is actually enforcing (set via the
+     *  vendor app on Veteran, where our app has no write command). */
+    val wheelMaxSpeedKmh: Float = -1f,
+    /** Alarm-speed threshold the wheel firmware reports, in km/h. -1 = unknown. */
+    val wheelAlarmSpeedKmh: Float = -1f,
     val timestamp: Long = System.currentTimeMillis()
 )

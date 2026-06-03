@@ -33,7 +33,11 @@ class WheelService : LifecycleService() {
 
     companion object {
         private const val TAG = "WheelService"
-        const val CHANNEL_ID = "wheel_connection"
+        // Bumped to _v2 so the new lock-screen visibility on the channel actually
+        // applies: a NotificationChannel's settings are frozen after first
+        // creation, so an existing install ignores code changes to the old id.
+        const val CHANNEL_ID = "wheel_connection_v2"
+        private const val CHANNEL_ID_LEGACY = "wheel_connection"
         const val NOTIFICATION_ID = 1
         const val ACTION_CONNECT = "com.eried.eucplanet.CONNECT"
         const val ACTION_DISCONNECT = "com.eried.eucplanet.DISCONNECT"
@@ -41,6 +45,13 @@ class WheelService : LifecycleService() {
         const val ACTION_STOP_RECORDING = "com.eried.eucplanet.STOP_RECORDING"
         const val ACTION_START_NAVIGATION = "com.eried.eucplanet.START_NAVIGATION"
         const val ACTION_STOP_NAVIGATION = "com.eried.eucplanet.STOP_NAVIGATION"
+        /** Stop everything AND hard-kill the process as the last step of
+         *  onDestroy. The activity uses this for "Stop All" so the rider
+         *  doesn't see the app card linger in the OS cached-process pool
+         *  after every visible piece is gone. The kill runs from inside
+         *  the service's onDestroy so cleanup completes first, on its own
+         *  schedule -- no arbitrary delay timer needed. */
+        const val ACTION_STOP_ALL_AND_KILL = "com.eried.eucplanet.STOP_ALL_AND_KILL"
         const val EXTRA_ADDRESS = "device_address"
         const val EXTRA_NAME = "device_name"
     }
@@ -55,13 +66,20 @@ class WheelService : LifecycleService() {
     @Inject lateinit var automationManager: AutomationManager
     @Inject lateinit var engineSoundEngine: EngineSoundEngine
     @Inject lateinit var wearBridge: com.eried.eucplanet.wear.WearBridge
+    @Inject lateinit var garminBridge: com.eried.eucplanet.garmin.GarminBridge
     @Inject lateinit var navigationEngine: com.eried.eucplanet.nav.NavigationEngine
+    @Inject lateinit var hudServer: com.eried.eucplanet.service.hud.HudServer
 
     // Voice announcement
     private var voiceJob: Job? = null
     private var lastConnectionState: ConnectionState? = null
     private var hadGpsFix = false
     private var lastLightOn: Boolean? = null
+    // Flipped true by ACTION_STOP_ALL_AND_KILL so onDestroy knows to
+    // SIGKILL the process at the end of cleanup. Set only once -- never
+    // cleared, the process is going away anyway.
+    @Volatile
+    private var killProcessOnDestroy: Boolean = false
 
     private fun hasPermission(perm: String) =
         ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_GRANTED
@@ -111,6 +129,7 @@ class WheelService : LifecycleService() {
 
         // Apply engine settings + lifecycle on settings changes and connection
         lifecycleScope.launch {
+            var hudWasOn = false
             settingsRepository.settings.collect { s ->
                 // Notification builder reads the speed unit without suspending;
                 // mirror the latest value here every settings update.
@@ -120,6 +139,20 @@ class WheelService : LifecycleService() {
                     wheelRepository.connectionState.value == ConnectionState.CONNECTED,
                     s
                 )
+                // HUD server lives only while the toggle is on AND the service
+                // is running. Watching the settings flow rather than checking
+                // once at onCreate so the rider can toggle it mid-session.
+                // Debug prop `debug.eucplanet.hud.force=true` bypasses the
+                // toggle for emulator testing, where finding the Compose
+                // switch coordinates over adb is painful. No effect on real
+                // devices, which never have this prop set.
+                val forceOn = com.eried.eucplanet.hud.protocol.HudDebug
+                    .read("debug.eucplanet.hud.force") == "true"
+                val effective = s.hudServerEnabled || forceOn
+                if (effective != hudWasOn) {
+                    if (effective) hudServer.start() else hudServer.stop()
+                    hudWasOn = effective
+                }
             }
         }
 
@@ -275,6 +308,27 @@ class WheelService : LifecycleService() {
             ACTION_STOP_NAVIGATION -> {
                 navigationEngine.stop()
             }
+            ACTION_STOP_ALL_AND_KILL -> {
+                // Mark first, drop foreground status second, then stopSelf
+                // last. Order matters: stopForeground clears the FG flag
+                // so START_NOT_STICKY actually keeps Android from
+                // resurrecting us; if we skipped that, the SIGKILL at the
+                // end of onDestroy looked like a crash and the OS
+                // restarted the service (and re-spawned MainActivity off
+                // the launcher route, which the rider was seeing as a
+                // grey screen + "app reset"). Returning START_NOT_STICKY
+                // below seals it: even if Android wanted to redeliver,
+                // this intent's stickiness is disabled.
+                killProcessOnDestroy = true
+                @Suppress("DEPRECATION")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                } else {
+                    stopForeground(true)
+                }
+                stopSelf()
+                return START_NOT_STICKY
+            }
         }
 
         return START_STICKY
@@ -286,6 +340,8 @@ class WheelService : LifecycleService() {
         // line never runs, the watch's 3-s stale timer kicks in as
         // fallback. Either way the rider never sees a frozen-stale dial.
         try { wearBridge.publishFarewell() } catch (_: Exception) {}
+        try { garminBridge.publishFarewell() } catch (_: Exception) {}
+        try { hudServer.stop() } catch (_: Exception) {}
         voiceJob?.cancel()
         engineSoundEngine.stop()
         voiceService.shutdown()
@@ -293,6 +349,14 @@ class WheelService : LifecycleService() {
         lifecycleScope.launch { tripRepository.stopRecording() }
         wheelRepository.disconnect()
         super.onDestroy()
+        // Last thing: if this destroy was driven by Stop All, SIGKILL
+        // our own process. Doing it here (instead of from the activity
+        // via a delayed Handler) means we kill the moment our cleanup
+        // is done -- no arbitrary timer window where the OS keeps the
+        // app card around as a cached zombie.
+        if (killProcessOnDestroy) {
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 
     // --- Auto-record motion gating ---
@@ -387,8 +451,15 @@ class WheelService : LifecycleService() {
         ).apply {
             description = getString(R.string.notification_channel_description)
             setShowBadge(false)
+            // Show the live speed/battery on a secure lock screen instead of
+            // "Contents hidden". The user's system "Notifications on lock screen"
+            // setting still has the final say.
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
         val manager = getSystemService(NotificationManager::class.java)
+        // Drop the pre-v2 channel so its old (private) lock-screen setting and
+        // duplicate entry don't linger in system settings.
+        runCatching { manager.deleteNotificationChannel(CHANNEL_ID_LEGACY) }
         manager.createNotificationChannel(channel)
     }
 
@@ -422,7 +493,12 @@ class WheelService : LifecycleService() {
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setSilent(true)
+            // Full content on a secure lock screen (pairs with the channel's
+            // PUBLIC lockscreenVisibility above).
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            // No setSilent(true): IMPORTANCE_LOW already means no sound/peek, and
+            // tagging it silent made lock screens set to "hide silent
+            // notifications" suppress it entirely.
             .build()
     }
 

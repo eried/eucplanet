@@ -27,6 +27,16 @@ class BegodeParser {
 
     /** Most recent voltage scaler; cached so 0x04 / 0x07 frames can render alongside 0x00. */
     @Volatile private var lastVoltage: Float = 0f
+
+    /**
+     * Real pack voltage reported by the wheel's BMS in the 0x01 frame
+     * (in volts). When non-zero, this is the ground-truth voltage and
+     * the Live-A path uses it instead of the per-model tier-multiplied
+     * estimate. Sidesteps tier guesswork on new wheels like the Race
+     * (50S / 210V class) where the WheelLog stock voltage table doesn't
+     * have an entry.
+     */
+    @Volatile private var lastBmsVoltage: Float = 0f
     @Volatile private var lastBatteryPct: Int = 0
     @Volatile private var lastSpeedKmh: Float = 0f
     @Volatile private var lastPhaseCurrent: Float = 0f
@@ -68,6 +78,7 @@ class BegodeParser {
     fun reset() {
         buffer.clear()
         lastVoltage = 0f
+        lastBmsVoltage = 0f
         lastBatteryPct = 0
         lastSpeedKmh = 0f
         lastPhaseCurrent = 0f
@@ -175,7 +186,11 @@ class BegodeParser {
     private fun parseLiveA(frame: ByteArray, model: BegodeModel?): WheelData? {
         val rawCv = ByteUtils.getUint16BE(frame, 2)
         val ratio = voltageRatioFor(model)
-        val voltage = (rawCv / 100f) * ratio
+        // Tier-multiplied estimate from the Live-A reading. Used as a
+        // boot-time approximation until the first BMS (0x01) frame lands;
+        // once we have a real BMS voltage we trust it over the estimate.
+        val voltageEstimate = (rawCv / 100f) * ratio
+        val voltage = if (lastBmsVoltage > 0f) lastBmsVoltage else voltageEstimate
         // Spec 4.1: speed = i16 BE * 3.6 / 100. Some FW emit absolute speed
         // only; we expose signed and let the UI normalise. See open question
         // 9 "reverse speed sign".
@@ -231,6 +246,11 @@ class BegodeParser {
         if (!hasExtras) lastPwmPct = pwmPct
         lastPcMode = if (kotlin.math.abs(speed) > 0.5f) 1 else 3
 
+        // Begode firmware doesn't expose battery / motor power directly --
+        // estimate as voltage * current so the POWER / BATTERY_POWER tiles
+        // populate instead of sitting at 0. Motor power gets the same
+        // estimate since we have no separate motor reading on this family.
+        val powerW = (voltage * phaseCurrent).toInt()
         return WheelData(
             speed = speed,
             voltage = voltage,
@@ -240,6 +260,8 @@ class BegodeParser {
             temperatures = listOf(tempC),
             maxTemperature = tempC,
             tripDistance = tripKm,
+            batteryPower = powerW,
+            motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
@@ -281,16 +303,25 @@ class BegodeParser {
     }
 
     /**
-     * BMS summary (spec 4.7 frame 0x01). WheelLog only applies this frame's
-     * voltage when the rider explicitly enables `autoVoltage`, because BMS
-     * voltage on stock Begode firmware disagrees with the Live A scaled
-     * reading (different reference point) and produces voltage / battery
-     * flicker on Master and other high-voltage packs. We follow that default
-     * and drop the frame entirely (Live A is the source of truth) until we
-     * surface per-cell BMS in a dedicated UI that justifies a user opt-in.
+     * BMS summary (spec 4.7 frame 0x01). Pack voltage at bytes 6..7 is
+     * u16 BE in decivolts: `(buff[6..7] / 10)` gives real volts. Matches
+     * WheelLog's `batVoltage * 10` (decivolts -> centivolts -> /100 = V).
+     *
+     * We only cache the value here; the next Live-A frame picks it up
+     * via [lastBmsVoltage] and surfaces it as the dashboard voltage,
+     * sidestepping the per-model tier table that doesn't have rows for
+     * every voltage class (e.g. the Race's 50S/210V pack). Returning null
+     * keeps Live-A as the single emission point so we don't double-fire
+     * telemetry off the BMS frame.
      */
     @Suppress("UNUSED_PARAMETER")
-    private fun parseBmsSummary(frame: ByteArray, model: BegodeModel?): WheelData? = null
+    private fun parseBmsSummary(frame: ByteArray, model: BegodeModel?): WheelData? {
+        val rawDV = ByteUtils.getUint16BE(frame, 6)
+        if (rawDV > 0) {
+            lastBmsVoltage = rawDV / 10f
+        }
+        return null
+    }
 
     /**
      * Extras frame (spec 4.6 tag 0x07). Carries true battery current,
@@ -327,6 +358,7 @@ class BegodeParser {
         // shows whichever is more concerning at this moment.
         val temps = listOf(lastTempC, motorTempC)
 
+        val powerW = (lastVoltage * battCurrent).toInt()
         return WheelData(
             speed = lastSpeedKmh,
             voltage = lastVoltage,
@@ -336,6 +368,8 @@ class BegodeParser {
             temperatures = temps,
             maxTemperature = temps.max(),
             tripDistance = lastTripKm,
+            batteryPower = powerW,
+            motorPower = powerW,
             lightOn = lastLightOn,
             pcMode = lastPcMode,
             timestamp = System.currentTimeMillis()
@@ -438,6 +472,10 @@ class BegodeParser {
                 134 -> 2.00f
                 151 -> 2.25f
                 168 -> 2.50f
+                // 50S packs (Begode Race) - not in WheelLog's stock table, but
+                // ratio = nominalV / 67.2 fits the family pattern and matches
+                // labelled cell-voltage telemetry (4.085 V x 50 = 204 V real).
+                210 -> 3.125f
                 else -> 1.25f
             }
         }

@@ -84,7 +84,21 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
     override fun pollSettings(): ByteArray = ByteArray(0)
 
     override fun horn(): ByteArray = KingsongCommands.horn()
-    override fun setLight(on: Boolean): ByteArray = KingsongCommands.setLight(on)
+
+    /**
+     * Optimistically update `lastTelemetry.lightOn` at the moment the rider
+     * taps the toggle, *before* the wheel echoes the new state back on its
+     * next 0xB9 frame (~50-150 ms round trip). Without this, the first 0xA9
+     * frame that arrives after the tap would carry the old `lightOn` value
+     * (carried forward from previous `lastTelemetry`), then the B9 echo
+     * would flip it -- yielding one stray TTS "off / on" flicker per tap
+     * even after the rave-party fix. With this, the adapter's view matches
+     * the rider's intent immediately and the B9 echo just re-confirms it.
+     */
+    override fun setLight(on: Boolean): ByteArray {
+        lastTelemetry = lastTelemetry.copy(lightOn = on)
+        return KingsongCommands.setLight(on)
+    }
 
     /**
      * KingSong's `0x85` packet writes all four speed thresholds at once. We
@@ -134,7 +148,14 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                     tripDistance = lastTelemetry.tripDistance,
                     dynamicSpeedLimit = lastTelemetry.dynamicSpeedLimit,
                     temperatures = combinedTemps,
-                    maxTemperature = combinedTemps.maxOrNull() ?: 0f
+                    maxTemperature = combinedTemps.maxOrNull() ?: 0f,
+                    // lightOn lives on B9 (echoed at byte 10). A9 is fresh
+                    // from parseLiveTelemetry which defaults lightOn=false,
+                    // so without this carry-forward every A9 frame (3x/sec)
+                    // resets lightOn -> false, then the next B9 sets it
+                    // back -> true, oscillating at frame interleave rate
+                    // and spamming the TTS "lights on/off" announcement.
+                    lightOn = lastTelemetry.lightOn
                 )
                 listOf(DecodeResult.Telemetry(lastTelemetry))
             }
@@ -142,11 +163,13 @@ class KingsongAdapter @Inject constructor() : WheelAdapter {
                 val trip = KingsongParser.parseTripFrame(rawBytes) ?: return emptyList()
                 lastTempB9 = trip.maxTemperature
                 val combinedTemps = listOf(lastTempA9, lastTempB9).filter { it != 0f }
+                val echoedLight = KingsongParser.parseLightOn(rawBytes)
                 lastTelemetry = lastTelemetry.copy(
                     tripDistance = trip.tripDistance,
                     dynamicSpeedLimit = trip.dynamicSpeedLimit,
                     temperatures = combinedTemps,
                     maxTemperature = combinedTemps.maxOrNull() ?: 0f,
+                    lightOn = echoedLight ?: lastTelemetry.lightOn,
                     timestamp = trip.timestamp
                 )
                 listOf(DecodeResult.Telemetry(lastTelemetry))

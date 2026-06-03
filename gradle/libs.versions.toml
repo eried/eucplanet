@@ -2,7 +2,7 @@
 agp = "8.7.3"
 kotlin = "2.0.21"
 ksp = "2.0.21-1.0.28"
-composeBom = "2024.12.01"
+composeBom = "2025.04.01"
 hilt = "2.53.1"
 hiltNavigationCompose = "1.2.0"
 room = "2.6.1"
@@ -18,6 +18,14 @@ wearCompose = "1.4.0"
 playServicesWearable = "18.2.0"
 media3 = "1.4.1"
 camerax = "1.4.1"
+zxing = "3.5.3"
+garminCiq = "2.4.0"
+ktor = "2.3.13"
+okhttp = "4.12.0"
+kotlinxSerialization = "1.7.3"
+jmdns = "3.5.9"
+junit = "4.13.2"
+playPublisher = "3.12.1"
 
 [libraries]
 # Compose
@@ -87,6 +95,34 @@ media3-common = { group = "androidx.media3", name = "media3-common", version.ref
 camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
 camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
 camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+# CameraX preview view (PreviewView). Used by the HUD module to drive the
+# rear-camera screen; the phone Overlay Studio renders its own SurfaceTextures
+# so it doesn't pull this dependency in.
+camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+
+# Ktor: WebSocket server in :hud that the phone connects out to over the
+# rider's hotspot. CIO engine to avoid pulling Netty.
+ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
+ktor-server-cio = { group = "io.ktor", name = "ktor-server-cio", version.ref = "ktor" }
+ktor-server-websockets = { group = "io.ktor", name = "ktor-server-websockets", version.ref = "ktor" }
+ktor-server-status-pages = { group = "io.ktor", name = "ktor-server-status-pages", version.ref = "ktor" }
+
+# OkHttp: phone-side outbound WebSocket dialer. Built-in WebSocket support
+# means no extra module needed beyond the core artifact.
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+
+# kotlinx.serialization for the JSON wire format. Used on both sides.
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# JmDNS: pure-Java mDNS/Bonjour. Phone advertises _eucplanet._tcp; HUD
+# resolves it on the hotspot subnet. Android's NsdManager would also work,
+# but JmDNS gives consistent behaviour across the rather varied Android
+# builds we see on aftermarket HUDs.
+jmdns = { group = "org.jmdns", name = "jmdns", version.ref = "jmdns" }
+
+# Unit tests (JVM, no Android runtime). Used for pure-Kotlin parsers
+# like VariaAdapter that have no Android dependency.
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 # Wear OS (Compose for Wear, Data Layer)
 wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }
@@ -94,9 +130,18 @@ wear-compose-material = { group = "androidx.wear.compose", name = "compose-mater
 wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
+# QR code generation for custom dashboard tiles (Show QR action).
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+
+# Garmin Connect IQ Mobile SDK (paired Garmin watch / Edge companion)
+garmin-ciq = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "garminCiq" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+play-publisher = { id = "com.github.triplet.play", version.ref = "playPublisher" }

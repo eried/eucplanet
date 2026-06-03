@@ -8,8 +8,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.play.publisher)
 }
 
 val keystorePropsFile = rootProject.file("keystore.properties")
@@ -27,8 +29,8 @@ android {
         applicationId = "com.eried.eucplanet"
         minSdk = 29
         targetSdk = 35
-        versionCode = 222
-        versionName = "0.8.11"
+        versionCode = 236
+        versionName = "0.9.11"
 
         val buildStamp = SimpleDateFormat("yyMMdd.HHmm")
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
@@ -68,6 +70,16 @@ android {
             )
             if (keystoreProps.isNotEmpty()) {
                 signingConfig = signingConfigs.getByName("release")
+            } else {
+                // Fall back to the debug keystore so local release
+                // builds work without a real release signing config and
+                // sideload-update over an existing debug install without
+                // forcing testers to uninstall first (mismatched
+                // signatures otherwise). CI workflows that ship to Play
+                // or GitHub Releases inject RELEASE_KEYSTORE secrets at
+                // build time and pick the branch above instead, so
+                // production releases never see this fallback.
+                signingConfig = signingConfigs.getByName("debug")
             }
         }
     }
@@ -84,6 +96,19 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Output APKs as phone-<buildtype>.apk (phone-debug.apk / phone-release.apk)
+    // instead of the default app-<buildtype>.apk. Matches the wear module's
+    // wearos-<buildtype>.apk naming so adb commands / CI artifact globs read
+    // the same device prefix regardless of which side they came from. The
+    // CI workflow (.github/workflows/branch-apk.yml) layers the branch +
+    // short SHA on top so the pre-release filenames stay self-describing.
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName = "phone-${buildType.name}.apk"
+        }
     }
 }
 
@@ -107,10 +132,48 @@ android {
 // installs), just packaged as two AABs in one release instead of one embedded.
 val embedWear = (project.findProperty("embedWear") as? String)?.lowercase() != "false"
 
+// Garmin Connect IQ Mobile SDK (talks to a paired Garmin watch / Edge running
+// the garmin-watch-app/ Monkey C companion). Pulled from Maven Central
+// (`com.garmin.connectiq:ciq-companion-app-sdk`) so a fresh clone builds
+// without any manual download.
+//
+// `garminStub` source set is the fallback when the build property
+// `-PgarminEnabled=false` is set, useful for slim builds that don't need
+// Garmin support (saves ~150 KB on the apk). Default is enabled.
+val garminEnabled = (project.findProperty("garminEnabled") as? String)?.lowercase() != "false"
+
+android {
+    sourceSets {
+        getByName("main") {
+            kotlin.srcDir(if (garminEnabled) "src/garminEnabled/kotlin" else "src/garminStub/kotlin")
+        }
+    }
+}
+
 dependencies {
     if (embedWear) {
         "releaseWearApp"(project(":wear"))
     }
+    if (garminEnabled) {
+        implementation(libs.garmin.ciq)
+    }
+
+    // Shared wire-format types for the HUD companion app. Lives in its own
+    // module so the phone and the HUD compile against the same Kotlin
+    // classes, no manual JSON parity drift.
+    implementation(project(":hud-protocol"))
+    implementation(libs.kotlinx.serialization.json)
+
+    // OkHttp powers the outbound WebSocket [HudServer] uses to dial the HUD
+    // and push telemetry frames. Built-in WebSocket support, no extra module
+    // needed beyond the core artifact.
+    implementation(libs.okhttp)
+
+    // JmDNS: when the rider leaves the HUD IP blank, the phone falls back
+    // to mDNS auto-discovery, looking for the HUD's _eucplanet._tcp
+    // advertisement on whatever subnet the phone has. Same library on
+    // both ends so behaviour is consistent.
+    implementation(libs.jmdns)
 
     // Compose
     val composeBom = platform(libs.compose.bom)
@@ -181,8 +244,36 @@ dependencies {
     // Wear OS Data Layer (talks to the wear/ companion module on paired watches)
     implementation(libs.play.services.wearable)
 
+    // ZXing core: pure-Java QR code generator used by the dashboard
+    // custom-tile "Show QR" action. No Android-camera deps included; we
+    // only need the encoder side.
+    implementation(libs.zxing.core)
+
     // CameraX: Overlay Studio camera viewports
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.lifecycle)
+
+    // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
+    testImplementation(libs.junit)
+}
+
+// Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
+//   ./gradlew :app:publishReleaseBundle                     -> Open testing (beta)
+//   ./gradlew :app:publishReleaseBundle --track production  -> Production
+// Default track is beta; --track overrides per run (also --release-status draft
+// or --user-fraction 0.1 for a held / staged push). releaseStatus = COMPLETED
+// means the upload is sent for review and auto-publishes on approval.
+// Credentials: play-service-account.json at the repo root (gitignored).
+// Release notes come from src/main/play/release-notes/en-US/default.txt, which
+// is rewritten from reviewed text at release time (drafted + approved, never
+// auto-generated from commit messages).
+play {
+    val playCreds = rootProject.file("play-service-account.json")
+    if (playCreds.exists()) {
+        serviceAccountCredentials.set(playCreds)
+    }
+    track.set("beta") // default; override per run with --track production
+    defaultToAppBundles.set(true)
+    releaseStatus.set(com.github.triplet.gradle.androidpublisher.ReleaseStatus.COMPLETED)
 }

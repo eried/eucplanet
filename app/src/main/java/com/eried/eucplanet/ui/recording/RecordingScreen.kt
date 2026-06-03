@@ -1,7 +1,6 @@
 package com.eried.eucplanet.ui.recording
 
 import android.net.Uri
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -50,7 +49,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.foundation.layout.imePadding
+import com.eried.eucplanet.ui.common.LocalSnackbar
+import com.eried.eucplanet.ui.common.LocalSnackbarScope
+import com.eried.eucplanet.ui.common.showSnackbar as showSnackbarLocal
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -69,9 +76,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -110,6 +115,18 @@ fun RecordingScreen(
     var tripToShare by remember { mutableStateOf<TripRecord?>(null) }
     val listState = rememberLazyListState()
 
+    // Shared snackbar host so status icons / ViewModel auto-stop toasts use
+    // the same surface as the rest of the app instead of the native Android
+    // Toast (which clips behind the keyboard and breaks our Snackbar
+    // convention, see ui/common/SnackbarLocals.kt).
+    val snackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+    LaunchedEffect(viewModel) {
+        viewModel.toasts.collect { msg ->
+            snackbarScope.launch { snackbar.showSnackbar(msg) }
+        }
+    }
+
     // Block back navigation while importing
     BackHandler(enabled = importing) { /* swallow */ }
 
@@ -143,7 +160,7 @@ fun RecordingScreen(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.clearAllTrips { showClearDialog = false }
-                }) { Text(stringResource(R.string.action_delete_all), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete_all), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) { Text(stringResource(R.string.action_cancel)) }
@@ -169,7 +186,7 @@ fun RecordingScreen(
                 TextButton(onClick = {
                     viewModel.deleteTrip(tripToDelete!!)
                     tripToDelete = null
-                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { tripToDelete = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -177,7 +194,21 @@ fun RecordingScreen(
         )
     }
 
+    CompositionLocalProvider(
+        LocalSnackbar provides snackbar,
+        LocalSnackbarScope provides snackbarScope
+    ) {
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackbar, modifier = Modifier.imePadding()) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.recording_title)) },
@@ -192,7 +223,8 @@ fun RecordingScreen(
                     }
                     DropdownMenu(
                         expanded = showManageMenu,
-                        onDismissRequest = { showManageMenu = false }
+                        onDismissRequest = { showManageMenu = false },
+                        containerColor = MaterialTheme.appColors.menuBackground
                     ) {
                         if (onOpenBackupSettings != null) {
                             DropdownMenuItem(
@@ -202,7 +234,7 @@ fun RecordingScreen(
                                     onOpenBackupSettings()
                                 }
                             )
-                            HorizontalDivider()
+                            HorizontalDivider(color = MaterialTheme.appColors.divider)
                         }
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.action_import)) },
@@ -226,7 +258,7 @@ fun RecordingScreen(
                                 }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = AccentRed) },
+                                text = { Text(stringResource(R.string.recording_clear_all_menu), color = MaterialTheme.appColors.statusDanger) },
                                 onClick = {
                                     showManageMenu = false
                                     showClearDialog = true
@@ -244,7 +276,7 @@ fun RecordingScreen(
             if (!importing) {
                 FloatingActionButton(
                     onClick = { viewModel.toggleRecording() },
-                    containerColor = AccentRed
+                    containerColor = MaterialTheme.appColors.statusDanger
                 ) {
                     Icon(
                         if (recording) Icons.Default.Stop else Icons.Default.FiberManualRecord,
@@ -313,7 +345,7 @@ fun RecordingScreen(
                     Icon(
                         if (gpsFix) Icons.Default.LocationOn else Icons.Default.LocationOff,
                         contentDescription = null,
-                        tint = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (gpsFix) MaterialTheme.appColors.statusGood else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(Modifier.size(6.dp))
@@ -323,7 +355,7 @@ fun RecordingScreen(
                             else R.string.recording_gps_waiting
                         ),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (gpsFix) AccentGreen else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (gpsFix) MaterialTheme.appColors.statusGood else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -334,14 +366,6 @@ fun RecordingScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
-                )
-            }
-
-            if (!recording && !importing && trips.isEmpty()) {
-                HintText(
-                    stringResource(R.string.recording_auto_record_tip),
-                    small = true,
-                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
 
@@ -408,6 +432,7 @@ fun RecordingScreen(
             }
         }
     }
+    }
 }
 
 @Composable
@@ -448,7 +473,7 @@ private fun TripCard(
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (isRecording) AccentRed.copy(alpha = 0.15f)
+            containerColor = if (isRecording) MaterialTheme.appColors.statusDanger.copy(alpha = 0.15f)
                              else MaterialTheme.colorScheme.surfaceVariant
         ),
         shape = RoundedCornerShape(12.dp),
@@ -462,7 +487,7 @@ private fun TripCard(
         ) {
             if (isRecording) {
                 Icon(Icons.Default.FiberManualRecord, null,
-                    tint = AccentRed, modifier = Modifier
+                    tint = MaterialTheme.appColors.statusDanger, modifier = Modifier
                         .size(16.dp)
                         .padding(end = 4.dp))
             }
@@ -470,7 +495,7 @@ private fun TripCard(
                 Text(
                     dateFormat.format(Date(trip.startTime)),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (isRecording) AccentRed else MaterialTheme.colorScheme.onSurface
+                    color = if (isRecording) MaterialTheme.appColors.statusDanger else MaterialTheme.colorScheme.onSurface
                 )
                 if (isRecording) {
                     val elapsed = (now - trip.startTime) / 1000
@@ -483,7 +508,7 @@ private fun TripCard(
                             distanceUnitLabel, minutes, seconds
                         ),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = AccentRed
+                        color = MaterialTheme.appColors.statusDanger
                     )
                 } else {
                     val duration = ((trip.endTime ?: trip.startTime) - trip.startTime) / 1000
@@ -536,17 +561,17 @@ private fun TripCard(
 
 @Composable
 private fun PendingStatusIcon() {
-    val context = LocalContext.current
     val msg = stringResource(R.string.discard_trip_pending_label)
-    IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
-        Icon(Icons.Default.Pending, contentDescription = msg, tint = AccentOrange,
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
+    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
+        Icon(Icons.Default.Pending, contentDescription = msg, tint = MaterialTheme.appColors.statusWarn,
             modifier = Modifier.size(20.dp))
     }
 }
 
 @Composable
 private fun UploadStatusIcon(trip: TripRecord) {
-    val context = LocalContext.current
     val fmt = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault()) }
 
     val uploadedAtText = trip.uploadedAt?.let { fmt.format(Date(it)) }
@@ -554,8 +579,10 @@ private fun UploadStatusIcon(trip: TripRecord) {
         stringResource(R.string.cloud_uploaded_on, it)
     } ?: stringResource(R.string.cloud_not_uploaded)
 
-    IconButton(onClick = { Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }) {
-        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = AccentGreen,
+    val snackbar = LocalSnackbar.current
+    val scope = LocalSnackbarScope.current
+    IconButton(onClick = { showSnackbarLocal(snackbar, scope, msg) }) {
+        Icon(Icons.Default.CheckCircle, contentDescription = msg, tint = MaterialTheme.appColors.statusGood,
             modifier = Modifier.size(20.dp))
     }
 }

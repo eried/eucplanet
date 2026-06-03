@@ -69,13 +69,12 @@ import com.eried.eucplanet.data.model.AlarmMetric
 import com.eried.eucplanet.data.model.AlarmRule
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentPurple
-import com.eried.eucplanet.ui.theme.AccentRed
-import com.eried.eucplanet.ui.theme.AccentYellow
+import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.util.Units
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
 
 private fun displayThreshold(metric: AlarmMetric, valueInternal: Float, speedUnit: String, tempUnit: String): Float =
     when (metric) {
@@ -107,9 +106,25 @@ fun AlarmSettingsContent(
     // Alarm thresholds only span speed and temperature; distance has no alarm metric.
     val speedUnit by viewModel.speedUnit.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
+    val voiceLocale by viewModel.voiceLocale.collectAsState()
+    val showRadarMetrics by viewModel.showRadarMetrics.collectAsState()
     var showEditor by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<AlarmRule?>(null) }
     var deleteCandidate by remember { mutableStateOf<AlarmRule?>(null) }
+
+    // Default alarm voice template, resolved in the rider's TTS voice locale
+    // so a newly created alarm's prompt is in the language the engine
+    // actually speaks. Placeholders like {metric}/{value} stay literal and
+    // get expanded at speak time. Recomputed only when voiceLocale changes.
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val defaultVoiceText = remember(voiceLocale) {
+        val tag = voiceLocale.replace("_", "-")
+        val locale = java.util.Locale.forLanguageTag(tag)
+        val cfg = android.content.res.Configuration(ctx.resources.configuration).apply {
+            setLocale(locale)
+        }
+        ctx.createConfigurationContext(cfg).getString(R.string.alarm_voice_default)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -155,6 +170,8 @@ fun AlarmSettingsContent(
             rule = editingRule,
             speedUnit = speedUnit,
             tempUnit = tempUnit,
+            defaultVoiceText = defaultVoiceText,
+            showRadarMetrics = showRadarMetrics,
             onSave = { rule ->
                 if (editingRule != null) viewModel.updateRule(rule)
                 else viewModel.addRule(rule)
@@ -182,7 +199,7 @@ fun AlarmSettingsContent(
                 TextButton(onClick = {
                     viewModel.deleteRule(rule)
                     deleteCandidate = null
-                }) { Text(stringResource(R.string.action_delete), color = AccentRed) }
+                }) { Text(stringResource(R.string.action_delete), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { deleteCandidate = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -212,12 +229,18 @@ private fun AlarmRuleCard(
         // One distinct colour per metric, so rules that share a metric read as
         // a visual group in the list.
         else -> when (metric) {
-            AlarmMetric.SPEED -> AccentOrange
-            AlarmMetric.BATTERY -> AccentGreen
-            AlarmMetric.TEMPERATURE -> AccentRed
-            AlarmMetric.PWM -> AccentYellow
-            AlarmMetric.VOLTAGE -> AccentBlue
-            AlarmMetric.CURRENT -> AccentPurple
+            AlarmMetric.SPEED -> MaterialTheme.appColors.statusWarn
+            AlarmMetric.BATTERY -> MaterialTheme.appColors.statusGood
+            AlarmMetric.TEMPERATURE -> MaterialTheme.appColors.statusDanger
+            AlarmMetric.PWM -> MaterialTheme.appColors.gaugeWarn
+            AlarmMetric.VOLTAGE -> MaterialTheme.appColors.metricVoltage
+            AlarmMetric.CURRENT -> MaterialTheme.appColors.metricPosition
+            // Radar shares the red/orange palette with TEMPERATURE / SPEED
+            // since these are all "hazard" metrics that fire on a threshold
+            // breach. Same tint for both radar metrics so a rider's "car
+            // closing" rule group reads as one block in the list.
+            AlarmMetric.RADAR_DISTANCE -> MaterialTheme.appColors.statusDanger
+            AlarmMetric.RADAR_APPROACH_SPEED -> MaterialTheme.appColors.statusDanger
         }
     }
 
@@ -260,7 +283,8 @@ private fun AlarmRuleCard(
                         )
                     }
                 }
-                Switch(checked = rule.enabled, onCheckedChange = onToggle)
+                Switch(checked = rule.enabled, onCheckedChange = onToggle,
+                    colors = themedSwitchColors(),)
             }
 
             Row(
@@ -282,7 +306,7 @@ private fun AlarmRuleCard(
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.Delete, stringResource(R.string.action_delete), modifier = Modifier.size(16.dp),
-                        tint = AccentRed)
+                        tint = MaterialTheme.appColors.statusDanger)
                 }
             }
         }
@@ -295,6 +319,8 @@ private fun AlarmRuleEditorDialog(
     rule: AlarmRule?,
     speedUnit: String,
     tempUnit: String,
+    defaultVoiceText: String,
+    showRadarMetrics: Boolean,
     onSave: (AlarmRule) -> Unit,
     onDismiss: () -> Unit,
     onPreviewBeep: (Int, Int, Int) -> Unit,
@@ -314,7 +340,14 @@ private fun AlarmRuleEditorDialog(
     var beepCount by remember { mutableIntStateOf(initial.beepCount) }
 
     var voiceEnabled by remember { mutableStateOf(initial.voiceEnabled) }
-    var voiceText by remember { mutableStateOf(initial.voiceText) }
+    // For a brand-new alarm, seed with the voice-locale-resolved default
+    // (the AlarmRule data class can't reach into resources, so its baked-in
+    // default is always English; the editor overrides it here so the user
+    // sees and saves the localized phrase). When editing an existing rule
+    // we keep whatever the user already saved.
+    var voiceText by remember {
+        mutableStateOf(if (rule == null) defaultVoiceText else initial.voiceText)
+    }
 
     var vibrateEnabled by remember { mutableStateOf(initial.vibrateEnabled) }
     var vibrateDurationMs by remember { mutableIntStateOf(initial.vibrateDurationMs) }
@@ -338,6 +371,13 @@ private fun AlarmRuleEditorDialog(
         AlarmMetric.PWM -> 10f..100f
         AlarmMetric.VOLTAGE -> 20f..300f
         AlarmMetric.CURRENT -> 1f..50f
+        // Varia's range is ~140 m. Below 5 m the radar is effectively in
+        // the dead-zone behind the rider; below 10 m is "imminent" on an
+        // EUC at typical road speed.
+        AlarmMetric.RADAR_DISTANCE -> 5f..140f
+        // Approach speeds typically run 10-120 km/h depending on road
+        // type. 5..150 keeps the slider usable on both ends.
+        AlarmMetric.RADAR_APPROACH_SPEED -> 5f..150f
     }
     val displayedThreshold = displayThreshold(selectedMetric, threshold, speedUnit, tempUnit)
     val displayedRange = displayThreshold(selectedMetric, thresholdRangeInternal.start, speedUnit, tempUnit)..
@@ -379,7 +419,18 @@ private fun AlarmRuleEditorDialog(
                 // stays compact vertically. Comparator field shows just the
                 // glyph (≥ or <) when collapsed but opens to full-word labels
                 // so first-time users still understand what each option means.
-                val metricOptions = AlarmMetric.entries.map { it.name to stringResource(it.labelRes) }
+                // Radar metrics only appear in the dropdown when a radar is
+                // paired or an existing rule already uses one (see
+                // [AlarmViewModel.showRadarMetrics]). The currently-selected
+                // metric stays in the list either way, so editing a rule
+                // whose metric was just hidden never loses the selection.
+                val radarMetricNames = setOf(
+                    AlarmMetric.RADAR_DISTANCE.name,
+                    AlarmMetric.RADAR_APPROACH_SPEED.name
+                )
+                val metricOptions = AlarmMetric.entries
+                    .filter { showRadarMetrics || it.name !in radarMetricNames || it.name == metric }
+                    .map { it.name to stringResource(it.labelRes) }
                 val selectedComp = AlarmComparator.parse(comparator)
                 val comparatorOptions = AlarmComparator.entries.map { entry ->
                     entry.name to stringResource(entry.labelRes)
@@ -463,7 +514,8 @@ private fun AlarmRuleEditorDialog(
                             .coerceIn(thresholdRangeInternal)
                     },
                     valueRange = displayedRange,
-                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0)
+                    steps = ((displayedRange.endInclusive - displayedRange.start) - 1).toInt().coerceAtLeast(0),
+                    colors = themedSliderColors(),
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -471,7 +523,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Beep ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_beep),
-                    color = AccentOrange,
+                    color = MaterialTheme.appColors.statusWarn,
                     enabled = beepEnabled,
                     onPreview = { onPreviewBeep(beepFrequency, beepDurationMs, beepCount) }
                 )
@@ -481,7 +533,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_beep), fontSize = 13.sp)
-                    Switch(checked = beepEnabled, onCheckedChange = { beepEnabled = it })
+                    Switch(checked = beepEnabled, onCheckedChange = { beepEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (beepEnabled) {
@@ -493,7 +546,8 @@ private fun AlarmRuleEditorDialog(
                         // urgency reminders (e.g. battery dip). Top stays at
                         // 3 kHz where the piezo gets piercing.
                         valueRange = 200f..3000f,
-                        steps = 27
+                        steps = 27,
+                        colors = themedSliderColors(),
                     )
 
                     Text(stringResource(R.string.alarm_beep_duration_fmt, beepDurationMs), fontSize = 12.sp)
@@ -501,7 +555,8 @@ private fun AlarmRuleEditorDialog(
                         value = beepDurationMs.toFloat(),
                         onValueChange = { beepDurationMs = it.toInt() },
                         valueRange = 100f..1000f,
-                        steps = 8
+                        steps = 8,
+                        colors = themedSliderColors(),
                     )
 
                     Text(stringResource(R.string.alarm_beep_repeats_fmt, beepCount), fontSize = 12.sp)
@@ -509,7 +564,8 @@ private fun AlarmRuleEditorDialog(
                         value = beepCount.toFloat(),
                         onValueChange = { beepCount = it.toInt() },
                         valueRange = 1f..5f,
-                        steps = 3
+                        steps = 3,
+                        colors = themedSliderColors(),
                     )
                 }
 
@@ -518,7 +574,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Voice ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_voice),
-                    color = AccentGreen,
+                    color = MaterialTheme.appColors.statusGood,
                     enabled = voiceEnabled,
                     onPreview = { onPreviewVoice(voiceText, selectedMetric, displayedThreshold) }
                 )
@@ -528,7 +584,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_voice), fontSize = 13.sp)
-                    Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it })
+                    Switch(checked = voiceEnabled, onCheckedChange = { voiceEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (voiceEnabled) {
@@ -537,7 +594,8 @@ private fun AlarmRuleEditorDialog(
                         onValueChange = { voiceText = it },
                         label = { Text(stringResource(R.string.alarm_voice_template)) },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 2
+                        minLines = 2,
+                        colors = themedFieldColors(),
                     )
                     HintText(stringResource(R.string.alarm_voice_template_help), small = true)
                 }
@@ -547,7 +605,7 @@ private fun AlarmRuleEditorDialog(
                 // --- Vibrate ---
                 SectionTitleWithPreview(
                     title = stringResource(R.string.alarm_section_vibrate),
-                    color = AccentRed,
+                    color = MaterialTheme.appColors.statusDanger,
                     enabled = vibrateEnabled,
                     onPreview = { onPreviewVibrate(vibrateDurationMs) }
                 )
@@ -557,7 +615,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_enable_vibrate), fontSize = 13.sp)
-                    Switch(checked = vibrateEnabled, onCheckedChange = { vibrateEnabled = it })
+                    Switch(checked = vibrateEnabled, onCheckedChange = { vibrateEnabled = it },
+                        colors = themedSwitchColors(),)
                 }
 
                 if (vibrateEnabled) {
@@ -566,7 +625,8 @@ private fun AlarmRuleEditorDialog(
                         value = vibrateDurationMs.toFloat(),
                         onValueChange = { vibrateDurationMs = it.toInt() },
                         valueRange = 100f..2000f,
-                        steps = 18
+                        steps = 18,
+                        colors = themedSliderColors(),
                     )
 
                     Spacer(Modifier.height(4.dp))
@@ -596,7 +656,8 @@ private fun AlarmRuleEditorDialog(
                                 modifier = Modifier.fillMaxHeight(),
                                 selected = key == vibrateTarget,
                                 onClick = { vibrateTarget = key },
-                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size)
+                                shape = SegmentedButtonDefaults.itemShape(index, targetEntries.size),
+                                colors = themedSegmentedColors(),
                             ) { Text(label) }
                         }
                     }
@@ -606,7 +667,7 @@ private fun AlarmRuleEditorDialog(
 
                 // --- Timing ---
                 Text(stringResource(R.string.alarm_section_timing), fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                    color = AccentBlue)
+                    color = MaterialTheme.appColors.metricVoltage)
 
                 Text(stringResource(R.string.alarm_cooldown_fmt, cooldownSeconds), fontSize = 12.sp)
                 Slider(
@@ -618,7 +679,8 @@ private fun AlarmRuleEditorDialog(
                             .toInt().coerceIn(5, 60)
                     },
                     valueRange = 5f..60f,
-                    steps = 10
+                    steps = 10,
+                    colors = themedSliderColors(),
                 )
                 HintText(stringResource(R.string.alarm_cooldown_help), small = true)
 
@@ -628,7 +690,8 @@ private fun AlarmRuleEditorDialog(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(stringResource(R.string.alarm_repeat), fontSize = 13.sp)
-                    Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it })
+                    Switch(checked = repeatWhileActive, onCheckedChange = { repeatWhileActive = it },
+                        colors = themedSwitchColors(),)
                 }
                 HintText(stringResource(R.string.alarm_repeat_help), small = true)
 
@@ -727,11 +790,13 @@ private fun DropdownSelect(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { (value, displayLabel) ->
                 DropdownMenuItem(

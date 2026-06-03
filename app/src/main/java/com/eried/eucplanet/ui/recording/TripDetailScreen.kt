@@ -72,11 +72,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentPurple
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -198,8 +194,8 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), AccentBlue, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), AccentBlue, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_distance), "%.1f %s".format(tripDistance, distanceUnitLabel), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_duration), "%d:%02d".format(minutes, seconds), MaterialTheme.appColors.metricVoltage, Modifier.weight(1f))
                     SummaryCard(stringResource(R.string.recording_summary_points), "${dataPoints.size}", MaterialTheme.colorScheme.onSurface, Modifier.weight(1f))
                 }
 
@@ -209,9 +205,9 @@ fun TripDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), AccentOrange, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), AccentGreen, Modifier.weight(1f))
-                    SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), AccentGreen, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_top_speed), "%.0f %s".format(maxSpeed, speedUnitLabel), MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_speed), "%.0f %s".format(avgSpeed, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
+                    SummaryCard(stringResource(R.string.recording_summary_avg_moving), "%.0f %s".format(avgMoving, speedUnitLabel), MaterialTheme.appColors.metricBattery, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -228,19 +224,19 @@ fun TripDetailScreen(
                             batteryStats.batteryConsumption),
                         stringResource(R.string.recording_summary_battery_fmt,
                             batteryStats.batteryMax, batteryStats.batteryMin),
-                        if (batteryStats.batteryMin < 20) AccentRed else AccentGreen,
+                        if (batteryStats.batteryMin < 20) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.statusGood,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_voltage),
                         stringResource(R.string.recording_summary_voltage_fmt,
                             batteryStats.voltageMax, batteryStats.voltageMin),
-                        AccentPurple,
+                        MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
                     SummaryCard(stringResource(R.string.recording_summary_max_temp),
                         "%.0f%s".format(maxTemp, tempUnitLabel),
-                        if (maxTempRaw > 60) AccentRed else AccentOrange, Modifier.weight(1f))
+                        if (maxTempRaw > 60) MaterialTheme.appColors.statusDanger else MaterialTheme.appColors.metricTemp, Modifier.weight(1f))
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -256,22 +252,22 @@ fun TripDetailScreen(
                         stringResource(R.string.recording_summary_max_pwm),
                         if (batteryStats.maxPwm.isNaN()) "--"
                         else "%.0f%%".format(batteryStats.maxPwm),
-                        if (!batteryStats.maxPwm.isNaN() && batteryStats.maxPwm > 80) AccentRed
-                        else AccentOrange,
+                        if (!batteryStats.maxPwm.isNaN() && batteryStats.maxPwm > 80) MaterialTheme.appColors.statusDanger
+                        else MaterialTheme.appColors.metricTemp,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_current),
                         if (batteryStats.maxCurrent.isNaN()) "--"
                         else "%.1f A".format(batteryStats.maxCurrent),
-                        AccentBlue,
+                        MaterialTheme.appColors.metricVoltage,
                         Modifier.weight(1f)
                     )
                     SummaryCard(
                         stringResource(R.string.recording_summary_max_power),
                         if (batteryStats.maxPower.isNaN()) "--"
                         else "%.0f W".format(batteryStats.maxPower),
-                        AccentPurple,
+                        MaterialTheme.appColors.metricPosition,
                         Modifier.weight(1f)
                     )
                 }
@@ -309,7 +305,7 @@ fun TripDetailScreen(
                     else com.eried.eucplanet.util.Units.speed(it.extGpsSpeed, speedUnit)
                 }
                 val speedOverlays = if (extSpeedSeries.any { !it.isNaN() }) {
-                    listOf(ChartOverlay(extSpeedSeries, AccentPurple))
+                    listOf(ChartOverlay(extSpeedSeries, MaterialTheme.appColors.metricPosition))
                 } else emptyList()
                 val speedMinSpan = when (speedUnit) {
                     "mph" -> GraphScale.SPAN_SPEED_MPH
@@ -318,27 +314,27 @@ fun TripDetailScreen(
                 }
                 ChartCard(stringResource(R.string.recording_chart_speed, speedUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.speed(it.speed, speedUnit) },
-                    AccentGreen, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
+                    MaterialTheme.appColors.metricBattery, unitLabel = speedUnitLabel, minSpan = speedMinSpan,
                     overlays = speedOverlays)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Battery chart
                 ChartCard(stringResource(R.string.recording_chart_battery), dataPoints.map { it.battery.toFloat() },
-                    AccentBlue, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY)
+                    MaterialTheme.appColors.metricVoltage, unitLabel = "%", minSpan = GraphScale.SPAN_BATTERY)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Temperature chart \u2014 convert each data point to \u00B0F when imperial.
                 ChartCard(stringResource(R.string.recording_chart_temp, tempUnitLabel),
                     dataPoints.map { com.eried.eucplanet.util.Units.temperature(it.temperature, tempUnit) },
-                    AccentOrange, unitLabel = tempUnitLabel, minSpan = GraphScale.SPAN_TEMPERATURE_C)
+                    MaterialTheme.appColors.metricTemp, unitLabel = tempUnitLabel, minSpan = GraphScale.SPAN_TEMPERATURE_C)
 
                 Spacer(Modifier.height(12.dp))
 
                 // Voltage chart
                 ChartCard(stringResource(R.string.recording_chart_voltage), dataPoints.map { it.voltage },
-                    AccentRed, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
+                    MaterialTheme.appColors.statusDanger, unitLabel = "V", minSpan = GraphScale.SPAN_VOLTAGE)
 
                 // Current chart, only when this trip actually recorded current.
                 // Uses the regen two-colour split: above zero in the chart colour,
@@ -347,8 +343,8 @@ fun TripDetailScreen(
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_current),
                         dataPoints.map { it.current },
-                        AccentBlue, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
-                        regenColor = AccentGreen)
+                        MaterialTheme.appColors.metricVoltage, unitLabel = "A", minSpan = GraphScale.SPAN_CURRENT,
+                        regenColor = MaterialTheme.appColors.metricBattery)
                 }
 
                 // PWM chart, single-colour, only when this trip recorded PWM.
@@ -356,7 +352,7 @@ fun TripDetailScreen(
                     Spacer(Modifier.height(12.dp))
                     ChartCard(stringResource(R.string.recording_chart_pwm),
                         dataPoints.map { it.pwm },
-                        AccentOrange, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD)
+                        MaterialTheme.appColors.metricTemp, unitLabel = "%", minSpan = GraphScale.SPAN_LOAD)
                 }
 
                 Spacer(Modifier.height(16.dp))

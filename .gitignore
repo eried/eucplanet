@@ -11,6 +11,7 @@ local.properties
 *.keystore
 *.jks
 keystore.properties
+play-service-account.json
 
 # IDE
 .idea/
@@ -38,3 +39,50 @@ delete.html
 **/build/eucplanet_*
 
 test-out/
+
+# Debug session dumps at repo root (uiautomator XML dumps, ad-hoc PNGs,
+# settings_dump.bin, ...). Patterns are anchored to the repo root so they
+# don't accidentally match real assets nested in res/ or wear/.
+/[a-z].xml
+/[a-z][0-9].xml
+/u[a-z].xml
+/u-pre.xml
+/u-post.xml
+/po*.xml
+/p[0-9].xml
+/tab[0-9].xml
+/t[0-9].xml
+/m.xml
+/all.xml
+/settings_dump.bin
+/baseline-*.png
+/bug*.png
+/polish*.png
+/step*.png
+/u[0-9]*.png
+/u[0-9]*-s.png
+/u[0-9]*-state*.png
+/v[0-9]*.png
+/v[0-9]*-*.png
+
+# Garmin watch-app monkeyc build artifacts (.prg, intermediate MIR, gen,
+# build logs). Source lives in garmin-watch-app/source/ and manifest.xml;
+# everything below is regenerable by monkeyc.
+/garmin-watch-app/prgs-out/
+/garmin-watch-app/gen/
+/garmin-watch-app/external-mir/
+/garmin-watch-app/internal-mir/
+/garmin-watch-app/mir/
+/garmin-watch-app/*.prg
+/garmin-watch-app/*.prg.debug.xml
+/garmin-watch-app/*.iq
+/garmin-watch-app/build.out
+/garmin-watch-app/build.err
+/garmin-watch-app/iq-build.out
+/garmin-watch-app/iq-build.err
+
+# Local staging dir for `gh release upload`
+/release-upload/
+
+# Ad-hoc UI Automator dumps used while debugging
+/ui-emu.xml

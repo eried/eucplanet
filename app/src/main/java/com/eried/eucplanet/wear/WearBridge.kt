@@ -81,6 +81,9 @@ class WearBridge @Inject constructor(
         private const val K_UNIT_DISTANCE = "ud"
         private const val K_UNIT_TEMP = "ut"
         private const val K_ACCENT = "ac"
+        // Packed custom-theme colors for the watch (background/gauge/battery/text).
+        // Field order is fixed by ThemeAccent.packForWatch / WatchColors.
+        private const val K_THEME = "thm"
         private const val K_TIMESTAMP = "ts"
         // GPS extra-speed readout, mirrors the phone dashboard's gpsExtraSpeed.
         // K_GPS_SPEED is Float.NaN when there is nothing to show; K_GPS_SOURCE
@@ -123,6 +126,17 @@ class WearBridge @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var started = false
+
+    /**
+     * Names of currently-paired Wear OS nodes — empty when no watch is
+     * paired, otherwise one entry per Wear OS device the phone has
+     * connected to (typically one, occasionally more if the rider has both
+     * a Galaxy Watch and a Pixel Watch). Polled every 5 s on a background
+     * coroutine so the Settings UI's collapsible "Paired devices" card has
+     * something fresh to render. Empty list means "show no Wear OS row".
+     */
+    private val _pairedNodes = kotlinx.coroutines.flow.MutableStateFlow<List<String>>(emptyList())
+    val pairedNodes: kotlinx.coroutines.flow.StateFlow<List<String>> = _pairedNodes
 
     /**
      * Idempotent. Begins streaming snapshots to any paired Wear OS device.
@@ -218,6 +232,25 @@ class WearBridge @Inject constructor(
         // MainActivity resumes; see pingWatchToWake() below.
         pingWatchToWake()
 
+        // Background paired-node poller. Refreshes [pairedNodes] every 5 s
+        // so the Settings UI can show which Wear OS watches are connected.
+        // 5 s is rare enough not to drain battery and frequent enough to
+        // catch a watch coming online while the user is on Settings.
+        scope.launch {
+            while (true) {
+                try {
+                    val nodes = Tasks.await(Wearable.getNodeClient(context).connectedNodes)
+                    val names = nodes.map { it.displayName }
+                    if (names != _pairedNodes.value) {
+                        _pairedNodes.value = names
+                    }
+                } catch (e: Exception) {
+                    if (_pairedNodes.value.isNotEmpty()) _pairedNodes.value = emptyList()
+                }
+                delay(5_000L)
+            }
+        }
+
         // Periodic publisher rather than a Flow combine. Reasoning: when the
         // wheel is disconnected the upstream flows don't emit, so a sample +
         // distinctUntilChanged pipeline goes silent, and the watch ends up
@@ -288,7 +321,22 @@ class WearBridge @Inject constructor(
                 dataMap.putString(K_UNIT_DISTANCE, com.eried.eucplanet.util.Units.effectiveDistanceUnit(settings))
                 dataMap.putString(K_UNIT_TEMP, com.eried.eucplanet.util.Units.effectiveTempUnit(settings))
                 dataMap.putBoolean(K_IMPERIAL, com.eried.eucplanet.util.Units.effectiveSpeedUnit(settings) == "mph")
-                dataMap.putString(K_ACCENT, settings.accentColor)
+                // The active theme's primary as "#AARRGGBB" so the watch follows
+                // the custom theme; the watch parses hex (and still accepts legacy keys).
+                dataMap.putString(
+                    K_ACCENT,
+                    com.eried.eucplanet.ui.theme.ThemeAccent.primaryArgb(
+                        settings.activeThemeColorsJson, settings.accentColor
+                    )
+                )
+                // Full theme palette so the watch face background, gauge, battery
+                // and text follow the rider's custom theme, not just the accent.
+                dataMap.putString(
+                    K_THEME,
+                    com.eried.eucplanet.ui.theme.ThemeAccent.packForWatch(
+                        settings.activeThemeColorsJson
+                    )
+                )
                 dataMap.putBoolean(K_OPT_KEEP_ON, settings.watchKeepScreenOn)
                 dataMap.putBoolean(K_OPT_SHOW_WHEEL_BATT, settings.watchShowWheelBattery)
                 dataMap.putBoolean(K_OPT_SHOW_PHONE_BATT, settings.watchShowPhoneBattery)

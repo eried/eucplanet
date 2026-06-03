@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -92,10 +93,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.TripRecord
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.data.model.WheelData
 import com.eried.eucplanet.ui.studio.camera.rememberStudioCameraHub
 import com.eried.eucplanet.ui.studio.recording.StudioApngEncoder
@@ -852,7 +854,10 @@ fun OverlayStudioScreen(
     }
 
     // Everything in the studio chrome rotates to face a sideways-held phone.
-    CompositionLocalProvider(LocalStudioRotation provides deviceRotation) {
+    CompositionLocalProvider(
+        LocalStudioRotation provides deviceRotation,
+        LocalStudioHudEnabled provides viewModel.hudEnabled
+    ) {
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -968,7 +973,7 @@ fun OverlayStudioScreen(
                 // Exit the studio, top-left corner (X since it is full-screen).
                 StudioRoundButton(
                     icon = Icons.Default.Close,
-                    background = Color(0xCC1E1E26),
+                    background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
                     modifier = Modifier
@@ -978,7 +983,7 @@ fun OverlayStudioScreen(
                 // Gallery: pinned to the bottom-left corner, like a camera app.
                 StudioRoundButton(
                     icon = Icons.Default.PhotoLibrary,
-                    background = Color(0xCC1E1E26),
+                    background = MaterialTheme.appColors.surfaceVariant,
                     size = 48.dp,
                     iconRotation = iconRot,
                     modifier = Modifier
@@ -995,7 +1000,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.PhotoCamera,
-                        background = Color(0xCC1E1E26),
+                        background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconRotation = iconRot
                     ) { if (!capturing) capturing = true }
@@ -1021,12 +1026,12 @@ fun OverlayStudioScreen(
                     StudioRoundButton(
                         icon = if (micEnabled && !replayMode) Icons.Default.Mic
                         else Icons.Default.MicOff,
-                        background = Color(0xCC1E1E26),
+                        background = MaterialTheme.appColors.surfaceVariant,
                         size = 52.dp,
                         iconTint = when {
-                            replayMode -> Color(0xFF5A5A5A)
-                            micEnabled -> Color(0xFF8BC34A)
-                            else -> Color(0xFFE57373)
+                            replayMode -> MaterialTheme.appColors.textDisabled
+                            micEnabled -> MaterialTheme.appColors.statusGood
+                            else -> MaterialTheme.appColors.statusDanger
                         },
                         iconRotation = iconRot
                     ) {
@@ -1049,7 +1054,7 @@ fun OverlayStudioScreen(
                 ) {
                     StudioRoundButton(
                         icon = Icons.Default.MoreHoriz,
-                        background = Color(0xCC1E1E26),
+                        background = MaterialTheme.appColors.surfaceVariant,
                         size = 48.dp,
                         iconRotation = iconRot,
                         // Long-press is the shortcut to the Manage Elements
@@ -1176,7 +1181,7 @@ fun OverlayStudioScreen(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(Color(0xE6000000)),
+                    .background(MaterialTheme.appColors.scrim.copy(alpha = 0.9f)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -1185,7 +1190,7 @@ fun OverlayStudioScreen(
                 ) {
                     Text(
                         stringResource(R.string.studio_rendering),
-                        color = Color.White,
+                        color = MaterialTheme.appColors.textPrimary,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1196,20 +1201,20 @@ fun OverlayStudioScreen(
                             .width(barWidth)
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White.copy(alpha = 0.22f))
+                            .background(MaterialTheme.appColors.gaugeTrack)
                     ) {
                         Box(
                             Modifier
                                 .width(barWidth * renderProgress.coerceIn(0f, 1f))
                                 .height(8.dp)
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFF4FC3F7))
+                                .background(MaterialTheme.appColors.primary)
                         )
                     }
                     Spacer(Modifier.height(22.dp))
                     Text(
                         stringResource(R.string.studio_rendering_keep_open),
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = MaterialTheme.appColors.textPrimary.copy(alpha = 0.55f),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.width(280.dp)
                     )
@@ -1590,7 +1595,7 @@ private fun StudioRoundButton(
     background: Color,
     modifier: Modifier = Modifier,
     size: androidx.compose.ui.unit.Dp = 48.dp,
-    iconTint: Color = Color.White,
+    iconTint: Color = MaterialTheme.appColors.textPrimary,
     iconRotation: Float = 0f,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
@@ -1690,20 +1695,20 @@ private fun CameraPermissionCard(modifier: Modifier, onGrant: () -> Unit) {
     Column(
         modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xEE1E1E26))
+            .background(MaterialTheme.appColors.surface)
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
             Icons.Default.PhotoCamera,
             contentDescription = null,
-            tint = Color.White,
+            tint = MaterialTheme.appColors.textPrimary,
             modifier = Modifier.size(36.dp)
         )
         Spacer(Modifier.size(10.dp))
         Text(
             stringResource(R.string.studio_camera_permission),
-            color = Color.White,
+            color = MaterialTheme.appColors.textPrimary,
             fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.size(12.dp))

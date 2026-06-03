@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -80,15 +81,18 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.core.graphics.drawable.toBitmap
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
 import com.eried.eucplanet.data.model.WheelData
 import kotlinx.coroutines.launch
 
@@ -125,9 +129,6 @@ data class StudioElementData(
 
 /** Compose [Color] -> the 0xAARRGGBB [Long] stored in [OverlayElement]. */
 fun Color.toArgbLong(): Long = toArgb().toLong() and 0xFFFFFFFFL
-
-/** Fixed colour for the studio's own edit controls (selection chrome). */
-val StudioControlAccent = Color(0xFF4FC3F7)
 
 /**
  * Draws every overlay element in z-order. When [editable], elements can be
@@ -235,10 +236,10 @@ private fun StudioElementBox(
     val effW = snapFx(element.width, gridX)
     val effH = if (element.height > 0f) snapFx(element.height, gridY) else 0f
     val live by rememberUpdatedState(element)
-    val accent = StudioControlAccent
+    val accent = MaterialTheme.appColors.primary
     // A distinct accent for the rotate handle so it is never confused with the
     // resize grip (the studio's standard blue accent).
-    val rotateAccent = Color(0xFFFFB74D)
+    val rotateAccent = MaterialTheme.appColors.tertiary
     // Size of the element's content in px, captured from the rotated marquee
     // layer, i.e. the unrotated content bounds, so its centre is exact.
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
@@ -410,7 +411,7 @@ private fun StudioElementBox(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         ChromeButton(Icons.Default.Build, accent, onConfigure)
-                        ChromeButton(Icons.Default.Close, Color(0xFFE53935), onDelete)
+                        ChromeButton(Icons.Default.Close, MaterialTheme.appColors.statusDanger, onDelete)
                     }
                     Box(
                         Modifier
@@ -466,7 +467,7 @@ private fun StudioElementBox(
                         Icon(
                             Icons.Default.OpenInFull,
                             contentDescription = stringResource(R.string.studio_cd_resize),
-                            tint = Color.White,
+                            tint = MaterialTheme.appColors.textPrimary,
                             modifier = Modifier.size(16.dp).rotate(90f)
                         )
                     }
@@ -554,7 +555,7 @@ private fun StudioElementBox(
                     Icon(
                         Icons.Default.Sync,
                         contentDescription = stringResource(R.string.studio_cd_rotate),
-                        tint = Color.White,
+                        tint = MaterialTheme.appColors.textPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -576,7 +577,7 @@ private fun ChromeButton(
         Modifier
             .size(30.dp)
             .clip(CircleShape)
-            .background(Color(0xDD1E1E26))
+            .background(MaterialTheme.appColors.surfaceVariant)
             .border(1.dp, tint, CircleShape)
             .pointerInput(Unit) { detectTapGestures(onTap = { currentOnClick() }) },
         contentAlignment = Alignment.Center
@@ -840,9 +841,13 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
             "STOPWATCH" -> SevenSegmentDisplay(formatStopwatch(data.stopwatchMs), fg)
             "TEXT" -> BoxWithConstraints {
                 val w = maxWidth.value
+                // Honor the per-element 12/24 switch the customizer ships;
+                // it was silently ignored here before, so the toggle felt
+                // dead even though the underlying flag was being persisted.
+                val pattern = if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss a"
                 Column {
                     androidx.compose.material3.Text(
-                        text = formatClockTime(data.clockTimeMs, "HH:mm:ss"),
+                        text = formatClockTime(data.clockTimeMs, pattern),
                         color = fg,
                         fontWeight = FontWeight.Bold,
                         fontSize = (w * 0.16f).coerceIn(14f, 72f).sp,
@@ -858,8 +863,15 @@ private fun ClockElement(element: OverlayElement, data: StudioElementData) {
                     }
                 }
             }
+            // Seven-seg can only draw 0-9 / : / . so 12h mode drops the
+            // AM/PM suffix. Hours still flip 13-24 -> 1-12 which is the
+            // half of the toggle that's visible on a digital readout.
             else -> SevenSegmentDisplay(
-                formatClockTime(data.clockTimeMs, "HH:mm:ss"), fg
+                formatClockTime(
+                    data.clockTimeMs,
+                    if (element.clock24Hour) "HH:mm:ss" else "h:mm:ss"
+                ),
+                fg
             )
         }
     }
@@ -1168,6 +1180,21 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
     val track = fill.copy(alpha = 0.2f)
     val bg = Color(element.background)
     val isSemi = element.dialStyle == "SEMICIRCLE"
+    // Pre-resolve color-band thresholds + colours so the per-platform
+    // arc draws below stay free of the conditional logic. The bands sit
+    // at alpha=0.55 so they read as a backing tint, not a competing
+    // foreground -- the fill arc on top is the rider's eye-target.
+    val showBand = element.dialShowColorBand
+    val orangeFrac = (element.dialOrangeThresholdPct / 100f).coerceIn(0f, 1f)
+    val redFrac = (element.dialRedThresholdPct / 100f).coerceIn(orangeFrac, 1f)
+    // Band colours at FULL alpha. We composite the band drawing (arcs +
+    // end caps) into an offscreen layer at 0.55 alpha so the overlap
+    // between the arc and the end-cap disc doesn't double-up alpha and
+    // bleed through as a half-circle dark spot when the element opacity
+    // is < 1. Inside the layer everything draws fully opaque.
+    val bandSafe = MaterialTheme.appColors.gaugeFill
+    val bandWarn = MaterialTheme.appColors.gaugeWarn
+    val bandDanger = MaterialTheme.appColors.gaugeDanger
     // Geometry:
     //   FULL -> 1:1, classic 270 deg arc.
     //   SEMICIRCLE -> dome (radius w/2) on top, a fixed-ish-dp rounded
@@ -1256,17 +1283,65 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                 val progRect = androidx.compose.ui.geometry.Rect(
                     cx - progR, cy - progR, cx + progR, cy + progR
                 )
-                drawArc(
-                    color = track,
-                    startAngle = 180f, sweepAngle = 180f, useCenter = false,
-                    topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    // Draw the whole band (arcs + end caps) into an
+                    // offscreen layer at full alpha, then composite the
+                    // layer at 0.55. This avoids the alpha compound that
+                    // showed up as a darker half-circle where the end
+                    // cap disc overlaps the arc -- inside the layer
+                    // every pixel is fully opaque, so the composite is
+                    // uniform tint regardless of overlap.
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val stroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 180f,
+                        sweepAngle = 180f * orangeFrac, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 180f + 180f * orangeFrac,
+                        sweepAngle = 180f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 180f + 180f * redFrac,
+                        sweepAngle = 180f * (1f - redFrac), useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size, style = stroke
+                    )
+                    val capR = strokeW / 2f
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(cx - progR, cy)
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(cx + progR, cy)
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 180f, sweepAngle = 180f, useCenter = false,
+                        topLeft = progRect.topLeft, size = progRect.size,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                // When the colour band is drawn, narrow the fill stroke
+                // so a rim of the band stays visible on both sides of
+                // the needle arc -- otherwise the fill would fully cover
+                // it. Centred on the same path, so the geometry is
+                // preserved and the round cap still meets the band cleanly.
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 180f, sweepAngle = 180f * fraction, useCenter = false,
                     topLeft = progRect.topLeft, size = progRect.size,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             } else {
                 // Square dial: circle inscribed, 270 deg arc starting at
@@ -1287,17 +1362,63 @@ private fun DataDialElement(element: OverlayElement, data: StudioElementData) {
                     size = Size(size.minDimension, size.minDimension)
                 )
                 val arcSize = Size(side, side)
-                drawArc(
-                    color = track,
-                    startAngle = 135f, sweepAngle = 270f, useCenter = false,
-                    topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
-                )
+                if (showBand) {
+                    drawContext.canvas.saveLayer(
+                        androidx.compose.ui.geometry.Rect(
+                            0f, 0f, size.width, size.height
+                        ),
+                        androidx.compose.ui.graphics.Paint().apply { alpha = 0.55f }
+                    )
+                    val stroke = Stroke(width = strokeW, cap = StrokeCap.Butt)
+                    drawArc(
+                        color = bandSafe, startAngle = 135f,
+                        sweepAngle = 270f * orangeFrac, useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    drawArc(
+                        color = bandWarn, startAngle = 135f + 270f * orangeFrac,
+                        sweepAngle = 270f * (redFrac - orangeFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    drawArc(
+                        color = bandDanger, startAngle = 135f + 270f * redFrac,
+                        sweepAngle = 270f * (1f - redFrac), useCenter = false,
+                        topLeft = topLeft, size = arcSize, style = stroke
+                    )
+                    val capR = strokeW / 2f
+                    val ac = Offset(topLeft.x + side / 2f, topLeft.y + side / 2f)
+                    val ar = side / 2f
+                    val rad135 = (135.0 * Math.PI / 180.0)
+                    val rad45 = (45.0 * Math.PI / 180.0)
+                    drawCircle(
+                        color = bandSafe, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad135).toFloat(),
+                            ac.y + ar * sin(rad135).toFloat()
+                        )
+                    )
+                    drawCircle(
+                        color = bandDanger, radius = capR,
+                        center = Offset(
+                            ac.x + ar * cos(rad45).toFloat(),
+                            ac.y + ar * sin(rad45).toFloat()
+                        )
+                    )
+                    drawContext.canvas.restore()
+                } else {
+                    drawArc(
+                        color = track,
+                        startAngle = 135f, sweepAngle = 270f, useCenter = false,
+                        topLeft = topLeft, size = arcSize,
+                        style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    )
+                }
+                val fillStrokeW = if (showBand) strokeW * 0.55f else strokeW
                 drawArc(
                     color = fill,
                     startAngle = 135f, sweepAngle = 270f * fraction, useCenter = false,
                     topLeft = topLeft, size = arcSize,
-                    style = Stroke(width = strokeW, cap = StrokeCap.Round)
+                    style = Stroke(width = fillStrokeW, cap = StrokeCap.Round)
                 )
             }
         }

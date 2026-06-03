@@ -14,6 +14,7 @@ import com.eried.eucplanet.R
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import com.eried.eucplanet.data.repository.WheelRepository
+import com.eried.eucplanet.data.model.withUnitsToggled
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.flic.FlicManager
 import com.eried.eucplanet.service.AutomationManager
@@ -55,8 +56,16 @@ class DashboardViewModel @Inject constructor(
     val experimentalBannerState: com.eried.eucplanet.ui.common.ExperimentalBannerState,
     val cheatState: com.eried.eucplanet.cheats.CheatState,
     private val wearBridge: com.eried.eucplanet.wear.WearBridge,
+    private val garminBridge: com.eried.eucplanet.garmin.GarminBridge,
+    private val appHealthRepository: com.eried.eucplanet.data.repository.AppHealthRepository,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    /** Live list of user-actionable warnings (e.g. denied notification
+     *  permission). The dashboard top-bar shows a warning icon when this is
+     *  non-empty and the dialog renders each entry as a Fix-able card. */
+    val warnings: StateFlow<List<com.eried.eucplanet.data.repository.AppWarning>> =
+        appHealthRepository.warnings
 
     companion object {
         private const val SPARKLINE_SIZE = 300  // 5 minutes at 1 sample/sec
@@ -70,6 +79,14 @@ class DashboardViewModel @Inject constructor(
     val wheelData: StateFlow<com.eried.eucplanet.data.model.WheelData> = wheelRepository.wheelData
 
     val connectionState: StateFlow<ConnectionState> = wheelRepository.connectionState
+
+    /** Hardware top-speed cap from the detected wheel model (BegodeModel /
+     *  VeteranModel / InMotionV2Model / KingsongModel). Stays at the
+     *  WheelRepository DEFAULT_MAX_SPEED_KMH (90) when no wheel is connected
+     *  or the model isn't recognised — the dashboard treats that sentinel
+     *  as "don't cap" so unknown wheels keep the rider-tilt-back-driven
+     *  scale they have today. */
+    val wheelMaxSpeedCap: StateFlow<Float> = wheelRepository.maxSpeedCap
 
     val safetySpeedActive: StateFlow<Boolean> = wheelRepository.safetySpeedActive
 
@@ -140,6 +157,23 @@ class DashboardViewModel @Inject constructor(
         .map { it != null }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    /** Raw location for catalog metrics (altitude / accuracy / GPS speed / heading). */
+    val currentLocation = tripRepository.currentLocation
+
+    /**
+     * Phone battery percentage (0–100). Polled from the system service
+     * via a 30-second tick, since it doesn't change fast enough to
+     * justify a registered receiver here. Returns -1 when unavailable.
+     */
+    val phoneBatteryPercent: StateFlow<Int> = kotlinx.coroutines.flow.flow {
+        while (true) {
+            val bm = context.getSystemService(Context.BATTERY_SERVICE) as? android.os.BatteryManager
+            val pct = bm?.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+            emit(pct)
+            kotlinx.coroutines.delay(30_000L)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), -1)
+
     private val _locationPermissionGranted = kotlinx.coroutines.flow.MutableStateFlow(hasLocationPermission())
     val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted
 
@@ -208,6 +242,12 @@ class DashboardViewModel @Inject constructor(
             initialSettings.flic1Address != null || initialSettings.flic2Address != null ||
                 initialSettings.flic3Address != null || initialSettings.flic4Address != null)
 
+    /** Whether the dashboard top-bar Flic indicator renders at all.
+     *  Controlled by Settings -> Integration -> Flic -> "Show on dashboard". */
+    val flicShowOnDashboard: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.flicShowOnDashboard }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.flicShowOnDashboard)
+
     val voicePeriodicEnabled: StateFlow<Boolean> = settingsRepository.settings
         .map { it.voicePeriodicEnabled }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.voicePeriodicEnabled)
@@ -250,6 +290,30 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
+    /** Whether the first-launch dashboard welcome tour still needs showing.
+     *
+     *  Seeded from initialSettings (synchronous DataStore read at the top of
+     *  this VM) instead of a hardcoded `true`. A `true` seed reads as "tour
+     *  already done, hide it" — so on a first-launch cold start the rider
+     *  saw an interactive dashboard for ~50-200ms before the upstream Flow
+     *  emitted the real `false` and the tour finally appeared. That window
+     *  was long enough to tap a destructive action (the "reset" report
+     *  from the rider). Now frame zero already has the correct value. */
+    val welcomeTutorialSeen: StateFlow<Boolean> = settingsRepository.settings
+        .map { it.welcomeTutorialSeen }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialSettings.welcomeTutorialSeen)
+
+    /** Records that the rider finished or skipped the welcome tour, so it
+     *  never auto-shows again. */
+    fun markWelcomeTutorialSeen() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            if (!current.welcomeTutorialSeen) {
+                settingsRepository.update(current.copy(welcomeTutorialSeen = true))
+            }
+        }
+    }
+
     fun startRecording() {
         viewModelScope.launch { tripRepository.startRecording() }
     }
@@ -272,6 +336,93 @@ class DashboardViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "MODEL")
 
     val firmwareVersion: StateFlow<String?> = wheelRepository.firmwareVersion
+
+    // ---- Customizable dashboard layout (Phase 2B+) ----
+    //
+    // The editor in Settings writes these fields; the live dashboard
+    // reads them here to drive which tile renders in each slot, with
+    // what per-slot stats (sparkline on/off, corner readouts) and
+    // dynamic-instance state (composites, custom tiles, action groups).
+    //
+    // Order strings sanitize against [com.eried.eucplanet.data.model.MetricCatalog]
+    // / ActionCatalog upstream; here they're just raw strings until the
+    // dashboard composable parses them.
+    //
+    // Seed each layout StateFlow with the rider's persisted value from
+    // initialSettings (read synchronously above), not with an empty
+    // string / "{}" placeholder. Otherwise the first composition reads
+    // the placeholder, falls back to AppSettings hardcoded defaults
+    // (BATTERY/TEMP/VOLT/CURRENT/LOAD/TRIP for metrics, HORN/LIGHT/…
+    // for actions) and the rider sees a one-frame flash of the default
+    // layout before the upstream Flow emits their saved layout. With
+    // these seeded correctly the cold-start render is the rider's own
+    // layout from frame zero.
+    val dashboardMetricOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardMetricOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricOrder)
+    val dashboardMetricStats: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardMetricStats }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricStats)
+    val dashboardMetricsColumns: StateFlow<Int> = settingsRepository.settings
+        .map { it.dashboardMetricsColumns }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardMetricsColumns)
+    val dashboardCompositeMetrics: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCompositeMetrics }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCompositeMetrics)
+    val dashboardCustomTiles: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCustomTiles }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCustomTiles)
+    val dashboardActionOrder: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardActionOrder }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardActionOrder)
+    val dashboardActionGroups: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardActionGroups }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardActionGroups)
+    val dashboardCustomBle: StateFlow<String> = settingsRepository.settings
+        .map { it.dashboardCustomBle }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000),
+            initialSettings.dashboardCustomBle)
+
+    /** Fires an action by its catalog key via FlicManager — shared dispatch with Flic / volume / watch. */
+    fun dispatchActionByName(key: String) = flicManager.dispatchActionByName(key)
+
+    /**
+     * Flip the three per-unit fields between metric and imperial in one
+     * write. Metric is the reference state, so anything that isn't already
+     * a clean imperial trio flips to imperial; a clean imperial trio flips
+     * back to metric. Custom mixes (e.g. knots + Norwegian mile from the
+     * Settings preset) snap to metric on first tap.
+     */
+    fun toggleUnits() {
+        viewModelScope.launch {
+            settingsRepository.update(settingsRepository.get().withUnitsToggled())
+        }
+    }
+
+    /** Flip the persisted alarm mute. AlarmEngine reads this on every
+     *  evaluate() so the change takes effect on the next telemetry frame. */
+    fun toggleAlarmsMuted() {
+        viewModelScope.launch {
+            val current = settingsRepository.get()
+            settingsRepository.update(current.copy(alarmsMuted = !current.alarmsMuted))
+        }
+    }
+
+    /**
+     * Send the family-specific "reset onboard trip meter" command to the
+     * wheel. Returns true on Veteran (CLEARMETER); false on every other
+     * family until a documented reset command is added. Callers should
+     * snackbar the result so riders know whether the tap took effect.
+     */
+    suspend fun resetWheelTrip(): Boolean =
+        kotlinx.coroutines.withContext(Dispatchers.IO) { wheelRepository.resetTripMeter() }
 
     val fullHistory: StateFlow<FullMetricHistory> = wheelRepository.fullHistory
 
@@ -333,11 +484,26 @@ class DashboardViewModel @Inject constructor(
                 val settings = settingsRepository.get()
                 if (settings.watchCloseOnExit) {
                     wearBridge.sendCloseToWatchBlocking()
+                    garminBridge.sendCloseToWatchBlocking()
                 }
             } catch (_: Exception) { /* best effort */ }
         }
-        val intent = Intent(context, WheelService::class.java)
-        context.stopService(intent)
+        // Send ACTION_STOP_ALL_AND_KILL via startService so the service's
+        // onStartCommand can flip the kill-on-destroy flag before stopSelf
+        // triggers onDestroy. A plain stopService(intent) would skip
+        // onStartCommand entirely and leave the flag unset, so the kill
+        // path wouldn't fire and the OS would keep the process cached
+        // (the original "Stop All didn't take" bug).
+        val intent = Intent(context, WheelService::class.java).apply {
+            action = WheelService.ACTION_STOP_ALL_AND_KILL
+        }
+        try { context.startService(intent) } catch (_: Exception) {
+            // startService can throw if the app is already in the background
+            // (Android O+ restrictions). Fall back to plain stopService so
+            // the service at least tears down, even if the SIGKILL doesn't
+            // fire and the OS keeps the process briefly cached.
+            context.stopService(Intent(context, WheelService::class.java))
+        }
     }
 
     fun onHornPress() {

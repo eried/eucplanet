@@ -62,6 +62,7 @@ class WatchBridgeService : WearableListenerService() {
                         distanceUnit = distanceUnit,
                         tempUnit = tempUnit,
                         accentKey = map.getString(WatchKeys.ACCENT, "default") ?: "default",
+                        themePacked = map.getString(WatchKeys.THEME, "") ?: "",
                         keepScreenOn = map.getBoolean(WatchKeys.OPT_KEEP_ON, true),
                         showWheelBattery = map.getBoolean(WatchKeys.OPT_SHOW_WHEEL_BATT, true),
                         showPhoneBattery = map.getBoolean(WatchKeys.OPT_SHOW_PHONE_BATT, true),

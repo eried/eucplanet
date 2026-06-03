@@ -104,14 +104,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayElement
-import com.eried.eucplanet.data.model.OverlayElementType
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.hud.protocol.OverlayElement
+import com.eried.eucplanet.hud.protocol.OverlayElementType
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraInfo
 import sh.calvin.reorderable.ReorderableColumn
 import kotlin.math.roundToInt
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
+import com.eried.eucplanet.ui.theme.themedSliderColors
+import com.eried.eucplanet.ui.theme.themedTonalButtonColors
+import com.eried.eucplanet.ui.theme.themedFilterChipColors
 
 /** Which secondary sheet / dialog the studio is currently showing. */
 sealed interface StudioSheet {
@@ -190,6 +196,10 @@ fun ViewportLayout.displayName(): String =
         ViewportLayout.GRID_4 -> stringResource(R.string.studio_layout_grid_4)
     }
 
+/** Element types the HUD can't render (it shows telemetry, not camera / images). */
+private val OverlayElementType.notOnHud: Boolean
+    get() = this == OverlayElementType.FLOATING_CAMERA || this == OverlayElementType.IMAGE
+
 private val OverlayElementType.labelRes: Int
     get() = when (this) {
         OverlayElementType.WHEEL_NAME -> R.string.studio_element_wheel_name
@@ -256,7 +266,8 @@ fun StudioToolsFlyout(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.appColors.menuBackground
     ) {
         androidx.compose.foundation.layout.Box(Modifier.rotateLayout(deviceRotation)) {
         Row(modifier = Modifier.padding(horizontal = 4.dp)) {
@@ -266,7 +277,8 @@ fun StudioToolsFlyout(
                 // trip's transparent checkerboard), so configuring them is moot.
                 FlyoutItem(
                     Icons.Default.Dashboard, stringResource(R.string.studio_flyout_panes),
-                    enabled = !replayMode
+                    enabled = !replayMode,
+                    hudBadge = LocalStudioHudEnabled.current
                 ) {
                     onDismiss(); onChangeLayout()
                 }
@@ -291,7 +303,7 @@ fun StudioToolsFlyout(
                         onDismiss(); onReplayMode()
                     }
                 }
-                HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.appColors.divider)
                 FlyoutSection(stringResource(R.string.studio_flyout_section_elements))
                 // Manage elements stays enabled even with no elements --
                 // the sheet now also hosts the Add button, so it's a valid
@@ -362,11 +374,15 @@ private fun FlyoutItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     enabled: Boolean = true,
+    hudBadge: Boolean = false,
     onClick: () -> Unit
 ) {
     DropdownMenuItem(
         text = { Text(label) },
         leadingIcon = { Icon(icon, contentDescription = null) },
+        trailingIcon = if (hudBadge) ({
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+        }) else null,
         enabled = enabled,
         onClick = onClick
     )
@@ -374,6 +390,10 @@ private fun FlyoutItem(
 
 /** Physical device rotation (0/90/180/270) for orienting studio chrome. */
 val LocalStudioRotation = androidx.compose.runtime.compositionLocalOf { 0 }
+
+/** True while the HUD server is enabled. Studio controls the HUD can't render
+ *  (panes, image/clipart) show a "not on HUD" badge when this is on. */
+val LocalStudioHudEnabled = androidx.compose.runtime.compositionLocalOf { false }
 
 /**
  * Rotates the content by -[rotation]° with correct layout: for 90/270 the
@@ -533,7 +553,7 @@ fun StudioSidePanel(
                                 Icons.Default.Opacity,
                                 contentDescription =
                                     stringResource(R.string.studio_replay_cd_fade),
-                                tint = if (dimmed) StudioControlAccent
+                                tint = if (dimmed) MaterialTheme.appColors.primary
                                 else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -609,7 +629,13 @@ fun AddElementSheet(
                             tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
                         Column {
-                            Text(type.label(), fontWeight = FontWeight.SemiBold)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(type.label(), fontWeight = FontWeight.SemiBold)
+                                if (LocalStudioHudEnabled.current && type.notOnHud) {
+                                    Spacer(Modifier.width(6.dp))
+                                    com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+                                }
+                            }
                             Text(
                                 elementHint(type),
                                 style = MaterialTheme.typography.bodySmall,
@@ -657,7 +683,7 @@ fun LayoutPickerSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_layout_title))
+            SheetHeader(stringResource(R.string.studio_layout_title), hudBadge = LocalStudioHudEnabled.current)
             Spacer(Modifier.height(4.dp))
             ViewportLayout.entries.chunked(3).forEach { row ->
                 Row(
@@ -757,7 +783,8 @@ fun SavePresetDialog(
                         value = name,
                         onValueChange = { name = it },
                         label = { Text(stringResource(R.string.studio_save_preset_name_label)) },
-                        singleLine = true
+                        singleLine = true,
+                        colors = themedFieldColors(),
                     )
                 }
             }
@@ -980,13 +1007,14 @@ fun ViewportConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1))
+            SheetHeader(stringResource(R.string.studio_viewport_title, index + 1), hudBadge = LocalStudioHudEnabled.current)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
                     selected = config.source == ViewportSourceType.CAMERA,
                     onClick = { onChange(config.copy(source = ViewportSourceType.CAMERA)) },
                     label = { Text(stringResource(R.string.studio_viewport_camera)) },
-                    leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
+                    leadingIcon = { Icon(Icons.Default.PhotoCamera, null) },
+                    colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.SOLID ||
@@ -1003,7 +1031,8 @@ fun ViewportConfigSheet(
                             Icons.Default.FormatColorFill,
                             contentDescription = stringResource(R.string.studio_viewport_fill)
                         )
-                    }
+                    },
+                    colors = themedFilterChipColors(),
                 )
                 FilterChip(
                     selected = config.source == ViewportSourceType.IMAGE,
@@ -1014,7 +1043,8 @@ fun ViewportConfigSheet(
                             Icons.Default.Image,
                             contentDescription = stringResource(R.string.studio_viewport_image)
                         )
-                    }
+                    },
+                    colors = themedFilterChipColors(),
                 )
             }
             Spacer(Modifier.height(12.dp))
@@ -1046,7 +1076,8 @@ fun ViewportConfigSheet(
                                 FilterChip(
                                     selected = config.cameraOrientation == deg,
                                     onClick = { onChange(config.copy(cameraOrientation = deg)) },
-                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) }
+                                    label = { Text(stringResource(R.string.studio_bg_direction_fmt, deg)) },
+                                    colors = themedFilterChipColors(),
                                 )
                             }
                         }
@@ -1159,7 +1190,8 @@ private fun ColorGradeEditor(config: ViewportConfig, onChange: (ViewportConfig) 
             FilterChip(
                 selected = config.colorFilter == key,
                 onClick = { onChange(config.copy(colorFilter = key)) },
-                label = { Text(lbl) }
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1198,7 +1230,8 @@ private fun FitModePicker(config: ViewportConfig, onChange: (ViewportConfig) -> 
             FilterChip(
                 selected = config.fitMode == key,
                 onClick = { onChange(config.copy(fitMode = key)) },
-                label = { Text(lbl) }
+                label = { Text(lbl) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1238,7 +1271,8 @@ private fun CameraPicker(
                 enabled = !atLimit || cam.key in inUseKeys,
                 onClick = { onPick(cam.key) },
                 label = { Text(cam.label) },
-                leadingIcon = { Icon(Icons.Default.PhotoCamera, null) }
+                leadingIcon = { Icon(Icons.Default.PhotoCamera, null) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1269,7 +1303,7 @@ fun DividerConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(stringResource(R.string.studio_divider_title))
+            SheetHeader(stringResource(R.string.studio_divider_title), hudBadge = LocalStudioHudEnabled.current)
             Text(stringResource(R.string.studio_divider_colour_label), fontWeight = FontWeight.SemiBold)
             ColorSwatchRow(color) { onChange(it, thickness) }
             LabeledSlider(
@@ -1315,17 +1349,20 @@ private fun BackgroundEditor(config: ViewportConfig, onChange: (ViewportConfig) 
                     )
                 )
             },
-            label = { Text(stringResource(R.string.studio_bg_solid)) }
+            label = { Text(stringResource(R.string.studio_bg_solid)) },
+            colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && !config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = false)) },
-            label = { Text(stringResource(R.string.studio_bg_linear)) }
+            label = { Text(stringResource(R.string.studio_bg_linear)) },
+            colors = themedFilterChipColors(),
         )
         FilterChip(
             selected = !isSolid && config.gradientRadial,
             onClick = { onChange(toGradient(config, radial = true)) },
-            label = { Text(stringResource(R.string.studio_bg_radial)) }
+            label = { Text(stringResource(R.string.studio_bg_radial)) },
+            colors = themedFilterChipColors(),
         )
     }
     Spacer(Modifier.height(12.dp))
@@ -1450,7 +1487,8 @@ private fun GradientStopRow(
         Slider(
             value = position.coerceIn(0f, 1f),
             onValueChange = { onPosition(it.coerceIn(0f, 1f)) },
-            valueRange = 0f..1f
+            valueRange = 0f..1f,
+            colors = themedSliderColors(),
         )
     }
 }
@@ -1487,7 +1525,7 @@ fun ElementConfigSheet(
                 .padding(bottom = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SheetHeader(element.type.label())
+            SheetHeader(element.type.label(), hudBadge = LocalStudioHudEnabled.current && element.type.notOnHud)
 
             // Metric chooser comes first whenever the widget has one: the
             // metric is the widget's identity (a SPEED graph vs a BATTERY
@@ -1527,7 +1565,8 @@ fun ElementConfigSheet(
                             else -> TextAlign.Start
                         }
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = themedFieldColors(),
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -1554,7 +1593,8 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.textAlign == key,
                             onClick = { onChange(element.copy(textAlign = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
                 }
@@ -1576,7 +1616,8 @@ fun ElementConfigSheet(
                             FilterChip(
                                 selected = element.clockStyle == key,
                                 onClick = { onChange(element.copy(clockStyle = key)) },
-                                label = { Text(lbl) }
+                                label = { Text(lbl) },
+                                colors = themedFilterChipColors(),
                             )
                         }
                     }
@@ -1586,10 +1627,29 @@ fun ElementConfigSheet(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Switch(
                             checked = element.clockShowDate,
-                            onCheckedChange = { onChange(element.copy(clockShowDate = it)) }
+                            onCheckedChange = { onChange(element.copy(clockShowDate = it)) },
+                            colors = themedSwitchColors(),
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(stringResource(R.string.studio_cfg_clock_show_date))
+                    }
+                }
+                // 24h / 12h toggle for the DIGITAL and TEXT clock
+                // styles. Hidden for ANALOG / STOPWATCH where the
+                // setting has no meaning. Default true keeps existing
+                // presets on their hardcoded behaviour.
+                if (element.clockStyle == "DIGITAL" ||
+                    element.clockStyle == "TEXT"
+                ) {
+                    Spacer(Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = element.clock24Hour,
+                            onCheckedChange = { onChange(element.copy(clock24Hour = it)) },
+                            colors = themedSwitchColors(),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.studio_cfg_clock_24h))
                     }
                 }
                 Spacer(Modifier.height(8.dp))
@@ -1626,7 +1686,8 @@ fun ElementConfigSheet(
                             FilterChip(
                                 selected = element.unitPosition == key,
                                 onClick = { onChange(element.copy(unitPosition = key)) },
-                                label = { Text(lbl) }
+                                label = { Text(lbl) },
+                                colors = themedFilterChipColors(),
                             )
                         }
                     }
@@ -1654,9 +1715,29 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.dialStyle == key,
                             onClick = { onChange(element.copy(dialStyle = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
+                }
+                ToggleRow(
+                    stringResource(R.string.studio_cfg_dial_color_band),
+                    element.dialShowColorBand
+                ) { onChange(element.copy(dialShowColorBand = it)) }
+                if (element.dialShowColorBand) {
+                    com.eried.eucplanet.ui.settings.GaugeThresholdSlider(
+                        orangePct = element.dialOrangeThresholdPct,
+                        redPct = element.dialRedThresholdPct,
+                        safeColor = MaterialTheme.appColors.gaugeFill,
+                        onChange = { o, r ->
+                            onChange(
+                                element.copy(
+                                    dialOrangeThresholdPct = o,
+                                    dialRedThresholdPct = r
+                                )
+                            )
+                        }
+                    )
                 }
             }
 
@@ -1719,7 +1800,8 @@ fun ElementConfigSheet(
                         FilterChip(
                             selected = element.mapStyle == key,
                             onClick = { onChange(element.copy(mapStyle = key)) },
-                            label = { Text(lbl) }
+                            label = { Text(lbl) },
+                            colors = themedFilterChipColors(),
                         )
                     }
                 }
@@ -1851,7 +1933,7 @@ fun ElementConfigSheet(
                     Icon(
                         Icons.Default.Sync,
                         contentDescription = null,
-                        tint = Color(0xFFFFB74D),
+                        tint = MaterialTheme.appColors.tertiary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(6.dp))
@@ -1873,7 +1955,8 @@ fun ElementConfigSheet(
                         onChange(element.copy(rotationDeg = it.coerceIn(-180f, 180f)))
                     },
                     valueRange = -180f..180f,
-                    steps = 71
+                    steps = 71,
+                    colors = themedSliderColors(),
                 )
                 // Drop shadow applies to every element type.
                 ToggleRow(stringResource(R.string.studio_cfg_shadow), element.shadow) {
@@ -1920,7 +2003,8 @@ private fun MetricPicker(selected: String, onPick: (String) -> Unit) {
             FilterChip(
                 selected = metric.key == selected,
                 onClick = { onPick(metric.key) },
-                label = { Text(metric.displayName()) }
+                label = { Text(metric.displayName()) },
+                colors = themedFilterChipColors(),
             )
         }
     }
@@ -1979,7 +2063,7 @@ private fun ColorSwatch(
         Modifier
             .size(36.dp)
             .clip(CircleShape)
-            .background(if (transparent) Color(0xFF3A3A42) else Color(color))
+            .background(if (transparent) MaterialTheme.appColors.surfaceVariant else Color(color))
             .border(
                 width = if (selected) 3.dp else 1.dp,
                 color = if (selected) MaterialTheme.colorScheme.primary
@@ -1994,7 +2078,7 @@ private fun ColorSwatch(
             Icon(
                 Icons.Default.FormatColorReset,
                 contentDescription = stringResource(R.string.studio_cd_invisible),
-                tint = Color(0xFFBBBBBB),
+                tint = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -2220,7 +2304,8 @@ private fun LabeledSlider(
                 }
             },
             valueRange = min..max,
-            steps = steps
+            steps = steps,
+            colors = themedSliderColors(),
         )
     }
 }
@@ -2232,18 +2317,28 @@ private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Un
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(label, Modifier.weight(1f))
-        Switch(checked = checked, onCheckedChange = onChange)
+        Switch(checked = checked, onCheckedChange = onChange,
+            colors = themedSwitchColors(),)
     }
 }
 
 @Composable
-private fun SheetHeader(title: String) {
-    Text(
-        title,
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(bottom = 12.dp).wrapContentHeight()
-    )
+private fun SheetHeader(title: String, hudBadge: Boolean = false) {
+    Row(
+        modifier = Modifier.padding(bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.wrapContentHeight()
+        )
+        if (hudBadge) {
+            Spacer(Modifier.width(8.dp))
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge("HUD")
+        }
+    }
 }
 
 // --------------------------------------------------------------------------
@@ -2293,7 +2388,8 @@ fun ManageElementsSheet(
             ) {
                 FilledTonalButton(
                     onClick = onAddElement,
-                    enabled = canAddElement
+                    enabled = canAddElement,
+                    colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Widgets, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -2301,11 +2397,18 @@ fun ManageElementsSheet(
                 }
                 FilledTonalButton(
                     onClick = onChangePanes,
-                    enabled = canChangePanes
+                    enabled = canChangePanes,
+                    colors = themedTonalButtonColors(),
                 ) {
                     Icon(Icons.Default.Dashboard, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.studio_flyout_panes))
+                }
+                if (LocalStudioHudEnabled.current) {
+                    com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge(
+                        "HUD",
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                 }
             }
             if (elements.isNotEmpty()) {
@@ -2343,7 +2446,8 @@ private fun SnapToGridRow(snapToGrid: Boolean, onSnapToGrid: (Boolean) -> Unit) 
     ) {
         androidx.compose.material3.Switch(
             checked = snapToGrid,
-            onCheckedChange = onSnapToGrid
+            onCheckedChange = onSnapToGrid,
+            colors = themedSwitchColors(),
         )
         Spacer(Modifier.width(12.dp))
         Text(stringResource(R.string.studio_snap_to_grid))

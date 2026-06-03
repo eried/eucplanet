@@ -18,6 +18,15 @@ enum class BegodeModel(
     val nominalVoltage: Int,
     val maxSpeedKmh: Int
 ) {
+    // Mten3 (Gotway-branded) ships in 67 V (older) and 84 V battery variants.
+    // 84 V is by far the more common one in the wild and matches the rated
+    // 35 km/h / 23 mph top speed quoted by retailers and the Mten4 spec
+    // sheet that shares the drive train (electricunicycles.eu Mten3 vs
+    // Mten4 comparison). The 67 V variant tops out closer to 30 km/h but
+    // we don't see it often enough to add a separate enum row; 84 V is the
+    // safer detection default and the tilt-back UI lets the rider trim
+    // further if they have the lower-voltage variant.
+    MTEN3(    "Begode Mten3",      84,  35),
     MTEN4(    "Begode Mten4",      84,  35),
     MTEN5(    "Begode Mten5",      84,  35),
     MCM5_V1(  "Begode MCM5 v1",    67,  40),
@@ -34,7 +43,13 @@ enum class BegodeModel(
     T3(       "Begode T3",         84,  45),
     T4(       "Begode T4",        134, 100),
     MASTER(   "Begode Master",    134, 100),
-    MASTER_PRO("Begode Master Pro", 151, 120);
+    MASTER_PRO("Begode Master Pro", 151, 120),
+    // Race is a 50S/210V pack: cell-voltage frames show 4.085V x 50 cells
+    // = ~204V real, which means the Live-A raw centivolt reading needs
+    // the 210V-tier ratio (~3.125), not the 134V one (2.00) used by other
+    // Begode flagships. Different protocol class than nominal-voltage
+    // peers like the Master.
+    RACE(     "Begode Race",      210, 100);
 
     companion object {
         /**
@@ -60,9 +75,11 @@ enum class BegodeModel(
                 "msp"    in n -> MSP
                 "mten5"  in n || "mten 5" in n -> MTEN5
                 "mten4"  in n || "mten 4" in n -> MTEN4
+                "mten3"  in n || "mten 3" in n -> MTEN3
                 "mcm5"   in n -> MCM5_V2
                 "t4"     in n -> T4
                 "t3"     in n -> T3
+                "race"   in n -> RACE
                 else -> null
             }
         }

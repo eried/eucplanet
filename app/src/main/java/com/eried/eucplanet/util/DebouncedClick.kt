@@ -1,8 +1,5 @@
 package com.eried.eucplanet.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-
 /**
  * Ignores rapid repeat events within [intervalMs]. Fix for black-screen flicker
  * when a double-tap triggers two navigations before the first one resumes.
@@ -16,10 +13,4 @@ class MultipleEventsCutter(private val intervalMs: Long = 500L) {
             event()
         }
     }
-}
-
-@Composable
-fun rememberDebouncedClick(intervalMs: Long = 500L, onClick: () -> Unit): () -> Unit {
-    val cutter = remember { MultipleEventsCutter(intervalMs) }
-    return { cutter.processEvent(onClick) }
 }

@@ -51,10 +51,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.FlicAction
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +74,7 @@ fun FlicScreen(
                 TextButton(onClick = {
                     viewModel.forgetButton(addr)
                     forgetTarget = null
-                }) { Text(stringResource(R.string.flic_forget), color = AccentRed) }
+                }) { Text(stringResource(R.string.flic_forget), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { forgetTarget = null }) { Text(stringResource(R.string.action_cancel)) }
@@ -112,7 +111,7 @@ fun FlicScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
                         onClick = { viewModel.stopScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
                     ) {
                         Text(stringResource(R.string.flic_stop_scan))
                     }
@@ -194,7 +193,7 @@ private fun ButtonConfig(
                             value = editText,
                             onValueChange = { editText = it },
                             singleLine = true,
-                            textStyle = MaterialTheme.typography.titleMedium.copy(color = AccentBlue),
+                            textStyle = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.appColors.metricVoltage),
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 IconButton(onClick = {
@@ -203,7 +202,8 @@ private fun ButtonConfig(
                                 }) {
                                     Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_save))
                                 }
-                            }
+                            },
+                            colors = themedFieldColors(),
                         )
                     } else {
                         Row(
@@ -213,7 +213,7 @@ private fun ButtonConfig(
                             Text(
                                 title,
                                 style = MaterialTheme.typography.titleMedium,
-                                color = AccentBlue
+                                color = MaterialTheme.appColors.metricVoltage
                             )
                             Spacer(Modifier.width(6.dp))
                             Icon(
@@ -231,7 +231,7 @@ private fun ButtonConfig(
                     )
                 }
                 IconButton(onClick = onForget) {
-                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = AccentRed)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.flic_forget), tint = MaterialTheme.appColors.statusDanger)
                 }
             }
 
@@ -254,10 +254,16 @@ private fun ActionDropdown(
     onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val currentAction = try {
-        FlicAction.valueOf(currentValue)
-    } catch (_: Exception) {
-        FlicAction.NONE
+    val flicKeys = remember {
+        com.eried.eucplanet.data.model.ActionCatalog.keysFor(
+            com.eried.eucplanet.data.model.ActionSurface.FLIC
+        )
+    }
+    val noneLabel = stringResource(R.string.flic_action_none)
+    val currentLabel = when {
+        currentValue.isEmpty() || currentValue == "NONE" -> noneLabel
+        else -> com.eried.eucplanet.data.model.ActionCatalog.byKey(currentValue)
+            ?.labelRes?.let { stringResource(it) } ?: noneLabel
     }
 
     ExposedDropdownMenuBox(
@@ -265,24 +271,37 @@ private fun ActionDropdown(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = stringResource(currentAction.labelRes),
+            value = currentLabel,
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
-            FlicAction.entries.forEach { action ->
+            // "None" is a synthetic first option — represents the
+            // unbound state. The catalog itself doesn't carry a NONE
+            // entry because nothing fires it.
+            DropdownMenuItem(
+                text = { Text(noneLabel) },
+                onClick = {
+                    onValueChange("NONE")
+                    expanded = false
+                }
+            )
+            flicKeys.forEach { key ->
+                val spec = com.eried.eucplanet.data.model.ActionCatalog.byKey(key) ?: return@forEach
                 DropdownMenuItem(
-                    text = { Text(stringResource(action.labelRes)) },
+                    text = { Text(stringResource(spec.labelRes)) },
                     onClick = {
-                        onValueChange(action.name)
+                        onValueChange(key)
                         expanded = false
                     }
                 )

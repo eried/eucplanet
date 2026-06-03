@@ -1,60 +1,12 @@
 package com.eried.eucplanet.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-
-private fun darkSchemeFor(accent: Color) = darkColorScheme(
-    primary = accent,
-    secondary = AccentGreen,
-    tertiary = AccentOrange,
-    background = DarkBackground,
-    surface = DarkSurface,
-    surfaceVariant = DarkSurfaceVariant,
-    onPrimary = DarkBackground,
-    onSecondary = DarkBackground,
-    onBackground = TextPrimary,
-    onSurface = TextPrimary,
-    onSurfaceVariant = TextSecondary,
-    error = AccentRed
-)
-
-private fun blackSchemeFor(accent: Color) = darkColorScheme(
-    primary = accent,
-    secondary = AccentGreen,
-    tertiary = AccentOrange,
-    background = BlackBackground,
-    surface = BlackSurface,
-    surfaceVariant = BlackSurfaceVariant,
-    onPrimary = BlackBackground,
-    onSecondary = BlackBackground,
-    onBackground = TextPrimary,
-    onSurface = TextPrimary,
-    onSurfaceVariant = TextSecondary,
-    error = AccentRed
-)
-
-private fun lightSchemeFor(accent: Color) = lightColorScheme(
-    primary = accent,
-    secondary = AccentGreen,
-    tertiary = AccentOrange,
-    background = LightBackground,
-    surface = LightSurface,
-    surfaceVariant = LightSurfaceVariant,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onBackground = TextPrimaryLight,
-    onSurface = TextPrimaryLight,
-    onSurfaceVariant = TextSecondaryLight,
-    error = AccentRed
-)
 
 private val AppTypography = Typography(
     displayLarge = TextStyle(
@@ -86,24 +38,25 @@ private val AppTypography = Typography(
     )
 )
 
+/**
+ * Drives the whole app from one [AppThemeColors] (the active theme). The Material
+ * [androidx.compose.material3.ColorScheme] is derived from the tokens so existing
+ * `MaterialTheme.colorScheme.*` reads keep working, and the raw tokens are
+ * exposed via [LocalAppColors] for the colors that bypass the scheme.
+ *
+ * `colors` is a stable immutable object while the editor is closed, so providing
+ * it costs nothing in recomposition.
+ */
 @Composable
 fun EucPlanetTheme(
-    themeMode: String = "black",
-    accentColor: String = "blue",
+    colors: AppThemeColors = BuiltInThemes.pureBlack.colors,
     content: @Composable () -> Unit
 ) {
-    val accent = accentColorFor(accentColor)
-    val systemDark = isSystemInDarkTheme()
-    val colorScheme = when (themeMode) {
-        "light" -> lightSchemeFor(accent)
-        "dark" -> darkSchemeFor(accent)
-        "black" -> blackSchemeFor(accent)
-        "system" -> if (systemDark) blackSchemeFor(accent) else lightSchemeFor(accent)
-        else -> blackSchemeFor(accent)
+    CompositionLocalProvider(LocalAppColors provides colors) {
+        MaterialTheme(
+            colorScheme = colors.toColorScheme(),
+            typography = AppTypography,
+            content = content
+        )
     }
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
 }

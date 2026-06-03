@@ -41,7 +41,46 @@ data class FullMetricHistory(
     val voltage: List<MetricSample> = emptyList(),
     val current: List<MetricSample> = emptyList(),
     val load: List<MetricSample> = emptyList(),
-    val speed: List<MetricSample> = emptyList()
+    val speed: List<MetricSample> = emptyList(),
+    /**
+     * Rolling history for every other catalog metric the dashboard
+     * displays. Indexed by metric key (MOTOR_POWER, PITCH, MOTOR_TEMP,
+     * etc.) so MetricDetailScreen can graph any tile in the catalog,
+     * not just the legacy 6. Same retention window as the legacy
+     * buffers (HISTORY_WINDOW_MS).
+     */
+    val extras: Map<String, List<MetricSample>> = emptyMap()
+)
+
+/**
+ * Metric keys that are extracted from WheelData on every 1 Hz tick and
+ * appended to FullMetricHistory.extras so their tiles can graph. The
+ * extractor returns the raw value in WheelData's canonical units; the
+ * MetricDetailScreen applies the rider's display unit conversion.
+ *
+ * Adding a metric here is the only step needed for its tap-to-graph to
+ * start working -- no separate buffer or sample-tick code, no schema
+ * change to FullMetricHistory.
+ */
+internal val EXTRA_HISTORY_METRICS: List<Pair<String, (com.eried.eucplanet.data.model.WheelData) -> Float>> = listOf(
+    "MOTOR_POWER" to { it.motorPower.toFloat() },
+    "BATTERY_POWER" to { it.batteryPower.toFloat() },
+    // POWER is an alias of BATTERY_POWER kept for backwards-compat with
+    // dashboards saved before the catalog rename; same buffer.
+    "POWER" to { it.batteryPower.toFloat() },
+    "BATTERY_1" to { it.battery1Percent },
+    "BATTERY_2" to { it.battery2Percent },
+    "PITCH" to { it.pitchAngle },
+    "ROLL" to { it.rollAngle },
+    "G_FORCE" to { it.gForce },
+    "LATERAL_G" to { it.accelX },
+    "FORWARD_G" to { it.accelY },
+    "TORQUE" to { it.torque },
+    "DYN_SPEED_LIMIT" to { it.dynamicSpeedLimit },
+    "DYN_CURRENT_LIMIT" to { it.dynamicCurrentLimit },
+    "MOTOR_TEMP" to { it.temperatures.getOrNull(0) ?: 0f },
+    "CONTROLLER_TEMP" to { it.temperatures.getOrNull(1) ?: 0f },
+    "BATTERY_TEMP" to { it.temperatures.getOrNull(2) ?: 0f }
 )
 
 @Singleton
@@ -137,10 +176,47 @@ class WheelRepository @Inject constructor(
     private val ampsHist = mutableListOf<MetricSample>()
     private val loadHist = mutableListOf<MetricSample>()
     private val speedHist = mutableListOf<MetricSample>()
+    // One buffer per entry in EXTRA_HISTORY_METRICS. Keys mirror the
+    // catalog so the metric-detail screen can fish the right list out
+    // by name without a hard-coded switch per metric.
+    private val extrasHist: MutableMap<String, MutableList<MetricSample>> =
+        EXTRA_HISTORY_METRICS.associate { (key, _) -> key to mutableListOf<MetricSample>() }
+            .toMutableMap()
     private var lastHistorySampleMs = 0L
 
     private val _fullHistory = MutableStateFlow(FullMetricHistory())
     val fullHistory: StateFlow<FullMetricHistory> = _fullHistory.asStateFlow()
+
+    /**
+     * Clears the in-memory rolling history buffer for one metric key.
+     * Used by the metric-detail Reset button so the rider can re-seed
+     * a clean chart (e.g. after a recovery from a noisy connection).
+     * Settings and trip records are untouched — fresh samples re-seed
+     * the buffer at the next 1Hz tick.
+     */
+    fun resetHistory(key: String) {
+        val current = _fullHistory.value
+        _fullHistory.value = when (key) {
+            "BATTERY" -> { battHist.clear(); current.copy(battery = emptyList()) }
+            "TEMPERATURE" -> { tempHist.clear(); current.copy(temperature = emptyList()) }
+            "VOLTAGE" -> { voltHist.clear(); current.copy(voltage = emptyList()) }
+            "CURRENT" -> { ampsHist.clear(); current.copy(current = emptyList()) }
+            "LOAD" -> { loadHist.clear(); current.copy(load = emptyList()) }
+            "SPEED" -> { speedHist.clear(); current.copy(speed = emptyList()) }
+            else -> {
+                // Extras live in the keyed map; clear that one list and
+                // emit a new extras map so downstream collectors see the
+                // reset. Other metrics' buffers untouched.
+                extrasHist[key]?.clear()
+                current.copy(extras = extrasHist.mapValues { (_, list) -> list.toList() })
+            }
+        }
+    }
+
+    /** Clears every in-memory rolling history buffer. */
+    fun resetAllHistory() {
+        _fullHistory.value = FullMetricHistory()
+    }
 
     // Auth state for lock/unlock (V14 requires password verification)
     private var authKey: ByteArray? = null
@@ -332,6 +408,11 @@ class WheelRepository @Inject constructor(
                         pendingAuthKeyDeferred = null
                         pendingAuthConfirmDeferred = null
                         lastSentTiltbackKmh = null
+                        // Drop the per-connection mirror so the next wheel
+                        // (a different one, possibly) gets a fresh sync from
+                        // its own firmware-reported limits.
+                        lastSyncedWheelMaxKmh = -1f
+                        lastSyncedWheelAlarmKmh = -1f
                         // Reset states that depend on wheel connection
                         _safetySpeedActive.value = false
                         _locked.value = false
@@ -403,6 +484,7 @@ class WheelRepository @Inject constructor(
             // Different wheel, clear history
             battHist.clear(); tempHist.clear(); voltHist.clear()
             ampsHist.clear(); loadHist.clear(); speedHist.clear()
+            extrasHist.values.forEach { it.clear() }
             _fullHistory.value = FullMetricHistory()
         }
         lastConnectedAddress = address
@@ -414,10 +496,116 @@ class WheelRepository @Inject constructor(
         bleManager.disconnect()
     }
 
+    // Last wheel-reported limits we synced into AppSettings, in km/h. Cached
+    // here so we don't issue a DataStore write on every telemetry frame; the
+    // wheel firmware re-emits the same values continuously.
+    @Volatile private var lastSyncedWheelMaxKmh: Float = -1f
+    @Volatile private var lastSyncedWheelAlarmKmh: Float = -1f
+
+    private fun syncWheelEnforcedLimits(maxKmh: Float, alarmKmh: Float) {
+        // -1f from the parser means "this adapter doesn't surface the limit"
+        // (every family except Veteran today). Don't touch settings in that
+        // case so wheels we can write to keep their app-side value.
+        val haveMax = maxKmh > 0f
+        val haveAlarm = alarmKmh > 0f
+        if (!haveMax && !haveAlarm) return
+        val maxChanged = haveMax && kotlin.math.abs(maxKmh - lastSyncedWheelMaxKmh) > 0.05f
+        val alarmChanged = haveAlarm && kotlin.math.abs(alarmKmh - lastSyncedWheelAlarmKmh) > 0.05f
+        if (!maxChanged && !alarmChanged) return
+        if (haveMax) lastSyncedWheelMaxKmh = maxKmh
+        if (haveAlarm) lastSyncedWheelAlarmKmh = alarmKmh
+        scope.launch {
+            val current = settingsRepository.get()
+            val newMax = if (haveMax) maxKmh else current.tiltbackSpeedKmh
+            val newAlarm = if (haveAlarm) alarmKmh else current.alarmSpeedKmh
+            if (newMax != current.tiltbackSpeedKmh || newAlarm != current.alarmSpeedKmh) {
+                settingsRepository.update(
+                    current.copy(
+                        tiltbackSpeedKmh = newMax,
+                        alarmSpeedKmh = newAlarm.coerceAtMost(newMax)
+                    )
+                )
+            }
+        }
+    }
+
     // --- Control commands ---
 
     fun sendHorn() {
-        wheelAdapter.horn()?.let { bleManager.writeCommand(it) }
+        val cmd = wheelAdapter.horn()
+        if (cmd != null) {
+            bleManager.writeCommand(cmd)
+            // Veteran (Lynx-class) needs an LdAp companion frame right after
+            // the LkAp horn or the wheel stays silent; queued as a second
+            // write so it lands in order. Null for every other family
+            // (single-frame horn).
+            wheelAdapter.hornFollowup()?.let { bleManager.writeCommand(it) }
+        } else {
+            // Wheel family has no horn opcode (Ninebot Z protocol 19 doesn't
+            // define one, Ninebot Legacy is read-only). Fall back to a phone
+            // beep + vibration so the rider gets some feedback instead of
+            // tapping into the void. The audit flagged this as DANGEROUS:
+            // the button rendered enabled but did absolutely nothing.
+            playPhoneHornFallback()
+        }
+    }
+
+    /** Phone-side fallback for wheel families that lack a horn opcode.
+     *  Brief tone + vibration -- not a real horn but at least the rider
+     *  knows the tap registered. Best-effort; silently catches every
+     *  audio / vibrator error so a locked-down audio policy never throws
+     *  out of a horn tap. */
+    private fun playPhoneHornFallback() {
+        try {
+            val tone = android.media.ToneGenerator(
+                android.media.AudioManager.STREAM_MUSIC, 100
+            )
+            tone.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 400)
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try { tone.release() } catch (_: Throwable) {}
+            }, 600L)
+        } catch (_: Throwable) {}
+        try {
+            val vib = context.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+            if (vib != null && android.os.Build.VERSION.SDK_INT >= 26) {
+                vib.vibrate(
+                    android.os.VibrationEffect.createOneShot(
+                        300L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vib?.vibrate(300L)
+            }
+        } catch (_: Throwable) {}
+    }
+
+    /**
+     * The connected wheel's adapter family id ("veteran", "kingsong", ...), or
+     * null when disconnected. Gates family-scoped custom BLE commands so raw
+     * user bytes never reach a wheel they were not authored for.
+     */
+    val connectedFamilyId: String?
+        get() = if (bleManager.connectionState.value == ConnectionState.CONNECTED) {
+            wheelAdapter.familyId
+        } else null
+
+    /** Write a custom BLE command's frames verbatim — one BLE write each, in order. */
+    fun sendCustomBle(frames: List<ByteArray>) {
+        frames.forEach { if (it.isNotEmpty()) bleManager.writeCommand(it) }
+    }
+
+    /**
+     * Send the family-specific "reset trip meter" command. Returns true when
+     * the active adapter has a documented command (the wheel takes a frame or
+     * two to zero offset 8..11 in its realtime stream); false when the
+     * adapter doesn't support a trip reset, so the caller can surface
+     * "not supported on this wheel" feedback.
+     */
+    fun resetTripMeter(): Boolean {
+        val cmd = wheelAdapter.resetTripMeter() ?: return false
+        bleManager.writeCommand(cmd)
+        return true
     }
 
     fun toggleLight() {
@@ -428,6 +616,10 @@ class WheelRepository @Inject constructor(
             "toggleLight: lightOn was=$current, sending $next"
         )
         wheelAdapter.setLight(next)?.let { bleManager.writeCommand(it) }
+        // Veteran high beam needs an LdAp companion frame right after the LkAp
+        // frame; queued as a second write so it lands in order. Null for the
+        // ASCII low beam and every other family (single-frame headlight).
+        wheelAdapter.setLightFollowup(next)?.let { bleManager.writeCommand(it) }
         _wheelData.value = _wheelData.value.copy(lightOn = next)
         startCooldown(_lightBusy, LIGHT_COOLDOWN_MS) { lightCooldownUntilMs = it }
     }
@@ -795,10 +987,32 @@ class WheelRepository @Inject constructor(
                 // sees the calibrated value, there is no second source of
                 // truth elsewhere in the app.
                 val cal = speedCalibrationMultiplier
+                // During the LIGHT_COOLDOWN_MS window after a manual tap, a
+                // Telemetry frame the adapter emitted *before* the tap can
+                // still land here and overwrite the optimistic lightOn we
+                // just set in toggleLight(). That brief flip back to the old
+                // value triggers a stray TTS "lights on/off" transition in
+                // WheelService.checkLightTransition (race seen ~3-4 times
+                // per 20 taps in tester reports). Preserve the optimistic
+                // value during the cooldown for every family, same defensive
+                // pattern P6 already uses unconditionally because its parser
+                // can't recover lightOn from telemetry at all.
+                val lightOn = if (isP6 || _lightBusy.value) previous.lightOn
+                              else result.data.lightOn
                 _wheelData.value = result.data.copy(
                     speed = kotlin.math.abs(result.data.speed * cal),
                     totalDistance = totalKm,
-                    lightOn = if (isP6) previous.lightOn else result.data.lightOn
+                    lightOn = lightOn
+                )
+                // Mirror wheel-reported tilt-back / alarm thresholds into the
+                // app's settings store on adapters that surface them (Veteran),
+                // so the Settings UI shows what the wheel firmware is actually
+                // enforcing (set via the vendor app) instead of our local
+                // default. Cached lastSyncedWheel*Kmh prevents a write on
+                // every frame; we only write when the wheel's value changes.
+                syncWheelEnforcedLimits(
+                    result.data.wheelMaxSpeedKmh,
+                    result.data.wheelAlarmSpeedKmh
                 )
                 // Sample history at 1 Hz
                 val now = System.currentTimeMillis()
@@ -811,19 +1025,29 @@ class WheelRepository @Inject constructor(
                     ampsHist.add(MetricSample(now, d.current))
                     loadHist.add(MetricSample(now, d.pwm.absoluteValue))
                     speedHist.add(MetricSample(now, d.speed.absoluteValue))
+                    // Sample every extra metric on the same tick. Each
+                    // EXTRA_HISTORY_METRICS entry feeds one buffer in
+                    // extrasHist; the extractor is read against the same
+                    // WheelData snapshot the legacy 6 use, so all rolling
+                    // history is time-aligned.
+                    for ((key, extractor) in EXTRA_HISTORY_METRICS) {
+                        extrasHist[key]?.add(MetricSample(now, extractor(d)))
+                    }
                     // Drop anything older than the 5-min window from every
                     // buffer in one pass. List.removeAll touches each list
                     // once so this stays linear in buffer size.
                     val cutoff = now - HISTORY_WINDOW_MS
                     listOf(battHist, tempHist, voltHist, ampsHist, loadHist, speedHist)
                         .forEach { it.removeAll { s -> s.timestampMs < cutoff } }
+                    extrasHist.values.forEach { it.removeAll { s -> s.timestampMs < cutoff } }
                     _fullHistory.value = FullMetricHistory(
                         battery = battHist.toList(),
                         temperature = tempHist.toList(),
                         voltage = voltHist.toList(),
                         current = ampsHist.toList(),
                         load = loadHist.toList(),
-                        speed = speedHist.toList()
+                        speed = speedHist.toList(),
+                        extras = extrasHist.mapValues { (_, list) -> list.toList() }
                     )
                 }
                 // Evaluate alarm rules against new telemetry

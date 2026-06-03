@@ -1,0 +1,2 @@
+- Restored the green speed gauge: the speed number and arc read bright green again, with the darker green safe band.
+- Settings: section icons are accent-colored again and the titles and labels are normal text instead of all teal. Fixed in light and dark mode.

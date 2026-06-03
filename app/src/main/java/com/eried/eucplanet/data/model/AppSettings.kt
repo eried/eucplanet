@@ -59,6 +59,17 @@ data class AppSettings(
     val voiceIntervalSeconds: Int = 60,
     val voiceSpeechRate: Float = 1.2f,
     val voiceLocale: String = "en_US",  // locale tag for TTS voice
+    /**
+     * True once the rider has explicitly picked a voice (either from the
+     * voice picker, or by saying "no, keep my voice" to the language-change
+     * prompt). When false, the voice auto-follows the UI language: first
+     * launch picks a voice matching the detected system language, and
+     * subsequent UI-language changes auto-switch the voice without showing
+     * the "switch voice too?" prompt. Set back to false when the rider
+     * explicitly accepts the prompt, since saying "yes, switch" signals
+     * they want auto-sync going forward.
+     */
+    val voiceLocaleOverridden: Boolean = false,
     // Audio focus behavior while speaking: "DUCK" (lower other), "PAUSE" (pause other), "OFF" (no focus)
     val voiceAudioFocus: String = "DUCK",
     // Where to route the voice: "MEDIA" (music slider), "NOTIFICATION" (ring slider), "ALARM" (alarm slider, loudest)
@@ -95,6 +106,12 @@ data class AppSettings(
     val announceGps: Boolean = true,
     val announceSafetyMode: Boolean = true,
     val announceWelcome: Boolean = true,
+    /**
+     * Whether the first-launch dashboard welcome tour has been shown. Starts
+     * false; set true once the rider finishes or skips the tour, so it only
+     * ever appears once.
+     */
+    val welcomeTutorialSeen: Boolean = false,
 
     // Recording
     val autoRecord: Boolean = true,
@@ -131,6 +148,12 @@ data class AppSettings(
     val flic4DoubleClick: String = "NONE",
     val flic4Hold: String = "NONE",
 
+    // Whether the Flic indicator in the dashboard top bar is rendered at all.
+    // True (default) preserves the previous always-on behaviour; riders who
+    // never use Flic and don't want the icon turn it off in
+    // Settings -> Integration -> Flic.
+    val flicShowOnDashboard: Boolean = true,
+
     // Auto-lights (sunset/sunrise based, uses live GPS from trip repository)
     val autoLightsEnabled: Boolean = false,
     val autoLightsOnMinutesBefore: Int = 30,   // minutes before sunset to turn lights ON
@@ -144,6 +167,12 @@ data class AppSettings(
     val autoVolumeEnabled: Boolean = false,
     val autoVolumeCurve: String = "0:1.0,25:1.0,50:1.5,75:2.0",
     val autoVolumeBaselinePercent: Int = -1,
+
+    // Session-level alarm mute. Set true to make AlarmEngine skip evaluation
+    // entirely; the dashboard's MUTE_ALARMS action toggles it. Persists across
+    // app restarts so a rider who muted on the trail finds it still muted on
+    // the next session.
+    val alarmsMuted: Boolean = false,
 
     // Display units
     // imperialUnits is legacy: kept only as the migration fallback for the three
@@ -167,10 +196,38 @@ data class AppSettings(
     // means "not set yet", MainActivity picks a default from the system locale on
     // first launch and persists the choice.
     val language: String = "",
-    // themeMode: "black", "dark", "light", "system"
-    val themeMode: String = "black",
-    // accentColor: key into the accent palette
+    // themeMode: LEGACY. Was "black"|"dark"|"light"|"system". Kept only for backup
+    // compatibility and the one-time migration into the custom theme system (see
+    // ui/theme/ThemeMigration). New installs default to "system" so the install
+    // pick applies (OS-light -> Light, OS-dark -> Pure Black); existing users keep
+    // their stored value, so migrating them is invisible.
+    val themeMode: String = "system",
+    // accentColor: LEGACY accent palette key. Kept for backup compat + migration
+    // into the active theme's `primary` token. The accent picker UI is removed.
     val accentColor: String = "default",
+
+    // --- Custom theme system ---
+    /**
+     * The active theme's resolved tokens as JSON (see ui/theme/ThemeJson). Empty
+     * until first launch / upgrade seeds it from the legacy [themeMode] +
+     * [accentColor]; once seeded it is the single source of truth (the OS no
+     * longer drives the theme). Rides along with the settings backup.
+     */
+    val activeThemeColorsJson: String = "",
+    /** Display / base name of the active theme: a built-in name or a saved custom. */
+    val activeThemeName: String = "",
+    /** True when the active theme is an unsaved working draft (edited, not yet saved). */
+    val themeDirty: Boolean = false,
+    /**
+     * Persistent unsaved working drafts, keyed by the base theme they were forked
+     * from, as JSON: `{ "<baseName>": "<colors json>", ... }`. Each appears in the
+     * theme combo as "<baseName> (unsaved)" so the rider can switch away to a
+     * preset and back to a draft without losing edits. Editing a clean theme adds
+     * its draft here; Save-as removes it.
+     */
+    val unsavedThemesJson: String = "{}",
+    /** Master switch for the floating theme editor widget. Off = theme combo only. */
+    val themeEditorEnabled: Boolean = false,
     // Colored danger-zone band behind the speed arc (yellow/orange/red thresholds).
     val showGaugeColorBand: Boolean = false,
     // Percentages of the full speed sweep where orange and red zones begin (yellow fills below orange).
@@ -212,6 +269,21 @@ data class AppSettings(
     val gpsPrioritizeExternal: Boolean = true,
     /** Show the extra-GPS speed indicator on the dashboard speed dial. */
     val gpsShowOnDashboard: Boolean = false,
+
+    // --- Rear-view radar (Garmin Varia today) ---
+    // Same persistence shape as External GPS: BLE MAC, advertised name, vendor
+    // enum name as a string so we know which adapter to instantiate on connect.
+    val radarAddress: String? = null,
+    val radarName: String? = null,
+    val radarVendor: String? = null,
+    /**
+     * Show the radar threat overlay (lane bar with dots per detected vehicle)
+     * on top of every screen while a radar is paired and connected. The user
+     * can hide it without unpairing.
+     */
+    val radarShowOverlay: Boolean = true,
+    /** Which screen edge the overlay lives on: "LEFT" or "RIGHT". */
+    val radarOverlaySide: String = "RIGHT",
 
     // --- Navigator ---
     // In-app navigation: the route builder, live turn-by-turn guidance and the
@@ -255,6 +327,17 @@ data class AppSettings(
      * size order as a saved nav route.
      */
     val navUserMarkerPhotoDataUrl: String? = null,
+    /**
+     * When true (the default) the route builder solves the WHOLE multi-stop
+     * tour in one routing request -- a single solid line, a whole-tour distance
+     * readout, and the complete route handed to live navigation. When false
+     * ("Next segment") only the next leg (origin -> first non-passed stop) is
+     * routed and the remaining stops are drawn as a dashed straight-line
+     * preview, which is lighter on the router and on a flaky connection.
+     * Has no routing effect in STRAIGHT/Direct mode (which never calls the
+     * router); there it only flips the remaining legs between solid and dashed.
+     */
+    val navSolveFullPath: Boolean = true,
 
     // --- Wear OS companion (only takes effect when a Wear OS watch is paired) ---
     val watchKeepScreenOn: Boolean = true,
@@ -334,6 +417,113 @@ data class AppSettings(
      */
     val watchShowNavigation: Boolean = true,
 
+    // --- HUD companion (paired by typing the HUD IP, see HudServer) ---
+    /**
+     * Master switch for the phone-side WebSocket dialer that pushes telemetry
+     * to an external HUD (e.g. an aftermarket E6-class motorcycle HUD). Off
+     * by default. The HUD itself is a separate APK (`:hud` module) and acts
+     * as the listener; we connect out to it because phone hotspots routinely
+     * block multicast and inbound peer traffic.
+     *
+     * Storage key kept as `hudServerEnabled` for backwards compat with
+     * existing rider settings -- the meaning is "HUD link active", role was
+     * inverted in v0.1.4.
+     *
+     * Default: false in release, true in debug builds. Debug-only opt-in
+     * by default means a fresh sideload-for-testing install dials the HUD
+     * immediately without the rider having to find the toggle in Settings —
+     * which is exactly the flow the dev loop runs every reinstall. Release
+     * users still see it disabled so a HUDless rider doesn't burn battery
+     * on a dial loop they'll never use.
+     */
+    val hudServerEnabled: Boolean = com.eried.eucplanet.BuildConfig.DEBUG,
+    /**
+     * TCP port to dial on the HUD. Default mirrors `HudDiscovery.DEFAULT_PORT`.
+     * Exposed as a setting because some carrier-grade hotspots refuse to
+     * route certain port ranges; riders rarely need to touch it.
+     */
+    val hudServerPort: Int = 28080,
+    /**
+     * IPv4 of the HUD the rider reads off its on-screen banner and types into
+     * the phone settings. Blank means "no HUD configured"; we won't try to
+     * dial out until the rider fills this in. mDNS auto-discovery may
+     * populate this in a future build, but right now manual entry is the
+     * only path because softAP multicast filtering kills discovery on too
+     * many phones.
+     */
+    val hudIp: String = "",
+    /**
+     * Name of the Overlay Studio preset the rider chose to mirror on the
+     * HUD as a "Custom" screen. Empty = no custom overlay configured.
+     * Resolved against bundled assets + the rider's backup folder by the
+     * OverlayPresetStore; the resolved JSON travels over the wire via
+     * [hudCustomOverlayJson] so the HUD doesn't need filesystem access.
+     */
+    val hudCustomOverlayName: String = "",
+    /**
+     * Cached JSON of the resolved custom overlay preset. Updated whenever
+     * [hudCustomOverlayName] changes; the HUD reads this directly and
+     * renders the elements (no viewport backgrounds -- this is meant to
+     * overlay on the HUD's transparent panel like a video stream's
+     * lower-third).
+     */
+    val hudCustomOverlayJson: String = "",
+    /**
+     * Ordered list of HUD screens the rider has enabled, by stable id
+     * ("Dashboard", "Camera", "Telemetry", "Custom", "CustomCam",
+     * "Map", "Nav"). Stored as a comma-separated string so it slots
+     * cleanly into the existing key/value DataStore.
+     *
+     * Empty string = "use the default carousel" (= all seven screens in
+     * declaration order). Non-empty = each comma-separated id is one
+     * screen and the order is the carousel order.
+     *
+     * The phone-side UI enforces a minimum of one screen so the rider
+     * can't disable everything and lose access to the HUD; the HUD
+     * also falls back to the default seven on an empty-list wire frame
+     * as belt-and-suspenders.
+     */
+    val hudScreensEnabled: String = "",
+    /**
+     * Rider's preferred FULL display order of all known HUD screens,
+     * comma-separated. Used to keep disabled screens in their current
+     * row when the rider toggles a Switch off in the Personalize list:
+     * the row's enabled state changes, the row's POSITION doesn't.
+     *
+     * Empty string = default order (the defaults followed by the opt-in
+     * screens in declaration order). When set, contains every known
+     * screen id in the order the rider arranged them. Any future-added
+     * screens not in the saved value are appended at the end.
+     *
+     * The wire-format `enabledHudScreens` field is computed by walking
+     * THIS order and filtering by the enabled set, so the HUD's
+     * carousel order matches the order the rider sees in Settings.
+     */
+    val hudScreensOrder: String = "",
+    /**
+     * Which CartoCDN raster style the HUD should use for its Map screen
+     * and the MAP element inside a Custom overlay. Empty = the HUD picks
+     * its compiled-in default (currently "voyager", neutral parchment
+     * background). Other supported codes: "dark_matter",
+     * "dark_matter_nolabels", "voyager", "light_all", "positron".
+     * Anything else falls back to the HUD's compiled default so the
+     * rider doesn't get a blank map if they pick something we removed.
+     */
+    val hudMapStyle: String = "",
+    /**
+     * Per-axis tile post-processing. Both run as a single ColorMatrix on
+     * the HUD; at the neutral values (contrast=100, brightness=0) the
+     * matrix is identity and we skip the ColorFilter entirely so there's
+     * no GPU cost for the common case.
+     *
+     * Contrast: 50..200 percent, 100 = neutral (no gain).
+     * Brightness: -100..100, 0 = neutral. Negative darkens, positive
+     * lightens. Applied on a 0..255 channel scale -- -100 means subtract
+     * 100 from each channel before clamping.
+     */
+    val hudMapContrastPct: Int = 100,
+    val hudMapBrightnessPct: Int = 0,
+
     // --- Motor Sound generator ---
     //
     // Synthesises a virtual engine driven by live (speed, pwm) telemetry. Goes
@@ -391,22 +581,92 @@ data class AppSettings(
      * element to 100% opacity so half-transparent elements don't blend with
      * the chroma fill and look wrong. Default on.
      */
-    val studioReplayForceOpaque: Boolean = true
+    val studioReplayForceOpaque: Boolean = true,
+
+    // Dashboard layout (customizable home screen).
+    //
+    // Metric / action order is a comma-separated list of enum-name keys; unknown
+    // tokens are dropped and known-but-missing tokens are appended in canonical
+    // order when read, so adding a new metric or action later just expands the
+    // default list without breaking existing rider settings.
+    val dashboardMetricsColumns: Int = 2,
+    val dashboardActionsColumns: Int = 3,
+    val dashboardMetricOrder: String = "BATTERY,TEMPERATURE,VOLTAGE,CURRENT,LOAD,TRIP",
+    val dashboardActionOrder: String = "HORN,LIGHT_TOGGLE,VOICE_ANNOUNCE,SAFETY_TOGGLE,LOCK_TOGGLE,RECORD_TOGGLE",
+    val dashboardRollingWindowSeconds: Int = 300,
+
+    /**
+     * Composite metric definitions as a JSON object keyed by synthetic ID
+     * (`M:<uuid>`). Each value is `{ "layout": "ROW2"|"COL2"|"COL3", "cells":
+     * [<metric_key>, ...] }`. Composite IDs appear in [dashboardMetricOrder]
+     * alongside regular metric keys — a single grid slot renders the composite
+     * as a multi-cell tile instead of one metric. Empty object `"{}"` means
+     * the rider hasn't dragged the `+ Stack` template onto the grid yet.
+     */
+    val dashboardCompositeMetrics: String = "{}",
+
+    /**
+     * Action group definitions as a JSON object keyed by `G:<uuid>`. Each
+     * value is `{ "actions": [<action_key>, ...] }` with up to 4 entries.
+     * Group IDs appear in [dashboardActionOrder]; a single action slot
+     * renders the group as one button whose tap opens an anchored popover
+     * with the sub-actions.
+     */
+    val dashboardActionGroups: String = "{}",
+
+    /**
+     * Custom tile definitions as a JSON object keyed by `C:<uuid>`. Each value
+     * is `{ "text": <label>, "icon": <icon_key>, "action": <type>, "url": <url> }`.
+     * Action types: NONE (display-only label), OPEN_URL (tap opens default
+     * browser), SHOW_QR (tap shows a QR-code popup so other riders can scan
+     * and visit the URL — e.g. Instagram handle, club page). Custom tile IDs
+     * appear in [dashboardMetricOrder] alongside regular metrics.
+     */
+    val dashboardCustomTiles: String = "{}",
+
+    /**
+     * Custom BLE action definitions as a JSON object keyed by `B:<uuid>`. Each
+     * value is `{ "label": <text>, "icon": <icon_key>, "family": <familyId>,
+     * "frames": [<hex>, ...] }`. Frames are written verbatim (one BLE write each,
+     * in order) to the connected wheel, but only when its family matches; the id
+     * appears in [dashboardActionOrder] like a built-in action key. Opt-in for
+     * advanced users — empty object until a rider drags the CUSTOM BLE template.
+     * See [com.eried.eucplanet.data.model.CustomBleCommand].
+     */
+    val dashboardCustomBle: String = "{}",
+
+    /**
+     * Per-metric corner-stat configuration as a JSON object. Each known metric
+     * key maps to a config object with five stat slots (center, top-left,
+     * top-right, bottom-left, bottom-right) and a sparkline flag. Defaults are
+     * applied at read time when an entry is missing — empty object means every
+     * metric uses center=CURRENT, others=NONE, sparkline=true. Persisted as a
+     * single string so we don't need to grow AppSettings each time a new stat
+     * lands.
+     *
+     * Schema:
+     * `{"BATTERY":{"c":"CURRENT","tl":"MIN","tr":"MAX","bl":"NONE","br":"AVG","spark":true}}`
+     *
+     * Stat values: NONE | CURRENT | MIN | MAX | AVG.
+     */
+    val dashboardMetricStats: String = "{}"
 )
 
-enum class FlicAction(val labelRes: Int) {
-    NONE(R.string.flic_action_none),
-    HORN(R.string.flic_action_horn),
-    LIGHT_TOGGLE(R.string.flic_action_light),
-    LOCK_TOGGLE(R.string.flic_action_lock),
-    SAFETY_TOGGLE(R.string.flic_action_legal_toggle),
-    SAFETY_ON(R.string.flic_action_legal_on),
-    SAFETY_OFF(R.string.flic_action_legal_off),
-    VOICE_ANNOUNCE(R.string.flic_action_voice),
-    RECORD_TOGGLE(R.string.flic_action_record),
-    RECORD_START(R.string.flic_action_record_start),
-    RECORD_STOP(R.string.flic_action_record_stop),
-    MEDIA_PLAY_PAUSE(R.string.flic_action_media_play),
-    MEDIA_NEXT(R.string.flic_action_media_next),
-    MEDIA_PREVIOUS(R.string.flic_action_media_prev)
+// FlicAction enum removed (2026-05). Replaced by
+// [com.eried.eucplanet.data.model.ActionCatalog] which is the single source
+// of truth for every rider-triggerable command and the surfaces it can be
+// bound to. Settings still store the action name as a String (e.g. "HORN",
+// "VOICE_ANNOUNCE", or "NONE" for unbound) so there is no schema change.
+
+/**
+ * Flip the three unit fields between a clean metric trio and a clean imperial
+ * trio in one write. Metric is the reference state, so anything that isn't
+ * already a clean imperial trio (incl. custom mixes like knots + Norwegian
+ * mile) snaps to metric first. Shared by the TOGGLE_UNITS action so the
+ * dashboard tile and the service-mode overlay use one definition.
+ */
+fun AppSettings.withUnitsToggled(): AppSettings {
+    val isImperial = unitSpeed == "mph" && unitDistance == "mi" && unitTemp == "F"
+    return if (isImperial) copy(unitSpeed = "kmh", unitDistance = "km", unitTemp = "C")
+    else copy(unitSpeed = "mph", unitDistance = "mi", unitTemp = "F")
 }

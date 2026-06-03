@@ -33,6 +33,9 @@ object SettingsJson {
         externalGpsAddress = null,
         externalGpsName = null,
         externalGpsSource = null,
+        radarAddress = null,
+        radarName = null,
+        radarVendor = null,
         syncFolderUri = null,
         lastSettingsBackupAt = null,
         lastSettingsBackupName = null
@@ -50,6 +53,11 @@ object SettingsJson {
         put("externalGpsAddress", s.externalGpsAddress)
         put("externalGpsName", s.externalGpsName)
         put("externalGpsSource", s.externalGpsSource)
+        put("radarAddress", s.radarAddress)
+        put("radarName", s.radarName)
+        put("radarVendor", s.radarVendor)
+        put("radarShowOverlay", s.radarShowOverlay)
+        put("radarOverlaySide", s.radarOverlaySide)
         put("syncFolderUri", s.syncFolderUri)
         put("lastSettingsBackupAt", s.lastSettingsBackupAt)
         put("lastSettingsBackupName", s.lastSettingsBackupName)
@@ -67,6 +75,7 @@ object SettingsJson {
         put("voiceIntervalSeconds", s.voiceIntervalSeconds)
         put("voiceSpeechRate", s.voiceSpeechRate)
         put("voiceLocale", s.voiceLocale)
+        put("voiceLocaleOverridden", s.voiceLocaleOverridden)
         put("voiceAudioFocus", s.voiceAudioFocus)
         put("voiceOutputChannel", s.voiceOutputChannel)
         put("voiceReportSpeed", s.voiceReportSpeed)
@@ -93,6 +102,7 @@ object SettingsJson {
         put("announceGps", s.announceGps)
         put("announceSafetyMode", s.announceSafetyMode)
         put("announceWelcome", s.announceWelcome)
+        put("welcomeTutorialSeen", s.welcomeTutorialSeen)
         put("autoRecord", s.autoRecord)
         put("autoRecordStartInMotion", s.autoRecordStartInMotion)
         put("autoRecordStopIdleSeconds", s.autoRecordStopIdleSeconds)
@@ -112,12 +122,14 @@ object SettingsJson {
         put("flic4Click", s.flic4Click)
         put("flic4DoubleClick", s.flic4DoubleClick)
         put("flic4Hold", s.flic4Hold)
+        put("flicShowOnDashboard", s.flicShowOnDashboard)
         put("autoLightsEnabled", s.autoLightsEnabled)
         put("autoLightsOnMinutesBefore", s.autoLightsOnMinutesBefore)
         put("autoLightsOffMinutesAfter", s.autoLightsOffMinutesAfter)
         put("autoVolumeEnabled", s.autoVolumeEnabled)
         put("autoVolumeCurve", s.autoVolumeCurve)
         put("autoVolumeBaselinePercent", s.autoVolumeBaselinePercent)
+        put("alarmsMuted", s.alarmsMuted)
         put("imperialUnits", s.imperialUnits)
         put("unitSpeed", s.unitSpeed)
         put("unitDistance", s.unitDistance)
@@ -131,6 +143,11 @@ object SettingsJson {
         put("language", s.language)
         put("themeMode", s.themeMode)
         put("accentColor", s.accentColor)
+        put("activeThemeColorsJson", s.activeThemeColorsJson)
+        put("activeThemeName", s.activeThemeName)
+        put("themeDirty", s.themeDirty)
+        put("unsavedThemesJson", s.unsavedThemesJson)
+        put("themeEditorEnabled", s.themeEditorEnabled)
         put("showGaugeColorBand", s.showGaugeColorBand)
         put("gaugeOrangeThresholdPct", s.gaugeOrangeThresholdPct)
         put("gaugeRedThresholdPct", s.gaugeRedThresholdPct)
@@ -187,11 +204,32 @@ object SettingsJson {
         put("navCurrentRouteSavedAt", s.navCurrentRouteSavedAt)
         put("navMapType", s.navMapType)
         put("navUserMarkerPhotoDataUrl", s.navUserMarkerPhotoDataUrl)
+        put("navSolveFullPath", s.navSolveFullPath)
         put("watchShowNavigation", s.watchShowNavigation)
+        put("hudServerEnabled", s.hudServerEnabled)
+        put("hudServerPort", s.hudServerPort)
+        put("hudIp", s.hudIp)
+        put("hudCustomOverlayName", s.hudCustomOverlayName)
+        put("hudCustomOverlayJson", s.hudCustomOverlayJson)
+        put("hudScreensEnabled", s.hudScreensEnabled)
+        put("hudScreensOrder", s.hudScreensOrder)
+        put("hudMapStyle", s.hudMapStyle)
+        put("hudMapContrastPct", s.hudMapContrastPct)
+        put("hudMapBrightnessPct", s.hudMapBrightnessPct)
         put("studioReplayPhotoFormat", s.studioReplayPhotoFormat)
         put("studioReplayVideoFormat", s.studioReplayVideoFormat)
         put("studioReplayChromaColor", s.studioReplayChromaColor)
         put("studioReplayForceOpaque", s.studioReplayForceOpaque)
+        put("dashboardMetricsColumns", s.dashboardMetricsColumns)
+        put("dashboardActionsColumns", s.dashboardActionsColumns)
+        put("dashboardMetricOrder", s.dashboardMetricOrder)
+        put("dashboardActionOrder", s.dashboardActionOrder)
+        put("dashboardRollingWindowSeconds", s.dashboardRollingWindowSeconds)
+        put("dashboardMetricStats", s.dashboardMetricStats)
+        put("dashboardCompositeMetrics", s.dashboardCompositeMetrics)
+        put("dashboardActionGroups", s.dashboardActionGroups)
+        put("dashboardCustomTiles", s.dashboardCustomTiles)
+        put("dashboardCustomBle", s.dashboardCustomBle)
     }
 
     fun fromJson(j: JSONObject, base: AppSettings = AppSettings()): AppSettings = base.copy(
@@ -204,6 +242,11 @@ object SettingsJson {
         externalGpsAddress = j.optStringOrNull("externalGpsAddress", base.externalGpsAddress),
         externalGpsName = j.optStringOrNull("externalGpsName", base.externalGpsName),
         externalGpsSource = j.optStringOrNull("externalGpsSource", base.externalGpsSource),
+        radarAddress = j.optStringOrNull("radarAddress", base.radarAddress),
+        radarName = j.optStringOrNull("radarName", base.radarName),
+        radarVendor = j.optStringOrNull("radarVendor", base.radarVendor),
+        radarShowOverlay = j.optBoolean("radarShowOverlay", base.radarShowOverlay),
+        radarOverlaySide = j.optString("radarOverlaySide", base.radarOverlaySide),
         syncFolderUri = j.optStringOrNull("syncFolderUri", base.syncFolderUri),
         lastSettingsBackupAt = if (j.has("lastSettingsBackupAt") && !j.isNull("lastSettingsBackupAt"))
             j.optLong("lastSettingsBackupAt", base.lastSettingsBackupAt ?: 0L)
@@ -222,6 +265,7 @@ object SettingsJson {
         voiceIntervalSeconds = j.optInt("voiceIntervalSeconds", base.voiceIntervalSeconds),
         voiceSpeechRate = j.optDouble("voiceSpeechRate", base.voiceSpeechRate.toDouble()).toFloat(),
         voiceLocale = j.optString("voiceLocale", base.voiceLocale),
+        voiceLocaleOverridden = j.optBoolean("voiceLocaleOverridden", base.voiceLocaleOverridden),
         voiceAudioFocus = j.optString("voiceAudioFocus", base.voiceAudioFocus),
         voiceOutputChannel = j.optString("voiceOutputChannel", base.voiceOutputChannel),
         voiceReportSpeed = j.optBoolean("voiceReportSpeed", base.voiceReportSpeed),
@@ -248,6 +292,7 @@ object SettingsJson {
         announceGps = j.optBoolean("announceGps", base.announceGps),
         announceSafetyMode = j.optBoolean("announceSafetyMode", base.announceSafetyMode),
         announceWelcome = j.optBoolean("announceWelcome", base.announceWelcome),
+        welcomeTutorialSeen = j.optBoolean("welcomeTutorialSeen", base.welcomeTutorialSeen),
         autoRecord = j.optBoolean("autoRecord", base.autoRecord),
         autoRecordStartInMotion = j.optBoolean(
             "autoRecordStartInMotion",
@@ -270,12 +315,14 @@ object SettingsJson {
         flic4Click = j.optString("flic4Click", base.flic4Click),
         flic4DoubleClick = j.optString("flic4DoubleClick", base.flic4DoubleClick),
         flic4Hold = j.optString("flic4Hold", base.flic4Hold),
+        flicShowOnDashboard = j.optBoolean("flicShowOnDashboard", base.flicShowOnDashboard),
         autoLightsEnabled = j.optBoolean("autoLightsEnabled", base.autoLightsEnabled),
         autoLightsOnMinutesBefore = j.optInt("autoLightsOnMinutesBefore", base.autoLightsOnMinutesBefore),
         autoLightsOffMinutesAfter = j.optInt("autoLightsOffMinutesAfter", base.autoLightsOffMinutesAfter),
         autoVolumeEnabled = j.optBoolean("autoVolumeEnabled", base.autoVolumeEnabled),
         autoVolumeCurve = j.optString("autoVolumeCurve", base.autoVolumeCurve),
         autoVolumeBaselinePercent = j.optInt("autoVolumeBaselinePercent", base.autoVolumeBaselinePercent),
+        alarmsMuted = j.optBoolean("alarmsMuted", base.alarmsMuted),
         imperialUnits = j.optBoolean("imperialUnits", base.imperialUnits),
         unitSpeed = j.optString("unitSpeed", base.unitSpeed),
         unitDistance = j.optString("unitDistance", base.unitDistance),
@@ -289,6 +336,11 @@ object SettingsJson {
         language = j.optString("language", base.language),
         themeMode = j.optString("themeMode", base.themeMode),
         accentColor = j.optString("accentColor", base.accentColor),
+        activeThemeColorsJson = j.optString("activeThemeColorsJson", base.activeThemeColorsJson),
+        activeThemeName = j.optString("activeThemeName", base.activeThemeName),
+        themeDirty = j.optBoolean("themeDirty", base.themeDirty),
+        unsavedThemesJson = j.optString("unsavedThemesJson", base.unsavedThemesJson),
+        themeEditorEnabled = j.optBoolean("themeEditorEnabled", base.themeEditorEnabled),
         showGaugeColorBand = j.optBoolean("showGaugeColorBand", base.showGaugeColorBand),
         gaugeOrangeThresholdPct = j.optInt("gaugeOrangeThresholdPct", base.gaugeOrangeThresholdPct),
         gaugeRedThresholdPct = j.optInt("gaugeRedThresholdPct", base.gaugeRedThresholdPct),
@@ -353,11 +405,37 @@ object SettingsJson {
         navUserMarkerPhotoDataUrl = if (j.has("navUserMarkerPhotoDataUrl") && !j.isNull("navUserMarkerPhotoDataUrl"))
             j.optString("navUserMarkerPhotoDataUrl", "").ifBlank { null }
         else base.navUserMarkerPhotoDataUrl,
+        navSolveFullPath = j.optBoolean("navSolveFullPath", base.navSolveFullPath),
         watchShowNavigation = j.optBoolean("watchShowNavigation", base.watchShowNavigation),
+        hudServerEnabled = j.optBoolean("hudServerEnabled", base.hudServerEnabled),
+        hudServerPort = j.optInt("hudServerPort", base.hudServerPort),
+        hudIp = j.optString("hudIp", base.hudIp),
+        hudCustomOverlayName = j.optString("hudCustomOverlayName", base.hudCustomOverlayName),
+        hudCustomOverlayJson = j.optString("hudCustomOverlayJson", base.hudCustomOverlayJson),
+        hudScreensEnabled = j.optString("hudScreensEnabled", base.hudScreensEnabled),
+        hudScreensOrder = j.optString("hudScreensOrder", base.hudScreensOrder),
+        hudMapStyle = j.optString("hudMapStyle", base.hudMapStyle),
+        hudMapContrastPct = j.optInt("hudMapContrastPct", base.hudMapContrastPct),
+        hudMapBrightnessPct = j.optInt("hudMapBrightnessPct", base.hudMapBrightnessPct),
         studioReplayPhotoFormat = j.optString("studioReplayPhotoFormat", base.studioReplayPhotoFormat),
         studioReplayVideoFormat = j.optString("studioReplayVideoFormat", base.studioReplayVideoFormat),
         studioReplayChromaColor = j.optLong("studioReplayChromaColor", base.studioReplayChromaColor),
-        studioReplayForceOpaque = j.optBoolean("studioReplayForceOpaque", base.studioReplayForceOpaque)
+        studioReplayForceOpaque = j.optBoolean("studioReplayForceOpaque", base.studioReplayForceOpaque),
+        dashboardMetricsColumns = j.optInt("dashboardMetricsColumns", base.dashboardMetricsColumns),
+        dashboardActionsColumns = j.optInt("dashboardActionsColumns", base.dashboardActionsColumns),
+        dashboardMetricOrder = j.optString("dashboardMetricOrder", base.dashboardMetricOrder),
+        dashboardActionOrder = j.optString("dashboardActionOrder", base.dashboardActionOrder),
+        dashboardRollingWindowSeconds = j.optInt(
+            "dashboardRollingWindowSeconds",
+            // Migrate older builds that stored the window in minutes.
+            j.optInt("dashboardRollingWindowMinutes", -1)
+                .let { if (it > 0) it * 60 else base.dashboardRollingWindowSeconds }
+        ),
+        dashboardMetricStats = j.optString("dashboardMetricStats", base.dashboardMetricStats),
+        dashboardCompositeMetrics = j.optString("dashboardCompositeMetrics", base.dashboardCompositeMetrics),
+        dashboardActionGroups = j.optString("dashboardActionGroups", base.dashboardActionGroups),
+        dashboardCustomTiles = j.optString("dashboardCustomTiles", base.dashboardCustomTiles),
+        dashboardCustomBle = j.optString("dashboardCustomBle", base.dashboardCustomBle)
     )
 
     /** `optString` returns `""` for null and absent keys, which we cannot

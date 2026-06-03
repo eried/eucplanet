@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,6 +108,9 @@ import com.eried.eucplanet.data.model.TravelMode
 import com.eried.eucplanet.nav.NavFormat
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableColumn
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSegmentedColors
+import com.eried.eucplanet.ui.theme.appColors
 
 /**
  * The Route Builder: a full-bleed Leaflet map (WebView) with a top search bar,
@@ -128,6 +132,8 @@ fun RouteBuilderScreen(
     val waypoints by viewModel.waypoints.collectAsState()
     val route by viewModel.route.collectAsState()
     val travelMode by viewModel.travelMode.collectAsState()
+    val solveFullPath by viewModel.solveFullPath.collectAsState()
+    val tourDistanceM by viewModel.tourDistanceM.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
     val searching by viewModel.searching.collectAsState()
     val routing by viewModel.routing.collectAsState()
@@ -253,7 +259,8 @@ fun RouteBuilderScreen(
             val fit = mr.fit && viewModel.savedView.value == null
             wv.evaluateJavascript(
                 "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                    "${jsString(viewModel.geometryJson())},$fit);"
+                    "${jsString(viewModel.geometryJson())},$fit," +
+                    "${jsString(viewModel.pendingPreviewJson())});"
             ) {
                 if (!firstRenderApplied) firstRenderApplied = true
             }
@@ -370,6 +377,18 @@ fun RouteBuilderScreen(
         }
     }
 
+    // Push the themeable per-mode route colors + preview line so editing the
+    // routeWalk/Bike/Drive/Straight/Preview tokens recolors the map (applied on
+    // the next route/preview redraw). Order matches nativeSetRouteColors().
+    val rc = MaterialTheme.appColors
+    val routeColorsArg = listOf(rc.routeWalk, rc.routeBike, rc.routeDrive, rc.routeStraight, rc.routePreview)
+        .joinToString(",") { "'#%06X'".format(0xFFFFFF and it.toArgb()) }
+    LaunchedEffect(pageReady, routeColorsArg) {
+        if (pageReady) {
+            webView?.evaluateJavascript("nativeSetRouteColors($routeColorsArg);", null)
+        }
+    }
+
     // Apply the saved base map style (dark / light / satellite).
     LaunchedEffect(pageReady, mapType) {
         if (pageReady) {
@@ -392,7 +411,8 @@ fun RouteBuilderScreen(
         )
         wv.evaluateJavascript(
             "nativeRender(${jsString(viewModel.waypointsJson())}," +
-                "${jsString(viewModel.geometryJson())},false);",
+                "${jsString(viewModel.geometryJson())},false," +
+                "${jsString(viewModel.pendingPreviewJson())});",
             null
         )
     }
@@ -404,6 +424,14 @@ fun RouteBuilderScreen(
         val wv = webView ?: return@LaunchedEffect
         if (!pageReady) return@LaunchedEffect
         wv.evaluateJavascript("nativeSetTravelMode('${travelMode.name}');", null)
+    }
+
+    // Push the Full path / Next segment choice so the map suppresses the dashed
+    // preview (Full path) or shows it through the remaining stops (Next segment).
+    LaunchedEffect(pageReady, solveFullPath) {
+        val wv = webView ?: return@LaunchedEffect
+        if (!pageReady) return@LaunchedEffect
+        wv.evaluateJavascript("nativeSetFullPath(${if (solveFullPath) "true" else "false"});", null)
     }
 
     val saveLauncher = rememberLauncherForActivityResult(
@@ -505,7 +533,16 @@ fun RouteBuilderScreen(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHost) },
+        snackbarHost = {
+            SnackbarHost(snackbarHost) {
+                androidx.compose.material3.Snackbar(
+                    it,
+                    containerColor = MaterialTheme.appColors.snackbarBackground,
+                    contentColor = MaterialTheme.appColors.snackbarText,
+                    actionContentColor = MaterialTheme.appColors.snackbarAction
+                )
+            }
+        },
         topBar = {
             TopAppBar(
                 modifier = Modifier.onSizeChanged { sz -> topBarHeightPx = sz.height },
@@ -513,7 +550,7 @@ fun RouteBuilderScreen(
                     // 80 % alpha so the map shows through the top bar (the
                     // map area extends under it via the contentWindowInsets
                     // override below).
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.80f)
+                    containerColor = MaterialTheme.appColors.topBar.copy(alpha = 0.80f)
                 ),
                 navigationIcon = {
                     IconButton(onClick = onExit) {
@@ -545,7 +582,8 @@ fun RouteBuilderScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 8.dp)
-                            .onFocusChanged { searchFocused = it.isFocused }
+                            .onFocusChanged { searchFocused = it.isFocused },
+                        colors = themedFieldColors(),
                     )
                 },
                 actions = {
@@ -690,6 +728,11 @@ fun RouteBuilderScreen(
                                 mapClick = { lat, lng ->
                                     if (!viewModel.navRunning.value) {
                                         viewModel.addWaypoint(lat, lng)
+                                    }
+                                },
+                                routeLineClick = { lat, lng ->
+                                    if (!viewModel.navRunning.value) {
+                                        viewModel.insertWaypointOnRoute(lat, lng)
                                     }
                                 },
                                 markerDragged = { i, lat, lng ->
@@ -878,7 +921,7 @@ fun RouteBuilderScreen(
                                 )
                             }
                             HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                             )
                         }
                         if (searching) {
@@ -893,7 +936,7 @@ fun RouteBuilderScreen(
                         }
                         searchResults.forEachIndexed { i, result ->
                             if (i > 0) HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                                color = MaterialTheme.appColors.divider.copy(alpha = 0.2f)
                             )
                             TextButton(
                                 onClick = {
@@ -971,10 +1014,11 @@ fun RouteBuilderScreen(
                     onToggle = { panelExpanded = !panelExpanded },
                     travelMode = travelMode,
                     onModeChange = viewModel::setTravelMode,
+                    solveFullPath = solveFullPath,
                     waypoints = waypoints,
                     home = homePlace,
                     work = workPlace,
-                    routeDistanceM = route?.totalDistanceM,
+                    routeDistanceM = tourDistanceM,
                     routing = routing,
                     imperial = imperial,
                     onRemove = viewModel::removeWaypoint,
@@ -1013,7 +1057,8 @@ fun RouteBuilderScreen(
                 DropdownMenu(
                     expanded = selfMenuOpen,
                     onDismissRequest = { selfMenuOpen = false },
-                    offset = selfMenuOffset
+                    offset = selfMenuOffset,
+                    containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
@@ -1051,7 +1096,7 @@ fun RouteBuilderScreen(
                     // lone divider on top of Customize looks pointless.
                     val hasAddStop = waypoints.isNotEmpty() && !navRunning
                     val hasOtherItems = homePlace == null || workPlace == null || hasAddStop
-                    if (hasOtherItems) HorizontalDivider()
+                    if (hasOtherItems) HorizontalDivider(color = MaterialTheme.appColors.divider)
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.nav_customize_marker_short)) },
                         onClick = {
@@ -1084,7 +1129,8 @@ fun RouteBuilderScreen(
                 DropdownMenu(
                     expanded = markerMenuIndex >= 0,
                     onDismissRequest = { markerMenuIndex = -1 },
-                    offset = markerMenuOffset
+                    offset = markerMenuOffset,
+                    containerColor = MaterialTheme.appColors.menuBackground
                 ) {
                     if (homePlace == null) {
                         DropdownMenuItem(
@@ -1173,7 +1219,7 @@ private fun BuilderMenu(
     hasCustomMarker: Boolean,
     navRunning: Boolean
 ) {
-    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
+    DropdownMenu(expanded = expanded, onDismissRequest = onDismiss, containerColor = MaterialTheme.appColors.menuBackground) {
         // "Start navigation" is omitted here, it is already a primary button.
         // Save is allowed even while nav is running so the rider can capture
         // the remaining stops as a GPX checkpoint (the trim from
@@ -1201,7 +1247,7 @@ private fun BuilderMenu(
         // Marker-customization group, bounded by separators above and below
         // so the rider's-avatar actions read as a distinct cluster from the
         // route / settings items.
-        HorizontalDivider()
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_customize_marker)) },
             onClick = { onDismiss(); onCustomizeMarker() }
@@ -1212,14 +1258,14 @@ private fun BuilderMenu(
                 onClick = { onDismiss(); onResetMarker() }
             )
         }
-        HorizontalDivider()
+        HorizontalDivider(color = MaterialTheme.appColors.divider)
         DropdownMenuItem(
             text = { Text(stringResource(R.string.nav_setting_params)) },
             onClick = { onDismiss(); onNavSettings() }
         )
         // Forget Home / Work sit last, they are rare, destructive actions.
         if (hasHome || hasWork) {
-            HorizontalDivider()
+            HorizontalDivider(color = MaterialTheme.appColors.divider)
         }
         if (hasHome) {
             DropdownMenuItem(
@@ -1261,6 +1307,7 @@ private fun BottomPanel(
     onToggle: () -> Unit,
     travelMode: TravelMode,
     onModeChange: (TravelMode) -> Unit,
+    solveFullPath: Boolean,
     waypoints: List<com.eried.eucplanet.data.model.Waypoint>,
     home: com.eried.eucplanet.data.model.Waypoint?,
     work: com.eried.eucplanet.data.model.Waypoint?,
@@ -1318,12 +1365,12 @@ private fun BottomPanel(
                 if (routing) {
                     CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else if (!allPassed && routeDistanceM != null && routeDistanceM > 0) {
-                    // Hidden when the trip is over (allPassed) -- there is no
-                    // 'next' distance to show; the rider should hit New route.
+                    // Hidden when the trip is over (allPassed). This is the
+                    // whole-tour distance (every remaining stop summed), not
+                    // just the next leg, so it's shown as a plain total.
                     val distText = NavFormat.distance(context, routeDistanceM, imperial)
                     Text(
-                        if (navRunning) stringResource(R.string.nav_next_distance, distText)
-                        else distText,
+                        distText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold
@@ -1479,14 +1526,45 @@ private fun BottomPanel(
                                 onClick = { onModeChange(mode) },
                                 enabled = !modesLocked,
                                 shape = SegmentedButtonDefaults.itemShape(index, modes.size),
-                                icon = {}
+                                icon = {},
+                                colors = themedSegmentedColors(),
                             ) {
-                                Icon(
-                                    icon,
-                                    contentDescription = stringResource(labelRes),
-                                    tint = modeColor,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                if (!solveFullPath && mode != TravelMode.STRAIGHT) {
+                                    // Next segment + routed mode: icon with a
+                                    // short segmented dashed underline in the
+                                    // mode's own colour, echoing the dashed
+                                    // remaining legs on the map. ONLY this case
+                                    // adds the underline (and the slight upward
+                                    // nudge it causes). Direct and Full path keep
+                                    // the plain centred icon, unchanged in
+                                    // position.
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            icon,
+                                            contentDescription = stringResource(labelRes),
+                                            tint = modeColor,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.height(3.dp))
+                                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                            repeat(3) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .width(4.dp)
+                                                        .height(2.dp)
+                                                        .background(modeColor, RoundedCornerShape(1.dp))
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Icon(
+                                        icon,
+                                        contentDescription = stringResource(labelRes),
+                                        tint = modeColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -1688,7 +1766,8 @@ private fun BottomPanel(
                                     }
                                     DropdownMenu(
                                         expanded = rowMenu,
-                                        onDismissRequest = { rowMenu = false }
+                                        onDismissRequest = { rowMenu = false },
+                                        containerColor = MaterialTheme.appColors.menuBackground
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text(stringResource(R.string.nav_pin_center)) },
@@ -1701,7 +1780,7 @@ private fun BottomPanel(
                                         //      changes to Home / Work are surprising)
                                         val canSaveHome = !navRunning && home == null
                                         val canSaveWork = !navRunning && work == null
-                                        if (canSaveHome || canSaveWork) HorizontalDivider()
+                                        if (canSaveHome || canSaveWork) HorizontalDivider(color = MaterialTheme.appColors.divider)
                                         if (canSaveHome) {
                                             DropdownMenuItem(
                                                 text = { Text(stringResource(R.string.nav_save_home)) },
@@ -1734,6 +1813,7 @@ private fun BottomPanel(
  */
 private class NavJsBridge(
     private val mapClick: (Double, Double) -> Unit,
+    private val routeLineClick: (Double, Double) -> Unit,
     private val markerDragged: (Int, Double, Double) -> Unit,
     private val markerDragStart: () -> Unit,
     private val markerDragEnd: () -> Unit,
@@ -1747,6 +1827,11 @@ private class NavJsBridge(
     @JavascriptInterface
     fun onMapClick(lat: Double, lng: Double) {
         main.post { mapClick(lat, lng) }
+    }
+
+    @JavascriptInterface
+    fun onRouteLineClick(lat: Double, lng: Double) {
+        main.post { routeLineClick(lat, lng) }
     }
 
     @JavascriptInterface

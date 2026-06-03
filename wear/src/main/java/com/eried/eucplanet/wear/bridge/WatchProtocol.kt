@@ -52,6 +52,11 @@ object WatchKeys {
     const val UNIT_DISTANCE = "ud"
     const val UNIT_TEMP = "ut"
     const val ACCENT = "ac"
+    /** Packed custom-theme colors ("#"-less AARRGGBB, pipe-separated, fixed
+     *  field order — see WatchColors / ThemeAccent.packForWatch). Lets the watch
+     *  mirror the phone theme's background, gauge, battery and text colors.
+     *  Absent on older phone builds → watch keeps its built-in palette. */
+    const val THEME = "thm"
     /** Bumped on every snapshot so the watch always sees a fresh DataItem. */
     const val TIMESTAMP = "ts"
 
@@ -176,6 +181,9 @@ data class WatchState(
     val distanceUnit: String = "km",
     val tempUnit: String = "C",
     val accentKey: String = "default",
+    /** Packed custom-theme colors from the phone (see [WatchKeys.THEME]); empty
+     *  string means "not synced", so the watch falls back to its built-in palette. */
+    val themePacked: String = "",
     // Watch UI options sourced from phone Settings.
     val keepScreenOn: Boolean = true,
     val showWheelBattery: Boolean = true,

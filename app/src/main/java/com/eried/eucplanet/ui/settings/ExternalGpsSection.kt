@@ -43,8 +43,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.ConnectionState
 import com.eried.eucplanet.ui.common.HintText
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.ui.theme.themedFieldColors
+import com.eried.eucplanet.ui.theme.themedSwitchColors
 
 /**
  * Section in the Integration tab for pairing/unpairing an external BLE GPS box.
@@ -127,7 +128,7 @@ fun ExternalGpsSection(
                 Button(
                     onClick = { viewModel.unpair() },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentRed)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.statusDanger)
                 ) {
                     Text(stringResource(R.string.external_gps_unpair))
                 }
@@ -221,7 +222,8 @@ private fun ToggleRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, style = MaterialTheme.typography.bodyLarge)
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = onCheckedChange,
+            colors = themedSwitchColors(),)
     }
 }
 
@@ -247,11 +249,13 @@ private fun InlineAxisDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            colors = themedFieldColors(),
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.appColors.menuBackground
         ) {
             options.forEach { (key, text) ->
                 DropdownMenuItem(
@@ -363,11 +367,13 @@ private fun AutoDetectDialog(
                 }
             }
         },
-        // confirmButton: Next during instruct screens, OK on the Done screen.
+        // confirmButton: Next during instruct screens, Done on the final screen
+        // (matches the finish-button word other wizards use; saying "OK" on a
+        // success-summary screen reads weaker than affirming the completion).
         confirmButton = {
             when {
                 isDone -> TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_ok))
+                    Text(stringResource(R.string.action_done))
                 }
                 showNext -> TextButton(onClick = onNext) {
                     Text(stringResource(R.string.external_gps_autodetect_next))
@@ -380,7 +386,7 @@ private fun AutoDetectDialog(
         dismissButton = {
             if (showCancel) {
                 TextButton(onClick = onCancel) {
-                    Text(stringResource(R.string.external_gps_autodetect_abort), color = AccentRed)
+                    Text(stringResource(R.string.external_gps_autodetect_abort), color = MaterialTheme.appColors.statusDanger)
                 }
             }
         }
@@ -428,7 +434,7 @@ private fun UnpairedExternalGpsCard(
             LeftAlignedScanButton(
                 label = stringResource(R.string.external_gps_stop_scan),
                 onClick = onStopScan,
-                containerColor = AccentRed
+                containerColor = MaterialTheme.appColors.statusDanger
             )
         } else {
             LeftAlignedScanButton(
@@ -452,10 +458,10 @@ private fun PairedExternalGpsCard(
         ConnectionState.DISCONNECTED -> stringResource(R.string.external_gps_state_disconnected)
     }
     val stateColor = when (connectionState) {
-        ConnectionState.CONNECTED -> AccentGreen
+        ConnectionState.CONNECTED -> MaterialTheme.appColors.statusGood
         ConnectionState.CONNECTING, ConnectionState.INITIALIZING, ConnectionState.SCANNING ->
             MaterialTheme.colorScheme.onSurfaceVariant
-        ConnectionState.DISCONNECTED -> AccentRed
+        ConnectionState.DISCONNECTED -> MaterialTheme.appColors.statusDanger
     }
 
     Card(

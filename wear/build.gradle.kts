@@ -25,8 +25,8 @@ android {
         // Wear OS variant rides on the same package as the phone, so we offset
         // its versionCode by 100000 to keep them distinct in Play Console while
         // preserving the phone-side numbering (37 -> 100037).
-        versionCode = 100222
-        versionName = "0.8.11"
+        versionCode = 100236
+        versionName = "0.9.11"
     }
 
     signingConfigs {
@@ -42,7 +42,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinking cuts the wear APK from ~42 MB to ~8 MB by
+            // tree-shaking Material Icons Extended and unused Compose paths.
+            // proguard-rules.pro keeps the Data Layer bridge classes the
+            // companion phone app sends messages to via reflection-y APIs.
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -65,6 +69,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Output APKs as wearos-<buildtype>.apk to mirror app/'s phone-* prefix.
+    // The wear-prefix lets adb / scripts / CI globs identify which artifact
+    // came from which module without inspecting paths.
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                .outputFileName = "wearos-${buildType.name}.apk"
+        }
     }
 }
 

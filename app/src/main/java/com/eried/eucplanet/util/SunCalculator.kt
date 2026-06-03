@@ -15,23 +15,10 @@ import kotlin.math.tan
  */
 object SunCalculator {
 
-    data class SunTimes(val sunriseMillis: Long, val sunsetMillis: Long)
-
     sealed interface SunResult {
         data class Normal(val sunriseMillis: Long, val sunsetMillis: Long) : SunResult
         object MidnightSun : SunResult
         object PolarNight : SunResult
-    }
-
-    /**
-     * Calculate sunrise and sunset for today at the given lat/lon.
-     * Returns null if the sun never rises or sets (polar regions).
-     */
-    fun calculate(latitude: Double, longitude: Double, timeZone: TimeZone = TimeZone.getDefault()): SunTimes? {
-        return when (val r = calculateState(latitude, longitude, timeZone)) {
-            is SunResult.Normal -> SunTimes(r.sunriseMillis, r.sunsetMillis)
-            else -> null
-        }
     }
 
     fun calculateState(latitude: Double, longitude: Double, timeZone: TimeZone = TimeZone.getDefault()): SunResult {

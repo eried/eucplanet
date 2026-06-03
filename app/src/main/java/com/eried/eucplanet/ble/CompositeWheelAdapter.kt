@@ -1,5 +1,6 @@
 package com.eried.eucplanet.ble
 
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,12 +50,57 @@ class CompositeWheelAdapter @Inject constructor(
         return active.notifyConnectingTo(deviceName)
     }
 
+    /**
+     * Post-connect adapter rescue. Called when the name-picked adapter's service
+     * is NOT present on the wheel - which on the BLE-name routing happens when
+     * the wheel advertises a name we don't recognise (e.g. an S18 advertising as
+     * `RW`) and we fall through to the InMotion V2 default, then can't find the
+     * Nordic UART service on the actual KingSong HM-10 module.
+     *
+     * Looks at the GATT-discovered service UUID set and re-routes [active] to
+     * whichever family matches. Returns true if the new active adapter's service
+     * is among [discoveredServiceUuids] (caller can proceed); false if the wheel
+     * doesn't expose any service we know about.
+     *
+     * Priority order matches uniqueness: Nordic UART -> InMotion V2 (single
+     * brand). InMotion V1 split-service (FFE0+FFE5) -> InMotion V1. Bare HM-10
+     * (FFE0+FFE1) is ambiguous between KingSong / Begode / Veteran; we default
+     * to KingSong because the failing case (`RW`-named S18, blank-named KS) is
+     * the common one. Names like `Sherman` / `Begode_*` always match in
+     * [pickAdapter] above so they don't reach this code path. First-frame
+     * magic-byte disambiguation for blank-named Begode / Veteran lives in the
+     * per-adapter `onRawNotification` and can be added without changing here.
+     */
+    override fun pickAdapterByDiscoveredServices(
+        discoveredServiceUuids: Set<UUID>,
+        deviceName: String?
+    ): Boolean {
+        // V1 exposes BOTH the bare HM-10 0xFFE0 service AND a second 0xFFE5
+        // service for writes; presence of FFE5 is the unambiguous tell.
+        val v1WriteServiceUuid = UUID.fromString("0000ffe5-0000-1000-8000-00805f9b34fb")
+        val newActive = when {
+            BleProfile.NORDIC_UART.serviceUuid in discoveredServiceUuids -> inmotion
+            v1WriteServiceUuid in discoveredServiceUuids -> inmotionV1
+            BleProfile.HM10.serviceUuid in discoveredServiceUuids -> kingsong
+            else -> return false
+        }
+        if (newActive !== active) {
+            active = newActive
+            // Give the newly-active adapter a chance to pre-select a sub-model
+            // from the BLE name, the same hook the cold-connect path uses.
+            active.notifyConnectingTo(deviceName)
+        }
+        return true
+    }
+
     override fun initSequence(): List<ByteArray> = active.initSequence()
     override fun pollRealtime(): ByteArray = active.pollRealtime()
     override fun pollSettings(): ByteArray = active.pollSettings()
 
     override fun horn(): ByteArray? = active.horn()
+    override fun hornFollowup(): ByteArray? = active.hornFollowup()
     override fun setLight(on: Boolean): ByteArray? = active.setLight(on)
+    override fun setLightFollowup(on: Boolean): ByteArray? = active.setLightFollowup(on)
     override fun setMaxSpeed(tiltbackKmh: Float, alarmKmh: Float): ByteArray? =
         active.setMaxSpeed(tiltbackKmh, alarmKmh)
     override fun setMaxSpeedCommit(tiltbackKmh: Float): ByteArray? =
@@ -65,12 +111,44 @@ class CompositeWheelAdapter @Inject constructor(
     override fun setVolume(percent: Int): ByteArray? = active.setVolume(percent)
     override fun setDRL(on: Boolean): ByteArray? = active.setDRL(on)
     override fun setLock(locked: Boolean): ByteArray? = active.setLock(locked)
+    override fun resetTripMeter(): ByteArray? = active.resetTripMeter()
 
     override fun requestAuthKey(): ByteArray? = active.requestAuthKey()
     override fun verifyAuth(encryptedKey: ByteArray): ByteArray? = active.verifyAuth(encryptedKey)
 
-    override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> =
-        active.onRawNotification(rawBytes)
+    override fun onRawNotification(rawBytes: ByteArray): List<DecodeResult> {
+        // Post-connect family rescue. Veteran wheels (Sherman / Patton /
+        // Lynx / Lynx S / Abrams / Oryx) share the HM-10 BLE profile with
+        // KingSong and Begode, so when a Veteran wheel advertises a name
+        // we don't recognise as Veteran (Lynx S in the wild has shipped
+        // with names that don't contain "lynx"), the name-based router in
+        // [pickAdapter] sticks us on the wrong adapter and the realtime
+        // stream parses to zeros. The Veteran magic `DC 5A 5C` is unique
+        // enough across the three HM-10 families to swap on first sight:
+        // KingSong frames start with `AA 55`, Begode frames start with
+        // `55 AA`. We only swap *away from* non-Veteran adapters so we
+        // never bounce back and forth on stray bytes that happen to look
+        // like the magic.
+        if (active !is VeteranAdapter && containsVeteranMagic(rawBytes)) {
+            active = veteran
+            active.notifyConnectingTo(null)
+        }
+        return active.onRawNotification(rawBytes)
+    }
+
+    private fun containsVeteranMagic(bytes: ByteArray): Boolean {
+        if (bytes.size < 3) return false
+        var i = 0
+        val end = bytes.size - 2
+        while (i < end) {
+            if (bytes[i] == 0xDC.toByte() &&
+                bytes[i + 1] == 0x5A.toByte() &&
+                bytes[i + 2] == 0x5C.toByte()
+            ) return true
+            i++
+        }
+        return false
+    }
 
     override fun onDisconnect() {
         active.onDisconnect()

@@ -232,6 +232,42 @@ object NinebotCommands {
         ByteUtils.putUint16LE(raw.coerceIn(0, 0xFFFF))
     )
 
+    // ============================================================
+    // WheelLog-documented Ninebot Z setters, NOT yet wired to UI.
+    // Byte sequences from WheelLog NinebotZAdapter.java.
+    // ============================================================
+
+    /** Calibration param (WheelLog `Param.Calibration` = 0x75). */
+    private const val PARAM_CALIBRATION: Int = 0x75
+    /** Per-LED colour base param (WheelLog `Param.LedColor1` = 0xC8). LED N uses base + (N-1)*2. */
+    private const val PARAM_LED_COLOR_BASE: Int = 0xC8
+
+    /**
+     * Set one of the per-LED palette slots. `ledNum` is 1-based.
+     * WheelLog wire format (NinebotZAdapter.java:905-915):
+     *   value < 256 → `F0 <val> 00 00`
+     *   value ≥ 256 → `00 00 00 00`  (the high-value branch is suspect; WheelLog
+     *                                   treats it as a clear and we mirror.)
+     */
+    internal fun setLedColor(value: Int, ledNum: Int): ByteArray {
+        val data = if (value < 256) {
+            byteArrayOf(0xF0.toByte(), (value and 0xFF).toByte(), 0x00, 0x00)
+        } else {
+            byteArrayOf(0x00, 0x00, 0x00, 0x00)
+        }
+        return frame(
+            ADDR_APP, ADDR_CONTROLLER, Cmd.WRITE,
+            PARAM_LED_COLOR_BASE + (ledNum.coerceAtLeast(1) - 1) * 2,
+            data
+        )
+    }
+
+    /** Kick off / cancel sensor calibration. WheelLog: `[0/1, 0x00]`. */
+    internal fun runCalibration(on: Boolean): ByteArray = frame(
+        ADDR_APP, ADDR_CONTROLLER, Cmd.WRITE, PARAM_CALIBRATION,
+        byteArrayOf(if (on) 0x01 else 0x00, 0x00)
+    )
+
     // ---- Legacy ------------------------------------------------------------
 
     // Legacy Ninebot exposes no documented settings writes through the BLE

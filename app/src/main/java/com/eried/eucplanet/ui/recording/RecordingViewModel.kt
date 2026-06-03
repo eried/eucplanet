@@ -11,18 +11,20 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eried.eucplanet.R
-import android.widget.Toast
 import com.eried.eucplanet.data.model.TripRecord
 import com.eried.eucplanet.data.repository.SettingsRepository
 import com.eried.eucplanet.data.repository.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -127,6 +129,13 @@ class RecordingViewModel @Inject constructor(
     private val _locationPermissionGranted = MutableStateFlow(hasLocationPermission())
     val locationPermissionGranted: StateFlow<Boolean> = _locationPermissionGranted.asStateFlow()
 
+    // Transient strings the ViewModel wants to surface as a snackbar (auto-stop
+    // warning, etc.). The screen collects this flow once and pipes each emission
+    // into its local SnackbarHostState. Replaces the previous native Toast that
+    // sat behind the keyboard when triggered from a focused field.
+    private val _toasts = Channel<String>(capacity = Channel.BUFFERED)
+    val toasts: Flow<String> = _toasts.receiveAsFlow()
+
     private fun hasLocationPermission(): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED ||
@@ -165,7 +174,7 @@ class RecordingViewModel @Inject constructor(
                         R.string.recording_will_auto_stop,
                         s.autoRecordStopIdleSeconds
                     )
-                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                    _toasts.send(msg)
                 }
             }
         }

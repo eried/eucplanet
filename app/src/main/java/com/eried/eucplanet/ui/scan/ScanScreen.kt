@@ -58,6 +58,7 @@ import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.ble.BleDevice
 import com.eried.eucplanet.ble.virtual.VirtualWheelRegistry
+import com.eried.eucplanet.ui.theme.themedSwitchColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,7 +213,8 @@ fun ScanScreen(
                     }
                     Switch(
                         checked = showAllDevices,
-                        onCheckedChange = { viewModel.setShowAllDevices(it) }
+                        onCheckedChange = { viewModel.setShowAllDevices(it) },
+                        colors = themedSwitchColors(),
                     )
                 }
             }

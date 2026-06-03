@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.eried.eucplanet.R
+import com.eried.eucplanet.ui.theme.appColors
 import java.io.ByteArrayOutputStream
 import kotlin.math.max
 
@@ -217,7 +218,7 @@ fun UserMarkerCropDialog(
                 androidx.compose.material3.Button(
                     onClick = onCancel,
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF333344),
+                        containerColor = MaterialTheme.appColors.surfaceVariant,
                         contentColor = Color.White
                     )
                 ) {

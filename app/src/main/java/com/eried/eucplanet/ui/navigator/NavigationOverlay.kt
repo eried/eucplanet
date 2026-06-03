@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,10 +61,7 @@ import com.eried.eucplanet.data.model.NavMode
 import com.eried.eucplanet.data.model.NavState
 import com.eried.eucplanet.data.model.Proximity
 import com.eried.eucplanet.data.model.arrowAngleDeg
-import com.eried.eucplanet.ui.theme.AccentBlue
-import com.eried.eucplanet.ui.theme.AccentGreen
-import com.eried.eucplanet.ui.theme.AccentOrange
-import com.eried.eucplanet.ui.theme.AccentRed
+import com.eried.eucplanet.ui.theme.appColors
 import kotlinx.coroutines.delay
 
 /** How long the centred cue popup stays up before it times out to the pill. */
@@ -173,7 +169,7 @@ fun NavigationOverlay(
                 TextButton(onClick = {
                     showEndConfirm = false
                     viewModel.endNavigation()
-                }) { Text(stringResource(R.string.nav_end_confirm), color = AccentRed) }
+                }) { Text(stringResource(R.string.nav_end_confirm), color = MaterialTheme.appColors.statusDanger) }
             },
             dismissButton = {
                 TextButton(onClick = { showEndConfirm = false }) {
@@ -196,12 +192,11 @@ private fun CenterPopup(
 ) {
     // The popup is the inverse of the app background so it stands out: a
     // white card with black content over the dark dashboard (and vice versa).
-    val dark = MaterialTheme.colorScheme.background.luminance() < 0.5f
-    val panel = if (dark) Color.White else Color(0xFF11151C)
-    val ink = if (dark) Color(0xFF11151C) else Color.White
+    val panel = MaterialTheme.appColors.navPopupPanel
+    val ink = MaterialTheme.appColors.navPopupInk
     val cue = when {
-        state.offRoute -> AccentRed
-        state.arrived -> AccentGreen
+        state.offRoute -> MaterialTheme.appColors.statusDanger
+        state.arrived -> MaterialTheme.appColors.statusGood
         else -> ink
     }
     val angle by animateFloatAsState(state.arrowAngleDeg(), tween(350), label = "arrow")
@@ -290,7 +285,7 @@ private fun CenterPopup(
                 ) {
                     Icon(
                         Icons.Default.Close, stringResource(R.string.nav_close),
-                        tint = if (closeDisabled) AccentRed.copy(alpha = 0.35f) else AccentRed,
+                        tint = if (closeDisabled) MaterialTheme.appColors.statusDanger.copy(alpha = 0.35f) else MaterialTheme.appColors.statusDanger,
                         modifier = Modifier.size(22.dp)
                     )
                 }
@@ -396,12 +391,12 @@ private fun MinimizedPill(state: NavState, onExpand: () -> Unit) {
 /** Colour the cue takes: red when off-route, green on arrival, warmth-tinted in Treasure Hunt. */
 @Composable
 private fun cueColor(state: NavState, accent: Color): Color = when {
-    state.offRoute -> AccentRed
-    state.arrived -> AccentGreen
+    state.offRoute -> MaterialTheme.appColors.statusDanger
+    state.arrived -> MaterialTheme.appColors.statusGood
     state.mode == NavMode.TREASURE_HUNT -> when (state.proximity) {
-        Proximity.HOT -> AccentRed
-        Proximity.WARM -> AccentOrange
-        Proximity.COLD -> AccentBlue
+        Proximity.HOT -> MaterialTheme.appColors.statusDanger
+        Proximity.WARM -> MaterialTheme.appColors.statusWarn
+        Proximity.COLD -> MaterialTheme.appColors.metricVoltage
         null -> accent
     }
     else -> accent

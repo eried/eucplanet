@@ -54,10 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.eried.eucplanet.R
-import com.eried.eucplanet.data.model.OverlayPreset
-import com.eried.eucplanet.data.model.ViewportConfig
-import com.eried.eucplanet.data.model.ViewportLayout
-import com.eried.eucplanet.data.model.ViewportSourceType
+import com.eried.eucplanet.ui.theme.appColors
+import com.eried.eucplanet.hud.protocol.OverlayPreset
+import com.eried.eucplanet.hud.protocol.ViewportConfig
+import com.eried.eucplanet.hud.protocol.ViewportLayout
+import com.eried.eucplanet.hud.protocol.ViewportSourceType
 import com.eried.eucplanet.ui.studio.camera.StudioCameraHub
 import kotlin.math.abs
 import kotlin.math.cos
@@ -367,7 +368,7 @@ private fun CameraPane(
     hasPermission: Boolean,
     config: ViewportConfig
 ) {
-    Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
         val frame = hub.frame(cameraKey)
         val grade = remember(
             config.colorFilter, config.brightness, config.contrast, config.saturation
@@ -395,7 +396,7 @@ private fun CameraPane(
             hub.isLive(cameraKey) -> Icon(
                 Icons.Default.PhotoCamera,
                 contentDescription = null,
-                tint = Color(0xFF555555),
+                tint = MaterialTheme.appColors.textDisabled,
                 modifier = Modifier.size(40.dp)
             )
             hub.info(cameraKey) != null -> PaneMessage(
@@ -448,7 +449,7 @@ private fun ViewportGradientPane(config: ViewportConfig) {
 
 @Composable
 private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
-    Box(Modifier.fillMaxSize().background(Color(0xFF14141A)), Alignment.Center) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.appColors.surface), Alignment.Center) {
         val bitmap = remember(imageData) {
             imageData?.let { StudioImages.decode(it)?.asImageBitmap() }
         }
@@ -480,11 +481,11 @@ private fun ViewportImagePane(imageData: String?, config: ViewportConfig) {
 @Composable
 private fun PaneMessage(icon: ImageVector, text: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(icon, contentDescription = null, tint = Color(0xFF888888),
+        Icon(icon, contentDescription = null, tint = MaterialTheme.appColors.textSecondary,
             modifier = Modifier.size(40.dp))
         Text(
             text,
-            color = Color(0xFF888888),
+            color = MaterialTheme.appColors.textSecondary,
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -503,14 +504,16 @@ private fun PaneButton(icon: ImageVector, modifier: Modifier, onClick: () -> Uni
             .height(40.dp)
             .width(48.dp)
             .clip(RoundedCornerShape(topStart = 20.dp, bottomStart = 20.dp))
-            .background(Color(0xCC000000))
+            .background(MaterialTheme.appColors.surface.copy(alpha = 0.92f))
             .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
         contentAlignment = Alignment.Center
     ) {
         Icon(
             icon,
             contentDescription = null,
-            tint = Color.White,
+            // Themed chip: light surface in light theme, primary-tinted icon —
+            // consistent with the selected-element config wrench.
+            tint = MaterialTheme.appColors.primary,
             modifier = Modifier
                 .size(18.dp)
                 .rotate(-LocalStudioRotation.current.toFloat())
@@ -672,7 +675,7 @@ private fun DividerControls(
     Row(
         Modifier
             .clip(RoundedCornerShape(50))
-            .background(Color(0xDD2A2A33)),
+            .background(MaterialTheme.appColors.surfaceVariant),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -686,7 +689,7 @@ private fun DividerControls(
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(resizeIcon, contentDescription = stringResource(R.string.studio_cd_resize_section), tint = Color.White,
+            Icon(resizeIcon, contentDescription = stringResource(R.string.studio_cd_resize_section), tint = MaterialTheme.appColors.textPrimary,
                 modifier = Modifier.size(20.dp))
         }
         Box(
@@ -695,9 +698,17 @@ private fun DividerControls(
                 .pointerInput(Unit) { detectTapGestures(onTap = { onConfig() }) },
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = Color.White,
+            Icon(Icons.Default.Build, contentDescription = stringResource(R.string.studio_cd_divider_options), tint = MaterialTheme.appColors.primary,
                 modifier = Modifier.size(17.dp)
                     .rotate(-LocalStudioRotation.current.toFloat()))
+        }
+        // The divider's background fill isn't rendered on the HUD, so flag the
+        // control with a "not on HUD" badge while the HUD is enabled.
+        if (LocalStudioHudEnabled.current) {
+            com.eried.eucplanet.ui.theme.PlatformUnsupportedTextBadge(
+                "HUD",
+                modifier = Modifier.padding(end = 8.dp)
+            )
         }
     }
 }

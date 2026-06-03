@@ -412,6 +412,28 @@ class SyncManager @Inject constructor(
     }
 
     /**
+     * Reset rider configuration to factory defaults. Reuses the file-restore
+     * merge with an in-memory [AppSettings] snapshot instead of a backup file:
+     * [SettingsJson.stripDeviceBindings] drops the device + sync fields from the
+     * factory JSON, so [SettingsJson.fromJson] keeps the rider's current
+     * pairings, sync folder and backup history while every other field reverts
+     * to its default. Custom alarm rules are cleared (a fresh install ships
+     * none). Needs no sync folder — it's a purely local reset.
+     */
+    suspend fun restoreFactoryDefaults(): Boolean {
+        val current = settingsRepository.get()
+        return try {
+            val factoryJson = SettingsJson.toJson(SettingsJson.stripDeviceBindings(AppSettings()))
+            settingsRepository.update(SettingsJson.fromJson(factoryJson, current))
+            alarmDao.deleteAll()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Factory reset failed", e)
+            false
+        }
+    }
+
+    /**
      * List every settings backup in the sync folder. The default
      * `eucplanet_settings.json` is always returned first (with [BackupEntry.label]
      * = null), followed by named snapshots sorted by display label.
@@ -588,4 +610,4 @@ sealed interface BackupOutcome {
  * One row in the restore picker. [label] = null is the default backup
  * (`eucplanet_settings.json`); non-null is the rider-supplied snapshot name.
  */
-data class BackupEntry(val fileName: String, val label: String?)
+data class BackupEntry(val fileName: String, val label: String?, val isFactory: Boolean = false)

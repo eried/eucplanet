@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -56,6 +57,10 @@ class MainActivity : ComponentActivity() {
                     distanceUnit = intent.getStringExtra("distanceUnit") ?: "km",
                     tempUnit = intent.getStringExtra("tempUnit") ?: "C",
                     accentKey = intent.getStringExtra("accent") ?: "default",
+                    // Packed theme colors for testing the custom-theme mirror,
+                    // same "#"-less AARRGGBB pipe order as ThemeAccent.packForWatch.
+                    themePacked = intent.getStringExtra("theme") ?: "",
+                    showGaugeBand = intent.getBooleanExtra("band", false),
                     pwmDisplay = intent.getStringExtra("pwmDisplay") ?: "BOTH",
                     showSpeedUnit = intent.getBooleanExtra("showSpeedUnit", true),
                     showWheelBattery = intent.getBooleanExtra("showWheelBatt", true),
@@ -196,6 +201,30 @@ class MainActivity : ComponentActivity() {
             else -> WatchControl.ACTION_PREFIX + action
         }
         WatchStateRepository.sendControl(this, intent)
+        // Mirror the touch-button path's haptic so the rider's
+        // watchHapticOnAction setting works for hardware buttons too —
+        // previously this path was silent and only on-screen taps
+        // produced the buzz. Garmin's Actions.mc:dispatch already fires
+        // haptic for both press kinds, so this brings Wear OS to parity.
+        if (WatchStateRepository.state.value.hapticOnAction) {
+            val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                (getSystemService(Context.VIBRATOR_MANAGER_SERVICE)
+                    as? android.os.VibratorManager)?.defaultVibrator
+            } else {
+                @Suppress("DEPRECATION")
+                getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vib?.vibrate(
+                    android.os.VibrationEffect.createOneShot(
+                        50L, android.os.VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vib?.vibrate(50L)
+            }
+        }
     }
 }
 
