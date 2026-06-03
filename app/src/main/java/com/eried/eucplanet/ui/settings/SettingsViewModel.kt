@@ -1867,6 +1867,17 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Load the full rider profile (name, flag, hasAvatar, can_change_* gates).
+     * [onResult] is called on the main thread with the profile, or null on failure.
+     */
+    fun loadOnlineProfile(onResult: (com.eried.eucplanet.data.eucstats.RiderProfile?) -> Unit) {
+        viewModelScope.launch {
+            val profile = eucStatsRepository.fetchProfile()
+            onResult(profile)
+        }
+    }
+
     /** PATCH the rider's eucstats profile. [onResult] receives the HTTP status code. */
     fun editOnlineProfile(
         displayName: String?,

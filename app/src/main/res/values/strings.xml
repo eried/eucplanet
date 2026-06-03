@@ -1062,6 +1062,17 @@
     <string name="online_upload_trips">%d trips</string>
     <string name="online_upload_total_km">%s km</string>
 
+    <!-- Online profile (edit/GDPR) -->
+    <string name="online_profile_manage">Manage profile</string>
+    <string name="online_profile_title">My profile</string>
+    <string name="online_profile_changeable_on">Changeable again on %1$s</string>
+    <string name="online_profile_avatar_has">Set</string>
+    <string name="online_profile_export_data">Export my data</string>
+    <string name="online_profile_delete_account">Delete account</string>
+    <string name="online_profile_delete_confirm_title">Delete account?</string>
+    <string name="online_profile_delete_confirm_body">This will permanently delete your eucstats profile, stats, and all uploaded data. This action cannot be undone.</string>
+    <string name="online_profile_delete_confirm_action">Delete permanently</string>
+
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
     <string name="studio_not_connected">Not connected</string>

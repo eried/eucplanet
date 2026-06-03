@@ -6694,14 +6694,25 @@ private fun CloudTab(
         }
 
         // ---- Online stats section ----
-        // State for the onboarding dialog
-        var showOnboarding by remember { mutableStateOf(false) }
+        // State for the onboarding dialog and profile dialog
+        var showOnboarding  by remember { mutableStateOf(false) }
+        var showOnlineProfile by remember { mutableStateOf(false) }
 
         if (showOnboarding) {
             OnlineUploadOnboardingDialog(
                 onDismiss = { showOnboarding = false },
                 onRegistered = {
                     showOnboarding = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        if (showOnlineProfile) {
+            com.eried.eucplanet.ui.settings.eucstats.OnlineProfileDialog(
+                onDismiss = {
+                    showOnlineProfile = false
                     viewModel.refreshOnlineUploadCard()
                 },
                 viewModel = viewModel,
@@ -6877,6 +6888,12 @@ private fun CloudTab(
                             colors = themedTextButtonColors(),
                         ) {
                             Text(stringResource(R.string.online_upload_retry))
+                        }
+                        TextButton(
+                            onClick = { showOnlineProfile = true },
+                            colors = themedTextButtonColors(),
+                        ) {
+                            Text(stringResource(R.string.online_profile_manage))
                         }
                     }
                 }

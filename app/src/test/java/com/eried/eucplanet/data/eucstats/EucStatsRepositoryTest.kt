@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.eucstats
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AppSettings
 import com.eried.eucplanet.data.model.TripRecord
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -27,6 +28,10 @@ class FakeEucStatsApi : EucStatsApiContract {
     var patchResult: Int = 200
     var deleteResult: Boolean = true
     var exportResult: String? = """{"data": []}"""
+    var profileResult: RiderProfile? = RiderProfile(
+        displayName = "Fake", flag = "NO", hasAvatar = false,
+        canChangeNameAfter = null, canChangeFlagAfter = null, canChangeAvatarAfter = null,
+    )
 
     // Call tracking
     val registerCalls = mutableListOf<JSONObject>()
@@ -35,6 +40,7 @@ class FakeEucStatsApi : EucStatsApiContract {
     val patchCalls = mutableListOf<Pair<String, JSONObject>>()
     var deleteCalled = false
     var exportCalled = false
+    var getProfileCallCount = 0
 
     // Support programmed sequence of upload results for AuthFailure re-mint test
     private val uploadResultQueue = mutableListOf<UploadResult>()
@@ -51,6 +57,11 @@ class FakeEucStatsApi : EucStatsApiContract {
     override fun getCard(storeId: String): RiderCard? {
         getCardCallCount++
         return cardResult
+    }
+
+    override fun getProfile(storeId: String): RiderProfile? {
+        getProfileCallCount++
+        return profileResult
     }
 
     override fun patchRider(storeId: String, payload: JSONObject): Int {
@@ -469,5 +480,58 @@ class EucStatsRepositoryTest {
         val data = repo.exportData()
         assertNull(data)
         assertFalse(api.exportCalled)
+    }
+
+    // -----------------------------------------------------------------------
+    // fetchProfile()
+    // -----------------------------------------------------------------------
+
+    @Test fun fetchProfile_returnsProfileFromApi() = runBlocking {
+        settingsPort.update(AppSettings(eucstatsStoreId = "store-1"))
+        api.profileResult = RiderProfile("Alice", "NO", true, null, "2026-12-01", null)
+
+        val profile = repo.fetchProfile()
+
+        assertNotNull(profile)
+        assertEquals("Alice", profile!!.displayName)
+        assertEquals("NO", profile.flag)
+        assertEquals("2026-12-01", profile.canChangeFlagAfter)
+        assertEquals(1, api.getProfileCallCount)
+    }
+
+    @Test fun fetchProfile_returnsNullWhenNoStoreId() = runBlocking {
+        settingsPort.update(AppSettings(eucstatsStoreId = null))
+
+        val profile = repo.fetchProfile()
+
+        assertNull(profile)
+        assertEquals(0, api.getProfileCallCount)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Gating helper tests
+// ---------------------------------------------------------------------------
+
+class ProfileEditGatingTest {
+
+    @Test fun isEditable_nullCanChangeAfter_isEditable() {
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn(null, java.time.LocalDate.of(2026, 6, 4)))
+    }
+
+    @Test fun isEditable_todayIsExactlyGateDate_isEditable() {
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-06-04", java.time.LocalDate.of(2026, 6, 4)))
+    }
+
+    @Test fun isEditable_gateDateInPast_isEditable() {
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-01-01", java.time.LocalDate.of(2026, 6, 4)))
+    }
+
+    @Test fun isEditable_gateDateInFuture_notEditable() {
+        assertFalse(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("2026-12-31", java.time.LocalDate.of(2026, 6, 4)))
+    }
+
+    @Test fun isEditable_unparsableDate_treatedAsEditable() {
+        assertTrue(com.eried.eucplanet.ui.settings.eucstats.isEditableOn("not-a-date", java.time.LocalDate.of(2026, 6, 4)))
     }
 }

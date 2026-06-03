@@ -194,6 +194,12 @@ class EucStatsRepository @Inject constructor(
     // Profile management
     // -------------------------------------------------------------------------
 
+    /** GET the full rider profile including can_change_* gating dates. */
+    suspend fun fetchProfile(): RiderProfile? = withContext(Dispatchers.IO) {
+        val storeId = settings.get().eucstatsStoreId ?: return@withContext null
+        api.getProfile(storeId)
+    }
+
     /** PATCH the rider profile. Returns the HTTP status code. */
     suspend fun editProfile(
         displayName: String? = null,

@@ -13,6 +13,20 @@ data class RiderCard(
     val mileageRank: Int?, val country: String?,
 )
 
+/**
+ * Full rider profile from GET /riders/{storeId}.
+ * Includes the `can_change_*` date strings (ISO yyyy-MM-dd or null) that gate
+ * how soon the rider may edit each field again after a previous change.
+ */
+data class RiderProfile(
+    val displayName: String?,
+    val flag: String?,
+    val hasAvatar: Boolean,
+    val canChangeNameAfter: String?,
+    val canChangeFlagAfter: String?,
+    val canChangeAvatarAfter: String?,
+)
+
 sealed interface UploadResult {
     data class Ok(val validationStatus: String?, val duplicate: Boolean) : UploadResult
     data class PermanentFailure(val code: Int, val body: String) : UploadResult  // 400/413/422
@@ -28,6 +42,7 @@ sealed interface UploadResult {
 interface EucStatsApiContract {
     fun registerRider(payload: JSONObject): JSONObject?
     fun getCard(storeId: String): RiderCard?
+    fun getProfile(storeId: String): RiderProfile?
     fun patchRider(storeId: String, payload: JSONObject): Int
     fun deleteRider(storeId: String): Boolean
     fun exportRider(storeId: String): String?
@@ -63,6 +78,22 @@ class EucStatsApi(
                 topSpeedKmh = o.optDouble("top_speed_kmh", 0.0), maxGforce = o.optDouble("max_gforce", 0.0),
                 mileageRank = if (o.isNull("mileage_rank")) null else o.optInt("mileage_rank"),
                 country = o.optString("country").ifEmpty { null },
+            )
+        }
+    }
+
+    override fun getProfile(storeId: String): RiderProfile? {
+        val req = Request.Builder().url("${baseUrl()}/riders/$storeId").get().build()
+        client.newCall(req).execute().use { resp ->
+            if (!resp.isSuccessful) return null
+            val o = JSONObject(resp.body?.string().orEmpty())
+            return RiderProfile(
+                displayName = o.optString("display_name").ifEmpty { null },
+                flag = o.optString("flag").ifEmpty { null },
+                hasAvatar = o.optBoolean("has_avatar"),
+                canChangeNameAfter = o.optString("can_change_name_after").ifEmpty { null },
+                canChangeFlagAfter = o.optString("can_change_flag_after").ifEmpty { null },
+                canChangeAvatarAfter = o.optString("can_change_avatar_after").ifEmpty { null },
             )
         }
     }
