@@ -397,18 +397,18 @@ class TripRepository @Inject constructor(
         val trip = pendingTrip ?: return
         val appSettings = settingsRepository.get()
         val willSync = appSettings.syncFolderUri != null
-        if (willSync) {
-            tripDao.update(trip.copy(uploadStatus = 1))
+        val willEucstats = appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null
+        // Single update so the folder-sync and eucstats statuses can't clobber
+        // each other (both branch from the same `trip` snapshot).
+        if (willSync || willEucstats) {
+            tripDao.update(mergeFinalizeStatuses(trip, willSync, willEucstats))
         }
         pendingTrip = null
         _pendingTripId.value = null
         pendingFinalizeJob = null
-        Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync)")
+        Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync, eucstats=$willEucstats)")
         if (willSync) syncManager.enqueueTripUpload(appSettings)
-
-        // Enqueue eucstats upload if the rider has opted in and is registered.
-        if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
-            tripDao.update(trip.copy(eucstatsStatus = 1))
+        if (willEucstats) {
             syncManager.enqueueEucStatsUpload(appSettings)
             Log.i(TAG, "Eucstats upload enqueued for trip ${trip.tripUuid}")
         }
@@ -502,3 +502,15 @@ fun buildWheelMetaJson(
     if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
     return if (obj.length() == 0) null else obj.toString()
 }
+
+/**
+ * Apply the finalize-time upload statuses in a SINGLE copy so the folder-sync
+ * status ([TripRecord.uploadStatus]) and the eucstats status
+ * ([TripRecord.eucstatsStatus]) never clobber each other. Each is set to 1
+ * ("pending") only when its destination is enabled; otherwise it is left as-is.
+ */
+fun mergeFinalizeStatuses(trip: TripRecord, willSync: Boolean, willEucstats: Boolean): TripRecord =
+    trip.copy(
+        uploadStatus = if (willSync) 1 else trip.uploadStatus,
+        eucstatsStatus = if (willEucstats) 1 else trip.eucstatsStatus,
+    )
