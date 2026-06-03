@@ -95,8 +95,6 @@
 
     <string name="section_cloud_folder">Dossier de sauvegarde</string>
     <string name="cloud_caption">Dossier où atterrissent les CSV de trajets et la sauvegarde des paramètres</string>
-    <string name="cloud_help_title">Sauvegarde vers OneDrive, Drive ou Dropbox</string>
-    <string name="cloud_help_body">Le sélecteur de dossier Android n\'affiche généralement pas OneDrive, Google Drive ou Dropbox : ces applis ne proposent pas de dossier accessible en écriture. On enregistre donc en local, et une appli de synchro se charge de l\'upload.\n\nMise en place :\n1. Installe Autosync (pour OneDrive, Drive ou Dropbox) ou FolderSync depuis le Play Store.\n2. Connecte-toi dans l\'appli et crée une paire : ton dossier local → un dossier cloud.\n3. Choisis « Upload uniquement » en synchro instantanée ou sur changement.\n4. Reviens ici et sélectionne le même dossier local.\n\nLes nouveaux trajets arrivent dans ce dossier à la fin de l\'enregistrement, et l\'appli de synchro les envoie en arrière-plan.</string>
     <string name="cloud_choose_folder">Choisir un dossier</string>
     <string name="cloud_change_folder">Changer de dossier</string>
     <string name="cloud_remove_folder">Déconnecter</string>
@@ -138,6 +136,11 @@
     <string name="cloud_backup_overwrite_title">Écraser \"%1$s\" ?</string>
     <string name="cloud_backup_overwrite_body">Une sauvegarde du même nom existe déjà.</string>
     <string name="cloud_restore_picker_default">(par défaut)</string>
+    <string name="cloud_restore_picker_factory">(par défaut d\'usine)</string>
+    <string name="cloud_factory_confirm_title">Rétablir les paramètres par défaut d\'usine ?</string>
+    <string name="cloud_factory_confirm_body_p1">Cela réinitialise tous les paramètres de l\'application — thème, mise en page du tableau de bord, alarmes, HUD, unités et le reste — à leur état d\'origine.</string>
+    <string name="cloud_factory_confirm_body_p2">Tes appareils appairés et tes sauvegardes enregistrées sont conservés. Cette action est irréversible.</string>
+    <string name="cloud_factory_confirm_action">Réinitialiser</string>
     <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier</string>
 
     <string name="section_recording">Enregistrement</string>

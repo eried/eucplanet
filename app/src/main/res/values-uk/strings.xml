@@ -157,8 +157,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервних копій</string>
     <string name="cloud_caption">Тека для CSV поїздок та резервної копії налаштувань</string>
-    <string name="cloud_help_title">Як робити копії в OneDrive, Drive або Dropbox</string>
-    <string name="cloud_help_body">Системний вибір папок Android зазвичай не показує OneDrive, Google Drive чи Dropbox. Ці додатки не надають іншим додаткам папку для запису, тому ми зберігаємо локально, а вивантаженням займається додаток синхронізації.\n\nНалаштування:\n1. Встанови Autosync (для OneDrive, Drive чи Dropbox) або FolderSync з Play Store.\n2. У цьому додатку увійди й створи пару синхронізації: твоя локальна папка до папки в хмарі.\n3. Постав режим \"Лише вивантаження\" з миттєвою синхронізацією або за зміною.\n4. Повернись сюди і вибери ту саму локальну папку.\n\nНові поїздки потрапляють у цю папку, коли запис завершується. Додаток синхронізації вивантажує їх у фоні.</string>
     <string name="cloud_choose_folder">Вибрати папку</string>
     <string name="cloud_change_folder">Змінити папку</string>
     <string name="cloud_remove_folder">Відв\'язати</string>
@@ -200,6 +198,11 @@
     <string name="cloud_backup_overwrite_title">Перезаписати "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервна копія з такою назвою вже існує.</string>
     <string name="cloud_restore_picker_default">(за замовчуванням)</string>
+    <string name="cloud_restore_picker_factory">(заводські)</string>
+    <string name="cloud_factory_confirm_title">Скинути до заводських налаштувань?</string>
+    <string name="cloud_factory_confirm_body_p1">Це поверне всі налаштування додатка — тему, розкладку панелі, тривоги, HUD, одиниці та решту — до того, якими вони є за замовчуванням.</string>
+    <string name="cloud_factory_confirm_body_p2">Твої спарені пристрої та збережені резервні копії залишаться. Цю дію не можна скасувати.</string>
+    <string name="cloud_factory_confirm_action">Скинути</string>
     <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій</string>
 
     <!-- Settings: General -->

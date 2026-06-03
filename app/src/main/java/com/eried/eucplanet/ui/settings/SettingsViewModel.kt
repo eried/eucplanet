@@ -755,6 +755,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Reset all rider configuration to factory defaults (keeps pairings, sync
+     *  folder and saved backups). Reuses the restore merge in [SyncManager]. */
+    fun restoreFactoryDefaults() {
+        viewModelScope.launch {
+            val ok = syncManager.restoreFactoryDefaults()
+            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+        }
+    }
+
     fun restoreSettingsNow() {
         viewModelScope.launch {
             val ok = syncManager.restoreSettings()
@@ -889,6 +898,19 @@ class SettingsViewModel @Inject constructor(
         com.eried.eucplanet.data.model.ActionCatalog.keysFor(
             com.eried.eucplanet.data.model.ActionSurface.DASHBOARD
         )
+
+    /**
+     * Per-slot default layout for the action grid's "Restore slot": the shipped
+     * default order ([AppSettings.dashboardActionOrder]) leads, then the rest of
+     * the catalog. Mirrors how knownDashboardMetrics' first entries ARE the
+     * metric default — knownDashboardActions is raw catalog declaration order,
+     * which didn't match the shipped grid, so restoring by catalog index put the
+     * wrong action in slots 2/4/5. Restore uses this so slot N gets the action
+     * that actually ships there.
+     */
+    val defaultDashboardActions: List<String> =
+        (AppSettings().dashboardActionOrder.split(",").map { it.trim() }.filter { it.isNotEmpty() } +
+            knownDashboardActions).distinct()
 
     private fun sanitize(
         saved: String,
@@ -1628,7 +1650,7 @@ class SettingsViewModel @Inject constructor(
                 knownDashboardActions,
                 listActionGroups(current).keys + listCustomBle(current).keys
             ).toMutableList()
-            val naturalKey = knownDashboardActions.getOrNull(slotIndex) ?: return@launch
+            val naturalKey = defaultDashboardActions.getOrNull(slotIndex) ?: return@launch
             if (slotIndex !in items.indices) return@launch
             val currentOccupant = items[slotIndex]
 

@@ -6152,7 +6152,7 @@ private fun WatchTab(
             }
         }
 
-        // Buttons region — two collapsable sub-cards (CloudHelpCard style)
+        // Buttons region — two collapsable sub-cards (collapsible surfaceVariant-card style)
         // grouping the on-screen tap targets and the side hardware keys.
         // Touch is always available (every watch has a touchscreen) so its
         // card always shows; Hardware only appears for surfaces that
@@ -6342,6 +6342,7 @@ private fun CloudTab(
     var backupNameDraft by remember { mutableStateOf("") }
     var overwritePrompt by remember { mutableStateOf<String?>(null) }
     var showRestorePicker by remember { mutableStateOf(false) }
+    var showFactoryConfirm by remember { mutableStateOf(false) }
 
     val pickFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree()
@@ -6432,7 +6433,32 @@ private fun CloudTab(
             loadEntries = { viewModel.listBackups() },
             onPicked = { entry ->
                 showRestorePicker = false
-                viewModel.restoreSettingsFrom(entry.fileName)
+                if (entry.isFactory) showFactoryConfirm = true
+                else viewModel.restoreSettingsFrom(entry.fileName)
+            }
+        )
+    }
+
+    if (showFactoryConfirm) {
+        AlertDialog(
+            onDismissRequest = { showFactoryConfirm = false },
+            title = { Text(stringResource(R.string.cloud_factory_confirm_title)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(R.string.cloud_factory_confirm_body_p1))
+                    Text(stringResource(R.string.cloud_factory_confirm_body_p2))
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showFactoryConfirm = false
+                    viewModel.restoreFactoryDefaults()
+                }) { Text(stringResource(R.string.cloud_factory_confirm_action)) }
+            },
+            dismissButton = {
+                Button(onClick = { showFactoryConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
             }
         )
     }
@@ -6501,8 +6527,6 @@ private fun CloudTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         HintText(stringResource(R.string.cloud_caption))
-
-        CloudHelpCard()
 
         if (hasFolder) {
             val openFolderInBrowser: () -> Unit = openFolder@{
@@ -6655,45 +6679,6 @@ private fun CloudTab(
             }
         }
 
-    }
-}
-
-@Composable
-private fun CloudHelpCard() {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded }
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    stringResource(R.string.cloud_help_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.weight(1f)
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null
-                )
-            }
-            if (expanded) {
-                Text(
-                    stringResource(R.string.cloud_help_body),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 12.dp).padding(bottom = 12.dp)
-                )
-            }
-        }
     }
 }
 
@@ -7971,10 +7956,20 @@ private fun RestorePickerDialog(
     var dropdownOpen by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         val loaded = loadEntries()
-        entries = loaded
-        selected = loaded.firstOrNull()
+        // "(factory)" is a synthetic, always-available entry pinned to the
+        // bottom — it resets to built-in defaults instead of reading a file.
+        // Never pre-selected when real backups exist, so a stray Restore tap
+        // can't wipe settings; the default selection stays the first backup.
+        val factory = com.eried.eucplanet.data.sync.BackupEntry(
+            fileName = "", label = null, isFactory = true
+        )
+        entries = loaded + factory
+        selected = loaded.firstOrNull() ?: factory
     }
     val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
+    val factoryLabel = stringResource(R.string.cloud_restore_picker_factory)
+    fun entryLabel(e: com.eried.eucplanet.data.sync.BackupEntry): String =
+        if (e.isFactory) factoryLabel else e.label ?: defaultLabel
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.cloud_restore_confirm_title)) },
@@ -7988,7 +7983,7 @@ private fun RestorePickerDialog(
                     onExpandedChange = { dropdownOpen = !dropdownOpen }
                 ) {
                     OutlinedTextField(
-                        value = selected?.label ?: defaultLabel,
+                        value = selected?.let { entryLabel(it) } ?: defaultLabel,
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownOpen) },
@@ -8004,7 +7999,10 @@ private fun RestorePickerDialog(
                     ) {
                         list.forEach { entry ->
                             DropdownMenuItem(
-                                text = { Text(entry.label ?: defaultLabel) },
+                                text = { Text(entryLabel(entry)) },
+                                leadingIcon = if (entry.isFactory) {
+                                    { Icon(Icons.Default.RestartAlt, contentDescription = null) }
+                                } else null,
                                 onClick = {
                                     selected = entry
                                     dropdownOpen = false
@@ -8070,14 +8068,14 @@ private fun DeviceRegion(
 
 /**
  * Card wrapper for the Touch / Hardware sub-sections of the Watch Buttons
- * region. Same compact CloudHelpCard pattern (surfaceVariant card +
+ * region. Same compact collapsible-card pattern (surfaceVariant card +
  * titleSmall + chevron) so the sub-cards read as siblings of the Garmin
  * limits card and the Customization card elsewhere in the tab. When
  * expanded, leads with a MetricInfoBox carrying [info] above the
  * [content] (the actual pickers).
  */
 /**
- * Generic "Advanced" collapsable card. Same compact CloudHelpCard pattern
+ * Generic "Advanced" collapsable card. Same compact collapsible-card pattern
  * as [WatchButtonsCollapsable] but without a leading info box — used by
  * tabs that group power-user controls behind a single tap (Watch, Voice,
  * …). Collapsed by default; the [title] is the only thing visible until

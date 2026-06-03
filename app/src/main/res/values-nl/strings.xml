@@ -157,8 +157,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Back-upmap</string>
     <string name="cloud_caption">Map voor rit-CSV\'s en instellingen-back-up</string>
-    <string name="cloud_help_title">Hoe je een back-up maakt naar OneDrive, Drive of Dropbox</string>
-    <string name="cloud_help_body">Het mapselectievenster van Android laat OneDrive, Google Drive of Dropbox meestal niet zien. Die apps stellen geen schrijfbare map beschikbaar voor andere apps, dus we slaan lokaal op en laten een synchronisatie-app de upload doen.\n\nInstellen:\n1. Installeer Autosync (voor OneDrive, Drive of Dropbox) of FolderSync uit de Play Store.\n2. Log in die app in en maak een sync-paar: jouw gekozen lokale map naar een cloudmap.\n3. Stel het in op \"Alleen uploaden\" met directe of bij-wijziging-synchronisatie.\n4. Kom hier terug en kies dezelfde lokale map.\n\nNieuwe ritten komen in die map terecht zodra een opname eindigt. De sync-app uploadt ze op de achtergrond.</string>
     <string name="cloud_choose_folder">Map kiezen</string>
     <string name="cloud_change_folder">Map wijzigen</string>
     <string name="cloud_remove_folder">Ontkoppelen</string>
@@ -200,6 +198,11 @@
     <string name="cloud_backup_overwrite_title">"%1$s" overschrijven?</string>
     <string name="cloud_backup_overwrite_body">Er bestaat al een back-up met deze naam in je map.</string>
     <string name="cloud_restore_picker_default">(standaard)</string>
+    <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
+    <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>
+    <string name="cloud_factory_confirm_body_p1">Hiermee worden alle app-instellingen — thema, dashboardindeling, alarmen, HUD, eenheden en de rest — teruggezet naar hoe ze standaard worden geleverd.</string>
+    <string name="cloud_factory_confirm_body_p2">Je gekoppelde apparaten en opgeslagen back-ups blijven behouden. Dit kan niet ongedaan gemaakt worden.</string>
+    <string name="cloud_factory_confirm_action">Herstellen</string>
     <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
 
     <!-- Settings: General -->

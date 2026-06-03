@@ -447,8 +447,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
     <string name="cloud_caption">Folder where trip CSVs and settings backup land</string>
-    <string name="cloud_help_title">How to back up to OneDrive, Drive or Dropbox</string>
-    <string name="cloud_help_body">Android\'s folder picker usually won\'t show OneDrive, Google Drive or Dropbox. Those apps don\'t expose a writable folder to other apps, so we save locally and let a sync app do the upload.\n\nSetup:\n1. Install Autosync (for OneDrive, Drive or Dropbox) or FolderSync from Play Store.\n2. In that app, sign in and create a sync pair: your chosen local folder → a cloud folder.\n3. Set it to \"Upload only\" with instant or on-change sync.\n4. Come back here and pick the same local folder.\n\nNew trips land in that folder when a recording ends. The sync app uploads them in the background.</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
@@ -490,7 +488,12 @@
     <string name="cloud_backup_overwrite_title">Overwrite \"%1$s\"?</string>
     <string name="cloud_backup_overwrite_body">A backup with this name already exists in your folder.</string>
     <string name="cloud_restore_picker_default">(default)</string>
+    <string name="cloud_restore_picker_factory">(factory)</string>
     <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
+    <string name="cloud_factory_confirm_title">Reset to factory defaults?</string>
+    <string name="cloud_factory_confirm_body_p1">This resets every app setting — theme, dashboard layout, alarms, HUD, units and the rest — back to how they ship out of the box.</string>
+    <string name="cloud_factory_confirm_body_p2">Your paired devices and saved backups are kept. This can\'t be undone.</string>
+    <string name="cloud_factory_confirm_action">Reset</string>
 
     <!-- Settings: General -->
     <string name="section_recording">Recording</string>

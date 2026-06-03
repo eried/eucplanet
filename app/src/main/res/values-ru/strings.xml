@@ -96,8 +96,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Папка резервных копий</string>
     <string name="cloud_caption">Папка для CSV поездок и резервной копии настроек</string>
-    <string name="cloud_help_title">Как делать копии в OneDrive, Drive или Dropbox</string>
-    <string name="cloud_help_body">Выбор папок в Android обычно не показывает OneDrive, Google Drive или Dropbox. Эти приложения не предоставляют другим приложениям доступ к папке для записи, поэтому мы сохраняем локально, а загрузку делает приложение синхронизации.\n\nНастройка:\n1. Установите Autosync (для OneDrive, Drive или Dropbox) или FolderSync из Play Store.\n2. Войдите в это приложение и создайте пару синхронизации: ваша локальная папка к папке в облаке.\n3. Настройте \"Только загрузка\" с мгновенной синхронизацией или по изменению.\n4. Вернитесь сюда и выберите ту же локальную папку.\n\nНовые поездки попадают в эту папку, когда запись заканчивается. Приложение синхронизации загружает их в фоне.</string>
     <string name="cloud_choose_folder">Выбрать папку</string>
     <string name="cloud_change_folder">Сменить папку</string>
     <string name="cloud_remove_folder">Отвязать</string>
@@ -139,6 +137,11 @@
     <string name="cloud_backup_overwrite_title">Перезаписать "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Резервная копия с таким именем уже существует.</string>
     <string name="cloud_restore_picker_default">(по умолчанию)</string>
+    <string name="cloud_restore_picker_factory">(заводские)</string>
+    <string name="cloud_factory_confirm_title">Сбросить до заводских настроек?</string>
+    <string name="cloud_factory_confirm_body_p1">Это сбросит все настройки приложения — тему, макет панели, будильники, HUD, единицы и остальное — к состоянию по умолчанию.</string>
+    <string name="cloud_factory_confirm_body_p2">Подключённые устройства и сохранённые резервные копии останутся. Это нельзя отменить.</string>
+    <string name="cloud_factory_confirm_action">Сбросить</string>
     <string name="cloud_restore_picker_empty">Резервных копий в папке нет</string>
 
     <string name="section_recording">Запись поездок</string>

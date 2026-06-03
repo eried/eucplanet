@@ -96,8 +96,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Mappe for tur-CSV-er og innstillings-backup</string>
-    <string name="cloud_help_title">Slik tar du backup til OneDrive, Drive eller Dropbox</string>
-    <string name="cloud_help_body">Androids mappevelger viser vanligvis ikke OneDrive, Google Drive eller Dropbox. De appene eksponerer ikke en skrivbar mappe til andre apper, så vi lagrer lokalt og lar en synkroniserings-app gjøre opplastingen.\n\nOppsett:\n1. Installer Autosync (for OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Logg inn i den appen og opprett et synkpar: din valgte lokale mappe til en skymappe.\n3. Sett det til \"Kun opplasting\" med umiddelbar eller ved-endring-synk.\n4. Kom tilbake hit og velg den samme lokale mappen.\n\nNye turer havner i den mappen når et opptak slutter. Synk-appen laster dem opp i bakgrunnen.</string>
     <string name="cloud_choose_folder">Velg mappe</string>
     <string name="cloud_change_folder">Bytt mappe</string>
     <string name="cloud_remove_folder">Koble fra</string>
@@ -139,6 +137,11 @@
     <string name="cloud_backup_overwrite_title">Overskrive "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Det finnes allerede en sikkerhetskopi med dette navnet.</string>
     <string name="cloud_restore_picker_default">(standard)</string>
+    <string name="cloud_restore_picker_factory">(fabrikkstandard)</string>
+    <string name="cloud_factory_confirm_title">Tilbakestille til fabrikkstandard?</string>
+    <string name="cloud_factory_confirm_body_p1">Dette tilbakestiller alle appinnstillinger — tema, dashbord-oppsett, alarmer, HUD, enheter og resten — til slik de var fra start.</string>
+    <string name="cloud_factory_confirm_body_p2">De parede enhetene og lagrede sikkerhetskopiene dine beholdes. Dette kan ikke angres.</string>
+    <string name="cloud_factory_confirm_action">Tilbakestill</string>
     <string name="cloud_restore_picker_empty">Ingen sikkerhetskopier i mappen</string>
 
     <string name="section_recording">Opptak</string>

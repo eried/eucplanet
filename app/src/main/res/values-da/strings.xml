@@ -95,8 +95,6 @@
 
     <string name="section_cloud_folder">Backup-mappe</string>
     <string name="cloud_caption">Mappe til tur-CSV\'er og indstillings-backup</string>
-    <string name="cloud_help_title">Backup til OneDrive, Drive eller Dropbox</string>
-    <string name="cloud_help_body">Androids mappevælger viser normalt ikke OneDrive, Google Drive eller Dropbox, de apps giver ikke andre apps adgang til en skrivbar mappe. Derfor gemmer vi lokalt og lader en synkroniseringsapp klare uploaden.\n\nSådan gør du:\n1. Installer Autosync (til OneDrive, Drive eller Dropbox) eller FolderSync fra Play Store.\n2. Log ind i appen og opret et synkroniseringspar: din lokale mappe → en skymappe.\n3. Vælg \"Kun upload\" med øjeblikkelig synkronisering eller ved ændring.\n4. Kom tilbage hertil og vælg den samme lokale mappe.\n\nNye ture lander i mappen, når optagelsen slutter. Synk-appen uploader dem i baggrunden.</string>
     <string name="cloud_choose_folder">Vælg mappe</string>
     <string name="cloud_change_folder">Skift mappe</string>
     <string name="cloud_remove_folder">Frakobl</string>
@@ -138,6 +136,11 @@
     <string name="cloud_backup_overwrite_title">Overskriv "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Der findes allerede en backup med dette navn.</string>
     <string name="cloud_restore_picker_default">(standard)</string>
+    <string name="cloud_restore_picker_factory">(fabrik)</string>
+    <string name="cloud_factory_confirm_title">Nulstil til fabriksindstillinger?</string>
+    <string name="cloud_factory_confirm_body_p1">Dette nulstiller alle app-indstillinger — tema, dashboard-layout, alarmer, HUD, enheder og resten — tilbage til, som de var ved levering.</string>
+    <string name="cloud_factory_confirm_body_p2">Dine parrede enheder og gemte backups bevares. Dette kan ikke fortrydes.</string>
+    <string name="cloud_factory_confirm_action">Nulstil</string>
     <string name="cloud_restore_picker_empty">Ingen backup i mappen</string>
     <string name="watch_close_on_exit">Auto-stop på uret</string>
     <string name="watch_close_on_exit_desc">Stop ur-appen ved Stop alle</string>

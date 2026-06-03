@@ -157,8 +157,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Cartella di backup</string>
     <string name="cloud_caption">Cartella dove finiscono i CSV dei viaggi e il backup delle impostazioni</string>
-    <string name="cloud_help_title">Come fare il backup su OneDrive, Drive o Dropbox</string>
-    <string name="cloud_help_body">Il selettore di cartelle di Android di solito non mostra OneDrive, Google Drive o Dropbox. Quelle app non espongono una cartella scrivibile alle altre app, quindi salviamo in locale e lasciamo che un\'app di sincronizzazione faccia l\'upload.\n\nConfigurazione:\n1. Installa Autosync (per OneDrive, Drive o Dropbox) o FolderSync dal Play Store.\n2. In quell\'app, accedi e crea una coppia di sincronizzazione: la tua cartella locale verso una cartella cloud.\n3. Imposta \"Solo upload\" con sincronizzazione istantanea o alla modifica.\n4. Torna qui e seleziona la stessa cartella locale.\n\nI nuovi viaggi finiscono in quella cartella quando una registrazione termina. L\'app di sincronizzazione li carica in background.</string>
     <string name="cloud_choose_folder">Scegli cartella</string>
     <string name="cloud_change_folder">Cambia cartella</string>
     <string name="cloud_remove_folder">Scollega</string>
@@ -200,6 +198,11 @@
     <string name="cloud_backup_overwrite_title">Sovrascrivere "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Esiste già un backup con questo nome.</string>
     <string name="cloud_restore_picker_default">(predefinito)</string>
+    <string name="cloud_restore_picker_factory">(fabbrica)</string>
+    <string name="cloud_factory_confirm_title">Ripristinare le impostazioni di fabbrica?</string>
+    <string name="cloud_factory_confirm_body_p1">Questo riporta ogni impostazione dell\'app — tema, layout del cruscotto, allarmi, HUD, unità e tutto il resto — com\'era appena uscita dalla scatola.</string>
+    <string name="cloud_factory_confirm_body_p2">I tuoi dispositivi accoppiati e i backup salvati vengono mantenuti. L\'azione non può essere annullata.</string>
+    <string name="cloud_factory_confirm_action">Resetta</string>
     <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella</string>
 
     <!-- Settings: General -->

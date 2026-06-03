@@ -157,8 +157,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Pasta de backup</string>
     <string name="cloud_caption">Pasta para os CSVs de viagem e o backup das configurações</string>
-    <string name="cloud_help_title">Como fazer backup no OneDrive, Drive ou Dropbox</string>
-    <string name="cloud_help_body">O seletor de pastas do Android normalmente não mostra OneDrive, Google Drive ou Dropbox. Esses apps não expõem uma pasta gravável para outros apps, então salvamos localmente e deixamos um app de sincronização fazer o upload.\n\nConfiguração:\n1. Instale o Autosync (para OneDrive, Drive ou Dropbox) ou o FolderSync na Play Store.\n2. Nesse app, faça login e crie um par de sincronização: sua pasta local escolhida com uma pasta na nuvem.\n3. Defina como \"Apenas envio\" com sincronização instantânea ou ao alterar.\n4. Volte aqui e selecione a mesma pasta local.\n\nNovas viagens caem nessa pasta quando uma gravação termina. O app de sincronização as envia em segundo plano.</string>
     <string name="cloud_choose_folder">Escolher pasta</string>
     <string name="cloud_change_folder">Alterar pasta</string>
     <string name="cloud_remove_folder">Desvincular</string>
@@ -200,6 +198,11 @@
     <string name="cloud_backup_overwrite_title">Sobrescrever "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Já existe um backup com esse nome na pasta.</string>
     <string name="cloud_restore_picker_default">(padrão)</string>
+    <string name="cloud_restore_picker_factory">(fábrica)</string>
+    <string name="cloud_factory_confirm_title">Restaurar configurações de fábrica?</string>
+    <string name="cloud_factory_confirm_body_p1">Isso restaura todas as configurações do app — tema, layout do painel, alarmes, HUD, unidades e o restante — para como vêm de fábrica.</string>
+    <string name="cloud_factory_confirm_body_p2">Seus dispositivos pareados e backups salvos são mantidos. Isso não pode ser desfeito.</string>
+    <string name="cloud_factory_confirm_action">Restaurar</string>
     <string name="cloud_restore_picker_empty">Nenhum backup na pasta</string>
 
     <!-- Settings: General -->

@@ -157,8 +157,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Carpeta de respaldo</string>
     <string name="cloud_caption">Carpeta donde se guardan los CSV de viajes y el respaldo de ajustes</string>
-    <string name="cloud_help_title">Cómo respaldar a OneDrive, Drive o Dropbox</string>
-    <string name="cloud_help_body">El selector de carpetas de Android normalmente no muestra OneDrive, Google Drive ni Dropbox. Esas apps no exponen una carpeta escribible a otras apps, así que guardamos localmente y dejamos que una app de sincronización haga la subida.\n\nConfiguración:\n1. Instala Autosync (para OneDrive, Drive o Dropbox) o FolderSync desde Play Store.\n2. En esa app, inicia sesión y crea un par de sincronización: tu carpeta local elegida hacia una carpeta en la nube.\n3. Configúralo como \"Solo subir\" con sincronización instantánea o al cambiar.\n4. Vuelve aquí y selecciona la misma carpeta local.\n\nLos viajes nuevos llegan a esa carpeta cuando termina una grabación. La app de sincronización los sube en segundo plano.</string>
     <string name="cloud_choose_folder">Elegir carpeta</string>
     <string name="cloud_change_folder">Cambiar carpeta</string>
     <string name="cloud_remove_folder">Desvincular</string>
@@ -200,6 +198,11 @@
     <string name="cloud_backup_overwrite_title">¿Sobrescribir "%1$s"?</string>
     <string name="cloud_backup_overwrite_body">Ya existe un respaldo con ese nombre en tu carpeta.</string>
     <string name="cloud_restore_picker_default">(por defecto)</string>
+    <string name="cloud_restore_picker_factory">(de fábrica)</string>
+    <string name="cloud_factory_confirm_title">¿Restablecer a los valores de fábrica?</string>
+    <string name="cloud_factory_confirm_body_p1">Esto restablece toda la configuración de la app — tema, diseño del panel, alarmas, HUD, unidades y lo demás — a como viene de fábrica.</string>
+    <string name="cloud_factory_confirm_body_p2">Tus dispositivos emparejados y los respaldos guardados se conservan. Esto no se puede deshacer.</string>
+    <string name="cloud_factory_confirm_action">Restablecer</string>
     <string name="cloud_restore_picker_empty">No se encontraron respaldos en la carpeta</string>
 
     <!-- Settings: General -->

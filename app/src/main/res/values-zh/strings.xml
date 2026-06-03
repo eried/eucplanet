@@ -95,8 +95,6 @@
 
     <string name="section_cloud_folder">备份文件夹</string>
     <string name="cloud_caption">存放行程 CSV 与设置备份的文件夹。</string>
-    <string name="cloud_help_title">如何备份到 OneDrive、Drive 或 Dropbox</string>
-    <string name="cloud_help_body">Android 的文件夹选择器通常不会显示 OneDrive、Google Drive 或 Dropbox,这些应用不向其他应用开放可写文件夹。因此我们先保存到本地,再由同步应用负责上传。\n\n设置步骤:\n1. 从 Play 商店安装 Autosync(适配 OneDrive、Drive 或 Dropbox)或 FolderSync。\n2. 登录后创建一对同步:你的本地文件夹 → 云端文件夹。\n3. 将其设置为\"仅上传\",开启即时或变更触发同步。\n4. 回到这里,选择同一个本地文件夹。\n\n新行程在录制结束后会落入该文件夹。同步应用会在后台完成上传。</string>
     <string name="cloud_choose_folder">选择文件夹</string>
     <string name="cloud_change_folder">更换文件夹</string>
     <string name="cloud_remove_folder">取消连接</string>
@@ -138,6 +136,11 @@
     <string name="cloud_backup_overwrite_title">覆盖 "%1$s"？</string>
     <string name="cloud_backup_overwrite_body">文件夹中已存在同名备份。</string>
     <string name="cloud_restore_picker_default">(默认)</string>
+    <string name="cloud_restore_picker_factory">(出厂设置)</string>
+    <string name="cloud_factory_confirm_title">恢复出厂设置？</string>
+    <string name="cloud_factory_confirm_body_p1">这会将每一项应用设置 — 主题、仪表盘布局、闹钟、HUD、单位以及其余设置 — 全部重置为出厂时的初始状态。</string>
+    <string name="cloud_factory_confirm_body_p2">您已配对的设备和已保存的备份会保留。此操作无法撤销。</string>
+    <string name="cloud_factory_confirm_action">重置</string>
     <string name="cloud_restore_picker_empty">同步文件夹中未找到备份。</string>
 
     <string name="section_recording">行程记录</string>

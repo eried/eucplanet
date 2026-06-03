@@ -96,8 +96,6 @@
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup-Ordner</string>
     <string name="cloud_caption">Ordner für Fahrten-CSVs und Einstellungs-Backup</string>
-    <string name="cloud_help_title">So sicherst du in OneDrive, Drive oder Dropbox</string>
-    <string name="cloud_help_body">Androids Ordnerauswahl zeigt OneDrive, Google Drive oder Dropbox normalerweise nicht an. Diese Apps stellen anderen Apps keinen beschreibbaren Ordner bereit, daher speichern wir lokal und überlassen den Upload einer Sync-App.\n\nEinrichtung:\n1. Installiere Autosync (für OneDrive, Drive oder Dropbox) oder FolderSync aus dem Play Store.\n2. Melde dich in dieser App an und erstelle ein Sync-Paar: dein gewählter lokaler Ordner → ein Cloud-Ordner.\n3. Stelle \"Nur hochladen\" mit sofortiger oder Änderungs-Sync ein.\n4. Komm hierher zurück und wähle denselben lokalen Ordner.\n\nNeue Fahrten landen in diesem Ordner, wenn eine Aufnahme endet. Die Sync-App lädt sie im Hintergrund hoch.</string>
     <string name="cloud_choose_folder">Ordner wählen</string>
     <string name="cloud_change_folder">Ordner ändern</string>
     <string name="cloud_remove_folder">Trennen</string>
@@ -139,6 +137,11 @@
     <string name="cloud_backup_overwrite_title">"%1$s" überschreiben?</string>
     <string name="cloud_backup_overwrite_body">Eine Sicherung mit diesem Namen existiert bereits.</string>
     <string name="cloud_restore_picker_default">(Standard)</string>
+    <string name="cloud_restore_picker_factory">(Werk)</string>
+    <string name="cloud_factory_confirm_title">Auf Werkseinstellungen zurücksetzen?</string>
+    <string name="cloud_factory_confirm_body_p1">Dies setzt jede App-Einstellung — Design, Dashboard-Layout, Alarme, HUD, Einheiten und den Rest — auf den Auslieferungszustand zurück.</string>
+    <string name="cloud_factory_confirm_body_p2">Deine gekoppelten Geräte und gespeicherten Backups bleiben erhalten. Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="cloud_factory_confirm_action">Zurücksetzen</string>
     <string name="cloud_restore_picker_empty">Keine Backups im Ordner</string>
 
     <string name="section_recording">Aufnahme</string>
