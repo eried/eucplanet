@@ -98,7 +98,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SkipNext
@@ -7956,14 +7955,17 @@ private fun RestorePickerDialog(
     var dropdownOpen by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         val loaded = loadEntries()
-        // "(factory)" is a synthetic, always-available entry pinned to the
-        // bottom — it resets to built-in defaults instead of reading a file.
-        // Never pre-selected when real backups exist, so a stray Restore tap
-        // can't wipe settings; the default selection stays the first backup.
+        // "(factory)" is a synthetic, always-available entry: it resets to
+        // built-in defaults instead of reading a file. It sits right under
+        // "(default)", with a divider separating it from the rider's named
+        // backups below. Never pre-selected when real backups exist, so a
+        // stray Restore tap can't wipe settings.
         val factory = com.eried.eucplanet.data.sync.BackupEntry(
             fileName = "", label = null, isFactory = true
         )
-        entries = loaded + factory
+        val def = loaded.filter { it.label == null }
+        val named = loaded.filter { it.label != null }
+        entries = def + factory + named
         selected = loaded.firstOrNull() ?: factory
     }
     val defaultLabel = stringResource(R.string.cloud_restore_picker_default)
@@ -7997,17 +7999,21 @@ private fun RestorePickerDialog(
                         onDismissRequest = { dropdownOpen = false },
                         containerColor = MaterialTheme.appColors.menuBackground
                     ) {
-                        list.forEach { entry ->
+                        list.forEachIndexed { index, entry ->
                             DropdownMenuItem(
                                 text = { Text(entryLabel(entry)) },
-                                leadingIcon = if (entry.isFactory) {
-                                    { Icon(Icons.Default.RestartAlt, contentDescription = null) }
-                                } else null,
                                 onClick = {
                                     selected = entry
                                     dropdownOpen = false
                                 }
                             )
+                            // Divider after "(factory)" splits the built-in
+                            // resets from the rider's named backups below.
+                            if (entry.isFactory && index < list.lastIndex) {
+                                androidx.compose.material3.HorizontalDivider(
+                                    color = MaterialTheme.appColors.divider
+                                )
+                            }
                         }
                     }
                 }

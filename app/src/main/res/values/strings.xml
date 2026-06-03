@@ -491,7 +491,7 @@
     <string name="cloud_restore_picker_factory">(factory)</string>
     <string name="cloud_restore_picker_empty">No backups found in the sync folder</string>
     <string name="cloud_factory_confirm_title">Reset to factory defaults?</string>
-    <string name="cloud_factory_confirm_body_p1">This resets every app setting — theme, dashboard layout, alarms, HUD, units and the rest — back to how they ship out of the box.</string>
+    <string name="cloud_factory_confirm_body_p1">Resets all app settings to their defaults.</string>
     <string name="cloud_factory_confirm_body_p2">Your paired devices and saved backups are kept. This can\'t be undone.</string>
     <string name="cloud_factory_confirm_action">Reset</string>
 
@@ -886,7 +886,6 @@
     <string name="recording_delete_trip_title">Delete Trip</string>
     <string name="recording_delete_trip_body">Delete this trip and its data file?</string>
     <string name="recording_clear_all_menu">Clear all</string>
-    <string name="recording_auto_record_tip">Tip: enable auto-record in Settings to start recording automatically on connect</string>
     <string name="recording_empty">No data to show. Import or Record a new one</string>
     <string name="recording_will_auto_stop">Recording will auto-stop after %1$ds idle</string>
     <string name="recording_stat_trips">Trips</string>

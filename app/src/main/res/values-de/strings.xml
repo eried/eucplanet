@@ -139,7 +139,7 @@
     <string name="cloud_restore_picker_default">(Standard)</string>
     <string name="cloud_restore_picker_factory">(Werk)</string>
     <string name="cloud_factory_confirm_title">Auf Werkseinstellungen zurücksetzen?</string>
-    <string name="cloud_factory_confirm_body_p1">Dies setzt jede App-Einstellung — Design, Dashboard-Layout, Alarme, HUD, Einheiten und den Rest — auf den Auslieferungszustand zurück.</string>
+    <string name="cloud_factory_confirm_body_p1">Setzt alle App-Einstellungen auf die Werkseinstellungen zurück.</string>
     <string name="cloud_factory_confirm_body_p2">Deine gekoppelten Geräte und gespeicherten Backups bleiben erhalten. Dies kann nicht rückgängig gemacht werden.</string>
     <string name="cloud_factory_confirm_action">Zurücksetzen</string>
     <string name="cloud_restore_picker_empty">Keine Backups im Ordner</string>
@@ -327,7 +327,6 @@
     <string name="recording_delete_trip_title">Fahrt löschen</string>
     <string name="recording_delete_trip_body">Diese Fahrt und ihre Datendatei löschen?</string>
     <string name="recording_clear_all_menu">Alle löschen</string>
-    <string name="recording_auto_record_tip">Tipp: Aktiviere Auto-Aufnahme in den Einstellungen, um bei Verbindung automatisch aufzuzeichnen</string>
     <string name="recording_empty">Keine Daten vorhanden. Importieren oder neue Fahrt aufnehmen</string>
     <string name="recording_will_auto_stop">Aufnahme stoppt automatisch nach %1$ds ohne Bewegung</string>
     <string name="recording_stat_trips">Fahrten</string>

@@ -138,7 +138,7 @@
     <string name="cloud_restore_picker_default">(默认)</string>
     <string name="cloud_restore_picker_factory">(出厂设置)</string>
     <string name="cloud_factory_confirm_title">恢复出厂设置？</string>
-    <string name="cloud_factory_confirm_body_p1">这会将每一项应用设置 — 主题、仪表盘布局、闹钟、HUD、单位以及其余设置 — 全部重置为出厂时的初始状态。</string>
+    <string name="cloud_factory_confirm_body_p1">将所有应用设置重置为出厂设置。</string>
     <string name="cloud_factory_confirm_body_p2">您已配对的设备和已保存的备份会保留。此操作无法撤销。</string>
     <string name="cloud_factory_confirm_action">重置</string>
     <string name="cloud_restore_picker_empty">同步文件夹中未找到备份。</string>
@@ -368,7 +368,6 @@
     <string name="recording_delete_trip_title">删除行程</string>
     <string name="recording_delete_trip_body">要删除此行程及其数据文件吗?</string>
     <string name="recording_clear_all_menu">全部清除</string>
-    <string name="recording_auto_record_tip">提示:在设置中开启自动记录,可在连接时自动开始</string>
     <string name="recording_empty">暂无数据。导入或录制一条新的</string>
     <string name="recording_will_auto_stop">空闲 %1$d 秒后将自动停止录制</string>
     <string name="recording_stat_trips">行程</string>

@@ -138,7 +138,7 @@
     <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_factory">(fabrik)</string>
     <string name="cloud_factory_confirm_title">Återställ till fabriksinställningar?</string>
-    <string name="cloud_factory_confirm_body_p1">Detta återställer alla appinställningar — tema, instrumentpanelens layout, larm, HUD, enheter och resten — till hur de levereras från start.</string>
+    <string name="cloud_factory_confirm_body_p1">Återställer alla appinställningar till standardvärdena.</string>
     <string name="cloud_factory_confirm_body_p2">Dina parade enheter och sparade säkerhetskopior behålls. Detta kan inte ångras.</string>
     <string name="cloud_factory_confirm_action">Återställ</string>
     <string name="cloud_restore_picker_empty">Inga säkerhetskopior i mappen</string>
@@ -368,7 +368,6 @@
     <string name="recording_delete_trip_title">Radera resa</string>
     <string name="recording_delete_trip_body">Radera den här resan och dess datafil?</string>
     <string name="recording_clear_all_menu">Rensa alla</string>
-    <string name="recording_auto_record_tip">Tips: Aktivera autoinspelning i Inställningar för att starta vid anslutning</string>
     <string name="recording_empty">Ingen data att visa. Importera eller spela in en ny</string>
     <string name="recording_will_auto_stop">Inspelning stoppas automatiskt efter %1$ds utan rörelse</string>
     <string name="recording_stat_trips">Resor</string>

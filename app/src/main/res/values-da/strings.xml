@@ -138,7 +138,7 @@
     <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_factory">(fabrik)</string>
     <string name="cloud_factory_confirm_title">Nulstil til fabriksindstillinger?</string>
-    <string name="cloud_factory_confirm_body_p1">Dette nulstiller alle app-indstillinger — tema, dashboard-layout, alarmer, HUD, enheder og resten — tilbage til, som de var ved levering.</string>
+    <string name="cloud_factory_confirm_body_p1">Nulstiller alle app-indstillinger til standardindstillingerne.</string>
     <string name="cloud_factory_confirm_body_p2">Dine parrede enheder og gemte backups bevares. Dette kan ikke fortrydes.</string>
     <string name="cloud_factory_confirm_action">Nulstil</string>
     <string name="cloud_restore_picker_empty">Ingen backup i mappen</string>
@@ -370,7 +370,6 @@
     <string name="recording_delete_trip_title">Slet tur</string>
     <string name="recording_delete_trip_body">Slet denne tur og dens datafil?</string>
     <string name="recording_clear_all_menu">Slet alle</string>
-    <string name="recording_auto_record_tip">Tip: Aktivér automatisk optagelse i Indstillinger for at optage fra forbindelsen</string>
     <string name="recording_empty">Ingen data at vise. Importér eller optag en ny</string>
     <string name="recording_will_auto_stop">Optagelse stopper automatisk efter %1$ds uden bevægelse</string>
     <string name="recording_stat_trips">Ture</string>

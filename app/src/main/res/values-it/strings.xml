@@ -200,7 +200,7 @@
     <string name="cloud_restore_picker_default">(predefinito)</string>
     <string name="cloud_restore_picker_factory">(fabbrica)</string>
     <string name="cloud_factory_confirm_title">Ripristinare le impostazioni di fabbrica?</string>
-    <string name="cloud_factory_confirm_body_p1">Questo riporta ogni impostazione dell\'app — tema, layout del cruscotto, allarmi, HUD, unità e tutto il resto — com\'era appena uscita dalla scatola.</string>
+    <string name="cloud_factory_confirm_body_p1">Ripristina tutte le impostazioni dell\'app ai valori predefiniti.</string>
     <string name="cloud_factory_confirm_body_p2">I tuoi dispositivi accoppiati e i backup salvati vengono mantenuti. L\'azione non può essere annullata.</string>
     <string name="cloud_factory_confirm_action">Resetta</string>
     <string name="cloud_restore_picker_empty">Nessun backup trovato nella cartella</string>
@@ -459,7 +459,6 @@
     <string name="recording_delete_trip_title">Elimina viaggio</string>
     <string name="recording_delete_trip_body">Eliminare questo viaggio e il suo file di dati?</string>
     <string name="recording_clear_all_menu">Elimina tutto</string>
-    <string name="recording_auto_record_tip">Suggerimento: attiva la registrazione automatica nelle impostazioni per partire subito alla connessione</string>
     <string name="recording_empty">Nessun dato da mostrare. Importa o registra un nuovo viaggio</string>
     <string name="recording_will_auto_stop">La registrazione si fermerà dopo %1$ds di inattività</string>
     <string name="recording_stat_trips">Viaggi</string>

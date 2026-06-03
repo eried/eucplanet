@@ -139,7 +139,7 @@
     <string name="cloud_restore_picker_default">(по умолчанию)</string>
     <string name="cloud_restore_picker_factory">(заводские)</string>
     <string name="cloud_factory_confirm_title">Сбросить до заводских настроек?</string>
-    <string name="cloud_factory_confirm_body_p1">Это сбросит все настройки приложения — тему, макет панели, будильники, HUD, единицы и остальное — к состоянию по умолчанию.</string>
+    <string name="cloud_factory_confirm_body_p1">Сбрасывает все настройки приложения к значениям по умолчанию.</string>
     <string name="cloud_factory_confirm_body_p2">Подключённые устройства и сохранённые резервные копии останутся. Это нельзя отменить.</string>
     <string name="cloud_factory_confirm_action">Сбросить</string>
     <string name="cloud_restore_picker_empty">Резервных копий в папке нет</string>
@@ -327,7 +327,6 @@
     <string name="recording_delete_trip_title">Удалить поездку</string>
     <string name="recording_delete_trip_body">Удалить эту поездку вместе с её файлом?</string>
     <string name="recording_clear_all_menu">Удалить всё</string>
-    <string name="recording_auto_record_tip">Совет: в Настройках можно включить автозапись, чтобы она стартовала сразу после подключения</string>
     <string name="recording_empty">Нет данных. Импортируйте или запишите новую</string>
     <string name="recording_will_auto_stop">Запись остановится через %1$d с простоя</string>
     <string name="recording_stat_trips">Поездок</string>

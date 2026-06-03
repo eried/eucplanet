@@ -139,7 +139,7 @@
     <string name="cloud_restore_picker_default">(por defecto)</string>
     <string name="cloud_restore_picker_factory">(de fábrica)</string>
     <string name="cloud_factory_confirm_title">¿Restablecer los valores de fábrica?</string>
-    <string name="cloud_factory_confirm_body_p1">Esto restablece todos los ajustes de la app — tema, diseño del panel, alarmas, HUD, unidades y lo demás — a como vienen de fábrica.</string>
+    <string name="cloud_factory_confirm_body_p1">Restablece todos los ajustes de la app a los valores de fábrica.</string>
     <string name="cloud_factory_confirm_body_p2">Tus dispositivos vinculados y los respaldos guardados se conservan. Esto no se puede deshacer.</string>
     <string name="cloud_factory_confirm_action">Restablecer</string>
     <string name="cloud_restore_picker_empty">No hay copias en la carpeta</string>
@@ -327,7 +327,6 @@
     <string name="recording_delete_trip_title">Eliminar viaje</string>
     <string name="recording_delete_trip_body">¿Eliminar este viaje y su archivo de datos?</string>
     <string name="recording_clear_all_menu">Borrar todo</string>
-    <string name="recording_auto_record_tip">Consejo: Activa grabación automática en Ajustes para empezar a grabar al conectar</string>
     <string name="recording_empty">No hay datos. Importa o graba uno nuevo</string>
     <string name="recording_will_auto_stop">La grabación se detendrá tras %1$ds inactivo</string>
     <string name="recording_stat_trips">Viajes</string>

@@ -139,7 +139,7 @@
     <string name="cloud_restore_picker_default">(standard)</string>
     <string name="cloud_restore_picker_factory">(fabrikkstandard)</string>
     <string name="cloud_factory_confirm_title">Tilbakestille til fabrikkstandard?</string>
-    <string name="cloud_factory_confirm_body_p1">Dette tilbakestiller alle appinnstillinger — tema, dashbord-oppsett, alarmer, HUD, enheter og resten — til slik de var fra start.</string>
+    <string name="cloud_factory_confirm_body_p1">Tilbakestiller alle appinnstillinger til fabrikkstandard.</string>
     <string name="cloud_factory_confirm_body_p2">De parede enhetene og lagrede sikkerhetskopiene dine beholdes. Dette kan ikke angres.</string>
     <string name="cloud_factory_confirm_action">Tilbakestill</string>
     <string name="cloud_restore_picker_empty">Ingen sikkerhetskopier i mappen</string>
@@ -327,7 +327,6 @@
     <string name="recording_delete_trip_title">Slett tur</string>
     <string name="recording_delete_trip_body">Slette denne turen og datafilen?</string>
     <string name="recording_clear_all_menu">Slett alt</string>
-    <string name="recording_auto_record_tip">Tips: Slå på auto-opptak i Innstillinger for å starte opptak automatisk ved tilkobling</string>
     <string name="recording_empty">Ingen data å vise. Importer eller ta opp en ny</string>
     <string name="recording_will_auto_stop">Opptak stopper automatisk etter %1$ds uten bevegelse</string>
     <string name="recording_stat_trips">Turer</string>

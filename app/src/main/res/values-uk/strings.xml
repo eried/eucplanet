@@ -200,7 +200,7 @@
     <string name="cloud_restore_picker_default">(за замовчуванням)</string>
     <string name="cloud_restore_picker_factory">(заводські)</string>
     <string name="cloud_factory_confirm_title">Скинути до заводських налаштувань?</string>
-    <string name="cloud_factory_confirm_body_p1">Це поверне всі налаштування додатка — тему, розкладку панелі, тривоги, HUD, одиниці та решту — до того, якими вони є за замовчуванням.</string>
+    <string name="cloud_factory_confirm_body_p1">Скидає всі налаштування додатка до значень за замовчуванням.</string>
     <string name="cloud_factory_confirm_body_p2">Твої спарені пристрої та збережені резервні копії залишаться. Цю дію не можна скасувати.</string>
     <string name="cloud_factory_confirm_action">Скинути</string>
     <string name="cloud_restore_picker_empty">У папці синхронізації немає резервних копій</string>
@@ -459,7 +459,6 @@
     <string name="recording_delete_trip_title">Видалити поїздку</string>
     <string name="recording_delete_trip_body">Видалити цю поїздку та її файл даних?</string>
     <string name="recording_clear_all_menu">Очистити все</string>
-    <string name="recording_auto_record_tip">Порада: увімкни автозапис у Налаштуваннях, щоб запис починався автоматично при підключенні</string>
     <string name="recording_empty">Немає даних. Імпортуй або запиши нову</string>
     <string name="recording_will_auto_stop">Запис автоматично зупиниться через %1$d с простою</string>
     <string name="recording_stat_trips">Поїздок</string>

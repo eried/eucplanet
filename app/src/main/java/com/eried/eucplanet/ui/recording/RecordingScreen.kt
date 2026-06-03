@@ -369,14 +369,6 @@ fun RecordingScreen(
                 )
             }
 
-            if (!recording && !importing && trips.isEmpty()) {
-                HintText(
-                    stringResource(R.string.recording_auto_record_tip),
-                    small = true,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-            }
-
             // General stats card
             if (trips.isNotEmpty()) {
                 val totalKm = trips.sumOf { it.distanceKm.toDouble() }.toFloat()

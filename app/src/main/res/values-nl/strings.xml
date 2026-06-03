@@ -200,7 +200,7 @@
     <string name="cloud_restore_picker_default">(standaard)</string>
     <string name="cloud_restore_picker_factory">(fabrieksinstellingen)</string>
     <string name="cloud_factory_confirm_title">Terugzetten naar fabrieksinstellingen?</string>
-    <string name="cloud_factory_confirm_body_p1">Hiermee worden alle app-instellingen — thema, dashboardindeling, alarmen, HUD, eenheden en de rest — teruggezet naar hoe ze standaard worden geleverd.</string>
+    <string name="cloud_factory_confirm_body_p1">Zet alle app-instellingen terug naar de standaardwaarden.</string>
     <string name="cloud_factory_confirm_body_p2">Je gekoppelde apparaten en opgeslagen back-ups blijven behouden. Dit kan niet ongedaan gemaakt worden.</string>
     <string name="cloud_factory_confirm_action">Herstellen</string>
     <string name="cloud_restore_picker_empty">Geen back-ups in de map</string>
@@ -459,7 +459,6 @@
     <string name="recording_delete_trip_title">Rit verwijderen</string>
     <string name="recording_delete_trip_body">Deze rit en het gegevensbestand verwijderen?</string>
     <string name="recording_clear_all_menu">Alles wissen</string>
-    <string name="recording_auto_record_tip">Tip: zet automatisch opnemen aan in Instellingen om automatisch te starten bij verbinden</string>
     <string name="recording_empty">Geen gegevens om te tonen. Importeer of neem een nieuwe rit op</string>
     <string name="recording_will_auto_stop">Opname stopt automatisch na %1$ds inactiviteit</string>
     <string name="recording_stat_trips">Ritten</string>

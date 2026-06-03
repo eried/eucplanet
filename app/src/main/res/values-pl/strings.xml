@@ -200,7 +200,7 @@
     <string name="cloud_restore_picker_default">(domyślna)</string>
     <string name="cloud_restore_picker_factory">(fabryczna)</string>
     <string name="cloud_factory_confirm_title">Przywrócić ustawienia fabryczne?</string>
-    <string name="cloud_factory_confirm_body_p1">To przywraca wszystkie ustawienia aplikacji — motyw, układ pulpitu, alarmy, HUD, jednostki i resztę — do stanu fabrycznego.</string>
+    <string name="cloud_factory_confirm_body_p1">Przywraca wszystkie ustawienia aplikacji do stanu fabrycznego.</string>
     <string name="cloud_factory_confirm_body_p2">Twoje sparowane urządzenia i zapisane kopie zostają zachowane. Tej operacji nie można cofnąć.</string>
     <string name="cloud_factory_confirm_action">Resetuj</string>
     <string name="cloud_restore_picker_empty">Brak kopii w folderze</string>
@@ -459,7 +459,6 @@
     <string name="recording_delete_trip_title">Usuń trasę</string>
     <string name="recording_delete_trip_body">Usunąć tę trasę i jej plik danych?</string>
     <string name="recording_clear_all_menu">Wyczyść wszystko</string>
-    <string name="recording_auto_record_tip">Wskazówka: włącz auto-nagrywanie w Ustawieniach, aby nagrywanie startowało automatycznie po połączeniu</string>
     <string name="recording_empty">Brak danych do wyświetlenia. Zaimportuj lub nagraj nową trasę</string>
     <string name="recording_will_auto_stop">Nagrywanie zatrzyma się automatycznie po %1$ds bezczynności</string>
     <string name="recording_stat_trips">Trasy</string>

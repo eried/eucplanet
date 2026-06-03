@@ -138,7 +138,7 @@
     <string name="cloud_restore_picker_default">(par défaut)</string>
     <string name="cloud_restore_picker_factory">(par défaut d\'usine)</string>
     <string name="cloud_factory_confirm_title">Rétablir les paramètres par défaut d\'usine ?</string>
-    <string name="cloud_factory_confirm_body_p1">Cela réinitialise tous les paramètres de l\'application — thème, mise en page du tableau de bord, alarmes, HUD, unités et le reste — à leur état d\'origine.</string>
+    <string name="cloud_factory_confirm_body_p1">Réinitialise tous les paramètres de l\'application à leur valeur par défaut d\'usine.</string>
     <string name="cloud_factory_confirm_body_p2">Tes appareils appairés et tes sauvegardes enregistrées sont conservés. Cette action est irréversible.</string>
     <string name="cloud_factory_confirm_action">Réinitialiser</string>
     <string name="cloud_restore_picker_empty">Aucune sauvegarde dans le dossier</string>
@@ -368,7 +368,6 @@
     <string name="recording_delete_trip_title">Supprimer le trajet</string>
     <string name="recording_delete_trip_body">Supprimer ce trajet et son fichier de données ?</string>
     <string name="recording_clear_all_menu">Tout effacer</string>
-    <string name="recording_auto_record_tip">Astuce : activez l\'enregistrement automatique dans les paramètres pour démarrer à la connexion</string>
     <string name="recording_empty">Aucune donnée à afficher. Importer ou enregistrer un nouveau trajet</string>
     <string name="recording_will_auto_stop">L\'enregistrement s\'arrêtera après %1$ds d\'inactivité</string>
     <string name="recording_stat_trips">Trajets</string>
