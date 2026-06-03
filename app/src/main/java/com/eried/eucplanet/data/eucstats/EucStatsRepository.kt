@@ -171,14 +171,13 @@ class EucStatsRepository @Inject constructor(
                         put("request_hash", att2.requestHash)
                     }
                 )
-                when (api.uploadTrip(meta.toString(), gz)) {
+                when (val result2 = api.uploadTrip(meta.toString(), gz)) {
                     is UploadResult.Ok -> {
-                        // Should not normally happen after an auth failure re-mint with a stub,
-                        // but handle it correctly if it does.
                         tripDao.update(
                             trip.copy(
                                 eucstatsStatus = 2,
                                 eucstatsUploadedAt = clock(),
+                                eucstatsValidation = result2.validationStatus,
                             )
                         )
                         refreshCard()
