@@ -256,6 +256,10 @@ dependencies {
 
     // Unit tests for pure-Kotlin parsers (VariaAdapter, etc.)
     testImplementation(libs.junit)
+    // org.json is bundled in the Android SDK but not available on the JVM test
+    // classpath. Adding the standalone artifact makes SettingsJson JVM tests work
+    // without Robolectric.
+    testImplementation("org.json:json:20240303")
 }
 
 // Gradle Play Publisher -- LOCAL publishing only (no browser, NOT wired into CI):
