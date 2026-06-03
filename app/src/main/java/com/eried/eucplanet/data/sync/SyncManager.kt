@@ -309,7 +309,11 @@ class SyncManager @Inject constructor(
             } catch (_: Exception) {
             }
         }
-        settingsRepository.update(s.copy(syncFolderUri = null, lastSettingsBackupAt = null))
+        settingsRepository.update(s.copy(
+            syncFolderUri = null,
+            lastSettingsBackupAt = null,
+            onlineUploadEnabled = false,  // online upload requires a folder
+        ))
     }
 
     /** The chosen folder's DocumentFile, or null if none or no longer accessible. */

@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -226,8 +227,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.eried.eucplanet.BuildConfig
 import com.eried.eucplanet.R
 import com.eried.eucplanet.data.sync.SyncChoice
+import com.eried.eucplanet.ui.settings.eucstats.OnlineUploadOnboardingDialog
 import com.eried.eucplanet.service.VoiceOption
 import com.eried.eucplanet.ui.common.HintText
 import com.eried.eucplanet.ui.common.InfoHint
@@ -6685,6 +6688,196 @@ private fun CloudTab(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+            }
+        }
+
+        // ---- Online stats section ----
+        // State for the onboarding dialog
+        var showOnboarding by remember { mutableStateOf(false) }
+
+        if (showOnboarding) {
+            OnlineUploadOnboardingDialog(
+                onDismiss = { showOnboarding = false },
+                onRegistered = {
+                    showOnboarding = false
+                    viewModel.refreshOnlineUploadCard()
+                },
+                viewModel = viewModel,
+            )
+        }
+
+        SectionHeader(stringResource(R.string.section_online_stats))
+
+        // Switch row: enabled only when a sync folder is set
+        val folderAvailable = settings.syncFolderUri != null
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                stringResource(R.string.online_upload_toggle),
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (folderAvailable) MaterialTheme.appColors.textPrimary
+                        else MaterialTheme.appColors.textDisabled,
+            )
+            Switch(
+                checked = settings.onlineUploadEnabled,
+                enabled = folderAvailable,
+                onCheckedChange = { enabled ->
+                    if (enabled) {
+                        if (settings.eucstatsStoreId == null) {
+                            showOnboarding = true
+                        } else {
+                            viewModel.setOnlineUploadEnabled(true)
+                        }
+                    } else {
+                        viewModel.setOnlineUploadEnabled(false)
+                    }
+                },
+                colors = themedSwitchColors(),
+            )
+        }
+
+        if (!folderAvailable) {
+            HintText(stringResource(R.string.online_upload_needs_folder), small = true)
+        }
+
+        // Rider card: shown when online upload is enabled and storeId is known
+        if (settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+            LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
+            val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
+            val card = riderCard
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.appColors.tileBackground
+                        .takeIf { it != androidx.compose.ui.graphics.Color.Unspecified }
+                        ?: MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (card == null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.appColors.primary,
+                            )
+                            Text(
+                                stringResource(R.string.online_upload_card_loading),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                    } else {
+                        // Avatar + name/flag row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            // Avatar: circular initial placeholder (no Coil dependency)
+                            val initial = card.displayName?.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.appColors.primary),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = initial,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.appColors.onPrimary,
+                                )
+                            }
+                            // Name and flag
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                val nameAndFlag = buildString {
+                                    if (!card.displayName.isNullOrBlank()) append(card.displayName)
+                                    if (!card.flag.isNullOrBlank()) {
+                                        if (isNotEmpty()) append("  ")
+                                        append(card.flag)
+                                    }
+                                }
+                                if (nameAndFlag.isNotEmpty()) {
+                                    Text(
+                                        nameAndFlag,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.appColors.textPrimary,
+                                    )
+                                }
+                                if (!card.country.isNullOrBlank()) {
+                                    Text(
+                                        card.country,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.appColors.textSecondary,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Stats
+                        val totalKmStr = "%.0f".format(card.totalKm)
+                        Text(
+                            stringResource(R.string.online_upload_total_km, totalKmStr),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        if (card.mileageRank != null) {
+                            Text(
+                                stringResource(R.string.online_upload_mileage_rank, card.mileageRank),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.appColors.textSecondary,
+                            )
+                        }
+                        Text(
+                            stringResource(
+                                R.string.online_upload_top_speed,
+                                "%.0f".format(card.topSpeedKmh)
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                        Text(
+                            stringResource(R.string.online_upload_trips, card.trips),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.appColors.textSecondary,
+                        )
+                    }
+
+                    // Action buttons row
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        TextButton(
+                            onClick = {
+                                val intent = android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("https://eucstats.ried.no/")
+                                )
+                                runCatching { context.startActivity(intent) }
+                            },
+                            colors = themedTextButtonColors(),
+                        ) {
+                            Text(stringResource(R.string.online_upload_view_on_eucstats))
+                        }
+                        TextButton(
+                            onClick = { viewModel.retryEucstatsUploads() },
+                            colors = themedTextButtonColors(),
+                        ) {
+                            Text(stringResource(R.string.online_upload_retry))
+                        }
                     }
                 }
             }

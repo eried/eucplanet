@@ -1050,6 +1050,18 @@
     <string name="online_upload_register_action">Register</string>
     <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
 
+    <!-- Online stats toggle + rider card (Task E3) -->
+    <string name="section_online_stats">Online stats</string>
+    <string name="online_upload_toggle">Upload my stats online</string>
+    <string name="online_upload_needs_folder">Set a backup folder first</string>
+    <string name="online_upload_card_loading">Loading…</string>
+    <string name="online_upload_view_on_eucstats">View on eucstats</string>
+    <string name="online_upload_retry">Retry uploads</string>
+    <string name="online_upload_mileage_rank">#%d mileage</string>
+    <string name="online_upload_top_speed">top %s km/h</string>
+    <string name="online_upload_trips">%d trips</string>
+    <string name="online_upload_total_km">%s km</string>
+
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>
     <string name="studio_not_connected">Not connected</string>
