@@ -1,4 +1,2 @@
-- "(factory)" reset moved directly under "(default)" in the backup Restore picker, with a divider above your named backups.
-- Shorter wording on the factory reset confirmation.
-- Removed the auto-record tip (auto-record is on by default).
-- Translation updates.
+- Restored the green speed gauge: the speed number and arc read bright green again, with the darker green safe band.
+- Settings: section icons are accent-colored again and the titles and labels are normal text instead of all teal. Fixed in light and dark mode.
