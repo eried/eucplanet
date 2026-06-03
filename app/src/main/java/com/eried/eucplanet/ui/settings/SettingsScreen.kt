@@ -826,7 +826,14 @@ private fun CollapsibleSection(
         modifier = modifier
             .fillMaxWidth()
             .bringIntoViewRequester(requester),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            // Body text inside a section is normal text (off-white on dark, dark
+            // ink on light) — only the leading icon carries the accent. Without
+            // this, un-colored labels inherited an accent content color and the
+            // whole section read teal.
+            contentColor = MaterialTheme.appColors.textPrimary,
+        ),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -846,11 +853,16 @@ private fun CollapsibleSection(
                 Text(
                     highlightMatches(title, query),
                     style = MaterialTheme.typography.titleMedium,
+                    // Section title is body text, not an accent: keep it the
+                    // theme's primary text color (off-white on dark, dark ink on
+                    // light) so it doesn't share the leading icon's accent tint.
+                    color = MaterialTheme.appColors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
                     if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = MaterialTheme.appColors.textSecondary
                 )
             }
             if (expanded) {
@@ -8110,7 +8122,8 @@ private fun AdvancedCollapsable(
             .fillMaxWidth()
             .bringIntoViewRequester(requester),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.appColors.textPrimary
         )
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -8170,7 +8183,8 @@ private fun WatchButtonsCollapsable(
             .fillMaxWidth()
             .bringIntoViewRequester(requester),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.appColors.textPrimary
         )
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
