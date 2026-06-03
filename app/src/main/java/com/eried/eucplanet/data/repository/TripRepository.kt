@@ -3,6 +3,7 @@ package com.eried.eucplanet.data.repository
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.os.Build
 import android.os.Looper
 import android.util.Log
 import com.eried.eucplanet.R
@@ -83,6 +84,9 @@ class TripRepository @Inject constructor(
     private var currentTrip: TripRecord? = null
     private var recordJob: kotlinx.coroutines.Job? = null
 
+    // Tracks whether any location fix during the active recording was from a mock provider.
+    @Volatile private var tripHadMockFix = false
+
     // The just-stopped trip waiting for grace-period finalization, plus the job
     // running the timer. cancelPendingTrip() cancels the job and deletes the trip.
     private var pendingTrip: TripRecord? = null
@@ -110,6 +114,10 @@ class TripRepository @Inject constructor(
                             "acc=${"%.1f".format(loc.accuracy)}m " +
                             "speed=${if (loc.hasSpeed()) "%.1f m/s".format(loc.speed) else "n/a"}"
                 )
+            }
+            // Track mock-location usage during the active recording.
+            if (_recording.value) {
+                tripHadMockFix = tripHadMockFix || isMockLocation(loc)
             }
             _currentLocation.value = loc
         }
@@ -248,8 +256,9 @@ class TripRepository @Inject constructor(
 
         gpsDistanceKm = 0.0
         lastGpsPoint = null
+        tripHadMockFix = false
 
-        val trip = TripRecord(fileName = fileName)
+        val trip = TripRecord(fileName = fileName, tripUuid = java.util.UUID.randomUUID().toString())
         val id = tripDao.insert(trip)
         currentTrip = trip.copy(id = id)
         _currentTripId.value = id
@@ -310,6 +319,8 @@ class TripRepository @Inject constructor(
         recordJob?.cancel()
         recordJob = null
 
+        // Capture row count BEFORE closing and nulling the writer.
+        val capturedRowCount = csvWriter?.rows ?: 0
         csvWriter?.close()
         csvWriter = null
 
@@ -329,10 +340,22 @@ class TripRepository @Inject constructor(
         // GPS-derived distance is preferred; fall back to wheel session counter only if
         // we never accumulated any GPS movement (e.g. recording without location permission).
         val distance = if (gpsDistanceKm > 0.0) gpsDistanceKm.toFloat() else data.tripDistance
+        val capturedMock = tripHadMockFix
+        val wheelMeta = buildWheelMetaJson(
+            brand = wheelRepository.connectedBrand.value,
+            model = wheelRepository.modelName.value,
+            serial = null,
+            bleMac = settingsRepository.get().lastDeviceAddress,
+            bleName = wheelRepository.connectedDeviceName.value,
+            firmware = wheelRepository.firmwareVersion.value,
+        )
         val finishedTrip = trip.copy(
             endTime = System.currentTimeMillis(),
             distanceKm = distance,
-            uploadStatus = 0
+            uploadStatus = 0,
+            isMockLocation = capturedMock,
+            sampleCount = capturedRowCount,
+            wheelMetaJson = wheelMeta,
         )
         // Write endTime/distance immediately so the trip list shows it correctly.
         // uploadStatus stays 0, we only flip it to 1 (queued for sync) after grace.
@@ -382,6 +405,13 @@ class TripRepository @Inject constructor(
         pendingFinalizeJob = null
         Log.i(TAG, "Trip finalized: ${trip.fileName} (sync=$willSync)")
         if (willSync) syncManager.enqueueTripUpload(appSettings)
+
+        // Enqueue eucstats upload if the rider has opted in and is registered.
+        if (appSettings.onlineUploadEnabled && appSettings.eucstatsStoreId != null) {
+            tripDao.update(trip.copy(eucstatsStatus = 1))
+            syncManager.enqueueEucStatsUpload(appSettings)
+            Log.i(TAG, "Eucstats upload enqueued for trip ${trip.tripUuid}")
+        }
     }
 
     /**
@@ -443,4 +473,32 @@ class TripRepository @Inject constructor(
     }
 
     fun getTripFile(trip: TripRecord): File = File(getTripsDir(), trip.fileName)
+}
+
+/** Returns true if the location fix came from a mock provider. */
+internal fun isMockLocation(loc: Location): Boolean =
+    if (Build.VERSION.SDK_INT >= 31) loc.isMock
+    else @Suppress("DEPRECATION") loc.isFromMockProvider
+
+/**
+ * Builds a JSON object string with the connected wheel's metadata.
+ * Returns null if ALL fields are null or blank (nothing to record).
+ * Only non-null, non-blank values are included in the JSON.
+ */
+fun buildWheelMetaJson(
+    brand: String?,
+    model: String?,
+    serial: String?,
+    bleMac: String?,
+    bleName: String?,
+    firmware: String?,
+): String? {
+    val obj = org.json.JSONObject()
+    if (!brand.isNullOrBlank())    obj.put("brand", brand)
+    if (!model.isNullOrBlank())    obj.put("model", model)
+    if (!serial.isNullOrBlank())   obj.put("serial", serial)
+    if (!bleMac.isNullOrBlank())   obj.put("ble_mac", bleMac)
+    if (!bleName.isNullOrBlank())  obj.put("ble_name", bleName)
+    if (!firmware.isNullOrBlank()) obj.put("firmware", firmware)
+    return if (obj.length() == 0) null else obj.toString()
 }

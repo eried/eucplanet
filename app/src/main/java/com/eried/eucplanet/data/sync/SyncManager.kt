@@ -5,9 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 import com.eried.eucplanet.data.db.AlarmDao
 import com.eried.eucplanet.data.db.TripDao
 import com.eried.eucplanet.data.model.AlarmRule
@@ -56,6 +60,7 @@ class SyncManager @Inject constructor(
         const val SETTINGS_BACKUP_SUFFIX = ".json"
         const val TRIPS_SUBFOLDER = "trips"
         const val UPLOAD_WORK_NAME = "trip_upload"
+        const val EUCSTATS_UPLOAD_WORK_NAME = "eucstats_upload"
     }
 
     // App-scoped so trip sync survives settings screen navigation.
@@ -485,6 +490,22 @@ class SyncManager @Inject constructor(
         val request = OneTimeWorkRequestBuilder<TripUploadWorker>().build()
         WorkManager.getInstance(context).enqueueUniqueWork(
             UPLOAD_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    /** Enqueue the eucstats upload worker with a network constraint and exponential backoff. */
+    fun enqueueEucStatsUpload(settings: AppSettings) {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val request = OneTimeWorkRequestBuilder<EucStatsUploadWorker>()
+            .setConstraints(constraints)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            EUCSTATS_UPLOAD_WORK_NAME,
             ExistingWorkPolicy.REPLACE,
             request
         )

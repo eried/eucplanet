@@ -24,6 +24,9 @@ class CsvWriter(private val file: File) {
     private var writer: BufferedWriter? = null
     private var rowCount = 0
 
+    /** Number of data rows written so far (excluding the header). */
+    val rows: Int get() = rowCount
+
     fun open() {
         writer = BufferedWriter(FileWriter(file))
         writer?.write("Date,Speed,Voltage,Temperature,Battery level,Altitude,Latitude,Longitude,Total mileage,GPS speed,Current,PWM,G-Force,G-Force X,G-Force Y")
