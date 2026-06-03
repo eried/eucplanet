@@ -104,7 +104,7 @@
     <string name="tab_auto">Automations</string>
     <string name="tab_integration">Integration</string>
     <string name="tab_watch">Watch</string>
-    <string name="tab_cloud">Backup settings &amp; trips</string>
+    <string name="tab_cloud">Backups &amp; leaderboards</string>
 
     <!-- Dashboard layout (customizable home screen) -->
     <string name="tab_dashboard">Dashboard layout</string>
@@ -446,7 +446,7 @@
 
     <!-- Settings: Backup -->
     <string name="section_cloud_folder">Backup folder</string>
-    <string name="cloud_caption">Folder where trip CSVs and settings backup land</string>
+    <string name="cloud_caption">Your backup folder for trips, settings, themes and overlays</string>
     <string name="cloud_choose_folder">Choose folder</string>
     <string name="cloud_change_folder">Change folder</string>
     <string name="cloud_remove_folder">Unlink</string>
@@ -1051,9 +1051,8 @@
     <string name="online_upload_register_error">Registration failed. Check your connection and try again.</string>
 
     <!-- Online stats toggle + rider card (Task E3) -->
-    <string name="section_online_stats">Online stats</string>
-    <string name="online_upload_toggle">Upload my stats online</string>
-    <string name="online_upload_needs_folder">Set a backup folder first</string>
+    <string name="section_online_stats">Online leaderboards</string>
+    <string name="online_upload_toggle">Join the online leaderboards</string>
     <string name="online_upload_card_loading">Loading…</string>
     <string name="online_upload_view_on_eucstats">View on eucstats</string>
     <string name="online_upload_retry">Retry uploads</string>

@@ -6719,45 +6719,40 @@ private fun CloudTab(
             )
         }
 
-        SectionHeader(stringResource(R.string.section_online_stats))
+        // Online leaderboards — only shown once a backup folder is configured.
+        if (settings.syncFolderUri != null) {
+            SectionHeader(stringResource(R.string.section_online_stats))
 
-        // Switch row: enabled only when a sync folder is set
-        val folderAvailable = settings.syncFolderUri != null
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                stringResource(R.string.online_upload_toggle),
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (folderAvailable) MaterialTheme.appColors.textPrimary
-                        else MaterialTheme.appColors.textDisabled,
-            )
-            Switch(
-                checked = settings.onlineUploadEnabled,
-                enabled = folderAvailable,
-                onCheckedChange = { enabled ->
-                    if (enabled) {
-                        if (settings.eucstatsStoreId == null) {
-                            showOnboarding = true
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.online_upload_toggle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.appColors.textPrimary,
+                )
+                Switch(
+                    checked = settings.onlineUploadEnabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled) {
+                            if (settings.eucstatsStoreId == null) {
+                                showOnboarding = true
+                            } else {
+                                viewModel.setOnlineUploadEnabled(true)
+                            }
                         } else {
-                            viewModel.setOnlineUploadEnabled(true)
+                            viewModel.setOnlineUploadEnabled(false)
                         }
-                    } else {
-                        viewModel.setOnlineUploadEnabled(false)
-                    }
-                },
-                colors = themedSwitchColors(),
-            )
-        }
-
-        if (!folderAvailable) {
-            HintText(stringResource(R.string.online_upload_needs_folder), small = true)
+                    },
+                    colors = themedSwitchColors(),
+                )
+            }
         }
 
         // Rider card: shown when online upload is enabled and storeId is known
-        if (settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
+        if (settings.syncFolderUri != null && settings.onlineUploadEnabled && settings.eucstatsStoreId != null) {
             LaunchedEffect(Unit) { viewModel.refreshOnlineUploadCard() }
             val riderCard by viewModel.onlineUploadCard.collectAsStateWithLifecycle()
             val card = riderCard
