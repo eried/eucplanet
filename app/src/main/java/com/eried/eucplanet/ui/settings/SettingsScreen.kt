@@ -6868,10 +6868,12 @@ private fun CloudTab(
                             }
                         }
 
-                        // Stats
+                        // Stats — show both metric and imperial (static).
+                        val kmToMi = 0.621371f
                         val totalKmStr = "%.0f".format(card.totalKm)
+                        val totalMiStr = "%.0f".format(card.totalKm * kmToMi)
                         Text(
-                            stringResource(R.string.online_upload_total_km, totalKmStr),
+                            stringResource(R.string.online_upload_total_km, totalKmStr, totalMiStr),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
                         )
@@ -6885,7 +6887,8 @@ private fun CloudTab(
                         Text(
                             stringResource(
                                 R.string.online_upload_top_speed,
-                                "%.0f".format(card.topSpeedKmh)
+                                "%.0f".format(card.topSpeedKmh),
+                                "%.0f".format(card.topSpeedKmh * kmToMi)
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.appColors.textSecondary,
