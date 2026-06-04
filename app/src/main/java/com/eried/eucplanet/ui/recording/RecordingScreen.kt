@@ -536,12 +536,14 @@ private fun TripCard(
             // sync worker is uploading (uploadStatus=1). Without this, there is a
             // visible gap between the orange icon disappearing and the green tick
             // appearing once the upload completes. Recording trips show neither.
-            // Single combined status (progression: pending -> saved locally -> shared online).
-            // Online supersedes the disk tick since online upload requires the folder.
+            // Single combined status. Online is the headline (it supersedes the folder
+            // tick / a lagging folder backup); only the discard-grace window outranks it.
             when {
-                isPending || (!isRecording && trip.uploadStatus == 1) -> PendingStatusIcon()
-                !isRecording && trip.eucstatsStatus != 0 -> OnlineStatusIcon(trip, onRetryOnline)
-                !isRecording && trip.uploadStatus == 2 -> UploadStatusIcon(trip)
+                isRecording -> {}                                                   // no status while recording
+                isPending -> PendingStatusIcon()                                    // discard-grace window
+                trip.eucstatsStatus != 0 -> OnlineStatusIcon(trip, onRetryOnline)   // shared / uploading / failed
+                trip.uploadStatus == 1 -> PendingStatusIcon()                       // folder backup in flight
+                trip.uploadStatus == 2 -> UploadStatusIcon(trip)                    // saved locally only
             }
             // View (eye), always available
             IconButton(onClick = onView) {
