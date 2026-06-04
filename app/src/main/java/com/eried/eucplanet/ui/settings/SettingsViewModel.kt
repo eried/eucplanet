@@ -14,6 +14,7 @@ import com.eried.eucplanet.data.eucstats.EucStatsRepository
 import com.eried.eucplanet.data.eucstats.RiderCard
 import com.eried.eucplanet.data.sync.BackupEntry
 import com.eried.eucplanet.data.sync.BackupOutcome
+import com.eried.eucplanet.data.sync.RestorableRider
 import com.eried.eucplanet.data.sync.SyncChoice
 import com.eried.eucplanet.data.sync.SyncManager
 import com.eried.eucplanet.data.sync.SyncResult
@@ -753,9 +754,56 @@ class SettingsViewModel @Inject constructor(
 
     fun restoreSettingsFrom(fileName: String) {
         viewModelScope.launch {
-            val ok = syncManager.restoreSettingsFrom(fileName)
+            val ok = restoreWithSafety(fileName)
+            if (ok) refreshOnlineUploadCard()
             _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
         }
+    }
+
+    // ---- eucstats rider recovery from a linked backup folder ----
+
+    private val _restorableRider = MutableStateFlow<RestorableRider?>(null)
+    /** A rider identity found in the linked sync folder's backup that this phone
+     *  could adopt. Non-null → UI shows the "restore your rider?" prompt. */
+    val restorableRider: StateFlow<RestorableRider?> = _restorableRider.asStateFlow()
+
+    /** Look for a rider identity saved in the linked folder, and surface it only
+     *  when it differs from (or would fill) this phone's current rider, so we
+     *  never nag about a backup that already matches. */
+    fun checkForRestorableRider() {
+        viewModelScope.launch {
+            val found = syncManager.findRestorableRider() ?: return@launch
+            val current = settingsRepository.get().eucstatsStoreId
+            if (found.storeId != current) _restorableRider.value = found
+        }
+    }
+
+    fun dismissRestorableRider() { _restorableRider.value = null }
+
+    /** Adopt the rider carried by [rider] (restore its backup), snapshotting the
+     *  current rider first if we'd be replacing a different one. */
+    fun restoreRider(rider: RestorableRider) {
+        viewModelScope.launch {
+            val ok = restoreWithSafety(rider.fileName)
+            _restorableRider.value = null
+            if (ok) refreshOnlineUploadCard()
+            _cloudEvent.value = if (ok) CloudEvent.RestoreSuccess else CloudEvent.RestoreFailed
+        }
+    }
+
+    /**
+     * Restore a backup, but if it would replace an EXISTING, DIFFERENT rider
+     * identity, first save a timestamped safety copy of the current settings so
+     * the previous rider stays recoverable even if the rider tapped through the
+     * confirm. Applies to every restore path (recovery prompt and manual picker).
+     */
+    private suspend fun restoreWithSafety(fileName: String): Boolean {
+        val currentId = settingsRepository.get().eucstatsStoreId
+        val incoming = syncManager.peekRider(fileName)
+        if (currentId != null && incoming != null && incoming.storeId != currentId) {
+            syncManager.snapshotBeforeRestore()
+        }
+        return syncManager.restoreSettingsFrom(fileName)
     }
 
     /** Reset all rider configuration to factory defaults (keeps pairings, sync

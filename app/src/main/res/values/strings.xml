@@ -1092,6 +1092,11 @@
     <string name="online_profile_delete_confirm_action">Delete permanently</string>
     <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
     <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
+    <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
+    <string name="online_restore_title">Restore your rider profile?</string>
+    <string name="online_restore_body_new">This folder has a saved profile for %1$s. Restore it to keep your leaderboard identity and stats.</string>
+    <string name="online_restore_body_switch">This folder belongs to %1$s. Restoring switches this phone to that rider. Your current profile is backed up first, so you can switch back.</string>
+    <string name="online_restore_confirm">Restore</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>

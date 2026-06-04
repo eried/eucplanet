@@ -624,7 +624,16 @@ private fun OnlineStatusIcon(trip: TripRecord, onRetry: () -> Unit) {
         flagged -> stringResource(R.string.online_status_flagged)
         else -> stringResource(R.string.online_status_pending)
     }
-    IconButton(onClick = { if (isRetry) onRetry() else showSnackbarLocal(snackbar, scope, msg) }) {
+    // Tapping a flagged trip explains why it's held, rather than just repeating
+    // the short status label.
+    val flaggedWhy = stringResource(R.string.online_status_flagged_why)
+    IconButton(onClick = {
+        when {
+            isRetry -> onRetry()
+            flagged -> showSnackbarLocal(snackbar, scope, flaggedWhy)
+            else -> showSnackbarLocal(snackbar, scope, msg)
+        }
+    }) {
         Icon(icon, contentDescription = msg, tint = tint, modifier = Modifier.size(20.dp))
     }
 }

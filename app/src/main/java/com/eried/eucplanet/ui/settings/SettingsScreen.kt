@@ -6716,6 +6716,44 @@ private fun CloudTab(
         var showOnlineProfile by remember { mutableStateOf(false) }
         var showUnlinkConfirm by remember { mutableStateOf(false) }
 
+        // Rider recovery: when a sync folder is linked but this phone has no rider
+        // yet (fresh install / reinstall), offer to restore the rider saved in the
+        // folder's backup instead of silently creating a new identity on Join.
+        val restorableRider by viewModel.restorableRider.collectAsStateWithLifecycle()
+        LaunchedEffect(settings.syncFolderUri, settings.eucstatsStoreId) {
+            if (settings.syncFolderUri != null && settings.eucstatsStoreId == null) {
+                viewModel.checkForRestorableRider()
+            }
+        }
+        restorableRider?.let { rider ->
+            val riderName = rider.displayName?.takeIf { it.isNotBlank() }
+                ?: ("#" + rider.storeId.take(8))
+            val switching = settings.eucstatsStoreId != null
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissRestorableRider() },
+                title = { Text(stringResource(R.string.online_restore_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            if (switching) R.string.online_restore_body_switch
+                            else R.string.online_restore_body_new,
+                            riderName,
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.restoreRider(rider) }) {
+                        Text(stringResource(R.string.online_restore_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
+
         if (showOnboarding) {
             OnlineUploadOnboardingDialog(
                 onDismiss = { showOnboarding = false },
