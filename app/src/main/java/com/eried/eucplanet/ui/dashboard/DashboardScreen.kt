@@ -908,7 +908,7 @@ fun DashboardScreen(
                     DashIndicatorIcon(
                         icon = Icons.Default.PhotoCamera,
                         active = true,
-                        activeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood,
+                        activeColor = MaterialTheme.appColors.dashIcon,
                         modifier = Modifier
                             .offset(x = 4.dp)
                             .padding(bottom = 8.dp)
@@ -967,8 +967,7 @@ fun DashboardScreen(
                         imageVector = if (navActive) Icons.Default.Navigation
                         else Icons.Default.Map,
                         contentDescription = stringResource(R.string.nav_open),
-                        tint = if (navActive) MaterialTheme.appColors.statusGood
-                        else if (useAccent) primary else MaterialTheme.appColors.statusGood,
+                        tint = MaterialTheme.appColors.dashIcon,
                         modifier = Modifier
                             .padding(start = 4.dp, bottom = 10.dp)
                             .size(32.dp)
@@ -1620,16 +1619,13 @@ fun DashboardScreen(
                                             ) ?: return@cellRenderer placeholder
                                             "%.1f".format(value)
                                         }
-                                    // ROW2 stacks two cells vertically so it needs 2x the
-                                    // standard tile height. BUT only when the rider has
-                                    // actually populated both cells -- ROW2 with one cell
-                                    // filled should collapse back to the standard 61 dp so
-                                    // the rider doesn't see an empty half-tile.
-                                    val populatedCells = composite?.cells?.count { it.isNotBlank() } ?: 0
-                                    val compositeHeight = if (
-                                        composite?.layout == com.eried.eucplanet.ui.settings.CompositeLayout.ROW2 &&
-                                        populatedCells >= 2
-                                    ) 122.dp else 61.dp
+                                    // A composite always occupies one standard slot
+                                    // (61 dp), exactly like every other dashboard tile.
+                                    // A 2-cell ROW2 stacks its two reads WITHIN that
+                                    // height rather than doubling to 122 dp -- the
+                                    // double-height tile blew out the row it shared and
+                                    // broke the front-of-app grid alignment.
+                                    val compositeHeight = 61.dp
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)

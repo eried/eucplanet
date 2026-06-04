@@ -184,9 +184,12 @@ fun ThemeEditorWidget(
                 IntOffset(c.x.roundToInt(), c.y.roundToInt())
             }
             .onSizeChanged { widgetSize = it }
-            // The whole floating theme widget is 80% opaque so the dashboard
-            // behind it stays faintly visible.
-            .alpha(0.8f)
+            // The floating theme widget is 90% opaque so the dashboard behind it
+            // stays faintly visible -- and fully hidden while the eyedropper is
+            // aiming, so the widget doesn't sit over the pixels being sampled.
+            // alpha 0 (not visibility/gone) keeps it in the tree so the in-flight
+            // pick gesture started on the eyedropper button still resolves.
+            .alpha(if (pickMode) 0f else 0.9f)
     ) {
         if (collapsed) {
             Box(
