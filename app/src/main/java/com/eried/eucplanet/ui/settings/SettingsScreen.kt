@@ -4629,28 +4629,44 @@ private fun SlotStatsEditor(
             DashboardStat.P75, DashboardStat.P95, DashboardStat.P99
         )
     }
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_left),
-            value = stats.left,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.LEFT, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_center),
-            value = stats.center,
-            options = centerOptions,
-            onSelect = { onCornerChange(SlotCorner.CENTER, it) }
-        )
-        CornerStatDropdown(
-            modifier = Modifier.weight(1f),
-            label = stringResource(R.string.dashboard_corner_right),
-            value = stats.right,
-            options = sideOptions,
-            onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
-        )
+    // Self-documenting metrics (e.g. Forward G is speed-derived) explain themselves
+    // right here in the editor — the descriptionRes shows as an italic subtitle.
+    val descRes = remember(key) {
+        com.eried.eucplanet.data.model.MetricCatalog.all.firstOrNull { it.key == key }?.descriptionRes
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        descRes?.let {
+            Text(
+                stringResource(it),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                ),
+                color = MaterialTheme.appColors.textSecondary,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_left),
+                value = stats.left,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.LEFT, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_center),
+                value = stats.center,
+                options = centerOptions,
+                onSelect = { onCornerChange(SlotCorner.CENTER, it) }
+            )
+            CornerStatDropdown(
+                modifier = Modifier.weight(1f),
+                label = stringResource(R.string.dashboard_corner_right),
+                value = stats.right,
+                options = sideOptions,
+                onSelect = { onCornerChange(SlotCorner.RIGHT, it) }
+            )
+        }
     }
 }
 

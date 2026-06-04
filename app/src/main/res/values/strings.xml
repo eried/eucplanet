@@ -283,6 +283,7 @@
     <string name="metric_desc_range_estimate">Distance remaining at the current consumption rate.</string>
     <string name="metric_desc_wh_per_km">Energy used per kilometre — lower is more efficient.</string>
     <string name="metric_desc_slope">Road grade calculated from the wheel\'s pitch — positive is uphill.</string>
+    <string name="metric_desc_forward_g">Estimated from wheel-speed change (not the IMU) — works regardless of phone mounting.</string>
     <string name="metric_desc_regen_wh">Total watt-hours fed back to the battery while braking this trip.</string>
     <string name="metric_desc_bt_rssi">Bluetooth signal strength to the wheel — closer to 0 dBm is stronger.</string>
     <string name="metric_desc_gps_accuracy">GPS positioning error radius — lower is more accurate.</string>
