@@ -6867,12 +6867,28 @@ private fun CloudTab(
                     )
                 ) { append(linkedLabel) }
             }
-            // The whole section sits in one rounded box, like the Devices section.
+            // Link to the public site, shown ABOVE the box at full width
+            // (not inset by the box padding).
+            Text(
+                linkedText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(siteUrl)
+                        )
+                        runCatching { context.startActivity(intent) }
+                    }
+                    .padding(vertical = 4.dp),
+            )
+
+            // Stats + actions sit in one rounded box, like the Devices section.
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.appColors.tileBackground
-                        .takeIf { it != androidx.compose.ui.graphics.Color.Unspecified }
-                        ?: MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
@@ -6881,22 +6897,6 @@ private fun CloudTab(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // Link to the public site.
-                    Text(
-                        linkedText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.appColors.textSecondary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                val intent = android.content.Intent(
-                                    android.content.Intent.ACTION_VIEW,
-                                    android.net.Uri.parse(siteUrl)
-                                )
-                                runCatching { context.startActivity(intent) }
-                            },
-                    )
-
                     if (card != null) {
                         // Avatar + name/flag row
                         Row(

@@ -70,14 +70,21 @@ class EucStatsApi(
         client.newCall(req).execute().use { resp ->
             if (!resp.isSuccessful) return null
             val o = JSONObject(resp.body?.string().orEmpty())
+            // Stats live under "stats" and ranks under "ranks" in the response.
+            val stats = o.optJSONObject("stats") ?: JSONObject()
+            val ranks = o.optJSONObject("ranks") ?: JSONObject()
             return RiderCard(
                 displayName = o.optString("display_name").ifEmpty { null },
                 flag = o.optString("flag").ifEmpty { null },
                 hasAvatar = o.optBoolean("has_avatar"),
-                avatarUrl = o.optString("avatar_url").ifEmpty { null },
-                totalKm = o.optDouble("total_km", 0.0), trips = o.optInt("trips", 0),
-                topSpeedKmh = o.optDouble("top_speed_kmh", 0.0), maxGforce = o.optDouble("max_gforce", 0.0),
-                mileageRank = if (o.isNull("mileage_rank")) null else o.optInt("mileage_rank"),
+                // No avatar_url in the JSON; the image is served at
+                // /riders/{id}/avatar, so build that URL when an avatar exists.
+                avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
+                totalKm = stats.optDouble("total_km", 0.0),
+                trips = stats.optInt("trips", 0),
+                topSpeedKmh = stats.optDouble("best_speed_kmh", 0.0),
+                maxGforce = stats.optDouble("best_gforce", 0.0),
+                mileageRank = if (!ranks.has("distance") || ranks.isNull("distance")) null else ranks.optInt("distance"),
                 country = o.optString("country").ifEmpty { null },
             )
         }
@@ -92,7 +99,7 @@ class EucStatsApi(
                 displayName = o.optString("display_name").ifEmpty { null },
                 flag = o.optString("flag").ifEmpty { null },
                 hasAvatar = o.optBoolean("has_avatar"),
-                avatarUrl = o.optString("avatar_url").ifEmpty { null },
+                avatarUrl = if (o.optBoolean("has_avatar")) "${baseUrl()}/riders/$storeId/avatar" else null,
                 canChangeNameAfter = o.optString("can_change_name_after").ifEmpty { null },
                 canChangeFlagAfter = o.optString("can_change_flag_after").ifEmpty { null },
                 canChangeAvatarAfter = o.optString("can_change_avatar_after").ifEmpty { null },
