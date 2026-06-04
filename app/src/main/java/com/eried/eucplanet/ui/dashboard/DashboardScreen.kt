@@ -736,7 +736,6 @@ fun DashboardScreen(
             // Speed gauge, wide arc dial (tap opens history)
             val useAccent = !com.eried.eucplanet.ui.theme.isDefaultAccent(accentKey)
             val primary = MaterialTheme.colorScheme.primary
-            val safeColor = if (useAccent) primary else MaterialTheme.appColors.statusGood
             // BoxWithConstraints with weight(1f, fill=true): the dial Box
             // absorbs ALL leftover vertical space so the ODO footer stays
             // pinned just below the action buttons. On phones the dial is a
@@ -1055,10 +1054,19 @@ fun DashboardScreen(
 
             // Stats grid, 3 rows of 2. Alert tiers only apply when connected (disconnected values are 0).
             val live = connectionState == ConnectionState.CONNECTED
+            // Each metric tile colors its number with its own family token
+            // (independent of the theme accent), keeping the warn/danger
+            // overrides below so battery/temp/load still go yellow/red. Read the
+            // family colors into vals once so the tile lambdas reference a Color
+            // rather than re-reading the theme inline; that keeps this very large
+            // dashboard composable under the bytecode-verifier method limit.
+            val metricVoltageColor = MaterialTheme.appColors.metricVoltage
+            val metricBatteryColor = MaterialTheme.appColors.metricBattery
+            val metricTempColor = MaterialTheme.appColors.metricTemp
             val battColor = when {
                 live && wheelData.batteryPercent < 20 -> MaterialTheme.appColors.statusDanger
                 live && wheelData.batteryPercent < 40 -> MaterialTheme.appColors.statusWarn
-                else -> safeColor
+                else -> metricBatteryColor
             }
             // EUC motor temperature tiers. The stored value is always °C, so
             // the thresholds are unit-independent, the display layer converts
@@ -1069,15 +1077,15 @@ fun DashboardScreen(
             //   105–149 °C (≈ 221–300 °F)           yellow
             //   ≥ 150 °C (≈ 302 °F)                 red
             val tempColor = when {
-                !live || wheelData.maxTemperature <= 0f -> safeColor
+                !live || wheelData.maxTemperature <= 0f -> metricTempColor
                 wheelData.maxTemperature >= 150f -> MaterialTheme.appColors.statusDanger
                 wheelData.maxTemperature >= 105f -> MaterialTheme.appColors.gaugeWarn
-                else -> safeColor
+                else -> metricTempColor
             }
             val loadColor = when {
                 live && pwm >= 80 -> MaterialTheme.appColors.statusDanger
                 live && pwm >= 60 -> MaterialTheme.appColors.statusWarn
-                else -> safeColor
+                else -> metricTempColor
             }
 
             // Em-dash reads as a substantial "no data" symbol in the stat
@@ -1462,7 +1470,7 @@ fun DashboardScreen(
                                 label = stringResource(R.string.stat_voltage),
                                 value = centerOverride ?: if (live && wheelData.voltage > 0f)
                                     "%.1fV".format(wheelData.voltage) else placeholder,
-                                accent = primary,
+                                accent = metricVoltageColor,
                                 sparkData = history.voltage,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.LINE,
                                 sparklineEnabled = sparklineEnabled,
@@ -1479,7 +1487,7 @@ fun DashboardScreen(
                             "CURRENT" -> LiveMetricTile(
                                 label = if (showWatts) wattsLabel else ampsLabel,
                                 value = centerOverride ?: currentText,
-                                accent = if (live && wheelData.current > 20) MaterialTheme.appColors.statusWarn else primary,
+                                accent = if (live && wheelData.current > 20) MaterialTheme.appColors.statusWarn else metricVoltageColor,
                                 sparkData = history.current,
                                 sparkStyle = spec?.sparkline ?: SparklineStyle.AREA_BIPOLAR,
                                 sparklineEnabled = sparklineEnabled,
@@ -1516,7 +1524,7 @@ fun DashboardScreen(
                             "TRIP" -> LiveMetricTile(
                                 label = stringResource(R.string.stat_trip),
                                 value = if (live) "%.1f %s".format(tripValue, distUnit) else placeholder,
-                                accent = primary,
+                                accent = metricBatteryColor,
                                 sparkData = emptyList(),
                                 sparkStyle = SparklineStyle.NONE,
                                 sparklineEnabled = false,
