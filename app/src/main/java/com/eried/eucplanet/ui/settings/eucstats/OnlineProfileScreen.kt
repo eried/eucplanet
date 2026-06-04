@@ -397,16 +397,7 @@ fun OnlineProfileDialog(
                                 }
                             }
                         }
-                        if (!avatarEditable) {
-                            Text(
-                                text = stringResource(
-                                    R.string.online_profile_changeable_on,
-                                    profile?.canChangeAvatarAfter.orEmpty()
-                                ),
-                                color = MaterialTheme.appColors.textSecondary,
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        } else if (cropped == null && profile?.hasAvatar != true) {
+                        if (avatarEditable && cropped == null && profile?.hasAvatar != true) {
                             Text(
                                 text = stringResource(R.string.online_upload_profile_avatar_hint),
                                 color = MaterialTheme.appColors.textSecondary,
@@ -422,18 +413,6 @@ fun OnlineProfileDialog(
                         label = { Text(stringResource(R.string.online_upload_profile_name_label)) },
                         singleLine = true,
                         enabled = nameEditable && !saving,
-                        supportingText = if (!nameEditable) {
-                            {
-                                Text(
-                                    text = stringResource(
-                                        R.string.online_profile_changeable_on,
-                                        profile?.canChangeNameAfter.orEmpty()
-                                    ),
-                                    color = MaterialTheme.appColors.textSecondary,
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            }
-                        } else null,
                         modifier = Modifier.fillMaxWidth(),
                         colors = themedFieldColors(),
                     )
@@ -483,16 +462,24 @@ fun OnlineProfileDialog(
                                 )
                             }
                         }
-                        if (!flagEditable) {
-                            Text(
-                                text = stringResource(
-                                    R.string.online_profile_changeable_on,
-                                    profile?.canChangeFlagAfter.orEmpty()
-                                ),
-                                color = MaterialTheme.appColors.textSecondary,
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        }
+                    }
+
+                    // One consolidated "locked until" line — the server locks the
+                    // fields together, so a separate caption per field just looked
+                    // messy. Shown once when anything is on cooldown.
+                    val anyLocked = !nameEditable || !flagEditable || !avatarEditable
+                    val lockedUntil = listOfNotNull(
+                        profile?.canChangeNameAfter,
+                        profile?.canChangeFlagAfter,
+                        profile?.canChangeAvatarAfter,
+                    ).maxOrNull()
+                    if (anyLocked && lockedUntil != null) {
+                        Text(
+                            text = stringResource(R.string.online_profile_changeable_on, lockedUntil),
+                            color = MaterialTheme.appColors.textSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
 
                     // ---- Save error ------------------------------------------
