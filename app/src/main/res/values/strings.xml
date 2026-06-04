@@ -1039,6 +1039,10 @@
     <!-- Step 2: Profile -->
     <string name="online_upload_profile_title">Create your profile</string>
     <string name="online_upload_profile_name_label">Display name</string>
+    <string name="online_upload_profile_country_label">Country</string>
+    <string name="online_upload_profile_country_select">Select your country</string>
+    <string name="online_upload_country_search">Search countries</string>
+    <string name="online_upload_profile_avatar_hint">Tap to add a photo</string>
     <string name="online_upload_profile_flag_label">Country code (ISO 3166-1 alpha-2)</string>
     <string name="online_upload_profile_flag_placeholder">e.g. NO, US, DE</string>
     <string name="online_upload_profile_flag_error">Enter a 2-letter country code (e.g. NO)</string>

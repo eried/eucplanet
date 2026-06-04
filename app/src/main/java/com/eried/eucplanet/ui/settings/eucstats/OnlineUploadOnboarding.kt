@@ -5,7 +5,9 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,19 +15,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,6 +59,7 @@ import com.eried.eucplanet.ui.settings.SettingsViewModel
 import com.eried.eucplanet.ui.theme.appColors
 import com.eried.eucplanet.ui.theme.themedFieldColors
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 
 // ---- Step constants ---------------------------------------------------------
 private const val STEP_CONSENT = 0
@@ -58,17 +69,10 @@ private const val STEP_PROFILE = 1
  * Multi-step onboarding dialog for the eucstats online upload feature.
  *
  * Step 1 — Consent: explains what data is shared publicly.
- * Step 2 — Profile: display name, flag (ISO 2-letter), required avatar.
+ * Step 2 — Profile: a tappable avatar, display name, and a flag/country picker.
  *
- * The Register button is disabled until all three fields are valid
- * (name non-blank, flag exactly 2 uppercase letters, avatar cropped).
- *
- * Call sites (Task E3) wire this from the Cloud tab when the rider taps
- * "Enable online upload" and has not yet registered.
- *
- * @param onDismiss     Called when the rider taps Cancel at any step.
- * @param onRegistered  Called on the main thread after a successful registration.
- * @param viewModel     Provides [SettingsViewModel.registerOnlineUpload].
+ * The avatar is required (Register stays disabled until one is cropped) but the
+ * UI never nags about it — the empty avatar ring with a camera glyph is the cue.
  */
 @Composable
 fun OnlineUploadOnboardingDialog(
@@ -80,17 +84,15 @@ fun OnlineUploadOnboardingDialog(
 
     // ---- Profile state -------------------------------------------------------
     var displayName by rememberSaveable { mutableStateOf("") }
-    var flagCode    by rememberSaveable { mutableStateOf("") }
+    var flagCode    by rememberSaveable { mutableStateOf("") }  // ISO 3166-1 alpha-2
 
-    // Avatar: the cropped Bitmap lives only in memory (no need to survive
-    // process-death during onboarding). We keep the raw-picked URI so that
-    // if the rider re-picks we decode afresh.
-    var pickedBitmap   by remember { mutableStateOf<Bitmap?>(null) }
-    var croppedBitmap  by remember { mutableStateOf<Bitmap?>(null) }
-    var showCropDialog by remember { mutableStateOf(false) }
+    var pickedBitmap     by remember { mutableStateOf<Bitmap?>(null) }
+    var croppedBitmap    by remember { mutableStateOf<Bitmap?>(null) }
+    var showCropDialog   by remember { mutableStateOf(false) }
+    var showCountryPicker by remember { mutableStateOf(false) }
 
     // ---- Registration state --------------------------------------------------
-    var registering  by remember { mutableStateOf(false) }
+    var registering   by remember { mutableStateOf(false) }
     var registerError by remember { mutableStateOf(false) }
 
     // ---- Image picker --------------------------------------------------------
@@ -124,9 +126,9 @@ fun OnlineUploadOnboardingDialog(
         }
     }
 
-    // ---- Form validation -----------------------------------------------------
-    val flagValid     = flagCode.length == 2 && flagCode.all { it.isLetter() }
-    val canRegister   = displayName.isNotBlank() && flagValid && croppedBitmap != null
+    // ---- Validation ----------------------------------------------------------
+    val flagValid   = flagCode.length == 2 && flagCode.all { it.isLetter() }
+    val canRegister = displayName.isNotBlank() && flagValid && croppedBitmap != null
 
     // =========================================================================
     // Consent step
@@ -205,8 +207,63 @@ fun OnlineUploadOnboardingDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                // ---- Tappable avatar (centered) ------------------------------
+                Box(
+                    modifier = Modifier
+                        .size(96.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.appColors.surfaceVariant)
+                        .border(
+                            width = 2.dp,
+                            color = if (croppedBitmap != null) MaterialTheme.appColors.primary
+                                    else MaterialTheme.appColors.outline,
+                            shape = CircleShape
+                        )
+                        .clickable(enabled = !registering) { imagePicker.launch("image/*") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    val cropped = croppedBitmap
+                    if (cropped != null) {
+                        Image(
+                            bitmap = remember(cropped) { cropped.asImageBitmap() },
+                            contentDescription = null,
+                            modifier = Modifier.size(96.dp).clip(CircleShape)
+                        )
+                        // Small edit badge so it's obviously tappable to change.
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(30.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.appColors.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Edit, contentDescription = null,
+                                tint = MaterialTheme.appColors.onPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            Icons.Default.AddAPhoto, contentDescription = null,
+                            tint = MaterialTheme.appColors.textSecondary,
+                            modifier = Modifier.size(34.dp)
+                        )
+                    }
+                }
+                // Gentle affordance (not a "required" nag) only before a photo is set.
+                if (croppedBitmap == null) {
+                    Text(
+                        text = stringResource(R.string.online_upload_profile_avatar_hint),
+                        color = MaterialTheme.appColors.textSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+
                 // ---- Display name -------------------------------------------
                 OutlinedTextField(
                     value = displayName,
@@ -218,96 +275,40 @@ fun OnlineUploadOnboardingDialog(
                     colors = themedFieldColors(),
                 )
 
-                // ---- Flag / country -----------------------------------------
-                OutlinedTextField(
-                    value = flagCode,
-                    onValueChange = { raw ->
-                        // Accept only letters, force uppercase, cap at 2 chars
-                        val filtered = raw.filter { it.isLetter() }.uppercase()
-                        if (filtered.length <= 2) flagCode = filtered
-                    },
-                    label = { Text(stringResource(R.string.online_upload_profile_flag_label)) },
-                    placeholder = { Text(stringResource(R.string.online_upload_profile_flag_placeholder)) },
-                    supportingText = {
-                        if (flagCode.isNotEmpty() && !flagValid) {
-                            Text(
-                                text = stringResource(R.string.online_upload_profile_flag_error),
-                                color = MaterialTheme.appColors.statusDanger,
-                            )
-                        }
-                    },
-                    isError = flagCode.isNotEmpty() && !flagValid,
-                    singleLine = true,
-                    enabled = !registering,
+                // ---- Country picker (flag list) ------------------------------
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = themedFieldColors(),
-                )
-
-                // ---- Avatar pick + preview -----------------------------------
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Circular avatar preview (or placeholder ring)
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .border(
-                                width = 2.dp,
-                                color = if (croppedBitmap != null)
-                                    MaterialTheme.appColors.primary
-                                else
-                                    MaterialTheme.appColors.outline,
-                                shape = CircleShape
-                            ),
-                        contentAlignment = Alignment.Center
+                    Text(
+                        text = stringResource(R.string.online_upload_profile_country_label),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.appColors.textSecondary,
+                    )
+                    Surface(
+                        onClick = { if (!registering) showCountryPicker = true },
+                        enabled = !registering,
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.appColors.surfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        val cropped = croppedBitmap
-                        if (cropped != null) {
-                            val imageBitmap = remember(cropped) { cropped.asImageBitmap() }
-                            Image(
-                                bitmap = imageBitmap,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(CircleShape)
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.online_upload_profile_avatar_placeholder),
-                                color = MaterialTheme.appColors.textSecondary,
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        }
-                    }
-
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        FilledTonalButton(
-                            onClick = { imagePicker.launch("image/*") },
-                            enabled = !registering,
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = MaterialTheme.appColors.tonalButtonFill,
-                                contentColor   = MaterialTheme.appColors.tonalButtonText,
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Text(
-                                text = stringResource(
-                                    if (croppedBitmap == null)
-                                        R.string.online_upload_profile_avatar_pick
-                                    else
-                                        R.string.online_upload_profile_avatar_change
-                                )
+                                text = if (flagValid) "${flagEmoji(flagCode)}  ${countryName(flagCode)}"
+                                       else stringResource(R.string.online_upload_profile_country_select),
+                                color = if (flagValid) MaterialTheme.appColors.textPrimary
+                                        else MaterialTheme.appColors.textSecondary,
+                                modifier = Modifier.weight(1f),
                             )
-                        }
-
-                        // Required hint — only visible before any avatar is picked
-                        if (croppedBitmap == null) {
-                            Text(
-                                text = stringResource(R.string.online_upload_profile_avatar_required),
-                                color = MaterialTheme.appColors.statusWarn,
-                                style = MaterialTheme.typography.labelSmall,
+                            Icon(
+                                Icons.Default.ArrowDropDown, contentDescription = null,
+                                tint = MaterialTheme.appColors.textSecondary,
                             )
                         }
                     }
@@ -374,13 +375,97 @@ fun OnlineUploadOnboardingDialog(
             }
         }
     )
+
+    // Country picker overlays the profile dialog.
+    if (showCountryPicker) {
+        CountryPickerDialog(
+            onPick = { code -> flagCode = code.uppercase(); showCountryPicker = false },
+            onDismiss = { showCountryPicker = false },
+        )
+    }
 }
+
+// ---- Country picker ---------------------------------------------------------
+
+/** Searchable list of all ISO countries with flag emoji, built from the JVM
+ *  locale data so there's no hardcoded country table to maintain. */
+@Composable
+private fun CountryPickerDialog(onPick: (String) -> Unit, onDismiss: () -> Unit) {
+    var query by remember { mutableStateOf("") }
+    val all = remember {
+        Locale.getISOCountries()
+            .map { it to Locale("", it).displayCountry }
+            .filter { it.second.isNotBlank() && it.second != it.first }
+            .sortedBy { it.second }
+    }
+    val filtered = remember(query) {
+        if (query.isBlank()) all
+        else all.filter {
+            it.second.contains(query, ignoreCase = true) || it.first.contains(query, ignoreCase = true)
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                stringResource(R.string.online_upload_profile_country_label),
+                color = MaterialTheme.appColors.textPrimary,
+            )
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    singleLine = true,
+                    placeholder = { Text(stringResource(R.string.online_upload_country_search)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = themedFieldColors(),
+                )
+                Spacer(Modifier.height(8.dp))
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 340.dp)) {
+                    items(filtered) { (code, name) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onPick(code) }
+                                .padding(horizontal = 4.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text(flagEmoji(code), style = MaterialTheme.typography.titleMedium)
+                            Text(name, color = MaterialTheme.appColors.textPrimary)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.appColors.textButton),
+            ) { Text(stringResource(R.string.action_cancel)) }
+        }
+    )
+}
+
+/** ISO 3166-1 alpha-2 code → flag emoji (regional indicator letters). */
+private fun flagEmoji(code: String): String {
+    val c = code.uppercase()
+    if (c.length != 2 || !c.all { it in 'A'..'Z' }) return ""
+    val first  = 0x1F1E6 + (c[0] - 'A')
+    val second = 0x1F1E6 + (c[1] - 'A')
+    return String(Character.toChars(first)) + String(Character.toChars(second))
+}
+
+/** Localised country name for a 2-letter code. */
+private fun countryName(code: String): String =
+    Locale("", code.uppercase()).displayCountry.ifBlank { code.uppercase() }
 
 // ---- Private helpers --------------------------------------------------------
 
-/**
- * A single "•" bullet point for the consent list, styled with secondary text color.
- */
+/** A single "•" bullet point for the consent list. */
 @Composable
 private fun ConsentBullet(text: String) {
     Row(
@@ -401,15 +486,7 @@ private fun ConsentBullet(text: String) {
     }
 }
 
-/**
- * Encode a cropped avatar [Bitmap] to a base64 PNG string with NO_WRAP
- * padding, exactly as [com.eried.eucplanet.ui.navigator.UserMarkerCropDialog]
- * does via [com.eried.eucplanet.ui.navigator.toBase64DataUrl] (minus the
- * `data:image/png;base64,` prefix, which the eucstats API doesn't want).
- *
- * The bitmap from [UserMarkerCropDialog] is already 64×64 with a circular
- * alpha mask, so no further scaling is needed.
- */
+/** Encode the cropped 64×64 avatar to a base64 PNG (no data-URL prefix). */
 private fun encodeBitmapToBase64(bitmap: Bitmap): String {
     val baos = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
