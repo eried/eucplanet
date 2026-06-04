@@ -3,6 +3,7 @@
 [![Latest release](https://img.shields.io/github/v/release/eried/eucplanet)](https://github.com/eried/eucplanet/releases)
 [![License: MIT](https://img.shields.io/github/license/eried/eucplanet)](LICENSE)
 [![Google Play](https://img.shields.io/badge/Google_Play-EUC_Planet-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.eried.eucplanet)
+[![Garmin Connect IQ](https://img.shields.io/badge/Connect_IQ-EUC_Planet-007CC3?logo=garmin&logoColor=white)](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10)
 [![Telegram](https://img.shields.io/badge/Telegram-EUCPlanetApp-26A5E4?logo=telegram&logoColor=white)](https://t.me/EUCPlanetApp)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=AEB2RPZHNRTKG)
 [![Downloads](https://img.shields.io/github/downloads/eried/eucplanet/total)](https://github.com/eried/eucplanet/releases)
@@ -99,8 +100,9 @@ arrow on top of a moving map (Garmin Edge style). See
 **Garmin Edge / watches.** A Connect IQ data field shows live EUC speed,
 battery, PWM, current and motor temperature on your bar-mounted Edge or
 on your wrist. Supports Edge 530/540/830/840/1030/1040/1050 and most modern
-Garmin watches via the bundled `.iq` (135+ devices). See
-[docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
+Garmin watches (135+ devices). Get it on the
+[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10),
+or build it yourself from [docs/GARMIN_SETUP.md](docs/GARMIN_SETUP.md).
 
 **Varia rear-view radar.** Pair a Garmin Varia RTL515 or RCT715 and get
 rear-vehicle warnings on the dashboard, the watch and the HUD. Same sensor
@@ -128,6 +130,9 @@ silently break a feature later in the ride.
 a small symbolic price, treat it as a tip if you'd like to support the project and
 get automatic updates. Or grab the latest APK from [releases](../../releases) for
 free and sideload it. Same app either way.
+
+On a Garmin watch or Edge, install the EUC Planet data field straight from the
+[Connect IQ Store](https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10).
 
 Build from source:
 
