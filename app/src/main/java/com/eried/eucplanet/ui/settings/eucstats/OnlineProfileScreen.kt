@@ -29,6 +29,9 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -244,11 +247,43 @@ fun OnlineProfileDialog(
     // ---- Main dialog ---------------------------------------------------------
     AlertDialog(
         onDismissRequest = { if (!saving && !deleting) onDismiss() },
+        modifier = Modifier.fillMaxWidth(0.92f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         title = {
-            Text(
-                text = stringResource(R.string.online_profile_title),
-                color = MaterialTheme.appColors.textPrimary,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    text = stringResource(R.string.online_profile_title),
+                    color = MaterialTheme.appColors.textPrimary,
+                    modifier = Modifier.weight(1f),
+                )
+                // Export my data -> a share action in the top-right corner.
+                IconButton(
+                    onClick = {
+                        viewModel.exportOnlineData { json ->
+                            if (json != null) {
+                                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "application/json"
+                                    putExtra(Intent.EXTRA_TEXT, json)
+                                    putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
+                                }
+                                runCatching {
+                                    context.startActivity(Intent.createChooser(shareIntent, null))
+                                }
+                            }
+                        }
+                    },
+                    enabled = !saving && !deleting,
+                ) {
+                    Icon(
+                        Icons.Default.Share,
+                        contentDescription = stringResource(R.string.online_profile_export_data),
+                        tint = MaterialTheme.appColors.textSecondary,
+                    )
+                }
+            }
         },
         text = {
             Column(
@@ -431,48 +466,6 @@ fun OnlineProfileDialog(
                         )
                     }
 
-                    Spacer(Modifier.height(4.dp))
-
-                    // ---- Export data -----------------------------------------
-                    FilledTonalButton(
-                        onClick = {
-                            viewModel.exportOnlineData { json ->
-                                if (json != null) {
-                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "application/json"
-                                        putExtra(Intent.EXTRA_TEXT, json)
-                                        putExtra(Intent.EXTRA_SUBJECT, "EUC Stats profile export")
-                                    }
-                                    runCatching {
-                                        context.startActivity(
-                                            Intent.createChooser(shareIntent, null)
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        enabled = !saving && !deleting,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.appColors.tonalButtonFill,
-                            contentColor   = MaterialTheme.appColors.tonalButtonText,
-                        )
-                    ) {
-                        Text(stringResource(R.string.online_profile_export_data))
-                    }
-
-                    // ---- Delete account --------------------------------------
-                    Button(
-                        onClick = { showDeleteConfirm = true },
-                        enabled = !saving && !deleting,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.appColors.statusDanger,
-                            contentColor   = MaterialTheme.appColors.onPrimary,
-                        )
-                    ) {
-                        Text(stringResource(R.string.online_profile_delete_account))
-                    }
                 }
             }
         },
@@ -526,14 +519,29 @@ fun OnlineProfileDialog(
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = { if (!saving && !deleting) onDismiss() },
-                enabled = !saving && !deleting,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.appColors.textButton,
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(stringResource(R.string.action_cancel))
+                // Delete sits to the left of Cancel.
+                TextButton(
+                    onClick = { showDeleteConfirm = true },
+                    enabled = !saving && !deleting,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.appColors.statusDanger,
+                    )
+                ) {
+                    Text(stringResource(R.string.online_profile_delete_account))
+                }
+                TextButton(
+                    onClick = { if (!saving && !deleting) onDismiss() },
+                    enabled = !saving && !deleting,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.appColors.textButton,
+                    )
+                ) {
+                    Text(stringResource(R.string.action_cancel))
+                }
             }
         }
     )

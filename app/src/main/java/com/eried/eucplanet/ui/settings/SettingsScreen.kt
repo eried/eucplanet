@@ -6848,13 +6848,26 @@ private fun CloudTab(
             val cardLoaded by viewModel.onlineUploadCardLoaded.collectAsStateWithLifecycle()
             val card = riderCard
 
-            // Link to the public site (replaces the old "View on eucstats" button).
+            // Link to the public site: a short caption with the URL underlined;
+            // tapping the line opens eucstats in the browser.
             val siteUrl = stringResource(R.string.online_upload_site_url)
+            val linkedCaption = stringResource(R.string.online_upload_join_caption)
+            val linkedLabel = stringResource(R.string.online_upload_site_label)
+            val linkColor = MaterialTheme.appColors.primary
+            val linkedText = androidx.compose.ui.text.buildAnnotatedString {
+                append(linkedCaption)
+                append(" ")
+                withStyle(
+                    androidx.compose.ui.text.SpanStyle(
+                        color = linkColor,
+                        textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                    )
+                ) { append(linkedLabel) }
+            }
             Text(
-                text = stringResource(R.string.online_upload_site_label),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.appColors.primary,
-                textDecoration = androidx.compose.ui.text.style.TextDecoration.Underline,
+                linkedText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.appColors.textSecondary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
@@ -6987,16 +7000,12 @@ private fun CloudTab(
                 }
             }
 
-            // Manage profile: same filled "Sync all" button style as the folder
-            // section, full width on its own line.
-            Button(
-                onClick = { showOnlineProfile = true },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
+            // Manage profile: a smaller, content-width button (not full width).
+            Button(onClick = { showOnlineProfile = true }) {
                 Text(stringResource(R.string.online_profile_manage))
             }
 
-            // Trip stats upload actions: retry pending uploads, or unlink.
+            // Trip stats upload actions: sync all pending uploads, or unlink.
             HintText(stringResource(R.string.online_upload_actions_caption), small = true)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -7006,7 +7015,7 @@ private fun CloudTab(
                     onClick = { viewModel.retryEucstatsUploads() },
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(stringResource(R.string.online_upload_retry))
+                    Text(stringResource(R.string.cloud_retry_now))
                 }
                 Button(
                     onClick = { showUnlinkConfirm = true },
