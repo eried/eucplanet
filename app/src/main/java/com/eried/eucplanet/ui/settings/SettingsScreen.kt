@@ -6868,10 +6868,12 @@ private fun CloudTab(
                             }
                         }
 
-                        // Stats — show both metric and imperial (static).
-                        val kmToMi = 0.621371f
-                        val totalKmStr = "%.0f".format(card.totalKm)
-                        val totalMiStr = "%.0f".format(card.totalKm * kmToMi)
+                        // Stats — show both metric and imperial (static). Use 1 decimal
+                        // for small values so e.g. 0.5 km doesn't round to "1 km · 0 mi".
+                        val kmToMi = 0.621371
+                        fun dist(v: Double) = if (v < 100.0) "%.1f".format(v) else "%.0f".format(v)
+                        val totalKmStr = dist(card.totalKm)
+                        val totalMiStr = dist(card.totalKm * kmToMi)
                         Text(
                             stringResource(R.string.online_upload_total_km, totalKmStr, totalMiStr),
                             style = MaterialTheme.typography.bodySmall,
@@ -6900,7 +6902,7 @@ private fun CloudTab(
                         )
                     }
 
-                    // Action buttons row
+                    // Action buttons — two per row so labels never get squished/wrapped.
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -6918,24 +6920,25 @@ private fun CloudTab(
                             Text(stringResource(R.string.online_upload_view_on_eucstats))
                         }
                         TextButton(
-                            onClick = { viewModel.retryEucstatsUploads() },
-                            colors = themedTextButtonColors(),
-                        ) {
-                            Text(stringResource(R.string.online_upload_retry))
-                        }
-                        TextButton(
                             onClick = { showOnlineProfile = true },
                             colors = themedTextButtonColors(),
                         ) {
                             Text(stringResource(R.string.online_profile_manage))
                         }
                     }
-                    // Unlink on its own line to avoid crowding on narrow screens
-                    Row(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        TextButton(
+                            onClick = { viewModel.retryEucstatsUploads() },
+                            colors = themedTextButtonColors(),
+                        ) {
+                            Text(stringResource(R.string.online_upload_retry))
+                        }
                         TextButton(
                             onClick = { showUnlinkConfirm = true },
                             colors = themedTextButtonColors(),
-                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp, vertical = 0.dp),
                         ) {
                             Text(
                                 stringResource(R.string.online_upload_unlink),
