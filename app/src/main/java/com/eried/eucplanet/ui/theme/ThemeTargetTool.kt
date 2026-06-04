@@ -242,7 +242,9 @@ fun ThemeTargetOverlay(
                     .align(Alignment.Center)
                     .padding(24.dp)
                     .widthIn(max = 320.dp),
-                color = MaterialTheme.colorScheme.surface,
+                // Slightly translucent (80% opaque) so the sampled color/spotlight
+                // behind the results window stays faintly visible.
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                 shape = RoundedCornerShape(12.dp),
                 tonalElevation = 6.dp
             ) {
