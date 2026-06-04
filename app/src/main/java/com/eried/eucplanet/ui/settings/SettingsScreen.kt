@@ -6746,16 +6746,8 @@ private fun CloudTab(
 
             if (!settings.onlineUploadEnabled) {
                 val siteUrl = stringResource(R.string.online_upload_site_url)
-                // Same button component the folder section uses (e.g. "Choose folder").
-                LeftAlignedScanButton(
-                    label = stringResource(R.string.online_upload_join),
-                    onClick = {
-                        if (settings.eucstatsStoreId == null) showOnboarding = true
-                        else viewModel.setOnlineUploadEnabled(true)
-                    },
-                )
-                // Caption + inline link as ONE flowing sentence that wraps naturally,
-                // so the URL no longer lands on its own awkward second line.
+                // Caption + inline link (one flowing, naturally-wrapping sentence),
+                // shown ABOVE the Join button.
                 val caption = stringResource(R.string.online_upload_join_caption)
                 val siteLabel = stringResource(R.string.online_upload_site_label)
                 val linkColor = MaterialTheme.appColors.primary
@@ -6782,7 +6774,15 @@ private fun CloudTab(
                             )
                             runCatching { context.startActivity(intent) }
                         }
-                        .padding(top = 4.dp),
+                        .padding(bottom = 8.dp),
+                )
+                // Same button component the folder section uses (e.g. "Choose folder").
+                LeftAlignedScanButton(
+                    label = stringResource(R.string.online_upload_join),
+                    onClick = {
+                        if (settings.eucstatsStoreId == null) showOnboarding = true
+                        else viewModel.setOnlineUploadEnabled(true)
+                    },
                 )
             }
         }
