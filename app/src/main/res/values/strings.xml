@@ -1032,7 +1032,7 @@
     <string name="online_upload_consent_bullet_flag">Your country flag</string>
     <string name="online_upload_consent_bullet_avatar">Your avatar photo</string>
     <string name="online_upload_consent_bullet_stats">Your overall riding stats, like distance and speed</string>
-    <string name="online_upload_consent_bullet_location">Trip start/end locations, grouped into areas of 10 km or larger</string>
+    <string name="online_upload_consent_bullet_location">Trip start/end locations, grouped into areas of 10 km (6 mi) or larger</string>
     <string name="online_upload_consent_no_raw_gps">Raw GPS tracks are never published.</string>
     <string name="online_upload_consent_agree">Agree &amp; continue</string>
 
