@@ -2,7 +2,7 @@ package com.eried.eucplanet.ui.theme
 
 import android.app.Activity
 import android.graphics.Bitmap
-import android.os.Build
+import android.graphics.Rect
 import android.os.Handler
 import android.os.Looper
 import android.view.PixelCopy
@@ -129,25 +129,27 @@ fun ThemeTargetOverlay(
     // Sample the screen pixel under the crosshair → matching tokens. The spotlight
     // hole keeps the dim from tinting the sampled pixel.
     fun sample() {
-        val window = (view.context as? Activity)?.window
-        val sx = (boxWin.x + ringState.value.x).roundToInt()
-        val sy = (boxWin.y + ringState.value.y).roundToInt()
-        if (window != null && view.width > 0 && view.height > 0 &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-        ) {
-            val bmp = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
-            runCatching {
-                PixelCopy.request(window, bmp, { result ->
-                    if (result == PixelCopy.SUCCESS &&
-                        sx in 0 until bmp.width && sy in 0 until bmp.height
-                    ) {
-                        chosen = null
-                        candidates = nearestTokens(Color(bmp.getPixel(sx, sy)), base)
-                    }
-                    bmp.recycle()
-                }, Handler(Looper.getMainLooper()))
-            }.onFailure { bmp.recycle() }
-        }
+        val window = (view.context as? Activity)?.window ?: return
+        if (view.width <= 0 || view.height <= 0) return
+        // Sample point in window coordinates, clamped inside the view bounds.
+        val sx = (boxWin.x + ringState.value.x).roundToInt().coerceIn(0, view.width - 1)
+        val sy = (boxWin.y + ringState.value.y).roundToInt().coerceIn(0, view.height - 1)
+        // Copy ONLY a 1x1 region around the crosshair -- never the whole window.
+        // A full-screen ARGB_8888 bitmap is ~18 MB on a 1440p phone, and
+        // allocating + PixelCopy-ing that synchronously on the main thread on
+        // every Identify froze low-RAM / large-screen devices. One pixel is all
+        // we need to match a token. (Window+Rect overload is API 26+; minSdk 29.)
+        val src = Rect(sx, sy, sx + 1, sy + 1)
+        val bmp = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        runCatching {
+            PixelCopy.request(window, src, bmp, { result ->
+                if (result == PixelCopy.SUCCESS) {
+                    chosen = null
+                    candidates = nearestTokens(Color(bmp.getPixel(0, 0)), base)
+                }
+                bmp.recycle()
+            }, Handler(Looper.getMainLooper()))
+        }.onFailure { bmp.recycle() }
     }
 
     // Drag-off-button release: sample the moment the finger lifts. A short delay
@@ -242,7 +244,9 @@ fun ThemeTargetOverlay(
                     .align(Alignment.Center)
                     .padding(24.dp)
                     .widthIn(max = 320.dp),
-                color = MaterialTheme.colorScheme.surface,
+                // Slightly translucent (90% opaque) so the sampled color/spotlight
+                // behind the results window stays faintly visible.
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
                 shape = RoundedCornerShape(12.dp),
                 tonalElevation = 6.dp
             ) {

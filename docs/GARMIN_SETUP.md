@@ -3,9 +3,9 @@
 EUC Planet exposes the same wrist dial on Garmin Connect IQ devices that it
 does on Wear OS. The two surfaces share settings, share the wire vocabulary,
 and can both be paired to the phone at the same time. This file walks through
-the developer setup; if you only want to install and use the app, watch this
-space for a Connect IQ Store release once the watch app graduates from
-preview.
+the developer setup. If you only want to install and use the app, get it from
+the Connect IQ Store:
+<https://apps.garmin.com/apps/630e5d32-637d-4612-84e3-35e6d0bbee10>
 
 ## Architecture in 30 seconds
 

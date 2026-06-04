@@ -91,6 +91,14 @@ data class AppThemeColors(
     val link: Color = Color.Unspecified,
     val hint: Color = Color.Unspecified,
     val tileLabel: Color = Color.Unspecified,
+    // Small MIN/MAX/AVG stat caption on metric tiles. Its own token so it can be
+    // recolored (e.g. pure black) without dragging every other piece of
+    // secondary text along (it used to read colorScheme.onSurfaceVariant).
+    val cornerStatLabel: Color = Color.Unspecified,
+    // Dashboard action glyphs (map/navigator + camera entry points). Their own
+    // token so they aren't pinned to statusGood ("Good / safe"), which they are
+    // not semantically.
+    val dashIcon: Color = Color.Unspecified,
     // Inputs & controls
     val fieldBackground: Color = Color.Unspecified,
     val fieldText: Color = Color.Unspecified,
@@ -137,6 +145,8 @@ fun AppThemeColors.fillDerived(): AppThemeColors = copy(
     link = link.takeOrElse { primary },
     hint = hint.takeOrElse { textSecondary },
     tileLabel = tileLabel.takeOrElse { textSecondary },
+    cornerStatLabel = cornerStatLabel.takeOrElse { textSecondary },
+    dashIcon = dashIcon.takeOrElse { statusGood },
     fieldBackground = fieldBackground.takeOrElse { surface },
     fieldText = fieldText.takeOrElse { textPrimary },
     fieldLabel = fieldLabel.takeOrElse { textSecondary },
@@ -293,6 +303,8 @@ object ThemeTokens {
         ThemeTokenSpec("link", "Link text", GROUP_TEXT, { it.link }, { c, v -> c.copy(link = v) }),
         ThemeTokenSpec("hint", "Hint / placeholder", GROUP_TEXT, { it.hint }, { c, v -> c.copy(hint = v) }),
         ThemeTokenSpec("tileLabel", "Tile label", GROUP_TEXT, { it.tileLabel }, { c, v -> c.copy(tileLabel = v) }),
+        ThemeTokenSpec("cornerStatLabel", "Tile stat caption (MIN / MAX)", GROUP_TEXT, { it.cornerStatLabel }, { c, v -> c.copy(cornerStatLabel = v) }),
+        ThemeTokenSpec("dashIcon", "Dashboard action icon", GROUP_TEXT, { it.dashIcon }, { c, v -> c.copy(dashIcon = v) }),
 
         ThemeTokenSpec("fieldBackground", "Field background", GROUP_INPUTS, { it.fieldBackground }, { c, v -> c.copy(fieldBackground = v) }),
         ThemeTokenSpec("fieldText", "Field text", GROUP_INPUTS, { it.fieldText }, { c, v -> c.copy(fieldText = v) }),
