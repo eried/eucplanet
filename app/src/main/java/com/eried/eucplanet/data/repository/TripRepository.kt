@@ -308,7 +308,9 @@ class TripRepository @Inject constructor(
                             System.currentTimeMillis() - it.timestamp < RECORD_INTERVAL_MS * 3
                     }
                     ?.speedKmh
-                csvWriter?.writeRow(data, location, extSpeed)
+                val wheelConnected = wheelRepository.connectionState.value ==
+                    com.eried.eucplanet.ble.ConnectionState.CONNECTED
+                csvWriter?.writeRow(data, location, extSpeed, wheelConnected)
                 rowsWritten++
                 if (location != null) {
                     rowsWithGps++

@@ -1094,10 +1094,11 @@
     <string name="online_profile_save_rate_limited">Rate limited, try again later.</string>
     <string name="online_profile_save_failed">Save failed (HTTP %1$d). Try again.</string>
     <string name="online_status_flagged_why">Held for a quick automated check. It joins the leaderboard once it clears.</string>
-    <string name="online_restore_title">Restore your rider profile?</string>
-    <string name="online_restore_body_new">This folder has a saved profile for %1$s. Restore it to keep your leaderboard identity and stats.</string>
-    <string name="online_restore_body_switch">This folder belongs to %1$s. Restoring switches this phone to that rider. Your current profile is backed up first, so you can switch back.</string>
-    <string name="online_restore_confirm">Restore</string>
+    <string name="online_restore_title">A previous profile was found</string>
+    <string name="online_restore_body_new">This backup folder already has a leaderboard profile: %1$s. Continuing rejoins as that rider and keeps their existing stats, it does NOT create a new profile. Choose Create new for a fresh profile, or Cancel to not join.</string>
+    <string name="online_restore_body_switch">This backup belongs to %1$s. Continuing switches this phone to that rider (your current profile is backed up first). Cancel to keep your current rider.</string>
+    <string name="online_restore_confirm">Continue as %1$s</string>
+    <string name="online_restore_create_new">Create new</string>
 
     <!-- ==== Overlay Studio ==== -->
     <string name="studio_open">Open Overlay Studio</string>

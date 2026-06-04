@@ -6746,12 +6746,24 @@ private fun CloudTab(
                 },
                 confirmButton = {
                     TextButton(onClick = { viewModel.restoreRider(rider) }) {
-                        Text(stringResource(R.string.online_restore_confirm))
+                        Text(stringResource(R.string.online_restore_confirm, riderName))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { viewModel.dismissRestorableRider() }) {
-                        Text(stringResource(R.string.action_cancel))
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // "Create new" gives a way out instead of being stuck on
+                        // the found profile (only when this phone has no rider yet).
+                        if (!switching) {
+                            TextButton(onClick = {
+                                viewModel.dismissRestorableRider()
+                                showOnboarding = true
+                            }) {
+                                Text(stringResource(R.string.online_restore_create_new))
+                            }
+                        }
+                        TextButton(onClick = { viewModel.dismissRestorableRider() }) {
+                            Text(stringResource(R.string.action_cancel))
+                        }
                     }
                 },
             )
