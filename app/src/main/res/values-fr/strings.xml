@@ -1430,4 +1430,10 @@
     <string name="online_profile_delete_confirm_action">Supprimer définitivement</string>
     <string name="online_profile_save_rate_limited">Limite atteinte, réessaie plus tard.</string>
     <string name="online_profile_save_failed">Sauvegarde échouée (HTTP %1$d). Réessaie.</string>
+
+    <string name="online_status_flagged_why">En attente d\'une vérification automatique rapide. Il rejoindra le classement une fois validé.</string>
+    <string name="online_restore_title">Restaurer ton profil de rider ?</string>
+    <string name="online_restore_body_new">Ce dossier contient un profil enregistré pour %1$s. Restaure-le pour conserver ton identité dans le classement et tes stats.</string>
+    <string name="online_restore_body_switch">Ce dossier appartient à %1$s. La restauration bascule ce téléphone sur ce rider. Ton profil actuel est sauvegardé d\'abord, tu pourras repasser à l\'autre.</string>
+    <string name="online_restore_confirm">Restaurer</string>
 </resources>

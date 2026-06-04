@@ -1432,4 +1432,10 @@
     <string name="online_profile_delete_confirm_action">Slet permanent</string>
     <string name="online_profile_save_rate_limited">Hastighedsbegrænsning aktiv, prøv igen senere.</string>
     <string name="online_profile_save_failed">Gem mislykkedes (HTTP %1$d). Prøv igen.</string>
+
+    <string name="online_status_flagged_why">Holdt til en hurtig automatisk kontrol. Den tilsluttes ranglisten, når den er godkendt.</string>
+    <string name="online_restore_title">Gendan din rytter-profil?</string>
+    <string name="online_restore_body_new">Denne mappe har en gemt profil for %1$s. Gendan den for at beholde din ranglistenidentitet og dine statistikker.</string>
+    <string name="online_restore_body_switch">Denne mappe tilhører %1$s. Gendannelse skifter denne telefon til den rytter. Din nuværende profil sikkerhedskopieres først, så du kan skifte tilbage.</string>
+    <string name="online_restore_confirm">Gendan</string>
 </resources>

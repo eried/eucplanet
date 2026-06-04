@@ -1466,4 +1466,10 @@
     <string name="online_profile_delete_confirm_action">Excluir permanentemente</string>
     <string name="online_profile_save_rate_limited">Limite de requisições atingido, tente mais tarde.</string>
     <string name="online_profile_save_failed">Falha ao salvar (HTTP %1$d). Tente novamente.</string>
+
+    <string name="online_status_flagged_why">Retido para uma verificação automática rápida. Entra no ranking assim que for liberado.</string>
+    <string name="online_restore_title">Restaurar seu perfil de piloto?</string>
+    <string name="online_restore_body_new">Esta pasta tem um perfil salvo de %1$s. Restaure para manter sua identidade e estatísticas no ranking.</string>
+    <string name="online_restore_body_switch">Esta pasta pertence a %1$s. Restaurar muda este celular para esse piloto. Seu perfil atual é salvo em backup primeiro, então você pode voltar quando quiser.</string>
+    <string name="online_restore_confirm">Restaurar</string>
 </resources>

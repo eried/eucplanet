@@ -1482,4 +1482,10 @@
     <string name="online_profile_delete_confirm_action">Удалить навсегда</string>
     <string name="online_profile_save_rate_limited">Слишком много запросов, попробуйте позже.</string>
     <string name="online_profile_save_failed">Ошибка сохранения (HTTP %1$d). Попробуйте снова.</string>
+
+    <string name="online_status_flagged_why">Удержано на автоматическую проверку. После её прохождения запись появится в таблице лидеров.</string>
+    <string name="online_restore_title">Восстановить профиль райдера?</string>
+    <string name="online_restore_body_new">В этой папке сохранён профиль %1$s. Восстановите его, чтобы сохранить своё место в таблице лидеров и статистику.</string>
+    <string name="online_restore_body_switch">Эта папка принадлежит %1$s. При восстановлении телефон переключится на этого райдера. Ваш текущий профиль будет сначала сохранён в резервную копию, чтобы вы могли вернуться.</string>
+    <string name="online_restore_confirm">Восстановить</string>
 </resources>

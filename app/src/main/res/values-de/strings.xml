@@ -1447,4 +1447,10 @@
     <string name="online_profile_delete_confirm_action">Dauerhaft löschen</string>
     <string name="online_profile_save_rate_limited">Zu viele Anfragen, bitte später erneut versuchen.</string>
     <string name="online_profile_save_failed">Speichern fehlgeschlagen (HTTP %1$d). Erneut versuchen.</string>
+
+    <string name="online_status_flagged_why">Wird kurz automatisch geprüft. Sobald die Prüfung abgeschlossen ist, erscheint der Eintrag in der Bestenliste.</string>
+    <string name="online_restore_title">Fahrerprofil wiederherstellen?</string>
+    <string name="online_restore_body_new">Dieser Ordner enthält ein gespeichertes Profil für %1$s. Stelle es wieder her, um deine Bestenlisten-Identität und Statistiken zu behalten.</string>
+    <string name="online_restore_body_switch">Dieser Ordner gehört zu %1$s. Durch die Wiederherstellung wird das Telefon auf diesen Fahrer umgestellt. Dein aktuelles Profil wird zuerst gesichert, damit du zurückwechseln kannst.</string>
+    <string name="online_restore_confirm">Wiederherstellen</string>
 </resources>

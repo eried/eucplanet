@@ -1467,4 +1467,10 @@
     <string name="online_profile_delete_confirm_action">Видалити назавжди</string>
     <string name="online_profile_save_rate_limited">Забагато запитів, спробуй пізніше.</string>
     <string name="online_profile_save_failed">Не вдалось зберегти (HTTP %1$d). Спробуй ще раз.</string>
+
+    <string name="online_status_flagged_why">Затримано на короткій автоматичній перевірці. Потрапить до таблиці лідерів одразу після її проходження.</string>
+    <string name="online_restore_title">Відновити профіль райдера?</string>
+    <string name="online_restore_body_new">У цій папці є збережений профіль %1$s. Відновіть його, щоб зберегти свою ідентичність і статистику в таблиці лідерів.</string>
+    <string name="online_restore_body_switch">Ця папка належить %1$s. Відновлення переключить цей телефон на того райдера. Поточний профіль спочатку буде збережено в резервну копію, тож ви зможете повернутись.</string>
+    <string name="online_restore_confirm">Відновити</string>
 </resources>

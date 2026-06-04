@@ -1430,4 +1430,10 @@
     <string name="online_profile_delete_confirm_action">Radera permanent</string>
     <string name="online_profile_save_rate_limited">För många förfrågningar, försök igen senare.</string>
     <string name="online_profile_save_failed">Sparandet misslyckades (HTTP %1$d). Försök igen.</string>
+
+    <string name="online_status_flagged_why">Hålls för en kort automatisk kontroll. Turen läggs till på topplistan när den godkänns.</string>
+    <string name="online_restore_title">Återställa din förarprofil?</string>
+    <string name="online_restore_body_new">Den här mappen har en sparad profil för %1$s. Återställ den för att behålla din identitet och statistik på topplistan.</string>
+    <string name="online_restore_body_switch">Den här mappen tillhör %1$s. Återställningen byter den här telefonen till den föraren. Din nuvarande profil säkerhetskopieras först, så du kan byta tillbaka.</string>
+    <string name="online_restore_confirm">Återställ</string>
 </resources>

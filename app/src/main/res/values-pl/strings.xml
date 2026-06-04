@@ -1467,4 +1467,10 @@
     <string name="online_profile_delete_confirm_action">Usuń trwale</string>
     <string name="online_profile_save_rate_limited">Zbyt wiele prób, spróbuj ponownie później.</string>
     <string name="online_profile_save_failed">Zapisanie nie powiodło się (HTTP %1$d). Spróbuj ponownie.</string>
+
+    <string name="online_status_flagged_why">Wstrzymano do krótkiej automatycznej weryfikacji. Pojawi się w rankingu po jej przejściu.</string>
+    <string name="online_restore_title">Przywrócić profil zawodnika?</string>
+    <string name="online_restore_body_new">W tym folderze jest zapisany profil dla %1$s. Przywróć go, aby zachować swoją tożsamość w rankingu i statystyki.</string>
+    <string name="online_restore_body_switch">Ten folder należy do %1$s. Przywrócenie przełącza ten telefon na tego zawodnika. Twój obecny profil zostanie najpierw zapisany w kopii zapasowej, więc możesz wrócić.</string>
+    <string name="online_restore_confirm">Przywróć</string>
 </resources>

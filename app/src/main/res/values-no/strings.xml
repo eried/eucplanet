@@ -1447,4 +1447,10 @@
     <string name="online_profile_delete_confirm_action">Slett permanent</string>
     <string name="online_profile_save_rate_limited">Frekvensgrense nådd, prøv igjen senere.</string>
     <string name="online_profile_save_failed">Lagring mislyktes (HTTP %1$d). Prøv igjen.</string>
+
+    <string name="online_status_flagged_why">Holdt for en kort automatisk sjekk. Den kommer på ledertavlen når den er godkjent.</string>
+    <string name="online_restore_title">Gjenopprett rytterprofilen din?</string>
+    <string name="online_restore_body_new">Denne mappen har en lagret profil for %1$s. Gjenopprett den for å beholde ledertavle-identiteten og statistikken din.</string>
+    <string name="online_restore_body_switch">Denne mappen tilhører %1$s. Gjenoppretting bytter denne telefonen til den rytteren. Din nåværende profil sikkerhetskopieres først, slik at du kan bytte tilbake.</string>
+    <string name="online_restore_confirm">Gjenopprett</string>
 </resources>

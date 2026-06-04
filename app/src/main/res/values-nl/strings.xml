@@ -1466,4 +1466,9 @@
     <string name="online_profile_delete_confirm_action">Permanent verwijderen</string>
     <string name="online_profile_save_rate_limited">Limiet bereikt, probeer het later opnieuw.</string>
     <string name="online_profile_save_failed">Opslaan mislukt (HTTP %1$d). Probeer opnieuw.</string>
+    <string name="online_status_flagged_why">Ingehouden voor een korte automatische controle. Zodra die is afgerond, verschijnt het op het klassement.</string>
+    <string name="online_restore_title">Rijdersprofiel herstellen?</string>
+    <string name="online_restore_body_new">Deze map bevat een opgeslagen profiel voor %1$s. Herstel het om je klassementidentiteit en statistieken te behouden.</string>
+    <string name="online_restore_body_switch">Deze map is van %1$s. Herstellen schakelt deze telefoon over naar die rijder. Je huidige profiel wordt eerst geback-upt, zodat je kunt terugschakelen.</string>
+    <string name="online_restore_confirm">Herstellen</string>
 </resources>

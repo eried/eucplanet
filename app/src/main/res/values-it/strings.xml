@@ -1466,4 +1466,10 @@
     <string name="online_profile_delete_confirm_action">Elimina definitivamente</string>
     <string name="online_profile_save_rate_limited">Troppe richieste, riprova più tardi.</string>
     <string name="online_profile_save_failed">Salvataggio non riuscito (HTTP %1$d). Riprova.</string>
+
+    <string name="online_status_flagged_why">In attesa di un breve controllo automatico. Apparirà in classifica non appena superato.</string>
+    <string name="online_restore_title">Ripristinare il profilo rider?</string>
+    <string name="online_restore_body_new">Questa cartella contiene un profilo salvato per %1$s. Ripristinalo per mantenere la tua identità in classifica e le tue statistiche.</string>
+    <string name="online_restore_body_switch">Questa cartella appartiene a %1$s. Il ripristino passa questo telefono a quel rider. Il tuo profilo attuale viene salvato come backup prima, così puoi tornare indietro.</string>
+    <string name="online_restore_confirm">Ripristina</string>
 </resources>

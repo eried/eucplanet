@@ -1466,4 +1466,11 @@
     <string name="online_profile_delete_confirm_action">Eliminar permanentemente</string>
     <string name="online_profile_save_rate_limited">Límite de solicitudes alcanzado, intenta más tarde.</string>
     <string name="online_profile_save_failed">Error al guardar (HTTP %1$d). Intenta de nuevo.</string>
+
+    <!-- Online leaderboard: flagged status + profile restore -->
+    <string name="online_status_flagged_why">En revisión automática breve. Aparece en el marcador en cuanto pase.</string>
+    <string name="online_restore_title">¿Restaurar tu perfil de piloto?</string>
+    <string name="online_restore_body_new">Esta carpeta tiene un perfil guardado de %1$s. Restáuralo para conservar tu identidad y estadísticas en el marcador.</string>
+    <string name="online_restore_body_switch">Esta carpeta pertenece a %1$s. Al restaurar, este teléfono cambia a ese piloto. Tu perfil actual se respalda primero para que puedas volver cuando quieras.</string>
+    <string name="online_restore_confirm">Restaurar</string>
 </resources>

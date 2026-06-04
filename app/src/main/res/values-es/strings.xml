@@ -1447,4 +1447,10 @@
     <string name="online_profile_delete_confirm_action">Eliminar definitivamente</string>
     <string name="online_profile_save_rate_limited">Demasiadas solicitudes, inténtalo más tarde.</string>
     <string name="online_profile_save_failed">Error al guardar (HTTP %1$d). Inténtalo de nuevo.</string>
+
+    <string name="online_status_flagged_why">Retenido para una comprobación automática rápida. Se publicará en el marcador en cuanto pase la revisión.</string>
+    <string name="online_restore_title">¿Restaurar tu perfil de rider?</string>
+    <string name="online_restore_body_new">Esta carpeta tiene un perfil guardado para %1$s. Restáuralo para conservar tu identidad en el marcador y tus estadísticas.</string>
+    <string name="online_restore_body_switch">Esta carpeta pertenece a %1$s. Al restaurar, este teléfono cambiará a ese rider. Tu perfil actual se respalda primero, así que puedes volver cuando quieras.</string>
+    <string name="online_restore_confirm">Restaurar</string>
 </resources>
